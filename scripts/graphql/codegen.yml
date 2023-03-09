@@ -1,0 +1,127 @@
+errorsOnly: true
+overwrite: true
+
+hooks:
+  afterAllFileWrite:
+    - "prettier --write"
+
+scalars: &SCALARS
+  AccountNumber: string
+  AmountValue: string
+  AuditId: string
+  AuthorizationId: string
+  BIC: string
+  CCA2: string
+  CCA3: string
+  CardToken: string
+  Currency: string
+  Date: string
+  DateTime: string
+  EmailAddress: string
+  HexColorCode: string
+  IBAN: string
+  PIN: string
+  PhoneNumber: string
+  PostalCode: string
+  SepaCreditorIdentifier: string
+  SepaReference: string
+  TokenRequestorId: string
+  Upload: unknown
+  URL: string
+  WalletToken: string
+  join__FieldSet: unknown
+
+documents-plugins: &DOCUMENTS_PLUGINS
+  - "typescript"
+  - "typescript-operations"
+  - "typed-document-node"
+
+graphcache-plugins: &GRAPHCACHE_PLUGINS
+  - "typescript"
+  - "typescript-urql-graphcache"
+
+documents-config: &DOCUMENTS_CONFIG
+  scalars: *SCALARS
+  dedupeOperationSuffix: true
+  enumsAsTypes: true
+  preResolveTypes: true
+  skipTypename: false
+  nonOptionalTypename: true
+  onlyOperationTypes: true
+  inlineFragmentTypes: combine
+
+server-plugins: &SERVER_PLUGINS
+  - "typescript"
+  - "typescript-operations"
+  - "typescript-graphql-request"
+
+server-config: &SERVER_CONFIG
+  enumsAsTypes: true
+  federation: true
+  defaultScalarType: unknown
+  scalars:
+    AccountNumber: string
+
+graphcache-config: &GRAPHCACHE_CONFIG
+  scalars: *SCALARS
+  enumsAsTypes: true
+  nonOptionalTypename: true
+  onlyOperationTypes: false
+  skipTypename: false
+  inlineFragmentTypes: combine
+
+generates:
+  clients/onboarding/src/graphql/unauthenticated.tsx:
+    documents: "clients/onboarding/src/graphql/unauthenticated.gql"
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    plugins: *DOCUMENTS_PLUGINS
+    config: *DOCUMENTS_CONFIG
+
+  clients/onboarding/src/graphql/graphcache.ts:
+    schema:
+      - "scripts/graphql/dist/unauthenticated-schema.gql"
+    plugins: *GRAPHCACHE_PLUGINS
+    config: *GRAPHCACHE_CONFIG
+
+  clients/banking/src/graphql/partner.tsx:
+    documents: "clients/banking/src/graphql/partner.gql"
+    schema: "scripts/graphql/dist/partner-schema.gql"
+    plugins: *DOCUMENTS_PLUGINS
+    config: *DOCUMENTS_CONFIG
+
+  clients/banking/src/graphql/unauthenticated.tsx:
+    documents: "clients/banking/src/graphql/unauthenticated.gql"
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    plugins: *DOCUMENTS_PLUGINS
+    config: *DOCUMENTS_CONFIG
+
+  clients/banking/src/graphql/graphcache.ts:
+    schema: "scripts/graphql/dist/partner-schema.gql"
+    plugins: *GRAPHCACHE_PLUGINS
+    config: *GRAPHCACHE_CONFIG
+
+  server/src/graphql/partner.ts:
+    documents: "server/src/graphql/partner.gql"
+    schema: "scripts/graphql/dist/partner-schema.gql"
+    config: *SERVER_CONFIG
+    plugins: *SERVER_PLUGINS
+
+  clients/banking/src/graphql/introspection.json:
+    schema: "scripts/graphql/dist/partner-schema.gql"
+    plugins:
+      - "introspection"
+    config:
+      descriptions: false
+    hooks:
+      afterOneFileWrite:
+        - "node scripts/graphql/cleanIntrospectionSchema.js"
+
+  clients/onboarding/src/graphql/introspection.json:
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    plugins:
+      - "introspection"
+    config:
+      descriptions: false
+    hooks:
+      afterOneFileWrite:
+        - "node scripts/graphql/cleanIntrospectionSchema.js"

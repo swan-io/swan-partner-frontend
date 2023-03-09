@@ -1,0 +1,6 @@
+*.min.js
+
+coverage/
+dist/
+node_modules/
+LICENSE_REPORT.md

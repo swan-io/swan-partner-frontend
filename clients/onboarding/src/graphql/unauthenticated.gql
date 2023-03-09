@@ -1,0 +1,244 @@
+fragment UBO on IndividualUltimateBeneficialOwner {
+  __typename
+  firstName
+  lastName
+  birthDate
+  birthCountryCode
+  birthCity
+  birthCityPostalCode
+  info {
+    __typename
+    type
+    ... on IndividualUltimateBeneficialOwnerTypeHasCapital {
+      indirect
+      direct
+      totalCapitalPercentage
+    }
+  }
+  taxIdentificationNumber
+  residencyAddress {
+    addressLine1
+    addressLine2
+    city
+    country
+    postalCode
+    state
+  }
+}
+
+fragment IndividualAccountHolder on OnboardingIndividualAccountHolderInfo {
+  __typename
+  residencyAddress {
+    addressLine1
+    addressLine2
+    city
+    country
+    postalCode
+    state
+  }
+  taxIdentificationNumber
+  employmentStatus
+  monthlyIncome
+}
+
+fragment CompanyAccountHolder on OnboardingCompanyAccountHolderInfo {
+  __typename
+  taxIdentificationNumber
+  residencyAddress {
+    addressLine1
+    addressLine2
+    city
+    country
+    postalCode
+    state
+  }
+  legalRepresentativePersonalAddress {
+    addressLine1
+    addressLine2
+    city
+    country
+    postalCode
+    state
+  }
+  businessActivity
+  businessActivityDescription
+  companyType
+  isRegistered
+  monthlyPaymentVolume
+  name
+  typeOfRepresentation
+  registrationNumber
+  vatNumber
+  individualUltimateBeneficialOwners {
+    ...UBO
+  }
+}
+
+fragment OnboardingInvalidInfo on OnboardingStatusInfo {
+  __typename
+  ... on OnboardingInvalidStatusInfo {
+    __typename
+    errors {
+      field
+      errors
+    }
+  }
+  ... on OnboardingFinalizedStatusInfo {
+    __typename
+  }
+  ... on OnboardingValidStatusInfo {
+    __typename
+  }
+}
+
+fragment OnboardingData on OnboardingInfo {
+  __typename
+  id
+  accountCountry
+  email
+  language
+  redirectUrl
+  tcuUrl
+  legalRepresentativeRecommendedIdentificationLevel
+  oAuthRedirectParameters {
+    redirectUrl
+  }
+  onboardingState
+  projectInfo {
+    id
+    accentColor
+    name
+    logoUri
+    tcuDocumentUri(language: $language)
+  }
+  supportingDocumentCollection {
+    id
+    requiredSupportingDocumentPurposes {
+      name
+    }
+    supportingDocuments {
+      id
+      supportingDocumentPurpose
+      supportingDocumentType
+      updatedAt
+      statusInfo {
+        __typename
+        status
+        ... on SupportingDocumentUploadedStatusInfo {
+          downloadUrl
+          filename
+        }
+        ... on SupportingDocumentValidatedStatusInfo {
+          downloadUrl
+          filename
+        }
+        ... on SupportingDocumentRefusedStatusInfo {
+          filename
+        }
+      }
+    }
+  }
+  info {
+    __typename
+    ... on OnboardingIndividualAccountHolderInfo {
+      ...IndividualAccountHolder
+    }
+    ... on OnboardingCompanyAccountHolderInfo {
+      ...CompanyAccountHolder
+    }
+  }
+  statusInfo {
+    ...OnboardingInvalidInfo
+  }
+}
+
+query GetOnboarding($id: ID!, $language: String!) {
+  onboardingInfo(id: $id) {
+    ...OnboardingData
+  }
+}
+
+query GetCompanyInfo($siren: String!) {
+  companyInfoBySiren(input: { headquarterCountry: "FR", siren: $siren }) {
+    __typename
+    ... on CompanyInfoBySirenSuccessPayload {
+      companyInfo {
+        siren
+        companyName
+        vatNumber
+        headquarters {
+          address
+          town
+          zipCode
+        }
+      }
+    }
+  }
+}
+
+fragment UpdateValidationErrors on ValidationRejection {
+  __typename
+  fields {
+    path
+    code
+    message
+  }
+}
+
+mutation UpdateIndividualOnboarding(
+  $input: UnauthenticatedUpdateIndividualOnboardingInput!
+  $language: String!
+) {
+  unauthenticatedUpdateIndividualOnboarding(input: $input) {
+    __typename
+    ... on UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
+      onboarding {
+        ...OnboardingData
+      }
+    }
+    ... on ValidationRejection {
+      ...UpdateValidationErrors
+    }
+  }
+}
+
+mutation UpdateCompanyOnboarding(
+  $input: UnauthenticatedUpdateCompanyOnboardingInput!
+  $language: String!
+) {
+  unauthenticatedUpdateCompanyOnboarding(input: $input) {
+    __typename
+    ... on UnauthenticatedUpdateCompanyOnboardingSuccessPayload {
+      onboarding {
+        ...OnboardingData
+      }
+    }
+    ... on ValidationRejection {
+      ...UpdateValidationErrors
+    }
+  }
+}
+
+query GetCompanyUBO($input: CompanyUboByCompanyRefAndHeadquarterCountryInput!) {
+  companyUboByCompanyRefAndHeadquarterCountry(input: $input) {
+    individualUltimateBeneficialOwners {
+      ...UBO
+    }
+  }
+}
+
+mutation generateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentUploadUrlInput!) {
+  generateSupportingDocumentUploadUrl(input: $input) {
+    __typename
+    ... on GenerateSupportingDocumentUploadUrlSuccessPayload {
+      supportingDocumentId
+      upload {
+        fields {
+          key
+          value
+        }
+        url
+      }
+    }
+  }
+}

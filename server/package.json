@@ -1,0 +1,42 @@
+{
+  "name": "@swan-io/frontend-server",
+  "description": "Swan frontend server",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=14.0.0",
+    "yarn": "^1.20.0"
+  },
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/swan-io/frontend"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "build": "tsc -p tsconfig.json",
+    "prepack": "tsc --build",
+    "clean": "tsc --clean"
+  },
+  "dependencies": {
+    "@fastify/compress": "6.2.0",
+    "@fastify/cookie": "8.3.0",
+    "@fastify/cors": "8.2.0",
+    "@fastify/reply-from": "9.0.0",
+    "@fastify/secure-session": "6.0.0",
+    "@fastify/static": "6.9.0",
+    "@graphql-codegen/typescript-graphql-request": "4.5.8",
+    "@swan-io/boxed": "0.12.1",
+    "chalk": "5.0.1",
+    "fast-proxy": "2.1.0",
+    "fastify": "4.13.0",
+    "get-port": "6.1.2",
+    "graphql-request": "5.1.0",
+    "pino-pretty": "7.6.0",
+    "ts-pattern": "4.2.1",
+    "valienv": "0.3.0"
+  },
+  "devDependencies": {
+    "graphql": "16.6.0"
+  }
+}

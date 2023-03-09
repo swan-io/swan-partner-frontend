@@ -1,0 +1,469 @@
+import { Result } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { StyleSheet, View } from "react-native";
+import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { match } from "ts-pattern";
+import { ErrorView } from "../components/ErrorView";
+import {
+  GetAccountDocument,
+  ScheduleStandingOrderDocument,
+  ScheduleStandingOrderInput,
+  StandingOrderPeriod,
+} from "../graphql/partner";
+import { formatCurrency, t } from "../utils/i18n";
+import * as iban from "../utils/iban";
+import { Router } from "../utils/routes";
+import {
+  validateAccountNameLength,
+  validateReference,
+  validateSepaBeneficiaryNameAlphabet,
+} from "../utils/validations";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingHorizontal: 24,
+    paddingTop: 40,
+    width: "100%",
+    maxWidth: 1300,
+    marginHorizontal: "auto",
+  },
+  confirmButton: {
+    alignSelf: "flex-start",
+    minWidth: 300,
+  },
+});
+
+const MIN_AMOUNT = 0;
+
+type Props = {
+  accountId: string;
+  accountMembershipId: string;
+  onClose: () => void;
+};
+
+const periodItems: RadioGroupItem<StandingOrderPeriod>[] = [
+  { value: "Daily", name: t("payments.new.standingOrder.details.daily") },
+  { value: "Weekly", name: t("payments.new.standingOrder.details.weekly") },
+  { value: "Monthly", name: t("payments.new.standingOrder.details.monthly") },
+];
+
+const hasFixedAmountItems: RadioGroupItem<boolean>[] = [
+  { value: true, name: t("recurringTransfer.new.transferType.regular") },
+  { value: false, name: t("recurringTransfer.new.transferType.fullBalance") },
+];
+
+export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
+  const [scheduleStandingOrder, initiateScheduleStandingOrder] = useUrqlMutation(
+    ScheduleStandingOrderDocument,
+  );
+  const { data } = useUrqlQuery({ query: GetAccountDocument, variables: { accountId } }, []);
+
+  const availableBalance = data.mapResult(({ account }) => {
+    if (account?.balances?.available) {
+      return Result.Ok({
+        amount: Number(account.balances.available.value),
+        currency: account.balances.available.currency,
+      });
+    }
+    return Result.Error(new Error("No available balance"));
+  });
+
+  const { Field, submitForm } = useForm({
+    creditorIban: {
+      initialValue: "",
+      sanitize: iban.printFormat,
+      validate: value => {
+        if (!iban.isValid(value)) {
+          return t("error.invalidIban");
+        }
+      },
+    },
+    creditorName: {
+      initialValue: "",
+      validate: combineValidators(validateSepaBeneficiaryNameAlphabet, validateAccountNameLength),
+      sanitize: value => value.trim(),
+    },
+    transferAmount: {
+      initialValue: "",
+      sanitize: value => value.replace(/,/g, ".").replace(/[^0-9.]/g, ""),
+      validate: value => {
+        const amount = Number(value);
+
+        if (Number.isNaN(amount) || value === "" || amount === 0) {
+          return t("error.invalidTransferAmount");
+        }
+      },
+    },
+    transferLabel: {
+      initialValue: "",
+      sanitize: value => value.trim(),
+      validate: value => {
+        if (value !== "" && value.length > 140) {
+          return t("error.transferLabelTooLong");
+        }
+      },
+    },
+    transferReference: {
+      initialValue: "",
+      sanitize: value => value.trim(),
+      validate: validateReference,
+      strategy: "onSuccessOrBlur",
+    },
+    period: {
+      initialValue: "Daily" as StandingOrderPeriod,
+    },
+    hasFixedAmount: {
+      initialValue: true,
+    },
+  });
+
+  const onSubmit = () => {
+    submitForm(values => {
+      if (
+        hasDefinedKeys(values, [
+          "creditorIban",
+          "creditorName",
+          "transferAmount",
+          "transferLabel",
+          "transferReference",
+          "period",
+          "hasFixedAmount",
+        ])
+      ) {
+        const consentRedirectUrl =
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId }) +
+          `?${new URLSearchParams({ standingOrder: "true" }).toString()}`;
+
+        const input: ScheduleStandingOrderInput = {
+          period: values.period,
+          accountId,
+          consentRedirectUrl,
+          label: values.transferLabel !== "" ? values.transferLabel : null,
+          reference: values.transferReference !== "" ? values.transferReference : null,
+          sepaBeneficiary: {
+            name: values.creditorName,
+            save: false,
+            iban: values.creditorIban,
+            isMyOwnIban: false,
+          },
+          ...(values.hasFixedAmount
+            ? {
+                amount: {
+                  currency: "EUR",
+                  value: values.transferAmount,
+                },
+              }
+            : {
+                targetAvailableBalance: {
+                  currency: "EUR",
+                  value: values.transferAmount,
+                },
+              }),
+        };
+
+        initiateScheduleStandingOrder({ input })
+          .mapResult(response =>
+            match(response.scheduleStandingOrder)
+              .with(
+                { __typename: "InvalidArgumentRejection" },
+                { __typename: "InternalErrorRejection" },
+                { __typename: "ForbiddenRejection" },
+                error => Result.Error(error),
+              )
+              .with({ __typename: "ScheduleStandingOrderSuccessPayload" }, response =>
+                Result.Ok(response),
+              )
+              .exhaustive(),
+          )
+          .tapOk(({ standingOrder }) => {
+            match(standingOrder.statusInfo)
+              .with({ __typename: "StandingOrderConsentPendingStatusInfo" }, ({ consent }) => {
+                window.location.assign(consent.consentUrl);
+              })
+              .with({ __typename: "StandingOrderCanceledStatusInfo" }, () => {
+                Router.replace("AccountPaymentsStandingOrderFailure", {
+                  standingOrderId: standingOrder.id,
+                  accountMembershipId,
+                });
+              })
+              .with({ __typename: "StandingOrderEnabledStatusInfo" }, () => {
+                Router.replace("AccountPaymentsStandingOrderSuccess", {
+                  standingOrderId: standingOrder.id,
+                  accountMembershipId,
+                });
+              })
+              .exhaustive();
+          })
+          .tapError(() => showToast({ variant: "error", title: t("error.generic") }));
+      }
+    });
+  };
+
+  return (
+    <View style={styles.container}>
+      <Box direction="row" alignItems="center">
+        <LakeButton mode="tertiary" icon="lake-close" onPress={onClose} />
+        <Space width={8} />
+
+        <LakeHeading level={1} variant="h3">
+          {t("recurringTransfer.new.title")}
+        </LakeHeading>
+      </Box>
+
+      <Space height={20} />
+
+      {availableBalance.match({
+        NotAsked: () => null,
+        Loading: () => <LoadingView />,
+        Done: result =>
+          result.match({
+            Ok: ({ amount, currency }) => (
+              <LakeScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+                {amount <= MIN_AMOUNT && (
+                  <>
+                    <LakeAlert variant="warning" title={t("transfer.new.lowBalance")} />
+                    <Space height={24} />
+                  </>
+                )}
+
+                <LakeText variant="smallRegular">
+                  {t("recurringTransfer.new.availableBalance")}
+                </LakeText>
+
+                <Space height={8} />
+
+                <LakeHeading level={2} variant="h1">
+                  {formatCurrency(amount, currency)}
+                </LakeHeading>
+
+                <Space height={32} />
+
+                <LakeHeading level={2} variant="h3">
+                  {t("recurringTransfer.new.recipient")}
+                </LakeHeading>
+
+                <Space height={24} />
+
+                <Tile>
+                  <LakeLabel
+                    label={t("recurringTransfer.new.recipient.label")}
+                    render={id => (
+                      <Field name="creditorName">
+                        {({ value, onChange, onBlur, error, valid }) => (
+                          <LakeTextInput
+                            nativeID={id}
+                            value={value}
+                            error={error}
+                            valid={valid}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                          />
+                        )}
+                      </Field>
+                    )}
+                  />
+
+                  <Space height={12} />
+
+                  <LakeLabel
+                    label={t("recurringTransfer.new.iban.label")}
+                    render={id => (
+                      <Field name="creditorIban">
+                        {({ value, onChange, onBlur, error, valid }) => (
+                          <LakeTextInput
+                            nativeID={id}
+                            placeholder={t("recurringTransfer.new.iban.placeholder")}
+                            value={iban.printFormat(value)}
+                            error={error}
+                            valid={valid}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                          />
+                        )}
+                      </Field>
+                    )}
+                  />
+                </Tile>
+
+                <Space height={32} />
+
+                <LakeHeading level={2} variant="h3">
+                  {t("recurringTransfer.new.reason")}
+                </LakeHeading>
+
+                <Space height={24} />
+
+                <Tile>
+                  <Box direction="row">
+                    <View style={commonStyles.fill}>
+                      <LakeLabel
+                        label={t("recurringTransfer.new.reason.label")}
+                        render={id => (
+                          <Field name="transferLabel">
+                            {({ value, onChange, onBlur, error, valid }) => (
+                              <LakeTextInput
+                                nativeID={id}
+                                value={value}
+                                error={error}
+                                valid={valid}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </View>
+
+                    <Space width={24} />
+
+                    <View style={commonStyles.fill}>
+                      <LakeLabel
+                        label={t("recurringTransfer.new.reference.label")}
+                        optionalLabel={t("common.optional")}
+                        render={id => (
+                          <Field name="transferReference">
+                            {({ value, onChange, onBlur, error, valid }) => (
+                              <LakeTextInput
+                                nativeID={id}
+                                value={value}
+                                error={error}
+                                valid={valid}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </View>
+                  </Box>
+                </Tile>
+
+                <Space height={32} />
+
+                <LakeHeading level={2} variant="h3">
+                  {t("recurringTransfer.new.amount")}
+                </LakeHeading>
+
+                <Space height={24} />
+
+                <Tile>
+                  <Field name="hasFixedAmount">
+                    {({ value: hasFixedAmount, onChange: onChangeFixedAmount }) => {
+                      const amountLabel = hasFixedAmount
+                        ? t("recurringTransfer.new.amount.label")
+                        : t("recurringTransfer.new.targetBalance.label");
+
+                      return (
+                        <>
+                          <LakeLabel
+                            label={t("recurringTransfer.new.transferType.label")}
+                            render={() => (
+                              <RadioGroup
+                                items={hasFixedAmountItems}
+                                value={hasFixedAmount}
+                                onValueChange={onChangeFixedAmount}
+                              />
+                            )}
+                          />
+
+                          {!hasFixedAmount && (
+                            <>
+                              <Space height={8} />
+
+                              <LakeText color="grey">
+                                {t("recurringTransfer.new.transferType.fullBalanceDescription")}
+                              </LakeText>
+                            </>
+                          )}
+
+                          <Space height={24} />
+
+                          <LakeLabel
+                            label={amountLabel}
+                            render={id => (
+                              <Field name="transferAmount">
+                                {({ value, onChange, onBlur, error, valid }) => (
+                                  <LakeTextInput
+                                    nativeID={id}
+                                    value={value}
+                                    error={error}
+                                    valid={valid}
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                    unit="EUR"
+                                  />
+                                )}
+                              </Field>
+                            )}
+                          />
+                        </>
+                      );
+                    }}
+                  </Field>
+                </Tile>
+
+                <Space height={32} />
+
+                <LakeHeading level={2} variant="h3">
+                  {t("recurringTransfer.new.schedule")}
+                </LakeHeading>
+
+                <Space height={24} />
+
+                <Tile>
+                  <LakeLabel
+                    label={t("recurringTransfer.new.frequency.label")}
+                    render={() => (
+                      <Field name="period">
+                        {({ value, onChange }) => (
+                          <RadioGroup
+                            items={periodItems}
+                            value={value}
+                            direction="row"
+                            onValueChange={onChange}
+                          />
+                        )}
+                      </Field>
+                    )}
+                  />
+                </Tile>
+
+                <Space height={32} />
+
+                <LakeButton
+                  style={styles.confirmButton}
+                  color="current"
+                  loading={scheduleStandingOrder.isLoading()}
+                  onPress={onSubmit}
+                >
+                  {t("recurringTransfer.new.confirm")}
+                </LakeButton>
+
+                <Space height={40} />
+              </LakeScrollView>
+            ),
+            Error: () => <ErrorView />,
+          }),
+      })}
+    </View>
+  );
+};

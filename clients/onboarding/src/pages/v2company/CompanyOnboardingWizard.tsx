@@ -1,0 +1,465 @@
+import { Array, Option } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
+import {
+  LakeStepper,
+  MobileStepTitle,
+  TopLevelStep,
+} from "@swan-io/lake/src/components/LakeStepper";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  Document,
+  SupportingDocumentPurpose,
+} from "@swan-io/shared-business/src/components/SupportingDocument";
+import {
+  companyFallbackCountry,
+  isCompanyCountryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
+import { useMemo, useState } from "react";
+import { StyleSheet } from "react-native";
+import { match, P } from "ts-pattern";
+import logoSwan from "../../assets/imgs/logo-swan.svg";
+import { OnboardingHeader } from "../../components/OnboardingHeader";
+import {
+  CompanyAccountHolderFragment,
+  GetCompanyUboDocument,
+  GetOnboardingQuery,
+} from "../../graphql/unauthenticated";
+import { t } from "../../utils/i18n";
+import { CompanyOnboardingRoute, companyOnboardingRoutes, Router } from "../../utils/routes";
+import { extractServerInvalidFields } from "../../utils/validation";
+import { NotFoundPage } from "../NotFoundPage";
+import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
+import { OnboardingCompanyBasicInfo } from "./OnboardingCompanyBasicInfo";
+import { OnboardingCompanyDocuments } from "./OnboardingCompanyDocuments";
+import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
+import {
+  OnboardingCompanyOrganisation1,
+  Organisation1FieldName,
+} from "./OnboardingCompanyOrganisation1";
+import {
+  OnboardingCompanyOrganisation2,
+  Organisation2FieldName,
+} from "./OnboardingCompanyOrganisation2";
+import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
+import {
+  OnboardingCompanyRegistration,
+  RegistrationFieldName,
+} from "./OnboardingCompanyRegistration";
+
+const styles = StyleSheet.create({
+  container: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: backgroundColor.default,
+  },
+  stepper: {
+    width: "100%",
+    maxWidth: 1280,
+    paddingHorizontal: 40,
+  },
+});
+
+type Props = {
+  onboarding: NonNullable<GetOnboardingQuery["onboardingInfo"]>;
+  onboardingId: string;
+  holder: CompanyAccountHolderFragment;
+};
+
+const getNextStep = (
+  currentStep: CompanyOnboardingRoute,
+  steps: WizardStep<CompanyOnboardingRoute>[],
+): CompanyOnboardingRoute => {
+  return Array.getIndexBy(steps, step => step.id === currentStep)
+    .flatMap(index => Option.fromNullable(steps[index + 1]))
+    .map(step => step.id)
+    .getWithDefault(currentStep);
+};
+
+const getPreviousStep = (
+  currentStep: CompanyOnboardingRoute,
+  steps: WizardStep<CompanyOnboardingRoute>[],
+): CompanyOnboardingRoute => {
+  return Array.getIndexBy(steps, step => step.id === currentStep)
+    .flatMap(index => Option.fromNullable(steps[index - 1]))
+    .map(step => step.id)
+    .getWithDefault(currentStep);
+};
+
+export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Props) => {
+  const route = Router.useRoute(companyOnboardingRoutes);
+
+  const isStepperDisplayed =
+    !isNullish(route) &&
+    route.name !== "V2_OnboardingRoot" &&
+    route.name !== "V2_OnboardingPresentation";
+
+  const projectName = onboarding.projectInfo?.name ?? "";
+  const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
+  const accountCountry = onboarding.accountCountry ?? "FRA";
+
+  const ubos = useMemo(() => {
+    return onboarding.info.__typename === "OnboardingCompanyAccountHolderInfo"
+      ? onboarding.info.individualUltimateBeneficialOwners ?? []
+      : [];
+  }, [onboarding.info]);
+
+  const hasUbos = ubos.length > 0;
+
+  const address = holder.residencyAddress;
+  const country = address?.country;
+  const companyCountry = isCompanyCountryCCA3(country)
+    ? country
+    : accountCountry ?? companyFallbackCountry;
+  const companyAddressLine1 = address?.addressLine1 ?? "";
+  const companyCity = address?.city ?? "";
+  const companyPostalCode = address?.postalCode ?? "";
+
+  const legalRepresentativeAddress = holder.legalRepresentativePersonalAddress;
+  const legalRepresentativeCountry =
+    legalRepresentativeAddress != null && isCompanyCountryCCA3(legalRepresentativeAddress.country)
+      ? legalRepresentativeAddress.country
+      : accountCountry ?? companyFallbackCountry;
+  const legalRepresentativeAddressLine1 = legalRepresentativeAddress?.addressLine1 ?? "";
+  const legalRepresentativeCity = legalRepresentativeAddress?.city ?? "";
+  const legalRepresentativePostalCode = legalRepresentativeAddress?.postalCode ?? "";
+
+  const typeOfRepresentation = holder.typeOfRepresentation ?? "LegalRepresentative";
+  const companyType = holder.companyType ?? "Company";
+  const isRegistered = holder.isRegistered ?? true;
+
+  // we need this to know if we should prefetch ubos or not
+  // otherwise we still display prefetched ubos even if the user has submitted the form with no ubos
+  const [noUbosSubmitted, setNoUbosSubmitted] = useBoolean(false);
+
+  const shouldPrefetchUbos =
+    !noUbosSubmitted &&
+    !hasUbos &&
+    companyCountry === "FRA" &&
+    holder.registrationNumber != null &&
+    holder.registrationNumber !== "";
+
+  const { data: uboPrefetch } = useUrqlQuery(
+    {
+      query: GetCompanyUboDocument,
+      variables: {
+        input: { headquarterCountry: companyCountry, companyRef: holder.registrationNumber ?? "" },
+      },
+      pause: !shouldPrefetchUbos,
+    },
+    [hasUbos, companyCountry, holder.registrationNumber],
+  );
+
+  const initialUbos = useMemo(() => {
+    if (hasUbos) {
+      return ubos;
+    }
+    if (noUbosSubmitted) {
+      return [];
+    }
+    return uboPrefetch
+      .toOption()
+      .flatMap(result => result.toOption())
+      .map(
+        ({ companyUboByCompanyRefAndHeadquarterCountry }) =>
+          companyUboByCompanyRefAndHeadquarterCountry.individualUltimateBeneficialOwners,
+      )
+      .getWithDefault([]);
+  }, [ubos, hasUbos, noUbosSubmitted, uboPrefetch]);
+
+  const requiredDocuments =
+    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
+    [];
+
+  const documents: Document[] =
+    onboarding?.supportingDocumentCollection.supportingDocuments.filter(isNotNullish).map(doc => ({
+      id: doc.id,
+      name: match(doc.statusInfo)
+        .with(
+          { __typename: "SupportingDocumentRefusedStatusInfo" },
+          { __typename: "SupportingDocumentUploadedStatusInfo" },
+          { __typename: "SupportingDocumentValidatedStatusInfo" },
+          ({ filename }) => filename,
+        )
+        .otherwise(() => t("supportingDocument.noFilename")),
+      purpose: doc.supportingDocumentPurpose as SupportingDocumentPurpose,
+    })) ?? [];
+
+  const [currentDocuments, setCurrentDocuments] = useState(documents);
+
+  const hasOwnershipStep = ["Company", "HomeOwnerAssociation", "Other"].includes(companyType);
+  const hasDocumentsStep = requiredDocuments.length > 0;
+
+  const [finalized, setFinalized] = useBoolean(false);
+
+  const registrationStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match<typeof field, RegistrationFieldName | null>(field)
+        .with("email", () => "email")
+        .with("legalRepresentativePersonalAddress.addressLine1", () => "address")
+        .with("legalRepresentativePersonalAddress.city", () => "city")
+        .with("legalRepresentativePersonalAddress.postalCode", () => "postalCode")
+        .with("legalRepresentativePersonalAddress.country", () => "country")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const organisation1StepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match<typeof field, Organisation1FieldName | null>(field)
+        .with("name", () => "name")
+        .with("registrationNumber", () => "registrationNumber")
+        .with("vatNumber", () => "vatNumber")
+        .with("taxIdentificationNumber", () => "taxIdentificationNumber")
+        .with("residencyAddress.addressLine1", () => "address")
+        .with("residencyAddress.city", () => "city")
+        .with("residencyAddress.postalCode", () => "postalCode")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const organisation2StepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field =>
+      match<typeof field, Organisation2FieldName | null>(field)
+        .with("businessActivity", () => "businessActivity")
+        .with("businessActivityDescription", () => "businessActivityDescription")
+        .with("monthlyPaymentVolume", () => "monthlyPaymentVolume")
+        .otherwise(() => null),
+    );
+  }, [onboarding.statusInfo]);
+
+  const ownerStepErrors = useMemo(() => {
+    return extractServerInvalidFields(onboarding.statusInfo, field => {
+      if (field.startsWith("individualUltimateBeneficialOwners")) {
+        return field;
+      }
+      return null;
+    });
+  }, [onboarding.statusInfo]);
+
+  const steps = useMemo<WizardStep<CompanyOnboardingRoute>[]>(() => {
+    const steps: WizardStep<CompanyOnboardingRoute>[] = [];
+    steps.push(
+      {
+        id: "V2_OnboardingRegistration",
+        label: t("step.title.registration"),
+        errors: registrationStepErrors,
+      },
+      {
+        id: "V2_OnboardingOrganisation1",
+        label: t("step.title.organisationPart1"),
+        errors: organisation1StepErrors,
+      },
+      {
+        id: "V2_OnboardingOrganisation2",
+        label: t("step.title.organisationPart2"),
+        errors: organisation2StepErrors,
+      },
+    );
+    if (hasOwnershipStep) {
+      steps.push({
+        id: "V2_OnboardingOwnership",
+        label: t("step.title.ownership"),
+        errors: ownerStepErrors,
+      });
+    }
+    if (hasDocumentsStep) {
+      steps.push({
+        id: "V2_OnboardingDocuments",
+        label: t("step.title.document"),
+        errors: [],
+      });
+    }
+    steps.push({
+      id: "V2_OnboardingFinalize",
+      label: t("step.title.swanApp"),
+      errors: [],
+    });
+
+    return steps;
+  }, [
+    hasOwnershipStep,
+    hasDocumentsStep,
+    registrationStepErrors,
+    organisation1StepErrors,
+    organisation2StepErrors,
+    ownerStepErrors,
+  ]);
+
+  const stepperSteps = useMemo<TopLevelStep[]>(
+    () =>
+      steps
+        // Remove organisation steps except the first one
+        .filter(
+          step =>
+            step.id === "V2_OnboardingOrganisation1" ||
+            !step.id.startsWith("V2_OnboardingOrganisation"),
+        )
+        .map(step => {
+          // Organisation steps are grouped
+          if (step.id === "V2_OnboardingOrganisation1") {
+            return {
+              label: t("step.title.organisation"),
+              children: steps
+                .filter(({ id }) => id.startsWith("V2_OnboardingOrganisation"))
+                .map(step => ({
+                  id: step.id,
+                  label: step.label,
+                  url: Router[step.id]({ onboardingId }),
+                  hasErrors: finalized && step.errors.length > 0,
+                })),
+            };
+          }
+
+          return {
+            id: step.id,
+            label: step.label,
+            url: Router[step.id]({ onboardingId }),
+            hasErrors: finalized && step.errors.length > 0,
+          };
+        }),
+    [onboardingId, steps, finalized],
+  );
+
+  return (
+    <Box style={styles.container}>
+      <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
+      <Space height={12} />
+
+      {isStepperDisplayed ? (
+        <ResponsiveContainer>
+          {({ small }) =>
+            small ? (
+              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+            ) : (
+              <Box alignItems="center">
+                <LakeStepper
+                  activeStepId={route.name}
+                  steps={stepperSteps}
+                  style={styles.stepper}
+                />
+              </Box>
+            )
+          }
+        </ResponsiveContainer>
+      ) : null}
+
+      {match(route)
+        .with({ name: "V2_OnboardingRoot" }, ({ params }) => (
+          <OnboardingCompanyBasicInfo
+            nextStep="V2_OnboardingPresentation"
+            onboardingId={params.onboardingId}
+            initialValues={{
+              companyType,
+              country: companyCountry,
+              isRegistered,
+              typeOfRepresentation,
+            }}
+            hasUbos={hasUbos}
+          />
+        ))
+        .with({ name: "V2_OnboardingPresentation" }, ({ params }) => (
+          <CompanyFlowPresentation
+            previousStep="V2_OnboardingRoot"
+            nextStep="V2_OnboardingRegistration"
+            onboardingId={params.onboardingId}
+            hasOwnershipStep={hasOwnershipStep}
+            hasDocumentsStep={hasDocumentsStep}
+          />
+        ))
+        .with({ name: "V2_OnboardingRegistration" }, ({ params }) => (
+          <OnboardingCompanyRegistration
+            previousStep="V2_OnboardingPresentation"
+            nextStep="V2_OnboardingOrganisation1"
+            onboardingId={params.onboardingId}
+            initialEmail={onboarding.email ?? ""}
+            initialAddressLine1={legalRepresentativeAddressLine1}
+            initialCity={legalRepresentativeCity}
+            initialPostalCode={legalRepresentativePostalCode}
+            initialCountry={legalRepresentativeCountry}
+            projectName={projectName}
+            accountCountry={accountCountry}
+            serverValidationErrors={finalized ? registrationStepErrors : []}
+            tcuUrl={onboarding.tcuUrl}
+            tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+          />
+        ))
+        .with({ name: "V2_OnboardingOrganisation1" }, ({ params }) => (
+          <OnboardingCompanyOrganisation1
+            previousStep="V2_OnboardingRegistration"
+            nextStep="V2_OnboardingOrganisation2"
+            onboardingId={params.onboardingId}
+            initialName={holder.name ?? ""}
+            initialRegistrationNumber={holder.registrationNumber ?? ""}
+            initialVatNumber={holder.vatNumber ?? ""}
+            initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
+            initialAddressLine1={companyAddressLine1}
+            initialCity={companyCity}
+            initialPostalCode={companyPostalCode}
+            country={companyCountry}
+            accountCountry={accountCountry}
+            isRegistered={isRegistered}
+            serverValidationErrors={finalized ? organisation1StepErrors : []}
+          />
+        ))
+        .with({ name: "V2_OnboardingOrganisation2" }, ({ params }) => (
+          <OnboardingCompanyOrganisation2
+            previousStep="V2_OnboardingOrganisation1"
+            nextStep={getNextStep("V2_OnboardingOrganisation2", steps)}
+            onboardingId={params.onboardingId}
+            initialBusinessActivity={holder.businessActivity ?? ""}
+            initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
+            initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
+            serverValidationErrors={finalized ? organisation2StepErrors : []}
+          />
+        ))
+        .with({ name: "V2_OnboardingOwnership" }, ({ params }) => (
+          <OnboardingCompanyOwnership
+            previousStep="V2_OnboardingOrganisation2"
+            nextStep={getNextStep("V2_OnboardingOwnership", steps)}
+            onboardingId={params.onboardingId}
+            accountCountry={accountCountry}
+            country={companyCountry}
+            companyName={projectName}
+            initialUbos={initialUbos}
+            isPrefetchingUbos={uboPrefetch.isLoading()}
+            onSuccess={(onboarding, submittedUbos) => {
+              if (submittedUbos.length === 0) {
+                setNoUbosSubmitted.on();
+              }
+            }}
+          />
+        ))
+        .with({ name: "V2_OnboardingDocuments" }, ({ params }) => (
+          <OnboardingCompanyDocuments
+            previousStep={getPreviousStep("V2_OnboardingDocuments", steps)}
+            nextStep="V2_OnboardingFinalize"
+            onboardingId={params.onboardingId}
+            typeOfRepresentation={typeOfRepresentation}
+            documents={currentDocuments}
+            onDocumentsChange={setCurrentDocuments}
+            requiredDocumentTypes={requiredDocuments}
+            supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
+            country={companyCountry}
+          />
+        ))
+        .with({ name: "V2_OnboardingFinalize" }, ({ params }) => (
+          <OnboardingCompanyFinalize
+            previousStep={getPreviousStep("V2_OnboardingFinalize", steps)}
+            onboardingId={params.onboardingId}
+            legalRepresentativeRecommendedIdentificationLevel={
+              onboarding.legalRepresentativeRecommendedIdentificationLevel
+            }
+            steps={steps}
+            alreadySubmitted={finalized}
+            onSubmitWithErrors={setFinalized.on}
+          />
+        ))
+        .with(P.nullish, () => <NotFoundPage />)
+        .exhaustive()}
+    </Box>
+  );
+};

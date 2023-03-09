@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta
+      name="viewport"
+      content="viewport-fit=cover, width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <meta name="description" content="Web-banking" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <link rel="apple-touch-icon" href="/logo192.png" />
+    <!-- https://developers.google.com/web/fundamentals/web-app-manifest/ -->
+    <link rel="manifest" href="/manifest.json" />
+    <title>Web Banking - Swan</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="app-root"></div>
+    <div id="card-root"></div>
+    <div id="full-page-layer-root"></div>
+    <script>
+      window.global = window;
+    </script>
+    <script src="/env.js"></script>
+    <script type="module" src="./index.tsx"></script>
+  </body>
+</html>

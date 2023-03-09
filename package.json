@@ -1,0 +1,92 @@
+{
+  "name": "@swan-io/partner-frontend",
+  "description": "Swan front-end code",
+  "version": "1.0.0",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0",
+    "yarn": "^1.20.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://gitlab.com/swan-io/frontend"
+  },
+  "scripts": {
+    "configure": "tsx scripts/configure/configure.ts",
+    "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
+    "graphql-lint": "tsx scripts/graphql/lint.ts",
+    "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.yml",
+    "format": "prettier '**/*' --ignore-unknown --write",
+    "dev": "tsx -r dotenv/config server/src/index.ts --dev",
+    "build": "tsx -r dotenv/config scripts/build/index.ts",
+    "typecheck": "tsc --noEmit",
+    "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
+    "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",
+    "lint": "eslint --ext ts,tsx clients/*/src",
+    "test": "vitest run",
+    "icons": "tsx scripts/fluent-icons/generateIcons.ts",
+    "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",
+    "generate-cookie-key": "tsx scripts/cookie/generateCookieKey.ts"
+  },
+  "workspaces": {
+    "packages": [
+      "clients/*",
+      "server"
+    ]
+  },
+  "lint-staged": {
+    "*": "prettier --ignore-unknown --write",
+    "**/*.{js,ts,tsx}": "eslint --fix",
+    "clients/**/src/locales/*.json": "yarn i18n clean",
+    "clients/**/src/**/*.gql": "yarn graphql-codegen"
+  },
+  "resolutions": {
+    "@types/testing-library__jest-dom": "github:zoontek/types-testing-library-vitest-dom"
+  },
+  "devDependencies": {
+    "@fluentui/svg-icons": "1.1.195",
+    "@formatjs/icu-messageformat-parser": "2.3.0",
+    "@graphql-codegen/cli": "3.2.1",
+    "@graphql-codegen/introspection": "3.0.1",
+    "@graphql-codegen/typed-document-node": "3.0.1",
+    "@graphql-codegen/typescript": "3.0.1",
+    "@graphql-codegen/typescript-operations": "3.0.1",
+    "@graphql-codegen/typescript-urql-graphcache": "2.4.3",
+    "@lokalise/node-api": "9.4.0",
+    "@sentry/cli": "2.13.0",
+    "@swan-io/boxed": "0.12.1",
+    "@testing-library/jest-dom": "5.16.5",
+    "@types/glob": "8.1.0",
+    "@types/prompts": "2.4.2",
+    "@typescript-eslint/eslint-plugin": "5.54.0",
+    "@typescript-eslint/parser": "5.54.0",
+    "@urql/introspection": "1.0.0",
+    "adm-zip": "0.5.10",
+    "chalk": "5.0.1",
+    "commander": "10.0.0",
+    "dotenv": "16.0.3",
+    "eslint": "8.35.0",
+    "eslint-plugin-react": "7.32.2",
+    "eslint-plugin-react-hooks": "4.6.0",
+    "eslint-plugin-react-native": "4.0.0",
+    "eslint-plugin-react-native-a11y": "3.3.0",
+    "eslint-plugin-swan": "file:scripts/eslint",
+    "glob": "8.1.0",
+    "graphql": "16.6.0",
+    "lint-staged": "13.1.2",
+    "prettier": "2.8.4",
+    "prettier-plugin-organize-imports": "3.2.2",
+    "prompts": "2.4.2",
+    "semver": "7.3.8",
+    "terser": "5.16.5",
+    "ts-prune": "0.10.3",
+    "tsx": "3.12.3",
+    "typescript": "4.9.5",
+    "vite": "4.1.4",
+    "vitest": "0.29.2",
+    "yaml": "2.2.1"
+  },
+  "dependencies": {
+    "@graphql-codegen/typescript-graphql-request": "4.5.8"
+  }
+}

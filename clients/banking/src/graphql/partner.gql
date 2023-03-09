@@ -1,0 +1,2207 @@
+# Fragments
+
+fragment TransactionDetails on Transaction {
+  __typename
+  id
+  side
+  type
+  label
+  counterparty
+  payment {
+    id
+    createdAt
+  }
+  statusInfo {
+    status
+    __typename
+    ... on BookedTransactionStatusInfo {
+      bookingDate
+    }
+    ... on PendingTransactionStatusInfo {
+      pendingEndDate
+    }
+    ... on RejectedTransactionStatusInfo {
+      status
+      reason
+    }
+    ... on UpcomingTransactionStatusInfo {
+      status
+      executionDate
+    }
+  }
+  amount {
+    currency
+    value
+  }
+  createdAt
+  executionDate
+  updatedAt
+  ... on CardTransaction {
+    maskedPan
+    merchantCity
+    merchantCountry
+    originalAmount {
+      currency
+      value
+    }
+    card @include(if: $canQueryCardOnTransaction) {
+      id
+      accountMembership {
+        id
+        user {
+          id
+          firstName
+          lastName
+        }
+      }
+    }
+    currencyExchange {
+      exchangeRate
+    }
+  }
+  ... on SEPACreditTransferTransaction {
+    reference
+    creditor {
+      __typename
+      name
+      ... on SEPACreditTransferInCreditor {
+        maskedIBAN
+      }
+      ... on SEPACreditTransferOutCreditor {
+        maskedIBAN
+        name
+      }
+    }
+    debtor {
+      name
+    }
+  }
+  ... on InternalDirectDebitTransaction {
+    reference
+    creditor {
+      accountId
+    }
+    mandate {
+      __typename
+      ... on InternalDirectDebitMandate {
+        id
+      }
+    }
+  }
+  ... on FeeTransaction {
+    reference
+    feesType
+    creditor {
+      name
+    }
+  }
+  ... on SEPADirectDebitTransaction {
+    __typename
+    reference
+    creditor {
+      name
+    }
+    mandate {
+      __typename
+      ... on SEPAReceivedDirectDebitMandate {
+        id
+        ultimateCreditorName
+      }
+      ... on SEPAPaymentDirectDebitMandate {
+        id
+        debtor {
+          name
+        }
+      }
+    }
+    ... on SEPADirectDebitTransaction {
+      reference
+      creditor {
+        name
+      }
+      mandate {
+        __typename
+        ... on SEPAReceivedDirectDebitMandate {
+          id
+          ultimateCreditorName
+        }
+        ... on SEPAPaymentDirectDebitMandate {
+          id
+          debtor {
+            name
+          }
+        }
+      }
+    }
+  }
+  ... on InternalCreditTransfer {
+    reference
+    creditor {
+      name
+    }
+  }
+}
+
+fragment AddressDetails on Address {
+  __typename
+  addressLine1
+  addressLine2
+  city
+  country
+  postalCode
+  state
+}
+
+# Layout queries
+
+fragment AccountHolderForCardSettings on AccountHolder {
+  __typename
+  id
+  info {
+    __typename
+    name
+  }
+}
+
+fragment IdentificationLevelsFragment on IdentificationLevels {
+  __typename
+  expert
+  QES
+  PVID
+}
+
+query AuthStatus {
+  user {
+    id
+  }
+}
+
+query AccountArea($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    ...AccountMembership
+    account {
+      id
+      paymentLevel
+      paymentAccountType
+      balances {
+        available {
+          currency
+          value
+        }
+      }
+      holder {
+        id
+        supportingDocumentCollections(first: 1) {
+          edges {
+            node {
+              id
+              statusInfo {
+                status
+              }
+            }
+          }
+        }
+      }
+      transactions(first: 0) {
+        totalCount
+      }
+      accountMembershipsWithBindingUserError: memberships(
+        first: 0
+        filters: { status: [BindingUserError] }
+      ) {
+        totalCount
+      }
+    }
+    user {
+      id
+      accountMemberships(first: 0) {
+        totalCount
+      }
+    }
+  }
+  projectInfo {
+    id
+    accentColor
+    name
+    logoUri
+    B2BMembershipIDVerification
+    webBankingSettings {
+      canAddNewMembers
+      canViewMembers
+      canViewAccountDetails
+      canViewAccountStatement
+      canOrderVirtualCards
+      canOrderPhysicalCards
+      canInitiatePaymentsToNewBeneficiaries
+      canViewPaymentList
+      canManageVirtualIbans
+    }
+  }
+  user {
+    id
+    firstName
+    lastName
+    mobilePhoneNumber
+    idVerified
+    identificationStatus
+    identificationLevels {
+      ...IdentificationLevelsFragment
+    }
+  }
+}
+
+# Pages queries
+
+query AccountDetailsIbanPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    IBAN
+    BIC
+    name
+    statusInfo {
+      status
+    }
+    holder {
+      id
+      verificationStatus
+      info {
+        name
+      }
+      residencyAddress {
+        addressLine1
+        addressLine2
+        city
+        postalCode
+        country
+      }
+    }
+  }
+}
+
+query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: String) {
+  account(accountId: $accountId) {
+    id
+    paymentLevel
+    virtualIbanEntries(first: $first, after: $after) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      edges {
+        node {
+          id
+          IBAN
+          BIC
+          status
+        }
+      }
+    }
+  }
+}
+
+mutation AddVirtualIban($accountId: ID!) {
+  addVirtualIbanEntry(input: { accountId: $accountId }) {
+    __typename
+    ... on AddVirtualIbanEntrySuccessPayload {
+      virtualIbanEntry {
+        id
+      }
+    }
+  }
+}
+
+mutation CancelVirtualIban($virtualIbanId: ID!) {
+  cancelVirtualIbanEntry(input: { virtualIbanEntryId: $virtualIbanId }) {
+    __typename
+    ... on CancelVirtualIbanEntrySuccessPayload {
+      virtualIbanEntry {
+        id
+      }
+    }
+  }
+}
+
+query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
+  account(accountId: $accountId) {
+    id
+    invoices(first: $first, after: $after) {
+      edges {
+        cursor
+        node {
+          openingDate
+          closingDate
+          id
+          name
+          createdAt
+          updatedAt
+          status
+          url
+          amount {
+            currency
+            value
+          }
+        }
+      }
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      totalCount
+    }
+  }
+}
+
+query AccountDetailsSettingsPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    country
+    language
+    name
+    statusInfo {
+      status
+    }
+    holder {
+      id
+      info {
+        __typename
+        ... on AccountHolderCompanyInfo {
+          vatNumber
+          registrationNumber
+        }
+      }
+    }
+  }
+}
+
+mutation UpdateIndividualAccount($input: UpdateAccountInput!) {
+  updateAccount(input: $input) {
+    __typename
+    ... on UpdateAccountSuccessPayload {
+      account {
+        id
+      }
+    }
+  }
+}
+
+mutation UpdateCompanyAccount(
+  $updateAccountInput: UpdateAccountInput!
+  $updateAccountHolderInput: UpdateAccountHolderInput!
+) {
+  updateAccount(input: $updateAccountInput) {
+    __typename
+    ... on UpdateAccountSuccessPayload {
+      account {
+        id
+      }
+    }
+  }
+  updateAccountHolder(input: $updateAccountHolderInput) {
+    __typename
+    ... on UpdateAccountHolderSuccessPayload {
+      accountHolder {
+        id
+      }
+    }
+  }
+}
+
+query AccountsListPage($first: Int!, $after: String) {
+  accounts(first: $first, after: $after) {
+    pageInfo {
+      hasNextPage
+      endCursor
+      startCursor
+      hasPreviousPage
+    }
+    edges {
+      node {
+        id
+        number
+        name
+        balances {
+          available {
+            currency
+            value
+          }
+        }
+        holder {
+          id
+          info {
+            name
+          }
+        }
+      }
+    }
+  }
+}
+
+query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
+  account(accountId: $accountId) {
+    id
+    name
+    number
+    holder {
+      id
+      info {
+        name
+      }
+    }
+    statements(first: $first, after: $after) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      edges {
+        cursor
+        node {
+          __typename
+          id
+          closingDate
+          openingDate
+          status
+          type {
+            __typename
+            ... on PdfStatement {
+              url
+            }
+            ... on CsvStatement {
+              url
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment AccountMembershipsTotalCount on AccountMembership {
+  __typename
+  id
+  account {
+    id
+    memberships(filters: { status: [Enabled, InvitationSent, BindingUserError, Suspended] }) {
+      totalCount
+    }
+  }
+}
+
+fragment CardListItem on Card {
+  __typename
+  id
+  type
+  name
+  statusInfo {
+    status
+  }
+  spendingLimits {
+    period
+    amount {
+      currency
+      value
+    }
+  }
+  spending {
+    period
+    amount {
+      currency
+      value
+    }
+  }
+  cardDesignUrl
+  accountMembership {
+    id
+    account {
+      id
+      number
+      holder {
+        id
+        info {
+          name
+        }
+      }
+    }
+    statusInfo {
+      __typename
+      ... on AccountMembershipBindingUserErrorStatusInfo {
+        restrictedTo {
+          firstName
+          lastName
+        }
+      }
+      ... on AccountMembershipInvitationSentStatusInfo {
+        restrictedTo {
+          firstName
+          lastName
+        }
+      }
+    }
+    user {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+fragment CardListPageData on CardConnection {
+  __typename
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  edges {
+    cursor
+    node {
+      ...CardListItem
+    }
+  }
+}
+
+query CardListPageWithAccount($filters: CardFiltersInput, $first: Int!, $after: String) {
+  cards(
+    filters: $filters
+    orderBy: { field: createdAt, direction: Desc }
+    first: $first
+    after: $after
+  ) {
+    ...CardListPageData
+  }
+}
+
+query CardListPageWithoutAccount(
+  $accountMembershipId: ID!
+  $filters: CardFiltersInput
+  $first: Int!
+  $after: String
+) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    ...AccountMembershipsTotalCount
+    cards(
+      filters: $filters
+      orderBy: { field: createdAt, direction: Desc }
+      first: $first
+      after: $after
+    ) {
+      ...CardListPageData
+    }
+  }
+}
+
+query CardCountWithAccount($filters: CardFiltersInput, $first: Int!) {
+  cards(filters: $filters, orderBy: { field: createdAt, direction: Desc }, first: $first) {
+    totalCount
+    edges {
+      cursor
+      node {
+        id
+      }
+    }
+  }
+}
+
+query CardCountWithoutAccount($accountMembershipId: ID!, $filters: CardFiltersInput, $first: Int!) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    cards(filters: $filters, orderBy: { field: createdAt, direction: Desc }, first: $first) {
+      totalCount
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+fragment DigitalCard on DigitalCard {
+  __typename
+  id
+  createdAt
+  updatedAt
+  walletProvider {
+    name
+  }
+  ... on CompleteDigitalCard {
+    device {
+      name
+      type
+    }
+  }
+}
+
+query CardPage($cardId: ID!) {
+  projectInfo {
+    id
+  }
+  card(cardId: $cardId) {
+    id
+    type
+    cardMaskedNumber
+    expiryDate
+    name
+    cardDesignUrl
+    mainCurrency
+    eCommerce
+    withdrawal
+    nonMainCurrencyTransactions
+    international
+    statusInfo {
+      status
+    }
+    cardProduct {
+      ...CardProduct
+    }
+    accountMembership {
+      id
+      canManageAccountMembership
+      recommendedIdentificationLevel
+      canViewAccount
+      canManageBeneficiaries
+      canInitiatePayments
+      statusInfo {
+        __typename
+        status
+        ... on AccountMembershipBindingUserErrorStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+        ... on AccountMembershipInvitationSentStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+        identificationStatus
+        identificationLevels {
+          expert
+          QES
+          PVID
+        }
+      }
+      account {
+        id
+        paymentLevel
+        holder {
+          id
+          ...AccountHolderForCardSettings
+          residencyAddress {
+            addressLine1
+            addressLine2
+            city
+            postalCode
+            country
+          }
+        }
+      }
+    }
+    spendingLimits {
+      amount {
+        currency
+        value
+      }
+      period
+      type
+    }
+    spending {
+      amount {
+        currency
+        value
+      }
+      period
+    }
+    # at the moment, we don't paginate on front-end side
+    # so we load 100 first to have all digital cards at the moment
+    digitalCards(first: 100, filters: { status: "Enabled" }) {
+      edges {
+        node {
+          ...DigitalCard
+        }
+      }
+    }
+    # We need the first param because we use relayPagination on this ressource
+    transactions(first: 1) {
+      totalCount
+    }
+    physicalCard {
+      expiryDate
+      cardMaskedNumber
+
+      statusInfo {
+        __typename
+        status
+        ... on PhysicalCardToActivateStatusInfo {
+          isPINReady
+          estimatedDeliveryDate
+          trackingNumber
+          shippingProvider
+          address {
+            ...AddressDetails
+          }
+        }
+        ... on PhysicalCardRenewedStatusInfo {
+          isPINReady
+          estimatedDeliveryDate
+          trackingNumber
+          shippingProvider
+          address {
+            ...AddressDetails
+          }
+        }
+        ... on PhysicalCardConsentPendingStatusInfo {
+          consent {
+            id
+            consentUrl
+          }
+        }
+      }
+    }
+  }
+}
+
+query CardTransactionsPage(
+  $cardId: ID!
+  $first: Int!
+  $canQueryCardOnTransaction: Boolean!
+  $after: String
+  $filters: TransactionsFiltersInput
+) {
+  card(cardId: $cardId) {
+    id
+    cardDesignUrl
+    statusInfo {
+      status
+    }
+    accountMembership {
+      id
+      recommendedIdentificationLevel
+      statusInfo {
+        __typename
+        ... on AccountMembershipBindingUserErrorStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+        ... on AccountMembershipInvitationSentStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+    transactions(first: $first, after: $after, filters: $filters) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      totalCount
+      edges {
+        node {
+          ...TransactionDetails
+        }
+      }
+    }
+  }
+}
+
+query CardSettingsPage($cardId: ID!) {
+  card(cardId: $cardId) {
+    id
+    cardMaskedNumber
+    physicalCard {
+      identifier
+    }
+    statusInfo {
+      status
+    }
+    accountMembership {
+      id
+      account {
+        id
+        number
+        holder {
+          id
+          info {
+            name
+          }
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+    spendingLimits {
+      amount {
+        currency
+        value
+      }
+      period
+      type
+    }
+    mainCurrency
+    eCommerce
+    withdrawal
+    nonMainCurrencyTransactions
+    international
+  }
+}
+
+query OrderPhysicalCardPage($cardId: ID!) {
+  card(cardId: $cardId) {
+    id
+    accountMembership {
+      id
+      account {
+        id
+        number
+        holder {
+          id
+          info {
+            name
+            type
+          }
+          residencyAddress {
+            addressLine1
+            addressLine2
+            city
+            postalCode
+            state
+            country
+          }
+        }
+      }
+      statusInfo {
+        __typename
+        status
+        ... on AccountMembershipInvitationSentStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+        ... on AccountMembershipBindingUserErrorStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+        ... on AccountMembershipConsentPendingStatusInfo {
+          restrictedTo {
+            firstName
+            lastName
+          }
+        }
+      }
+      user {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+}
+
+mutation PrintPhysicalCard($input: PrintPhysicalCardInput!) {
+  printPhysicalCard(input: $input) {
+    __typename
+    ... on PrintPhysicalCardSuccessPayload {
+      physicalCard {
+        statusInfo {
+          __typename
+          ... on PhysicalCardConsentPendingStatusInfo {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query ConsentCallbackPage($consentId: ID!) {
+  consent(id: $consentId) {
+    id
+    status
+  }
+}
+
+query EditMemberPage($id: ID!) {
+  accountMembership(id: $id) {
+    id
+    email
+    legalRepresentative
+    account {
+      id
+      country
+      statusInfo {
+        status
+      }
+    }
+    statusInfo {
+      __typename
+      status
+      ... on AccountMembershipBindingUserErrorStatusInfo {
+        restrictedTo {
+          birthDate
+          firstName
+          lastName
+          phoneNumber
+        }
+        idVerifiedMatchError
+      }
+      ... on AccountMembershipInvitationSentStatusInfo {
+        restrictedTo {
+          birthDate
+          firstName
+          lastName
+          phoneNumber
+        }
+      }
+    }
+    canInitiatePayments
+    canManageAccountMembership
+    canManageBeneficiaries
+    canViewAccount
+    user {
+      id
+      birthDate
+      firstName
+      lastName
+      mobilePhoneNumber
+    }
+    cards(filters: { statuses: Enabled }) {
+      edges {
+        node {
+          id
+          statusInfo {
+            __typename
+          }
+        }
+      }
+      totalCount
+    }
+    residencyAddress {
+      addressLine1
+      addressLine2
+      city
+      postalCode
+      state
+      country
+    }
+    taxIdentificationNumber
+  }
+}
+
+query NewStandingOrderPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    IBAN
+    currency
+    name
+    id
+    number
+    balances {
+      available {
+        value
+        currency
+      }
+    }
+  }
+}
+
+query EditStandingOrderPage($id: ID!) {
+  standingOrder(standingOrderId: $id) {
+    id
+    label
+    period
+    reference
+    statusInfo {
+      status
+    }
+    sepaBeneficiary {
+      id
+      name
+    }
+    targetAvailableBalance {
+      currency
+      value
+    }
+    amount {
+      currency
+      value
+    }
+    lastExecutionDate
+    firstExecutionDate
+    nextExecutionDate
+    createdBy {
+      id
+      firstName
+      lastName
+    }
+  }
+}
+
+query StandingOrdersHistoryPage(
+  $standingOrderId: ID!
+  $first: Int!
+  $canQueryCardOnTransaction: Boolean!
+  $after: String
+  $filters: PaymentFiltersInput
+  $orderBy: PaymentOrderByInput
+) {
+  standingOrder(standingOrderId: $standingOrderId) {
+    id
+    label
+    reference
+    period
+    firstExecutionDate
+    lastExecutionDate
+    statusInfo {
+      status
+    }
+    targetAvailableBalance {
+      value
+    }
+    amount {
+      value
+    }
+    sepaBeneficiary {
+      id
+      name
+    }
+    payments(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      edges {
+        node {
+          id
+          transactions {
+            pageInfo {
+              hasNextPage
+              endCursor
+              startCursor
+              hasPreviousPage
+            }
+            edges {
+              node {
+                ...TransactionDetails
+              }
+            }
+            totalCount
+          }
+        }
+      }
+    }
+  }
+}
+
+query StandingOrdersPage($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    number
+    name
+    holder {
+      id
+      info {
+        name
+      }
+    }
+
+    standingOrders {
+      totalCount
+      edges {
+        node {
+          id
+          period
+          reference
+          label
+          sepaBeneficiary {
+            id
+            name
+          }
+          targetAvailableBalance {
+            value
+          }
+          statusInfo {
+            status
+          }
+          amount {
+            value
+          }
+          lastExecutionDate
+          nextExecutionDate
+          firstExecutionDate
+        }
+      }
+    }
+  }
+}
+
+query getStandingOrders(
+  $accountId: ID!
+  $status: [StandingOrderStatus!]
+  $first: Int!
+  $after: String
+) {
+  account(accountId: $accountId) {
+    id
+    standingOrders(filters: { status: $status }, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      edges {
+        cursor
+        node {
+          id
+          label
+          period
+          reference
+          statusInfo {
+            status
+          }
+          sepaBeneficiary {
+            id
+            name
+          }
+          targetAvailableBalance {
+            currency
+            value
+          }
+          amount {
+            currency
+            value
+          }
+          lastExecutionDate
+          firstExecutionDate
+          nextExecutionDate
+          createdBy {
+            id
+            firstName
+            lastName
+          }
+        }
+      }
+    }
+  }
+}
+
+fragment AccountMembership on AccountMembership {
+  __typename
+  id
+  createdAt
+  updatedAt
+  email
+  legalRepresentative
+  recommendedIdentificationLevel
+  statusInfo {
+    __typename
+    status
+    ... on AccountMembershipBindingUserErrorStatusInfo {
+      restrictedTo {
+        birthDate
+        firstName
+        lastName
+        phoneNumber
+      }
+      idVerifiedMatchError
+    }
+    ... on AccountMembershipInvitationSentStatusInfo {
+      restrictedTo {
+        birthDate
+        firstName
+        lastName
+        phoneNumber
+      }
+    }
+  }
+  taxIdentificationNumber
+  residencyAddress {
+    addressLine1
+    postalCode
+    city
+    country
+  }
+  canInitiatePayments
+  canManageAccountMembership
+  canManageBeneficiaries
+  canViewAccount
+  user {
+    id
+    birthDate
+    firstName
+    lastName
+    mobilePhoneNumber
+  }
+  account {
+    id
+    name
+    country
+    holder {
+      id
+      ...AccountHolderForCardSettings
+    }
+  }
+  activeCards: cards(filters: { statuses: [Enabled, Processing] }) {
+    totalCount
+  }
+  allCards: cards(filters: { statuses: [Enabled, Processing, Canceling, Canceled] }) {
+    totalCount
+  }
+}
+
+query MembershipDetail($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    ...AccountMembership
+  }
+}
+
+query MembersPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $status: [AccountMembershipStatus!]
+  $canManageAccountMembership: Boolean
+  $canManageBeneficiaries: Boolean
+  $canInitiatePayments: Boolean
+  $search: String
+) {
+  account(accountId: $accountId) {
+    id
+    number
+    name
+    statusInfo {
+      status
+    }
+    holder {
+      id
+      info {
+        name
+      }
+    }
+    memberships(
+      first: $first
+      after: $after
+      filters: {
+        canManageAccountMembership: $canManageAccountMembership
+        canManageBeneficiaries: $canManageBeneficiaries
+        canInitiatePayments: $canInitiatePayments
+        status: $status
+        search: $search
+      }
+    ) {
+      pageInfo {
+        endCursor
+        hasNextPage
+        hasPreviousPage
+        startCursor
+      }
+      edges {
+        cursor
+        node {
+          ...AccountMembership
+        }
+      }
+    }
+  }
+}
+
+query NewPaymentWizard($first: Int!, $after: String) {
+  user {
+    id
+    accountMemberships(first: $first, after: $after, filters: { canInitiatePayments: true }) {
+      edges {
+        node {
+          id
+          account {
+            id
+            number
+            name
+            balances {
+              available {
+                currency
+                value
+              }
+            }
+            holder {
+              id
+              info {
+                name
+              }
+            }
+          }
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+    }
+  }
+}
+
+query ProfilePage {
+  projectInfo {
+    id
+    B2BMembershipIDVerification
+  }
+  user {
+    id
+    firstName
+    lastName
+    mobilePhoneNumber
+    idVerified
+    identificationStatus
+    birthDate
+  }
+}
+
+query AccountActivationPage($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    recommendedIdentificationLevel
+    account {
+      id
+      IBAN
+      BIC
+      paymentLevel
+      paymentAccountType
+      holder {
+        id
+        info {
+          __typename
+          name
+        }
+        residencyAddress {
+          country
+        }
+        supportingDocumentCollections(first: 1) {
+          edges {
+            node {
+              id
+              requiredSupportingDocumentPurposes {
+                name
+              }
+              statusInfo {
+                status
+              }
+              supportingDocuments {
+                id
+                supportingDocumentPurpose
+
+                statusInfo {
+                  __typename
+
+                  ... on SupportingDocumentRefusedStatusInfo {
+                    downloadUrl
+                    filename
+                    reason
+                  }
+                  ... on SupportingDocumentUploadedStatusInfo {
+                    downloadUrl
+                    filename
+                  }
+                  ... on SupportingDocumentValidatedStatusInfo {
+                    downloadUrl
+                    filename
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+      legalRepresentativeMembership {
+        id
+        email
+      }
+      transactions(first: 0) {
+        totalCount
+      }
+    }
+    user {
+      id
+      identificationStatus
+      firstName
+      lastName
+      birthDate
+      mobilePhoneNumber
+    }
+  }
+  projectInfo {
+    id
+    supportingDocumentSettings {
+      collectMode
+    }
+  }
+}
+
+mutation GenerateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentUploadUrlInput!) {
+  generateSupportingDocumentUploadUrl(input: $input) {
+    __typename
+    ... on GenerateSupportingDocumentUploadUrlSuccessPayload {
+      supportingDocumentId
+      upload {
+        fields {
+          key
+          value
+        }
+        url
+      }
+    }
+  }
+}
+
+mutation DeleteSupportingDocument($input: DeleteSupportingDocumentInput!) {
+  deleteSupportingDocument(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on DeleteSupportingDocumentSuccessPayload {
+      id
+    }
+  }
+}
+
+mutation RequestSupportingDocumentCollectionReview(
+  $input: RequestSupportingDocumentCollectionReviewInput
+) {
+  requestSupportingDocumentCollectionReview(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on RequestSupportingDocumentCollectionReviewSuccessPayload {
+      supportingDocumentCollection {
+        id
+      }
+    }
+  }
+}
+
+query TransactionListPage(
+  $accountId: ID!
+  $first: Int!
+  $canQueryCardOnTransaction: Boolean!
+  $after: String
+  $filters: TransactionsFiltersInput
+  $orderBy: TransactionsOrderByInput
+) {
+  account(accountId: $accountId) {
+    id
+    number
+    name
+
+    balances {
+      available {
+        currency
+        value
+      }
+    }
+    transactions(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      edges {
+        node {
+          ...TransactionDetails
+        }
+      }
+    }
+  }
+}
+
+query UpcomingTransactionListPage(
+  $accountId: ID!
+  $first: Int!
+  $canQueryCardOnTransaction: Boolean!
+  $after: String
+) {
+  account(accountId: $accountId) {
+    id
+    number
+    name
+    transactions(
+      first: $first
+      after: $after
+      filters: { status: Upcoming }
+      orderBy: { field: executionDate, direction: Asc }
+    ) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      edges {
+        node {
+          ...TransactionDetails
+        }
+      }
+      totalCount
+    }
+  }
+}
+
+query GetAccountMemberships(
+  $first: Int!
+  $after: String
+  $filters: AccountMembershipsFilterInput!
+) {
+  user {
+    id
+    accountMemberships(first: $first, after: $after, filters: $filters) {
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      totalCount
+      edges {
+        cursor
+        node {
+          id
+          canInitiatePayments
+          legalRepresentative
+          canManageAccountMembership
+          canManageBeneficiaries
+          canViewAccount
+          email
+          statusInfo {
+            status
+          }
+          account {
+            id
+            number
+            name
+            balances {
+              available {
+                currency
+                value
+              }
+            }
+            holder {
+              id
+              info {
+                name
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetFirstAccountMembership($filters: AccountMembershipsFilterInput!) {
+  user {
+    id
+    accountMemberships(first: 1, filters: $filters) {
+      edges {
+        cursor
+        node {
+          id
+        }
+      }
+    }
+  }
+  projectInfo {
+    id
+    name
+  }
+}
+
+query GetAccount($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    number
+    name
+    balances {
+      available {
+        currency
+        value
+      }
+    }
+    holder {
+      id
+      info {
+        name
+      }
+    }
+  }
+}
+
+# Components queries
+
+fragment AddressInfo on AddressInfo {
+  __typename
+  addressLine1
+  addressLine2
+  city
+  country
+  postalCode
+  state
+}
+
+query GetCardProducts($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    account {
+      id
+      holder {
+        id
+        info {
+          __typename
+          ... on AccountHolderCompanyInfo {
+            name
+          }
+          ... on AccountHolderIndividualInfo {
+            name
+          }
+        }
+        residencyAddress {
+          ...AddressInfo
+        }
+      }
+    }
+    user {
+      id
+      firstName
+      lastName
+      mobilePhoneNumber
+    }
+  }
+  projectInfo {
+    id
+    cardProducts {
+      ...CardProduct
+    }
+  }
+}
+
+fragment CardProduct on CardProduct {
+  __typename
+  id
+  name
+  projectId
+  status
+  createdAt
+  updatedAt
+  applicableToPhysicalCards
+  companySpendingLimit {
+    amount {
+      value
+      currency
+    }
+    period
+  }
+  individualSpendingLimit {
+    amount {
+      value
+      currency
+    }
+    period
+  }
+  cardDesigns {
+    id
+    version
+    cardProjectLogoSvgUrl
+    cardProjectLogo300dpiUrl
+    cardProjectLogo600dpiUrl
+    zoomRatioProjectLogo
+    cardDesignUrl
+    accentColor
+    createdAt
+    updatedAt
+    status
+    cardBackground {
+      id
+      name
+      type
+      cardTextColor
+      cardBackgroundUrl
+      createdAt
+      updatedAt
+    }
+  }
+  defaultCardProduct
+}
+
+query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, $search: String) {
+  account(accountId: $accountId) {
+    id
+    allMemberships: memberships(
+      after: $after
+      first: $first
+      filters: { status: [Enabled, InvitationSent, BindingUserError] }
+    ) {
+      totalCount
+    }
+    memberships(
+      after: $after
+      first: $first
+      filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+    ) {
+      totalCount
+      pageInfo {
+        hasNextPage
+        endCursor
+        startCursor
+        hasPreviousPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          ...AccountMembership
+        }
+      }
+    }
+  }
+}
+
+query GetTransactionDetails($transactionId: ID!, $canQueryCardOnTransaction: Boolean!) {
+  transaction(id: $transactionId) {
+    ...TransactionDetails
+  }
+}
+
+query GetAccountBalance($accountId: ID!) {
+  account(accountId: $accountId) {
+    id
+    balances {
+      available {
+        currency
+        value
+      }
+    }
+    upcomingTransactions: transactions(filters: { status: Upcoming }) {
+      totalCount
+    }
+  }
+}
+
+# Mutations
+
+mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
+  createMultiConsent(input: $input) {
+    __typename
+    ... on CreateMultiConsentSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+fragment CardFragment on Card {
+  __typename
+  id
+  statusInfo {
+    __typename
+    ... on CardConsentPendingStatusInfo {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation AddCards($input: AddCardsInput!) {
+  addCards(input: $input) {
+    __typename
+    ... on AddCardsSuccessPayload {
+      cards {
+        ...CardFragment
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation AddCard($input: AddCardInput!) {
+  addCard(input: $input) {
+    __typename
+    ... on AddCardSuccessPayload {
+      card {
+        ...CardFragment
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation AddCardsWithGroupDelivery($input: AddCardsWithGroupDeliveryInput!) {
+  addCardsWithGroupDelivery(input: $input) {
+    __typename
+    ... on AddCardsWithGroupDeliverySuccessPayload {
+      cards {
+        ...CardFragment
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation AddSingleUseVirtualCards($input: AddSingleUseVirtualCardsInput!) {
+  addSingleUseVirtualCards(input: $input) {
+    __typename
+    ... on AddSingleUseVirtualCardsSuccessPayload {
+      cards {
+        ...CardFragment
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation AddSingleUseVirtualCard($input: AddSingleUseVirtualCardInput!) {
+  addSingleUseVirtualCard(input: $input) {
+    __typename
+    ... on AddSingleUseVirtualCardSuccessForUserPayload {
+      card {
+        ...CardFragment
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation InitiateSepaCreditTransfers($input: InitiateCreditTransfersInput!) {
+  initiateCreditTransfers(input: $input) {
+    __typename
+    ... on AccountNotFoundRejection {
+      message
+    }
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on InitiateCreditTransfersSuccessPayload {
+      payment {
+        id
+        statusInfo {
+          __typename
+          ... on PaymentRejected {
+            reason
+          }
+          ... on PaymentConsentPending {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation AddCardMembership($accountMembershipId: ID!, $consentRedirectUrl: String!) {
+  addCard(
+    input: {
+      accountMembershipId: $accountMembershipId
+      withdrawal: true
+      international: true
+      nonMainCurrencyTransactions: true
+      eCommerce: true
+      consentRedirectUrl: $consentRedirectUrl
+      cardContractExpiryDate: null
+    }
+  ) {
+    __typename
+    ... on AddCardSuccessPayload {
+      card {
+        id
+        statusInfo {
+          __typename
+          ... on CardConsentPendingStatusInfo {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation ResumeAccountMembership($input: ResumeAccountMembershipInput!) {
+  resumeAccountMembership(input: $input) {
+    __typename
+    ... on ResumeAccountMembershipSuccessPayload {
+      consent {
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation SuspendAccountMembership($input: SuspendAccountMembershipInput!) {
+  suspendAccountMembership(input: $input) {
+    __typename
+  }
+}
+
+mutation UpdateAccountMembership($input: UpdateAccountMembershipInput!) {
+  updateAccountMembership(input: $input) {
+    __typename
+    ... on UpdateAccountMembershipSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation DisableAccountMembership($accountMembershipId: ID!) {
+  disableAccountMembership(input: { accountMembershipId: $accountMembershipId }) {
+    __typename
+  }
+}
+
+mutation ViewCardNumbers($input: ViewCardNumbersInput!) {
+  viewCardNumbers(input: $input) {
+    __typename
+    ... on ViewCardNumbersSuccessPayload {
+      consent {
+        id
+        consentUrl
+        purpose
+        redirectUrl
+        status
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation ViewPhysicalCardNumbers($input: ViewPhysicalCardNumbersInput!) {
+  viewPhysicalCardNumbers(input: $input) {
+    __typename
+    ... on ViewPhysicalCardNumbersSuccessPayload {
+      consent {
+        id
+        consentUrl
+        purpose
+        redirectUrl
+        status
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation ViewPhysicalCardPin($input: ViewPhysicalCardPinInput!) {
+  viewPhysicalCardPin(input: $input) {
+    __typename
+    ... on ViewPhysicalCardPinSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation ActivatePhysicalCard($input: ActivatePhysicalCardInput!) {
+  activatePhysicalCard(input: $input) {
+    __typename
+    ... on ActivatePhysicalCardSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation CancelCard($cardId: ID!) {
+  cancelCard(input: { cardId: $cardId }) {
+    __typename
+    ... on CancelCardSuccessPayload {
+      card {
+        id
+      }
+    }
+  }
+}
+
+mutation CancelDigitalCard($digitalCardId: ID!) {
+  cancelDigitalCard(input: { digitalCardId: $digitalCardId }) {
+    __typename
+    ... on CancelDigitalCardSuccessPayload {
+      digitalCard {
+        id
+      }
+    }
+  }
+}
+
+mutation CancelPhysicalCard($input: CancelPhysicalCardInput!) {
+  cancelPhysicalCard(input: $input) {
+    __typename
+    ... on CancelPhysicalCardSuccessPayload {
+      physicalCard {
+        identifier
+      }
+    }
+  }
+}
+
+mutation UpdateCard($input: UpdateCardInput!) {
+  updateCard(input: $input) {
+    __typename
+    ... on UpdateCardSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+mutation ScheduleStandingOrder($input: ScheduleStandingOrderInput!) {
+  scheduleStandingOrder(input: $input) {
+    __typename
+    ... on ScheduleStandingOrderSuccessPayload {
+      standingOrder {
+        id
+        statusInfo {
+          __typename
+          ... on StandingOrderConsentPendingStatusInfo {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation CancelStandingOrder($id: String!) {
+  cancelStandingOrder(input: { standingOrderId: $id }) {
+    __typename
+    ... on CancelStandingOrderSuccessPayload {
+      standingOrder {
+        id
+      }
+    }
+  }
+}
+
+mutation SuspendPhysicalCard($cardId: ID!) {
+  suspendPhysicalCard(input: { cardId: $cardId }) {
+    __typename
+  }
+}
+
+mutation ResumePhysicalCard($input: ResumePhysicalCardInput!) {
+  resumePhysicalCard(input: $input) {
+    __typename
+    ... on ResumePhysicalCardSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+  }
+}
+
+# Not on federation, stitched with partner schema in the white-label BFF
+mutation AddAccountMembership($input: AddAccountMembershipInput!) {
+  addAccountMembership(input: $input) {
+    __typename
+    ... on AddAccountMembershipSuccessPayload {
+      accountMembership {
+        __typename
+        id
+        email
+        statusInfo {
+          __typename
+          status
+          ... on AccountMembershipConsentPendingStatusInfo {
+            consent {
+              consentUrl
+            }
+          }
+        }
+        canInitiatePayments
+        canManageAccountMembership
+        canManageBeneficiaries
+        canViewAccount
+        user {
+          id
+          birthDate
+          firstName
+          lastName
+          mobilePhoneNumber
+        }
+        account {
+          id
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,98 @@
+query ProjectId {
+  projectInfo {
+    id
+  }
+}
+
+fragment OnboardingRedirectInfo on Onboarding {
+  id
+  account {
+    legalRepresentativeMembership {
+      id
+    }
+  }
+  statusInfo {
+    __typename
+    status
+  }
+  oAuthRedirectParameters {
+    state
+    redirectUrl
+  }
+}
+
+query OnboardingRedirect($onboardingId: ID!) {
+  onboarding(id: $onboardingId) {
+    ...OnboardingRedirectInfo
+  }
+}
+
+mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
+  finalizeOnboarding(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on FinalizeOnboardingSuccessPayload {
+      onboarding {
+        ...OnboardingRedirectInfo
+      }
+    }
+  }
+}
+
+mutation OnboardPublicIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
+  onboardIndividualAccountHolder(input: $input) {
+    ... on OnboardIndividualAccountHolderSuccessPayload {
+      __typename
+      onboarding {
+        id
+      }
+    }
+    ... on ForbiddenRejection {
+      __typename
+      message
+    }
+    ... on ValidationRejection {
+      __typename
+      message
+    }
+  }
+}
+
+mutation OnboardPublicCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
+  onboardCompanyAccountHolder(input: $input) {
+    ... on OnboardCompanyAccountHolderSuccessPayload {
+      __typename
+      onboarding {
+        id
+      }
+    }
+    ... on ForbiddenRejection {
+      __typename
+      message
+    }
+    ... on BadRequestRejection {
+      __typename
+      message
+    }
+    ... on ValidationRejection {
+      __typename
+      message
+    }
+  }
+}
+
+mutation BindAccountMembership($input: BindAccountMembershipInput!) {
+  bindAccountMembership(input: $input) {
+    __typename
+    ... on BindAccountMembershipSuccessPayload {
+      accountMembership {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

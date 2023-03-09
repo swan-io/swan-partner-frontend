@@ -1,0 +1,8 @@
+query ProjectLoginPage($projectId: ID!) {
+  projectInfoById(id: $projectId) {
+    id
+    accentColor
+    name
+    logoUri
+  }
+}

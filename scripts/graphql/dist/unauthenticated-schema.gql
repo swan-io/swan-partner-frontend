@@ -1,0 +1,4715 @@
+directive @apollo_studio_metadata(buildId: String, checkId: String, launchId: String) on SCHEMA
+
+"""
+Whether you call it a wallet, monetary account, payment account or bank account, the notion of account is fundamental at Swan. All payment flows necessarily go through an account.
+"""
+type Account {
+  """Unique identifier of an account"""
+  id: ID!
+
+  """Unique account number"""
+  number: AccountNumber!
+
+  """Account name"""
+  name: String!
+
+  """Account holder"""
+  holder: AccountHolder!
+
+  """Cash account type"""
+  cashAccountType: CashAccountType!
+
+  """Country of the account"""
+  country: AccountCountry!
+
+  """Payment level"""
+  paymentLevel: PaymentLevel!
+
+  """
+  Bank Identifier Code
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  BIC: BIC!
+
+  """
+  International Bank Account Number
+  Only if the account membership has `canViewAccount=true` & this account has `paymentLevel=Unlimited`
+  """
+  IBAN: IBAN
+
+  """Currency"""
+  currency: Currency!
+
+  """`true` if the main IBAN refuses all Sepa Direct Debit received"""
+  blockSDD: Boolean
+
+  """Status of the account"""
+  statusInfo: AccountStatusInfo!
+
+  """Partnership status"""
+  partnershipStatusInfo: PartnershipStatusInfo
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """List of Virtual IBAN"""
+  virtualIbanEntries(first: Int! = 50, before: String, after: String): VirtualIBANEntryConnection!
+
+  """List of account membership for this account"""
+  memberships(first: Int! = 50, before: String, after: String, filters: MembershipsFilterInput, orderBy: AccountMembershipOrderByInput): AccountMembershipConnection!
+
+  """`true`if a consent is required to fetch new transactions"""
+  requiredConsentToFetchNewTransactions: Boolean!
+
+  """Language used for account statements"""
+  language: AccountLanguage!
+
+  """Legal representative account membership"""
+  legalRepresentativeMembership: AccountMembership!
+
+  """
+  Type of the account : EMoney if account holder has not finished the KYC requirements, PaymentService otherwise 
+  """
+  paymentAccountType: PaymentAccountType!
+
+  """Date of the account going from eMoney to PaymentService"""
+  upgradedAt: DateTime
+}
+
+"""Account Closed status information"""
+type AccountClosedStatus implements AccountStatusInfo {
+  """Account status (always Closed for type AccountClosedStatus)"""
+  status: AccountStatus!
+
+  """
+  Reason why the account is suspended
+  @Deprecated
+  """
+  reason: String!
+
+  """Reason why the account is currently closed"""
+  reasonInfo: CloseAccountStatusReason!
+}
+
+"""Account Closing status information"""
+type AccountClosingStatus implements AccountStatusInfo {
+  """Account status (always Closing for type AccountClosingStatus)"""
+  status: AccountStatus!
+
+  """
+  Reason why the account is suspended
+  @Deprecated
+  """
+  reason: String!
+
+  """Reason why the account is currently in closing"""
+  reasonInfo: CloseAccountStatusReason!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type AccountConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """AccountEdge list"""
+  edges: [AccountEdge!]!
+}
+
+"""Available Account Country: CCA3"""
+enum AccountCountry {
+  FRA
+  DEU
+
+  """COMING SOON"""
+  ESP
+}
+
+"""Implements the Relay Edge interface"""
+type AccountEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The account"""
+  node: Account!
+}
+
+"""
+The account holder is the person who owns the money stored in the account. The account holder can be one of your customers, whether it is a natural person or a legal person, or quite simply you.
+"""
+type AccountHolder {
+  """Unique identifier of the account holder."""
+  id: ID!
+
+  """
+  Verification status.
+  *Banking regulations require financial institutions such as Swan to know and verify their customers in order to comply with their anti-money laundering and terrorist financing obligations. In banking jargon, we talk about KYC (Know Your Customers) procedure*
+  """
+  verificationStatus: VerificationStatus!
+
+  """Account holder type information."""
+  info: AccountHolderInfo!
+
+  """Account holder status information."""
+  statusInfo: AccountHolderStatusInfo
+
+  """Residency address."""
+  residencyAddress: AddressInfo!
+
+  """Created date."""
+  createdDate: DateTime!
+
+  """Updated date."""
+  updatedDate: DateTime!
+
+  """List of accounts owned by the account holder."""
+  accounts(after: String, before: String, first: Int! = 50, orderBy: AccountOrderByInput): AccountConnection!
+
+  """List of supporting document collection for an account holder"""
+  supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
+
+  """
+  *COMING SOON*
+  List of funding limit settings change request for an account holder
+  """
+  fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
+
+  """Account holder onboarding"""
+  onboarding: Onboarding
+}
+
+"""Account Holder Canceled Status Information"""
+type AccountHolderCanceledStatusInfo implements AccountHolderStatusInfo {
+  """Status of the account holder."""
+  status: AccountHolderStatus!
+
+  """Reason why the account holder is suspended."""
+  reason: String!
+}
+
+type AccountHolderCompanyInfo implements AccountHolderInfo {
+  """Account holder type (always Company for type AccountHolderCompanyInfo)"""
+  type: AccountHolderType!
+
+  """Name of the company."""
+  name: String!
+
+  """Registration number of the company (SIRET, ...)."""
+  registrationNumber: String
+
+  """Legal form of the company (SAS, SCI, SASU, ...)."""
+  companyType: CompanyType
+
+  """Business activity."""
+  businessActivity: BusinessActivity!
+
+  """
+  Business activity description.
+  This must be 1024 characters long maximum.
+  """
+  businessActivityDescription: String!
+
+  """Estimated monthly payment volume (euro)."""
+  monthlyPaymentVolume: MonthlyPaymentVolume!
+
+  """
+  The ultimate beneficiary is defined as the natural person (s) who own or control, directly or indirectly, the reporting company.
+  
+  The ultimate beneficiary is :
+  - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
+  - either the natural person (s) who exercise, by other means, a power of control of the company;
+  """
+  individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+
+  """
+  Unique number that identifies a taxable person (business) or non-taxable legal entity that is registered for VAT
+  """
+  vatNumber: String
+
+  """Tax Identification Number"""
+  taxIdentificationNumber: String
+
+  """Legal representative personal address"""
+  legalRepresentativePersonalAddress: AddressInformation
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination)).
+"""
+type AccountHolderConnection implements Connection {
+  """Total number of element in the list."""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page."""
+  pageInfo: PageInfo!
+
+  """AccountHolderEdge list."""
+  edges: [AccountHolderEdge!]!
+}
+
+"""Implements the Relay Edge interface."""
+type AccountHolderEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism."""
+  cursor: String!
+
+  """The account holder."""
+  node: AccountHolder!
+}
+
+"""Account Holder Enabled Status Information"""
+type AccountHolderEnabledStatusInfo implements AccountHolderStatusInfo {
+  """Status of the account holder."""
+  status: AccountHolderStatus!
+}
+
+input AccountHolderFilterInput {
+  status: [AccountHolderStatus!]
+  types: [AccountHolderType!]
+  verificationStatus: [VerificationStatus!]
+
+  """Searches company name, first name, last name"""
+  search: String
+}
+
+"""Individual account holder."""
+type AccountHolderIndividualInfo implements AccountHolderInfo {
+  """
+  Account holder type (always Individual for type AccountHolderIndividualInfo).
+  """
+  type: AccountHolderType!
+
+  """Account Holder's first name and last name."""
+  name: String!
+
+  """Employment status of the account holder (regulatory questions)."""
+  employmentStatus: EmploymentStatus!
+
+  """Monthly income of the account holder (regulatory questions)."""
+  monthlyIncome: MonthlyIncome!
+
+  """User of the individual account holder."""
+  user: User!
+
+  """Tax Identification Number"""
+  taxIdentificationNumber: String
+}
+
+"""Account holder types."""
+interface AccountHolderInfo {
+  """Account holder type"""
+  type: AccountHolderType!
+
+  """Account holder name"""
+  name: String!
+}
+
+"""Rejection returned when the Account Holder was not found"""
+type AccountHolderNotFoundRejection implements Rejection {
+  message: String!
+}
+
+"""
+Field we can use when ordering that can be applied when listing account holders
+"""
+enum AccountHolderOrderByFieldInput {
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing account holders"""
+input AccountHolderOrderByInput {
+  field: AccountHolderOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Account holder status."""
+enum AccountHolderStatus {
+  """When the account holder is enabled."""
+  Enabled
+
+  """When the account holder is suspended."""
+  Suspended
+
+  """When the account holder is canceled."""
+  Canceled
+}
+
+"""Account Holder Status Information"""
+interface AccountHolderStatusInfo {
+  """Status of the account holder."""
+  status: AccountHolderStatus!
+}
+
+"""Account Holder Suspended Status Information"""
+type AccountHolderSuspendedStatusInfo implements AccountHolderStatusInfo {
+  """Status of the account holder."""
+  status: AccountHolderStatus!
+
+  """Reason why the account holder is suspended."""
+  reason: String!
+}
+
+"""Account holder type"""
+enum AccountHolderType {
+  """Individual (Natural person)"""
+  Individual
+
+  """Company (Legal person)"""
+  Company
+}
+
+"""Language: ISO 639-1 language code"""
+enum AccountLanguage {
+  de
+  en
+  fr
+  it
+  nl
+  es
+}
+
+"""
+An account membership represents the rights of a user for a given account.
+
+*Each account is administered by an account membership having the capacity of legal representative. He has the possibility of delegating rights on this account to other users.*
+"""
+type AccountMembership {
+  """unique identifier of an account membership"""
+  id: ID!
+
+  """email"""
+  email: String!
+
+  """user of this account membership"""
+  user: User
+
+  """
+  `true` if this account membership having the capacity of the legal representative of the account holder.
+  """
+  legalRepresentative: Boolean!
+
+  """
+  `true` if this account membership can view account balances and transactions history
+  """
+  canViewAccount: Boolean!
+
+  """`true` if this account membership can add or canceled beneficiaries"""
+  canManageBeneficiaries: Boolean!
+
+  """`true` if this account membership can initiate payments"""
+  canInitiatePayments: Boolean!
+
+  """
+  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  """
+  canManageAccountMembership: Boolean!
+
+  """status of the account membership"""
+  statusInfo: AccountMembershipStatusInfo!
+
+  """account of the account membership"""
+  account: Account
+
+  """Periodic Spending limit list"""
+  spendingLimits: [SpendingLimit!]
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+
+  """
+  version of the account membership started from '1' and incremented at every updates
+  """
+  version: String!
+
+  """Residency address of the member"""
+  residencyAddress: AddressInfo
+
+  """Tax Identification Number of the member"""
+  taxIdentificationNumber: String
+
+  """List of accepted identification level"""
+  acceptedIdentificationLevels: [IdentificationLevel]!
+
+  """Recommended identification level"""
+  recommendedIdentificationLevel: IdentificationLevel!
+
+  """
+  Indicate if the identity bound to the account membership has required identification level
+  """
+  hasRequiredIdentificationLevel: Boolean
+
+  """account membership's cards"""
+  cards(
+    first: Int! = 50
+    before: String
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: CardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: CardFiltersInput
+  ): CardConnection!
+}
+
+"""when a user is binded with the error to the account membership"""
+type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always BindingUserError for type AccountMembershipBindingUserErrorStatusInfo)
+  """
+  status: AccountMembershipStatus!
+
+  """
+  `true` if the first name of the user binded doesn't match with the invitation
+  """
+  firstNameMatchError: Boolean!
+
+  """`true` if Swan hasn't verified the user's identity"""
+  idVerifiedMatchError: Boolean!
+
+  """
+  `true` if the last name of the user binded doesn't match with the invitation
+  """
+  lastNameMatchError: Boolean!
+
+  """
+  `true` if the phone number of the user binded doesn't match with the invitation
+  """
+  phoneNumberMatchError: Boolean!
+
+  """
+  `true` if the birth date of the user binded doesn't match with the invitation
+  """
+  birthDateMatchError: Boolean!
+
+  """restricted to a user"""
+  restrictedTo: RestrictedTo!
+}
+
+type AccountMembershipCannotBeDisabledRejection implements Rejection {
+  accountMembershipId: String!
+  message: String!
+}
+
+type AccountMembershipCannotBeUpdatedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type AccountMembershipConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """AccountMembershipEdge list"""
+  edges: [AccountMembershipEdge!]!
+}
+
+"""when the user has to consent to invite a new account membership"""
+type AccountMembershipConsentPendingStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always ConsentPending for type AccountMembershipConsentPendingStatusInfo)
+  """
+  status: AccountMembershipStatus!
+
+  """The consent required to invite this account membership"""
+  consent: Consent!
+
+  """restricted to a user"""
+  restrictedTo: RestrictedTo!
+}
+
+"""when the account membership is disabled"""
+type AccountMembershipDisabledStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always Disabled for type AccountMembershipDisabledStatusInfo)
+  """
+  status: AccountMembershipStatus!
+
+  """reason why the account membership is disabled"""
+  reason: String!
+}
+
+"""Implements the Relay Edge interface"""
+type AccountMembershipEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The account membership"""
+  node: AccountMembership!
+}
+
+"""when the account membership is enabled"""
+type AccountMembershipEnabledStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always Enabled for type AccountMembershipEnabledStatusInfo)
+  """
+  status: AccountMembershipStatus!
+}
+
+"""
+when a new account membership is invited and there is no user binded yet
+"""
+type AccountMembershipInvitationSentStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always InvitationSent for type AccountMembershipInvitationSentStatusInfo)
+  """
+  status: AccountMembershipStatus!
+
+  """restricted to a user"""
+  restrictedTo: RestrictedTo!
+}
+
+"""
+Rejection returned when the Account Membership is not allowed to use an operation.
+"""
+type AccountMembershipNotAllowedRejection implements Rejection {
+  message: String!
+}
+
+type AccountMembershipNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned if invitation has not been sent to user yet"""
+type AccountMembershipNotReadyToBeBoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Field we can use when ordering that can be applied when listing account memberships
+"""
+enum AccountMembershipOrderByFieldInput {
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing account memberships"""
+input AccountMembershipOrderByInput {
+  field: AccountMembershipOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""
+Filters that can be applied when listing accounts (Only applied in user context)
+"""
+input AccountMembershipsFilterInput {
+  """Can the user initiate payments on this account"""
+  canInitiatePayments: Boolean
+
+  """Can the user manage account membership"""
+  canManageAccountMembership: Boolean
+
+  """Can the user manage beneficiaries"""
+  canManageBeneficiaries: Boolean
+
+  """Account memberships status/statuses we're looking for"""
+  status: [AccountMembershipStatus!]
+
+  """Filtered by email"""
+  email: String
+
+  """Filtered by first name"""
+  firstName: String
+
+  """Filtered by last name"""
+  lastName: String
+
+  """Searches email, first name, last name, and id"""
+  search: String
+}
+
+"""List of account memberships permission"""
+enum AccountMembershipsPermission {
+  canInitiatePayments
+  canManageAccountMembership
+  canManageBeneficiaries
+  canViewAccount
+}
+
+"""AccountMembership enabled"""
+enum AccountMembershipStatus {
+  """when the consent to invite the account membership is pending"""
+  ConsentPending
+
+  """when the account membership is invited"""
+  InvitationSent
+
+  """when the user binded with errors to the account membership"""
+  BindingUserError
+
+  """when the account membership is enabled"""
+  Enabled
+
+  """when the account membership is suspended"""
+  Suspended
+
+  """when the account membership is disabled"""
+  Disabled
+}
+
+"""here are the different account membership status:"""
+interface AccountMembershipStatusInfo {
+  """AccountMembership status"""
+  status: AccountMembershipStatus!
+}
+
+"""when the account membership is suspended"""
+type AccountMembershipSuspendedStatusInfo implements AccountMembershipStatusInfo {
+  """
+  AccountMembership status (always Suspended for type AccountMembershipSuspendedStatusInfo)
+  """
+  status: AccountMembershipStatus!
+
+  """reason why the account membership is suspended"""
+  reason: String!
+}
+
+"""
+Rejection returned if the account was not found or if the user does not have the rights to know that the card exists
+"""
+type AccountNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Swan account number"""
+scalar AccountNumber
+
+"""Account Opened status information"""
+type AccountOpenedStatus implements AccountStatusInfo {
+  """Account status (always Opened for type AccountOpenedStatus)"""
+  status: AccountStatus!
+}
+
+"""Fields that can be used when ordering accounts"""
+enum AccountOrderByFieldInput {
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing accounts"""
+input AccountOrderByInput {
+  field: AccountOrderByFieldInput
+  direction: OrderByDirection
+}
+
+enum AccountStatus {
+  """When the account is opened"""
+  Opened
+
+  """When the account is suspended"""
+  Suspended
+
+  """When the account is currently closing"""
+  Closing
+
+  """When the account is closed"""
+  Closed
+}
+
+interface AccountStatusInfo {
+  """Account status"""
+  status: AccountStatus!
+}
+
+"""Account Suspended status information"""
+type AccountSuspendedStatus implements AccountStatusInfo {
+  """Account status (always Suspended for type AccountSuspendedStatus)"""
+  status: AccountStatus!
+
+  """
+  Reason why the account is suspended
+  @Deprecated
+  """
+  reason: String!
+
+  """Reason why the account is currently suspend"""
+  reasonInfo: SuspendAccountStatusReason!
+}
+
+"""
+Rejection returned if the attempting to add cards to different accounts.
+"""
+type AddingCardsToDifferentAccountsRejection implements Rejection {
+  message: String!
+}
+
+"""Address Information"""
+type Address {
+  """address line 1"""
+  addressLine1: String
+
+  """addressLine2"""
+  addressLine2: String
+
+  """city"""
+  city: String
+
+  """postal code (max 10 characters)"""
+  postalCode: String
+
+  """state"""
+  state: String
+
+  """country"""
+  country: CCA3
+}
+
+"""Address information."""
+type AddressInfo {
+  """Address line 1."""
+  addressLine1: String
+
+  """Address line 2."""
+  addressLine2: String
+
+  """City."""
+  city: String
+
+  """Postal code."""
+  postalCode: String
+
+  """State."""
+  state: String
+
+  """Country."""
+  country: CCA3
+}
+
+"""Address"""
+type AddressInformation {
+  """Address"""
+  addressLine1: String!
+
+  """Address"""
+  addressLine2: String
+
+  """City"""
+  city: String!
+
+  """Country"""
+  country: CCA3!
+
+  """Postal code"""
+  postalCode: String!
+
+  """State"""
+  state: String
+}
+
+"""Address"""
+input AddressInformationInput {
+  """Address"""
+  addressLine1: String!
+
+  """Address"""
+  addressLine2: String
+
+  """City"""
+  city: String!
+
+  """Country"""
+  country: CCA3!
+
+  """Postal code"""
+  postalCode: String!
+
+  """State"""
+  state: String
+}
+
+"""Address Information"""
+input AddressInput {
+  """address line 1 (max 100 characters)"""
+  addressLine1: String
+
+  """address line 2 (max 100 characters)"""
+  addressLine2: String
+
+  """city (max 100 characters)"""
+  city: String
+
+  """postal code (max 10 characters)"""
+  postalCode: String
+
+  """state (max 100 characters)"""
+  state: String
+
+  """country code"""
+  country: CCA3!
+}
+
+"""Rejection returned if card already has a valid Physical Card"""
+type AlreadyValidPhysicalCardRejection implements Rejection {
+  message: String!
+}
+
+"""Amount with its currency"""
+type Amount {
+  """currency"""
+  currency: Currency!
+
+  """value of the amount"""
+  value: AmountValue!
+}
+
+"""Amount with its currency"""
+input AmountInput {
+  """value of the amount"""
+  value: AmountValue!
+
+  """currency"""
+  currency: Currency!
+}
+
+"""
+The amount given with fractional digits, where fractions must be compliant to the currency definition. Up to 14 significant figures. Negative amounts are signed by minus. The decimal separator is a dot.
+
+Example: Valid representations for EUR with up to two decimals are:
+
+1056
+5768.2
+-1.50
+5877.78
+"""
+scalar AmountValue
+
+"""Rejection return if the project is not configured to allow Apple Pay"""
+type ApplePayNotAllowedForProjectRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Approved Funding Limit"""
+type ApprovedFundingLimit {
+  """Requested amount settings for the instant funding limit"""
+  instantFundingLimit: FundingLimitAmount!
+
+  """Requested amount settings for the funding limit"""
+  fundingLimit: FundingLimitAmount!
+}
+
+"""A method used to authenticate a user"""
+type Authenticator {
+  """Operating System (Apple, Android, ...)"""
+  os: String
+
+  """Device Brand (Apple, Samsung, ...)"""
+  brand: String
+
+  """Device Model (iPhone XS, Samsung S3, ...)"""
+  model: String
+
+  """Type of authenticator"""
+  type: AuthenticatorType!
+
+  """User agent, if it's a web authenticator"""
+  userAgent: String
+
+  """
+  Accept-Language header used during registration, if it's a web authenticator
+  """
+  acceptLanguage: String
+}
+
+enum AuthenticatorType {
+  """The Swan app"""
+  Swan
+
+  """A Swan web authenticator"""
+  SwanWeb
+}
+
+"""Rejection returned if the status account is not valid"""
+type BadAccountStatusRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type BadRequestRejection implements Rejection {
+  message: String!
+}
+
+"""Bank Identifier Code"""
+scalar BIC
+
+"""Business activity."""
+enum BusinessActivity {
+  AdministrativeServices
+  Agriculture
+  Arts
+  BusinessAndRetail
+  Construction
+  Education
+  ElectricalDistributionAndWaterSupply
+  FinancialAndInsuranceOperations
+  Health
+  Housekeeping
+  InformationAndCommunication
+  LodgingAndFoodServices
+  ManufacturingAndMining
+  Other
+  PublicAdministration
+  RealEstate
+  ScientificActivities
+  Transportation
+}
+
+"""Rejection returned when the Physical Card cannot be activated"""
+type CannotActivatePhysicalCardRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""Card"""
+type Card {
+  """Unique identifier of a card"""
+  id: ID!
+
+  """Type of a card"""
+  type: CardType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """
+  Account membership to define the card holder and the account linked to the card.
+  """
+  accountMembership: AccountMembership!
+
+  """Main Currency"""
+  mainCurrency: Currency!
+
+  """Card expiration date  if `null` it does not have an expiration date"""
+  cardContractExpiryDate: DateTime
+
+  """URL of the card design"""
+  cardDesignUrl: String!
+
+  """
+  URL of the card with masked card information (like its number) and with full card information if connected user consented beforehand
+  """
+  cardUrl: String!
+
+  """Card status information"""
+  statusInfo: CardStatusInfo!
+
+  """`true` if this card allows cash withdrawals"""
+  withdrawal: Boolean!
+
+  """`true` if this card allows payments outside of the country"""
+  international: Boolean!
+
+  """
+  `true` if this card allows transactions outside of the card's main currency
+  """
+  nonMainCurrencyTransactions: Boolean!
+
+  """`true` if this card allows transactions at eCommerce sites"""
+  eCommerce: Boolean!
+
+  """Periodic Spending limit list"""
+  spendingLimits: [SpendingLimit!]
+
+  """Physical card if the card holder has ordered one"""
+  physicalCard: PhysicalCard
+
+  """Masked Card Number"""
+  cardMaskedNumber: String!
+
+  """Card expiry date with MM/YY format"""
+  expiryDate: String
+
+  """Card name"""
+  name: String
+
+  """Card product"""
+  cardProduct: CardProduct!
+
+  """Digital Cards linked to this card"""
+  digitalCards(
+    first: Int! = 50
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: DigitalCardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: DigitalCardFiltersInput
+  ): DigitalCardConnection!
+}
+
+"""Card Canceled Status Information"""
+type CardCanceledStatusInfo implements CardStatusInfo {
+  """Card status (always Canceled for type CardCanceledStatusInfo)."""
+  status: CardStatus!
+
+  """Reason why the card is canceled"""
+  reason: String!
+}
+
+"""Card Canceling Status Information"""
+type CardCancelingStatusInfo implements CardStatusInfo {
+  """Card status (always Canceling for type CardCancelingStatusInfo)."""
+  status: CardStatus!
+
+  """Reason why the card is about to be canceled."""
+  reason: String!
+}
+
+"""Rejection returned if the card could not be digitalized"""
+type CardCanNotBeDigitalizedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type CardConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """CardEdge list"""
+  edges: [CardEdge!]!
+}
+
+"""when the user has to consent to add this card"""
+type CardConsentPendingStatusInfo implements CardStatusInfo {
+  """
+  Card status (always ConsentPending for type CardConsentPendingStatusInfo)
+  """
+  status: CardStatus!
+
+  """The consent required to add this card"""
+  consent: Consent!
+}
+
+type CardDesignBackground {
+  """Unique identifier of a project card design background"""
+  id: ID!
+
+  """Card design background name"""
+  name: String!
+
+  """Card design background type"""
+  type: String!
+
+  """Card design background text color"""
+  cardTextColor: String!
+
+  """Card design background url"""
+  cardBackgroundUrl: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""Project Card Design Background Type"""
+enum CardDesignBackgroundType {
+  """when Card design background is black"""
+  Black
+
+  """when Card design background is light"""
+  Silver
+
+  """when Card design background is customized"""
+  Custom
+}
+
+"""Card designs Status"""
+enum CardDesignStatus {
+  """when card design are in Draft"""
+  Draft
+
+  """when card design are Enabled"""
+  Enabled
+
+  """when card design are Disabled"""
+  Disabled
+
+  """when card design are ToReview"""
+  ToReview
+}
+
+"""Implements the Relay Edge interface"""
+type CardEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Card entry"""
+  node: Card!
+}
+
+"""Card Enabled Status Information"""
+type CardEnabledStatusInfo implements CardStatusInfo {
+  """Card status (always Enabled for type CardEnabledStatusInfo)."""
+  status: CardStatus!
+}
+
+"""Filters that can be applied when listing cards"""
+input CardFiltersInput {
+  """
+  The status of the card.
+  
+  @deprecated(reason: "use `statuses` instead")
+  """
+  status: CardStatus
+
+  """Statuses of the card."""
+  statuses: [CardStatus!]
+
+  """
+  Type of card
+  
+  @deprecated(reason: "use `types` instead")
+  """
+  type: CardType
+
+  """Types of card"""
+  types: [CardType!]
+
+  """String searched"""
+  search: String
+
+  """
+  Account identifier
+  
+  This filter is only available for User Access Token, for the moment
+  """
+  accountId: String
+}
+
+type CardInfo {
+  panIframeUrl: String!
+  expiryDateIframeUrl: String!
+  cvvIframeUrl: String!
+  cardHolderName: String!
+}
+
+union CardInfoPayload = MaskedCardInfo | CardInfo
+
+type CardInfos {
+  """Card Design Url"""
+  cardDesignUrl: String!
+
+  """Card Background Type"""
+  cardBackgroundType: CardSettingsBackgroundType!
+
+  """Card Text Color in hexadecimal"""
+  cardTextColor: String!
+
+  """Card Information to display either masked or not."""
+  cardInfos: CardInfoPayload
+}
+
+input CardInfosInput {
+  token: String!
+  requestId: String
+}
+
+"""
+Rejection returned if the card was not found or if the user does not have the rights to know that the account exists
+"""
+type CardNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Field we can use when ordering that can be applied when listing cards"""
+enum CardOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing cards"""
+input CardOrderByInput {
+  field: CardOrderByFieldInput
+  direction: OrderByDirection
+}
+
+type CardPINInfos {
+  urlToCall: String!
+  requestRef: String!
+  consumerId: String!
+  costumerRef: String!
+  controlValue: String!
+  time: Int!
+  mac: String!
+}
+
+input CardPINInfosInput {
+  cardId: String!
+  requestId: String!
+}
+
+"""when the card is in the process of being ready to use"""
+type CardProcessingStatusInfo implements CardStatusInfo {
+  """Card status (always Processing for type CardProcessingStatusInfo)"""
+  status: CardStatus!
+}
+
+"""Card Product"""
+type CardProduct {
+  id: ID!
+  name: String
+  projectId: ID!
+  status: CardProductStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  applicableToPhysicalCards: Boolean!
+  cardDesigns: [CardProductDesign!]!
+  defaultCardProduct: Boolean!
+  individualSpendingLimit: SpendingLimit!
+  companySpendingLimit: SpendingLimit!
+}
+
+"""Card design of a Card Product"""
+type CardProductDesign {
+  """Unique identifier of a card design"""
+  id: ID!
+
+  """Design version"""
+  version: Int!
+
+  """Logo url svg"""
+  cardProjectLogoSvgUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo300dpiUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo600dpiUrl: String
+
+  """Zoom level"""
+  zoomRatioProjectLogo: Int
+
+  """Card Design URL"""
+  cardDesignUrl: String
+
+  """Accent color"""
+  accentColor: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Status of the card design"""
+  status: CardDesignStatus!
+
+  """Card Background of the Card design"""
+  cardBackground: CardDesignBackground!
+}
+
+"""Rejection returned if the card product is disabled."""
+type CardProductDisabledRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned if the card product is not applicable to physical card.
+"""
+type CardProductNotApplicableToPhysicalCardsRejection implements Rejection {
+  message: String!
+}
+
+type CardProductNotFoundRejection implements Rejection {
+  message: String!
+}
+
+"""Card Product Status"""
+enum CardProductStatus {
+  """When card product is waiting for review"""
+  PendingReview
+
+  """When card product is Enabled"""
+  Enabled
+
+  """When card product is suspended"""
+  Suspended
+
+  """When card product is suspended"""
+  Disabled
+}
+
+"""Rejection returned if the card product is suspended."""
+type CardProductSuspendedRejection implements Rejection {
+  message: String!
+}
+
+type CardProductUsedRejection implements Rejection {
+  message: String!
+}
+
+"""Card settings for a Project"""
+type CardSettings {
+  """Unique identifier of a project card settings"""
+  id: ID!
+
+  """Flag used to indicate if ApplePay is activated for the project"""
+  allowsApplePay: Boolean! @deprecated
+
+  """Settings version"""
+  version: Int!
+
+  """Logo url svg"""
+  cardProjectLogoSvgUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo300dpiUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo600dpiUrl: String
+
+  """Zoom level"""
+  zoomRatioProjectLogo: Int
+
+  """Card Design URL"""
+  cardDesignUrl: String
+
+  """Accent color"""
+  accentColor: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Status of the card settings"""
+  status: ProjectCardStatus!
+
+  """Card Background of the Card Settings"""
+  cardBackground: CardSettingsBackground!
+}
+
+type CardSettingsBackground {
+  """Unique identifier of a project card settings"""
+  id: ID!
+
+  """Card settings background name"""
+  name: String!
+
+  """Card settings background type"""
+  type: String!
+
+  """Card settings background text color"""
+  cardTextColor: String!
+
+  """Card settings background url"""
+  cardBackgroundUrl: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""Card Settings Background Type"""
+enum CardSettingsBackgroundType {
+  """when Card background is black"""
+  Black
+
+  """when Card background is light"""
+  Silver
+
+  """when Card background is customized"""
+  Custom
+}
+
+"""Card Status"""
+enum CardStatus {
+  """when the consent to add this card is pending"""
+  ConsentPending
+
+  """when the card is in the process of being ready to use"""
+  Processing
+
+  """when the card is enabled"""
+  Enabled
+
+  """when the card is canceled"""
+  Canceled
+
+  """when the card is about to be canceled"""
+  Canceling
+}
+
+"""Card Status Information"""
+interface CardStatusInfo {
+  """Status of the card."""
+  status: CardStatus!
+}
+
+"""Card Type"""
+enum CardType {
+  """When card is Virtual"""
+  Virtual
+
+  """When card is Virtual and Physical"""
+  VirtualAndPhysical
+
+  """When card is Single Use Virtual"""
+  SingleUseVirtual
+}
+
+"""Rejection returned when the Card is not the expected status"""
+type CardWrongStatusRejection implements Rejection {
+  message: String!
+  identifier: String!
+  currentStatus: CardStatus!
+  expectedStatus: CardStatus!
+}
+
+"""Cash account type (Always Current)"""
+enum CashAccountType {
+  """When the account is a current account."""
+  Current
+  CashPayment
+  Charges
+  CashIncome
+  Commission
+  ClearingParticipantSettlementAccount
+  LimitedLiquiditySavingsAccount
+  Loan
+  MarginalLending
+  MoneyMarket
+  NonResidentExternal
+  Overdraft
+  OverNightDeposit
+  OtherAccount
+  Settlement
+  Salary
+  Savings
+  Tax
+  TransactingAccount
+  CashTrading
+}
+
+"""Country code alpha 2 (ISO 3166)"""
+scalar CCA2
+
+"""Country code alpha 3 (ISO 3166)"""
+scalar CCA3
+
+"""Certificate"""
+input Certificate {
+  """
+  CertificateType
+  
+  Can be either LEAF or INTERMEDIATE
+  """
+  key: String!
+
+  """Base64 value of the certificate"""
+  value: String!
+}
+
+"""
+Define a reason with a message and a specific type for closing account action
+"""
+type CloseAccountReason implements Reason {
+  type: CloseAccountReasonType!
+  message: String
+}
+
+"""Specific type for closing account action"""
+enum CloseAccountReasonType {
+  """Compliance Reason"""
+  ComplianceReason
+
+  """Partner Reason"""
+  PartnerReason
+
+  """Inactivity"""
+  Inactivity
+}
+
+"""
+Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
+"""
+union CloseAccountStatusReason = CloseAccountReason
+
+"""
+Data provided following the search for company information by siren number
+"""
+type CompanyInfo {
+  siren: String!
+  companyName: String!
+  headquarters: Headquarters!
+  vatNumber: String
+  taxIdentificationNumber: String
+  legalRepresentativePersonalAddress: AddressInformation
+}
+
+"""Inputs to fetch company info by siren number"""
+input CompanyInfoBySirenInput {
+  """headquarter country ex FR | DE"""
+  headquarterCountry: String!
+
+  """registration number of the company (SIREN)"""
+  siren: String!
+}
+
+union CompanyInfoBySirenPayload = CompanyInfoBySirenSuccessPayload | NotSupportedCountryRejection | InvalidSirenNumberRejection | InternalErrorRejection
+
+type CompanyInfoBySirenSuccessPayload {
+  companyInfo: CompanyInfo!
+}
+
+"""Type of company."""
+enum CompanyType {
+  Association
+  Company
+  HomeOwnerAssociation
+  Other
+  SelfEmployed
+}
+
+"""Inputs to fetch company info by Company Ref and Headquarter Country"""
+input CompanyUboByCompanyRefAndHeadquarterCountryInput {
+  """headquarter country ex FRA"""
+  headquarterCountry: CCA3!
+
+  """registration number of the company (ex: SIREN)"""
+  companyRef: String!
+}
+
+type CompanyUboByCompanyRefAndHeadquarterCountryPayload {
+  individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]!
+}
+
+"""Complete Address Information"""
+input CompleteAddressInput {
+  """address line 1 (max 38 characters)"""
+  addressLine1: String!
+
+  """address line 2 (max 38 characters)"""
+  addressLine2: String
+
+  """city (max 30 characters)"""
+  city: String!
+
+  """postal code (max 10 characters)"""
+  postalCode: String!
+
+  """state (max 30 characters)"""
+  state: String
+
+  """country code"""
+  country: CCA3!
+}
+
+"""Complete Address Information with a contact"""
+input CompleteAddressWithContactInput {
+  """address line 1 (max 38 characters)"""
+  addressLine1: String!
+
+  """address line 2 (max 38 characters)"""
+  addressLine2: String
+
+  """city (max 30 characters)"""
+  city: String!
+
+  """postal code (max 10 characters)"""
+  postalCode: String!
+
+  """state (max 30 characters)"""
+  state: String
+
+  """country code"""
+  country: CCA3!
+
+  """contact first name"""
+  firstName: String!
+
+  """contact last name"""
+  lastName: String!
+
+  """contact phone number"""
+  phoneNumber: PhoneNumber!
+
+  """contact company name (max 38 characters)"""
+  companyName: String
+}
+
+"""
+Complete Digital Card used for ApplePay or GooglePay
+
+Once the pending phase is over, more data will be available in the response
+"""
+type CompleteDigitalCard implements DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+
+  """
+  Device
+  In case of a wallet application, some information about the device will be provided
+  """
+  device: Device!
+
+  """
+  Id of the wallet application.
+  Will not be present for Merchant
+  """
+  walletId: String
+
+  """
+  Masked DPAN with the last four digits visible
+  
+  This value is present in the user wallet application
+  """
+  cardMaskedNumber: String!
+
+  """
+  Digital Card status information
+  
+  In this type the status will be either ConsentPending or Pending
+  """
+  statusInfo: CompleteDigitalCardStatusInfo!
+}
+
+"""Complete Digital Card Status"""
+enum CompleteDigitalCardStatus {
+  """when the digital card is enabled"""
+  Enabled
+
+  """
+  when the digital card is suspended
+  
+  the transactions will be blocked
+  """
+  Suspended
+
+  """
+  when the digital card is canceled
+  
+  this is a final state
+  """
+  Canceled
+}
+
+"""Complete Digital Card Status Information"""
+interface CompleteDigitalCardStatusInfo {
+  """Status of the digital card."""
+  status: CompleteDigitalCardStatus!
+}
+
+"""
+Relay Connection type, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+interface Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [Edge!]!
+}
+
+"""
+Some sensitive operation at Swan, such as initiating a payment, require consent
+"""
+type Consent {
+  """unique identifier of the consent"""
+  id: ID!
+
+  """`true` if the consent requires a Strong Customer Authentication"""
+  requireSCA: Boolean!
+
+  """status of the consent"""
+  status: ConsentStatus!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime
+
+  """date when the `consentUrl` was request the first time"""
+  startedAt: DateTime
+
+  """date when the consent expire"""
+  expiredAt: DateTime
+
+  """purpose of the consent"""
+  purpose: ConsentPurpose!
+
+  """Redirect the user to this URL to start the consent flow"""
+  consentUrl: String!
+
+  """When the consent flow is finished the user is redirected to this URL"""
+  redirectUrl: String!
+
+  """userId who initiated the consent"""
+  userId: String!
+
+  """user who initiated the consent"""
+  user: User
+
+  """unique hash of the consent"""
+  challenge: String
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type ConsentConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """ConsentEdge list"""
+  edges: [ConsentEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type ConsentEdge implements Edge {
+  """
+  Opaque identifier pointing to this consent node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The consent"""
+  node: Consent!
+}
+
+"""Purpose of a consent"""
+enum ConsentPurpose {
+  """when accepting the partnership conditions"""
+  AcceptPartnershipConditions
+
+  """when inviting a new account membership"""
+  AddAccountMembership
+
+  """when adding several account memberships"""
+  AddAccountMemberships
+
+  """when adding a beneficiary"""
+  AddBeneficiary
+
+  """when adding a virtual card"""
+  AddCard
+
+  """when adding multiple cards"""
+  AddCards
+
+  """when adding a digital card"""
+  AddDigitalCard
+
+  """when activating a physical card"""
+  ActivatePhysicalCard
+
+  """when closing an account"""
+  CloseAccount
+
+  """when initiating a credit transfer"""
+  InitPayment
+
+  """when requesting to print physical card"""
+  PrintPhysicalCard
+
+  """when resuming an account membership"""
+  ResumeAccountMembership
+
+  """when resuming a physical card"""
+  ResumePhysicalCard
+
+  """when scheduling a standing order"""
+  ScheduleStandingOrder
+
+  """when updating an account membership"""
+  UpdateAccountMembership
+
+  """when updating a card"""
+  UpdateCard
+
+  """when updating a server consent project settings"""
+  UpdateServerConsentProjectSettings
+
+  """when viewing card confidential of a virtual card"""
+  ViewCardNumbers
+
+  """when requesting to view physical card PIN"""
+  ViewPhysicalCardPin
+
+  """when enabling a mandate"""
+  EnableMandate
+
+  """when adding a payment direct debit mandate"""
+  AddDirectDebitPaymentMandate
+
+  """when initiating a funding request"""
+  InitiateFundingRequest
+
+  """when initiating an instant funding request"""
+  InitiateInstantFundingRequest
+
+  """when the consent is a multiple consent"""
+  ConsentToMultipleConsents
+}
+
+"""Status of a consent"""
+enum ConsentStatus {
+  """when the user accepted"""
+  Accepted
+
+  """when the user refused"""
+  CustomerRefused
+
+  """when the operation is committing"""
+  OperationCommitting
+
+  """when the user credentials were refused"""
+  CredentialRefused
+
+  """when the consent is created"""
+  Created
+
+  """when the consentUrl has been requested"""
+  Started
+
+  """when the consent is expired"""
+  Expired
+
+  """when something went wrong"""
+  Failed
+
+  """when the user or the project decided to cancel the consent"""
+  Canceled
+}
+
+"""currency code alpha 3 (ISO 4217)"""
+scalar Currency
+
+"""Date with YYYY-MM-DD format"""
+scalar Date
+
+"""
+Date time (ISO 8601 with time information)
+ex: 2021-04-12T16:28:22.867Z
+"""
+scalar DateTime
+
+"""Device"""
+type Device {
+  """The type of device. It can be a Phone, Tablet, Watch"""
+  type: String
+
+  """
+  Device name
+  End user defined name of the device on which the card id provided
+  """
+  name: String
+
+  """Secure Element ID"""
+  SEID: String
+}
+
+"""Digital Card used for ApplePay or GooglePay"""
+interface DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+}
+
+"""Digital Card Canceled Status Information"""
+type DigitalCardCanceledStatusInfo implements CompleteDigitalCardStatusInfo {
+  """Card status (always Canceled for type DigitalCardCanceledStatusInfo)."""
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+
+  """Cancel Date"""
+  canceledAt: DateTime!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type DigitalCardConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """CardEdge list"""
+  edges: [DigitalCardEdge!]!
+}
+
+"""Digital Card ConsentPending Status Information"""
+type DigitalCardConsentPendingStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always ConsentPending for type DigitalCardConsentPendingStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+
+  """A reference to the consent to validate"""
+  consent: Consent!
+}
+
+"""Digital Card Declined Status Information"""
+type DigitalCardDeclinedStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always Declined for type DigitalCardDeclinedStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+}
+
+"""Implements the Relay Edge interface"""
+type DigitalCardEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Card entry"""
+  node: DigitalCard!
+}
+
+"""Digital Card Enabled Status Information"""
+type DigitalCardEnabledStatusInfo implements CompleteDigitalCardStatusInfo {
+  """
+  Digital Card status (always Enabled for type DigitalCardEnabledStatusInfo).
+  """
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+}
+
+"""Filters that can be applied when listing digitalCards"""
+input DigitalCardFiltersInput {
+  """The id of the digitalCard"""
+  id: String
+
+  """
+  The status of the digital card. It can be a CompleteDigitalCardStatus or a PendingDigitalCardStatus
+  """
+  status: String
+
+  """
+  The Secure Element ID
+  Mostly present on APple Devices
+  """
+  SEID: String
+
+  """The digital card masker number"""
+  cardMaskedNumber: String
+
+  """The ID of the wallet provider in the scheme system"""
+  walletProviderId: String
+
+  """Either ApplePay, GooglePay or Merchant"""
+  walletProviderName: String
+
+  """The wallet application ID in the user phone"""
+  walletId: String
+}
+
+"""Rejection returned when the Digital Card does not exist"""
+type DigitalCardNotFoundRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""
+Field we can use when ordering that can be applied when listing digital cards
+"""
+enum DigitalCardOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing digital cards"""
+input DigitalCardOrderByInput {
+  field: DigitalCardOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Digital Card Pending Status Information"""
+type DigitalCardPendingStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always Pending for type DigitalCardPendingStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+}
+
+"""Digital Card Suspended Status Information"""
+type DigitalCardSuspendedStatusInfo implements CompleteDigitalCardStatusInfo {
+  """
+  Digital Card status (always Suspended for type DigitalCardSuspendedStatusInfo).
+  """
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+
+  """Suspend Date"""
+  suspendedAt: DateTime!
+}
+
+"""Digitalization Type"""
+enum DigitalizationType {
+  """
+  This digital card was created by direct input of the PAN into a wallet application
+  
+  This direct input can also be done using the device camera
+  """
+  Manual
+
+  """
+  This digital card was created based on a PAN stored into a merchant application (ex: iTunes)
+  """
+  CardOnFile
+
+  """This digital card was created by an in app provisioning"""
+  InApp
+
+  """We could not get the source of the digitalization"""
+  Unknown
+}
+
+"""
+Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
+but all implementation contains its own node property according to the paginated type.
+"""
+interface Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+scalar EmailAddress
+
+"""Employment status."""
+enum EmploymentStatus {
+  Craftsman
+  Employee
+  Entrepreneur
+  Farmer
+  Manager
+  Practitioner
+  Retiree
+  ShopOwner
+  Student
+  Unemployed
+}
+
+"""
+Rejection returned if the card product don't have a card design enabled
+"""
+type EnabledCardDesignNotFoundRejection implements Rejection {
+  message: String!
+}
+
+enum EnvType {
+  Live
+  Sandbox
+}
+
+type ExternalAccountAlreadyExistsRejection implements Rejection {
+  iban: String!
+  accountHolderId: String!
+  message: String!
+}
+
+enum FieldValidationError {
+  Missing
+}
+
+type ForbiddenRejection implements Rejection {
+  message: String!
+}
+
+"""Funding Limit Amount"""
+type FundingLimitAmount {
+  """The amount settings"""
+  amount: Amount!
+}
+
+"""Funding Limit Amount Input"""
+input FundingLimitAmountInput {
+  """The amount settings"""
+  amount: AmountInput!
+}
+
+"""Funding Limit Settings Change Request"""
+type FundingLimitSettingsChangeRequest {
+  """Unique identifier of a funding limit settings change request"""
+  id: ID!
+
+  """Requested amount settings for the instant funding limit"""
+  instantFundingLimit: FundingLimitAmount!
+
+  """Requested amount settings for the funding limit"""
+  fundingLimit: FundingLimitAmount!
+
+  """
+  Approved amount settings for the the instant funding limit and the funding limit
+  """
+  approved: ApprovedFundingLimit
+
+  """Status of the request"""
+  statusInfo: FundingLimitSettingsChangeRequestStatusInfo!
+
+  """Date of creation"""
+  createdAt: Date
+
+  """Date of last update"""
+  updatedAt: Date
+}
+
+"""
+StatusInfo when funding limit settings change request has been approved
+"""
+type FundingLimitSettingsChangeRequestApprovedStatusInfo implements FundingLimitSettingsChangeRequestStatusInfo {
+  status: FundingLimitSettingsChangeRequestStatus!
+  reason: String!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type FundingLimitSettingsChangeRequestConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """FundingLimitSettingsChangeRequestEdge list"""
+  edges: [FundingLimitSettingsChangeRequestEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type FundingLimitSettingsChangeRequestEdge implements Edge {
+  """
+  Opaque identifier pointing to this onboarding node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The FundingLimitSettingsChangeRequest"""
+  node: FundingLimitSettingsChangeRequest!
+}
+
+"""
+Filters that can be applied when listing funding limit settings change requests
+"""
+input FundingLimitSettingsChangeRequestFiltersInput {
+  """The ids of the funding limit settings change requests"""
+  id: [String!]
+
+  """Status we want to filter on"""
+  status: [FundingLimitSettingsChangeRequestStatus!]
+}
+
+"""
+Field we can use when ordering that can be applied when listing funding limit settings change requests
+"""
+enum FundingLimitSettingsChangeRequestOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""
+Order that can be applied when listing funding limit settings change requests
+"""
+input FundingLimitSettingsChangeRequestOrderByInput {
+  field: FundingLimitSettingsChangeRequestOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""StatusInfo when funding limit settings change request is pending"""
+type FundingLimitSettingsChangeRequestPendingStatusInfo implements FundingLimitSettingsChangeRequestStatusInfo {
+  status: FundingLimitSettingsChangeRequestStatus!
+}
+
+"""
+StatusInfo when funding limit settings change request has been rejected
+"""
+type FundingLimitSettingsChangeRequestRefusedStatusInfo implements FundingLimitSettingsChangeRequestStatusInfo {
+  status: FundingLimitSettingsChangeRequestStatus!
+  reason: String!
+}
+
+"""Funding Limit Settings Change Request Status"""
+enum FundingLimitSettingsChangeRequestStatus {
+  """When the request is in waiting for information"""
+  WaitingForInformation
+
+  """When the request is in pending"""
+  Pending
+
+  """When the request is approved"""
+  Approved
+
+  """When the request is refused"""
+  Refused
+}
+
+"""
+Object containing details about funding limit settings change request status
+"""
+interface FundingLimitSettingsChangeRequestStatusInfo {
+  """Current limit settings change request status."""
+  status: FundingLimitSettingsChangeRequestStatus!
+}
+
+"""
+StatusInfo when funding limit settings change request is waiting for more information
+"""
+type FundingLimitSettingsChangeRequestWaitingForInformationStatusInfo implements FundingLimitSettingsChangeRequestStatusInfo {
+  status: FundingLimitSettingsChangeRequestStatus!
+}
+
+input GenerateSupportingDocumentUploadUrlInput {
+  """Unique identifier of a supporting document collection"""
+  supportingDocumentCollectionId: ID!
+
+  """Type of document"""
+  supportingDocumentType: SupportingDocumentType
+
+  """Name of the document which will be sent"""
+  filename: String!
+
+  """Purpose of document"""
+  supportingDocumentPurpose: SupportingDocumentPurposeEnum
+}
+
+union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUploadUrlSuccessPayload | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | SupportingDocumentUploadNotAllowedRejection
+
+type GenerateSupportingDocumentUploadUrlSuccessPayload {
+  """Id of the supporting document created for this uploadUrl"""
+  supportingDocumentId: String!
+
+  """
+  Info to upload the document : url and fields to add along file in form (POST)
+  """
+  upload: SupportingDocumentUploadInfo!
+}
+
+type Headquarters {
+  town: String!
+  zipCode: String!
+  address: String!
+}
+
+scalar HexColorCode
+
+"""International Bank Account Number"""
+scalar IBAN
+
+"""Rejection returned when the IBAN is not reachable"""
+type IBANNotReachableRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned when the IBAN is not valid"""
+type IBANNotValidRejection implements Rejection {
+  message: String!
+}
+
+"""Virtual IBAN Status"""
+enum IBANStatus {
+  """When the virtual IBAN accept to receive Sepa payments"""
+  Enabled
+
+  """When the virtual IBAN refuse definitely to receive Sepa payments"""
+  Canceled
+
+  """When the virtual IBAN refuse temporarily to receive Sepa payments"""
+  Suspended
+}
+
+type IbanValidationRejection implements Rejection {
+  message: String!
+}
+
+"""Possible value for the field IdentificationLevel"""
+enum IdentificationLevel {
+  """Human identity verification"""
+  Expert
+
+  """Identity verification with Qualified Electronic Signature"""
+  QES
+
+  """Identity verification with PVID"""
+  PVID
+}
+
+"""Identification levels"""
+type IdentificationLevels {
+  PVID: Boolean!
+  QES: Boolean!
+  expert: Boolean!
+}
+
+"""Identification status"""
+enum IdentificationStatus {
+  """The user hasn't started the identity verification process yet."""
+  Uninitiated
+
+  """
+  The user has gone through the identity verification process, but we are still processing their information.
+  """
+  Processing
+
+  """
+  The user has gone through the identity verification process, and we have determined that their identity is valid.
+  The user now needs to go through the QES process to complete their identification.
+  """
+  ReadyToSign
+
+  """
+  The user has gone through the identity verification process, and we have determined that their identity is valid.
+  """
+  ValidIdentity
+
+  """
+  The user has gone through the identity verification process, but we were unable to determine if their
+  identity is valid because the quality of the provided documents was insufficient.
+  The user will have to start a new identification, which will update this status to `Processing`.
+  """
+  InsufficientDocumentQuality
+
+  """
+  The user has gone through the identity verification process, but we have determined that their identity is invalid.
+  The user will have to start a new identification, which will update this status to `Processing`.
+  """
+  InvalidIdentity
+}
+
+"""
+Rejection returned if identity and the account memberships are already bind
+"""
+type IdentityAlreadyBindToAccountMembershipRejection implements Rejection {
+  accountId: String!
+  identityId: String!
+  message: String!
+}
+
+"""Data used for in app provisioning"""
+type InAppProvisioningData {
+  """Cryptographic OTP used to pre-validate digitalization"""
+  activationData: String!
+
+  """
+  Base64 public key used with the wallet provider public key to encrypt the card data
+  """
+  ephemeralPublicKey: String!
+
+  """Encrypted card data"""
+  encryptedData: String!
+
+  """IV used to encrypt the card Data (Useful for Google Pay)"""
+  iv: String
+
+  """
+  public key fingerprint of the key used to encrypt card data (Useful for Google Pay)
+  """
+  publicKeyFingerprint: String
+
+  """
+  hash algorithm used during encryption of the card data (Useful for Google Pay)
+  """
+  oaepHashingAlgorithm: String
+}
+
+"""
+Individual Ultimate Beneficial Owner
+You need to describe the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company.
+Please describe the company (s) that owns the company that wishes to open an account, when an individual holds in fine more than 25%
+"""
+type IndividualUltimateBeneficialOwner {
+  """individual first name"""
+  firstName: String
+
+  """individual last name"""
+  lastName: String
+
+  """individual birth date"""
+  birthDate: DateTime
+
+  """individual birth city"""
+  birthCity: String
+
+  """individual birth city postal code"""
+  birthCityPostalCode: String
+
+  """individual birth country code"""
+  birthCountryCode: CCA3
+
+  """Information relating to the type of the UBO"""
+  info: IndividualUltimateBeneficialOwnerInfo!
+
+  """Individual beneficial owner Tax or Identification Number"""
+  taxIdentificationNumber: String
+
+  """Individual beneficial owner residency Address"""
+  residencyAddress: AddressInformation
+}
+
+"""Define the type of the UBO"""
+interface IndividualUltimateBeneficialOwnerInfo {
+  """Individual type"""
+  type: IndividualUltimateBeneficialOwnerTypeEnum!
+}
+
+input IndividualUltimateBeneficialOwnerInput {
+  """
+  Individual beneficial owner first name. Length must be from 1 to 100 characters
+  """
+  firstName: String
+
+  """
+  Individual beneficial owner  last name. Length must be from 1 to 100 characters
+  """
+  lastName: String
+
+  """Individual birth date. Must be a valid date"""
+  birthDate: String
+
+  """Individual birth city. Length must be from 1 to 100 characters"""
+  birthCity: String
+
+  """
+  Individual birth city postal code. Length must be from 1 to 50 characters
+  """
+  birthCityPostalCode: String
+
+  """Individual birth country code"""
+  birthCountryCode: CCA3
+
+  """Define UBO is an Indirect Owner"""
+  indirect: Boolean
+
+  """Define UBO is an Direct Owner"""
+  direct: Boolean
+
+  """
+  Total of capital (in percentage, ex: 50 = 50%). Must be between 1 and 100.
+  """
+  totalCapitalPercentage: Float
+
+  """Define UBO is a Legal Representative"""
+  type: IndividualUltimateBeneficialOwnerTypeEnum!
+
+  """Individual beneficial owner Tax or Identification Number"""
+  taxIdentificationNumber: String
+
+  """Individual beneficial owner residency Address"""
+  residencyAddress: AddressInformationInput
+}
+
+"""Individual Ultimate beneficial owner nature"""
+enum IndividualUltimateBeneficialOwnerTypeEnum {
+  """The Beneficial Owner is the representant legal"""
+  LegalRepresentative
+
+  """The Beneficial Owner have shares"""
+  HasCapital
+
+  """Other"""
+  Other
+}
+
+"""Individual Ultimate Beneficial Owner Type Has Capital"""
+type IndividualUltimateBeneficialOwnerTypeHasCapital implements IndividualUltimateBeneficialOwnerInfo {
+  """Individual type"""
+  type: IndividualUltimateBeneficialOwnerTypeEnum!
+
+  """Define UBO is an Indirect Owner"""
+  indirect: Boolean
+
+  """Define UBO is an Direct Owner"""
+  direct: Boolean
+
+  """Total of capital (in percentage, ex: 50 = 50%)"""
+  totalCapitalPercentage: Float
+}
+
+"""Individual Ultimate Beneficial Owner Type Legal Representative"""
+type IndividualUltimateBeneficialOwnerTypeLegalRepresentative implements IndividualUltimateBeneficialOwnerInfo {
+  """Individual type"""
+  type: IndividualUltimateBeneficialOwnerTypeEnum!
+}
+
+"""Individual Ultimate Beneficial Owner Type Other"""
+type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBeneficialOwnerInfo {
+  """Individual type"""
+  type: IndividualUltimateBeneficialOwnerTypeEnum!
+}
+
+"""Rejection returned on unexpected server error"""
+type InternalErrorRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned on invalid argument error"""
+type InvalidArgumentRejection implements Rejection {
+  message: String!
+  code: InvalidArgumentRejectionCode!
+  fields: [InvalidArgumentRejectionField!]!
+}
+
+enum InvalidArgumentRejectionCode {
+  INVALID_INPUT
+}
+
+type InvalidArgumentRejectionField {
+  name: String!
+  errors: [String!]!
+}
+
+"""Rejection returned if phone number is not well formatted"""
+type InvalidPhoneNumberRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if siren number is not well formatted"""
+type InvalidSirenNumberRejection implements Rejection {
+  message: String!
+}
+
+type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
+  accountMembershipId: String!
+  message: String!
+}
+
+type LegalRepresentativeAccountMembershipCannotBeSuspendedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type MaskedCardInfo {
+  maskedPan: String!
+  maskedExpiryDate: String!
+  maskedCvv: String!
+  cardHolderName: String!
+}
+
+"""
+Filters that can be applied when listing accounts (Only applied in user context)
+"""
+input MembershipsFilterInput {
+  """Can the user initiate payments on this account"""
+  canInitiatePayments: Boolean
+
+  """Can the user manage account membership"""
+  canManageAccountMembership: Boolean
+
+  """Can the user manage beneficiaries"""
+  canManageBeneficiaries: Boolean
+
+  """Account memberships status/statuses we're looking for"""
+  status: [AccountMembershipStatus!]
+
+  """Filtered by email"""
+  email: String
+
+  """Filtered by first name"""
+  firstName: String
+
+  """Filtered by last name"""
+  lastName: String
+
+  """Searches email, first name, last name, and id"""
+  search: String
+}
+
+"""Rejection returned when mandatory fields are missing from the call."""
+type MissingMandatoryFieldRejection implements Rejection {
+  message: String!
+}
+
+"""Monthly income."""
+enum MonthlyIncome {
+  """less than 500"""
+  LessThan500
+
+  """between 500 and 1500"""
+  Between500And1500
+
+  """between 1500 and 3000"""
+  Between1500And3000
+
+  """between 3000 and 4500"""
+  Between3000And4500
+
+  """more than 4500"""
+  MoreThan4500
+}
+
+"""Monthly payment volume."""
+enum MonthlyPaymentVolume {
+  Between10000And50000
+  Between50000And100000
+  LessThan10000
+  MoreThan100000
+}
+
+type Mutation {
+  unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
+  unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
+
+  """
+  Generate and return a presigned URL to upload a unique file for the supporting document collection
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
+}
+
+"""
+Rejection returned if the entity was not found or if the user does not have the rights to know that the account exists
+"""
+type NotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned when consent status couldn't change"""
+type NotReachableConsentStatusRejection implements Rejection {
+  message: String!
+  currentStatus: ConsentStatus
+  unreachableStatus: ConsentStatus
+}
+
+"""
+Rejection returned if the queried service doesn't support the country code
+"""
+type NotSupportedCountryRejection implements Rejection {
+  message: String!
+}
+
+"""Extra parameters provided by partner"""
+type OAuthRedirectParameters {
+  """
+  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity.
+  """
+  state: String
+
+  """
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
+  """
+  redirectUrl: String
+}
+
+input OAuthRedirectParametersInput {
+  """
+  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 1 to 255 characters
+  """
+  state: String
+
+  """
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 1 to 255 characters
+  """
+  redirectUrl: String
+}
+
+"""
+Information provided during the onboarding process of an individual or a company
+"""
+type Onboarding {
+  """Unique identifier of an onboarding"""
+  id: String!
+
+  """Account name"""
+  accountName: String
+
+  """Account Country"""
+  accountCountry: AccountCountry
+
+  """Creation date"""
+  createdAt: DateTime!
+
+  """Email"""
+  email: String
+
+  """Finalization date"""
+  finalizedAt: DateTime
+
+  """
+  Language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  """
+  language: String
+
+  """Information regarding the Individual or the company to onboard"""
+  info: OnboardingAccountHolderInfo!
+
+  """Account holder created at the end of the onboarding process"""
+  accountHolder: AccountHolder
+
+  """
+  Redirect the legal representative of a new account holder to this URL to start the onboarding process
+  """
+  onboardingUrl: String!
+
+  """Current computed state of onboarding"""
+  onboardingState: OnboardingState!
+
+  """
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
+  """
+  redirectUrl: String! @deprecated(reason: "Use `redirectUrl` field on oauthRedirectParameters parameters instead.")
+
+  """Extra parameters provided by partner"""
+  oAuthRedirectParameters: OAuthRedirectParameters
+
+  """Status (valid/invalid/finalized) and details of errors on fields"""
+  statusInfo: OnboardingStatusInfo!
+
+  """Swan TCU URL"""
+  tcuUrl: String!
+
+  """List of supporting document collection owned by the account holder."""
+  supportingDocumentCollection: SupportingDocumentCollection!
+
+  """Creation date"""
+  updatedAt: DateTime!
+
+  """Account opened after the onboarding finalization"""
+  account: Account
+
+  """List of accepted identification level for the legal representative"""
+  legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
+
+  """Recommended identification level for the legal representative"""
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+}
+
+"""The onboarding could be for an Individual or a company"""
+interface OnboardingAccountHolderInfo {
+  """Account holder type"""
+  type: AccountHolderType!
+}
+
+"""Company Account Holder Information"""
+type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
+  """
+  Account holder type (always Company for type OnboardingCompanyAccountHolderInfo)
+  """
+  type: AccountHolderType!
+
+  """name of the company"""
+  name: String
+
+  """registration number of the company (SIRET, ...)"""
+  registrationNumber: String
+
+  """legal form of the company (SAS, SCI, SASU, ...)"""
+  companyType: CompanyType
+
+  """business activity"""
+  businessActivity: BusinessActivity
+
+  """
+  business activity description
+  This must be 1024 characters long maximum.
+  """
+  businessActivityDescription: String
+
+  """estimated monthly payment volume (euro)"""
+  monthlyPaymentVolume: MonthlyPaymentVolume
+
+  """
+  The ultimate beneficiary is defined as the natural person (s) who own or control, directly or indirectly, the reporting company.
+  
+  The ultimate beneficiary is :
+  - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
+  - either the natural person (s) who exercise, by other means, a power of control of the company;
+  """
+  individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwner!]
+
+  """residency address of the head office (Must be in a European country)"""
+  residencyAddress: AddressInfo
+
+  """Is company registered at RCS in its country"""
+  isRegistered: Boolean
+
+  """
+  Unique number that identifies a taxable person (business) or non-taxable legal entity that is registered for VAT
+  """
+  vatNumber: String
+
+  """Tax Identification Number"""
+  taxIdentificationNumber: String
+
+  """Legal representative personal address"""
+  legalRepresentativePersonalAddress: AddressInformation
+
+  """Type of representation (legal representative or power of attorney)"""
+  typeOfRepresentation: TypeOfRepresentation
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type OnboardingConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """OnboardingEdge list"""
+  edges: [OnboardingEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type OnboardingEdge implements Edge {
+  """
+  Opaque identifier pointing to this onboarding node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The Onboarding"""
+  node: Onboarding!
+}
+
+"""Filters that can be applied when listing onboardings"""
+input OnboardingFiltersInput {
+  """Type/Types we want to filter on"""
+  types: [AccountHolderType!]
+
+  """Email we want to filter on"""
+  email: String
+
+  """Searches company name, first name, last name"""
+  search: String
+
+  """Status we want to filter on"""
+  status: [OnboardingStatus!]
+}
+
+"""StatusInfo when onboarding has been finalized"""
+type OnboardingFinalizedStatusInfo implements OnboardingStatusInfo {
+  status: OnboardingStatus!
+}
+
+"""Individual Account Holder Information"""
+type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInfo {
+  """
+  Account holder type (always Individual for type OnboardingIndividualAccountHolderInfo)
+  """
+  type: AccountHolderType!
+
+  """employment status of the individual account holder"""
+  employmentStatus: EmploymentStatus
+
+  """monthly income of the individual account holder"""
+  monthlyIncome: MonthlyIncome
+
+  """
+  residency address of the individual account holder (must be in a European country)
+  """
+  residencyAddress: AddressInfo
+
+  """Tax Identification Number"""
+  taxIdentificationNumber: String
+}
+
+type OnboardingInfo {
+  """unique identifier of an onboarding"""
+  id: String!
+
+  """Account name"""
+  accountName: String
+
+  """
+  Country of the account that will be created at the end of the onboarding process
+  """
+  accountCountry: AccountCountry
+
+  """email"""
+  email: String
+
+  """
+  language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  """
+  language: String
+
+  """Information regarding the Individual or the company to onboard"""
+  info: OnboardingAccountHolderInfo!
+
+  """
+  Redirect the legal representative of a new account holder to this URL to start the onboarding process
+  """
+  onboardingUrl: String!
+
+  """Current computed state of onboarding"""
+  onboardingState: OnboardingState
+
+  """
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
+  """
+  redirectUrl: String!
+
+  """Project infos you set in the dashboard"""
+  projectInfo: ProjectInfo
+
+  """Verification Flow"""
+  verificationFlow: VerificationFlow!
+
+  """Extra parameters provided by partner"""
+  oAuthRedirectParameters: OAuthRedirectParameters
+
+  """Status (valid/invalid/finalized) and details of errors on fields"""
+  statusInfo: OnboardingStatusInfo!
+
+  """Supporting document collection related to onboarding."""
+  supportingDocumentCollection: SupportingDocumentCollection!
+
+  """List of accepted identification level for the legal representative"""
+  legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
+
+  """Recommended identification level for the legal representative"""
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+
+  """Swan TCU URL"""
+  tcuUrl: String!
+}
+
+"""StatusInfo when onboarding has still at least one incorrect field"""
+type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
+  status: OnboardingStatus!
+  errors: [ValidationError!]!
+}
+
+"""Rejection returned if an onboarding is not completed"""
+type OnboardingNotCompletedRejection implements Rejection {
+  message: String!
+
+  """@deprecated(reason: "use `onboarding.id` instead")"""
+  onboardingId: String!
+  onboarding: Onboarding!
+}
+
+"""
+Field we can use when ordering that can be applied when listing onboardings
+"""
+enum OnboardingOrderByFieldInput {
+  createdAt
+  updatedAt
+  finalizedAt
+}
+
+"""Order that can be applied when listing onboardings"""
+input OnboardingOrderByInput {
+  field: OnboardingOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Onboarding process state"""
+enum OnboardingState {
+  """When the onboarding is in progress"""
+  Ongoing
+
+  """When the onboarding is finalized and the account holder is created"""
+  Completed
+}
+
+"""Possible values for onboarding status"""
+enum OnboardingStatus {
+  """When the onboarding is finalized"""
+  Finalized
+
+  """when the onboarding is invalid. Final status"""
+  Invalid
+
+  """When the onboarding is valid. Final status"""
+  Valid
+}
+
+"""
+Object containing details about onboarding status (valid/invalid and why it is invalid/already finalized)
+"""
+interface OnboardingStatusInfo {
+  """
+  Current onboarding status. Onboarding can only be finalized if status is "valid"
+  """
+  status: OnboardingStatus!
+}
+
+"""
+StatusInfo when onboarding has all onboarding fields are correctly filled
+"""
+type OnboardingValidStatusInfo implements OnboardingStatusInfo {
+  status: OnboardingStatus!
+}
+
+enum OrderByDirection {
+  Asc
+  Desc
+}
+
+"""
+Implements PageInfo from the Relay Connections Specification - information about a page in the pagination mechanism
+"""
+type PageInfo {
+  """Indicates whether more edges exist following this page"""
+  hasNextPage: Boolean
+
+  """Indicates whether more edges exist preceding this page"""
+  hasPreviousPage: Boolean
+
+  """Opaque identifier pointing to the first node of the page"""
+  startCursor: String
+
+  """Opaque identifier pointing to the last node of the page"""
+  endCursor: String
+}
+
+"""Input version"""
+input PartnerCloseAccountReasonInput {
+  type: PartnerCloseAccountReasonType!
+  message: String
+}
+
+"""Specific type for closing account action"""
+enum PartnerCloseAccountReasonType {
+  """Simple closing request"""
+  ClosingRequested
+}
+
+"""Partnership Status Accepted"""
+type PartnershipAcceptedStatusInfo implements PartnershipStatusInfo {
+  """
+  Partnership status (always Accepted for type PartnershipAcceptedStatusInfo)
+  """
+  status: PartnershipStatus!
+
+  """Accepted date of the partnership for this account"""
+  acceptedDate: DateTime!
+}
+
+"""Partnership Status canceled"""
+type PartnershipCanceledStatusInfo implements PartnershipStatusInfo {
+  """
+  Partnership status (always Canceled for type PartnershipCanceledStatusInfo)
+  """
+  status: PartnershipStatus!
+
+  """Accepted date of the partnership for this account"""
+  acceptedDate: DateTime!
+
+  """Canceled date of the partnership for this account"""
+  canceledDate: DateTime!
+
+  """Reason of the cancelation"""
+  reason: String!
+}
+
+"""Partnership Status currently cancelling"""
+type PartnershipCancelingStatusInfo implements PartnershipStatusInfo {
+  """
+  Partnership status (always Canceling for type PartnershipCancelingStatusInfo)
+  """
+  status: PartnershipStatus!
+
+  """Accepted date of the partnership for this account"""
+  acceptedDate: DateTime!
+
+  """Canceled date of the partnership for this account"""
+  canceledAfter: DateTime!
+}
+
+enum PartnershipStatus {
+  """
+  When the partnership is accepted by the account holder for this account
+  """
+  Accepted
+
+  """When you decide to stop the partnership, you have 2 months notice"""
+  Canceling
+
+  """When the partnership was canceled by you or the account holder"""
+  Canceled
+}
+
+"""Partnership Status information"""
+interface PartnershipStatusInfo {
+  """Status of the partnership for this account"""
+  status: PartnershipStatus!
+}
+
+enum PaymentAccountType {
+  """When the account holder if the account hasn't met KYC requirements"""
+  EMoney
+
+  """When all KYC requirements are met"""
+  PaymentService
+}
+
+"""Payment Level of the account"""
+enum PaymentLevel {
+  """When the account is limited to 150€ within 30 days and with no IBAN"""
+  Limited
+
+  """
+  When the account holder is fully verified and then the account is unlimited with an IBAN
+  """
+  Unlimited
+}
+
+"""Pending Digital Card used for ApplePay or GooglePay"""
+type PendingDigitalCard implements DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+
+  """
+  Digital Card status information
+  
+  In this type the status will be either ConsentPending or Pending
+  """
+  statusInfo: PendingDigitalCardStatusInfo!
+
+  """
+  Data to provide to the wallet during InApp Provisioning
+  
+  Signature Data is mandatory for ApplePay
+  
+  This data is only available for a digital card in
+  - status: Pending
+  - type: InApp
+  """
+  inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+}
+
+"""Pending Digital Card Status"""
+enum PendingDigitalCardStatus {
+  """when the digital card is waiting for the user to finish his consent"""
+  ConsentPending
+
+  """when the digital card is pending the end of the digitalization process"""
+  Pending
+
+  """
+  when the creation of a digital card is declined
+  
+  this is a final state
+  """
+  Declined
+}
+
+"""Pending Digital Card Status Information"""
+interface PendingDigitalCardStatusInfo {
+  """Status of the digital card."""
+  status: PendingDigitalCardStatus!
+}
+
+type PermissionCannotBeGrantedRejection implements Rejection {
+  message: String!
+}
+
+"""
+E.164 standard format phone number
+
+Examples
++551155256325
++44207183875
+"""
+scalar PhoneNumber
+
+"""Physical Card"""
+type PhysicalCard {
+  """Physical Card status information"""
+  statusInfo: PhysicalCardStatusInfo!
+
+  """Physical Card expiration date  with MM/YY string format"""
+  expiryDate: String
+
+  """
+  Unique identifier present on physical card, such identifier is null if the status is ToActivate or Canceled. This identifier is updated when a renewed card is activated
+  """
+  identifier: String
+
+  """Offline Spending limit defined by Swan"""
+  offlineSpendingLimit: Amount!
+
+  """Masked Card Number"""
+  cardMaskedNumber: String!
+}
+
+"""Physical Card Activated Status Information"""
+type PhysicalCardActivatedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Activated for type PhysicalCardEnabledStatusInfo).
+  """
+  status: PhysicalCardStatus!
+}
+
+"""Physical Card Canceled Status Information"""
+type PhysicalCardCanceledStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Canceled for type PhysicalCardCanceledStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is canceled."""
+  reason: String!
+}
+
+"""Physical Card Canceling Status Information"""
+type PhysicalCardCancelingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Canceling for type PhysicalCardCancelingStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is canceled."""
+  reason: String!
+}
+
+"""when the user has to authorize production of the physical card"""
+type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always ConsentPending for type PhysicalCardConsentPendingStatusInfo)
+  """
+  status: PhysicalCardStatus!
+
+  """The consent required to authorize production of the physical card"""
+  consent: Consent!
+}
+
+"""Rejection returned when the Physical Card does not exist"""
+type PhysicalCardNotFoundRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""when the physical card is in the process of being ready to use"""
+type PhysicalCardProcessingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical card status (always Processing for type PhysicalCardProcessingStatusInfo)
+  """
+  status: PhysicalCardStatus!
+}
+
+"""Physical Card Renewed Status Information"""
+type PhysicalCardRenewedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Renewed for type PhysicalCardRenewedStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """address to deliver the physical card"""
+  address: Address!
+
+  """Estimated delivery date"""
+  estimatedDeliveryDate: DateTime
+
+  """Shipping tracking number"""
+  trackingNumber: String
+
+  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
+  shippingProvider: String
+
+  """`true` if PIN Code is available."""
+  isPINReady: Boolean!
+}
+
+"""Physical Card Status"""
+enum PhysicalCardStatus {
+  """when the consent to authorize physical card production is pending"""
+  ConsentPending
+
+  """when the physical card is in the process of being ready to use"""
+  Processing
+
+  """when the physical card is activated"""
+  Activated
+
+  """when the physical card is suspended"""
+  Suspended
+
+  """when the physical card is canceled"""
+  Canceled
+
+  """when the physical card is about to be canceled"""
+  Canceling
+
+  """when the physical card is not yet activated"""
+  ToActivate
+
+  """when the physical card is renewed"""
+  Renewed
+}
+
+"""Physical Card Status Information"""
+interface PhysicalCardStatusInfo {
+  """Status of the physical card."""
+  status: PhysicalCardStatus!
+}
+
+"""Physical Card Suspended Status Information"""
+type PhysicalCardSuspendedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Suspended for type PhysicalCardSuspendedStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is suspended."""
+  reason: String!
+}
+
+"""Physical Card To Activate Status Information"""
+type PhysicalCardToActivateStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always ToActivate for type PhysicalCardToActivateStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """address to deliver the physical card"""
+  address: Address!
+
+  """Estimated delivery date"""
+  estimatedDeliveryDate: DateTime
+
+  """Shipping tracking number"""
+  trackingNumber: String
+
+  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
+  shippingProvider: String
+
+  """`true` if PIN Code is available."""
+  isPINReady: Boolean!
+}
+
+"""Rejection returned when the Physical Card is not the expected status"""
+type PhysicalCardWrongStatusRejection implements Rejection {
+  message: String!
+  identifier: String!
+  currentStatus: PhysicalCardStatus!
+  expectedStatus: PhysicalCardStatus!
+}
+
+"""6 digits numeric passcode"""
+scalar PIN
+
+enum PreferredNotificationChannel {
+  """Use Swan SMS"""
+  Sms
+
+  """Use In-App notification"""
+  App
+}
+
+type PreProvisioningSUVCardSettings {
+  preProvisioningSUVCards: Boolean!
+  preProvisioningSUVNumberOfCards: Int!
+  ownerProvisioningSUVCards: ID
+  preProvisioningSUVCardsAvailablePercentage: Float!
+}
+
+type ProjectCardDesigns {
+  """Unique identifier of a project"""
+  id: ID!
+
+  """Visual Id from the issuing card processor (Monext)"""
+  issuingProcessorVisualId: String
+
+  """Specific card product for companies"""
+  specificCardProductCodeForCompanies: String
+
+  """Project name"""
+  name: String
+
+  """Project card product designs"""
+  cardDesigns: [CardProductDesign!]!
+
+  """Project's pre provisioning suv card settings"""
+  preProvisioningSUVCardSettings: PreProvisioningSUVCardSettings
+}
+
+type ProjectCardSettings {
+  """Unique identifier of a project"""
+  id: ID!
+
+  """Visual Id from the issuing card processor (Monext)"""
+  issuingProcessorVisualId: String
+
+  """Specific card product for companies"""
+  specificCardProductCodeForCompanies: String
+
+  """Project name"""
+  name: String
+
+  """Project's card settings"""
+  cardSettings: [CardSettings!]!
+
+  """Project's pre provisioning suv card settings"""
+  preProvisioningSUVCardSettings: PreProvisioningSUVCardSettings
+}
+
+"""Project Card Settings Background Type"""
+enum ProjectCardSettingsBackgroundType {
+  """when Card setting background is black"""
+  Black
+
+  """when Card setting background is light"""
+  Silver
+
+  """when Card setting background is customized"""
+  Custom
+}
+
+"""Card Status"""
+enum ProjectCardStatus {
+  """when project's card settings are Initiated"""
+  Initiated
+
+  """when project's card settings are Enabled"""
+  Enabled
+
+  """when project's card settings are Disabled"""
+  Disabled
+
+  """when project's card settings are ToReview"""
+  ToReview
+
+  """when project's card settings are Suspended"""
+  Suspended
+
+  """when project's card settings are Rejected"""
+  Rejected
+}
+
+type ProjectForbiddenRejection implements Rejection {
+  message: String!
+}
+
+"""Public information of a `Project`"""
+type ProjectInfo {
+  """Unique identifier of the project"""
+  id: ID!
+
+  """
+  Your project name displayed in white label interfaces and in the terms and conditions
+  """
+  name: String!
+
+  """The type of your project"""
+  type: ProjectType!
+
+  """URL of your logo"""
+  logoUri: String
+
+  """
+  Your accent color, used in white label interfaces. Most of the time for call to actions
+  """
+  accentColor: String
+
+  """Your custom subdomain used in consents"""
+  customConsentSubdomain: String
+
+  """Your OAuth client id"""
+  oAuthClientId: String
+
+  """
+  URL to your Terms and Conditions of Use document depending on the provided language
+  """
+  tcuDocumentUri(
+    """
+    this consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+    """
+    language: String!
+  ): String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+
+  """Unique id of your current Terms and Conditions of Use"""
+  tcuDocumentId: String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+
+  """Web banking settings"""
+  webBankingSettings: WebBankingSettings
+
+  """Project status"""
+  status: ProjectStatus!
+
+  """The card products associated with this project."""
+  cardProducts: [CardProduct!]
+
+  """the currently active card settings"""
+  activeCardSettings: CardSettings @deprecated(reason: "Use cardProduct.cardDesigns instead")
+  B2BMembershipIDVerification: Boolean
+}
+
+type ProjectInvalidStatusRejection implements Rejection {
+  message: String!
+}
+
+type ProjectNotFound implements Rejection {
+  message: String!
+}
+
+"""Rejection returned when the project is not found"""
+type ProjectNotFoundRejection implements Rejection {
+  message: String!
+}
+
+type ProjectSettingsForbiddenError implements Rejection {
+  message: String!
+}
+
+type ProjectSettingsNotFound implements Rejection {
+  message: String!
+}
+
+type ProjectSettingsStatusNotReachable implements Rejection {
+  message: String!
+}
+
+enum ProjectStatus {
+  Initiated
+  MeetingScheduled
+  ToReview @deprecated(reason: "replaced by `PendingCompliance`")
+  PendingCompliance
+  LimitedLiveAccess
+  BetaLiveAccess
+  Enabled @deprecated(reason: "replaced by `LimitedLiveAccess`")
+  FullLiveAccess
+  Disabled
+  Suspended
+  Rejected
+  PendingLiveReview
+}
+
+enum ProjectType {
+  INDIVIDUAL @deprecated(reason: "replaced by `Individual`")
+  COMPANY @deprecated(reason: "replaced by `Company`")
+  COMPANY_AND_CUSTOMERS @deprecated(reason: "replaced by `CompanyAndCustomers`")
+  Individual
+  Company
+  CompanyAndCustomers
+}
+
+type Query {
+  projectInfoById(id: ID!): ProjectInfo!
+  cardInfos(input: CardInfosInput!): CardInfos
+  cardPINInfos(input: CardPINInfosInput!): CardPINInfos
+
+  """Fetch company info (name, beneficiaries...) by Siren number"""
+  companyInfoBySiren(input: CompanyInfoBySirenInput!): CompanyInfoBySirenPayload!
+
+  """
+  Fetch company info (name, beneficiaries...) by Company Ref and Headquarter Country
+  """
+  companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
+  onboardingInfo(id: ID!): OnboardingInfo
+}
+
+"""Define a reason with a message"""
+interface Reason {
+  message: String
+}
+
+"""Input version"""
+input ReasonInput {
+  message: String
+}
+
+interface Rejection {
+  message: String!
+}
+
+input ResidencyAddressInput {
+  """Address line 1. Length must be from 1 to 255 characters"""
+  addressLine1: String
+
+  """AddressLine2. Length must be from 1 to 255 characters"""
+  addressLine2: String
+
+  """City. Length must be from 1 to 100 characters"""
+  city: String
+
+  """Postal code. Length must be from 1 to 50 characters"""
+  postalCode: String
+
+  """State of residency. Length must be from 1 to 100 characters"""
+  state: String
+
+  """Country"""
+  country: CCA3
+}
+
+"""Account membership restricted to"""
+type RestrictedTo {
+  """first name"""
+  firstName: String!
+
+  """last name"""
+  lastName: String!
+
+  """birth date"""
+  birthDate: Date
+
+  """phone number"""
+  phoneNumber: String!
+}
+
+"""
+Rejection returned if the mutation cannot be executed in another context than user
+"""
+type RestrictedToUserRejection implements Rejection {
+  message: String!
+}
+
+"""
+SEPA Creditor Identifier
+format :
+    1 – 2: ISO Country Code
+    3 – 4: Check Digit
+    5 – 7: Creditor Business Code – you (Creditor) choose this. The default is ZZZ
+    8 - 35: Creditor National Identifier – a consecutive number that will be assigned by country
+example:
+    FR11ABC123456
+"""
+scalar SepaCreditorIdentifier
+
+"""
+SEPA Identifier
+max 35 Latin characters as follow :
+    a b c d e f g h i j k l m n o p q r s t u v w x y z
+    A B C D E F G H I J K L M N O P Q R S T U V W X Y Z
+    0 1 2 3 4 5 6 7 8 9
+    / - ? : ( ) . , '  +
+with some follow extra rules :
+    Content must not start or end with a ‘/’
+    Content must not contain ‘//’s
+"""
+scalar SepaReference
+
+"""Signature data used during apple pay inApp provisioning"""
+input SignatureData {
+  """nonce"""
+  nonce: String!
+
+  """nonce signed by the secure element"""
+  nonceSignature: String!
+
+  """list of apple generated certificates"""
+  certificates: [Certificate!]!
+}
+
+"""Spending limits"""
+type SpendingLimit {
+  """type of limit (defined by the Partner, defined by Swan, etc.)"""
+  type: SpendingLimitType!
+
+  """period concerned"""
+  period: SpendingLimitPeriod!
+
+  """sum of amount of spending authorized during the period"""
+  amount: Amount!
+}
+
+"""Inputs when editing spending limit configuration"""
+input SpendingLimitInput {
+  """period concerned"""
+  period: SpendingLimitPeriodInput!
+
+  """sum of amount of spending authorized during the period"""
+  amount: AmountInput!
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriod {
+  Monthly
+  Weekly
+  Daily
+  Always
+}
+
+"""Available period to compute spending limits"""
+enum SpendingLimitPeriodInput {
+  Monthly
+  Weekly
+  Daily
+  Always
+}
+
+"""Available type of spending limits"""
+enum SpendingLimitType {
+  """for the account holder - defined by the partner"""
+  AccountHolder
+
+  """for the partner - defined by Swan"""
+  Partner
+}
+
+"""Supporting document used for compliance"""
+type SupportingDocument {
+  """Unique identifier of the document"""
+  id: String!
+
+  """Supporting document status information"""
+  statusInfo: SupportingDocumentStatusInfo!
+
+  """Type of supporting Document"""
+  supportingDocumentType: SupportingDocumentType
+
+  """Purpose of supporting document"""
+  supportingDocumentPurpose: SupportingDocumentPurposeEnum!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""
+Collection of supporting documents used for compliance
+
+Fetching SupportingDocument is restricted to Project access token
+"""
+type SupportingDocumentCollection {
+  """Unique identifier of the supporting document collection"""
+  id: String!
+
+  """Status of the supporting document collection"""
+  statusInfo: SupportingDocumentCollectionStatusInfo!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """
+  List of supported documents contained in the supporting document collection
+  """
+  supportingDocuments: [SupportingDocument]!
+
+  """
+  List of required supporting document purposes for this supporting document collection
+  """
+  requiredSupportingDocumentPurposes: [SupportingDocumentPurpose!]!
+}
+
+"""Supporting document collection with Approved status"""
+type SupportingDocumentCollectionApprovedStatusInfo implements SupportingDocumentCollectionStatusInfo {
+  """When the supporting document collection is approved"""
+  status: SupportingDocumentCollectionStatus!
+
+  """Date on which the supporting document collection has been approved"""
+  approvedAt: DateTime!
+}
+
+"""Supporting document collection with Canceled status"""
+type SupportingDocumentCollectionCanceledStatusInfo implements SupportingDocumentCollectionStatusInfo {
+  """When the supporting document collection is canceled"""
+  status: SupportingDocumentCollectionStatus!
+
+  """Date on which the supporting document collection has been canceled"""
+  canceledAt: DateTime!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type SupportingDocumentCollectionConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """SupportingDocumentCollectionEdge list"""
+  edges: [SupportingDocumentCollectionEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type SupportingDocumentCollectionEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The supporting document collection"""
+  node: SupportingDocumentCollection!
+}
+
+"""Rejection returned if the supporting document collection was not found"""
+type SupportingDocumentCollectionNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Supporting document collection with PendingReview status"""
+type SupportingDocumentCollectionPendingReviewStatusInfo implements SupportingDocumentCollectionStatusInfo {
+  """
+  When the supporting document collection is completed and in compliance review
+  """
+  status: SupportingDocumentCollectionStatus!
+}
+
+"""Supporting document collection with Rejected status"""
+type SupportingDocumentCollectionRejectedStatusInfo implements SupportingDocumentCollectionStatusInfo {
+  """When the supporting document collection is rejected"""
+  status: SupportingDocumentCollectionStatus!
+
+  """Date on which the supporting document collection has been rejected"""
+  rejectedAt: DateTime!
+}
+
+"""Verification status of a supporting document collection"""
+enum SupportingDocumentCollectionStatus {
+  """When the supporting document collection is created and on going"""
+  WaitingForDocument
+
+  """
+  When the supporting document collection is completed and in compliance review
+  """
+  PendingReview
+
+  """When the supporting document collection is approved. Final status"""
+  Approved
+
+  """When the supporting document collection is canceled. Final status"""
+  Canceled
+
+  """When the supporting document collection is rejected. Final status"""
+  Rejected
+}
+
+"""
+Rejection returned if supporting document cannot be deleted because its supporting document collection status is not WaitingForDocument
+"""
+type SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection implements Rejection {
+  message: String!
+  supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus!
+  supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+"""
+Rejection returned if supporting document cannot be updated because its supporting document collection status is not WaitingForDocument
+"""
+type SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection implements Rejection {
+  message: String!
+  supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus!
+  supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+interface SupportingDocumentCollectionStatusInfo {
+  """Status of the supporting document collection"""
+  status: SupportingDocumentCollectionStatus!
+}
+
+"""Rejection returned if the status transition is not allowed"""
+type SupportingDocumentCollectionStatusNotAllowedRejection implements Rejection {
+  oldStatus: SupportingDocumentCollectionStatus!
+  newStatus: SupportingDocumentCollectionStatus!
+  message: String!
+}
+
+"""Supporting document collection with WaitingForUpload status"""
+type SupportingDocumentCollectionWaitingForDocumentStatusInfo implements SupportingDocumentCollectionStatusInfo {
+  """When the Supporting Document Collection is created"""
+  status: SupportingDocumentCollectionStatus!
+}
+
+enum SupportingDocumentCollectMode {
+  API
+  EndCustomer
+  Partner
+}
+
+enum SupportingDocumentCommunicationLanguageSettings {
+  en
+  fr
+}
+
+"""Rejection returned if the supporting document was not found"""
+type SupportingDocumentNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Supporting document with NotUploaded status."""
+type SupportingDocumentNotUploadedStatusInfo implements SupportingDocumentStatusInfo {
+  """When the document has not been updated on time."""
+  status: SupportingDocumentStatus!
+}
+
+type SupportingDocumentPostField {
+  key: String!
+  value: String!
+}
+
+"""Details of a supporting document purpose"""
+type SupportingDocumentPurpose {
+  """Technical name of the purpose"""
+  name: SupportingDocumentPurposeEnum!
+
+  """
+  Corresponding supporting document types accepted for this supporting document purpose
+  """
+  acceptableSupportingDocumentTypes: [SupportingDocumentType!]!
+}
+
+"""Supporting document purpose"""
+enum SupportingDocumentPurposeEnum {
+  """Proof of association registration"""
+  AssociationRegistration
+
+  """Banking"""
+  Banking
+
+  """Proof of company registration"""
+  CompanyRegistration
+
+  """Other"""
+  Other
+
+  """Signed power of attorney document to give the power to act on behalf."""
+  PowerOfAttorney
+
+  """Proof of company address"""
+  ProofOfCompanyAddress
+
+  """Proof of company income"""
+  ProofOfCompanyIncome
+
+  """Proof of identity"""
+  ProofOfIdentity
+
+  """Proof of individual address"""
+  ProofOfIndividualAddress
+
+  """Proof of individual income"""
+  ProofOfIndividualIncome
+
+  """Proof of origin of funds"""
+  ProofOfOriginOfFunds
+
+  """Signed status"""
+  SignedStatus
+
+  """UBO Declaration"""
+  UBODeclaration
+}
+
+"""Supporting document with Refused status"""
+type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo {
+  """When the document has been refused by Swan"""
+  status: SupportingDocumentStatus!
+
+  """An unique URL and one-time URL to download the Document"""
+  downloadUrl: String!
+
+  """Date on which the supporting document collection has been refused"""
+  refusedAt: DateTime!
+
+  """Reason why the supporting document has been refused"""
+  reason: String!
+
+  """Original file name"""
+  filename: String!
+}
+
+type SupportingDocumentSettings {
+  collectMode: SupportingDocumentCollectMode!
+  communicationLanguage: SupportingDocumentCommunicationLanguageSettings
+  emailContact: String
+}
+
+"""Verification status of a document"""
+enum SupportingDocumentStatus {
+  """Document is not uploaded yet."""
+  WaitingForUpload
+
+  """Document has been uploaded but not verified by Swan yet."""
+  Uploaded
+
+  """Document has been uploaded and verified by Swan."""
+  Validated
+
+  """Document has been refused by Swan."""
+  Refused
+
+  """Document has not been uploaded on time."""
+  NotUploaded
+}
+
+"""
+Rejection returned if supporting document cannot be deleted because of its status
+"""
+type SupportingDocumentStatusDoesNotAllowDeletionRejection implements Rejection {
+  supportingDocument: SupportingDocument!
+  status: SupportingDocumentStatus!
+  message: String!
+}
+
+"""
+Rejection returned if supporting document cannot be updated because of its status
+"""
+type SupportingDocumentStatusDoesNotAllowUpdateRejection implements Rejection {
+  supportingDocument: SupportingDocument!
+  status: SupportingDocumentStatus!
+  message: String!
+}
+
+interface SupportingDocumentStatusInfo {
+  """Status of the supporting document"""
+  status: SupportingDocumentStatus!
+}
+
+"""Rejection returned if the status transition is not allowed"""
+type SupportingDocumentStatusNotAllowedRejection implements Rejection {
+  oldStatus: SupportingDocumentStatus!
+  newStatus: SupportingDocumentStatus!
+  message: String!
+}
+
+"""Specific type for document"""
+enum SupportingDocumentType {
+  """Selfie"""
+  Selfie
+
+  """Passport"""
+  Passport
+
+  """NationalIdCard"""
+  NationalIdCard
+
+  """Resident permit"""
+  ResidentPermit
+
+  """Driving license"""
+  DrivingLicense
+
+  """Water, Electricity or Gas Bill issued within the last 3 months"""
+  UtilityBill
+
+  """Telephone Bill issued within the last 3 months"""
+  PhoneBill
+
+  """Rental Receipt issued within the last 3 months"""
+  RentReceipt
+
+  """Home Insurance contract"""
+  HomeInsurance
+
+  """
+  Income Tax return or tax-exemption certificate dating less than 2 years
+  """
+  IncomeTaxReturn
+
+  """A pay slip dating less than 3 months"""
+  PaySlip
+
+  """Commercial registry extract issued within the last 3 months"""
+  RegisterExtract
+
+  """Legal document required for company’s formation"""
+  ArticlesOfIncorporation
+
+  """Share Deposit Certificate"""
+  CapitalShareDepositCertificate
+
+  """Ultimate Beneficial Owner Declaration"""
+  UBODeclaration
+
+  """Association registration proof for french association"""
+  JOAFFEExtract
+
+  """
+  Lease agreement in the name of the business or Proof of Individual Address if the company is hosted by one of the legal representative
+  """
+  CompanyLeaseAgreement
+
+  """Bank Statement"""
+  BankStatement
+
+  """
+  Document with details such as bank name, address, account number and account holder
+  """
+  BankAccountDetails
+
+  """Signed power of attorney document to give the power to act on behalf"""
+  PowerOfAttorney
+
+  """
+  Document submitted to your tax bureau at the end of the last business period
+  """
+  CorporateIncomeTaxReturn
+
+  """Other"""
+  Other
+
+  """By Laws"""
+  ByLaws
+
+  """Account statement"""
+  AccountStatement
+
+  """Deed of donation"""
+  DeedOfDonation
+
+  """Deed of sale"""
+  DeedOfSale
+
+  """Deed of succession"""
+  DeedOfSuccession
+
+  """Loan contract"""
+  LoanContract
+
+  """Notarial deed"""
+  NotarialDeed
+}
+
+"""Supporting document with Uploaded status"""
+type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInfo {
+  """When the document has been uploaded but not verified by Swan yet"""
+  status: SupportingDocumentStatus!
+
+  """An unique URL and one-time URL to download the Document"""
+  downloadUrl: String!
+
+  """Original file name"""
+  filename: String!
+}
+
+type SupportingDocumentUploadInfo {
+  url: String!
+  fields: [SupportingDocumentPostField!]!
+}
+
+"""
+Rejection returned if the supporting document collection cannot receive supporting documents anymore
+"""
+type SupportingDocumentUploadNotAllowedRejection implements Rejection {
+  supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus!
+  message: String!
+}
+
+"""Supporting document with Validated status"""
+type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusInfo {
+  """When the document has been uploaded and verified by Swan"""
+  status: SupportingDocumentStatus!
+
+  """An unique URL and one-time URL to download the Document"""
+  downloadUrl: String!
+
+  """Date on which the supporting document has been validated"""
+  validatedAt: DateTime!
+
+  """Original file name"""
+  filename: String!
+}
+
+"""Supporting document with WaitingForUpload status"""
+type SupportingDocumentWaitingForUploadStatusInfo implements SupportingDocumentStatusInfo {
+  """When the document is not uploaded yet"""
+  status: SupportingDocumentStatus!
+
+  """
+  Info to upload the document : url and fields to add along file in form (POST)
+  """
+  upload: SupportingDocumentUploadInfo!
+}
+
+"""
+Define a reason with a message and a specific type for suspend account action
+"""
+type SuspendAccountReason implements Reason {
+  type: SuspendAccountReasonType!
+  message: String
+}
+
+"""Input version"""
+input SuspendAccountReasonInput {
+  type: SuspendAccountReasonType!
+  message: String
+}
+
+"""Specific type for suspend account action"""
+enum SuspendAccountReasonType {
+  """Simple suspend request"""
+  SuspendRequested
+}
+
+"""SuspendAccountStatusReason"""
+union SuspendAccountStatusReason = SuspendAccountReason
+
+"""Rejection returned if too many items are given"""
+type TooManyItemsRejection implements Rejection {
+  message: String!
+}
+
+"""Rejection returned if the transaction was not found"""
+type TransactionNotFoundRejection implements Rejection {
+  transactionId: ID!
+  message: String!
+}
+
+"""Quality of the account holder doing the onboarding"""
+enum TypeOfRepresentation {
+  """The account holder is the legal representative"""
+  LegalRepresentative
+
+  """The account holder has a power of attorney"""
+  PowerOfAttorney
+}
+
+"""Ultimate beneficial Direct Owner company info."""
+type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
+  """Ultimate Beneficial Owner Unique Identifier ."""
+  id: ID!
+
+  """Ultimate beneficial Direct Owner Company type."""
+  type: UltimateBeneficialOwnerType!
+
+  """
+  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
+  """
+  parentCompanyShareRatio: Float!
+
+  """Name of the company."""
+  name: String!
+
+  """Registration number."""
+  registrationNumber: String!
+}
+
+"""Ultimate beneficial Direct Owner individual info."""
+type UltimateBeneficialDirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
+  """Ultimate Beneficial Owner Unique Identifier ."""
+  id: ID!
+
+  """Ultimate beneficial Direct owner Individual type ."""
+  type: UltimateBeneficialOwnerType!
+
+  """
+  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
+  """
+  parentCompanyShareRatio: Float!
+
+  """First name."""
+  firstName: String!
+
+  """Last name."""
+  lastName: String!
+
+  """Birth date."""
+  birthDate: Date!
+}
+
+"""Ultimate beneficial owner company info."""
+type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
+  """Ultimate Beneficial Owner Unique Identifier ."""
+  id: ID!
+
+  """Ultimate beneficial Indirect Owner Company type."""
+  type: UltimateBeneficialOwnerType!
+
+  """Unique Reference of the Parent Company."""
+  parentCompanyReference: String!
+
+  """
+  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
+  """
+  parentCompanyShareRatio: Float!
+
+  """Name of the company."""
+  name: String!
+
+  """Registration number."""
+  registrationNumber: String!
+}
+
+"""Ultimate beneficial Indirect Owner individual info."""
+type UltimateBeneficialIndirectOwnerIndividualInfo implements UltimateBeneficialOwnerInfo {
+  """Ultimate Beneficial Owner Unique Identifier."""
+  id: ID!
+
+  """Ultimate beneficial Indirect Owner Individual type ."""
+  type: UltimateBeneficialOwnerType!
+
+  """Unique Reference of the Parent Company."""
+  parentCompanyReference: String!
+
+  """
+  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
+  """
+  parentCompanyShareRatio: Float!
+
+  """First name."""
+  firstName: String!
+
+  """Last name."""
+  lastName: String!
+
+  """Birth date."""
+  birthDate: Date!
+}
+
+"""
+The Ultimate Beneficial Owner could be for an Individual or a Company and these can Direct or Indirect
+"""
+interface UltimateBeneficialOwnerInfo {
+  """Ultimate Beneficial Owner Unique Identifier ."""
+  id: ID!
+
+  """Ultimate beneficial owner type."""
+  type: UltimateBeneficialOwnerType!
+
+  """
+  Shares ratio of the parent company. Example: 50 if the share ratio is 50%.
+  """
+  parentCompanyShareRatio: Float!
+}
+
+"""Ultimate Beneficial Owner type."""
+enum UltimateBeneficialOwnerType {
+  """Direct Individual Owner (Natural person) ."""
+  DirectIndividual
+
+  """Direct Company Owner (Legal person)."""
+  DirectCompany
+
+  """Indirect Individual Owner (Natural person)."""
+  IndirectIndividual
+
+  """Indirect Company Owner (Legal person)."""
+  IndirectCompany
+}
+
+input UnauthenticatedUpdateCompanyOnboardingInput {
+  accountName: String
+  businessActivity: BusinessActivity
+  businessActivityDescription: String
+  accountCountry: AccountCountry
+  companyType: CompanyType
+  email: String
+  individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwnerInput!]
+  isRegistered: Boolean
+  language: String
+  monthlyPaymentVolume: MonthlyPaymentVolume
+  name: String
+  onboardingId: ID!
+  registrationNumber: String
+  residencyAddress: ResidencyAddressInput
+  vatNumber: String
+  taxIdentificationNumber: String
+  typeOfRepresentation: TypeOfRepresentation
+  legalRepresentativePersonalAddress: AddressInformationInput
+}
+
+union UnauthenticatedUpdateCompanyOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UnauthenticatedUpdateCompanyOnboardingSuccessPayload | ValidationRejection
+
+type UnauthenticatedUpdateCompanyOnboardingSuccessPayload {
+  onboarding: OnboardingInfo!
+}
+
+input UnauthenticatedUpdateIndividualOnboardingInput {
+  accountName: String
+  accountCountry: AccountCountry
+  email: String
+  employmentStatus: EmploymentStatus
+  language: String
+  monthlyIncome: MonthlyIncome
+  onboardingId: ID!
+  residencyAddress: ResidencyAddressInput
+  taxIdentificationNumber: String
+}
+
+union UnauthenticatedUpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorRejection | UnauthenticatedUpdateIndividualOnboardingSuccessPayload | ValidationRejection
+
+type UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
+  onboarding: OnboardingInfo!
+}
+
+scalar Upload
+
+"""
+URL that follows the WHATWG URL Standard.
+
+[Examples of parsed URLs](https://url.spec.whatwg.org/#example-url-parsing) may be found in the Standard itself.
+"""
+scalar URL
+
+"""The User is the unique user, natural person, of the Swan app."""
+type User {
+  """unique identifier of the user"""
+  id: ID!
+
+  """
+  mobile phone number with the international format (Example: +33689788967)
+  """
+  mobilePhoneNumber: PhoneNumber
+
+  """first name"""
+  firstName: String
+
+  """last name"""
+  lastName: String
+
+  """list of first names"""
+  allFirstNames: [String!]
+
+  """birth date"""
+  birthDate: Date
+
+  """nationality"""
+  nationalityCCA3: CCA3
+
+  """`true` if Swan has verified the user's identity"""
+  idVerified: Boolean!
+
+  """the methods used to authenticate this user"""
+  authenticators: [Authenticator!]
+
+  """
+  Identification status
+  
+  Each attempt to go through our identity verification process will update this value.
+  
+  This field is only available for the current user.
+  """
+  identificationStatus: IdentificationStatus
+
+  """
+  DO NOT USE.
+  
+  This feature is currently in development, it probably doesn't work and we will make breaking changes without warning.
+  """
+  identificationLevels: IdentificationLevels
+
+  """
+  Preferred notification channel
+  
+  When it is "null" it means that the preferences have not been updated. Default SMS in use
+  """
+  preferredNotificationChannel: PreferredNotificationChannel
+
+  """The list of account memberships"""
+  accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
+}
+
+type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejection {
+  accountMembershipId: String!
+  message: String!
+}
+
+"""
+Rejection returned if a identity does not have enough permission to manage account membership
+"""
+type UserNotAllowedToManageAccountMembershipRejection implements Rejection {
+  message: String!
+}
+
+type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejection {
+  accountMembershipId: String!
+  message: String!
+}
+
+"""Rejection returned when the User is not the Card Holder"""
+type UserNotCardHolderRejection implements Rejection {
+  message: String!
+}
+
+"""A detail of a validation error : what field is errored and why"""
+type ValidationError {
+  """
+  Onboarding property that is not matching requirements to allow a finalization
+  """
+  field: String!
+
+  """Constraints that are not matched on the Onboarding property"""
+  errors: [FieldValidationError!]
+}
+
+type ValidationFieldError {
+  code: ValidationFieldErrorCode!
+  message: String!
+  path: [String!]!
+}
+
+enum ValidationFieldErrorCode {
+  InvalidString
+  InvalidType
+  TooLong
+  TooShort
+}
+
+"""Rejection returned if an input contains invalid data"""
+type ValidationRejection implements Rejection {
+  fields: [ValidationFieldError!]!
+  message: String!
+}
+
+"""Verification Flow."""
+enum VerificationFlow {
+  """
+  When you ask the account holder to start the verification process at the beginning of the relationship to get an unlimited account.
+  """
+  Upfront
+
+  """
+  When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
+  """
+  Progressive
+}
+
+"""Verification status of an account holder"""
+enum VerificationStatus {
+  """
+  When the account holder has not started to answer the verification process.
+  """
+  NotStarted
+
+  """
+  When Swan is waiting for information about the account holder to continue the verification process.
+  """
+  WaitingForInformation
+
+  """When the verification process is pending."""
+  Pending
+
+  """When the account holder is verified."""
+  Verified
+
+  """When the account holder is refused."""
+  Refused
+}
+
+"""
+Virtual IBAN can be used by the account holder to receive SCT (Sepa Credit Transfer) or to be debited by SDD (Sepa Direct Debit).
+"""
+type VirtualIBANEntry {
+  """Unique identifier of a Virtual IBAN entry"""
+  id: ID!
+
+  """International Bank Account Number"""
+  IBAN: IBAN!
+
+  """Bank Identifier Code"""
+  BIC: BIC!
+
+  """Label (could be used to identify)"""
+  label: String
+
+  """Status of the Iban"""
+  status: IBANStatus!
+
+  """`true` if the Virtual IBAN refuses all Sepa Direct Debit received"""
+  blockSDD: Boolean!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type VirtualIBANEntryConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """VirtualIBANEntryEdge list"""
+  edges: [VirtualIBANEntryEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type VirtualIBANEntryEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The virtual iban entry"""
+  node: VirtualIBANEntry!
+}
+
+"""Wallet Provider (ApplePay, GooglePay ...)"""
+type WalletProvider {
+  """name of the Wallet Provider (Apple / Google / Amazon or Unknown)"""
+  name: String!
+
+  """id of the Wallet Provider"""
+  id: String!
+}
+
+scalar WalletToken
+
+type WebBankingSettings {
+  canViewAccountDetails: Boolean
+  canViewAccountStatement: Boolean
+  canManageVirtualIbans: Boolean
+  canInitiatePaymentsToNewBeneficiaries: Boolean
+  canViewPaymentList: Boolean
+  canOrderVirtualCards: Boolean
+  canOrderPhysicalCards: Boolean
+  canViewMembers: Boolean
+  canAddNewMembers: Boolean
+}

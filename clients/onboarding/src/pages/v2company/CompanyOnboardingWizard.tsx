@@ -9,7 +9,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   Document,
@@ -24,11 +23,7 @@ import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import {
-  CompanyAccountHolderFragment,
-  GetCompanyUboDocument,
-  GetOnboardingQuery,
-} from "../../graphql/unauthenticated";
+import { CompanyAccountHolderFragment, GetOnboardingQuery } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, companyOnboardingRoutes, Router } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
@@ -107,8 +102,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
       : [];
   }, [onboarding.info]);
 
-  const hasUbos = ubos.length > 0;
-
   const address = holder.residencyAddress;
   const country = address?.country;
   const companyCountry = isCompanyCountryCCA3(country)
@@ -130,45 +123,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const typeOfRepresentation = holder.typeOfRepresentation ?? "LegalRepresentative";
   const companyType = holder.companyType ?? "Company";
   const isRegistered = holder.isRegistered ?? true;
-
-  // we need this to know if we should prefetch ubos or not
-  // otherwise we still display prefetched ubos even if the user has submitted the form with no ubos
-  const [noUbosSubmitted, setNoUbosSubmitted] = useBoolean(false);
-
-  const shouldPrefetchUbos =
-    !noUbosSubmitted &&
-    !hasUbos &&
-    companyCountry === "FRA" &&
-    holder.registrationNumber != null &&
-    holder.registrationNumber !== "";
-
-  const { data: uboPrefetch } = useUrqlQuery(
-    {
-      query: GetCompanyUboDocument,
-      variables: {
-        input: { headquarterCountry: companyCountry, companyRef: holder.registrationNumber ?? "" },
-      },
-      pause: !shouldPrefetchUbos,
-    },
-    [hasUbos, companyCountry, holder.registrationNumber],
-  );
-
-  const initialUbos = useMemo(() => {
-    if (hasUbos) {
-      return ubos;
-    }
-    if (noUbosSubmitted) {
-      return [];
-    }
-    return uboPrefetch
-      .toOption()
-      .flatMap(result => result.toOption())
-      .map(
-        ({ companyUboByCompanyRefAndHeadquarterCountry }) =>
-          companyUboByCompanyRefAndHeadquarterCountry.individualUltimateBeneficialOwners,
-      )
-      .getWithDefault([]);
-  }, [ubos, hasUbos, noUbosSubmitted, uboPrefetch]);
 
   const requiredDocuments =
     onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
@@ -333,15 +287,22 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         <ResponsiveContainer>
           {({ small }) =>
             small ? (
-              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+              <>
+                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                <Space height={24} />
+              </>
             ) : (
-              <Box alignItems="center">
-                <LakeStepper
-                  activeStepId={route.name}
-                  steps={stepperSteps}
-                  style={styles.stepper}
-                />
-              </Box>
+              <>
+                <Box alignItems="center">
+                  <LakeStepper
+                    activeStepId={route.name}
+                    steps={stepperSteps}
+                    style={styles.stepper}
+                  />
+                </Box>
+
+                <Space height={48} />
+              </>
             )
           }
         </ResponsiveContainer>
@@ -355,10 +316,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             initialValues={{
               companyType,
               country: companyCountry,
-              isRegistered,
               typeOfRepresentation,
             }}
-            hasUbos={hasUbos}
           />
         ))
         .with({ name: "V2_OnboardingPresentation" }, ({ params }) => (
@@ -392,6 +351,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             previousStep="V2_OnboardingRegistration"
             nextStep="V2_OnboardingOrganisation2"
             onboardingId={params.onboardingId}
+            initialIsRegistered={isRegistered}
             initialName={holder.name ?? ""}
             initialRegistrationNumber={holder.registrationNumber ?? ""}
             initialVatNumber={holder.vatNumber ?? ""}
@@ -401,7 +361,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             initialPostalCode={companyPostalCode}
             country={companyCountry}
             accountCountry={accountCountry}
-            isRegistered={isRegistered}
             serverValidationErrors={finalized ? organisation1StepErrors : []}
           />
         ))
@@ -423,14 +382,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             onboardingId={params.onboardingId}
             accountCountry={accountCountry}
             country={companyCountry}
-            companyName={projectName}
-            initialUbos={initialUbos}
-            isPrefetchingUbos={uboPrefetch.isLoading()}
-            onSuccess={(onboarding, submittedUbos) => {
-              if (submittedUbos.length === 0) {
-                setNoUbosSubmitted.on();
-              }
-            }}
+            companyName={holder.name ?? ""}
+            ubos={ubos}
           />
         ))
         .with({ name: "V2_OnboardingDocuments" }, ({ params }) => (
@@ -438,12 +391,11 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             previousStep={getPreviousStep("V2_OnboardingDocuments", steps)}
             nextStep="V2_OnboardingFinalize"
             onboardingId={params.onboardingId}
-            typeOfRepresentation={typeOfRepresentation}
             documents={currentDocuments}
             onDocumentsChange={setCurrentDocuments}
             requiredDocumentTypes={requiredDocuments}
             supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
-            country={companyCountry}
+            onboardingLanguage={onboarding.language ?? "en"}
           />
         ))
         .with({ name: "V2_OnboardingFinalize" }, ({ params }) => (

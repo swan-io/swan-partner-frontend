@@ -1,5 +1,6 @@
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 
@@ -9,11 +10,12 @@ const styles = StyleSheet.create({
     maxWidth: 1280,
     margin: "auto",
     paddingHorizontal: 24,
-    paddingVertical: 24,
+    paddingBottom: 24,
+    flex: 1,
   },
   contentDesktop: {
     paddingHorizontal: 40,
-    paddingVertical: 48,
+    paddingBottom: 48,
   },
 });
 
@@ -23,8 +25,8 @@ type Props = {
 
 export const OnboardingStepContent = ({ children }: Props) => {
   return (
-    <LakeScrollView>
-      <ResponsiveContainer>
+    <LakeScrollView contentContainerStyle={commonStyles.fill}>
+      <ResponsiveContainer style={commonStyles.fill}>
         {({ large }) => (
           <View style={[styles.content, large && styles.contentDesktop]}>{children}</View>
         )}

@@ -102,7 +102,14 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   return (
     <LakeLabel
       label={label}
-      render={() => <CountryPicker items={items} value={value} onValueChange={onValueChange} />}
+      render={() => (
+        <CountryPicker
+          items={items}
+          value={value}
+          hideErrors={true}
+          onValueChange={onValueChange}
+        />
+      )}
       help={
         <DocumentationLink
           page={

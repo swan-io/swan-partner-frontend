@@ -1,3 +1,4 @@
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { match, P } from "ts-pattern";
 import type { CombinedError } from "urql";
 import { t } from "./i18n";
@@ -69,4 +70,46 @@ export const getUpdateOnboardingError = (
         description: t("error.tryAgain"),
       };
     });
+};
+
+export const getRegistrationNumberName = (country: CountryCCA3) => {
+  const name = match(country)
+    .with("AUT", () => "Firmenbuchnummer")
+    .with("BEL", () => "Numéro d'entreprise / Vestigingseenheidsnummer")
+    .with("HRV", () => "Matični broj poslovnog subjekta (MBS)")
+    .with("CYP", () => "Αριθμός Μητρώου Εταιρίας Şirket kayıt numarası")
+    .with("CZE", () => "Identifikační číslo")
+    .with("DNK", () => "CVR-nummer")
+    .with("EST", () => "Kood")
+    .with("FIN", () => "Y-tunnus FO-nummer")
+    .with("FRA", () => "Numéro SIREN")
+    .with("DEU", () => "Nummer der Firma Registernummer")
+    .with(
+      "GRC",
+      () => "τον Αριθμό Γενικού Εμπορικού Μητρώου τον Αριθμό Φορολογικού Μητρώου (Α.Φ.Μ.)",
+    )
+    .with("HUN", () => "Cégjegyzékszáma")
+    .with("IRL", () => "Company Number")
+    .with("ISL", () => "TIN")
+    .with("ITA", () => "Codice fiscale")
+    .with("LVA", () => "Reģistrācijas numurs")
+    .with("LIE", () => "UID")
+    .with("LTU", () => "Juridinio asmens kodas")
+    .with("LUX", () => "Numéro d'immatriculation")
+    .with("MLT", () => "Registration Number")
+    .with("NLD", () => "KvK-nummer")
+    .with("NOR", () => "TIN")
+    .with("POL", () => "Numer w Krajowym Rejestrze Sądowym (numer KRS)")
+    .with("PRT", () => "Número de Identificação Pessoa Coletiva (NIPC)")
+    .with("ROU", () => "Număr de ordine în Registrul Comerţului")
+    .with("SVK", () => "Identifikačného čísla Identification number")
+    .with("SVN", () => "Matična številka")
+    .with("ESP", () => "Número de identificación fiscal (NIF)")
+    .with("SWE", () => "Registreringsnummer")
+    .otherwise(() => null);
+
+  if (name == null) {
+    return "";
+  }
+  return ` (${name})`;
 };

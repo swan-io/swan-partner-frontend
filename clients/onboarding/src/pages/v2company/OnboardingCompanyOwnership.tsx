@@ -2,18 +2,19 @@ import { Result } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
-import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -33,7 +34,7 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { v4 as uuid } from "uuid";
@@ -44,7 +45,6 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
   IndividualUltimateBeneficialOwnerInput,
-  OnboardingDataFragment,
   UboFragment,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
@@ -53,10 +53,15 @@ import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 
+const UBO_DOCUMENTATION_LINK = `https://support.swan.io/hc/${locale.language}-150/articles/5767206365981`;
+
 const styles = StyleSheet.create({
   noUboContainer: {
     maxWidth: 530,
     marginHorizontal: "auto",
+    paddingVertical: 24,
+    flex: 1,
+    flexShrink: 0,
   },
   link: {
     display: "flex",
@@ -64,12 +69,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     textDecorationLine: "underline",
     color: colors.current[500],
-  },
-  button: {
-    width: 40,
-    height: 40,
-    alignItems: "center",
-    justifyContent: "center",
   },
   uboInfo: {
     flex: 1,
@@ -93,6 +92,11 @@ type PageState =
       type: "list";
     }
   | {
+      type: "deleting";
+      reference: string;
+      name: string;
+    }
+  | {
       type: "add";
       step: BeneficiaryFormStep;
       withAddressPart: boolean;
@@ -111,12 +115,7 @@ type Props = {
   accountCountry: AccountCountry;
   country: CountryCCA3;
   companyName: string;
-  initialUbos: UboFragment[];
-  isPrefetchingUbos: boolean;
-  onSuccess: (
-    mutationResponse: OnboardingDataFragment,
-    ubos: IndividualUltimateBeneficialOwnerInput[],
-  ) => void;
+  ubos: UboFragment[];
 };
 
 type LocalStateUbo = BeneficiaryFormState & {
@@ -225,6 +224,119 @@ const getUboInitials = (ubo: LocalStateUbo) => {
     .join("");
 };
 
+type UboTileProps = {
+  ubo: LocalStateUbo;
+  companyName: string;
+  country: CountryCCA3;
+  shakeError: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+};
+
+const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: UboTileProps) => {
+  return (
+    <Tile
+      key={ubo.reference}
+      style={[styles.uboTile, isUboInvalid(ubo) && shakeError && animations.shake.enter]}
+    >
+      <ResponsiveContainer breakpoint={400}>
+        {({ small }) =>
+          small ? (
+            <Box>
+              <Box direction="row" alignItems="center">
+                <Avatar initials={getUboInitials(ubo)} size={32} />
+
+                {isUboInvalid(ubo) && (
+                  <>
+                    <Space width={12} />
+                    <Tag color="negative">{t("company.step.owners.missingInfo")}</Tag>
+                  </>
+                )}
+
+                <Fill minWidth={24} />
+
+                <LakeButton
+                  size="small"
+                  mode="tertiary"
+                  icon="edit-regular"
+                  color="gray"
+                  onPress={onEdit}
+                />
+
+                <Space width={12} />
+
+                <LakeButton
+                  size="small"
+                  mode="tertiary"
+                  icon="delete-regular"
+                  color="negative"
+                  onPress={onDelete}
+                />
+              </Box>
+
+              <Space height={12} />
+
+              <Box style={styles.uboInfo}>
+                <LakeText variant="medium" color={colors.gray[900]}>
+                  {ubo.firstName} {ubo.lastName}
+                </LakeText>
+
+                <Space height={4} />
+                <LakeText>{formatUboMainInfo(ubo, companyName, country)}</LakeText>
+                <Space height={4} />
+                <LakeText>{formatUboBirthAddress(ubo)}</LakeText>
+              </Box>
+            </Box>
+          ) : (
+            <Box direction="row" alignItems="center">
+              <Avatar initials={getUboInitials(ubo)} size={32} />
+              <Space width={24} />
+
+              <Box style={styles.uboInfo}>
+                <LakeText variant="medium" color={colors.gray[900]}>
+                  {ubo.firstName} {ubo.lastName}
+                </LakeText>
+
+                <Space height={4} />
+                <LakeText>{formatUboMainInfo(ubo, companyName, country)}</LakeText>
+                <Space height={4} />
+                <LakeText>{formatUboBirthAddress(ubo)}</LakeText>
+              </Box>
+
+              {isUboInvalid(ubo) && (
+                <>
+                  <Space width={12} />
+                  <Tag color="negative">{t("company.step.owners.missingInfo")}</Tag>
+                </>
+              )}
+
+              <Space width={24} />
+
+              <LakeButton
+                size="small"
+                mode="tertiary"
+                icon="edit-regular"
+                color="gray"
+                onPress={onEdit}
+              />
+
+              <Space width={12} />
+
+              <LakeButton
+                size="small"
+                mode="tertiary"
+                icon="delete-regular"
+                color="negative"
+                onPress={onDelete}
+              />
+            </Box>
+          )
+        }
+      </ResponsiveContainer>
+    </Tile>
+  );
+};
+
 export const OnboardingCompanyOwnership = ({
   previousStep,
   nextStep,
@@ -232,14 +344,12 @@ export const OnboardingCompanyOwnership = ({
   accountCountry,
   country,
   companyName,
-  initialUbos,
-  isPrefetchingUbos,
-  onSuccess,
+  ubos,
 }: Props) => {
-  const previousIsPrefetching = useRef(isPrefetchingUbos);
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
-  const [ubos, setUbos] = useState<LocalStateUbo[]>(() =>
-    initialUbos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
+  const editableUbos = useMemo(
+    () => ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
+    [ubos, accountCountry],
   );
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
@@ -257,19 +367,11 @@ export const OnboardingCompanyOwnership = ({
     }
   }, [shakeError, setShakeError]);
 
-  useEffect(() => {
-    // if component is rendered while prefetching, we have to set the initial ubos once prefetch is completed
-    if (previousIsPrefetching.current && !isPrefetchingUbos) {
-      setUbos(initialUbos.map(ubo => convertFetchUboToInput(ubo, accountCountry)));
-      previousIsPrefetching.current = false;
-    }
-  }, [initialUbos, isPrefetchingUbos, accountCountry]);
-
   const openNewUbo = () => {
     setPageState({ type: "add", step: "common", withAddressPart });
   };
 
-  const closeUboModal = () => {
+  const resetPageState = () => {
     setPageState({ type: "list" });
   };
 
@@ -280,34 +382,8 @@ export const OnboardingCompanyOwnership = ({
     }));
   };
 
-  const addUbo = (newUbo: BeneficiaryFormState) => {
-    // errors is empty because beneficiaries form already validates the ubo
-    setUbos(ubos => [...ubos, { ...newUbo, errors: {} }]);
-    setPageState({ type: "list" });
-  };
-
-  const updateUbo = (ubo: BeneficiaryFormState) => {
-    // errors is empty because beneficiaries form already validates the ubo
-    setUbos(ubos => ubos.map(u => (u.reference === ubo.reference ? { ...ubo, errors: {} } : u)));
-    setPageState({ type: "list" });
-  };
-
-  const removeUbo = (ubo: LocalStateUbo) => {
-    setUbos(ubos => ubos.filter(u => u.reference !== ubo.reference));
-  };
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
-
-  const submitUbos = () => {
-    // if there are some ubos with errors, we don't submit
-    if (ubos.filter(isUboInvalid).length > 0) {
-      setShakeError.on();
-      return;
-    }
-
-    const individualUltimateBeneficialOwners = ubos.map(
+  const updateUbos = (newUbos: LocalStateUbo[]) => {
+    const individualUltimateBeneficialOwners = newUbos.map(
       ({
         reference,
         residencyAddressCountry,
@@ -351,10 +427,7 @@ export const OnboardingCompanyOwnership = ({
           )
           .otherwise(error => Result.Error(error)),
       )
-      .tapOk(({ onboarding }) => {
-        onSuccess(onboarding, individualUltimateBeneficialOwners);
-        Router.push(nextStep, { onboardingId });
-      })
+      .tapOk(resetPageState)
       .tapError(error => {
         const errorMessage = getUpdateOnboardingError(error);
         showToast({
@@ -365,25 +438,60 @@ export const OnboardingCompanyOwnership = ({
       });
   };
 
-  const onPressNext = () => {
-    if (ubos.length === 0) {
-      setShowConfirmNoUboModal.on();
-    } else {
-      submitUbos();
+  const addUbo = (newUbo: BeneficiaryFormState) => {
+    // errors is empty because beneficiaries form already validates the ubo
+    updateUbos([...editableUbos, { ...newUbo, errors: {} }]);
+  };
+
+  const updateUbo = (ubo: BeneficiaryFormState) => {
+    // errors is empty because beneficiaries form already validates the ubo
+    updateUbos(editableUbos.map(u => (u.reference === ubo.reference ? { ...ubo, errors: {} } : u)));
+  };
+
+  const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
+    setPageState({
+      type: "deleting",
+      reference: ubo.reference,
+      name: [ubo.firstName, ubo.lastName].filter(Boolean).join(" "),
+    });
+  };
+
+  const deleteUbo = () => {
+    // Should be always true because we only open the modal when the pageState is deleting
+    if (pageState.type === "deleting") {
+      updateUbos(editableUbos.filter(u => u.reference !== pageState.reference));
     }
   };
 
-  if (isPrefetchingUbos) {
-    return <LoadingView color={colors.current[500]} />;
-  }
+  const onPressPrevious = () => {
+    Router.push(previousStep, { onboardingId });
+  };
+
+  const submitStep = () => {
+    // if there are some ubos with errors, we don't submit
+    if (editableUbos.filter(isUboInvalid).length > 0) {
+      setShakeError.on();
+      return;
+    }
+
+    Router.push(nextStep, { onboardingId });
+  };
+
+  const onPressNext = () => {
+    if (editableUbos.length === 0) {
+      setShowConfirmNoUboModal.on();
+      return;
+    }
+    submitStep();
+  };
 
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small }) =>
-            ubos.length === 0 ? (
-              <Box alignItems="center" style={styles.noUboContainer}>
+            editableUbos.length === 0 ? (
+              <Box alignItems="center" justifyContent="center" style={styles.noUboContainer}>
                 <BorderedIcon name="person-add-regular" color="current" size={100} padding={16} />
                 <Space height={24} />
 
@@ -399,7 +507,7 @@ export const OnboardingCompanyOwnership = ({
 
                 <Space height={12} />
 
-                <Link to="" target="blank" style={styles.link}>
+                <Link to={UBO_DOCUMENTATION_LINK} target="blank" style={styles.link}>
                   <LakeText color={colors.current[500]}>{t("common.learnMore")}</LakeText>
                   <Space width={4} />
                   <Icon name="open-filled" size={16} />
@@ -430,54 +538,18 @@ export const OnboardingCompanyOwnership = ({
                     <LakeText>{t("company.step.owners.addAnother")}</LakeText>
                   </Pressable>
 
-                  {ubos.map(ubo => (
-                    <Tile
+                  {editableUbos.map(ubo => (
+                    <UboTile
                       key={ubo.reference}
-                      style={[
-                        styles.uboTile,
-                        isUboInvalid(ubo) && shakeError && animations.shake.enter,
-                      ]}
-                    >
-                      <Box direction="row" alignItems="center">
-                        <Avatar initials={getUboInitials(ubo)} size={32} />
-                        <Space width={24} />
-
-                        <Box style={styles.uboInfo}>
-                          <LakeText variant="medium" color={colors.gray[900]}>
-                            {ubo.firstName} {ubo.lastName}
-                          </LakeText>
-
-                          <Space height={4} />
-                          <LakeText>{formatUboMainInfo(ubo, companyName, country)}</LakeText>
-                          <Space height={4} />
-                          <LakeText>{formatUboBirthAddress(ubo)}</LakeText>
-                        </Box>
-
-                        {isUboInvalid(ubo) && (
-                          <>
-                            <Space width={12} />
-                            <Tag color="negative">{t("company.step.owners.missingInfo")}</Tag>
-                          </>
-                        )}
-
-                        <Space width={12} />
-
-                        <Pressable
-                          style={styles.button}
-                          onPress={() =>
-                            setPageState({ type: "edit", step: "common", ubo, withAddressPart })
-                          }
-                        >
-                          <Icon name="edit-regular" size={24} color={colors.gray[600]} />
-                        </Pressable>
-
-                        <Space width={12} />
-
-                        <Pressable style={styles.button} onPress={() => removeUbo(ubo)}>
-                          <Icon name="delete-regular" size={24} color={colors.negative[500]} />
-                        </Pressable>
-                      </Box>
-                    </Tile>
+                      ubo={ubo}
+                      companyName={companyName}
+                      country={country}
+                      shakeError={shakeError}
+                      onEdit={() =>
+                        setPageState({ type: "edit", step: "common", ubo, withAddressPart })
+                      }
+                      onDelete={() => openRemoveUboConfirmation(ubo)}
+                    />
                   ))}
                 </Grid>
               </Box>
@@ -486,20 +558,28 @@ export const OnboardingCompanyOwnership = ({
         </ResponsiveContainer>
       </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
 
       <ConfirmModal
         visible={showConfirmNoUboModal}
         title={t("company.step.owners.confirmModal.title")}
         icon="person-regular"
-        loading={updateResult.isLoading()}
         confirmText={t("company.step.owners.confirmModal.confirm")}
-        onConfirm={submitUbos}
+        onConfirm={submitStep}
         onCancel={setShowConfirmNoUboModal.off}
+      />
+
+      <ConfirmModal
+        visible={pageState.type === "deleting"}
+        title={t("company.step.owners.deleteModal.title", {
+          uboName: pageState.type === "deleting" ? pageState.name : "",
+        })}
+        icon="delete-regular"
+        confirmText={t("company.step.owners.deleteModal.confirm")}
+        onConfirm={deleteUbo}
+        onCancel={resetPageState}
+        color="negative"
+        loading={updateResult.isLoading()}
       />
 
       <LakeModal
@@ -527,7 +607,7 @@ export const OnboardingCompanyOwnership = ({
             .with({ type: "add" }, () => addUbo)
             .with({ type: "edit" }, () => updateUbo)
             .otherwise(() => noop)}
-          onClose={closeUboModal}
+          onClose={resetPageState}
           onCityLoadError={logFrontendError}
         />
 
@@ -547,25 +627,12 @@ export const OnboardingCompanyOwnership = ({
           <LakeButton
             onPress={() => beneficiaryFormRef.current?.submit()}
             color="partner"
-            icon={match(pageState)
-              .with(
-                { type: "add", withAddressPart: false, step: "common" },
-                () => "add-circle-filled" as const,
-              )
-              .with(
-                { type: "edit", withAddressPart: false, step: "common" },
-                () => "edit-filled" as const,
-              )
-              .with({ type: "add", step: "address" }, () => "add-circle-filled" as const)
-              .with({ type: "edit", step: "address" }, () => "edit-filled" as const)
-              .otherwise(() => undefined)}
             grow={true}
+            loading={updateResult.isLoading()}
           >
             {match(pageState)
               .with({ withAddressPart: true, step: "common" }, () => t("common.next"))
-              .with({ type: "add" }, () => t("common.add"))
-              .with({ type: "edit" }, () => t("common.edit"))
-              .otherwise(() => undefined)}
+              .otherwise(() => t("common.save"))}
           </LakeButton>
         </LakeButtonGroup>
       </LakeModal>

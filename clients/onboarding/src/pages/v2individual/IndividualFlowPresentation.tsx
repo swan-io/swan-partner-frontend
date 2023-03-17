@@ -4,6 +4,7 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -15,6 +16,11 @@ const styles = StyleSheet.create({
   containerMobile: {
     maxWidth: 300,
     margin: "auto",
+  },
+  stepsContainer: {
+    width: "100%",
+    flexGrow: 1,
+    flexShrink: 0,
   },
 });
 
@@ -49,9 +55,12 @@ export const IndividualFlowPresentation = ({ onboardingId }: Props) => {
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
           {({ small }) => (
-            <Box alignItems={small ? "center" : "start"} style={small && styles.containerMobile}>
+            <Box
+              alignItems={small ? "center" : "start"}
+              style={[commonStyles.fill, small && styles.containerMobile]}
+            >
               <LakeHeading
                 level={1}
                 variant={small ? "h3" : "h1"}
@@ -66,8 +75,11 @@ export const IndividualFlowPresentation = ({ onboardingId }: Props) => {
                 {t("individual.step.introduction.description")}
               </LakeText>
 
-              <Space height={small ? 32 : 48} />
-              <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
+              <Box justifyContent="center" alignItems="center" style={styles.stepsContainer}>
+                <Space height={small ? 16 : 24} />
+                <FlowPresentation mode={small ? "mobile" : "desktop"} steps={steps} />
+                <Space height={small ? 16 : 24} />
+              </Box>
             </Box>
           )}
         </ResponsiveContainer>

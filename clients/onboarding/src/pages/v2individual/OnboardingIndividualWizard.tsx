@@ -137,15 +137,22 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
         <ResponsiveContainer>
           {({ small }) =>
             small ? (
-              <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+              <>
+                <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
+                <Space height={24} />
+              </>
             ) : (
-              <Box alignItems="center">
-                <LakeStepper
-                  activeStepId={route.name}
-                  steps={stepperSteps}
-                  style={styles.stepper}
-                />
-              </Box>
+              <>
+                <Box alignItems="center">
+                  <LakeStepper
+                    activeStepId={route.name}
+                    steps={stepperSteps}
+                    style={styles.stepper}
+                  />
+                </Box>
+
+                <Space height={48} />
+              </>
             )
           }
         </ResponsiveContainer>

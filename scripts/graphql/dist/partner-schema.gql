@@ -3002,12 +3002,6 @@ type CardTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 enum CardTransactionCategory {
@@ -3123,9 +3117,6 @@ type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
 }
 
 input CheckPaymentProductInput {
@@ -4402,12 +4393,6 @@ type FeeTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 enum FieldValidationError {
@@ -4794,7 +4779,7 @@ input GrantConsentWithServerSignatureInput {
 }
 
 """Payload of the `grantConsentWithServerSignature` mutation"""
-union GrantConsentWithServerSignaturePayload = GrantConsentWithServerSignatureSuccessPayload | ConsentNotFoundRejection | NotReachableConsentStatusRejection | ForbiddenRejection | ConsentTypeNotSupportedByServerConsentRejection | ServerConsentNotAllowedForConsentOperationRejection | ProjectNotFoundRejection | ServerConsentNotAllowedForProjectRejection | ServerConsentProjectSettingsNotFoundRejection | ServerConsentProjectCredentialMissingRejection | ServerConsentProjectCredentialNotFoundRejection | ServerConsentCredentialsNotValidOrOutdatedRejection | ServerConsentSignatureNotValidRejection
+union GrantConsentWithServerSignaturePayload = GrantConsentWithServerSignatureSuccessPayload | ConsentNotFoundRejection | NotReachableConsentStatusRejection | ForbiddenRejection | ConsentTypeNotSupportedByServerConsentRejection | ServerConsentNotAllowedForConsentOperationRejection | ProjectNotFoundRejection | ServerConsentNotAllowedForProjectRejection | ServerConsentProjectSettingsNotFoundRejection | ServerConsentProjectCredentialMissingRejection | ServerConsentProjectCredentialNotFoundRejection | ServerConsentSignatureNotValidRejection
 
 """Success payload of the `grantConsentWithServerSignature` mutation"""
 type GrantConsentWithServerSignatureSuccessPayload {
@@ -5292,12 +5277,6 @@ type InternalCreditTransfer implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 """Internal Credit Transfer creditor"""
@@ -5396,9 +5375,6 @@ type InternalDirectDebitMerchantPaymentProduct implements MerchantPaymentProduct
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
 }
 
 input InternalDirectDebitPaymentCollectionInput {
@@ -5504,12 +5480,6 @@ type InternalDirectDebitTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 """Rejection returned on unexpected server error"""
@@ -6267,9 +6237,6 @@ interface MerchantPaymentProduct {
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
 }
 
 """The different statuses a MerchantPaymentProduct can have"""
@@ -9553,12 +9520,6 @@ type SEPACreditTransferTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 """Sepa Direct Debit Creditor"""
@@ -9774,12 +9735,6 @@ type SEPADirectDebitTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 """Payment direct debit mandate for SEPA"""
@@ -10020,13 +9975,6 @@ with some follow extra rules :
 """
 scalar SepaReference
 
-"""
-Rejection returned when signature is not valid or remote IP address is not allowed
-"""
-type ServerConsentCredentialsNotValidOrOutdatedRejection implements Rejection {
-  message: String!
-}
-
 """Rejection returned when server consent is not allowed on the consent"""
 type ServerConsentNotAllowedForConsentOperationRejection implements Rejection {
   message: String!
@@ -10060,10 +10008,7 @@ type ServerConsentProjectSettingsNotFoundRejection implements Rejection {
   message: String!
 }
 
-"""
-Rejection returned when the signature is not valid
-@Deprecated
-"""
+"""Rejection returned when the signature is not valid"""
 type ServerConsentSignatureNotValidRejection implements Rejection {
   message: String!
 }
@@ -11106,12 +11051,6 @@ interface Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
-
-  """ID of the origin transaction associated to this transaction"""
-  originTransactionId: String
-
-  """origin transaction associated to this transaction"""
-  originTransaction: Transaction
 }
 
 """Please see the Connection interface"""

@@ -1,0 +1,94 @@
+---
+title: Setup
+sidebar_label: Setup
+---
+
+## 1. Clone
+
+First, you need to clone the project using `git`:
+
+```console
+$ git clone git@github.com:swan-io/swan-partner-frontend.git
+$ cd swan-partner-frontend
+```
+
+## 2. Install dependencies
+
+Install [yarn](https://yarnpkg.com/en/docs/install) (needed for the monorepo management).
+
+```console
+$ yarn
+```
+
+## 3. Setup hosts
+
+Add the following to your `/etc/hosts` file (so that we're able to replicate the subdomains we'll use in production):
+
+:::note
+You might need to use `sudo` to be able to write access to the `hosts` file
+:::
+
+```txt title="/etc/hosts"
+127.0.0.1 banking.swan.local
+127.0.0.1 onboarding.swan.local
+```
+
+## 4. Setup HTTPS
+
+In order to replicate the production conditions (for session cookies mostly), the local server runs in HTTPS. By default, your system will warn against a self-signed certificate, but we can use [mkcert](https://github.com/FiloSottile/mkcert) to make the system trust it.
+
+import Tabs from "@theme/Tabs";
+import TabItem from "@theme/TabItem";
+
+<Tabs defaultValue="mac">
+<TabItem value="mac" label="macOS">
+
+With [homebrew](https://brew.sh):
+
+```console
+$ brew install mkcert
+$ brew install nss # needed for Firefox
+$ cd server/keys
+$ mkcert -install
+$ mkcert "*.swan.local"
+```
+
+</TabItem>
+<TabItem value="win" label="Windows">
+
+With [chocolatey](https://chocolatey.org):
+
+```console
+$ choco install mkcert
+$ cd server/keys
+$ mkcert -install
+$ mkcert "*.swan.local"
+```
+
+</TabItem>
+</Tabs>
+
+## 5. Configure your Swan project
+
+To configure your project, simply the following command, it will prompt you with the required values:
+
+```console
+$ yarn configure
+```
+
+This command will ask you your Swan OAuth2 Client ID and Client Secret (which you can find in [Dashboard](https://dashboard.swan.io) → Developers → API).
+
+:::caution
+For local development, we recommend using your Sandbox credentials.
+:::
+
+:::note
+In order for the Swan OAuth2 server to recognize your environment, you'll need to add the following URL in [Dashboard](https://dashboard.swan.io) → Developers → API → Redirect URLs:
+
+```
+https://banking.swan.local:8080/auth/callback
+```
+
+:::
+
+Your repository is now ready for development 🎉

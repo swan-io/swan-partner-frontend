@@ -1,6 +1,6 @@
 # Swan Partner Front-end
 
-> Onboarding & Web Banking clients for Swan
+> Onboarding & Banking clients for Swan
 
 ## Clone
 

@@ -1,0 +1,86 @@
+import Link from "@docusaurus/Link";
+import useDocusaurusContext from "@docusaurus/useDocusaurusContext";
+import Layout from "@theme/Layout";
+import * as React from "react";
+import HomepageFeatures from "../components/HomepageFeatures";
+import styles from "./index.module.css";
+
+function HomepageHeader() {
+  const { siteConfig } = useDocusaurusContext();
+  return (
+    <header className={"hero hero--primary " + styles.hero}>
+      <img src={"./img/logo.svg"} alt="" className={styles.logo} />
+      <div className="container">
+        <h1 className={styles.heroTitle}>Partner Front-End</h1>
+        <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
+        <div>
+          <Link className="button button--lg" to="/getting-started">
+            Get started
+          </Link>
+        </div>
+      </div>
+      <div className={styles.featuredImage}>
+        <img
+          style={{ width: "100%" }}
+          loading="lazy"
+          src="/swan-partner-frontend/img/banking.png"
+          alt="Screenshot of Swan's banking interface"
+        />
+      </div>
+    </header>
+  );
+}
+
+const Block = ({ children, reversed = false, title, description }) => {
+  return (
+    <div className={reversed ? styles.blockReversed : styles.block}>
+      <div className={styles.blockSide}>{children}</div>
+      <div className={styles.blockSide}>
+        <h2>{title}</h2>
+        <p>{description}</p>
+      </div>
+    </div>
+  );
+};
+
+const Home = () => {
+  const { siteConfig } = useDocusaurusContext();
+  const videoContainer = React.useRef(null);
+
+  React.useEffect(() => {
+    const element = videoContainer.current;
+    if (element) {
+      const intersectionObserver = new IntersectionObserver(
+        entries => {
+          entries.forEach(entry => {
+            if (entry.isIntersecting) {
+              const video = element.querySelector("video");
+              if (video) {
+                video.play();
+              }
+            }
+          });
+        },
+        {
+          rootMargin: "100px",
+        },
+      );
+      intersectionObserver.observe(element);
+      return () => intersectionObserver.unobserve(element);
+    }
+  }, []);
+
+  return (
+    <Layout
+      title={`Swan Partner Front-End: ${siteConfig.tagline}`}
+      description="Functional utility types and functions for TypeScript"
+    >
+      <HomepageHeader />
+      <main>
+        <HomepageFeatures />
+      </main>
+    </Layout>
+  );
+};
+
+export default Home;

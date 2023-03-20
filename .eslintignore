@@ -2,3 +2,4 @@
 **/*.js
 **/*.mjs
 clients/**/graphql/*.ts
+docs/

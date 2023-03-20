@@ -16,7 +16,7 @@ import {
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";

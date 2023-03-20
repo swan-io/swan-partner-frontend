@@ -1,5 +1,4 @@
 import chalk from "chalk";
-import { execSync } from "child_process";
 import path from "node:path";
 import url from "node:url";
 import { start } from "./app.js";
@@ -12,9 +11,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local+1-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local+1.pem"),
-          ca: execSync(`echo "$(mkcert -CAROOT)/rootCA.pem"`).toString("utf-8").trim(),
+          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
+          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
         }
       : undefined,
 }).then(

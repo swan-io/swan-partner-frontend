@@ -10,7 +10,6 @@ import { env } from "../env.js";
 export type HttpsConfig = {
   key: string;
   cert: string;
-  ca: string;
 };
 
 async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
@@ -55,7 +54,6 @@ export async function startDevServer(
           ? {
               key: fs.readFileSync(httpsConfig.key, "utf8"),
               cert: fs.readFileSync(httpsConfig.cert, "utf8"),
-              ca: fs.readFileSync(httpsConfig.ca, "utf8"),
             }
           : undefined,
       );

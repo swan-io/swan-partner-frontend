@@ -73,7 +73,7 @@ const Home = () => {
   return (
     <Layout
       title={`Swan Partner Front-End: ${siteConfig.tagline}`}
-      description="Functional utility types and functions for TypeScript"
+      description="Onboarding & Banking clients for Swan"
     >
       <HomepageHeader />
       <main>

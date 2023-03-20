@@ -1,6 +1,6 @@
 # Branding
 
-The Web Banking is white-label interface, and therefore needs to use the branding defined on the project it manages accounts on.
+Banking is white-label interface, and therefore needs to use the branding defined on the project it manages accounts on.
 
 You can receive get the **logo**, **name** and **accent color**, you can use the following fragment.
 

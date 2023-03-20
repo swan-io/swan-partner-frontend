@@ -789,14 +789,12 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                               .with({ name: "AccountPaymentsSuccess" }, () => (
                                 <>
                                   <Space height={24} />
-
                                   <PaymentSuccessPage accountMembershipId={accountMembershipId} />
                                 </>
                               ))
                               .with({ name: "AccountPaymentsFailure" }, () => (
                                 <>
                                   <Space height={24} />
-
                                   <PaymentFailurePage accountMembershipId={accountMembershipId} />
                                 </>
                               ))

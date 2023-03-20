@@ -1,10 +1,12 @@
+import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { useEffect } from "react";
-import { StyleSheet } from "react-native";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -13,15 +15,6 @@ import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
 import { t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    margin: 24,
-  },
-});
 
 type Props = {
   previousStep: CompanyOnboardingRoute;
@@ -87,24 +80,26 @@ export const OnboardingCompanyFinalize = ({
 
   return (
     <>
-      {containsErrors && alreadySubmitted ? (
-        <OnboardingStepContent>
-          <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.container}>
-            {({ small }) => (
-              <FinalizeInvalidSteps
-                onboardingId={onboardingId}
-                steps={steps}
-                isShaking={shakeError}
-                isMobile={small}
-              />
-            )}
-          </ResponsiveContainer>
-        </OnboardingStepContent>
-      ) : (
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.container}>
-          {({ small }) => <FinalizeBlock isMobile={small} />}
+      <OnboardingStepContent>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
+          {({ small }) => (
+            <Box alignItems="center" justifyContent="center" style={commonStyles.fillNoShrink}>
+              {containsErrors && alreadySubmitted ? (
+                <FinalizeInvalidSteps
+                  onboardingId={onboardingId}
+                  steps={steps}
+                  isShaking={shakeError}
+                  isMobile={small}
+                />
+              ) : (
+                <FinalizeBlock isMobile={small} />
+              )}
+
+              <Space height={12} />
+            </Box>
+          )}
         </ResponsiveContainer>
-      )}
+      </OnboardingStepContent>
 
       <OnboardingFooter
         nextLabel={t("wizard.finalize")}

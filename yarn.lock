@@ -2150,10 +2150,10 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-1.2.6.tgz#33db1d614277e22f41b5a2acfbc0f4ffa34c9156"
-  integrity sha512-PW5e80+kuwARh/qFf0dR5EtY/0/3LAOSjyftBgYKqQnmVzXIPBccbATXMffkhCR71buEjlDh4QK+KAa37LBWCQ==
+"@swan-io/lake@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-1.3.0.tgz#d23ff009a54afcd332398382145500bc00760e26"
+  integrity sha512-TiwVJsRwIccTaCCBX3KT22yLMJNxjfviY5tUTgAzxeZWtS1CebPcog9j7ZRxjNvmEByv/fivsW2/z8Li/9rOIA==
   dependencies:
     "@popperjs/core" "2.11.6"
     "@swan-io/boxed" "0.12.1"
@@ -2175,10 +2175,10 @@
     urql "3.0.3"
     uuid "9.0.0"
 
-"@swan-io/shared-business@1.2.6":
-  version "1.2.6"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-1.2.6.tgz#44ace54d755cfeddf9d246f1af8c99b7809d51e5"
-  integrity sha512-xz4VMe1bL2rVWHLCkO20IQIEbxuxUuiN2Ocvq6TiHUxx7XH77++e3Q9bhm5TEBcM/H6mseIx1v642rqtpojJAA==
+"@swan-io/shared-business@1.3.0":
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-1.3.0.tgz#8493f1363ab28fa79d84f1d1b55055acc6f576fc"
+  integrity sha512-Iq0+AFwdmMPqRmkhQPLh5HepuJog1zPSSK/nzQ/FRyJ4dKNmkWMnU5iDThgMotx4oPH+nBZOeRxYDnxBSyDZkA==
   dependencies:
     "@formatjs/intl" "2.6.7"
     "@googlemaps/js-api-loader" "1.15.1"
@@ -2464,7 +2464,7 @@
   resolved "https://registry.yarnpkg.com/@types/semver/-/semver-7.3.13.tgz#da4bfd73f49bd541d28920ab0e2bf0ee80f71c91"
   integrity sha512-21cFJr9z3g5dW8B0CVI9g2O9beqaThGQ6ZFBqHfwhzLDKUxaqTIy3vnfah/UPkfOiF2pLq+tGz+W8RyCskuslw==
 
-"@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@github:zoontek/types-testing-library-vitest-dom":
+"@types/testing-library__jest-dom@^5.9.1":
   version "5.14.5"
   resolved "https://codeload.github.com/zoontek/types-testing-library-vitest-dom/tar.gz/0a0de96e76b403e1808429506fad50f90d28fced"
 

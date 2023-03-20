@@ -315,7 +315,7 @@ export const NewMembershipWizard = ({
               lastName: computedValues.lastName,
               phoneNumber: computedValues.phoneNumber,
               birthDate:
-                computedValues.birthDate != null
+                computedValues.birthDate !== ""
                   ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
                   : undefined,
             },

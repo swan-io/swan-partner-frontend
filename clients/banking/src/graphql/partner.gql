@@ -1655,6 +1655,7 @@ query GetAccount($accountId: ID!) {
     id
     number
     name
+    IBAN
     balances {
       available {
         currency

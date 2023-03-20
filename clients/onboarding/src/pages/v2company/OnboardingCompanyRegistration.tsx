@@ -43,7 +43,7 @@ import {
 
 const styles = StyleSheet.create({
   link: {
-    color: colors.partner.primary,
+    color: colors.partner[500],
     textDecorationLine: "underline",
   },
   linkIcon: {
@@ -226,7 +226,7 @@ export const OnboardingCompanyRegistration = ({
 
               <Tile>
                 <Field name="email">
-                  {({ value, onChange, error }) => (
+                  {({ value, valid, onChange, error }) => (
                     <LakeLabel
                       label={t("company.step.registration.emailLabel")}
                       render={id => (
@@ -235,6 +235,7 @@ export const OnboardingCompanyRegistration = ({
                           placeholder="example@gmail.com"
                           value={value}
                           onChangeText={onChange}
+                          valid={valid}
                           error={error}
                         />
                       )}

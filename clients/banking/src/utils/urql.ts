@@ -65,6 +65,7 @@ const cache = cacheExchange<GraphCacheConfig>({
     SEPACreditTransferOutDebtor: _data => null,
     Spending: _data => null,
     SpendingLimit: _data => null,
+    StandingOrderCanceledStatusInfo: _data => null,
     StandingOrderEnabledStatusInfo: _data => null,
     SupportingDocumentCollectionApprovedStatusInfo: _data => null,
     SupportingDocumentCollectionPendingReviewStatusInfo: _data => null,

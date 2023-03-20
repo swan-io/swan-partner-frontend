@@ -26,6 +26,9 @@ const styles = StyleSheet.create({
     maxWidth: "120px",
   },
   languagesSelectContainer: {
+    width: 140,
+  },
+  languagesSelectContainerDesktop: {
     width: 200,
   },
   languagesSelect: {
@@ -60,7 +63,7 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
           <AutoWidthImage
             accessibilityLabel={projectName}
             sourceUri={projectLogo}
-            height={40}
+            height={small ? 30 : 40}
             resizeMode="contain"
             style={styles.logo}
           />
@@ -74,7 +77,9 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
 
           <Fill minWidth={12} />
 
-          <View style={styles.languagesSelectContainer}>
+          <View
+            style={small ? styles.languagesSelectContainer : styles.languagesSelectContainerDesktop}
+          >
             <LakeSelect
               value={locale.language}
               items={languageOptions}

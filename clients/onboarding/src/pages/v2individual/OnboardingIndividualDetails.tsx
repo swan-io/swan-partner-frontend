@@ -13,6 +13,7 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useEffect } from "react";
@@ -118,7 +119,12 @@ export const OnboardingIndividualDetails = ({
       const { employmentStatus, monthlyIncome, taxIdentificationNumber } = values;
 
       updateOnboarding({
-        input: { onboardingId, employmentStatus, monthlyIncome, taxIdentificationNumber },
+        input: {
+          onboardingId,
+          employmentStatus,
+          monthlyIncome,
+          taxIdentificationNumber: emptyToUndefined(taxIdentificationNumber ?? ""),
+        },
         language: locale.language,
       })
         .mapResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
@@ -176,6 +182,7 @@ export const OnboardingIndividualDetails = ({
                   {({ value, onChange }) => (
                     <LakeLabel
                       label={t("occupationPage.incomeLabel")}
+                      type="radioGroup"
                       render={() => (
                         <RadioGroup
                           items={monthlyIncomes}
@@ -193,7 +200,7 @@ export const OnboardingIndividualDetails = ({
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, onChange, error }) => (
+                      {({ value, onChange, error, valid }) => (
                         <LakeLabel
                           label={t("occupationPage.taxIdentificationNumber")}
                           optionalLabel={t("common.optional")}
@@ -215,6 +222,7 @@ export const OnboardingIndividualDetails = ({
                               nativeID={id}
                               placeholder={t("occupationPage.taxIdentificationNumberPlaceholder")}
                               value={value}
+                              valid={valid}
                               error={error}
                               disabled={updateResult.isLoading()}
                               onChangeText={onChange}

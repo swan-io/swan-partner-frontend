@@ -17,6 +17,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
@@ -216,6 +217,8 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
 export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const [{ fetching: adding }, addVirtualIban] = useMutation(AddVirtualIbanDocument);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
@@ -271,6 +274,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
                     )}
 
                     <PlainListView
+                      withoutScroll={!desktop}
                       data={edges}
                       extraInfo={{ reload }}
                       columns={columns}

@@ -295,7 +295,7 @@ export const MembershipDetailRights = ({
       <Fill minHeight={24} />
 
       <View style={styles.buttonGroup}>
-        <LakeButtonGroup>
+        <LakeButtonGroup paddingBottom={0}>
           {match(editingAccountMembership)
             .with(
               {

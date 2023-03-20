@@ -1,14 +1,18 @@
 import { Result } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
@@ -28,7 +32,10 @@ import { locale, t } from "../../utils/i18n";
 import { logFrontendError } from "../../utils/logger";
 import { CompanySuggestion } from "../../utils/Pappers";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
-import { getUpdateOnboardingError } from "../../utils/templateTranslations";
+import {
+  getRegistrationNumberName,
+  getUpdateOnboardingError,
+} from "../../utils/templateTranslations";
 import { parseOperationResult, urql } from "../../utils/urql";
 import {
   extractServerValidationErrors,
@@ -50,6 +57,7 @@ export type Organisation1FieldName =
 type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
+  initialIsRegistered: boolean;
   initialName: string;
   initialRegistrationNumber: string;
   initialVatNumber: string;
@@ -59,7 +67,6 @@ type Props = {
   initialPostalCode: string;
   country: CountryCCA3;
   accountCountry: AccountCountry;
-  isRegistered: boolean;
   onboardingId: string;
   serverValidationErrors: {
     fieldName: Organisation1FieldName;
@@ -67,9 +74,18 @@ type Props = {
   }[];
 };
 
+const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
+  BEL: "“Code des sociétés”",
+  DEU: "Handelsregister",
+  FRA: "RCS",
+  ITA: "REGISTRO IMPRESE",
+  NLD: "Handelsregister",
+};
+
 export const OnboardingCompanyOrganisation1 = ({
   previousStep,
   nextStep,
+  initialIsRegistered,
   initialName,
   initialRegistrationNumber,
   initialVatNumber,
@@ -79,7 +95,6 @@ export const OnboardingCompanyOrganisation1 = ({
   initialPostalCode,
   country,
   accountCountry,
-  isRegistered,
   onboardingId,
   serverValidationErrors,
 }: Props) => {
@@ -87,43 +102,51 @@ export const OnboardingCompanyOrganisation1 = ({
   const isFirstMount = useFirstMountState();
   const canSetTaxIdentification = accountCountry === "DEU" && country === "DEU";
 
-  const { Field, submitForm, setFieldValue, listenFields, setFieldError } = useForm({
-    name: {
-      initialValue: initialName,
-      validate: validateRequired,
-      sanitize: value => value.trim(),
+  const { Field, FieldsListener, submitForm, setFieldValue, listenFields, setFieldError } = useForm(
+    {
+      isRegistered: {
+        initialValue: initialIsRegistered,
+      },
+      name: {
+        initialValue: initialName,
+        validate: validateRequired,
+        sanitize: value => value.trim(),
+      },
+      registrationNumber: {
+        initialValue: initialRegistrationNumber,
+        validate: (value, { getFieldState }) => {
+          const isRegistered = getFieldState("isRegistered").value;
+          return isRegistered ? validateRequired(value) : undefined;
+        },
+        sanitize: value => value.trim(),
+      },
+      vatNumber: {
+        initialValue: initialVatNumber,
+        validate: validateVatNumber,
+        sanitize: value => value.trim(),
+      },
+      taxIdentificationNumber: {
+        initialValue: initialTaxIdentificationNumber,
+        validate: canSetTaxIdentification ? validateCompanyTaxNumber : undefined,
+        sanitize: value => value.trim(),
+      },
+      address: {
+        initialValue: initialAddressLine1,
+        validate: validateRequired,
+        sanitize: value => value.trim(),
+      },
+      city: {
+        initialValue: initialCity,
+        validate: validateRequired,
+        sanitize: value => value.trim(),
+      },
+      postalCode: {
+        initialValue: initialPostalCode,
+        validate: validateRequired,
+        sanitize: value => value.trim(),
+      },
     },
-    registrationNumber: {
-      initialValue: initialRegistrationNumber,
-      validate: isRegistered ? validateRequired : undefined,
-      sanitize: value => value.trim(),
-    },
-    vatNumber: {
-      initialValue: initialVatNumber,
-      validate: validateVatNumber,
-      sanitize: value => value.trim(),
-    },
-    taxIdentificationNumber: {
-      initialValue: initialTaxIdentificationNumber,
-      validate: canSetTaxIdentification ? validateCompanyTaxNumber : undefined,
-      sanitize: value => value.trim(),
-    },
-    address: {
-      initialValue: initialAddressLine1,
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    city: {
-      initialValue: initialCity,
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-    postalCode: {
-      initialValue: initialPostalCode,
-      validate: validateRequired,
-      sanitize: value => value.trim(),
-    },
-  });
+  );
 
   useEffect(() => {
     if (isFirstMount) {
@@ -142,6 +165,7 @@ export const OnboardingCompanyOrganisation1 = ({
     submitForm(values => {
       if (
         !hasDefinedKeys(values, [
+          "isRegistered",
           "name",
           "registrationNumber",
           "vatNumber",
@@ -153,6 +177,7 @@ export const OnboardingCompanyOrganisation1 = ({
         return;
       }
       const {
+        isRegistered,
         name,
         registrationNumber,
         vatNumber,
@@ -165,10 +190,11 @@ export const OnboardingCompanyOrganisation1 = ({
       updateOnboarding({
         input: {
           onboardingId,
+          isRegistered,
           name,
           registrationNumber,
-          vatNumber: vatNumber || undefined,
-          taxIdentificationNumber,
+          vatNumber: emptyToUndefined(vatNumber),
+          taxIdentificationNumber: emptyToUndefined(taxIdentificationNumber ?? ""),
           residencyAddress: {
             addressLine1: address,
             city,
@@ -250,6 +276,8 @@ export const OnboardingCompanyOrganisation1 = ({
     [setFieldValue],
   );
 
+  const countryRegisterName = registerNamePerCountry[country];
+
   return (
     <>
       <OnboardingStepContent>
@@ -260,8 +288,39 @@ export const OnboardingCompanyOrganisation1 = ({
               <Space height={small ? 24 : 32} />
 
               <Tile>
+                <Field name="isRegistered">
+                  {({ value, onChange }) => (
+                    <LakeLabel
+                      label={
+                        countryRegisterName != null
+                          ? t("company.step.organisation1.isRegisteredWithNameLabel", {
+                              countryRegisterName,
+                            })
+                          : t("company.step.organisation1.isRegisteredLabel")
+                      }
+                      render={() => (
+                        <Box direction="row" alignItems="center">
+                          <LakeText variant="smallRegular" color={colors.gray[900]}>
+                            {t("common.no")}
+                          </LakeText>
+
+                          <Space width={8} />
+                          <Switch value={value} onValueChange={onChange} />
+                          <Space width={8} />
+
+                          <LakeText variant="smallRegular" color={colors.gray[900]}>
+                            {t("common.yes")}
+                          </LakeText>
+                        </Box>
+                      )}
+                    />
+                  )}
+                </Field>
+
+                <Space height={24} />
+
                 <Field name="name">
-                  {({ value, error, onChange }) => (
+                  {({ value, valid, error, onChange }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.organisationLabel")}
                       render={() =>
@@ -278,6 +337,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           <LakeTextInput
                             value={value}
                             placeholder={t("company.step.organisation1.organisationPlaceholder")}
+                            valid={valid}
                             error={error}
                             onChangeText={onChange}
                           />
@@ -289,29 +349,38 @@ export const OnboardingCompanyOrganisation1 = ({
 
                 <Space height={12} />
 
-                <Field name="registrationNumber">
-                  {({ value, error, onChange }) => (
-                    <LakeLabel
-                      label={t("company.step.organisation1.registrationNumberLabel")}
-                      render={id => (
-                        <LakeTextInput
-                          nativeID={id}
-                          placeholder={t(
-                            "company.step.organisation1.registrationNumberPlaceholder",
+                <FieldsListener names={["isRegistered"]}>
+                  {({ isRegistered }) => (
+                    <Field name="registrationNumber">
+                      {({ value, valid, error, onChange }) => (
+                        <LakeLabel
+                          label={t("company.step.organisation1.registrationNumberLabel", {
+                            numberName: getRegistrationNumberName(country),
+                          })}
+                          optionalLabel={isRegistered.value ? undefined : t("common.optional")}
+                          render={id => (
+                            <LakeTextInput
+                              nativeID={id}
+                              placeholder={t(
+                                "company.step.organisation1.registrationNumberPlaceholder",
+                              )}
+                              value={value}
+                              valid={valid}
+                              // when we set isRegistered to false, validation on registrationNumber isn't triggered
+                              error={isRegistered.value ? error : undefined}
+                              onChangeText={onChange}
+                            />
                           )}
-                          value={value}
-                          error={error}
-                          onChangeText={onChange}
                         />
                       )}
-                    />
+                    </Field>
                   )}
-                </Field>
+                </FieldsListener>
 
                 <Space height={12} />
 
                 <Field name="vatNumber">
-                  {({ value, error, onChange }) => (
+                  {({ value, valid, error, onChange }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.vatLabel")}
                       optionalLabel={t("common.optional")}
@@ -320,6 +389,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           nativeID={id}
                           placeholder={t("company.step.organisation1.vatPlaceholder")}
                           value={value}
+                          valid={valid}
                           error={error}
                           onChangeText={onChange}
                         />
@@ -333,14 +403,16 @@ export const OnboardingCompanyOrganisation1 = ({
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, error, onChange }) => (
+                      {({ value, valid, error, onChange }) => (
                         <LakeLabel
                           label={t("company.step.organisation1.taxNumberLabel")}
+                          optionalLabel={t("common.optional")}
                           render={id => (
                             <LakeTextInput
                               nativeID={id}
                               placeholder={t("company.step.organisation1.taxNumberPlaceholder")}
                               value={value}
+                              valid={valid}
                               error={error}
                               onChangeText={onChange}
                             />

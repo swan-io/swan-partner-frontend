@@ -36,9 +36,16 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
     .with({ accountMembershipId: P.string }, value => value)
     .otherwise(() => undefined);
 
+  // source = onboarding is set by packages/onboarding/src/pages/PopupCallbackPage.tsx
+  if (isNotNullish(state) && source === "onboarding") {
+    return (
+      <Redirect to={Router.AccountActivation({ accountMembershipId: state.accountMembershipId })} />
+    );
+  }
+
   // ignore localStorage if finishing an onboarding, in this case we want to
   // redirect to the newly created membership
-  if (isNotNullish(state) && source !== "onboarding" && source !== "invitation") {
+  if (isNotNullish(state) && source !== "invitation") {
     return <Redirect to={Router.AccountRoot({ accountMembershipId: state.accountMembershipId })} />;
   }
 

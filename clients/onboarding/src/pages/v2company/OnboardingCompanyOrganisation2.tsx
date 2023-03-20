@@ -10,6 +10,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
   businessActivities,
   monthlyPaymentVolumes,
@@ -190,7 +191,8 @@ export const OnboardingCompanyOrganisation2 = ({
                       label={t("company.step.organisation2.activityLabel")}
                       render={() => (
                         <LakeSelect
-                          value={value}
+                          placeholder={t("company.step.organisation2.activityPlaceholder")}
+                          value={emptyToUndefined(value)}
                           items={businessActivitiesItems}
                           error={error}
                           onValueChange={onChange}
@@ -203,7 +205,7 @@ export const OnboardingCompanyOrganisation2 = ({
                 <Space height={12} />
 
                 <Field name="businessActivityDescription">
-                  {({ value, error, onChange, onBlur }) => (
+                  {({ value, valid, error, onChange, onBlur }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.descriptionLabel")}
                       render={id => (
@@ -211,6 +213,7 @@ export const OnboardingCompanyOrganisation2 = ({
                           nativeID={id}
                           placeholder={t("company.step.organisation2.descriptionPlaceholder")}
                           value={value}
+                          valid={valid}
                           error={error}
                           style={styles.textArea}
                           multiline={true}

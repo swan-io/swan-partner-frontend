@@ -5,7 +5,6 @@ import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
@@ -14,12 +13,13 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile, TileRows } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { useLegacyAccentColor } from "../contexts/legacyAccentColor";
 import { IdentificationLevel, ProfilePageDocument } from "../graphql/partner";
@@ -30,7 +30,7 @@ import { useQueryWithErrorBoundary } from "../utils/urql";
 const styles = StyleSheet.create({
   container: {
     backgroundColor: backgroundColor.default,
-    flexGrow: 1,
+    ...commonStyles.fill,
   },
   content: {
     flexGrow: 1,
@@ -143,9 +143,8 @@ export const ProfilePage = ({
   return (
     <ResponsiveContainer style={styles.container} breakpoint={breakpoints.large}>
       {({ small, large }) => (
-        <LakeScrollView
+        <ScrollView
           style={styles.container}
-          horizontalSafeArea={0}
           contentContainerStyle={[styles.content, large && styles.contentLarge]}
         >
           {large ? (
@@ -389,7 +388,7 @@ export const ProfilePage = ({
           </TileRows>
 
           <Space height={16} />
-        </LakeScrollView>
+        </ScrollView>
       )}
     </ResponsiveContainer>
   );

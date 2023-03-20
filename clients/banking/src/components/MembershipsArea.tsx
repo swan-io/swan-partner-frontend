@@ -309,7 +309,7 @@ export const MembershipsArea = ({
             }
             onClose={() => Router.push("AccountMembersList", { accountMembershipId, ...params })}
             items={memberships}
-            render={membership => (
+            render={(membership, large) => (
               <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                 <MembershipDetailArea
                   currentUserAccountMembershipId={accountMembershipId}

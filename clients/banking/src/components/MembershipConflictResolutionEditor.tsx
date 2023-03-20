@@ -2,7 +2,6 @@ import { Result } from "@swan-io/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -11,7 +10,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { AccountMembershipFragment, UpdateAccountMembershipDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -83,7 +82,7 @@ export const MembershipConflictResolutionEditor = ({
 
   return (
     <>
-      <LakeScrollView>
+      <ScrollView>
         <View style={styles.columns}>
           <View style={styles.column}>
             <LakeHeading level={3} variant="h4">
@@ -265,7 +264,7 @@ export const MembershipConflictResolutionEditor = ({
             </ReadOnlyFieldList>
           </View>
         </View>
-      </LakeScrollView>
+      </ScrollView>
 
       <LakeButtonGroup>
         <LakeButton

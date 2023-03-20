@@ -4,8 +4,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { Suspense, useMemo } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { CardPageDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
@@ -22,13 +23,6 @@ import { ErrorView } from "./ErrorView";
 const styles = StyleSheet.create({
   container: {
     ...commonStyles.fill,
-  },
-  tabs: {
-    paddingHorizontal: spacings[24],
-    zIndex: 1,
-  },
-  tabsLarge: {
-    paddingHorizontal: spacings[40],
   },
   contents: {
     ...commonStyles.fill,
@@ -63,6 +57,8 @@ export const CardItemArea = ({
   B2BMembershipIDVerification,
   large = true,
 }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const route = Router.useRoute([
     "AccountCardsItem",
     "AccountCardsItemPhysicalCard",
@@ -163,69 +159,67 @@ export const CardItemArea = ({
 
   return (
     <>
-      <View style={[styles.tabs, large && styles.tabsLarge]}>
-        <TabView
-          tabs={[
-            {
-              label: t("cardDetail.virtualCard"),
-              url: Router.AccountCardsItem({ accountMembershipId, cardId }),
-            },
-            ...(shouldShowPhysicalCardTab
-              ? [
-                  {
-                    label: t("cardDetail.physicalCard"),
-                    url: Router.AccountCardsItemPhysicalCard({
-                      accountMembershipId,
-                      cardId,
-                    }),
-                  },
-                ]
-              : []),
-            ...match({ isCurrentUserCardOwner, card })
-              .with(
-                { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
-                () => [
-                  {
-                    label: t("cardDetail.mobilePayment"),
-                    url: Router.AccountCardsItemMobilePayment({
-                      accountMembershipId,
-                      cardId,
-                    }),
-                  },
-                ],
-              )
-              .otherwise(() => []),
-            {
-              label: t("cardDetail.transactions"),
-              url: Router.AccountCardsItemTransactions({ accountMembershipId, cardId }),
-            },
-            ...match({ canManageAccountMembership, card })
-              .with(
+      <TabView
+        padding={desktop ? 40 : 24}
+        sticky={true}
+        tabs={[
+          {
+            label: t("cardDetail.virtualCard"),
+            url: Router.AccountCardsItem({ accountMembershipId, cardId }),
+          },
+          ...(shouldShowPhysicalCardTab
+            ? [
                 {
-                  canManageAccountMembership: true,
-                  card: {
-                    statusInfo: {
-                      __typename: P.not(
-                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
-                      ),
-                    },
+                  label: t("cardDetail.physicalCard"),
+                  url: Router.AccountCardsItemPhysicalCard({
+                    accountMembershipId,
+                    cardId,
+                  }),
+                },
+              ]
+            : []),
+          ...match({ isCurrentUserCardOwner, card })
+            .with(
+              { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
+              () => [
+                {
+                  label: t("cardDetail.mobilePayment"),
+                  url: Router.AccountCardsItemMobilePayment({
+                    accountMembershipId,
+                    cardId,
+                  }),
+                },
+              ],
+            )
+            .otherwise(() => []),
+          {
+            label: t("cardDetail.transactions"),
+            url: Router.AccountCardsItemTransactions({ accountMembershipId, cardId }),
+          },
+          ...match({ canManageAccountMembership, card })
+            .with(
+              {
+                canManageAccountMembership: true,
+                card: {
+                  statusInfo: {
+                    __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")),
                   },
                 },
-                () => [
-                  {
-                    label: t("cardDetail.settings"),
-                    url: Router.AccountCardsItemSettings({
-                      accountMembershipId,
-                      cardId,
-                    }),
-                  },
-                ],
-              )
-              .otherwise(() => []),
-          ]}
-          otherLabel={t("common.tabs.other")}
-        />
-      </View>
+              },
+              () => [
+                {
+                  label: t("cardDetail.settings"),
+                  url: Router.AccountCardsItemSettings({
+                    accountMembershipId,
+                    cardId,
+                  }),
+                },
+              ],
+            )
+            .otherwise(() => []),
+        ]}
+        otherLabel={t("common.tabs.other")}
+      />
 
       <Suspense fallback={<LoadingView color={colors.current.primary} />}>
         {match(route)

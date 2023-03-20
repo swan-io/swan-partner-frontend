@@ -13,9 +13,9 @@ import {
   companyCountriesItems,
   CountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";
-import { match, P } from "ts-pattern";
+import { match } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -27,26 +27,22 @@ import {
 import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
-type FormCompanyType = CompanyType | "NonRegistredCompany";
-
 type BasicInfoValues = {
   country: CountryCCA3;
   typeOfRepresentation: TypeOfRepresentation;
   companyType: CompanyType;
-  isRegistered: boolean;
 };
 
 type Props = {
   nextStep: CompanyOnboardingRoute;
   onboardingId: string;
   initialValues: BasicInfoValues;
-  hasUbos: boolean;
 };
 
 const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "(SA, SPRL, SCRL, SCRIS, SNC, SCS, GIE)",
   DEU: "(GmbH, EI, Gbr, KG)",
-  FRA: "(SA, SARL, SAS, SCI, EI, EIRL, Micro-entreprise…)",
+  FRA: "(SA, SARL, SAS, SCI…)",
   ITA: "(SS, SRL, SPA, SNC, SAS…)",
   LUX: "(SA, SCS, SARLI, SNC, SCA, SC)",
   NLD: "(BV, NV, VOF…)",
@@ -63,37 +59,12 @@ const typeOfRepresentationItems: RadioGroupItem<TypeOfRepresentation>[] = [
   },
 ];
 
-const companyTypeToFormCompanyType = ({
-  companyType,
-  isRegistered,
-}: BasicInfoValues): FormCompanyType => {
-  return match({ companyType, isRegistered })
-    .with({ companyType: "Company", isRegistered: true }, () => "Company" as const)
-    .with({ companyType: "Company", isRegistered: false }, () => "NonRegistredCompany" as const)
-    .with({ companyType: P.string }, ({ companyType }) => companyType)
-    .exhaustive();
-};
-
-const formCompanyTypeToCompanyType = (
-  formCompanyType: FormCompanyType,
-): { companyType: CompanyType; isRegistered: boolean } => {
-  return match(formCompanyType)
-    .with("Company", () => ({ companyType: "Company" as const, isRegistered: true }))
-    .with("NonRegistredCompany", () => ({ companyType: "Company" as const, isRegistered: false }))
-    .with(P.string, companyType => ({ companyType, isRegistered: false }))
-    .exhaustive();
-};
-
-const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<FormCompanyType>[] => {
-  const items: RadioGroupItem<FormCompanyType>[] = [];
+const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] => {
+  const items: RadioGroupItem<CompanyType>[] = [];
   items.push(
     {
-      name: `${t("companyType.registredCompany")} ${companyTypesPerCountry[country] ?? ""}`,
+      name: `${t("companyType.company")} ${companyTypesPerCountry[country] ?? ""}`,
       value: "Company",
-    },
-    {
-      name: `${t("companyType.nonRegistredCompany")} ${companyTypesPerCountry[country] ?? ""}`,
-      value: "NonRegistredCompany",
     },
     {
       name: t("companyType.association"),
@@ -101,10 +72,10 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<FormCompanyType>[
     },
   );
 
-  const countriesWithHomeOwnerAssociation: CountryCCA3[] = ["FRA", "BEL"];
+  const countriesWithHomeOwnerAssociation: CountryCCA3[] = ["FRA", "BEL", "DEU", "ESP"];
   if (countriesWithHomeOwnerAssociation.includes(country)) {
     items.push({
-      name: t("companyType.homeOwnerAssociation"),
+      name: t("companyType.coOwnership"),
       value: "HomeOwnerAssociation",
     });
   }
@@ -117,18 +88,8 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<FormCompanyType>[
   return items;
 };
 
-export const OnboardingCompanyBasicInfo = ({
-  nextStep,
-  onboardingId,
-  initialValues,
-  hasUbos,
-}: Props) => {
+export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValues }: Props) => {
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
-
-  const formCompanyType: FormCompanyType = useMemo(
-    () => companyTypeToFormCompanyType(initialValues),
-    [initialValues],
-  );
 
   const { Field, submitForm, listenFields, setFieldValue } = useForm({
     country: {
@@ -138,11 +99,11 @@ export const OnboardingCompanyBasicInfo = ({
       initialValue: initialValues.typeOfRepresentation,
     },
     companyType: {
-      initialValue: formCompanyType,
+      initialValue: initialValues.companyType,
     },
   });
 
-  const [companyTypes, setCompanyTypes] = useState<RadioGroupItem<FormCompanyType>[]>(() =>
+  const [companyTypes, setCompanyTypes] = useState<RadioGroupItem<CompanyType>[]>(() =>
     getCompanyTypes(initialValues.country),
   );
 
@@ -164,19 +125,14 @@ export const OnboardingCompanyBasicInfo = ({
         return;
       }
 
-      const { companyType, isRegistered } = formCompanyTypeToCompanyType(values.companyType);
-      const { country, typeOfRepresentation } = values;
+      const { country, typeOfRepresentation, companyType } = values;
 
       updateOnboarding({
         input: {
           onboardingId,
           companyType,
-          isRegistered,
           typeOfRepresentation,
           residencyAddress: { country },
-          // set ubos to empty to prevent backend auto-filling them in background
-          // only when the user has not defined any ubos
-          individualUltimateBeneficialOwners: !hasUbos ? [] : undefined,
         },
         language: locale.language,
       })
@@ -230,6 +186,7 @@ export const OnboardingCompanyBasicInfo = ({
                   {({ value, onChange }) => (
                     <LakeLabel
                       label={t("company.step.basicInfo.legalRepresentativeLabel")}
+                      type="radioGroup"
                       render={() => (
                         <RadioGroup
                           direction={small ? "column" : "row"}
@@ -242,12 +199,14 @@ export const OnboardingCompanyBasicInfo = ({
                   )}
                 </Field>
 
-                <Space height={24} />
+                {/* use 12 instead of 24 for large screen because RadioGroup with row direction has 12px margin bottom */}
+                <Space height={small ? 24 : 12} />
 
                 <Field name="companyType">
                   {({ value, onChange }) => (
                     <LakeLabel
                       label={t("company.step.basicInfo.organisationTypeLabel")}
+                      type="radioGroup"
                       optionalLabel={t("company.step.basicInfo.organisationTypeOptional")}
                       render={() => (
                         <RadioGroup items={companyTypes} value={value} onValueChange={onChange} />

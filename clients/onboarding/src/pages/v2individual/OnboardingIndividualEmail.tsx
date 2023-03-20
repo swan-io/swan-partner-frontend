@@ -33,7 +33,7 @@ import {
 
 const styles = StyleSheet.create({
   link: {
-    color: colors.partner.primary,
+    color: colors.partner[500],
     textDecorationLine: "underline",
   },
   linkIcon: {

@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { FixedListViewEmpty, LinkConfig } from "@swan-io/lake/src/components/FixedListView";
 import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { ReactElement, useState } from "react";
 import { AccountMembershipFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -103,6 +104,8 @@ export const MembershipList = ({
   getRowLink,
   onRefreshRequest,
 }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<Option<string>>(
     Option.None(),
   );
@@ -115,6 +118,7 @@ export const MembershipList = ({
   return (
     <>
       <PlainListView
+        withoutScroll={!desktop}
         data={memberships}
         keyExtractor={item => item.id}
         headerHeight={48}

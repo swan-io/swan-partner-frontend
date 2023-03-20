@@ -64,7 +64,7 @@ export const FinalizeInvalidSteps = <R extends StepRoute>({
 
       <Space height={24} />
 
-      <LakeText variant="medium" color={colors.negative[500]}>
+      <LakeText align="center" variant="medium" color={colors.negative[500]}>
         {t("step.finalizeError.title")}
       </LakeText>
 
@@ -133,12 +133,12 @@ export const FinalizeBlock = ({ isMobile }: { isMobile: boolean }) => {
       <BorderedIcon name="shield-regular" size={100} padding={16} color="partner" />
       <Space height={24} />
 
-      <LakeText variant="medium" color={colors.gray[900]}>
+      <LakeText align="center" variant="medium" color={colors.gray[900]}>
         {t("step.finalize.title")}
       </LakeText>
 
       <Space height={isMobile ? 4 : 12} />
-      <LakeText>{t("step.finalize.description")}</LakeText>
+      <LakeText align="center">{t("step.finalize.description")}</LakeText>
     </>
   );
 };

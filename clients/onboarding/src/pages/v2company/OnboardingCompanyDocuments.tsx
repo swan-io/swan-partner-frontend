@@ -10,7 +10,6 @@ import {
   SupportingDocument,
   SupportingDocumentPurpose,
 } from "@swan-io/shared-business/src/components/SupportingDocument";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { ReactNode } from "react";
 import { match } from "ts-pattern";
 import { ConfirmModal } from "../../components/ConfirmModal";
@@ -20,7 +19,6 @@ import { StepTitle } from "../../components/StepTitle";
 import {
   GenerateSupportingDocumentUploadUrlDocument,
   SupportingDocumentPurposeEnum,
-  TypeOfRepresentation,
 } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
@@ -29,11 +27,10 @@ type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
   onboardingId: string;
-  typeOfRepresentation: TypeOfRepresentation;
   documents: Document[];
   requiredDocumentTypes: SupportingDocumentPurposeEnum[];
   supportingDocumentCollectionId: string;
-  country: CountryCCA3;
+  onboardingLanguage: string;
   onDocumentsChange: (documents: Document[]) => void;
 };
 
@@ -51,7 +48,7 @@ export const OnboardingCompanyDocuments = ({
   documents,
   requiredDocumentTypes,
   supportingDocumentCollectionId,
-  country,
+  onboardingLanguage,
   onDocumentsChange,
 }: Props) => {
   const [, generateSupportingDocumentUploadUrl] = useUrqlMutation(
@@ -124,7 +121,8 @@ export const OnboardingCompanyDocuments = ({
                   requiredDocumentTypes={requiredDocumentTypes}
                   onChange={onDocumentsChange}
                   getAwsUrl={getAwsUrl}
-                  country={country}
+                  withoutRepresentationRadio={true}
+                  onboardingLanguage={onboardingLanguage}
                 />
               </DocumentsStepTile>
             </>

@@ -1,8 +1,8 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { LakeCombobox, LakeComboboxRef } from "@swan-io/lake/src/components/LakeCombobox";
+import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
 import { t } from "../utils/i18n";
 import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
@@ -42,10 +42,8 @@ export const LakeCompanyInput = ({
   onLoadError,
 }: Props) => {
   const [state, setState] = useState<State>(AsyncData.NotAsked());
-  const comboboxRef = useRef<LakeComboboxRef>(null);
 
   const selectCompany = (suggestion: CompanySuggestion) => {
-    comboboxRef.current?.close();
     onSuggestion?.(suggestion);
   };
 
@@ -65,7 +63,6 @@ export const LakeCompanyInput = ({
 
   return (
     <LakeCombobox
-      ref={comboboxRef}
       nativeID={nativeID}
       placeholder={placeholder ?? t("companyInput.placeholder")}
       value={value}

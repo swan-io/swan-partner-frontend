@@ -2,12 +2,13 @@ import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import {
   isNotNullish,
@@ -15,7 +16,7 @@ import {
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
@@ -25,8 +26,7 @@ import { getTransactionLabel } from "./TransactionListCells";
 
 const styles = StyleSheet.create({
   container: {
-    flexGrow: 1,
-    flexShrink: 1,
+    ...commonStyles.fill,
   },
   tile: {
     alignItems: "center",
@@ -40,15 +40,15 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountMembershipId: string;
   transaction: TransactionDetailsFragment;
+  large: boolean;
 };
 
 const truncateTransactionId = (id: string) => id.split("#", 2)[0];
 
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 
-export const TransactionDetail = ({ transaction }: Props) => {
+export const TransactionDetail = ({ transaction, large }: Props) => {
   if (transaction == null) {
     return <ErrorView />;
   }
@@ -130,98 +130,174 @@ export const TransactionDetail = ({ transaction }: Props) => {
       )}
     />
   );
-
   return (
-    <View style={styles.container}>
-      <Tile
-        style={styles.tile}
-        footer={match(transaction.statusInfo)
-          .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => (
-            <LakeAlert
-              anchored={true}
-              title={getTransactionRejectedReasonLabel(reason)}
-              variant="error"
-            />
-          ))
-          .otherwise(() => null)}
-      >
-        {match(transaction.statusInfo.__typename)
-          .with("PendingTransactionStatusInfo", () => (
-            <Tag color="warning">{t("transactionStatus.pending")}</Tag>
-          ))
-          .with("RejectedTransactionStatusInfo", () => (
-            <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
-          ))
-          .with("CanceledTransactionStatusInfo", () => (
-            <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
-          ))
-          .otherwise(() => null)}
-
-        <Space height={12} />
-
-        <LakeHeading
-          variant="h1"
-          level={2}
-          align="center"
-          style={transaction.side ? styles.debitAmount : null}
+    <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
+      <ListRightPanelContent large={large} style={styles.container}>
+        <Tile
+          style={styles.tile}
+          footer={match(transaction.statusInfo)
+            .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => (
+              <LakeAlert
+                anchored={true}
+                title={getTransactionRejectedReasonLabel(reason)}
+                variant="error"
+              />
+            ))
+            .otherwise(() => null)}
         >
-          {(transaction.side === "Debit" ? "-" : "+") +
-            formatCurrency(Number(transaction.amount.value), transaction.amount.currency)}
-        </LakeHeading>
+          {match(transaction.statusInfo.__typename)
+            .with("PendingTransactionStatusInfo", () => (
+              <Tag color="warning">{t("transactionStatus.pending")}</Tag>
+            ))
+            .with("RejectedTransactionStatusInfo", () => (
+              <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
+            ))
+            .with("CanceledTransactionStatusInfo", () => (
+              <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
+            ))
+            .otherwise(() => null)}
 
-        {match(transaction)
-          .with(
-            {
-              __typename: "CardTransaction",
-              originalAmount: { value: P.string, currency: P.string },
-            },
-            transaction =>
-              transaction.originalAmount.currency !== transaction.amount.currency ? (
-                <LakeText>
-                  {(transaction.side === "Debit" ? "-" : "+") +
-                    formatCurrency(
-                      Number(transaction.originalAmount.value),
-                      transaction.originalAmount.currency,
-                    )}
-                </LakeText>
-              ) : null,
-          )
-          .otherwise(() => null)}
+          <Space height={12} />
 
-        <Space height={8} />
+          <LakeHeading
+            variant="h1"
+            level={2}
+            align="center"
+            style={transaction.side ? styles.debitAmount : null}
+          >
+            {(transaction.side === "Debit" ? "-" : "+") +
+              formatCurrency(Number(transaction.amount.value), transaction.amount.currency)}
+          </LakeHeading>
 
-        <LakeHeading
-          variant="h4"
-          level={3}
-          align="center"
-          color={colors.gray[700]}
-          style={styles.wrapText}
-        >
-          {getTransactionLabel(transaction)}
-        </LakeHeading>
-      </Tile>
+          {match(transaction)
+            .with(
+              {
+                __typename: "CardTransaction",
+                originalAmount: { value: P.string, currency: P.string },
+              },
+              transaction =>
+                transaction.originalAmount.currency !== transaction.amount.currency ? (
+                  <LakeText>
+                    {(transaction.side === "Debit" ? "-" : "+") +
+                      formatCurrency(
+                        Number(transaction.originalAmount.value),
+                        transaction.originalAmount.currency,
+                      )}
+                  </LakeText>
+                ) : null,
+            )
+            .otherwise(() => null)}
 
-      <Space height={24} />
+          <Space height={8} />
 
-      <LakeScrollView>
-        {match(transaction)
-          .with(
-            { __typename: "CardTransaction" },
-            ({
-              card,
-              createdAt,
-              statusInfo,
-              merchantCountry: merchantCountryCCA3,
-              merchantCity,
-              maskedPan,
-            }) => {
-              const merchantCountry = countries.find(
-                country => country.cca3 === merchantCountryCCA3,
-              )?.name;
+          <LakeHeading
+            variant="h4"
+            level={3}
+            align="center"
+            color={colors.gray[700]}
+            style={styles.wrapText}
+          >
+            {getTransactionLabel(transaction)}
+          </LakeHeading>
+        </Tile>
 
-              return (
+        <Space height={24} />
+
+        <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+          {match(transaction)
+            .with(
+              { __typename: "CardTransaction" },
+              ({
+                card,
+                createdAt,
+                statusInfo,
+                merchantCountry: merchantCountryCCA3,
+                merchantCity,
+                maskedPan,
+              }) => {
+                const merchantCountry = countries.find(
+                  country => country.cca3 === merchantCountryCCA3,
+                )?.name;
+
+                return (
+                  <ReadOnlyFieldList>
+                    {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
+                      <LakeLabel
+                        type="viewSmall"
+                        label={t("transaction.paymentDateTime")}
+                        render={() => (
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {formatDateTime(new Date(createdAt), "LLL")}
+                          </LakeText>
+                        )}
+                      />
+                    ) : null}
+
+                    {bookingDateTime}
+                    {executionDateTime}
+                    {rejectedDate}
+                    {rejectedReason}
+
+                    {match({ merchantCity, merchantCountry })
+                      .with(
+                        { merchantCity: P.string, merchantCountry: P.string },
+                        ({ merchantCity, merchantCountry }) => (
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.place")}
+                            render={() => (
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {`${merchantCity} - ${merchantCountry}`}
+                              </LakeText>
+                            )}
+                          />
+                        ),
+                      )
+                      .otherwise(() => null)}
+
+                    <LakeLabel
+                      type="viewSmall"
+                      label={t("transaction.maskedPan")}
+                      render={() => (
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {formatMaskedPan(maskedPan)}
+                        </LakeText>
+                      )}
+                    />
+
+                    {match(card)
+                      .with(
+                        {
+                          accountMembership: { user: { firstName: P.string, lastName: P.string } },
+                        },
+                        ({
+                          accountMembership: {
+                            user: { firstName, lastName },
+                          },
+                        }) => (
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.cardHolder")}
+                            render={() => (
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {[firstName, lastName].join(" ")}
+                              </LakeText>
+                            )}
+                          />
+                        ),
+                      )
+                      .otherwise(() => null)}
+
+                    {transactionId}
+                  </ReadOnlyFieldList>
+                );
+              },
+            )
+            .with(
+              { __typename: "SEPACreditTransferTransaction" },
+              ({ createdAt, side, debtor, creditor }) => (
                 <ReadOnlyFieldList>
-                  {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
+                  {isNotNullish(createdAt) ? (
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.paymentDateTime")}
@@ -234,187 +310,8 @@ export const TransactionDetail = ({ transaction }: Props) => {
                   ) : null}
 
                   {bookingDateTime}
-                  {executionDateTime}
-                  {rejectedDate}
-                  {rejectedReason}
 
-                  {match({ merchantCity, merchantCountry })
-                    .with(
-                      { merchantCity: P.string, merchantCountry: P.string },
-                      ({ merchantCity, merchantCountry }) => (
-                        <LakeLabel
-                          type="viewSmall"
-                          label={t("transaction.place")}
-                          render={() => (
-                            <LakeText variant="regular" color={colors.gray[900]}>
-                              {`${merchantCity} - ${merchantCountry}`}
-                            </LakeText>
-                          )}
-                        />
-                      ),
-                    )
-                    .otherwise(() => null)}
-
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.maskedPan")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {formatMaskedPan(maskedPan)}
-                      </LakeText>
-                    )}
-                  />
-
-                  {match(card)
-                    .with(
-                      { accountMembership: { user: { firstName: P.string, lastName: P.string } } },
-                      ({
-                        accountMembership: {
-                          user: { firstName, lastName },
-                        },
-                      }) => (
-                        <LakeLabel
-                          type="viewSmall"
-                          label={t("transaction.cardHolder")}
-                          render={() => (
-                            <LakeText variant="regular" color={colors.gray[900]}>
-                              {[firstName, lastName].join(" ")}
-                            </LakeText>
-                          )}
-                        />
-                      ),
-                    )
-                    .otherwise(() => null)}
-
-                  {transactionId}
-                </ReadOnlyFieldList>
-              );
-            },
-          )
-          .with(
-            { __typename: "SEPACreditTransferTransaction" },
-            ({ createdAt, side, debtor, creditor }) => (
-              <ReadOnlyFieldList>
-                {isNotNullish(createdAt) ? (
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.paymentDateTime")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {formatDateTime(new Date(createdAt), "LLL")}
-                      </LakeText>
-                    )}
-                  />
-                ) : null}
-
-                {bookingDateTime}
-
-                {side === "Credit" ? (
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.debtor")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {debtor.name}
-                      </LakeText>
-                    )}
-                  />
-                ) : null}
-
-                {match(transaction)
-                  .with(
-                    {
-                      statusInfo: { __typename: P.not("BookedTransactionStatusInfo") },
-                      creditor: { maskedIBAN: P.nullish },
-                      side: "Credit",
-                    },
-                    () => (
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.creditorName")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {creditor.name}
-                          </LakeText>
-                        )}
-                      />
-                    ),
-                  )
-                  .with(
-                    {
-                      type: P.union("SepaCreditTransferOut", "SepaInstantCreditTransferOut"),
-                      creditor: { __typename: "SEPACreditTransferOutCreditor", name: P.string },
-                    },
-                    ({ creditor }) => (
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.creditorName")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {creditor.name}
-                          </LakeText>
-                        )}
-                      />
-                    ),
-                  )
-                  .otherwise(() => null)}
-
-                {match(transaction)
-                  .with(
-                    {
-                      statusInfo: { __typename: "BookedTransactionStatusInfo" },
-                      creditor: { maskedIBAN: P.string },
-                      side: "Credit",
-                    },
-                    ({ creditor: { maskedIBAN } }) => (
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.creditorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {maskedIBAN}
-                          </LakeText>
-                        )}
-                      />
-                    ),
-                  )
-                  .with(
-                    {
-                      type: P.union("SepaCreditTransferOut", "SepaInstantCreditTransferOut"),
-                      creditor: {
-                        __typename: "SEPACreditTransferOutCreditor",
-                        maskedIBAN: P.string,
-                      },
-                    },
-                    ({ creditor: { maskedIBAN } }) => (
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.creditorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {maskedIBAN}
-                          </LakeText>
-                        )}
-                      />
-                    ),
-                  )
-                  .otherwise(() => null)}
-
-                {executionDateTime}
-                {rejectedDate}
-                {rejectedReason}
-                {transactionId}
-              </ReadOnlyFieldList>
-            ),
-          )
-          .with(
-            { __typename: "SEPADirectDebitTransaction" },
-            ({ mandate, creditor, reference }) => (
-              <ReadOnlyFieldList>
-                {bookingDateTime}
-
-                {match(mandate)
-                  .with({ __typename: "SEPAPaymentDirectDebitMandate" }, ({ debtor }) => (
+                  {side === "Credit" ? (
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.debtor")}
@@ -424,125 +321,231 @@ export const TransactionDetail = ({ transaction }: Props) => {
                         </LakeText>
                       )}
                     />
-                  ))
-                  .otherwise(() => null)}
+                  ) : null}
 
-                {executionDateTime}
-
-                {match(mandate)
-                  .with(
-                    { __typename: "SEPAReceivedDirectDebitMandate" },
-                    ({ ultimateCreditorName }) => {
-                      const creditorName = ultimateCreditorName ?? creditor.name;
-                      if (isNullishOrEmpty(creditorName)) {
-                        return null;
-                      }
-                      return (
+                  {match(transaction)
+                    .with(
+                      {
+                        statusInfo: { __typename: P.not("BookedTransactionStatusInfo") },
+                        creditor: { maskedIBAN: P.nullish },
+                        side: "Credit",
+                      },
+                      () => (
                         <LakeLabel
                           type="viewSmall"
                           label={t("transaction.creditorName")}
                           render={() => (
                             <LakeText variant="regular" color={colors.gray[900]}>
-                              {ultimateCreditorName ?? creditor.name}
+                              {creditor.name}
                             </LakeText>
                           )}
                         />
-                      );
-                    },
-                  )
-                  .otherwise(() => null)}
+                      ),
+                    )
+                    .with(
+                      {
+                        type: P.union("SepaCreditTransferOut", "SepaInstantCreditTransferOut"),
+                        creditor: { __typename: "SEPACreditTransferOutCreditor", name: P.string },
+                      },
+                      ({ creditor }) => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.creditorName")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {creditor.name}
+                            </LakeText>
+                          )}
+                        />
+                      ),
+                    )
+                    .otherwise(() => null)}
+
+                  {match(transaction)
+                    .with(
+                      {
+                        statusInfo: { __typename: "BookedTransactionStatusInfo" },
+                        creditor: { maskedIBAN: P.string },
+                        side: "Credit",
+                      },
+                      ({ creditor: { maskedIBAN } }) => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.creditorIban")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {maskedIBAN}
+                            </LakeText>
+                          )}
+                        />
+                      ),
+                    )
+                    .with(
+                      {
+                        type: P.union("SepaCreditTransferOut", "SepaInstantCreditTransferOut"),
+                        creditor: {
+                          __typename: "SEPACreditTransferOutCreditor",
+                          maskedIBAN: P.string,
+                        },
+                      },
+                      ({ creditor: { maskedIBAN } }) => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.creditorIban")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {maskedIBAN}
+                            </LakeText>
+                          )}
+                        />
+                      ),
+                    )
+                    .otherwise(() => null)}
+
+                  {executionDateTime}
+                  {rejectedDate}
+                  {rejectedReason}
+                  {transactionId}
+                </ReadOnlyFieldList>
+              ),
+            )
+            .with(
+              { __typename: "SEPADirectDebitTransaction" },
+              ({ mandate, creditor, reference }) => (
+                <ReadOnlyFieldList>
+                  {bookingDateTime}
+
+                  {match(mandate)
+                    .with({ __typename: "SEPAPaymentDirectDebitMandate" }, ({ debtor }) => (
+                      <LakeLabel
+                        type="viewSmall"
+                        label={t("transaction.debtor")}
+                        render={() => (
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {debtor.name}
+                          </LakeText>
+                        )}
+                      />
+                    ))
+                    .otherwise(() => null)}
+
+                  {executionDateTime}
+
+                  {match(mandate)
+                    .with(
+                      { __typename: "SEPAReceivedDirectDebitMandate" },
+                      ({ ultimateCreditorName }) => {
+                        const creditorName = ultimateCreditorName ?? creditor.name;
+                        if (isNullishOrEmpty(creditorName)) {
+                          return null;
+                        }
+                        return (
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.creditorName")}
+                            render={() => (
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {ultimateCreditorName ?? creditor.name}
+                              </LakeText>
+                            )}
+                          />
+                        );
+                      },
+                    )
+                    .otherwise(() => null)}
+
+                  {rejectedDate}
+                  {rejectedReason}
+
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.reference")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {isNotNullishOrEmpty(reference) ? reference : "—"}
+                      </LakeText>
+                    )}
+                  />
+
+                  {transactionId}
+                </ReadOnlyFieldList>
+              ),
+            )
+            .with({ __typename: "InternalDirectDebitTransaction" }, ({ creditor }) => (
+              <ReadOnlyFieldList>
+                {bookingDateTime}
+                {executionDateTime}
+
+                {creditor.accountId != null ? (
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.creditorName")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {creditor.accountId}
+                      </LakeText>
+                    )}
+                  />
+                ) : null}
 
                 {rejectedDate}
                 {rejectedReason}
-
-                <LakeLabel
-                  type="viewSmall"
-                  label={t("transaction.reference")}
-                  render={() => (
-                    <LakeText variant="regular" color={colors.gray[900]}>
-                      {isNotNullishOrEmpty(reference) ? reference : "—"}
-                    </LakeText>
-                  )}
-                />
-
                 {transactionId}
               </ReadOnlyFieldList>
-            ),
-          )
-          .with({ __typename: "InternalDirectDebitTransaction" }, ({ creditor }) => (
-            <ReadOnlyFieldList>
-              {bookingDateTime}
-              {executionDateTime}
+            ))
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
+              <ReadOnlyFieldList>
+                {bookingDateTime}
+                {executionDateTime}
 
-              {creditor.accountId != null ? (
+                {creditor.name != null ? (
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.creditorName")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {creditor.name}
+                      </LakeText>
+                    )}
+                  />
+                ) : null}
+
+                {rejectedDate}
+                {rejectedReason}
+                {transactionId}
+              </ReadOnlyFieldList>
+            ))
+            .with({ __typename: "FeeTransaction" }, ({ counterparty }) => (
+              <ReadOnlyFieldList>
+                {bookingDateTime}
+                {executionDateTime}
+
                 <LakeLabel
                   type="viewSmall"
                   label={t("transaction.creditorName")}
                   render={() => (
                     <LakeText variant="regular" color={colors.gray[900]}>
-                      {creditor.accountId}
+                      {counterparty}
                     </LakeText>
                   )}
                 />
-              ) : null}
 
-              {rejectedDate}
-              {rejectedReason}
-              {transactionId}
-            </ReadOnlyFieldList>
-          ))
-          .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
-            <ReadOnlyFieldList>
-              {bookingDateTime}
-              {executionDateTime}
-
-              {creditor.name != null ? (
-                <LakeLabel
-                  type="viewSmall"
-                  label={t("transaction.creditorName")}
-                  render={() => (
-                    <LakeText variant="regular" color={colors.gray[900]}>
-                      {creditor.name}
-                    </LakeText>
-                  )}
-                />
-              ) : null}
-
-              {rejectedDate}
-              {rejectedReason}
-              {transactionId}
-            </ReadOnlyFieldList>
-          ))
-          .with({ __typename: "FeeTransaction" }, ({ counterparty }) => (
-            <ReadOnlyFieldList>
-              {bookingDateTime}
-              {executionDateTime}
-
-              <LakeLabel
-                type="viewSmall"
-                label={t("transaction.creditorName")}
-                render={() => (
-                  <LakeText variant="regular" color={colors.gray[900]}>
-                    {counterparty}
-                  </LakeText>
-                )}
-              />
-
-              {rejectedDate}
-              {rejectedReason}
-              {transactionId}
-            </ReadOnlyFieldList>
-          ))
-          .otherwise(() => (
-            <ReadOnlyFieldList>
-              {bookingDateTime}
-              {executionDateTime}
-              {rejectedDate}
-              {rejectedReason}
-              {transactionId}
-            </ReadOnlyFieldList>
-          ))}
-      </LakeScrollView>
-    </View>
+                {rejectedDate}
+                {rejectedReason}
+                {transactionId}
+              </ReadOnlyFieldList>
+            ))
+            .otherwise(() => (
+              <ReadOnlyFieldList>
+                {bookingDateTime}
+                {executionDateTime}
+                {rejectedDate}
+                {rejectedReason}
+                {transactionId}
+              </ReadOnlyFieldList>
+            ))}
+        </ScrollView>
+      </ListRightPanelContent>
+    </ScrollView>
   );
 };

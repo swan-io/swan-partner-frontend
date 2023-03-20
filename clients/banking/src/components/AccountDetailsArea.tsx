@@ -1,13 +1,12 @@
 import * as Sentry from "@sentry/react";
-import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { backgroundColor, breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { Suspense, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
@@ -20,19 +19,7 @@ import { ErrorView } from "./ErrorView";
 const styles = StyleSheet.create({
   root: {
     ...commonStyles.fill,
-  },
-  container: {
-    backgroundColor: backgroundColor.default,
-    flexShrink: 1,
-    flexGrow: 1,
-  },
-  header: {
-    paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
-    zIndex: 1, // TODO: Remove relying on zIndex for that
-  },
-  headerDesktop: {
-    paddingHorizontal: spacings[40],
+    paddingTop: spacings[24],
   },
   placeholders: {
     paddingTop: spacings[40],
@@ -42,6 +29,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     paddingHorizontal: spacings[24],
     paddingVertical: spacings[20],
+    paddingTop: spacings[40],
   },
   contentDesktop: {
     paddingHorizontal: spacings[40],
@@ -109,11 +97,14 @@ export const AccountDetailsArea = ({
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
-      {({ large }) => (
-        <View style={styles.container}>
-          <View style={[styles.header, large && styles.headerDesktop]}>
-            <TabView tabs={tabs} otherLabel={t("common.tabs.other")} />
-          </View>
+      {({ small, large }) => (
+        <>
+          <TabView
+            sticky={true}
+            padding={small ? 24 : 40}
+            tabs={tabs}
+            otherLabel={t("common.tabs.other")}
+          />
 
           <Sentry.ErrorBoundary
             key={route?.name}
@@ -121,9 +112,8 @@ export const AccountDetailsArea = ({
           >
             {match(route)
               .with({ name: "AccountDetailsIban" }, () => (
-                <LakeScrollView
+                <ScrollView
                   contentContainerStyle={[styles.content, large && styles.contentDesktop]}
-                  horizontalSafeArea={0}
                 >
                   <Suspense
                     fallback={
@@ -143,26 +133,23 @@ export const AccountDetailsArea = ({
                   </Suspense>
 
                   <Space height={24} />
-                </LakeScrollView>
+                </ScrollView>
               ))
               .with({ name: "AccountDetailsVirtualIbans" }, () => (
-                <AccountDetailsVirtualIbansPage accountId={accountId} />
+                <>
+                  <Space height={40} />
+                  <AccountDetailsVirtualIbansPage accountId={accountId} />
+                </>
               ))
               .with({ name: "AccountDetailsBilling" }, () => (
-                <Suspense
-                  fallback={
-                    <View style={styles.placeholders}>
-                      <TilePlaceholder />
-                    </View>
-                  }
-                >
+                <>
+                  <Space height={24} />
                   <AccountDetailsBillingPage accountId={accountId} />
-                </Suspense>
+                </>
               ))
               .with({ name: "AccountDetailsSettings" }, () => (
-                <LakeScrollView
+                <ScrollView
                   contentContainerStyle={[styles.content, large && styles.contentDesktop]}
-                  horizontalSafeArea={0}
                 >
                   <Suspense
                     fallback={
@@ -177,13 +164,13 @@ export const AccountDetailsArea = ({
                       canManageAccountMembership={canManageAccountMembership}
                     />
                   </Suspense>
-                </LakeScrollView>
+                </ScrollView>
               ))
 
               .with(P.nullish, () => null)
               .exhaustive()}
           </Sentry.ErrorBoundary>
-        </View>
+        </>
       )}
     </ResponsiveContainer>
   );

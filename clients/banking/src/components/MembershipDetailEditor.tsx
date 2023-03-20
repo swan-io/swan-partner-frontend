@@ -354,7 +354,12 @@ export const MembershipDetailEditor = ({
           resolve(Result.Error(undefined));
         }
       });
-      xhr.send(null);
+      xhr.send(
+        JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembershipId,
+        }),
+      );
       return () => {
         xhr.abort();
       };

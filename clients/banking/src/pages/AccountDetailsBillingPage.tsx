@@ -15,6 +15,7 @@ import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
@@ -198,6 +199,8 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
 const PER_PAGE = 20;
 
 export const AccountDetailsBillingPage = ({ accountId }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const { data, nextData, setAfter } = useUrqlPaginatedQuery(
     {
       query: AccountDetailsBillingPageDocument,
@@ -224,6 +227,7 @@ export const AccountDetailsBillingPage = ({ accountId }: Props) => {
       result.match({
         Ok: ({ account }) => (
           <PlainListView
+            withoutScroll={!desktop}
             data={account?.invoices?.edges?.map(({ node }) => node) ?? []}
             keyExtractor={item => item.id}
             headerHeight={48}

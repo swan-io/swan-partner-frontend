@@ -6,6 +6,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet, View } from "react-native";
@@ -40,13 +41,6 @@ const styles = StyleSheet.create({
     paddingTop: spacings[40],
     paddingBottom: spacings[16],
   },
-  tabs: {
-    paddingHorizontal: spacings[24],
-    paddingBottom: spacings[16],
-  },
-  tabsLarge: {
-    paddingHorizontal: spacings[40],
-  },
   statementsLarge: {
     marginHorizontal: negativeSpacings[48],
   },
@@ -72,10 +66,10 @@ export const TransactionsArea = ({
   const availableBalance = account?.balances?.available;
 
   return (
-    <>
-      {availableBalance ? (
-        <ResponsiveContainer breakpoint={breakpoints.large}>
-          {({ large }) => (
+    <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
+      {({ small, large }) => (
+        <>
+          {availableBalance ? (
             <>
               <Box style={[styles.balance, large && styles.balanceLarge]}>
                 <LakeText>{t("transactions.availableBalance")}</LakeText>
@@ -84,96 +78,99 @@ export const TransactionsArea = ({
                   {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
                 </LakeHeading>
               </Box>
-
-              <Box style={[styles.tabs, large && styles.tabsLarge]}>
-                <TabView
-                  tabs={[
-                    {
-                      label: t("transactions.history"),
-                      url: Router.AccountTransactionsListRoot({ accountMembershipId }),
-                    },
-                    {
-                      label: t("transactions.upcoming"),
-                      url: Router.AccountTransactionsUpcoming({ accountMembershipId }),
-                      count: data?.account?.upcomingTransactions?.totalCount ?? undefined,
-                    },
-                  ]}
-                  otherLabel={t("common.tabs.other")}
-                />
-              </Box>
             </>
+          ) : (
+            <Space height={24} />
           )}
-        </ResponsiveContainer>
-      ) : (
-        <Space height={24} />
-      )}
 
-      {match(route)
-        .with(
-          { name: "AccountTransactionsListRoot" },
-          { name: "AccountTransactionsListStatements" },
-          ({
-            name,
-            params: {
-              accountMembershipId,
-              consentId,
-              standingOrder,
-              status: consentStatus,
-              ...params
-            },
-          }) => {
-            return (
-              <>
-                <TransactionListPage
-                  accountMembershipId={accountMembershipId}
-                  params={params}
-                  accountId={accountId}
-                  transferConsent={
-                    consentId != null && consentStatus != null
-                      ? Option.Some({
-                          status: consentStatus,
-                          isStandingOrder: isNotEmpty(standingOrder ?? ""),
+          <TabView
+            padding={small ? 24 : 40}
+            sticky={true}
+            tabs={[
+              {
+                label: t("transactions.history"),
+                url: Router.AccountTransactionsListRoot({ accountMembershipId }),
+              },
+              {
+                label: t("transactions.upcoming"),
+                url: Router.AccountTransactionsUpcoming({ accountMembershipId }),
+                count: data?.account?.upcomingTransactions?.totalCount ?? undefined,
+              },
+            ]}
+            otherLabel={t("common.tabs.other")}
+          />
+
+          <Space height={16} />
+
+          {match(route)
+            .with(
+              { name: "AccountTransactionsListRoot" },
+              { name: "AccountTransactionsListStatements" },
+              ({
+                name,
+                params: {
+                  accountMembershipId,
+                  consentId,
+                  standingOrder,
+                  status: consentStatus,
+                  ...params
+                },
+              }) => {
+                return (
+                  <>
+                    <TransactionListPage
+                      accountMembershipId={accountMembershipId}
+                      params={params}
+                      accountId={accountId}
+                      transferConsent={
+                        consentId != null && consentStatus != null
+                          ? Option.Some({
+                              status: consentStatus,
+                              isStandingOrder: isNotEmpty(standingOrder ?? ""),
+                            })
+                          : Option.None()
+                      }
+                      onBalanceReceive={onBalanceReceive}
+                      canQueryCardOnTransaction={canQueryCardOnTransaction}
+                    />
+
+                    <LakeModal
+                      icon="arrow-download-filled"
+                      title={t("accountStatements.title")}
+                      visible={
+                        name === "AccountTransactionsListStatements" && canViewAccountStatement
+                      }
+                      onPressClose={() =>
+                        Router.push("AccountTransactionsListRoot", {
+                          accountMembershipId,
+                          ...params,
                         })
-                      : Option.None()
-                  }
-                  onBalanceReceive={onBalanceReceive}
+                      }
+                    >
+                      {({ large }) => (
+                        <View style={large ? styles.statementsLarge : styles.statements}>
+                          <AccountStatementsList accountId={accountId} large={large} />
+                        </View>
+                      )}
+                    </LakeModal>
+                  </>
+                );
+              },
+            )
+            .with({ name: "AccountTransactionsUpcoming" }, () => {
+              return (
+                <UpcomingTransactionListPage
+                  accountId={accountId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
+                  onReceiveData={reload}
                 />
-
-                <LakeModal
-                  icon="arrow-download-filled"
-                  title={t("accountStatements.title")}
-                  visible={name === "AccountTransactionsListStatements" && canViewAccountStatement}
-                  onPressClose={() =>
-                    Router.push("AccountTransactionsListRoot", {
-                      accountMembershipId,
-                      ...params,
-                    })
-                  }
-                >
-                  {({ large }) => (
-                    <View style={large ? styles.statementsLarge : styles.statements}>
-                      <AccountStatementsList accountId={accountId} large={large} />
-                    </View>
-                  )}
-                </LakeModal>
-              </>
-            );
-          },
-        )
-        .with({ name: "AccountTransactionsUpcoming" }, ({ params: { accountMembershipId } }) => {
-          return (
-            <UpcomingTransactionListPage
-              accountMembershipId={accountMembershipId}
-              accountId={accountId}
-              canQueryCardOnTransaction={canQueryCardOnTransaction}
-              onReceiveData={reload}
-            />
-          );
-        })
-        .otherwise(() => (
-          <ErrorView />
-        ))}
-    </>
+              );
+            })
+            .otherwise(() => (
+              <ErrorView />
+            ))}
+        </>
+      )}
+    </ResponsiveContainer>
   );
 };

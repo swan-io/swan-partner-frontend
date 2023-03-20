@@ -34,25 +34,26 @@ import { accountAreaRoutes, Router } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 
+const HEIGHT = 40;
+const PADDING_TOP = 12;
+const PADDING_BOTTOM = 24;
+const PADDING_HORIZONTAL = 24;
+export const navigationTabBarHeight = HEIGHT + PADDING_TOP + PADDING_BOTTOM;
+
 const styles = StyleSheet.create({
-  reservedSpace: {
-    height: insets.addToBottom(64),
-  },
-  tabBarUnderlay: {
+  tabBarContainer: {
     position: "fixed",
     bottom: 0,
     left: 0,
     right: 0,
-    height: insets.addToBottom(72),
+    paddingTop: PADDING_TOP,
+    paddingBottom: PADDING_BOTTOM,
+    paddingHorizontal: PADDING_HORIZONTAL,
     backgroundColor: backgroundColor.default75Transparency,
     backdropFilter: "blur(4px)",
   },
   tabBar: {
-    position: "fixed",
     height: 40,
-    left: spacings[24],
-    right: spacings[24],
-    bottom: insets.addToBottom(spacings[24]),
     borderRadius: radii[8],
     backgroundColor: backgroundColor.accented,
     boxShadow: shadows.tile,
@@ -169,10 +170,7 @@ export const NavigationTabBar = ({
   const initials = names.map(name => name[0]).join("");
 
   return (
-    <>
-      <View style={styles.reservedSpace} />
-      <View style={styles.tabBarUnderlay} />
-
+    <View style={styles.tabBarContainer}>
       <View style={styles.tabBar}>
         <Pressable style={styles.tabBarItem} onPress={() => setScreen("menu")}>
           {match(route)
@@ -348,6 +346,6 @@ export const NavigationTabBar = ({
           </View>
         </BottomPanel>
       </View>
-    </>
+    </View>
   );
 };

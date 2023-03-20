@@ -4,6 +4,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { Suspense, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
@@ -22,13 +23,6 @@ import { ErrorView } from "./ErrorView";
 const styles = StyleSheet.create({
   container: {
     ...commonStyles.fill,
-  },
-  tabs: {
-    paddingHorizontal: spacings[24],
-    zIndex: 1,
-  },
-  tabsLarge: {
-    paddingHorizontal: spacings[40],
   },
   contents: {
     ...commonStyles.fill,
@@ -63,6 +57,8 @@ export const CardItemArea = ({
   B2BMembershipIDVerification,
   large = true,
 }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const route = Router.useRoute([
     "AccountCardsItem",
     "AccountCardsItemPhysicalCard",
@@ -163,8 +159,9 @@ export const CardItemArea = ({
 
   return (
     <>
-      <View style={[styles.tabs, large && styles.tabsLarge]}>
         <TabView
+          padding={desktop ? 40 : 24}
+          sticky={true}
           tabs={[
             {
               label: t("cardDetail.virtualCard"),
@@ -205,9 +202,7 @@ export const CardItemArea = ({
                   canManageAccountMembership: true,
                   card: {
                     statusInfo: {
-                      __typename: P.not(
-                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
-                      ),
+                      __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")),
                     },
                   },
                 },
@@ -225,7 +220,6 @@ export const CardItemArea = ({
           ]}
           otherLabel={t("common.tabs.other")}
         />
-      </View>
 
       <Suspense fallback={<LoadingView color={colors.current.primary} />}>
         {match(route)

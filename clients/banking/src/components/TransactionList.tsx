@@ -9,10 +9,10 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { capitalize } from "@swan-io/lake/src/utils/string";
 import dayjs from "dayjs";
 import { ReactElement, ReactNode } from "react";
-import { StyleSheet } from "react-native";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import {
@@ -23,12 +23,6 @@ import {
   TransactionSummaryCell,
   TransactionTypeCell,
 } from "./TransactionListCells";
-
-const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
-});
 
 type Props = {
   pageSize: number;
@@ -42,6 +36,7 @@ type Props = {
     isLoading: boolean;
     count: number;
   };
+  withStickyTabs?: boolean;
 };
 
 type ExtraInfo = undefined;
@@ -143,11 +138,17 @@ export const TransactionList = ({
   getRowLink,
   renderEmptyList,
   activeRowId,
+  withStickyTabs = false,
 }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
+
   return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
+    <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
       {({ large }) => (
         <PlainListView
+          withoutScroll={!desktop}
+          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - 1}
           data={transactions.map(({ node }) => node)}
           keyExtractor={item => item.id}
           groupBy={item =>

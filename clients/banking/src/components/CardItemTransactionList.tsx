@@ -193,6 +193,7 @@ export const CardItemTransactionList = ({
                 Error: error => <ErrorView error={error} />,
                 Ok: ({ card }) => (
                   <TransactionList
+                    withStickyTabs={true}
                     transactions={card?.transactions?.edges ?? []}
                     getRowLink={({ item }) => (
                       <Pressable onPress={() => setActiveTransactionId(item.id)} />
@@ -262,11 +263,8 @@ export const CardItemTransactionList = ({
             onActiveIdChange={setActiveTransactionId}
             onClose={() => setActiveTransactionId(null)}
             items={transactions}
-            render={transaction => (
-              <TransactionDetail
-                accountMembershipId={accountMembershipId}
-                transaction={transaction}
-              />
+            render={(transaction, large) => (
+              <TransactionDetail large={large} transaction={transaction} />
             )}
             closeLabel={t("common.closeButton")}
             previousLabel={t("common.previous")}

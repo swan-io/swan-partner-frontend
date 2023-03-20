@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { LinkConfig } from "@swan-io/lake/src/components/FixedListView";
 import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { ReactElement, ReactNode, useState } from "react";
 import { CardListItemFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -91,6 +92,8 @@ export const CardList = ({
   renderEmptyList,
   activeRowId,
 }: Props) => {
+  // use useResponsive to fit with scroll behavior set in AccountArea
+  const { desktop } = useResponsive();
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<Option<string>>(
     Option.None(),
   );
@@ -103,6 +106,7 @@ export const CardList = ({
   return (
     <>
       <PlainListView
+        withoutScroll={!desktop}
         data={cards.map(({ node }) => node)}
         keyExtractor={item => item.id}
         headerHeight={48}

@@ -1,6 +1,6 @@
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { NewPaymentPageV2 } from "../pages/NewPaymentPageV2";
-import { NewStandingOrderPageV2 } from "../pages/NewStandingOrderPageV2";
+import { NewRecurringTransferPageV2 } from "../pages/NewRecurringTransferPageV2";
 import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
 import { paymentRoutesV2, Router } from "../utils/routes";
 
@@ -36,11 +36,13 @@ export const PaymentsAreaV2 = ({
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={route?.name === "AccountPaymentsV2StandingOrderNew"}>
-        <NewStandingOrderPageV2
+      <FullViewportLayer visible={route?.name === "AccountPaymentsV2RecurringTransferNew"}>
+        <NewRecurringTransferPageV2
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onClose={() => Router.replace("AccountPaymentsV2Root", { accountMembershipId })}
+          onClose={() =>
+            Router.replace("AccountPaymentsV2Root", { accountMembershipId })
+          }
         />
       </FullViewportLayer>
     </>

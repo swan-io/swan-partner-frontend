@@ -9,9 +9,11 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -19,6 +21,7 @@ import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
+import { FieldsetTitle } from "../components/FormText";
 import {
   GetAccountDocument,
   ScheduleStandingOrderDocument,
@@ -29,8 +32,10 @@ import { formatCurrency, t } from "../utils/i18n";
 import * as iban from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
+  REFERENCE_MAX_LENGTH,
   validateAccountNameLength,
   validateReference,
+  validateRequired,
   validateSepaBeneficiaryNameAlphabet,
 } from "../utils/validations";
 
@@ -43,7 +48,10 @@ const styles = StyleSheet.create({
     maxWidth: 1300,
     marginHorizontal: "auto",
   },
-  confirmButton: {
+  inlineInput: {
+    flex: 1,
+  },
+  confirmButtonDesktop: {
     alignSelf: "flex-start",
     minWidth: 300,
   },
@@ -68,7 +76,11 @@ const hasFixedAmountItems: RadioGroupItem<boolean>[] = [
   { value: false, name: t("recurringTransfer.new.transferType.fullBalance") },
 ];
 
-export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
+export const NewRecurringTransferPageV2 = ({
+  accountId,
+  accountMembershipId,
+  onClose,
+}: Props) => {
   const [scheduleStandingOrder, initiateScheduleStandingOrder] = useUrqlMutation(
     ScheduleStandingOrderDocument,
   );
@@ -96,7 +108,11 @@ export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose
     },
     creditorName: {
       initialValue: "",
-      validate: combineValidators(validateSepaBeneficiaryNameAlphabet, validateAccountNameLength),
+      validate: combineValidators(
+        validateRequired,
+        validateSepaBeneficiaryNameAlphabet,
+        validateAccountNameLength,
+      ),
       sanitize: value => value.trim(),
     },
     transferAmount: {
@@ -217,106 +233,58 @@ export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose
   };
 
   return (
-    <View style={styles.container}>
-      <Box direction="row" alignItems="center">
-        <LakeButton mode="tertiary" icon="lake-close" onPress={onClose} />
-        <Space width={8} />
+    <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.container}>
+      {({ small, large }) => (
+        <>
+          <Box direction="row" alignItems="center">
+            <LakeButton mode="tertiary" icon="lake-close" onPress={onClose} />
+            <Space width={8} />
 
-        <LakeHeading level={1} variant="h3">
-          {t("recurringTransfer.new.title")}
-        </LakeHeading>
-      </Box>
+            <LakeHeading level={1} variant="h3">
+              {t("recurringTransfer.new.title")}
+            </LakeHeading>
+          </Box>
 
-      <Space height={20} />
+          <Space height={20} />
 
-      {availableBalance.match({
-        NotAsked: () => null,
-        Loading: () => <LoadingView />,
-        Done: result =>
-          result.match({
-            Ok: ({ amount, currency }) => (
-              <LakeScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
-                {amount <= MIN_AMOUNT && (
-                  <>
-                    <LakeAlert variant="warning" title={t("transfer.new.lowBalance")} />
-                    <Space height={24} />
-                  </>
-                )}
-
-                <LakeText variant="smallRegular">
-                  {t("recurringTransfer.new.availableBalance")}
-                </LakeText>
-
-                <Space height={8} />
-
-                <LakeHeading level={2} variant="h1">
-                  {formatCurrency(amount, currency)}
-                </LakeHeading>
-
-                <Space height={32} />
-
-                <LakeHeading level={2} variant="h3">
-                  {t("recurringTransfer.new.recipient")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <LakeLabel
-                    label={t("recurringTransfer.new.recipient.label")}
-                    render={id => (
-                      <Field name="creditorName">
-                        {({ value, onChange, onBlur, error, valid }) => (
-                          <LakeTextInput
-                            nativeID={id}
-                            value={value}
-                            error={error}
-                            valid={valid}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      </Field>
+          {availableBalance.match({
+            NotAsked: () => null,
+            Loading: () => <LoadingView />,
+            Done: result =>
+              result.match({
+                Ok: ({ amount, currency }) => (
+                  <LakeScrollView
+                    style={commonStyles.fill}
+                    contentContainerStyle={commonStyles.fill}
+                  >
+                    {amount <= MIN_AMOUNT && (
+                      <>
+                        <LakeAlert variant="warning" title={t("transfer.new.lowBalance")} />
+                        <Space height={24} />
+                      </>
                     )}
-                  />
 
-                  <Space height={12} />
+                    <LakeText variant="smallRegular">
+                      {t("recurringTransfer.new.availableBalance")}
+                    </LakeText>
 
-                  <LakeLabel
-                    label={t("recurringTransfer.new.iban.label")}
-                    render={id => (
-                      <Field name="creditorIban">
-                        {({ value, onChange, onBlur, error, valid }) => (
-                          <LakeTextInput
-                            nativeID={id}
-                            placeholder={t("recurringTransfer.new.iban.placeholder")}
-                            value={iban.printFormat(value)}
-                            error={error}
-                            valid={valid}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      </Field>
-                    )}
-                  />
-                </Tile>
+                    <Space height={4} />
 
-                <Space height={32} />
+                    <LakeHeading level={2} variant={small ? "h3" : "h1"}>
+                      {formatCurrency(amount, currency)}
+                    </LakeHeading>
 
-                <LakeHeading level={2} variant="h3">
-                  {t("recurringTransfer.new.reason")}
-                </LakeHeading>
+                    <Space height={32} />
 
-                <Space height={24} />
+                    <FieldsetTitle isMobile={small}>
+                      {t("recurringTransfer.new.recipient")}
+                    </FieldsetTitle>
 
-                <Tile>
-                  <Box direction="row">
-                    <View style={commonStyles.fill}>
+                    <Tile>
                       <LakeLabel
-                        label={t("recurringTransfer.new.reason.label")}
+                        label={t("recurringTransfer.new.recipient.label")}
                         render={id => (
-                          <Field name="transferLabel">
+                          <Field name="creditorName">
                             {({ value, onChange, onBlur, error, valid }) => (
                               <LakeTextInput
                                 nativeID={id}
@@ -330,20 +298,18 @@ export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose
                           </Field>
                         )}
                       />
-                    </View>
 
-                    <Space width={24} />
+                      <Space height={12} />
 
-                    <View style={commonStyles.fill}>
                       <LakeLabel
-                        label={t("recurringTransfer.new.reference.label")}
-                        optionalLabel={t("common.optional")}
+                        label={t("recurringTransfer.new.iban.label")}
                         render={id => (
-                          <Field name="transferReference">
+                          <Field name="creditorIban">
                             {({ value, onChange, onBlur, error, valid }) => (
                               <LakeTextInput
                                 nativeID={id}
-                                value={value}
+                                placeholder={t("recurringTransfer.new.iban.placeholder")}
+                                value={iban.printFormat(value)}
                                 error={error}
                                 valid={valid}
                                 onChangeText={onChange}
@@ -353,117 +319,174 @@ export const NewStandingOrderPageV2 = ({ accountId, accountMembershipId, onClose
                           </Field>
                         )}
                       />
-                    </View>
-                  </Box>
-                </Tile>
+                    </Tile>
 
-                <Space height={32} />
+                    <Space height={32} />
 
-                <LakeHeading level={2} variant="h3">
-                  {t("recurringTransfer.new.amount")}
-                </LakeHeading>
+                    <FieldsetTitle isMobile={small}>
+                      {t("recurringTransfer.new.reason")}
+                    </FieldsetTitle>
 
-                <Space height={24} />
-
-                <Tile>
-                  <Field name="hasFixedAmount">
-                    {({ value: hasFixedAmount, onChange: onChangeFixedAmount }) => {
-                      const amountLabel = hasFixedAmount
-                        ? t("recurringTransfer.new.amount.label")
-                        : t("recurringTransfer.new.targetBalance.label");
-
-                      return (
-                        <>
+                    <Tile>
+                      <Box
+                        direction={small ? "column" : "row"}
+                        alignItems={small ? "stretch" : "end"}
+                      >
+                        <View style={styles.inlineInput}>
                           <LakeLabel
-                            label={t("recurringTransfer.new.transferType.label")}
-                            render={() => (
-                              <RadioGroup
-                                items={hasFixedAmountItems}
-                                value={hasFixedAmount}
-                                onValueChange={onChangeFixedAmount}
-                              />
-                            )}
-                          />
-
-                          {!hasFixedAmount && (
-                            <>
-                              <Space height={8} />
-
-                              <LakeText color="grey">
-                                {t("recurringTransfer.new.transferType.fullBalanceDescription")}
-                              </LakeText>
-                            </>
-                          )}
-
-                          <Space height={24} />
-
-                          <LakeLabel
-                            label={amountLabel}
+                            label={t("recurringTransfer.new.reason.label")}
+                            optionalLabel={t("recurringTransfer.new.reason.labelDetails")}
                             render={id => (
-                              <Field name="transferAmount">
+                              <Field name="transferLabel">
                                 {({ value, onChange, onBlur, error, valid }) => (
                                   <LakeTextInput
                                     nativeID={id}
                                     value={value}
                                     error={error}
-                                    valid={valid}
+                                    valid={value !== "" && valid}
                                     onChangeText={onChange}
                                     onBlur={onBlur}
-                                    unit="EUR"
                                   />
                                 )}
                               </Field>
                             )}
                           />
-                        </>
-                      );
-                    }}
-                  </Field>
-                </Tile>
+                        </View>
 
-                <Space height={32} />
+                        <Space width={24} />
 
-                <LakeHeading level={2} variant="h3">
-                  {t("recurringTransfer.new.schedule")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <LakeLabel
-                    label={t("recurringTransfer.new.frequency.label")}
-                    render={() => (
-                      <Field name="period">
-                        {({ value, onChange }) => (
-                          <RadioGroup
-                            items={periodItems}
-                            value={value}
-                            direction="row"
-                            onValueChange={onChange}
+                        <View style={styles.inlineInput}>
+                          <LakeLabel
+                            label={t("recurringTransfer.new.reference.label")}
+                            optionalLabel={t("recurringTransfer.new.reference.labelDetails", {
+                              count: REFERENCE_MAX_LENGTH,
+                            })}
+                            render={id => (
+                              <Field name="transferReference">
+                                {({ value, onChange, onBlur, error, valid }) => (
+                                  <LakeTextInput
+                                    nativeID={id}
+                                    value={value}
+                                    error={error}
+                                    valid={value !== "" && valid}
+                                    onChangeText={onChange}
+                                    onBlur={onBlur}
+                                  />
+                                )}
+                              </Field>
+                            )}
                           />
-                        )}
+                        </View>
+                      </Box>
+                    </Tile>
+
+                    <Space height={32} />
+
+                    <FieldsetTitle isMobile={small}>
+                      {t("recurringTransfer.new.amount")}
+                    </FieldsetTitle>
+
+                    <Tile>
+                      <Field name="hasFixedAmount">
+                        {({ value: hasFixedAmount, onChange: onChangeFixedAmount }) => {
+                          const amountLabel = hasFixedAmount
+                            ? t("recurringTransfer.new.amount.label")
+                            : t("recurringTransfer.new.targetBalance.label");
+
+                          return (
+                            <>
+                              <LakeLabel
+                                label={t("recurringTransfer.new.transferType.label")}
+                                type="radioGroup"
+                                render={() => (
+                                  <RadioGroup
+                                    items={hasFixedAmountItems}
+                                    value={hasFixedAmount}
+                                    onValueChange={onChangeFixedAmount}
+                                  />
+                                )}
+                              />
+
+                              {!hasFixedAmount && (
+                                <>
+                                  <Space height={8} />
+
+                                  <LakeText color="grey">
+                                    {t("recurringTransfer.new.transferType.fullBalanceDescription")}
+                                  </LakeText>
+                                </>
+                              )}
+
+                              <Space height={24} />
+
+                              <LakeLabel
+                                label={amountLabel}
+                                render={id => (
+                                  <Field name="transferAmount">
+                                    {({ value, onChange, onBlur, error, valid }) => (
+                                      <LakeTextInput
+                                        nativeID={id}
+                                        value={value}
+                                        error={error}
+                                        valid={valid}
+                                        onChangeText={onChange}
+                                        onBlur={onBlur}
+                                        unit="EUR"
+                                      />
+                                    )}
+                                  </Field>
+                                )}
+                              />
+                            </>
+                          );
+                        }}
                       </Field>
-                    )}
-                  />
-                </Tile>
+                    </Tile>
 
-                <Space height={32} />
+                    <Space height={32} />
 
-                <LakeButton
-                  style={styles.confirmButton}
-                  color="current"
-                  loading={scheduleStandingOrder.isLoading()}
-                  onPress={onSubmit}
-                >
-                  {t("recurringTransfer.new.confirm")}
-                </LakeButton>
+                    <FieldsetTitle isMobile={small}>
+                      {t("recurringTransfer.new.schedule")}
+                    </FieldsetTitle>
 
-                <Space height={40} />
-              </LakeScrollView>
-            ),
-            Error: () => <ErrorView />,
-          }),
-      })}
-    </View>
+                    <Tile>
+                      <LakeLabel
+                        label={t("recurringTransfer.new.frequency.label")}
+                        type="radioGroup"
+                        render={() => (
+                          <Field name="period">
+                            {({ value, onChange }) => (
+                              <RadioGroup
+                                items={periodItems}
+                                value={value}
+                                direction="row"
+                                onValueChange={onChange}
+                              />
+                            )}
+                          </Field>
+                        )}
+                      />
+                    </Tile>
+
+                    <Space height={32} />
+
+                    <LakeButton
+                      style={large && styles.confirmButtonDesktop}
+                      color="current"
+                      loading={scheduleStandingOrder.isLoading()}
+                      onPress={onSubmit}
+                    >
+                      {t("recurringTransfer.new.confirm")}
+                    </LakeButton>
+
+                    <Space height={40} />
+                  </LakeScrollView>
+                ),
+                Error: () => <ErrorView />,
+              }),
+          })}
+        </>
+      )}
+    </ResponsiveContainer>
   );
 };

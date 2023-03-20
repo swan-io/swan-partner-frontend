@@ -23,7 +23,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet, View } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
@@ -60,7 +60,7 @@ import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./Acco
 import { CardsArea } from "./CardsArea";
 import { ErrorView } from "./ErrorView";
 import { MembershipsArea } from "./MembershipsArea";
-import { NavigationTabBar } from "./NavigationTabBar";
+import { NavigationTabBar, navigationTabBarHeight } from "./NavigationTabBar";
 import { PaymentsAreaV2 } from "./PaymentsAreaV2";
 import { ProfileButton } from "./ProfileButton";
 import { Redirect } from "./Redirect";
@@ -103,10 +103,13 @@ const styles = StyleSheet.create({
     paddingBottom: 24,
     width: SIDEBAR_WIDTH,
   },
-  wrapper: {
-    ...commonStyles.fill,
+  mobileContentContainer: {
+    // be carefull to not put commonStyles.fill here, it will break sticky tabs
+    minHeight: "100%",
+    paddingBottom: navigationTabBarHeight,
   },
-  desktopWrapper: {
+  desktopContentContainer: {
+    ...commonStyles.fill,
     borderColor: colors.gray[100],
     borderLeftWidth: 1,
     maxWidth: 1220,
@@ -229,12 +232,12 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     .with({ isIndividual: true, hasTransactions: false }, () => "actionRequired")
     .otherwise(() => "none");
 
-  const [, setAccountMembershipState] = usePersistedState<unknown>(
-    `swan_session_webBankingAccountMembershipState${projectConfiguration
-      .map(({ projectId }) => `_${projectId}`)
-      .getWithDefault("")}`,
-    {},
-  );
+    const [, setAccountMembershipState] = usePersistedState<unknown>(
+      `swan_session_webBankingAccountMembershipState${projectConfiguration
+        .map(({ projectId }) => `_${projectId}`)
+        .getWithDefault("")}`,
+      {},
+    );
 
   useEffect(() => {
     match(currentAccountMembership)
@@ -596,7 +599,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               </SidebarNavigationTracker>
             )}
 
-            <View style={[styles.wrapper, desktop && styles.desktopWrapper]}>
+            <ScrollView
+              contentContainerStyle={
+                desktop ? styles.desktopContentContainer : styles.mobileContentContainer
+              }
+            >
               {!desktop && (
                 <>
                   <Box
@@ -782,12 +789,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                               .with({ name: "AccountPaymentsSuccess" }, () => (
                                 <>
                                   <Space height={24} />
+
                                   <PaymentSuccessPage accountMembershipId={accountMembershipId} />
                                 </>
                               ))
                               .with({ name: "AccountPaymentsFailure" }, () => (
                                 <>
                                   <Space height={24} />
+
                                   <PaymentFailurePage accountMembershipId={accountMembershipId} />
                                 </>
                               ))
@@ -947,34 +956,34 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     ))}
                 </Sentry.ErrorBoundary>
               </View>
+            </ScrollView>
 
-              {!desktop &&
-                membership.match({
-                  Error: () => null,
-                  Ok: membership => (
-                    <NavigationTabBar
-                      identificationStatus={identificationStatus ?? "Uninitiated"}
-                      accountMembershipId={accountMembershipId}
-                      hasMultipleMemberships={hasMultipleMemberships}
-                      activationTag={activationTag}
-                      accountMembership={membership.accountMembership}
-                      shouldDisplayIdVerification={
-                        !(
-                          projectInfo.B2BMembershipIDVerification === false &&
-                          membership.canManageAccountMembership === false &&
-                          membership.canInitiatePayments === false &&
-                          membership.canManageBeneficiaries === false
-                        )
-                      }
-                      additionalInfo={additionalInfo}
-                      entries={menu}
-                      firstName={firstName}
-                      lastName={lastName}
-                      refetchAccountAreaQuery={refetchAccountAreaQuery}
-                    />
-                  ),
-                })}
-            </View>
+            {!desktop &&
+              membership.match({
+                Error: () => null,
+                Ok: membership => (
+                  <NavigationTabBar
+                    identificationStatus={identificationStatus ?? "Uninitiated"}
+                    accountMembershipId={accountMembershipId}
+                    hasMultipleMemberships={hasMultipleMemberships}
+                    activationTag={activationTag}
+                    accountMembership={membership.accountMembership}
+                    shouldDisplayIdVerification={
+                      !(
+                        projectInfo.B2BMembershipIDVerification === false &&
+                        membership.canManageAccountMembership === false &&
+                        membership.canInitiatePayments === false &&
+                        membership.canManageBeneficiaries === false
+                      )
+                    }
+                    additionalInfo={additionalInfo}
+                    entries={menu}
+                    firstName={firstName}
+                    lastName={lastName}
+                    refetchAccountAreaQuery={refetchAccountAreaQuery}
+                  />
+                ),
+              })}
           </View>
         </View>
       </LegacyAccentColorProvider>

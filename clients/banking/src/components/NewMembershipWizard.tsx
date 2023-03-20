@@ -291,6 +291,7 @@ export const NewMembershipWizard = ({
         addMember({
           input: {
             accountId,
+            inviterAccountMembershipId: accountMembershipId,
             canInitiatePayments: computedValues.canInitiatePayments,
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,
@@ -315,7 +316,7 @@ export const NewMembershipWizard = ({
               lastName: computedValues.lastName,
               phoneNumber: computedValues.phoneNumber,
               birthDate:
-                computedValues.birthDate != null
+                computedValues.birthDate !== ""
                   ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
                   : undefined,
             },

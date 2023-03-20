@@ -50,6 +50,8 @@ export const validateAddressLine: Validator<string> = value => {
   }
 };
 
+export const REFERENCE_MAX_LENGTH = 35;
+
 export const validateReference: Validator<string> = value => {
   const hasOnlyLatinChars = /^[\w/\-?:().,’+ ]*$/.test(value);
   const hasDoubleSlash = value.includes("//");
@@ -59,7 +61,7 @@ export const validateReference: Validator<string> = value => {
     return t("error.transferReferenceInvalid");
   }
 
-  if (value !== "" && value.length > 35) {
+  if (value !== "" && value.length > REFERENCE_MAX_LENGTH) {
     return t("error.transferReferenceTooLong");
   }
 };

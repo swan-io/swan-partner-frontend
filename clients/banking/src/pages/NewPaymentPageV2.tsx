@@ -1,24 +1,30 @@
-import { Result } from "@swan-io/boxed";
+import { Result, Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
+import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match, P } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
+import { FieldsetTitle } from "../components/FormText";
 import {
   GetAccountDocument,
   InitiateCreditTransfersInput,
@@ -28,8 +34,10 @@ import { formatCurrency, t } from "../utils/i18n";
 import * as iban from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
+  REFERENCE_MAX_LENGTH,
   validateAccountNameLength,
   validateReference,
+  validateRequired,
   validateSepaBeneficiaryNameAlphabet,
 } from "../utils/validations";
 
@@ -42,7 +50,10 @@ const styles = StyleSheet.create({
     maxWidth: 1300,
     marginHorizontal: "auto",
   },
-  confirmButton: {
+  inlineInput: {
+    flex: 1,
+  },
+  confirmButtonDesktop: {
     alignSelf: "flex-start",
     minWidth: 300,
   },
@@ -59,6 +70,7 @@ type Props = {
 export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
   const [transfer, initiateTransfers] = useUrqlMutation(InitiateSepaCreditTransfersDocument);
   const { data } = useUrqlQuery({ query: GetAccountDocument, variables: { accountId } }, []);
+  const [insufisantBalanceOpened, setInsufisantBalanceOpened] = useState(false);
 
   const availableBalance = data.mapResult(({ account }) => {
     if (account?.balances?.available) {
@@ -69,6 +81,11 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     }
     return Result.Error(new Error("No available balance"));
   });
+
+  const accountIban = data
+    .toOption()
+    .flatMap(result => result.toOption())
+    .flatMap(({ account }) => Option.fromUndefined(account?.IBAN ?? undefined));
 
   const { Field, submitForm } = useForm({
     creditorIban: {
@@ -82,7 +99,11 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     },
     creditorName: {
       initialValue: "",
-      validate: combineValidators(validateSepaBeneficiaryNameAlphabet, validateAccountNameLength),
+      validate: combineValidators(
+        validateRequired,
+        validateSepaBeneficiaryNameAlphabet,
+        validateAccountNameLength,
+      ),
       sanitize: value => value.trim(),
     },
     transferAmount: {
@@ -128,10 +149,21 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
           "isInstant",
         ])
       ) {
+        const maximumAmount = availableBalance
+          .toOption()
+          .flatMap(balance => balance.toOption())
+          .map(({ amount }) => amount)
+          .getWithDefault(0);
+        if (maximumAmount < Number(values.transferAmount)) {
+          setInsufisantBalanceOpened(true);
+          return;
+        }
+
         const input: InitiateCreditTransfersInput = {
           accountId,
           consentRedirectUrl:
-            window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+            window.location.origin +
+            Router.AccountTransactionsListRoot({ accountMembershipId }),
           creditTransfers: [
             {
               amount: { currency: "EUR", value: values.transferAmount },
@@ -184,209 +216,244 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
   };
 
   return (
-    <View style={styles.container}>
-      <Box direction="row" alignItems="center">
-        <LakeButton mode="tertiary" icon="lake-close" onPress={onClose} />
-        <Space width={8} />
+    <>
+      <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.container}>
+        {({ small, large }) => (
+          <>
+            <Box direction="row" alignItems="center">
+              <LakeButton mode="tertiary" icon="lake-close" onPress={onClose} />
+              <Space width={8} />
 
-        <LakeHeading level={1} variant="h3">
-          {t("transfer.new.title")}
-        </LakeHeading>
-      </Box>
+              <LakeHeading level={1} variant="h3">
+                {t("transfer.new.title")}
+              </LakeHeading>
+            </Box>
 
-      <Space height={20} />
+            <Space height={20} />
 
-      {availableBalance.match({
-        NotAsked: () => null,
-        Loading: () => <LoadingView />,
-        Done: result =>
-          result.match({
-            Ok: ({ amount, currency }) => (
-              <LakeScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
-                {amount <= MIN_AMOUNT && (
-                  <>
-                    <LakeAlert variant="warning" title={t("transfer.new.lowBalance")} />
-                    <Space height={24} />
-                  </>
+            {availableBalance.match({
+              NotAsked: () => null,
+              Loading: () => <LoadingView />,
+              Done: result =>
+                result.match({
+                  Ok: ({ amount, currency }) => (
+                    <LakeScrollView
+                      style={commonStyles.fill}
+                      contentContainerStyle={commonStyles.fill}
+                    >
+                      {amount <= MIN_AMOUNT && (
+                        <>
+                          <LakeAlert variant="warning" title={t("transfer.new.lowBalance")} />
+                          <Space height={24} />
+                        </>
+                      )}
+
+                      <LakeText variant="smallRegular">
+                        {t("transfer.new.availableBalance")}
+                      </LakeText>
+
+                      <Space height={8} />
+
+                      <LakeHeading level={2} variant="h1">
+                        {formatCurrency(amount, currency)}
+                      </LakeHeading>
+
+                      <Space height={32} />
+                      <FieldsetTitle isMobile={small}>{t("transfer.new.recipient")}</FieldsetTitle>
+
+                      <Tile>
+                        <LakeLabel
+                          label={t("transfer.new.recipient.label")}
+                          render={id => (
+                            <Field name="creditorName">
+                              {({ value, onChange, onBlur, error, valid }) => (
+                                <LakeTextInput
+                                  nativeID={id}
+                                  value={value}
+                                  error={error}
+                                  valid={valid}
+                                  onChangeText={onChange}
+                                  onBlur={onBlur}
+                                />
+                              )}
+                            </Field>
+                          )}
+                        />
+
+                        <Space height={12} />
+
+                        <LakeLabel
+                          label={t("transfer.new.iban.label")}
+                          render={id => (
+                            <Field name="creditorIban">
+                              {({ value, onChange, onBlur, error, valid }) => (
+                                <LakeTextInput
+                                  nativeID={id}
+                                  placeholder={t("transfer.new.iban.placeholder")}
+                                  value={iban.printFormat(value)}
+                                  error={error}
+                                  valid={valid}
+                                  onChangeText={onChange}
+                                  onBlur={onBlur}
+                                />
+                              )}
+                            </Field>
+                          )}
+                        />
+                      </Tile>
+
+                      <Space height={32} />
+                      <FieldsetTitle isMobile={small}>{t("transfer.new.reason")}</FieldsetTitle>
+
+                      <Tile>
+                        <Box
+                          direction={small ? "column" : "row"}
+                          alignItems={small ? "stretch" : "end"}
+                        >
+                          <View style={styles.inlineInput}>
+                            <LakeLabel
+                              label={t("transfer.new.reason.label")}
+                              optionalLabel={t("transfer.new.reason.labelDetails")}
+                              render={id => (
+                                <Field name="transferLabel">
+                                  {({ value, onChange, onBlur, error, valid }) => (
+                                    <LakeTextInput
+                                      nativeID={id}
+                                      value={value}
+                                      error={error}
+                                      valid={value !== "" && valid}
+                                      onChangeText={onChange}
+                                      onBlur={onBlur}
+                                    />
+                                  )}
+                                </Field>
+                              )}
+                            />
+                          </View>
+
+                          <Space width={24} />
+
+                          <View style={styles.inlineInput}>
+                            <LakeLabel
+                              label={t("transfer.new.reference.label")}
+                              optionalLabel={t("transfer.new.reference.labelDetails", {
+                                count: REFERENCE_MAX_LENGTH,
+                              })}
+                              render={id => (
+                                <Field name="transferReference">
+                                  {({ value, onChange, onBlur, error, valid }) => (
+                                    <LakeTextInput
+                                      nativeID={id}
+                                      value={value}
+                                      error={error}
+                                      valid={value !== "" && valid}
+                                      onChangeText={onChange}
+                                      onBlur={onBlur}
+                                    />
+                                  )}
+                                </Field>
+                              )}
+                            />
+                          </View>
+                        </Box>
+                      </Tile>
+
+                      <Space height={32} />
+                      <FieldsetTitle isMobile={small}>{t("transfer.new.amount")}</FieldsetTitle>
+
+                      <Tile>
+                        <LakeLabel
+                          label={t("transfer.new.amount.label")}
+                          render={id => (
+                            <Field name="transferAmount">
+                              {({ value, onChange, onBlur, error, valid }) => (
+                                <LakeTextInput
+                                  nativeID={id}
+                                  value={value}
+                                  error={error}
+                                  valid={valid}
+                                  onChangeText={onChange}
+                                  onBlur={onBlur}
+                                  unit="EUR"
+                                />
+                              )}
+                            </Field>
+                          )}
+                        />
+                      </Tile>
+
+                      <Space height={32} />
+                      <FieldsetTitle isMobile={small}>{t("transfer.new.schedule")}</FieldsetTitle>
+
+                      <Tile>
+                        <Field name="isInstant">
+                          {({ value, onChange }) => (
+                            <LakeLabelledCheckbox
+                              label={t("transfer.new.instantTransfert")}
+                              value={value}
+                              onValueChange={onChange}
+                            />
+                          )}
+                        </Field>
+                      </Tile>
+
+                      <Space height={32} />
+
+                      <LakeButton
+                        style={large && styles.confirmButtonDesktop}
+                        color="current"
+                        loading={transfer.isLoading()}
+                        onPress={onSubmit}
+                      >
+                        {t("transfer.new.confirm")}
+                      </LakeButton>
+
+                      <Space height={40} />
+                    </LakeScrollView>
+                  ),
+                  Error: () => <ErrorView />,
+                }),
+            })}
+          </>
+        )}
+      </ResponsiveContainer>
+
+      <LakeModal
+        visible={insufisantBalanceOpened}
+        icon="warning-regular"
+        color="warning"
+        title={t("transfer.new.insufisantBalance.title")}
+        onPressClose={() => setInsufisantBalanceOpened(false)}
+      >
+        <LakeText variant="smallRegular">
+          {t("transfer.new.insufisantBalance.description")}
+        </LakeText>
+
+        {accountIban.match({
+          Some: accountIban => (
+            <>
+              <Space height={24} />
+
+              <LakeLabel
+                label={t("transfer.new.insufisantBalance.yourIban")}
+                type="view"
+                color="gray"
+                render={() => (
+                  <LakeText color={colors.gray[900]}>{iban.printFormat(accountIban)}</LakeText>
                 )}
-
-                <LakeText variant="smallRegular">{t("transfer.new.availableBalance")}</LakeText>
-                <Space height={8} />
-
-                <LakeHeading level={2} variant="h1">
-                  {formatCurrency(amount, currency)}
-                </LakeHeading>
-
-                <Space height={32} />
-
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.new.recipient")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <LakeLabel
-                    label={t("transfer.new.recipient.label")}
-                    render={id => (
-                      <Field name="creditorName">
-                        {({ value, onChange, onBlur, error, valid }) => (
-                          <LakeTextInput
-                            nativeID={id}
-                            value={value}
-                            error={error}
-                            valid={valid}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      </Field>
-                    )}
+                actions={
+                  <LakeCopyButton
+                    valueToCopy={iban.printFormat(accountIban)}
+                    copyText={t("copyButton.copyTooltip")}
+                    copiedText={t("copyButton.copiedTooltip")}
                   />
-
-                  <Space height={12} />
-
-                  <LakeLabel
-                    label={t("transfer.new.iban.label")}
-                    render={id => (
-                      <Field name="creditorIban">
-                        {({ value, onChange, onBlur, error, valid }) => (
-                          <LakeTextInput
-                            nativeID={id}
-                            placeholder={t("transfer.new.iban.placeholder")}
-                            value={iban.printFormat(value)}
-                            error={error}
-                            valid={valid}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                          />
-                        )}
-                      </Field>
-                    )}
-                  />
-                </Tile>
-
-                <Space height={32} />
-
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.new.reason")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <Box direction="row">
-                    <View style={commonStyles.fill}>
-                      <LakeLabel
-                        label={t("transfer.new.reason.label")}
-                        render={id => (
-                          <Field name="transferLabel">
-                            {({ value, onChange, onBlur, error, valid }) => (
-                              <LakeTextInput
-                                nativeID={id}
-                                value={value}
-                                error={error}
-                                valid={valid}
-                                onChangeText={onChange}
-                                onBlur={onBlur}
-                              />
-                            )}
-                          </Field>
-                        )}
-                      />
-                    </View>
-
-                    <Space width={24} />
-
-                    <View style={commonStyles.fill}>
-                      <LakeLabel
-                        label={t("transfer.new.reference.label")}
-                        optionalLabel={t("common.optional")}
-                        render={id => (
-                          <Field name="transferReference">
-                            {({ value, onChange, onBlur, error, valid }) => (
-                              <LakeTextInput
-                                nativeID={id}
-                                value={value}
-                                error={error}
-                                valid={valid}
-                                onChangeText={onChange}
-                                onBlur={onBlur}
-                              />
-                            )}
-                          </Field>
-                        )}
-                      />
-                    </View>
-                  </Box>
-                </Tile>
-
-                <Space height={32} />
-
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.new.amount")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <LakeLabel
-                    label={t("transfer.new.amount.label")}
-                    render={id => (
-                      <Field name="transferAmount">
-                        {({ value, onChange, onBlur, error, valid }) => (
-                          <LakeTextInput
-                            nativeID={id}
-                            value={value}
-                            error={error}
-                            valid={valid}
-                            onChangeText={onChange}
-                            onBlur={onBlur}
-                            unit="EUR"
-                          />
-                        )}
-                      </Field>
-                    )}
-                  />
-                </Tile>
-
-                <Space height={32} />
-
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.new.schedule")}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Tile>
-                  <Field name="isInstant">
-                    {({ value, onChange }) => (
-                      <LakeLabelledCheckbox
-                        label={t("transfer.new.instantTransfert")}
-                        value={value}
-                        onValueChange={onChange}
-                      />
-                    )}
-                  </Field>
-                </Tile>
-
-                <Space height={32} />
-
-                <LakeButton
-                  style={styles.confirmButton}
-                  color="current"
-                  loading={transfer.isLoading()}
-                  onPress={onSubmit}
-                >
-                  {t("transfer.new.confirm")}
-                </LakeButton>
-
-                <Space height={40} />
-              </LakeScrollView>
-            ),
-            Error: () => <ErrorView />,
-          }),
-      })}
-    </View>
+                }
+              />
+            </>
+          ),
+          None: () => null,
+        })}
+      </LakeModal>
+    </>
   );
 };

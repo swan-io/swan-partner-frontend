@@ -15,14 +15,8 @@ jobs:
         with:
           node-version: 18
 
-      - name: Open docs
-        run: cd docs
-
-      - name: Install
-        run: yarn
-
-      - name: Build
-        run: yarn build
+      - name: Install & build
+        run: cd docs && yarn && yarn build
 
       - name: Deploy
         if: "contains('refs/heads/main', github.ref)"

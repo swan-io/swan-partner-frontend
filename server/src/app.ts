@@ -5,6 +5,7 @@ import fastifyStatic from "@fastify/static";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify, { onRequestAsyncHookHandler } from "fastify";
 import { randomUUID } from "node:crypto";
+import { lookup } from "node:dns";
 import fs from "node:fs";
 import { Http2SecureServer } from "node:http2";
 import path from "node:path";
@@ -83,12 +84,50 @@ const ONBOARDING_PORT = getPort(env.ONBOARDING_URL);
 
 const ports = new Set([BANKING_PORT, ONBOARDING_PORT]);
 
+const assertIsBoundToLocalhost = (host: string) => {
+  return new Promise((resolve, reject) => {
+    lookup(host, { family: 4 }, (err, address) => {
+      if (err != null || address !== "127.0.0.1") {
+        reject(`${host} isn't bound to localhost, did you setup your /etc/hosts correctly?`);
+      }
+      resolve(true);
+    });
+  });
+};
+
 export const start = async ({
   mode,
   httpsConfig,
   onRequest,
   sendAccountMembershipInvitation,
 }: AppConfig) => {
+  if (mode === "development") {
+    const BANKING_HOST = new URL(env.BANKING_URL).hostname;
+    const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+
+    try {
+      await Promise.all([
+        assertIsBoundToLocalhost(BANKING_HOST),
+        assertIsBoundToLocalhost(ONBOARDING_HOST),
+      ]);
+    } catch (err) {
+      console.error(err);
+      process.exit(1);
+    }
+
+    if (httpsConfig != null) {
+      if (!fs.statSync(httpsConfig.key).isFile()) {
+        console.error("Missing HTTPS key, did you generate it in `server/keys`?");
+        process.exit(1);
+      }
+
+      if (!fs.statSync(httpsConfig.cert).isFile()) {
+        console.error("Missing HTTPS cert, did you generate it in `server/keys`?");
+        process.exit(1);
+      }
+    }
+  }
+
   const app = fastify({
     // @ts-expect-error
     // To emulate secure cookies, we use HTTPS locally but expose HTTP in production,

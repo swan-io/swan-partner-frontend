@@ -2,6 +2,9 @@
 
 > Onboarding & Banking clients for Swan
 
+- [Documentation](https://swan-io.github.io/swan-partner-frontend)
+- [Specifications](https://swan-io.github.io/swan-partner-frontend/specs/onboarding)
+
 ## Clone
 
 ```console

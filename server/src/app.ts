@@ -3,9 +3,10 @@ import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import fastifyStatic from "@fastify/static";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify from "fastify";
+import fastify, { onRequestAsyncHookHandler } from "fastify";
 import { randomUUID } from "node:crypto";
 import fs from "node:fs";
+import { Http2SecureServer } from "node:http2";
 import path from "node:path";
 import url from "node:url";
 import { match, P } from "ts-pattern";
@@ -43,6 +44,7 @@ type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
   sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<boolean>;
+  onRequest?: onRequestAsyncHookHandler<Http2SecureServer>;
 };
 
 declare module "@fastify/secure-session" {
@@ -81,7 +83,12 @@ const ONBOARDING_PORT = getPort(env.ONBOARDING_URL);
 
 const ports = new Set([BANKING_PORT, ONBOARDING_PORT]);
 
-export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
+export const start = async ({
+  mode,
+  httpsConfig,
+  onRequest,
+  sendAccountMembershipInvitation,
+}: AppConfig) => {
   const app = fastify({
     // @ts-expect-error
     // To emulate secure cookies, we use HTTPS locally but expose HTTP in production,
@@ -163,6 +170,14 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   app.addHook("onRequest", (request, reply, done) => {
     request.accessToken = request.session.get("accessToken");
     done();
+  });
+
+  app.addHook("onRequest", function (request, reply) {
+    if (onRequest != undefined) {
+      return onRequest.call(this, request, reply);
+    } else {
+      return Promise.resolve();
+    }
   });
 
   /**
@@ -494,20 +509,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     return reply.status(500).send({ ok: false });
   });
 
-  const listenPort = async (port: string) => {
-    // Expose 8080 so that we don't need `sudo` to listen to the port
-    // That's the port we expose when dockerized
-    const finalPort = port === "80" || port === "443" ? "8080" : port;
-
-    try {
-      await app.listen({ port: Number(finalPort), host: "0.0.0.0" });
-    } catch (err) {
-      console.error(err);
-      process.exit(1);
-    }
+  return {
+    app,
+    ports,
   };
-
-  ports.forEach(port => void listenPort(port));
-
-  return app;
 };

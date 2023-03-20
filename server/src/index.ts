@@ -16,7 +16,22 @@ start({
         }
       : undefined,
 }).then(
-  () => {
+  ({ app, ports }) => {
+    const listenPort = async (port: string) => {
+      // Expose 8080 so that we don't need `sudo` to listen to the port
+      // That's the port we expose when dockerized
+      const finalPort = port === "80" || port === "443" ? "8080" : port;
+
+      try {
+        await app.listen({ port: Number(finalPort), host: "0.0.0.0" });
+      } catch (err) {
+        console.error(err);
+        process.exit(1);
+      }
+    };
+
+    ports.forEach(port => void listenPort(port));
+
     console.log(``);
     console.log(`${chalk.magenta("swan-partner-frontend")}`);
     console.log(`${chalk.white("---")}`);

@@ -2,12 +2,14 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import dayjs from "dayjs";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -228,20 +230,24 @@ export const MembershipDetailArea = ({
 
                 <ListRightPanelContent large={large} style={styles.contents}>
                   {match(route)
-                    .with({ name: "AccountMembersDetailsRoot" }, () => (
-                      <MembershipDetailEditor
-                        accountCountry={accountCountry}
-                        editingAccountMembership={accountMembership}
-                        editingAccountMembershipId={editingAccountMembershipId}
-                        currentUserAccountMembership={currentUserAccountMembership}
-                        currentUserAccountMembershipId={currentUserAccountMembershipId}
-                        onRefreshRequest={() => {
-                          reload();
-                          onRefreshRequest();
-                        }}
-                        large={large}
-                      />
-                    ))
+                    .with(
+                      { name: "AccountMembersDetailsRoot" },
+                      ({ params: { showInvitationLink } }) => (
+                        <MembershipDetailEditor
+                          accountCountry={accountCountry}
+                          editingAccountMembership={accountMembership}
+                          editingAccountMembershipId={editingAccountMembershipId}
+                          currentUserAccountMembership={currentUserAccountMembership}
+                          currentUserAccountMembershipId={currentUserAccountMembershipId}
+                          onRefreshRequest={() => {
+                            reload();
+                            onRefreshRequest();
+                          }}
+                          large={large}
+                          showInvitationLink={isNotNullishOrEmpty(showInvitationLink)}
+                        />
+                      ),
+                    )
                     .with({ name: "AccountMembersDetailsRights" }, () => (
                       <MembershipDetailRights
                         accountCountry={accountCountry}

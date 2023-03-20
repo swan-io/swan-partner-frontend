@@ -17,8 +17,6 @@ Two tabs:
 
 ## History
 
-[Transaction List](./transaction-list)
-
 <details>
 <summary>GraphQL Query</summary>
 

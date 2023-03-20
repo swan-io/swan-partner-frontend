@@ -291,7 +291,6 @@ export const NewMembershipWizard = ({
         addMember({
           input: {
             accountId,
-            inviterAccountMembershipId: accountMembershipId,
             canInitiatePayments: computedValues.canInitiatePayments,
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,

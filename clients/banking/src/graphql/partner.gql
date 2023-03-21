@@ -463,7 +463,9 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
           id
           closingDate
           openingDate
+          createdAt
           status
+          period
           type {
             __typename
             ... on PdfStatement {
@@ -2248,5 +2250,11 @@ mutation AddAccountMembership($input: AddAccountMembershipInput!) {
         }
       }
     }
+  }
+}
+
+mutation GenerateAccountStatement($input: GenerateAccountStatementInput!) {
+  generateAccountStatement(input: $input) {
+    id
   }
 }

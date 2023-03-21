@@ -29,19 +29,8 @@ import logoSwan from "../assets/images/logo-swan.svg";
 import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
 import { AccountAreaDocument, IdentificationLevelsFragment } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
-import { ConsentCallbackPage } from "../pages/ConsentCallbackPage";
-import { EditStandingOrder } from "../pages/EditStandingOrder";
-import { NewPaymentWizard } from "../pages/NewPaymentWizard";
-import { NewStandingOrderWizard } from "../pages/NewStandingOrderWizard";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { PaymentFailurePage } from "../pages/PaymentFailurePage";
-import { PaymentsPage } from "../pages/PaymentsPage";
-import { PaymentSuccessPage } from "../pages/PaymentSuccessPage";
 import { ProfilePage } from "../pages/ProfilePage";
-import { StandingOrderFailurePage } from "../pages/StandingOrderFailurePage";
-import { StandingOrderHistoryPage } from "../pages/StandingOrderHistoryPage";
-import { StandingOrdersPage } from "../pages/StandingOrdersPage";
-import { StandingOrderSuccessPage } from "../pages/StandingOrderSuccessPage";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { logFrontendError, setSentryUser } from "../utils/logger";
@@ -351,11 +340,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           hidden: !detailsMenuIsVisible,
         },
         {
-          matchRoutes: ["AccountPaymentsArea", "AccountStandingOrdersArea"],
+          matchRoutes: ["AccountPaymentsArea"],
           iconActive: "arrow-swap-filled",
           icon: "arrow-swap-regular",
-          name: t("navigation.payments"),
-          to: Router.AccountPayments({ accountMembershipId }),
+          name: t("navigation.transfer"),
+          to: Router.AccountPaymentsRoot({ accountMembershipId }),
           hidden: !paymentMenuIsVisible,
         },
         {
@@ -404,10 +393,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       },
     });
 
-    canInitiatePaymentsToNewBeneficiaries && routes.push("AccountPaymentsStandingOrderNew");
-
     return routes;
-  }, [membership, canInitiatePaymentsToNewBeneficiaries]);
+  }, [membership]);
 
   const route = Router.useRoute(routes);
 
@@ -655,7 +642,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                           : detailsMenuIsVisible
                           ? Router.AccountDetailsIban({ accountMembershipId })
                           : paymentMenuIsVisible
-                          ? Router.AccountPayments({ accountMembershipId })
+                          ? Router.AccountPaymentsRoot({ accountMembershipId })
                           : cardMenuIsVisible
                           ? Router.AccountCardsList({ accountMembershipId })
                           : memberMenuIsVisible
@@ -746,19 +733,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   ),
                               )
 
-                              .with({ name: "AccountPayments" }, () => (
-                                <>
-                                  <Space height={24} />
-
-                                  <PaymentsPage
-                                    accountMembershipId={accountMembershipId}
-                                    newStandingOrderIsVisible={
-                                      canInitiatePaymentsToNewBeneficiaries
-                                    }
-                                  />
-                                </>
-                              ))
-                              .with({ name: "AccountPaymentsV2Area" }, () =>
+                              .with({ name: "AccountPaymentsArea" }, () =>
                                 isNullish(accountId) ? (
                                   <ErrorView />
                                 ) : (
@@ -770,114 +745,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     }
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                   />
-                                ),
-                              )
-                              .with({ name: "AccountPaymentsNew" }, () =>
-                                isNullish(accountId) ? (
-                                  <ErrorView />
-                                ) : (
-                                  <>
-                                    <Space height={24} />
-
-                                    <NewPaymentWizard
-                                      accountId={accountId}
-                                      accountMembershipId={accountMembershipId}
-                                    />
-                                  </>
-                                ),
-                              )
-                              .with({ name: "AccountPaymentsSuccess" }, () => (
-                                <>
-                                  <Space height={24} />
-                                  <PaymentSuccessPage accountMembershipId={accountMembershipId} />
-                                </>
-                              ))
-                              .with({ name: "AccountPaymentsFailure" }, () => (
-                                <>
-                                  <Space height={24} />
-                                  <PaymentFailurePage accountMembershipId={accountMembershipId} />
-                                </>
-                              ))
-                              .with(
-                                { name: "AccountPaymentsConsent" },
-                                ({ params: { consentId, standingOrder } }) => (
-                                  <ConsentCallbackPage
-                                    accountMembershipId={accountMembershipId}
-                                    consentId={consentId ?? ""}
-                                    standingOrder={standingOrder ?? ""}
-                                  />
-                                ),
-                              )
-                              .with({ name: "AccountPaymentsStandingOrderNew" }, () =>
-                                isNullish(accountId) ? (
-                                  <ErrorView />
-                                ) : (
-                                  <>
-                                    <Space height={24} />
-
-                                    <NewStandingOrderWizard
-                                      accountMembershipId={accountMembershipId}
-                                      accountId={accountId}
-                                    />
-                                  </>
-                                ),
-                              )
-                              .with({ name: "AccountPaymentsStandingOrderSuccess" }, () => (
-                                <>
-                                  <Space height={24} />
-
-                                  <StandingOrderSuccessPage
-                                    accountMembershipId={accountMembershipId}
-                                  />
-                                </>
-                              ))
-                              .with({ name: "AccountPaymentsStandingOrderFailure" }, () => (
-                                <>
-                                  <Space height={24} />
-
-                                  <StandingOrderFailurePage
-                                    accountMembershipId={accountMembershipId}
-                                  />
-                                </>
-                              ))
-                              .with({ name: "AccountStandingOrders" }, () =>
-                                isNullish(accountId) ? (
-                                  <ErrorView />
-                                ) : (
-                                  <>
-                                    <Space height={24} />
-
-                                    <StandingOrdersPage
-                                      accountId={accountId}
-                                      accountMembershipId={accountMembershipId}
-                                    />
-                                  </>
-                                ),
-                              )
-                              .with(
-                                { name: "AccountStandingOrdersEdit" },
-                                ({ params: { standingOrderId } }) => (
-                                  <>
-                                    <Space height={24} />
-
-                                    <EditStandingOrder
-                                      accountMembershipId={accountMembershipId}
-                                      standingOrderId={standingOrderId}
-                                    />
-                                  </>
-                                ),
-                              )
-                              .with(
-                                { name: "AccountStandingOrdersHistory" },
-                                ({ params: { standingOrderId } }) => (
-                                  <>
-                                    <Space height={24} />
-
-                                    <StandingOrderHistoryPage
-                                      standingOrderId={standingOrderId}
-                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                    />
-                                  </>
                                 ),
                               )
                               .with({ name: "AccountCardsArea" }, () => (

@@ -199,11 +199,21 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
             const params = { paymentId: payment.id, accountMembershipId };
 
             return match(status)
-              .with({ __typename: "PaymentInitiated" }, () =>
-                Router.replace("AccountPaymentsSuccess", params),
-              )
+              .with({ __typename: "PaymentInitiated" }, () => {
+                showToast({
+                  variant: "success",
+                  title: t("transfer.consent.success.title"),
+                  description: t("transfer.consent.success.description"),
+                  autoClose: false,
+                });
+                Router.replace("AccountTransactionsListRoot", params);
+              })
               .with({ __typename: "PaymentRejected" }, () =>
-                Router.replace("AccountPaymentsFailure", params),
+                showToast({
+                  variant: "error",
+                  title: t("transfer.consent.error.rejected.title"),
+                  description: t("transfer.consent.error.rejected.description"),
+                }),
               )
               .with({ __typename: "PaymentConsentPending" }, ({ consent }) => {
                 window.location.assign(consent.consentUrl);

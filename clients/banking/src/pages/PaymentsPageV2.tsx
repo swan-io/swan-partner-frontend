@@ -117,9 +117,7 @@ export const PaymentsPageV2 = ({
                     <LakeButton
                       color="current"
                       size={small ? "small" : "large"}
-                      onPress={() =>
-                        Router.push("AccountPaymentsV2New", { accountMembershipId })
-                      }
+                      onPress={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
                     >
                       {t("transfer.tile.transfer.button")}
                     </LakeButton>
@@ -168,7 +166,7 @@ export const PaymentsPageV2 = ({
                           color="current"
                           size={small ? "small" : "large"}
                           onPress={() =>
-                            Router.push("AccountPaymentsV2RecurringTransferNew", {
+                            Router.push("AccountPaymentsRecurringTransferNew", {
                               accountMembershipId,
                             })
                           }
@@ -192,7 +190,7 @@ export const PaymentsPageV2 = ({
             tabs={[
               {
                 label: t("transfer.tabs.recurringTransfer"),
-                url: Router.AccountPaymentsV2Root({ accountMembershipId }),
+                url: Router.AccountPaymentsRoot({ accountMembershipId }),
               },
             ]}
             otherLabel={t("common.tabs.other")}

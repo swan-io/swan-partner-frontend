@@ -55,7 +55,7 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
     return (
       <Redirect
         to={match(to)
-          .with("payments", () => Router.AccountPayments({ accountMembershipId }))
+          .with("payments", () => Router.AccountPaymentsRoot({ accountMembershipId }))
           .with("members", () => Router.AccountMembersList({ accountMembershipId }))
           .otherwise(() => Router.AccountRoot({ accountMembershipId }))}
       />

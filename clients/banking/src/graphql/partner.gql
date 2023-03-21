@@ -1821,6 +1821,38 @@ query GetAccountBalance($accountId: ID!) {
   }
 }
 
+fragment ValidIbanInformation on ValidIban {
+  __typename
+  iban
+  bank {
+    name
+    address {
+      addressLine1
+      addressLine2
+      city
+      country
+      postalCode
+      state
+    }
+  }
+  reachability {
+    sepaCreditTransferInst
+  }
+}
+
+query getIbanValidation($iban: IBAN!) {
+  ibanValidation(input: { iban: $iban }) {
+    __typename
+    ... on ValidIban {
+      ...ValidIbanInformation
+    }
+    ... on InvalidIban {
+      iban
+      code
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {

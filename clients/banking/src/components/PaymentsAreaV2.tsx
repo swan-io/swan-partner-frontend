@@ -28,21 +28,19 @@ export const PaymentsAreaV2 = ({
         canQueryCardOnTransaction={canQueryCardOnTransaction}
       />
 
-      <FullViewportLayer visible={route?.name === "AccountPaymentsV2New"}>
+      <FullViewportLayer visible={route?.name === "AccountPaymentsNew"}>
         <NewPaymentPageV2
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onClose={() => Router.replace("AccountPaymentsV2Root", { accountMembershipId })}
+          onClose={() => Router.replace("AccountPaymentsRoot", { accountMembershipId })}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={route?.name === "AccountPaymentsV2RecurringTransferNew"}>
+      <FullViewportLayer visible={route?.name === "AccountPaymentsRecurringTransferNew"}>
         <NewRecurringTransferPageV2
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onClose={() =>
-            Router.replace("AccountPaymentsV2Root", { accountMembershipId })
-          }
+          onClose={() => Router.replace("AccountPaymentsRoot", { accountMembershipId })}
         />
       </FullViewportLayer>
     </>

@@ -65,7 +65,7 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
   }
 
   if (value.length > maxLength) {
-    return "";
+    return " ";
   }
 };
 

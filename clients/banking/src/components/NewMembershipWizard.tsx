@@ -9,6 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { AddressSearchInput } from "@swan-io/shared-business/src/components/AddressSearchInput";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { countries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -25,8 +26,8 @@ import {
   validateAddressLine,
   validateDate,
   validateEmail,
+  validateIndividualTaxNumber,
   validateRequired,
-  validateTaxIdentificationNumber,
 } from "../utils/validations";
 
 const styles = StyleSheet.create({
@@ -116,22 +117,6 @@ const MANDATORY_FIELDS = [
   "canManageAccountMembership" as const,
 ];
 
-const MANDATORY_FIELDS_FOR_SENSIBLE_RIGHTS = [...MANDATORY_FIELDS, "birthDate" as const];
-
-const GERMAN_ACCOUNT_MANDATORY_FIELDS = [
-  ...MANDATORY_FIELDS,
-  "birthDate" as const,
-  "addressLine1" as const,
-  "postalCode" as const,
-  "city" as const,
-  "country" as const,
-];
-
-const GERMAN_ACCOUNT_GERMAN_RESIDENT_MANDATORY_FIELDS = [
-  ...GERMAN_ACCOUNT_MANDATORY_FIELDS,
-  "taxIdentificationNumber" as const,
-];
-
 export const NewMembershipWizard = ({
   accountId,
   accountMembershipId,
@@ -145,8 +130,12 @@ export const NewMembershipWizard = ({
 
   const [memberAddition, addMember] = useUrqlMutation(AddAccountMembershipDocument);
 
-  const steps: Step[] = match(accountCountry)
-    .with("DEU", () => ["Informations" as const, "Address" as const])
+  const steps: Step[] = match({ accountCountry, partiallySavedValues })
+    .with(
+      { accountCountry: "DEU" },
+      { partiallySavedValues: { canInitiatePayments: true, canViewAccount: true } },
+      () => ["Informations" as const, "Address" as const],
+    )
     .otherwise(() => ["Informations" as const]);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
@@ -214,29 +203,79 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
-      validate: combineValidators(validateRequired, validateAddressLine),
+      validate: (value, { getFieldState }) => {
+        return match({
+          canViewAccount: getFieldState("canViewAccount").value,
+          canInitiatePayments: getFieldState("canInitiatePayments").value,
+        })
+          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
+            const validate = combineValidators(validateRequired, validateAddressLine);
+            return validate(value);
+          })
+          .otherwise(() => {
+            return validateAddressLine(value);
+          });
+      },
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
-      validate: validateRequired,
+      validate: (value, { getFieldState }) => {
+        return match({
+          canViewAccount: getFieldState("canViewAccount").value,
+          canInitiatePayments: getFieldState("canInitiatePayments").value,
+        })
+          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
+            return validateRequired(value);
+          })
+          .otherwise(() => undefined);
+      },
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
-      validate: validateRequired,
+      validate: (value, { getFieldState }) => {
+        return match({
+          canViewAccount: getFieldState("canViewAccount").value,
+          canInitiatePayments: getFieldState("canInitiatePayments").value,
+        })
+          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
+            return validateRequired(value);
+          })
+          .otherwise(() => undefined);
+      },
     },
     country: {
       initialValue: partiallySavedValues?.country ?? accountCountry ?? "FRA",
-      validate: validateRequired,
+      validate: (value, { getFieldState }) => {
+        return match({
+          canViewAccount: getFieldState("canViewAccount").value,
+          canInitiatePayments: getFieldState("canInitiatePayments").value,
+        })
+          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
+            return validateRequired(value);
+          })
+          .otherwise(() => undefined);
+      },
     },
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
       validate: (value, { getFieldState }) => {
-        return match({ accountCountry, residencyAddressCountry: getFieldState("country").value })
-          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, () =>
-            validateTaxIdentificationNumber(value),
+        return match({
+          accountCountry,
+          residencyAddressCountry: getFieldState("country").value,
+          canViewAccount: getFieldState("canViewAccount").value,
+          canInitiatePayments: getFieldState("canInitiatePayments").value,
+        })
+          .with(
+            {
+              accountCountry: "DEU",
+              residencyAddressCountry: "DEU",
+              canViewAccount: true,
+              canInitiatePayments: true,
+            },
+            () => combineValidators(validateRequired, validateIndividualTaxNumber)(value),
           )
-          .otherwise(() => {});
+          .otherwise(() => undefined);
       },
       sanitize: value => value.trim(),
     },
@@ -264,30 +303,21 @@ export const NewMembershipWizard = ({
   const onPressSubmit = () => {
     submitForm(values => {
       const computedValues = { ...partiallySavedValues, ...values };
-      if (
-        hasDefinedKeys(
-          computedValues,
-          match({
-            accountCountry,
-            canInitiatePayments: computedValues.canInitiatePayments,
-            canManageBeneficiaries: computedValues.canManageBeneficiaries,
-            canManageAccountMembership: computedValues.canManageAccountMembership,
-            residenceCountry: computedValues.country,
-          })
-            .with(
-              { accountCountry: "DEU", residenceCountry: "DEU" },
-              () => GERMAN_ACCOUNT_GERMAN_RESIDENT_MANDATORY_FIELDS,
-            )
-            .with({ accountCountry: "DEU" }, () => GERMAN_ACCOUNT_MANDATORY_FIELDS)
-            .with(
-              { canInitiatePayments: true },
-              { canManageBeneficiaries: true },
-              { canManageAccountMembership: true },
-              () => MANDATORY_FIELDS_FOR_SENSIBLE_RIGHTS,
-            )
-            .otherwise(() => MANDATORY_FIELDS),
-        )
-      ) {
+      if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
+        const { addressLine1, city, postalCode, country } = computedValues;
+        const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
+          isNullishOrEmpty,
+        );
+
+        const residencyAddress = isAddressIncomplete
+          ? undefined
+          : {
+              addressLine1,
+              city,
+              postalCode,
+              country,
+            };
+
         addMember({
           input: {
             accountId,
@@ -295,21 +325,10 @@ export const NewMembershipWizard = ({
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,
             canViewAccount: computedValues.canViewAccount,
-            consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
+            consentRedirectUrl:
+              window.origin + Router.AccountMembersList({ accountMembershipId }),
             email: computedValues.email,
-            residencyAddress: hasDefinedKeys(computedValues, [
-              "addressLine1",
-              "city",
-              "postalCode",
-              "country",
-            ])
-              ? {
-                  addressLine1: computedValues.addressLine1,
-                  city: computedValues.city,
-                  postalCode: computedValues.postalCode,
-                  country: computedValues.country,
-                }
-              : undefined,
+            residencyAddress,
             restrictedTo: {
               firstName: computedValues.firstName,
               lastName: computedValues.lastName,
@@ -319,7 +338,7 @@ export const NewMembershipWizard = ({
                   ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
                   : undefined,
             },
-            taxIdentificationNumber: computedValues.taxIdentificationNumber,
+            taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
           },
         })
           .mapResult(({ addAccountMembership }) => {

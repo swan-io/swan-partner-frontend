@@ -43,9 +43,13 @@ type Props = {
   holder: IndividualAccountHolderFragment;
 };
 
-export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }: Props) => {
+export const OnboardingIndividualWizard = ({
+  onboarding,
+  holder,
+  onboardingId,
+}: Props) => {
   const route = Router.useRoute(individualOnboardingRoutes);
-  const isStepperDisplayed = !isNullish(route) && route.name !== "V2_OnboardingRoot";
+  const isStepperDisplayed = !isNullish(route) && route.name !== "OnboardingRoot";
 
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
@@ -94,22 +98,22 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
   const steps = useMemo<WizardStep<IndividualOnboardingRoute>[]>(
     () => [
       {
-        id: "V2_OnboardingEmail",
+        id: "OnboardingEmail",
         label: t("step.title.email"),
         errors: emailStepErrors,
       },
       {
-        id: "V2_OnboardingLocation",
+        id: "OnboardingLocation",
         label: t("step.title.address"),
         errors: locationStepErrors,
       },
       {
-        id: "V2_OnboardingDetails",
+        id: "OnboardingDetails",
         label: t("step.title.occupation"),
         errors: detailsStepErrors,
       },
       {
-        id: "V2_OnboardingFinalize",
+        id: "OnboardingFinalize",
         label: t("step.title.swanApp"),
         errors: [],
       },
@@ -159,10 +163,12 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
       ) : null}
 
       {match(route)
-        .with({ name: "V2_OnboardingRoot" }, ({ params }) => (
-          <IndividualFlowPresentation onboardingId={params.onboardingId} />
+        .with({ name: "OnboardingRoot" }, ({ params }) => (
+          <IndividualFlowPresentation
+            onboardingId={params.onboardingId}
+          />
         ))
-        .with({ name: "V2_OnboardingEmail" }, ({ params }) => (
+        .with({ name: "OnboardingEmail" }, ({ params }) => (
           <OnboardingIndividualEmail
             onboardingId={params.onboardingId}
             initialEmail={onboarding.email ?? ""}
@@ -173,7 +179,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
             tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
           />
         ))
-        .with({ name: "V2_OnboardingLocation" }, ({ params }) => (
+        .with({ name: "OnboardingLocation" }, ({ params }) => (
           <OnboardingIndividualLocation
             onboardingId={params.onboardingId}
             initialCountry={country}
@@ -183,7 +189,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
             serverValidationErrors={finalized ? locationStepErrors : []}
           />
         ))
-        .with({ name: "V2_OnboardingDetails" }, ({ params }) => (
+        .with({ name: "OnboardingDetails" }, ({ params }) => (
           <OnboardingIndividualDetails
             onboardingId={params.onboardingId}
             initialEmploymentStatus={holder.employmentStatus ?? "Employee"}
@@ -194,7 +200,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
             serverValidationErrors={finalized ? detailsStepErrors : []}
           />
         ))
-        .with({ name: "V2_OnboardingFinalize" }, ({ params }) => (
+        .with({ name: "OnboardingFinalize" }, ({ params }) => (
           <OnboardingIndividualFinalize
             onboardingId={params.onboardingId}
             legalRepresentativeRecommendedIdentificationLevel={

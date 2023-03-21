@@ -39,7 +39,7 @@ const routes = {
       Upcoming: "/upcoming",
     }),
 
-    ...createGroup("PaymentsV2", "/v2/payments", {
+    ...createGroup("Payments", "/payments", {
       Area: "/*",
       Root: "/",
       New: "/new",
@@ -51,21 +51,6 @@ const routes = {
         History: "/history",
       }),
     }),
-
-    PaymentsArea: "/payments/*",
-    Payments: "/payments",
-    PaymentsNew: "/payments/new",
-    PaymentsSuccess: "/payments/:paymentId/success",
-    PaymentsFailure: "/payments/:paymentId/failure",
-    PaymentsConsent: "/payments/consent/callback?:standingOrder&:consentId",
-    PaymentsStandingOrderSuccess: "/payments/:standingOrderId/success",
-    PaymentsStandingOrderFailure: "/payments/:standingOrderId/failure",
-    PaymentsStandingOrderNew: "/payments/standing-order/new",
-
-    StandingOrdersArea: "/standing-orders/*",
-    StandingOrders: "/standing-orders",
-    StandingOrdersEdit: "/standing-orders/edit/:standingOrderId",
-    StandingOrdersHistory: "/standing-orders/history/:standingOrderId",
 
     ...createGroup("Cards", "/cards?:new", {
       Area: "/*",
@@ -100,32 +85,16 @@ const routes = {
 
 export type RouteName = keyof typeof routes;
 
-export const accountMinimalRoutes = [
-  "AccountRoot",
-  "AccountProfile",
-  "AccountStandingOrders",
-  "AccountStandingOrdersEdit",
-  "AccountStandingOrdersHistory",
-] as const;
+export const accountMinimalRoutes = ["AccountRoot", "AccountProfile"] as const;
 
 export const historyMenuRoutes = ["AccountTransactionsArea", "AccountActivation"] as const;
 
-export const paymentMenuRoutes = [
-  "AccountPayments",
-  "AccountPaymentsNew",
-  "AccountPaymentsSuccess",
-  "AccountPaymentsFailure",
-  "AccountPaymentsConsent",
-  "AccountPaymentsStandingOrderSuccess",
-  "AccountPaymentsStandingOrderFailure",
-
-  "AccountPaymentsV2Area",
-] as const;
+export const paymentMenuRoutes = ["AccountPaymentsArea"] as const;
 
 export const paymentRoutesV2 = [
-  "AccountPaymentsV2Root",
-  "AccountPaymentsV2New",
-  "AccountPaymentsV2RecurringTransferNew",
+  "AccountPaymentsRoot",
+  "AccountPaymentsNew",
+  "AccountPaymentsRecurringTransferNew",
 ] as const;
 
 export const memberMenuRoutes = [
@@ -137,7 +106,6 @@ export const memberMenuRoutes = [
 export const accountAreaRoutes = [
   "AccountTransactionsArea",
   "AccountPaymentsArea",
-  "AccountStandingOrdersArea",
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",

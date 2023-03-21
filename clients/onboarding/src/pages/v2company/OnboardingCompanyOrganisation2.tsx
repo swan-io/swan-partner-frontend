@@ -217,7 +217,7 @@ export const OnboardingCompanyOrganisation2 = ({
                           error={error}
                           style={styles.textArea}
                           multiline={true}
-                          maxLength={CHARACTER_LIMITATION}
+                          maxCharCount={CHARACTER_LIMITATION}
                           onChangeText={onChange}
                           onBlur={onBlur}
                         />

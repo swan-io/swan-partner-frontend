@@ -9,7 +9,7 @@ export const Router = createRouter(
     PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId",
 
     // Onboarding revamp, once completed, we should remove v2 prefix and `Onboarding` route above
-    ...createGroup("V2_Onboarding", "/onboardings/:onboardingId", {
+    ...createGroup("Onboarding", "/onboardings/:onboardingId", {
       Area: "/*",
       Root: "/",
       Email: "/email",
@@ -35,24 +35,24 @@ export const Router = createRouter(
 );
 
 export const individualOnboardingRoutes = [
-  "V2_OnboardingRoot",
-  "V2_OnboardingEmail",
-  "V2_OnboardingLocation",
-  "V2_OnboardingDetails",
-  "V2_OnboardingFinalize",
+  "OnboardingRoot",
+  "OnboardingEmail",
+  "OnboardingLocation",
+  "OnboardingDetails",
+  "OnboardingFinalize",
 ] as const;
 
 export type IndividualOnboardingRoute = (typeof individualOnboardingRoutes)[number];
 
 export const companyOnboardingRoutes = [
-  "V2_OnboardingRoot",
-  "V2_OnboardingPresentation",
-  "V2_OnboardingRegistration",
-  "V2_OnboardingOrganisation1",
-  "V2_OnboardingOrganisation2",
-  "V2_OnboardingOwnership",
-  "V2_OnboardingDocuments",
-  "V2_OnboardingFinalize",
+  "OnboardingRoot",
+  "OnboardingPresentation",
+  "OnboardingRegistration",
+  "OnboardingOrganisation1",
+  "OnboardingOrganisation2",
+  "OnboardingOwnership",
+  "OnboardingDocuments",
+  "OnboardingFinalize",
 ] as const;
 
 export type CompanyOnboardingRoute = (typeof companyOnboardingRoutes)[number];

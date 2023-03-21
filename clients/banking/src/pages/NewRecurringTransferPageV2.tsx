@@ -214,16 +214,20 @@ export const NewRecurringTransferPageV2 = ({
                 window.location.assign(consent.consentUrl);
               })
               .with({ __typename: "StandingOrderCanceledStatusInfo" }, () => {
-                Router.replace("AccountPaymentsStandingOrderFailure", {
-                  standingOrderId: standingOrder.id,
-                  accountMembershipId,
+                showToast({
+                  variant: "error",
+                  title: t("recurringTransfer.consent.error.rejected.title"),
+                  description: t("recurringTransfer.consent.error.rejected.description"),
                 });
               })
               .with({ __typename: "StandingOrderEnabledStatusInfo" }, () => {
-                Router.replace("AccountPaymentsStandingOrderSuccess", {
-                  standingOrderId: standingOrder.id,
-                  accountMembershipId,
+                showToast({
+                  variant: "success",
+                  title: t("recurringTransfer.consent.success.title"),
+                  description: t("recurringTransfer.consent.success.description"),
+                  autoClose: false,
                 });
+                Router.replace("AccountTransactionsListRoot", { accountMembershipId });
               })
               .exhaustive();
           })

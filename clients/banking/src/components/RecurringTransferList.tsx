@@ -203,8 +203,8 @@ const RecurringTransferPanel = ({
   onCancel,
 }: RecurringTransferPanelProps) => {
   const routes = Router.useRoute([
-    "AccountPaymentsV2RecurringTransferDetailsRoot",
-    "AccountPaymentsV2RecurringTransferDetailsHistory",
+    "AccountPaymentsRecurringTransferDetailsRoot",
+    "AccountPaymentsRecurringTransferDetailsHistory",
   ]);
   const recurringTransferId = recurringTransfer.id;
 
@@ -212,14 +212,14 @@ const RecurringTransferPanel = ({
     () => [
       {
         label: t("recurringTransfer.details.tabs.details"),
-        url: Router.AccountPaymentsV2RecurringTransferDetailsRoot({
+        url: Router.AccountPaymentsRecurringTransferDetailsRoot({
           accountMembershipId,
           recurringTransferId,
         }),
       },
       {
         label: t("recurringTransfer.details.tabs.history"),
-        url: Router.AccountPaymentsV2RecurringTransferDetailsHistory({
+        url: Router.AccountPaymentsRecurringTransferDetailsHistory({
           accountMembershipId,
           recurringTransferId,
         }),
@@ -272,7 +272,7 @@ const RecurringTransferPanel = ({
         />
 
         {match(routes)
-          .with({ name: "AccountPaymentsV2RecurringTransferDetailsRoot" }, () => (
+          .with({ name: "AccountPaymentsRecurringTransferDetailsRoot" }, () => (
             <ListRightPanelContent large={large} style={commonStyles.fill}>
               <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
                 <Space height={24} />
@@ -393,7 +393,7 @@ const RecurringTransferPanel = ({
               </ScrollView>
             </ListRightPanelContent>
           ))
-          .with({ name: "AccountPaymentsV2RecurringTransferDetailsHistory" }, () => (
+          .with({ name: "AccountPaymentsRecurringTransferDetailsHistory" }, () => (
             <RecurringTransferHistory
               recurringTransferId={recurringTransferId}
               canQueryCardOnTransaction={canQueryCardOnTransaction}
@@ -592,7 +592,7 @@ export const RecurringTransferList = ({
   // use useResponsive to fit with scroll behavior set in AccountArea
   const { desktop } = useResponsive();
 
-  const route = Router.useRoute(["AccountPaymentsV2RecurringTransferDetailsArea"]);
+  const route = Router.useRoute(["AccountPaymentsRecurringTransferDetailsArea"]);
   const [cancelResult, cancelRecurringTransfer] = useUrqlMutation(CancelStandingOrderDocument);
 
   const [filters, setFilters] = useState<RecurringTransferFilters>(() => ({
@@ -647,15 +647,14 @@ export const RecurringTransferList = ({
   }, [hasNextPage, endCursor, setAfter]);
 
   const activeRecurringTransferId =
-    route?.name === "AccountPaymentsV2RecurringTransferDetailsArea"
+    route?.name === "AccountPaymentsRecurringTransferDetailsArea"
       ? route.params.recurringTransferId
       : null;
 
-  const closeRightPanel = () =>
-    Router.push("AccountPaymentsV2Root", { accountMembershipId });
+  const closeRightPanel = () => Router.push("AccountPaymentsRoot", { accountMembershipId });
 
   const openStandingOrderDetails = (recurringTransferId: string) =>
-    Router.push("AccountPaymentsV2RecurringTransferDetailsRoot", {
+    Router.push("AccountPaymentsRecurringTransferDetailsRoot", {
       accountMembershipId,
       recurringTransferId,
     });

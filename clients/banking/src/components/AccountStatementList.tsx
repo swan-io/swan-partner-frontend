@@ -1,24 +1,18 @@
-import { Link } from "@swan-io/chicane";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
-import { SimpleTitleCell } from "@swan-io/lake/src/components/FixedListViewCells";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { GetNode } from "@swan-io/lake/src/utils/types";
-import dayjs from "dayjs";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { TabView } from "@swan-io/lake/src/components/TabView";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../graphql/partner";
+import { match } from "ts-pattern";
 import { t } from "../utils/i18n";
-import { ErrorView } from "./ErrorView";
+import { Router } from "../utils/routes";
+import { AccountStatementCustom } from "./AccountStatementCustom";
+import { AccountStatementMonthly } from "./AccountStatementMonthly";
 
 const styles = StyleSheet.create({
   root: {
-    height: 300,
+    // we must have fixed height for PlainListView component
+    // This height depends of new custom statement form
+    height: 450,
     overflow: "hidden",
     borderTopColor: colors.gray[100],
     borderTopWidth: 1,
@@ -42,101 +36,50 @@ const styles = StyleSheet.create({
   },
 });
 
-const NUM_TO_RENDER = 20;
-
 type Props = {
   accountId: string;
   large: boolean;
+  accountMembershipId: string;
 };
 
-type ExtraInfo = { large: boolean };
-type Statement = GetNode<
-  NonNullable<NonNullable<AccountStatementsPageQuery["account"]>["statements"]>
->;
+export const AccountStatementsList = ({ accountId, large, accountMembershipId }: Props) => {
+  const route = Router.useRoute([
+    "AccountTransactionsListStatementsCustom",
+    "AccountTransactionsListStatementsRoot",
+  ]);
 
-const columns: ColumnConfig<Statement, ExtraInfo>[] = [
-  {
-    title: "date",
-    width: "grow",
-    id: "date",
-    renderTitle: () => null,
-    renderCell: ({ item: { openingDate, type }, extraInfo: { large } }) => {
-      const url = type.find(item => item?.__typename === "PdfStatement")?.url;
-      return (
-        <View style={large ? styles.cellContainerLarge : styles.cellContainer}>
-          <SimpleTitleCell text={dayjs(openingDate).format("MMMM YYYY")} />
-
-          {url != null ? (
-            <Icon name="open-regular" size={16} color={colors.gray[300]} />
-          ) : (
-            <LakeText variant="regular" color={colors.gray[300]}>
-              {t("accountStatements.notReady")}
-            </LakeText>
-          )}
-        </View>
-      );
-    },
-  },
-];
-
-const PER_PAGE = 20;
-
-export const AccountStatementsList = ({ accountId, large }: Props) => {
-  const { data, nextData, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: AccountStatementsPageDocument,
-      variables: {
-        first: PER_PAGE,
-        accountId,
+  const tabs = useMemo(
+    () => [
+      {
+        label: t("accountStatements.tab.monthly"),
+        url: Router.AccountTransactionsListStatementsRoot({ accountMembershipId }),
       },
-    },
-    [accountId],
+      {
+        label: t("accountStatements.tab.custom"),
+        url: Router.AccountTransactionsListStatementsCustom({ accountMembershipId }),
+      },
+    ],
+    [accountMembershipId],
   );
 
   return (
     <View style={styles.root}>
-      {data.match({
-        NotAsked: () => null,
-        Loading: () => (
-          <PlainListViewPlaceholder
-            count={20}
-            rowVerticalSpacing={0}
-            headerHeight={0}
-            rowHeight={48}
+      <Space width={24} />
+      <TabView tabs={tabs} otherLabel={t("common.tabs.other")} padding={large ? 48 : 24} />
+
+      {match(route)
+        .with({ name: "AccountTransactionsListStatementsCustom" }, () => (
+          <AccountStatementCustom accountId={accountId} large={large} />
+        ))
+
+        .with({ name: "AccountTransactionsListStatementsRoot" }, () => (
+          <AccountStatementMonthly
+            accountId={accountId}
+            large={large}
+            accountMembershipId={accountMembershipId}
           />
-        ),
-        Done: result =>
-          result.match({
-            Error: error => <ErrorView error={error} />,
-            Ok: ({ account }) => (
-              <PlainListView
-                data={account?.statements?.edges?.map(({ node }) => node) ?? []}
-                keyExtractor={item => item.id}
-                headerHeight={48}
-                rowHeight={48}
-                groupHeaderHeight={48}
-                extraInfo={{ large }}
-                columns={columns}
-                getRowLink={({ item }) => {
-                  const url = item.type.find(item => item?.__typename === "PdfStatement")?.url;
-                  return url != null ? <Link to={url} target="_blank" /> : <View />;
-                }}
-                loading={{
-                  isLoading: nextData.isLoading(),
-                  count: NUM_TO_RENDER,
-                }}
-                onEndReached={() => {
-                  if (account?.statements?.pageInfo.hasNextPage ?? false) {
-                    setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
-                  }
-                }}
-                renderEmptyList={() => (
-                  <FixedListViewEmpty icon="lake-inbox-empty" title={t("common.list.noResults")} />
-                )}
-              />
-            ),
-          }),
-      })}
+        ))
+        .otherwise(() => null)}
     </View>
   );
 };

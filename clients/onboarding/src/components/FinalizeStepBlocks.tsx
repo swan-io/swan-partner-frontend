@@ -94,7 +94,7 @@ export const FinalizeInvalidSteps = <R extends StepRoute>({
 
                         <Space height={4} />
 
-                        {id === "V2_OnboardingOwnership" ? (
+                        {id === "OnboardingOwnership" ? (
                           <LakeText>{t("step.finalizeError.owners")}</LakeText>
                         ) : (
                           errors.map(({ fieldName }) => (

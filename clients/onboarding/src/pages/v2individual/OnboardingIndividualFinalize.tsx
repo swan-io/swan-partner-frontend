@@ -44,7 +44,7 @@ export const OnboardingIndividualFinalize = ({
   }, [shakeError, setShakeError]);
 
   const onPressPrevious = () => {
-    Router.push("V2_OnboardingDetails", { onboardingId });
+    Router.push("OnboardingDetails", { onboardingId });
   };
 
   const onPressNext = () => {

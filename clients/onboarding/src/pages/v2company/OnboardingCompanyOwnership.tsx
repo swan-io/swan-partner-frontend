@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   link: {
-    display: "flex",
+    display: "inline-flex",
     flexDirection: "row",
     alignItems: "center",
     textDecorationLine: "underline",
@@ -528,7 +528,19 @@ export const OnboardingCompanyOwnership = ({
               <Box>
                 <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
                 <Space height={8} />
-                <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
+
+                <LakeText>
+                  {t("company.step.owners.checkDescription", { companyName })}
+
+                  <Space width={4} />
+
+                  <Link to={UBO_DOCUMENTATION_LINK} target="blank" style={styles.link}>
+                    <LakeText color={colors.current[500]}>{t("common.learnMore")}</LakeText>
+                    <Space width={4} />
+                    <Icon name="open-filled" size={16} />
+                  </Link>
+                </LakeText>
+
                 <Space height={32} />
 
                 <Grid numColumns={small ? 1 : 2} horizontalSpace={32} verticalSpace={32}>

@@ -103,7 +103,7 @@ export const OnboardingIndividualLocation = ({
   }, [serverValidationErrors, isFirstMount, setFieldError, setManualMode]);
 
   const onPressPrevious = () => {
-    Router.push("V2_OnboardingEmail", { onboardingId });
+    Router.push("OnboardingEmail", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -141,7 +141,7 @@ export const OnboardingIndividualLocation = ({
               .otherwise(error => Result.Error(error)),
           )
           .tapOk(() => {
-            Router.push("V2_OnboardingDetails", { onboardingId });
+            Router.push("OnboardingDetails", { onboardingId });
           })
           .tapError(error => {
             match(error)

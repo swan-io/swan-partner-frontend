@@ -41,7 +41,7 @@ type Props = {
 
 const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "(SA, SPRL, SCRL, SCRIS, SNC, SCS, GIE)",
-  DEU: "(GmbH, EI, Gbr, KG)",
+  DEU: "(z.B. GmbH, UG, KG, GbR)",
   FRA: "(SA, SARL, SAS, SCI…)",
   ITA: "(SS, SRL, SPA, SNC, SAS…)",
   LUX: "(SA, SCS, SARLI, SNC, SCA, SC)",

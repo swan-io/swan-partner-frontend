@@ -23,7 +23,7 @@ type Props = {
   onboardingId: string;
 };
 
-const V2FlowPicker = ({ onboardingId }: Props) => {
+const FlowPicker = ({ onboardingId }: Props) => {
   const [{ data }] = useQueryWithErrorBoundary({
     query: GetOnboardingDocument,
     variables: { id: onboardingId, language: locale.language },
@@ -82,7 +82,7 @@ const V2FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["PopupCallback", "V2_OnboardingArea"]);
+  const route = Router.useRoute(["OnboardingArea", "PopupCallback"]);
 
   return (
     <Sentry.ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
@@ -95,8 +95,8 @@ export const App = () => {
                 accountMembershipId={accountMembershipId}
               />
             ))
-            .with({ name: "V2_OnboardingArea" }, ({ params: { onboardingId } }) => (
-              <V2FlowPicker onboardingId={onboardingId} />
+            .with({ name: "OnboardingArea" }, ({ params: { onboardingId } }) => (
+              <FlowPicker onboardingId={onboardingId} />
             ))
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}

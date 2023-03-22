@@ -17,6 +17,8 @@
     "graphql-lint": "tsx scripts/graphql/lint.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.yml",
     "format": "prettier '**/*' --ignore-unknown --write",
+    "set-local-lake": "sh scripts/lake/set-local-lake.sh",
+    "unset-local-lake": "sh scripts/lake/set-npm-lake.sh",
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
     "build": "tsx -r dotenv/config scripts/build/index.ts",
     "typecheck": "tsc --noEmit",

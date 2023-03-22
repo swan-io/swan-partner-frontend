@@ -23,9 +23,12 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
 
   const server = await createServer({
     configFile: path.resolve(process.cwd(), "clients", appName, "vite.config.js"),
-    optimizeDeps: {
-      force: true,
-    },
+    optimizeDeps:
+      process.env.USE_LOCAL_LAKE === "true"
+        ? {
+            force: true,
+          }
+        : undefined,
     server: {
       port: mainServerPort,
       hmr: {

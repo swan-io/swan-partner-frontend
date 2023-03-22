@@ -9,6 +9,12 @@ export default defineConfig({
     emptyOutDir: true,
     outDir: "../dist",
   },
+  server: {
+    fs: {
+      // gives the possibility to load assets from lake repository
+      allow: process.env.USE_LOCAL_LAKE === "true" ? ["../../../.."] : undefined,
+    },
+  },
   logLevel: "warn",
   plugins: [
     legacy({

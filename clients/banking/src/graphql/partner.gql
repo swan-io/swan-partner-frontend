@@ -450,6 +450,7 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
       }
     }
     statements(first: $first, after: $after) {
+      totalCount
       pageInfo {
         hasNextPage
         endCursor

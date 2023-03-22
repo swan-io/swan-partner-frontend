@@ -20,10 +20,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ErrorView } from "../components/ErrorView";
-import {
-  AccountStatementsPageDocument,
-  AccountStatementsPageQuery,
-} from "../graphql/partner";
+import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -147,6 +144,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                     placeholder={t("common.search")}
                     initialValue={search}
                     onChangeText={searchText => setSearch(searchText)}
+                    totalCount={account?.statements?.totalCount ?? 0}
                   />
                 </Box>
 

@@ -50,6 +50,7 @@
     "@graphql-codegen/introspection": "3.0.1",
     "@graphql-codegen/typed-document-node": "3.0.2",
     "@graphql-codegen/typescript": "3.0.2",
+    "@graphql-codegen/typescript-graphql-request": "4.5.8",
     "@graphql-codegen/typescript-operations": "3.0.2",
     "@graphql-codegen/typescript-urql-graphcache": "2.4.3",
     "@lokalise/node-api": "9.4.0",
@@ -71,7 +72,7 @@
     "eslint-plugin-react-native": "4.0.0",
     "eslint-plugin-react-native-a11y": "3.3.0",
     "eslint-plugin-swan": "file:scripts/eslint",
-    "glob": "9.3.1",
+    "glob": "9.3.2",
     "graphql": "16.6.0",
     "lint-staged": "13.2.0",
     "prettier": "2.8.6",
@@ -85,8 +86,5 @@
     "vite": "4.2.1",
     "vitest": "0.29.7",
     "yaml": "2.2.1"
-  },
-  "dependencies": {
-    "@graphql-codegen/typescript-graphql-request": "4.5.8"
   }
 }

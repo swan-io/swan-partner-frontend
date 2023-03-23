@@ -59,6 +59,7 @@ type Props = {
 export const OnboardingIndividualEmail = ({
   initialEmail,
   projectName,
+  accountCountry,
   onboardingId,
   serverValidationErrors,
   tcuDocumentUri,
@@ -164,26 +165,30 @@ export const OnboardingIndividualEmail = ({
                 </Field>
               </Tile>
 
-              <Space height={small ? 24 : 32} />
+              {accountCountry !== "DEU" && (
+                <>
+                  <Space height={small ? 24 : 32} />
 
-              <LakeText align="center">
-                {formatNestedMessage("emailPage.terms", {
-                  firstLink: (
-                    <Link target="blank" to={tcuUrl} style={styles.link}>
-                      {t("emailPage.firstLink")}
+                  <LakeText align="center">
+                    {formatNestedMessage("emailPage.terms", {
+                      firstLink: (
+                        <Link target="blank" to={tcuUrl} style={styles.link}>
+                          {t("emailPage.firstLink")}
 
-                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                    </Link>
-                  ),
-                  secondLink: (
-                    <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                      {t("emailPage.secondLink", { partner: projectName })}
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                      secondLink: (
+                        <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                          {t("emailPage.secondLink", { partner: projectName })}
 
-                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                    </Link>
-                  ),
-                })}
-              </LakeText>
+                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                        </Link>
+                      ),
+                    })}
+                  </LakeText>
+                </>
+              )}
             </>
           )}
         </ResponsiveContainer>

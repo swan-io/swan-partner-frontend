@@ -293,24 +293,26 @@ export const OnboardingCompanyRegistration = ({
                 </>
               )}
 
-              <LakeText align="center">
-                {formatNestedMessage("emailPage.terms", {
-                  firstLink: (
-                    <Link target="blank" to={tcuUrl} style={styles.link}>
-                      {t("emailPage.firstLink")}
+              {accountCountry !== "DEU" && (
+                <LakeText align="center">
+                  {formatNestedMessage("emailPage.terms", {
+                    firstLink: (
+                      <Link target="blank" to={tcuUrl} style={styles.link}>
+                        {t("emailPage.firstLink")}
 
-                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                    </Link>
-                  ),
-                  secondLink: (
-                    <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                      {t("emailPage.secondLink", { partner: projectName })}
+                        <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                      </Link>
+                    ),
+                    secondLink: (
+                      <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                        {t("emailPage.secondLink", { partner: projectName })}
 
-                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                    </Link>
-                  ),
-                })}
-              </LakeText>
+                        <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                      </Link>
+                    ),
+                  })}
+                </LakeText>
+              )}
             </>
           )}
         </ResponsiveContainer>

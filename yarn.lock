@@ -4399,7 +4399,17 @@ graphql-config@^4.5.0:
     string-env-interpolation "1.0.1"
     tslib "^2.4.0"
 
-graphql-request@5.2.0, graphql-request@^5.0.0:
+graphql-request@5.1.0:
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-5.1.0.tgz#dbc8feee27d21b993cd5da2d3af67821827b240a"
+  integrity sha512-0OeRVYigVwIiXhNmqnPDt+JhMzsjinxHE7TVy3Lm6jUzav0guVcL0lfSbi6jVTRAxcbwgyr6yrZioSHxf9gHzw==
+  dependencies:
+    "@graphql-typed-document-node/core" "^3.1.1"
+    cross-fetch "^3.1.5"
+    extract-files "^9.0.0"
+    form-data "^3.0.0"
+
+graphql-request@^5.0.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/graphql-request/-/graphql-request-5.2.0.tgz#a05fb54a517d91bb2d7aefa17ade4523dc5ebdca"
   integrity sha512-pLhKIvnMyBERL0dtFI3medKqWOz/RhHdcgbZ+hMMIb32mEPa5MJSzS4AuXxfI4sRAu6JVVk5tvXuGfCWl9JYWQ==
@@ -6924,9 +6934,9 @@ through@^2.3.6, through@^2.3.8:
   integrity sha512-w89qg7PI8wAdvX60bMDP+bFoD5Dvhm9oLheFp5O4a2QF0cSBGsBX4qZmadPMvVqlLJBBci+WqGGOAPvcDeNSVg==
 
 tiny-lru@^10.0.0:
-  version "10.2.2"
-  resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-10.2.2.tgz#dba7e921a9f940e841a7f4e5aef1cb478ecdb07f"
-  integrity sha512-yx+e2W/6E0SBEuXG+3M1fibQyyMDbz3jd/8EPyodw+LQVcUXA6tfNGUzktEy1PgZlresc6PiC4HQiyeZM2lGzA==
+  version "10.3.0"
+  resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-10.3.0.tgz#2ddc88bbe8d9a2c761df673ebef52a82182a64b3"
+  integrity sha512-vTKRT2AEO1sViFDWAIzZVpV8KURCaMtnHa4RZB3XqtYLbrTO/fLDXKPEX9kVWq9u+nZREkwakbcmzGgvJm8QKA==
 
 tiny-lru@^7.0.6:
   version "7.0.6"

@@ -11,5 +11,5 @@ rm -rf clients/onboarding/node_modules/.vite
 # re-install packages from npm
 yarn install --force
 
-# remove USE_LOCAL_LAKE from .env
-sed -i '' '/USE_LOCAL_LAKE/d' .env
+# remove local lake path file
+rm lake-path.txt

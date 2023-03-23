@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -13,13 +13,17 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
+import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import { FieldsetTitle } from "../components/FormText";
 import {
@@ -27,9 +31,11 @@ import {
   ScheduleStandingOrderDocument,
   ScheduleStandingOrderInput,
   StandingOrderPeriod,
+  ValidIbanInformationFragment,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 import * as iban from "../utils/iban";
+import { getIbanValidation } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
   REFERENCE_MAX_LENGTH,
@@ -50,6 +56,12 @@ const styles = StyleSheet.create({
   },
   inlineInput: {
     flex: 1,
+  },
+  tileFooter: {
+    padding: 24,
+    backgroundColor: colors.shakespear[0],
+    borderTopWidth: 1,
+    borderTopColor: colors.shakespear[100],
   },
   confirmButtonDesktop: {
     alignSelf: "flex-start",
@@ -76,15 +88,16 @@ const hasFixedAmountItems: RadioGroupItem<boolean>[] = [
   { value: false, name: t("recurringTransfer.new.transferType.fullBalance") },
 ];
 
-export const NewRecurringTransferPageV2 = ({
-  accountId,
-  accountMembershipId,
-  onClose,
-}: Props) => {
+export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
+  const client = useClient();
   const [scheduleStandingOrder, initiateScheduleStandingOrder] = useUrqlMutation(
     ScheduleStandingOrderDocument,
   );
   const { data } = useUrqlQuery({ query: GetAccountDocument, variables: { accountId } }, []);
+
+  const [ibanInformations, setIbanInformations] = useState<Option<ValidIbanInformationFragment>>(
+    Option.None(),
+  );
 
   const availableBalance = data.mapResult(({ account }) => {
     if (account?.balances?.available) {
@@ -100,9 +113,15 @@ export const NewRecurringTransferPageV2 = ({
     creditorIban: {
       initialValue: "",
       sanitize: iban.printFormat,
-      validate: value => {
-        if (!iban.isValid(value)) {
-          return t("error.invalidIban");
+      validate: async value => {
+        const result = await getIbanValidation(client, value);
+
+        // If previous validation was an error, this will not trigger a new render
+        // Because all `Option.None` refers to the same object, and set state run a new render only if the reference change
+        setIbanInformations(result.toOption());
+
+        if (result.isError()) {
+          return result.getError();
         }
       },
     },
@@ -284,7 +303,40 @@ export const NewRecurringTransferPageV2 = ({
                       {t("recurringTransfer.new.recipient")}
                     </FieldsetTitle>
 
-                    <Tile>
+                    <Tile
+                      footer={ibanInformations.match({
+                        None: () => undefined,
+                        Some: ({ bank }) => (
+                          <View style={styles.tileFooter}>
+                            <LakeText variant="medium" color={colors.gray[900]}>
+                              {t("transfer.new.recipient.bankDetails")}
+                            </LakeText>
+
+                            <Space height={16} />
+
+                            <LakeText variant="smallRegular" color={colors.gray[700]}>
+                              {bank.name}
+                            </LakeText>
+
+                            <Space height={4} />
+
+                            <LakeText variant="smallRegular" color={colors.gray[700]}>
+                              {[
+                                bank.address.addressLine1,
+                                bank.address.addressLine2,
+                                bank.address.postalCode,
+                                bank.address.city,
+                                bank.address.country != null
+                                  ? getCountryNameByCCA3(bank.address.country)
+                                  : undefined,
+                              ]
+                                .filter(isNotNullishOrEmpty)
+                                .join(", ")}
+                            </LakeText>
+                          </View>
+                        ),
+                      })}
+                    >
                       <LakeLabel
                         label={t("recurringTransfer.new.recipient.label")}
                         render={id => (
@@ -309,11 +361,12 @@ export const NewRecurringTransferPageV2 = ({
                         label={t("recurringTransfer.new.iban.label")}
                         render={id => (
                           <Field name="creditorIban">
-                            {({ value, onChange, onBlur, error, valid }) => (
+                            {({ value, onChange, onBlur, error, valid, validating }) => (
                               <LakeTextInput
                                 nativeID={id}
                                 placeholder={t("recurringTransfer.new.iban.placeholder")}
                                 value={iban.printFormat(value)}
+                                validating={validating}
                                 error={error}
                                 valid={valid}
                                 onChangeText={onChange}

@@ -284,6 +284,7 @@ export const OnboardingCompanyRegistration = ({
                           setFieldValue={setFieldValue}
                           listenFields={listenFields}
                           isLarge={large}
+                          apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
                         />
                       )}
                     </FieldsListener>

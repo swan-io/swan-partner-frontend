@@ -3,6 +3,7 @@ overwrite: true
 
 hooks:
   afterAllFileWrite:
+    - "yarn tsx ./scripts/graphql/temp-codegen-fix.ts"
     - "prettier --write"
 
 scalars: &SCALARS

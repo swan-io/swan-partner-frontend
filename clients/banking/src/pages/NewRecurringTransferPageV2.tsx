@@ -17,6 +17,7 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -329,7 +330,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                                   ? getCountryNameByCCA3(bank.address.country)
                                   : undefined,
                               ]
-                                .filter(Boolean)
+                                .filter(isNotNullishOrEmpty)
                                 .join(", ")}
                             </LakeText>
                           </View>

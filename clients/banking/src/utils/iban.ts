@@ -1,12 +1,10 @@
-
 import { Result } from "@swan-io/boxed";
+import { isValid } from "iban";
 import { match, P } from "ts-pattern";
 import { Client } from "urql";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { t } from "./i18n";
 import { parseOperationResult } from "./urql";
-
-import { isValid } from "iban";
 export { isValid, printFormat } from "iban";
 
 // https://github.com/arhs/iban.js/blob/v0.0.14/iban.js#L341
@@ -43,7 +41,6 @@ export const getIbanValidation = async (client: Client, iban: string) => {
           if (!isValid(iban)) {
             return t("error.iban.invalid");
           }
-          return;
         })
         .exhaustive(),
     );

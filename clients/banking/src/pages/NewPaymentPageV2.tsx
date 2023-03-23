@@ -334,11 +334,10 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                           label={t("transfer.new.recipient.label")}
                           render={id => (
                             <Field name="creditorName">
-                              {({ value, onChange, onBlur, error, valid, validating }) => (
+                              {({ value, onChange, onBlur, error, valid }) => (
                                 <LakeTextInput
                                   nativeID={id}
                                   value={value}
-                                  validating={validating}
                                   error={error}
                                   valid={valid}
                                   onChangeText={onChange}
@@ -355,11 +354,12 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                           label={t("transfer.new.iban.label")}
                           render={id => (
                             <Field name="creditorIban">
-                              {({ value, onChange, onBlur, error, valid }) => (
+                              {({ value, onChange, onBlur, error, validating, valid }) => (
                                 <LakeTextInput
                                   nativeID={id}
                                   placeholder={t("transfer.new.iban.placeholder")}
                                   value={iban.printFormat(value)}
+                                  validating={validating}
                                   error={error}
                                   valid={valid}
                                   onChangeText={onChange}

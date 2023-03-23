@@ -19,4 +19,4 @@ server/dist/
 
 .env
 
-lake-path.txt
+local.config.js

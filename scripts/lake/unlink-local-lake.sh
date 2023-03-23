@@ -12,4 +12,4 @@ rm -rf clients/onboarding/node_modules/.vite
 yarn install --force
 
 # remove local lake path file
-rm lake-path.txt
+rm locale.config.js

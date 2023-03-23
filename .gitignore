@@ -18,3 +18,5 @@ server/keys/_wildcard.swan.local.pem
 server/dist/
 
 .env
+
+locale.config.js

@@ -17,6 +17,8 @@
     "graphql-lint": "tsx scripts/graphql/lint.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.yml",
     "format": "prettier '**/*' --ignore-unknown --write",
+    "link-locale-lake": "sh scripts/lake/link-locale-lake.sh",
+    "unlink-locale-lake": "sh scripts/lake/unlink-locale-lake.sh",
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
     "build": "tsx -r dotenv/config scripts/build/index.ts",
     "typecheck": "tsc --noEmit",

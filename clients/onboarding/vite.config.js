@@ -1,24 +1,20 @@
-import { Result } from "@swan-io/boxed";
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
-import fs from "fs";
-import os from "os";
 import path from "path";
 import { defineConfig } from "vite";
 
-const getLakeAbsolutePath = () => {
-  try {
-    const filePath = path.resolve(process.cwd(), "lake-path.txt");
-    const file = fs.readFileSync(filePath, "utf-8").split(os.EOL)[0];
-    const absolutePath = path.resolve(process.cwd(), file);
+const root = path.resolve(__dirname, "./src");
 
-    return Result.Ok(absolutePath);
+const getAllowedPaths = () => {
+  try {
+    const localeConfig = require("../../locale.config");
+    const lakePath = localeConfig.default.lake;
+
+    return typeof lakePath === "string" ? [root, lakePath] : undefined;
   } catch (e) {
-    return Result.Error(e);
+    // if locale-config.js is not present `server.fs.allow` will be undefined
   }
 };
-
-const root = path.resolve(__dirname, "./src");
 
 export default defineConfig({
   root,
@@ -29,10 +25,7 @@ export default defineConfig({
   server: {
     fs: {
       // gives the possibility to load assets from lake repository
-      allow: getLakeAbsolutePath()
-        .map(p => [root, p])
-        .toOption()
-        .toUndefined(),
+      allow: getAllowedPaths(),
     },
   },
   logLevel: "warn",

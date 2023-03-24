@@ -1,4 +1,5 @@
 const path = require("path");
+require("dotenv").config();
 
 const bankingProjectId = process.env.LOKALISE_BANKING_PROJECT_ID;
 const onboardingProjectId = process.env.LOKALISE_ONBOARDING_PROJECT_ID;
@@ -17,8 +18,8 @@ module.exports = [
     id: bankingProjectId,
     defaultLocale: "en",
     paths: {
-      src: path.resolve(__dirname, "clients/banking/src"),
-      locales: path.resolve(__dirname, "clients/banking/src/locales"),
+      src: path.join(process.cwd(), "clients", "banking", "src"),
+      locales: path.join(process.cwd(), "clients", "banking", "src", "locales"),
     },
   },
   {
@@ -26,8 +27,8 @@ module.exports = [
     id: onboardingProjectId,
     defaultLocale: "en",
     paths: {
-      src: path.resolve(__dirname, "clients/onboarding/src"),
-      locales: path.resolve(__dirname, "clients/onboarding/src/locales"),
+      src: path.join(process.cwd(), "clients", "onboarding", "src"),
+      locales: path.join(process.cwd(), "clients", "onboarding", "src", "locales"),
     },
   },
 ];

@@ -2104,10 +2104,10 @@
     urql "^3.0.4"
     uuid "^9.0.0"
 
-"@swan-io/lokalise-sync-cli@1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/lokalise-sync-cli/-/lokalise-sync-cli-1.0.2.tgz#2364300adb2efd72b68344580cb4d18b59b508cb"
-  integrity sha512-oELMtqSOW+b/6zrsOqi62gaS/SuXK/UUtLxPU/2lMWEeEH5FE2mzGiq391Yk1Ybr4eWFKfXFjMa7KcYZB800dg==
+"@swan-io/lokalise-sync-cli@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/lokalise-sync-cli/-/lokalise-sync-cli-1.0.3.tgz#39019899e788ca7a73a51f6aaca4c6a6f7ef94e1"
+  integrity sha512-ib4W/nZsdXbcFdbcIU0iGYWFvrHSzspWT3gbCRpmx3zMPQwQN45OA2FIUCl6diqMFVjE0WPnLlBHmBYuyvaSlA==
   dependencies:
     "@formatjs/icu-messageformat-parser" "^2.3.0"
     "@lokalise/node-api" "^9.6.1"

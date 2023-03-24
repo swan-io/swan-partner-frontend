@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   },
   buttons: {
     flex: 1,
-    maxWidth: 1240,
+    maxWidth: 1200,
   },
   button: {
     flex: 1,

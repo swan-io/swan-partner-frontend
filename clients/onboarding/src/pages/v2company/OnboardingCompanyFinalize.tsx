@@ -129,7 +129,7 @@ export const OnboardingCompanyFinalize = ({
             projectName={projectName}
             accepted={tcuAccepted}
             error={alreadySubmitted && !tcuAccepted ? t("step.finalize.termsError") : undefined}
-            toggle={setTcuAccepted.toggle}
+            onAcceptChange={setTcuAccepted.toggle}
           />
 
           <Space height={12} />

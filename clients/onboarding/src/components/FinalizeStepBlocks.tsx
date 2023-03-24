@@ -167,7 +167,7 @@ type TcuCheckboxProps = {
   projectName: string;
   accepted: boolean;
   error: string | undefined;
-  toggle: () => void;
+  onAcceptChange: () => void;
 };
 
 export const TcuCheckbox = ({
@@ -176,12 +176,12 @@ export const TcuCheckbox = ({
   projectName,
   accepted,
   error,
-  toggle,
+  onAcceptChange,
 }: TcuCheckboxProps) => (
   <Box alignItems="center" style={styles.tcu}>
     <Box alignItems="start">
       <Box direction="row" alignItems="start">
-        <Pressable accessibilityChecked={accepted} onPress={toggle} style={styles.tcuCheckbox}>
+        <Pressable accessibilityChecked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
           <LakeCheckbox value={accepted} isError={isNotNullish(error)} />
         </Pressable>
 

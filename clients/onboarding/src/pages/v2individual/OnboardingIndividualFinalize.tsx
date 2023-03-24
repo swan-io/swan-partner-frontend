@@ -131,7 +131,7 @@ export const OnboardingIndividualFinalize = ({
                 ? t("step.finalize.termsError")
                 : undefined
             }
-            toggle={setTcuAccepted.toggle}
+            onAcceptChange={setTcuAccepted.toggle}
           />
 
           <Space height={12} />

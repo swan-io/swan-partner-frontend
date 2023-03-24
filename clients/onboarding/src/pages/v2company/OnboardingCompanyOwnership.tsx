@@ -20,7 +20,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import {
   BeneficiaryForm,
   BeneficiaryFormRef,
@@ -219,8 +219,8 @@ const formatUboBirthAddress = ({
 
 const getUboInitials = (ubo: LocalStateUbo) => {
   return [ubo.firstName, ubo.lastName]
-    .map(name => name?.at(0))
-    .filter(Boolean)
+    .map(name => name[0])
+    .filter(isNotNullishOrEmpty)
     .join("");
 };
 

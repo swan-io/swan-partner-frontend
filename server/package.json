@@ -37,6 +37,6 @@
     "graphql-request": "5.1.0",
     "pino-pretty": "10.0.0",
     "ts-pattern": "4.2.2",
-    "valienv": "0.3.0"
+    "valienv": "0.4.0"
   }
 }

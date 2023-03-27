@@ -77,16 +77,6 @@ export const PaymentsPageV2 = ({
       {({ small, large }) => (
         <>
           <View style={[styles.container, large && styles.containerDesktop]}>
-            {large && (
-              <>
-                <LakeHeading level={1} variant="h3">
-                  {t("transfer.title")}
-                </LakeHeading>
-
-                <Space height={24} />
-              </>
-            )}
-
             <Box direction={small ? "column" : "row"}>
               <View style={styles.tileContainer}>
                 <Tile

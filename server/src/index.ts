@@ -1,10 +1,20 @@
+import { UnionToTuple } from "@swan-io/lake/src/utils/types";
 import chalk from "chalk";
 import path from "node:path";
 import url from "node:url";
 import { start } from "./app.js";
 import { env } from "./env.js";
+import { AccountCountry } from "./graphql/partner.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+
+const accountCountries: UnionToTuple<AccountCountry> = ["DEU", "ESP", "FRA"];
+
+const countryTranslations: Record<AccountCountry, string> = {
+  DEU: "German",
+  ESP: "Spanish",
+  FRA: "French",
+};
 
 start({
   mode: env.NODE_ENV,
@@ -38,14 +48,22 @@ start({
     console.log(chalk.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
     console.log(``);
     console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
-    console.log(
-      `${chalk.magenta("Onboarding Individual")} -> ${
-        env.ONBOARDING_URL
-      }/onboarding/individual/start?accountCountry=FRA`,
-    );
-    console.log(
-      `${chalk.magenta("Onboarding Company")} -> ${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=FRA`,
-    );
+    console.log(`${chalk.magenta("Onboarding Individual")}`);
+    accountCountries.forEach(accountCountry => {
+      console.log(
+        `    ${chalk.cyan(`${countryTranslations[accountCountry]} Account`)} -> ${
+          env.ONBOARDING_URL
+        }/onboarding/individual/start?accountCountry=${accountCountry}`,
+      );
+    });
+    console.log(`${chalk.magenta("Onboarding Company")}`);
+    accountCountries.forEach(accountCountry => {
+      console.log(
+        `    ${chalk.cyan(`${countryTranslations[accountCountry]} Account`)} -> ${
+          env.ONBOARDING_URL
+        }/onboarding/company/start?accountCountry=${accountCountry}`,
+      );
+    });
     console.log(`${chalk.white("---")}`);
     console.log(``);
     console.log(``);

@@ -41,10 +41,10 @@ start({
     console.log(
       `${chalk.magenta("Onboarding Individual")} -> ${
         env.ONBOARDING_URL
-      }/onboarding/individual/start`,
+      }/onboarding/individual/start?accountCountry=FRA`,
     );
     console.log(
-      `${chalk.magenta("Onboarding Company")} -> ${env.ONBOARDING_URL}/onboarding/company/start`,
+      `${chalk.magenta("Onboarding Company")} -> ${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=FRA`,
     );
     console.log(`${chalk.white("---")}`);
     console.log(``);

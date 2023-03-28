@@ -1,6 +1,5 @@
 import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -24,7 +23,7 @@ import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/cou
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import { FieldsetTitle } from "../components/FormText";
@@ -172,7 +171,6 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
           "transferAmount",
           "transferLabel",
           "transferReference",
-          "isInstant",
         ])
       ) {
         const maximumAmount = availableBalance
@@ -454,34 +452,8 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                       <Space height={32} />
                       <FieldsetTitle isMobile={small}>{t("transfer.new.schedule")}</FieldsetTitle>
 
-                      <Tile
-                        footer={
-                          !canSendInstantTransfer ? (
-                            <View style={styles.tileFooter}>
-                              <Box direction="row" alignItems="end">
-                                <Icon
-                                  name="info-regular"
-                                  size={20}
-                                  color={colors.shakespear[700]}
-                                />
-
-                                <Space width={12} />
-
-                                <LakeText variant="smallRegular" color={colors.shakespear[700]}>
-                                  {t("transfer.new.instantTransferNotAvailable")}
-                                </LakeText>
-                              </Box>
-
-                              <Space height={16} />
-
-                              <LakeText variant="smallRegular" color={colors.gray[700]}>
-                                {t("transfer.new.bankNotAcceptInstantTransfer")}
-                              </LakeText>
-                            </View>
-                          ) : undefined
-                        }
-                      >
-                        {canSendInstantTransfer && (
+                      {canSendInstantTransfer ? (
+                        <Tile>
                           <Field name="isInstant">
                             {({ value, onChange }) => (
                               <LakeLabelledCheckbox
@@ -491,8 +463,14 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                               />
                             )}
                           </Field>
-                        )}
-                      </Tile>
+                        </Tile>
+                      ) : (
+                        <LakeAlert
+                          title={t("transfer.new.instantTransferNotAvailable")}
+                          subtitle={t("transfer.new.bankNotAcceptInstantTransfer")}
+                          variant="info"
+                        />
+                      )}
 
                       <Space height={32} />
 

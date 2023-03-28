@@ -16,6 +16,13 @@ const countryTranslations: Record<AccountCountry, string> = {
   FRA: "French",
 };
 
+const onboardingCountries = accountCountries
+  .map(accountCountry => ({
+    cca3: accountCountry,
+    name: countryTranslations[accountCountry],
+  }))
+  .sort((a, b) => a.name.localeCompare(b.name));
+
 start({
   mode: env.NODE_ENV,
   httpsConfig:
@@ -49,19 +56,19 @@ start({
     console.log(``);
     console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
     console.log(`${chalk.magenta("Onboarding Individual")}`);
-    accountCountries.forEach(accountCountry => {
+    onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `    ${chalk.cyan(`${countryTranslations[accountCountry]} Account`)} -> ${
+        `  ${chalk.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
-        }/onboarding/individual/start?accountCountry=${accountCountry}`,
+        }/onboarding/individual/start?accountCountry=${cca3}`,
       );
     });
     console.log(`${chalk.magenta("Onboarding Company")}`);
-    accountCountries.forEach(accountCountry => {
+    onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `    ${chalk.cyan(`${countryTranslations[accountCountry]} Account`)} -> ${
+        `  ${chalk.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
-        }/onboarding/company/start?accountCountry=${accountCountry}`,
+        }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
     console.log(`${chalk.white("---")}`);

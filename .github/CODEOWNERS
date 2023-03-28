@@ -1,0 +1,6 @@
+clients/ @swan-io/front
+docs/ @swan-io/front
+types/ @swan-io/front
+
+scripts/ @bloodyowl
+server/ @bloodyowl

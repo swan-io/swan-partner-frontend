@@ -1,21 +1,10 @@
 const path = require("path");
 require("dotenv").config();
 
-const bankingProjectId = process.env.LOKALISE_BANKING_PROJECT_ID;
-const onboardingProjectId = process.env.LOKALISE_ONBOARDING_PROJECT_ID;
-
-if (!bankingProjectId) {
-  throw new Error("Missing LOKALISE_BANKING_PROJECT_ID env variable");
-}
-
-if (!onboardingProjectId) {
-  throw new Error("Missing LOKALISE_ONBOARDING_PROJECT_ID env variable");
-}
-
 module.exports = [
   {
     name: "banking",
-    id: bankingProjectId,
+    id: "66483360603f9ac43d2ad4.56148263",
     defaultLocale: "en",
     paths: {
       src: path.join(process.cwd(), "clients", "banking", "src"),
@@ -24,7 +13,7 @@ module.exports = [
   },
   {
     name: "onboarding",
-    id: onboardingProjectId,
+    id: "35906035603fa14f525834.96064583",
     defaultLocale: "en",
     paths: {
       src: path.join(process.cwd(), "clients", "onboarding", "src"),

@@ -59,6 +59,7 @@ export const CardItemArea = ({
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
   const { desktop } = useResponsive();
+
   const route = Router.useRoute([
     "AccountCardsItem",
     "AccountCardsItemPhysicalCard",

@@ -184,7 +184,7 @@ const CardWizardSettingsBooleanTile = ({
               <View style={styles.text}>
                 <LakeHeading
                   level={3}
-                  variant={desktop ? "h3" : "h5"}
+                  variant="h5"
                   selectable={false}
                   style={styles.booleanTileText}
                 >
@@ -206,7 +206,7 @@ const CardWizardSettingsBooleanTile = ({
             </View>
 
             <Space width={24} />
-            <Switch value={checked} onValueChange={() => onChange(!checked)} />
+            <Switch value={checked} onValueChange={onChange} />
           </View>
         </Tile>
       )}

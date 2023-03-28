@@ -15,7 +15,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import dayjs from "dayjs";
 import { Fragment, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import applePayLogo from "../assets/images/apple-pay.svg";
 import googlePayLogo from "../assets/images/google-pay.svg";
 import {

@@ -6,18 +6,18 @@ import { CombinedError, Operation, OperationContext, OperationResult } from "@ur
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { relayPagination } from "@urql/exchange-graphcache/extras";
 import { IntrospectionQuery } from "graphql";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { Except, SetRequired } from "type-fest";
 import {
   AnyVariables,
   Client,
+  UseQueryArgs,
+  UseQueryResponse,
+  UseQueryState,
   dedupExchange,
   errorExchange,
   fetchExchange,
   useQuery,
-  UseQueryArgs,
-  UseQueryResponse,
-  UseQueryState,
 } from "urql";
 import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";

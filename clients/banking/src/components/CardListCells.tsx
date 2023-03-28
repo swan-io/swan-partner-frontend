@@ -10,7 +10,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { Image, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, t } from "../utils/i18n";

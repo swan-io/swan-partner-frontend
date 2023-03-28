@@ -6,14 +6,14 @@ import {
   AnyVariables,
   Client,
   CombinedError,
-  dedupExchange,
-  errorExchange,
-  fetchExchange,
   OperationResult,
-  useQuery,
   UseQueryArgs,
   UseQueryResponse,
   UseQueryState,
+  dedupExchange,
+  errorExchange,
+  fetchExchange,
+  useQuery,
 } from "urql";
 import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";

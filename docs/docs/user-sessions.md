@@ -1,5 +1,5 @@
 ---
-title: User sessions 
+title: User sessions
 sidebar_label: User sessions
 ---
 

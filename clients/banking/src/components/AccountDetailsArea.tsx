@@ -7,7 +7,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { Suspense, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";

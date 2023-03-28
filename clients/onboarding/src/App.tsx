@@ -4,7 +4,7 @@ import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, defaultAccentColor } from "@swan-io/lake/src/constants/colors";
 import { Suspense } from "react";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { Provider as UrqlProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";

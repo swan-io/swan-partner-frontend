@@ -24,7 +24,7 @@ import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/cou
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import { FieldsetTitle } from "../components/FormText";

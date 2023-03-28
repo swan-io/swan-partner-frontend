@@ -8,7 +8,7 @@ import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor"
 import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
-import { accountAreaRoutes, RouteName, Router } from "../utils/routes";
+import { RouteName, Router, accountAreaRoutes } from "../utils/routes";
 
 const TRANSPARENT = "transparent";
 

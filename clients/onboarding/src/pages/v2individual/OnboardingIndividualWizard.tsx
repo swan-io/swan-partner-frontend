@@ -11,12 +11,12 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
 import { GetOnboardingQuery, IndividualAccountHolderFragment } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
-import { IndividualOnboardingRoute, individualOnboardingRoutes, Router } from "../../utils/routes";
+import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { IndividualFlowPresentation } from "./IndividualFlowPresentation";
@@ -43,11 +43,7 @@ type Props = {
   holder: IndividualAccountHolderFragment;
 };
 
-export const OnboardingIndividualWizard = ({
-  onboarding,
-  holder,
-  onboardingId,
-}: Props) => {
+export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }: Props) => {
   const route = Router.useRoute(individualOnboardingRoutes);
   const isStepperDisplayed = !isNullish(route) && route.name !== "OnboardingRoot";
 
@@ -164,9 +160,7 @@ export const OnboardingIndividualWizard = ({
 
       {match(route)
         .with({ name: "OnboardingRoot" }, ({ params }) => (
-          <IndividualFlowPresentation
-            onboardingId={params.onboardingId}
-          />
+          <IndividualFlowPresentation onboardingId={params.onboardingId} />
         ))
         .with({ name: "OnboardingEmail" }, ({ params }) => (
           <OnboardingIndividualEmail

@@ -17,7 +17,7 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { getTransactionRejectedReasonLabel } from "../utils/templateTranslations";

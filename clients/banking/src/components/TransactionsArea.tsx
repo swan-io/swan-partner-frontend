@@ -17,7 +17,7 @@ import { GetAccountBalanceDocument } from "../graphql/partner";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
-import { accountTransactionsRoutes, Router } from "../utils/routes";
+import { Router, accountTransactionsRoutes } from "../utils/routes";
 import { AccountStatementsList } from "./AccountStatementList";
 import { ErrorView } from "./ErrorView";
 

@@ -10,8 +10,8 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import {
-  companyCountriesItems,
   CountryCCA3,
+  companyCountriesItems,
 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useState } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";

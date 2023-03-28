@@ -7,7 +7,7 @@ import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { Suspense, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { CardPageDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";

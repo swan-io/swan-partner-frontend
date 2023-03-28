@@ -1,8 +1,8 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { env } from "../env.js";
-import { AccountCountry, getSdk, OnboardingRedirectInfoFragment } from "../graphql/partner.js";
+import { AccountCountry, OnboardingRedirectInfoFragment, getSdk } from "../graphql/partner.js";
 import { getClientAccessToken } from "./oauth2.js";
 
 const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));

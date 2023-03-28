@@ -20,12 +20,12 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
 import { CompanyAccountHolderFragment, GetOnboardingQuery } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, companyOnboardingRoutes, Router } from "../../utils/routes";
+import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
@@ -88,9 +88,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const route = Router.useRoute(companyOnboardingRoutes);
 
   const isStepperDisplayed =
-    !isNullish(route) &&
-    route.name !== "OnboardingRoot" &&
-    route.name !== "OnboardingPresentation";
+    !isNullish(route) && route.name !== "OnboardingRoot" && route.name !== "OnboardingPresentation";
 
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
@@ -249,8 +247,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         // Remove organisation steps except the first one
         .filter(
           step =>
-            step.id === "OnboardingOrganisation1" ||
-            !step.id.startsWith("OnboardingOrganisation"),
+            step.id === "OnboardingOrganisation1" || !step.id.startsWith("OnboardingOrganisation"),
         )
         .map(step => {
           // Organisation steps are grouped

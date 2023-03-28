@@ -1,6 +1,6 @@
 import { Link, LinkProps } from "@swan-io/lake/src/components/Link";
 import { Except } from "type-fest";
-import { t, TranslationKey } from "../utils/i18n";
+import { TranslationKey, t } from "../utils/i18n";
 
 type ArticleName = "companyAvailableCountries" | "individualAvailableCountries" | "uboDetails";
 

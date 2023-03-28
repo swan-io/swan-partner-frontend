@@ -8,7 +8,7 @@ import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";

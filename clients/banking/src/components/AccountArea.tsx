@@ -24,7 +24,7 @@ import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish"
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
 import { AccountAreaDocument, IdentificationLevelsFragment } from "../graphql/partner";
@@ -36,11 +36,11 @@ import { t } from "../utils/i18n";
 import { logFrontendError, setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import {
+  RouteName,
+  Router,
   accountMinimalRoutes,
   historyMenuRoutes,
   paymentMenuRoutes,
-  RouteName,
-  Router,
 } from "../utils/routes";
 import { useQueryWithErrorBoundary } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
@@ -221,12 +221,12 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     .with({ isIndividual: true, hasTransactions: false }, () => "actionRequired")
     .otherwise(() => "none");
 
-    const [, setAccountMembershipState] = usePersistedState<unknown>(
-      `swan_session_webBankingAccountMembershipState${projectConfiguration
-        .map(({ projectId }) => `_${projectId}`)
-        .getWithDefault("")}`,
-      {},
-    );
+  const [, setAccountMembershipState] = usePersistedState<unknown>(
+    `swan_session_webBankingAccountMembershipState${projectConfiguration
+      .map(({ projectId }) => `_${projectId}`)
+      .getWithDefault("")}`,
+    {},
+  );
 
   useEffect(() => {
     match(currentAccountMembership)

@@ -39,7 +39,7 @@ import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
   CancelStandingOrderDocument,
   GetStandingOrdersDocument,

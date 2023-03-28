@@ -28,9 +28,9 @@ import {
   GetCompanyInfoDocument,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { CompanySuggestion } from "../../utils/Pappers";
 import { locale, t } from "../../utils/i18n";
 import { logFrontendError } from "../../utils/logger";
-import { CompanySuggestion } from "../../utils/Pappers";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import {
   getRegistrationNumberName,
@@ -38,9 +38,9 @@ import {
 } from "../../utils/templateTranslations";
 import { parseOperationResult, urql } from "../../utils/urql";
 import {
+  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateRequired,
   validateVatNumber,
 } from "../../utils/validation";

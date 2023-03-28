@@ -1,5 +1,5 @@
 import { Future, Result } from "@swan-io/boxed";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { env } from "../env.js";
 
 export type OAuth2State =

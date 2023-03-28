@@ -31,9 +31,9 @@ import { locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
+  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateMaxLength,
   validateRequired,
 } from "../../utils/validation";

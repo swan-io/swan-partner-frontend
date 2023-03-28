@@ -12,13 +12,13 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { AddressSearchInput } from "@swan-io/shared-business/src/components/AddressSearchInput";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { countries, CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { AccountMembershipFragment, AddAccountMembershipDocument } from "../graphql/partner";
 import { locale, rifmDateProps, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -325,8 +325,7 @@ export const NewMembershipWizard = ({
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,
             canViewAccount: computedValues.canViewAccount,
-            consentRedirectUrl:
-              window.origin + Router.AccountMembersList({ accountMembershipId }),
+            consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
             email: computedValues.email,
             residencyAddress,
             restrictedTo: {

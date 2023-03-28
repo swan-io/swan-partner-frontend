@@ -24,8 +24,8 @@ import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nulli
 import {
   BeneficiaryForm,
   BeneficiaryFormRef,
-  BeneficiaryFormStep,
   EditorState as BeneficiaryFormState,
+  BeneficiaryFormStep,
   validateUbo,
 } from "@swan-io/shared-business/src/components/BeneficiaryForm";
 import {
@@ -36,7 +36,7 @@ import {
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -48,7 +48,7 @@ import {
   UboFragment,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
-import { locale, t, TranslationKey } from "../../utils/i18n";
+import { TranslationKey, locale, t } from "../../utils/i18n";
 import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";

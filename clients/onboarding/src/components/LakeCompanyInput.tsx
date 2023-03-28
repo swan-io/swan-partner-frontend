@@ -4,8 +4,8 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
 import { useEffect, useState } from "react";
 import { StyleSheet, Text } from "react-native";
-import { t } from "../utils/i18n";
 import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
+import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   itemTitle: {

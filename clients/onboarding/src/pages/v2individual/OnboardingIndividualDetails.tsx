@@ -31,7 +31,7 @@ import {
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import { getValidationErrorMessage, ServerInvalidFieldCode } from "../../utils/validation";
+import { ServerInvalidFieldCode, getValidationErrorMessage } from "../../utils/validation";
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },

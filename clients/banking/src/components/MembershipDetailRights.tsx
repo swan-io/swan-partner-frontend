@@ -11,7 +11,7 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useForm } from "react-ux-form";
-import { isMatching, match, P } from "ts-pattern";
+import { P, isMatching, match } from "ts-pattern";
 import {
   AccountMembershipFragment,
   ResumeAccountMembershipDocument,

@@ -23,7 +23,7 @@ import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/compon
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useMemo, useRef } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import {

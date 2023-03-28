@@ -26,11 +26,11 @@ import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { AccountAreaQuery, IdentificationStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { logFrontendError } from "../utils/logger";
-import { accountAreaRoutes, Router } from "../utils/routes";
+import { Router, accountAreaRoutes } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 

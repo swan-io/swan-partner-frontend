@@ -10,12 +10,12 @@ import fs from "node:fs";
 import { Http2SecureServer } from "node:http2";
 import path from "node:path";
 import url from "node:url";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
+  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
-  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {

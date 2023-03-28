@@ -1,6 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { createGroup, createRouter } from "@swan-io/chicane";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 export const Router = createRouter(

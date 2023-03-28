@@ -14,8 +14,8 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import {
-  companyCountriesItems,
   CountryCCA3,
+  companyCountriesItems,
 } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -34,9 +34,9 @@ import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
+  ServerInvalidFieldCode,
   extractServerValidationErrors,
   getValidationErrorMessage,
-  ServerInvalidFieldCode,
   validateEmail,
   validateRequired,
 } from "../../utils/validation";

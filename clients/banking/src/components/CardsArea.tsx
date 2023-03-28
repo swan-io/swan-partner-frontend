@@ -10,7 +10,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { useQuery } from "urql";
 import {
   AccountAreaQuery,

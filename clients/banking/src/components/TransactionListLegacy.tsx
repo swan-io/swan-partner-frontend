@@ -10,7 +10,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactText, useCallback, useMemo, useState } from "react";
 import { LayoutChangeEvent, ScrollView, StyleSheet, Text, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { t } from "../utils/i18n";
 import { TransactionProps } from "../utils/transactions";
 import { BottomCard } from "./BottomCard";

@@ -18,7 +18,7 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";

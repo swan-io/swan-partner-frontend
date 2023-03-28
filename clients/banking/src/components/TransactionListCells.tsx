@@ -7,7 +7,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 

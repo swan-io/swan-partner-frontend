@@ -194,6 +194,8 @@
   "shareholderForm.shareLabel": "Total percentage of capital held",
   "shareholderForm.shareholderTypeLabel": "Type of control exercised",
   "step.finalize.description": "Please grab your phone to finalize the process.",
+  "step.finalize.terms": "By clicking here, I accept with {firstLink} and {secondLink}",
+  "step.finalize.termsError": "You have to accept to finalize",
   "step.finalize.title": "Thanks you, you're almost there!",
   "step.finalizeError.address": "Residency Street Name",
   "step.finalizeError.businessActivity": "Business Activity",

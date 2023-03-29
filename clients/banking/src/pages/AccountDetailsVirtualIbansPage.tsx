@@ -33,7 +33,7 @@ import {
   CancelVirtualIbanDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import * as iban from "../utils/iban";
+import { printIbanFormat } from "../utils/iban";
 import { parseOperationResult } from "../utils/urql";
 
 const styles = StyleSheet.create({
@@ -59,7 +59,7 @@ type Edge = GetEdge<Account["virtualIbanEntries"]>;
 type ExtraInfo = { reload: () => void };
 
 const IbanCell = ({ IBAN }: { IBAN: string }) => {
-  const formattedIban = useMemo(() => iban.printFormat(IBAN), [IBAN]);
+  const formattedIban = useMemo(() => printIbanFormat(IBAN), [IBAN]);
 
   return (
     <CopyableRegularTextCell

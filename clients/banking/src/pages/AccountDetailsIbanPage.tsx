@@ -17,7 +17,7 @@ import { match } from "ts-pattern";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import { AccountDetailsIbanPageDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
-import * as iban from "../utils/iban";
+import { printIbanFormat } from "../utils/iban";
 import { useQueryWithErrorBoundary } from "../utils/urql";
 import { NotFoundPage } from "./NotFoundPage";
 
@@ -39,7 +39,7 @@ const joinNonEmpty = (array: (string | null | undefined)[], separator: string) =
 const IBANCopyLine = ({ IBAN }: { IBAN: string }) => (
   <LakeCopyTextLine
     label={t("accountDetails.iban.ibanLabel")}
-    text={useMemo(() => iban.printFormat(IBAN), [IBAN])}
+    text={useMemo(() => printIbanFormat(IBAN), [IBAN])}
   />
 );
 

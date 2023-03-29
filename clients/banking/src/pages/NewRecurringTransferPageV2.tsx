@@ -34,8 +34,7 @@ import {
   ValidIbanInformationFragment,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
-import * as iban from "../utils/iban";
-import { getIbanValidation } from "../utils/iban";
+import { getIbanValidation, printIbanFormat } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
   REFERENCE_MAX_LENGTH,
@@ -112,7 +111,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
   const { Field, submitForm } = useForm({
     creditorIban: {
       initialValue: "",
-      sanitize: iban.printFormat,
+      sanitize: printIbanFormat,
       validate: async value => {
         const result = await getIbanValidation(client, value);
 
@@ -365,7 +364,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                               <LakeTextInput
                                 nativeID={id}
                                 placeholder={t("recurringTransfer.new.iban.placeholder")}
-                                value={iban.printFormat(value)}
+                                value={printIbanFormat(value)}
                                 validating={validating}
                                 error={error}
                                 valid={valid}

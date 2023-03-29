@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import { ErrorBoundary } from "@sentry/react";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -106,10 +106,7 @@ export const AccountDetailsArea = ({
             otherLabel={t("common.tabs.other")}
           />
 
-          <Sentry.ErrorBoundary
-            key={route?.name}
-            fallback={({ error }) => <ErrorView error={error} />}
-          >
+          <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
             {match(route)
               .with({ name: "AccountDetailsIban" }, () => (
                 <ScrollView
@@ -169,7 +166,7 @@ export const AccountDetailsArea = ({
 
               .with(P.nullish, () => null)
               .exhaustive()}
-          </Sentry.ErrorBoundary>
+          </ErrorBoundary>
         </>
       )}
     </ResponsiveContainer>

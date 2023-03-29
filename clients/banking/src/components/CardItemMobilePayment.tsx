@@ -46,7 +46,7 @@ type Card = NonNullable<CardPageQuery["card"]>;
 
 type CompleteDigitalCard = DigitalCardFragment & { __typename: "CompleteDigitalCard" };
 
-export const DigitalCardTile = ({
+const DigitalCardTile = ({
   digitalCard,
   onPressCancel,
 }: {

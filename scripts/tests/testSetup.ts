@@ -6,7 +6,7 @@ import customParseFormat from "dayjs/plugin/customParseFormat";
 import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
-import * as dotenv from "dotenv";
+import dotenv from "dotenv";
 import path from "path";
 import { expect } from "vitest";
 

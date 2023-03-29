@@ -43,7 +43,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export const getTransactionIcon = (transaction: Transaction): IconName =>
+const getTransactionIcon = (transaction: Transaction): IconName =>
   match(transaction.__typename)
     .with("CardTransaction", () => "payment-regular" as const)
     .with("FeeTransaction", () => "arrow-swap-regular" as const)
@@ -177,7 +177,7 @@ export const TransactionExecutionDateCell = ({ transaction }: { transaction: Tra
   );
 };
 
-export const TransactionAmount = ({ transaction }: { transaction: Transaction }) => (
+const TransactionAmount = ({ transaction }: { transaction: Transaction }) => (
   <LakeHeading
     level={4}
     variant="h5"

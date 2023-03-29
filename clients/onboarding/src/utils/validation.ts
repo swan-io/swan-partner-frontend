@@ -8,7 +8,6 @@ import {
   UpdateValidationErrorsFragment,
   ValidationFieldErrorCode,
 } from "../graphql/unauthenticated";
-import { isValidBirthDate } from "./date";
 import { t } from "./i18n";
 
 export const validateRequired: Validator<string> = value => {
@@ -20,42 +19,6 @@ export const validateRequired: Validator<string> = value => {
 export const validateEmail: Validator<string> = value => {
   if (!/.+@.+\..{2,}/.test(value)) {
     return t("error.invalidEmail");
-  }
-};
-
-export const validateBirthDate: Validator<string> = value => {
-  if (!isValidBirthDate(value)) {
-    return t("error.invalidDate");
-  }
-};
-
-export const validateIndividualTaxNumber: Validator<string> = value => {
-  if (!value) {
-    return;
-  }
-  // accept 11 digits
-  if (!/^\d{11}$/.test(value)) {
-    return t("common.form.invalidTaxIdentificationNumber");
-  }
-};
-
-export const validateMandatoryCompanyTaxNumber: Validator<string> = value => {
-  if (!value) {
-    return t("error.requiredField");
-  }
-  // accept 10 or 11 digits
-  if (!/^\d{10,11}$/.test(value)) {
-    return t("common.form.invalidTaxIdentificationNumber");
-  }
-};
-
-export const validateCompanyTaxNumber: Validator<string> = value => {
-  if (!value) {
-    return;
-  }
-  // accept 10 or 11 digits
-  if (!/^\d{10,11}$/.test(value)) {
-    return t("common.form.invalidTaxIdentificationNumber");
   }
 };
 
@@ -122,17 +85,5 @@ export const validateVatNumber: Validator<string> = value => {
 
   if (!isValidVatNumber(cleaned)) {
     return t("common.form.invalidVatNumber");
-  }
-};
-
-export const validateBooleanRequired: Validator<boolean | undefined> = value => {
-  if (value == null || !value) {
-    return t("error.requiredField");
-  }
-};
-
-export const validateNullableRequired: Validator<string | undefined> = value => {
-  if (value == null || !value) {
-    return t("error.requiredField");
   }
 };

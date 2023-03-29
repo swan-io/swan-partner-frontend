@@ -369,24 +369,20 @@ query AccountDetailsSettingsPage($accountId: ID!) {
         ... on AccountHolderCompanyInfo {
           vatNumber
           registrationNumber
+          taxIdentificationNumber
+        }
+        ... on AccountHolderIndividualInfo {
+          taxIdentificationNumber
         }
       }
-    }
-  }
-}
-
-mutation UpdateIndividualAccount($input: UpdateAccountInput!) {
-  updateAccount(input: $input) {
-    __typename
-    ... on UpdateAccountSuccessPayload {
-      account {
-        id
+      residencyAddress {
+        country
       }
     }
   }
 }
 
-mutation UpdateCompanyAccount(
+mutation UpdateAccount(
   $updateAccountInput: UpdateAccountInput!
   $updateAccountHolderInput: UpdateAccountHolderInput!
 ) {

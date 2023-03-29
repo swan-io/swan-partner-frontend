@@ -176,6 +176,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
                       onValueChange={onChange}
                       holderType="company"
                       onlyIconHelp={small}
+                      hideError={true}
                     />
                   )}
                 </Field>

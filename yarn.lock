@@ -1269,7 +1269,7 @@
   dependencies:
     tslib "^2.4.0"
 
-"@formatjs/icu-messageformat-parser@2.3.0":
+"@formatjs/icu-messageformat-parser@2.3.0", "@formatjs/icu-messageformat-parser@^2.3.0":
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-2.3.0.tgz#8e8fd577c3e39454ef14bba4963f2e1d5f2cc46c"
   integrity sha512-xqtlqYAbfJDF4b6e4O828LBNOWXrFcuYadqAbYORlDRwhyJ2bH+xpUBPldZbzRGUN2mxlZ4Ykhm7jvERtmI8NQ==
@@ -1882,6 +1882,13 @@
   dependencies:
     got "^12.5.1"
 
+"@lokalise/node-api@^9.6.1":
+  version "9.7.0"
+  resolved "https://registry.yarnpkg.com/@lokalise/node-api/-/node-api-9.7.0.tgz#52c6e78a1d9148fa8bf228be50d0073b0f9b72d1"
+  integrity sha512-DAcPH5CWBiqNB2rRZVvhqQYo+mjV+AfGN6BS6vOb8Fkl/qz1TsXjriZ1GBkd65WBPl7oAmKp7REYEvXbTFcX0w==
+  dependencies:
+    got "^12.5.1"
+
 "@lukeed/ms@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@lukeed/ms/-/ms-2.0.1.tgz#3c2bbc258affd9cc0e0cc7828477383c73afa6ee"
@@ -2072,6 +2079,19 @@
     ts-pattern "^4.2.1"
     urql "^3.0.4"
     uuid "^9.0.0"
+
+"@swan-io/lokalise-sync-cli@1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/lokalise-sync-cli/-/lokalise-sync-cli-1.0.3.tgz#39019899e788ca7a73a51f6aaca4c6a6f7ef94e1"
+  integrity sha512-ib4W/nZsdXbcFdbcIU0iGYWFvrHSzspWT3gbCRpmx3zMPQwQN45OA2FIUCl6diqMFVjE0WPnLlBHmBYuyvaSlA==
+  dependencies:
+    "@formatjs/icu-messageformat-parser" "^2.3.0"
+    "@lokalise/node-api" "^9.6.1"
+    adm-zip "^0.5.10"
+    chalk "^5.2.0"
+    commander "^10.0.0"
+    glob "^9.2.1"
+    ts-pattern "^4.2.1"
 
 "@swan-io/shared-business@1.4.3":
   version "1.4.3"
@@ -2581,7 +2601,7 @@ acorn@^8.1.0, acorn@^8.5.0, acorn@^8.8.0, acorn@^8.8.1, acorn@^8.8.2:
   resolved "https://registry.yarnpkg.com/acorn/-/acorn-8.8.2.tgz#1b2f25db02af965399b9776b0c2c391276d37c4a"
   integrity sha512-xjIYgE8HBrkpd/sJqOGNspf8uHG+NOHGOw6a/Urj8taM2EXfdNAH2oFcPeIFfsv3+kz/mJrS5VuMqbNLjCa2vw==
 
-adm-zip@0.5.10:
+adm-zip@0.5.10, adm-zip@^0.5.10:
   version "0.5.10"
   resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.10.tgz#4a51d5ab544b1f5ce51e1b9043139b639afff45b"
   integrity sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==
@@ -3018,7 +3038,7 @@ chai@^4.3.7:
     pathval "^1.1.1"
     type-detect "^4.0.5"
 
-chalk@5.2.0:
+chalk@5.2.0, chalk@^5.2.0:
   version "5.2.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-5.2.0.tgz#249623b7d66869c673699fb66d65723e54dfcfb3"
   integrity sha512-ree3Gqw/nazQAPuJJEy+avdl7QfZMcUvmHIKgEZkGL+xOBzRvup5Hxo6LHuMceSxOabuJLJm5Yp/92R9eMmMvA==
@@ -4258,7 +4278,7 @@ glob-parent@^6.0.2:
   dependencies:
     is-glob "^4.0.3"
 
-glob@9.3.2:
+glob@9.3.2, glob@^9.2.1:
   version "9.3.2"
   resolved "https://registry.yarnpkg.com/glob/-/glob-9.3.2.tgz#8528522e003819e63d11c979b30896e0eaf52eda"
   integrity sha512-BTv/JhKXFEHsErMte/AnfiSv8yYOLLiyH2lTg8vn02O21zWFgHPTfxtgn1QRe7NRgggUhC8hacR2Re94svHqeA==

@@ -39,7 +39,7 @@
   "lint-staged": {
     "*": "prettier --ignore-unknown --write",
     "**/*.{js,ts,tsx}": "eslint --fix",
-    "clients/**/src/locales/*.json": "yarn i18n clean",
+    "clients/**/src/locales/*.json": "lokalise clean",
     "clients/**/src/**/*.gql": "yarn graphql-codegen"
   },
   "resolutions": {
@@ -58,6 +58,7 @@
     "@lokalise/node-api": "9.4.0",
     "@sentry/cli": "2.15.2",
     "@swan-io/boxed": "0.12.1",
+    "@swan-io/lokalise-sync-cli": "1.0.3",
     "@testing-library/jest-dom": "5.16.5",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.3",

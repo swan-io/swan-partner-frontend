@@ -87,12 +87,6 @@ export const validateVatNumber: Validator<string> = value => {
   }
 };
 
-export const validateSepaBeneficiaryNameLength: Validator<string> = value => {
-  if (value.length < 2) {
-    return t("error.invalidCreditorName");
-  }
-};
-
 // Whitelisting the first 8 blocks of unicode (the 9th being cyrilic)
 // And then whitelisting General punctuation, mathematical notations and emojis
 // For reference : https://jrgraphix.net/r/Unicode/

@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import { ErrorBoundary } from "@sentry/react";
 import { Array, Dict, Option, Result } from "@swan-io/boxed";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -617,7 +617,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               )}
 
               <View style={styles.content} nativeID={CONTENT_ID} focusable={true}>
-                <Sentry.ErrorBoundary
+                <ErrorBoundary
                   key={route?.name}
                   fallback={({ error }) => <ErrorView error={error} />}
                 >
@@ -819,7 +819,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     .otherwise(() => (
                       <LoadingView color={colors.current[500]} />
                     ))}
-                </Sentry.ErrorBoundary>
+                </ErrorBoundary>
               </View>
             </ScrollView>
 

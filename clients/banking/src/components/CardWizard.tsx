@@ -62,7 +62,7 @@ type StepDefault = {
   memberships?: Member[];
 };
 
-export type Step = StepDefault &
+type Step = StepDefault &
   (
     | { name: "CardProductType" }
     | { name: "CardProductFormat"; cardProduct: CardProduct }

@@ -97,12 +97,6 @@ export const paymentRoutesV2 = [
   "AccountPaymentsRecurringTransferNew",
 ] as const;
 
-export const memberMenuRoutes = [
-  "AccountMembers",
-  "AccountMembersNew",
-  "AccountMembersEdit",
-] as const;
-
 export const accountAreaRoutes = [
   "AccountTransactionsArea",
   "AccountPaymentsArea",

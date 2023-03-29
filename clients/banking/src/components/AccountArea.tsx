@@ -706,19 +706,29 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   ),
                               )
 
-                              .with({ name: "AccountPaymentsArea" }, () =>
-                                isNullish(accountId) ? (
-                                  <ErrorView />
-                                ) : (
-                                  <PaymentsAreaV2
-                                    accountId={accountId}
-                                    accountMembershipId={accountMembershipId}
-                                    newStandingOrderIsVisible={
-                                      canInitiatePaymentsToNewBeneficiaries
-                                    }
-                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                  />
-                                ),
+                              .with(
+                                { name: "AccountPaymentsArea" },
+                                ({ params: { consentId, standingOrder, status: consentStatus } }) =>
+                                  isNullish(accountId) ? (
+                                    <ErrorView />
+                                  ) : (
+                                    <PaymentsAreaV2
+                                      accountId={accountId}
+                                      accountMembershipId={accountMembershipId}
+                                      newStandingOrderIsVisible={
+                                        canInitiatePaymentsToNewBeneficiaries
+                                      }
+                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                      transferConsent={
+                                        consentId != null && consentStatus != null
+                                          ? Option.Some({
+                                              status: consentStatus,
+                                              isStandingOrder: isNotEmpty(standingOrder ?? ""),
+                                            })
+                                          : Option.None()
+                                      }
+                                    />
+                                  ),
                               )
                               .with({ name: "AccountCardsArea" }, () => (
                                 <CardsArea

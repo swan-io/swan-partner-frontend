@@ -135,11 +135,15 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
     },
     transferAmount: {
       initialValue: "",
-      sanitize: value => value.replace(/,/g, ".").replace(/[^0-9.]/g, ""),
-      validate: value => {
+      sanitize: value => value.replace(/,/g, "."),
+      validate: (value, { getFieldState }) => {
         const amount = Number(value);
+        const hasFixedAmount = getFieldState("hasFixedAmount").value;
 
-        if (Number.isNaN(amount) || value === "" || amount === 0) {
+        if (Number.isNaN(amount) || value === "" || amount < 0) {
+          return t("error.invalidTransferAmount");
+        }
+        if (hasFixedAmount && amount === 0) {
           return t("error.invalidTransferAmount");
         }
       },
@@ -182,7 +186,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
       ) {
         const consentRedirectUrl =
           window.location.origin +
-          Router.AccountTransactionsListRoot({ accountMembershipId }) +
+          Router.AccountPaymentsRoot({ accountMembershipId }) +
           `?${new URLSearchParams({ standingOrder: "true" }).toString()}`;
 
         const input: ScheduleStandingOrderInput = {
@@ -245,7 +249,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                   description: t("recurringTransfer.consent.success.description"),
                   autoClose: false,
                 });
-                Router.replace("AccountTransactionsListRoot", { accountMembershipId });
+                Router.replace("AccountPaymentsRoot", { accountMembershipId });
               })
               .exhaustive();
           })

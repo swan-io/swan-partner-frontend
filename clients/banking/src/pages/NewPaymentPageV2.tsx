@@ -132,11 +132,11 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     },
     transferAmount: {
       initialValue: "",
-      sanitize: value => value.replace(/,/g, ".").replace(/[^0-9.]/g, ""),
+      sanitize: value => value.replace(/,/g, "."),
       validate: value => {
         const amount = Number(value);
 
-        if (Number.isNaN(amount) || value === "" || amount === 0) {
+        if (Number.isNaN(amount) || value === "" || amount <= 0) {
           return t("error.invalidTransferAmount");
         }
       },

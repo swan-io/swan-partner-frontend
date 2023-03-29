@@ -26,6 +26,7 @@ type CountrySelectProps<T extends CountryCCA3> = {
   items: CountryItem<T>[];
   holderType: "individual" | "company";
   onlyIconHelp: boolean;
+  hideError?: boolean;
 };
 
 export function OnboardingCountryPicker<T extends CountryCCA3>({
@@ -35,6 +36,7 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   items,
   holderType,
   onlyIconHelp,
+  hideError,
 }: CountrySelectProps<T>) {
   return (
     <LakeLabel
@@ -43,7 +45,7 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
         <CountryPicker
           items={items}
           value={value}
-          hideErrors={true}
+          hideErrors={hideError}
           onValueChange={onValueChange}
         />
       )}

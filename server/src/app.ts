@@ -105,7 +105,7 @@ export const start = async ({
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
 
-    try {
+    /*try {
       await Promise.all([
         assertIsBoundToLocalhost(BANKING_HOST),
         assertIsBoundToLocalhost(ONBOARDING_HOST),
@@ -113,7 +113,7 @@ export const start = async ({
     } catch (err) {
       console.error(err);
       process.exit(1);
-    }
+    }*/
 
     if (httpsConfig != null) {
       if (!fs.statSync(httpsConfig.key).isFile()) {
@@ -161,7 +161,8 @@ export const start = async ({
    */
   await app.register(secureSession, {
     cookieName: "swan_session_id",
-    key: env.COOKIE_KEY,
+    secret: "averylogphrasebiggerthanthirtytwochars",
+    salt: "mq9hDxBVDbspDR6n",
     cookie: {
       path: "/",
       secure: true,

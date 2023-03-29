@@ -121,7 +121,6 @@ export const OnboardingCompanyDocuments = ({
                   requiredDocumentTypes={requiredDocumentTypes}
                   onChange={onDocumentsChange}
                   getAwsUrl={getAwsUrl}
-                  withoutRepresentationRadio={true}
                   onboardingLanguage={onboardingLanguage}
                 />
               </DocumentsStepTile>

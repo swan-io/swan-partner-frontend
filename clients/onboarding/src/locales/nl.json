@@ -43,7 +43,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "Bent u geregistreerd bij {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Uw bedrijf",
   "company.step.organisation1.organisationPlaceholder": "Type uw bedrijfsnaam",
-  "company.step.organisation1.registrationNumberLabel": "Wat is uw registratienummer (KvK)?",
+  "company.step.organisation1.registrationNumberLabel": "Wat is uw registratienummer{numberName}?",
   "company.step.organisation1.registrationNumberPlaceholder": "Type uw nummer",
   "company.step.organisation1.taxNumberLabel": "Wat is uw fiscaal identificatienummer?",
   "company.step.organisation1.taxNumberPlaceholder": "Moet 10 of 11 cijfers zijn",

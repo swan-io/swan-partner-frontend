@@ -43,7 +43,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "¿Estás registrado en {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Tu organización",
   "company.step.organisation1.organisationPlaceholder": "Escribe el nombre de tu organización",
-  "company.step.organisation1.registrationNumberLabel": "¿Cuál es tu número de registro (SIREN)?",
+  "company.step.organisation1.registrationNumberLabel": "¿Cuál es tu número de registro{numberName}?",
   "company.step.organisation1.registrationNumberPlaceholder": "Escribe tu número",
   "company.step.organisation1.taxNumberLabel": "¿Cuál es tu número de identificación fiscal?",
   "company.step.organisation1.taxNumberPlaceholder": "Debe tener 10 u 11 dígitos",

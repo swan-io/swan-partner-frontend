@@ -179,12 +179,6 @@ export const rifmDateProps = getRifmProps({
   maxLength: 8,
 });
 
-export const rifmTaxIdentificationNumberProps = getRifmProps({
-  accept: "numeric",
-  charMap: { 3: "/", 7: "/" },
-  maxLength: 11,
-});
-
 type Language = {
   name: string;
   native: string;

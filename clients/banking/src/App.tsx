@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import { ErrorBoundary } from "@sentry/react";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { colors } from "@swan-io/lake/src/constants/design";
@@ -32,7 +32,7 @@ export const App = () => {
   ]);
 
   return (
-    <Sentry.ErrorBoundary
+    <ErrorBoundary
       key={route?.name}
       fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
     >
@@ -69,6 +69,6 @@ export const App = () => {
       </UrqlProvider>
 
       <ToastStack />
-    </Sentry.ErrorBoundary>
+    </ErrorBoundary>
   );
 };

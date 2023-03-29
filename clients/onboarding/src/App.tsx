@@ -1,4 +1,4 @@
-import * as Sentry from "@sentry/react";
+import { ErrorBoundary } from "@sentry/react";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
@@ -85,7 +85,7 @@ export const App = () => {
   const route = Router.useRoute(["OnboardingArea", "PopupCallback"]);
 
   return (
-    <Sentry.ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
+    <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
       <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
         <UrqlProvider value={urql}>
           {match(route)
@@ -104,6 +104,6 @@ export const App = () => {
       </Suspense>
 
       <ToastStack />
-    </Sentry.ErrorBoundary>
+    </ErrorBoundary>
   );
 };

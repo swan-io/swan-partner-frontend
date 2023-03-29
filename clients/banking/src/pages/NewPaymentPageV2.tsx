@@ -34,8 +34,7 @@ import {
   ValidIbanInformationFragment,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
-import * as iban from "../utils/iban";
-import { getIbanValidation } from "../utils/iban";
+import { getIbanValidation, printIbanFormat } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
   REFERENCE_MAX_LENGTH,
@@ -109,7 +108,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
   const { Field, submitForm } = useForm({
     creditorIban: {
       initialValue: "",
-      sanitize: iban.printFormat,
+      sanitize: printIbanFormat,
       validate: async value => {
         const result = await getIbanValidation(client, value);
 
@@ -356,7 +355,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                                 <LakeTextInput
                                   nativeID={id}
                                   placeholder={t("transfer.new.iban.placeholder")}
-                                  value={iban.printFormat(value)}
+                                  value={printIbanFormat(value)}
                                   validating={validating}
                                   error={error}
                                   valid={valid}
@@ -514,11 +513,11 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                 type="view"
                 color="gray"
                 render={() => (
-                  <LakeText color={colors.gray[900]}>{iban.printFormat(accountIban)}</LakeText>
+                  <LakeText color={colors.gray[900]}>{printIbanFormat(accountIban)}</LakeText>
                 )}
                 actions={
                   <LakeCopyButton
-                    valueToCopy={iban.printFormat(accountIban)}
+                    valueToCopy={printIbanFormat(accountIban)}
                     copyText={t("copyButton.copyTooltip")}
                     copiedText={t("copyButton.copiedTooltip")}
                   />

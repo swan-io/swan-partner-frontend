@@ -1,5 +1,4 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
   LANGUAGE_FALLBACK,
@@ -33,7 +32,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
 const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
-export type SupportedLanguage = (typeof supportedLanguages)[number];
+type SupportedLanguage = (typeof supportedLanguages)[number];
 
 export type TranslationKey = keyof typeof translationEN;
 export type TranslationParams = Record<string, string | number>;
@@ -153,12 +152,6 @@ export const formatNestedMessage = (
     isValidElement(item) ? cloneElement(item, { key: `t-${key}-${index}` }) : item,
   );
 };
-
-export const rifmDateProps = getRifmProps({
-  accept: "numeric",
-  charMap: { 2: "/", 4: "/" },
-  maxLength: 8,
-});
 
 type Language = {
   name: string;

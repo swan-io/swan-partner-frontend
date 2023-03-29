@@ -9,7 +9,7 @@ const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 start({
   mode: env.NODE_ENV,
   httpsConfig:
-    false //env.NODE_ENV === "development"
+    env.NODE_ENV === "development"
       ? {
           key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
           cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),

@@ -89,8 +89,5 @@
     "vite": "4.2.1",
     "vitest": "0.29.7",
     "yaml": "2.2.1"
-  },
-  "dependencies": {
-    "@fastify/secure-session": "6.0.0"
   }
 }

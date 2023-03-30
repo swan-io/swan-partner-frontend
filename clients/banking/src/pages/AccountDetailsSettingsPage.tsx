@@ -15,7 +15,12 @@ import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotEmpty,
+  isNotNullish,
+  isNullish,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { getTermsAndConditionsPathByAccountCountryAndLocale } from "@swan-io/shared-business/src/constants/termsAndConditions";
@@ -245,16 +250,17 @@ export const AccountDetailsSettingsPage = ({
           </>
         )}
 
-        {shouldEditTaxIdentificationNumber && isNullish(holderInfo?.taxIdentificationNumber) && (
-          <>
-            <LakeAlert
-              variant="info"
-              title={t("accountDetails.settings.taxIdentificationNumberInfo")}
-            />
+        {shouldEditTaxIdentificationNumber &&
+          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) && (
+            <>
+              <LakeAlert
+                variant="info"
+                title={t("accountDetails.settings.taxIdentificationNumberInfo")}
+              />
 
-            <Space height={20} />
-          </>
-        )}
+              <Space height={20} />
+            </>
+          )}
 
         {isCompany && (
           <LakeLabel

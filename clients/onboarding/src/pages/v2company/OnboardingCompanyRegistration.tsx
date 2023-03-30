@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
   linkIcon: {
     marginLeft: 4,
     display: "inline-block",
-    textAlignVertical: "center",
+    verticalAlign: "middle",
   },
 });
 

@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
   },
 
   panBottomSpacer: {
+    pointerEvents: "none",
     height: "9.5%",
   },
   bottomLineRow: {
@@ -170,12 +171,7 @@ export const MaskedCard = ({
                   {formatPan(pan)}
                 </Text>
 
-                <View
-                  pointerEvents="none"
-                  focusable={false}
-                  collapsable={true}
-                  style={styles.panBottomSpacer}
-                />
+                <View focusable={false} collapsable={true} style={styles.panBottomSpacer} />
 
                 <Box direction="row" alignItems="center" style={styles.bottomLineRow}>
                   <View style={styles.expiryDateWrapper}>

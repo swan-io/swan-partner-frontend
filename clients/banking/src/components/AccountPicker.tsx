@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[100],
   },
   bottomGradient: {
+    pointerEvents: "none",
     height: 50,
     position: "absolute",
     left: 0,
@@ -233,7 +234,6 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
 
               <View
                 style={[styles.bottomGradient, showScrollAid && styles.visibleBottomGradient]}
-                pointerEvents="none"
               />
             </View>
           ),

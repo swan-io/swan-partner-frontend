@@ -399,7 +399,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                           value={dirtyValue ?? ""}
                           onChangeText={setDirtyValue}
                           onBlur={sanitizeInput}
-                          keyboardType="decimal-pad"
+                          inputMode="decimal"
                           error={
                             validation?.includes("InvalidAmount") ?? false
                               ? t("common.form.invalidAmount")

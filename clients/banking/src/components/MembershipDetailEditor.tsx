@@ -608,7 +608,7 @@ export const MembershipDetailEditor = ({
                         valid={valid}
                         error={error}
                         onChangeText={onChange}
-                        keyboardType="phone-pad"
+                        inputMode="tel"
                       />
                     )}
                   />

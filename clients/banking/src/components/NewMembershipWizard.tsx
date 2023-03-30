@@ -452,7 +452,7 @@ export const NewMembershipWizard = ({
                                 valid={valid}
                                 error={error}
                                 onChangeText={onChange}
-                                keyboardType="phone-pad"
+                                inputMode="tel"
                               />
                             )}
                           />

@@ -1,6 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
-import { useTransferRedirectToast } from "../hooks/useTransferRedirectToast";
+import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NewPaymentPageV2 } from "../pages/NewPaymentPageV2";
 import { NewRecurringTransferPageV2 } from "../pages/NewRecurringTransferPageV2";
 import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
@@ -23,7 +23,7 @@ export const PaymentsAreaV2 = ({
 }: Props) => {
   const route = Router.useRoute(paymentRoutesV2);
 
-  useTransferRedirectToast(transferConsent, () =>
+  useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountPaymentsRoot", { accountMembershipId }),
   );
 

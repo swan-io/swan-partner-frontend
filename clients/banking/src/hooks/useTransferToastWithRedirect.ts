@@ -6,7 +6,7 @@ import { useEffect } from "react";
 import { match, P } from "ts-pattern";
 import { t } from "../utils/i18n";
 
-export const useTransferRedirectToast = (
+export const useTransferToastWithRedirect = (
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>,
   replace: () => void,
 ) => {

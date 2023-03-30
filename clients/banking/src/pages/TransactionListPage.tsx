@@ -25,7 +25,7 @@ import {
 } from "../components/TransactionListFilter";
 import { Amount } from "../graphql/graphcache";
 import { TransactionListPageDocument } from "../graphql/partner";
-import { useTransferRedirectToast } from "../hooks/useTransferRedirectToast";
+import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -75,7 +75,7 @@ export const TransactionListPage = ({
   params,
   canQueryCardOnTransaction,
 }: Props) => {
-  useTransferRedirectToast(transferConsent, () =>
+  useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountTransactionsListRoot", { accountMembershipId }),
   );
 

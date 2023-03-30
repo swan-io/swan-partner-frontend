@@ -80,7 +80,7 @@ export const ProfileButton = memo<Props>(
                 <View style={styles.informations}>
                   <LakeText
                     numberOfLines={1}
-                    selectable={false}
+                    userSelect="none"
                     variant="smallMedium"
                     color={colors.gray[700]}
                   >

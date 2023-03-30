@@ -180,11 +180,11 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
                     <Space width={16} />
 
                     <View>
-                      <LakeHeading level={3} variant="h5" selectable={false}>
+                      <LakeHeading level={3} variant="h5" userSelect="none">
                         {getMemberName({ accountMembership: node })}
                       </LakeHeading>
 
-                      <LakeText selectable={false}>{node.email}</LakeText>
+                      <LakeText userSelect="none">{node.email}</LakeText>
                     </View>
                   </View>
                 </Tile>

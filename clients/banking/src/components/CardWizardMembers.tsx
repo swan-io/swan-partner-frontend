@@ -179,11 +179,11 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
                     <Space width={16} />
 
                     <View style={styles.names}>
-                      <LakeHeading level={3} variant="h5" selectable={false} style={styles.ellpsis}>
+                      <LakeHeading level={3} variant="h5" userSelect="none" style={styles.ellpsis}>
                         {getMemberName({ accountMembership: node })}
                       </LakeHeading>
 
-                      <LakeText selectable={false} style={styles.ellpsis}>
+                      <LakeText userSelect="none" style={styles.ellpsis}>
                         {node.email}
                       </LakeText>
                     </View>

@@ -11,10 +11,12 @@ const styles = StyleSheet.create({
   itemTitle: {
     ...typography.bodyLarge,
     lineHeight: typography.lineHeights.title,
+    userSelect: "none",
   },
   itemSubtitle: {
     ...typography.bodySmall,
     color: colors.gray[400],
+    userSelect: "none",
   },
 });
 
@@ -76,11 +78,11 @@ export const LakeCompanyInput = ({
       onSelectItem={selectCompany}
       renderItem={item => (
         <>
-          <Text numberOfLines={1} selectable={false} style={styles.itemTitle}>
+          <Text numberOfLines={1} style={styles.itemTitle}>
             {item.siren} - {item.name}
           </Text>
 
-          <Text numberOfLines={1} selectable={false} style={styles.itemSubtitle}>
+          <Text numberOfLines={1} style={styles.itemSubtitle}>
             {item.city}
           </Text>
         </>

@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     color: colors.gray[500],
     borderTopLeftRadius: radii[4],
     borderBottomLeftRadius: radii[4],
+    userSelect: "none",
   },
   active: {
     color: colors.current[500],
@@ -117,7 +118,6 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
               to={item.to}
               accessibilityLabel={item.name}
               onPress={onPressLink}
-              selectable={false}
               numberOfLines={1}
               style={({ hovered }) => [
                 styles.navItem,

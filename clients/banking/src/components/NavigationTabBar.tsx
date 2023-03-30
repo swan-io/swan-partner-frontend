@@ -276,7 +276,7 @@ export const NavigationTabBar = ({
 
                             <LakeText
                               numberOfLines={1}
-                              selectable={false}
+                              userSelect="none"
                               variant="medium"
                               color={active ? colors.current[500] : colors.gray[500]}
                             >

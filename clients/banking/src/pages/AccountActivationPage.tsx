@@ -755,7 +755,7 @@ export const AccountActivationPage = ({
                     <Icon name="chat-help-filled" size={20} color={colors.partner.primary} />
                     <Space width={8} />
 
-                    <LakeText variant="smallMedium" color={colors.gray[900]} selectable={false}>
+                    <LakeText variant="smallMedium" color={colors.gray[900]} userSelect="none">
                       {t("needHelpButton.text")}
                     </LakeText>
                   </LakeButton>

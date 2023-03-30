@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   cellContainerLarge: {
-    paddingHorizontal: spacings[24],
+    paddingLeft: spacings[24],
+    paddingRight: 54,
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",
@@ -30,6 +31,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   cellContainer: {
+    paddingRight: 28,
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",

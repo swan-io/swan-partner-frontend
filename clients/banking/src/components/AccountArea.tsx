@@ -23,7 +23,14 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
@@ -141,6 +148,16 @@ const defaultIdentificationLevels: IdentificationLevelsFragment = {
 
 export const AccountArea = ({ accountMembershipId }: Props) => {
   const { desktop } = useResponsive();
+
+  const [isScrolled, setIsScrolled] = useState(false);
+  const scrollView = useRef<ScrollView | null>(null);
+  const scrollToTop = useCallback(() => {
+    scrollView.current?.scrollTo({ y: 0, animated: true });
+  }, []);
+
+  const onScroll = useCallback((event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    setIsScrolled(event.nativeEvent.contentOffset.y > 0);
+  }, []);
 
   const [
     {
@@ -560,6 +577,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
             )}
 
             <ScrollView
+              ref={scrollView}
+              onScroll={onScroll}
+              scrollEventThrottle={200}
               contentContainerStyle={
                 desktop ? styles.desktopContentContainer : styles.mobileContentContainer
               }
@@ -819,6 +839,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     firstName={firstName}
                     lastName={lastName}
                     refetchAccountAreaQuery={refetchAccountAreaQuery}
+                    isScrolled={isScrolled}
+                    onScrollToTop={scrollToTop}
                   />
                 ),
               })}

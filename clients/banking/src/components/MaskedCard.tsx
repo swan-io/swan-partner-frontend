@@ -169,7 +169,7 @@ export const MaskedCard = ({
                   {formatPan(pan)}
                 </Text>
 
-                <View focusable={false} collapsable={true} style={styles.panBottomSpacer} />
+                <View tabIndex={-1} collapsable={true} style={styles.panBottomSpacer} />
 
                 <Box direction="row" alignItems="center" style={styles.bottomLineRow}>
                   <View style={styles.expiryDateWrapper}>

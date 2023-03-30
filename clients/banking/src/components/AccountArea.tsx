@@ -616,7 +616,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 </>
               )}
 
-              <View style={styles.content} id={CONTENT_ID} focusable={true}>
+              <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
                 <ErrorBoundary
                   key={route?.name}
                   fallback={({ error }) => <ErrorView error={error} />}

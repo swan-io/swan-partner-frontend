@@ -159,6 +159,9 @@ declare module "react-native" {
     accessibilityValueMin?: number;
     accessibilityValueNow?: number;
     accessibilityValueText?: string;
+
+    // New properties
+    tabIndex?: 0 | -1;
   }
 
   export interface ImageProps extends WebAccessibilityProps {
@@ -192,7 +195,6 @@ declare module "react-native" {
 
   export interface TextProps extends WebAccessibilityProps {
     accessibilityRole?: WebAccessibilityRole;
-    focusable?: boolean;
     href?: string;
     hrefAttrs?: HrefAttrs;
     lang?: string;

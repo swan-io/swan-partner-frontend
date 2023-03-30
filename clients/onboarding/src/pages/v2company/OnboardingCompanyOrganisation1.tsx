@@ -14,6 +14,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect } from "react";
@@ -100,7 +101,9 @@ export const OnboardingCompanyOrganisation1 = ({
 }: Props) => {
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
-  const canSetTaxIdentification = accountCountry === "DEU" && country === "DEU";
+  const canSetTaxIdentification =
+    (accountCountry === "DEU" && country === "DEU") ||
+    (accountCountry === "ESP" && country === "ESP");
 
   const { Field, FieldsListener, submitForm, setFieldValue, listenFields, setFieldError } = useForm(
     {
@@ -403,20 +406,15 @@ export const OnboardingCompanyOrganisation1 = ({
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange }) => (
-                        <LakeLabel
-                          label={t("company.step.organisation1.taxNumberLabel")}
-                          optionalLabel={t("common.optional")}
-                          render={id => (
-                            <LakeTextInput
-                              id={id}
-                              placeholder={t("company.step.organisation1.taxNumberPlaceholder")}
-                              value={value}
-                              valid={valid}
-                              error={error}
-                              onChangeText={onChange}
-                            />
-                          )}
+                      {({ value, valid, error, onChange, onBlur }) => (
+                        <TaxIdentificationNumberInput
+                          value={value}
+                          error={error}
+                          valid={valid}
+                          onChange={onChange}
+                          onBlur={onBlur}
+                          accountCountry={accountCountry}
+                          isCompany={true}
                         />
                       )}
                     </Field>

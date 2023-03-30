@@ -404,7 +404,7 @@ export const MembershipDetailEditor = ({
                     onChange={() => {}}
                     {...rifmDateProps}
                   >
-                    {({ value }) => <LakeTextInput nativeID={id} readOnly={true} value={value} />}
+                    {({ value }) => <LakeTextInput id={id} readOnly={true} value={value} />}
                   </Rifm>
                 )}
               />
@@ -413,7 +413,7 @@ export const MembershipDetailEditor = ({
                 label={t("membershipDetail.edit.phoneNumber")}
                 render={id => (
                   <LakeTextInput
-                    nativeID={id}
+                    id={id}
                     readOnly={true}
                     placeholder="+33600000000"
                     value={accountMembership.user.mobilePhoneNumber ?? ""}
@@ -427,7 +427,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.email")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -487,7 +487,7 @@ export const MembershipDetailEditor = ({
                     render={id => (
                       <Box direction="row">
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           value={value}
                           valid={valid}
                           error={error}
@@ -546,7 +546,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.lastName")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -563,7 +563,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.firstName")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -582,7 +582,7 @@ export const MembershipDetailEditor = ({
                         label={t("membershipDetail.edit.birthDate")}
                         render={id => (
                           <LakeTextInput
-                            nativeID={id}
+                            id={id}
                             placeholder={locale.datePlaceholder}
                             value={value ?? ""}
                             valid={valid}
@@ -602,7 +602,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.phoneNumber")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         placeholder="+33600000000"
                         value={value ?? ""}
                         valid={valid}
@@ -628,7 +628,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.country")}
                   render={id => (
                     <CountryPicker
-                      nativeID={id}
+                      id={id}
                       items={countries}
                       value={value}
                       onValueChange={onChange}
@@ -678,7 +678,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.postalCode")}
                   render={id => (
                     <LakeTextInput
-                      nativeID={id}
+                      id={id}
                       value={value}
                       valid={valid}
                       error={error}
@@ -695,7 +695,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.city")}
                   render={id => (
                     <LakeTextInput
-                      nativeID={id}
+                      id={id}
                       value={value}
                       valid={valid}
                       error={error}
@@ -717,7 +717,7 @@ export const MembershipDetailEditor = ({
                           render={id => (
                             <LakeTextInput
                               placeholder={locale.taxIdentificationNumberPlaceholder}
-                              nativeID={id}
+                              id={id}
                               value={value}
                               valid={valid}
                               error={error}

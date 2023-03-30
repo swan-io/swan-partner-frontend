@@ -325,7 +325,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                 optionalLabel={t("form.optional")}
                 render={id => (
                   <LakeTextInput
-                    nativeID={id}
+                    id={id}
                     value={currentSettings.cardName ?? ""}
                     onChangeText={cardName =>
                       setCurrentSettings(settings => ({
@@ -376,7 +376,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       label={t("cardSettings.spendingLimit.period")}
                       render={id => (
                         <LakeSelect
-                          nativeID={id}
+                          id={id}
                           items={PERIODS}
                           value={currentSettings.spendingLimit.period}
                           onValueChange={period =>
@@ -398,7 +398,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       label={t("cardSettings.amount")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           unit="€"
                           value={dirtyValue ?? ""}
                           onChangeText={setDirtyValue}

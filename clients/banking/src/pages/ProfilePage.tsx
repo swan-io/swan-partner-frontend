@@ -315,7 +315,7 @@ export const ProfilePage = ({
               label={t("profile.language")}
               render={id => (
                 <LakeSelect
-                  nativeID={id}
+                  id={id}
                   value={locale.language}
                   items={languageOptions}
                   onValueChange={locale => {

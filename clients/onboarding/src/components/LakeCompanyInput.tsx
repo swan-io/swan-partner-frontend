@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  nativeID?: string;
+  id?: string;
   value: string;
   disabled?: boolean;
   error?: string;
@@ -32,7 +32,7 @@ type Props = {
 type State = AsyncData<Result<CompanySuggestion[], unknown>>;
 
 export const LakeCompanyInput = ({
-  nativeID,
+  id,
   value,
   placeholder,
   disabled,
@@ -63,7 +63,7 @@ export const LakeCompanyInput = ({
 
   return (
     <LakeCombobox
-      nativeID={nativeID}
+      id={id}
       placeholder={placeholder ?? t("companyInput.placeholder")}
       value={value}
       items={state}

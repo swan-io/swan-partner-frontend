@@ -231,7 +231,7 @@ export const OnboardingCompanyRegistration = ({
                       label={t("company.step.registration.emailLabel")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           placeholder="example@gmail.com"
                           value={value}
                           onChangeText={onChange}

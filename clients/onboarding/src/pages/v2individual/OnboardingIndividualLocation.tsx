@@ -252,7 +252,7 @@ export const OnboardingIndividualLocation = ({
                           label={t("individual.step.location.cityLabel")}
                           render={id => (
                             <LakeTextInput
-                              nativeID={id}
+                              id={id}
                               value={value}
                               valid={valid}
                               error={error}
@@ -271,7 +271,7 @@ export const OnboardingIndividualLocation = ({
                           label={t("individual.step.location.postCodeLabel")}
                           render={id => (
                             <LakeTextInput
-                              nativeID={id}
+                              id={id}
                               value={value}
                               valid={valid}
                               error={error}

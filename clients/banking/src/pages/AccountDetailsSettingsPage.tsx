@@ -172,7 +172,7 @@ export const AccountDetailsSettingsPage = ({
             <Field name="accountName">
               {({ error, onBlur, onChange, valid, value }) => (
                 <LakeTextInput
-                  nativeID={id}
+                  id={id}
                   placeholder={t("accountDetails.settings.accountNamePlaceholder")}
                   disabled={formDisabled}
                   readOnly={formDisabled}
@@ -195,7 +195,7 @@ export const AccountDetailsSettingsPage = ({
                 <Field name="vatNumber">
                   {({ error, onBlur, onChange, valid, value }) => (
                     <LakeTextInput
-                      nativeID={id}
+                      id={id}
                       disabled={formDisabled}
                       readOnly={formDisabled}
                       error={error}
@@ -213,7 +213,7 @@ export const AccountDetailsSettingsPage = ({
               label={t("accountDetails.settings.companyRegistrationNumber")}
               render={id => (
                 <LakeTextInput
-                  nativeID={id}
+                  id={id}
                   placeholder={t("common.empty")}
                   disabled={true}
                   readOnly={true}
@@ -230,7 +230,7 @@ export const AccountDetailsSettingsPage = ({
             <Field name="language">
               {({ onChange, value }) => (
                 <LakeSelect
-                  nativeID={id}
+                  id={id}
                   disabled={formDisabled}
                   readOnly={formDisabled}
                   items={countries}

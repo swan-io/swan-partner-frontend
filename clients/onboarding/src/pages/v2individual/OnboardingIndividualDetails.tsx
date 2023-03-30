@@ -165,7 +165,7 @@ export const OnboardingIndividualDetails = ({
                       label={t("occupationPage.statusLabel")}
                       render={id => (
                         <LakeSelect
-                          nativeID={id}
+                          id={id}
                           items={employmentStatuses}
                           value={value}
                           disabled={updateResult.isLoading()}
@@ -219,7 +219,7 @@ export const OnboardingIndividualDetails = ({
                           }
                           render={id => (
                             <LakeTextInput
-                              nativeID={id}
+                              id={id}
                               placeholder={t("occupationPage.taxIdentificationNumberPlaceholder")}
                               value={value}
                               valid={valid}

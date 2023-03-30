@@ -151,7 +151,7 @@ export const OnboardingIndividualEmail = ({
                       label={t("individual.step.email.label")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           autoFocus={true}
                           placeholder="example@gmail.com"
                           value={value}

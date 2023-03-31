@@ -554,11 +554,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
                       <Fill minHeight={48} />
 
-                      <Pressable
-                        accessibilityRole="button"
-                        style={styles.additionalLink}
-                        onPress={signout}
-                      >
+                      <Pressable role="button" style={styles.additionalLink} onPress={signout}>
                         <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
                         <Space width={12} />
                         <LakeText variant="medium">{t("login.signout")}</LakeText>
@@ -594,7 +590,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               {!desktop && (
                 <>
                   <Box
-                    accessibilityRole="banner"
+                    role="banner"
                     direction="row"
                     alignItems="center"
                     style={styles.headerMobile}

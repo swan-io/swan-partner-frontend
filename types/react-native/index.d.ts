@@ -13,43 +13,8 @@ declare module "react-native" {
     };
   }
 
-  export type WebAccessibilityRole =
-    /**
-     * Accessibility roles shared with native platform
-     * @see @types/react-native
-     *
-     * adjustable -> <div role="slider" />
-     * alert -> <div role="alert" />
-     * button -> <div role="button" />
-     * checkbox -> <div role="checkbox" />
-     * combobox -> <div role="combobox" />
-     * header -> <h{aria-level prop value (1,6)} role="heading" />
-     * image -> <div role="img" />
-     * imagebutton -> <div />
-     * keyboardkey -> <div />
-     * link -> <a role="link" />
-     * list -> <ul role="list" />
-     * menu -> <div role="menu" />
-     * menubar -> <div role="menubar" />
-     * menuitem -> <div role="menuitem" />
-     * none -> <div role="presentation" />
-     * progressbar -> <div role="progressbar" />
-     * radio -> <div role="radio" />
-     * radiogroup -> <div role="radiogroup" />
-     * scrollbar -> <div role="scrollbar" />
-     * search -> <div role="search" />
-     * spinbutton -> <div role="spinbutton" />
-     * summary -> <section role="region" />
-     * switch -> <div role="switch" />
-     * tab -> <div role="tab" />
-     * tabbar -> <div role="tabbar" />
-     * tablist -> <div role="tablist" />
-     * text -> <div />
-     * timer -> <div role="timer" />
-     * togglebutton -> <div role="togglebutton" />
-     * toolbar -> <div role="toolbar" />
-     */
-    | ReactNative.AccessibilityRole
+  export type WebRole =
+    | ReactNative.Role
     /**
      * Accessibility roles mapped to components
      * @see https://github.com/necolas/react-native-web/blob/0.19.1/packages/react-native-web/src/modules/AccessibilityUtil/propsToAccessibilityComponent.js
@@ -65,6 +30,7 @@ declare module "react-native" {
     | "emphasis" // <em />
     | "figure" // <figure />
     | "form" // <form />
+    | "heading" // <h{1,6} />
     | "insertion" // <ins />
     | "label" // <label />
     | "list" // <ul />
@@ -78,40 +44,11 @@ declare module "react-native" {
      * Accessibility roles mapped to ARIA roles (additional, minus existants)
      * @see https://www.w3.org/TR/wai-aria-1.1/#role_definitions
      */
-    | "alertdialog"
-    | "application"
-    | "cell"
-    | "columnheader"
-    | "definition"
-    | "dialog"
-    | "directory"
-    | "document"
-    | "feed"
-    | "grid"
     | "gridcell"
-    | "group"
     | "listbox"
-    | "log"
-    | "marquee"
-    | "math"
     | "menuitemcheckbox"
     | "menuitemradio"
-    | "note"
-    | "option"
-    | "row"
-    | "rowgroup"
-    | "rowheader"
-    | "searchbox"
-    | "separator"
-    | "status"
-    | "table"
-    | "tabpanel"
-    | "term"
-    | "textbox"
-    | "tooltip"
-    | "tree"
-    | "treegrid"
-    | "treeitem";
+    | "textbox";
 
   export interface WebAccessibilityProps {
     accessibilityActiveDescendant?: string;
@@ -160,12 +97,12 @@ declare module "react-native" {
     accessibilityValueNow?: number;
     accessibilityValueText?: string;
 
-    // New properties
+    // Additional properties
     tabIndex?: 0 | -1;
   }
 
   export interface ImageProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
     defaultSource?: ImageSourcePropType | string;
     draggable?: boolean;
     source: ImageSourcePropType | string;
@@ -178,13 +115,13 @@ declare module "react-native" {
   }
 
   export interface PressableProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
     onHoverIn?: (event: unknown) => void;
     onHoverOut?: (event: unknown) => void;
   }
 
   export interface ScrollViewProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
   }
 
   type HrefAttrs = {
@@ -194,14 +131,14 @@ declare module "react-native" {
   };
 
   export interface TextProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
     href?: string;
     hrefAttrs?: HrefAttrs;
     lang?: string;
   }
 
   export interface TextInputProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
     lang?: string;
     initialValue?: string;
 
@@ -273,7 +210,7 @@ declare module "react-native" {
   }
 
   export interface ViewProps extends WebAccessibilityProps {
-    accessibilityRole?: WebAccessibilityRole;
+    role?: WebRole;
     onKeyDown?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
     onKeyDownCapture?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
     onKeyUp?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
@@ -281,6 +218,8 @@ declare module "react-native" {
   }
 
   // https://github.com/necolas/react-native-web/blob/0.19.1/packages/react-native-web/src/types/styles.js
+
+  type NumberOrString = number | string;
 
   /**
    * Animations and transitions
@@ -402,10 +341,30 @@ declare module "react-native" {
    * Transforms
    */
 
+  // TODO: Delete this once we migrated away from Animated
+  type TransformValue = (
+    | { perspective: NumberOrString }
+    | { rotate: string }
+    | { rotateX: string }
+    | { rotateY: string }
+    | { rotateZ: string }
+    | { scale3d: string }
+    | { scale: number }
+    | { scaleX: number }
+    | { scaleY: number }
+    | { scaleZ: number }
+    | { skewX: string }
+    | { skewY: string }
+    | { translate3d: string }
+    | { translateX: NumberOrString }
+    | { translateY: NumberOrString }
+    | { translateZ: NumberOrString }
+  )[];
+
   export interface TransformsStyle {
     perspective?: number | string;
     perspectiveOrigin?: string;
-    transform?: string;
+    transform?: string | TransformValue;
     transformOrigin?: string;
     transformStyle?: "flat" | "preserve-3d";
   }
@@ -427,7 +386,7 @@ declare module "react-native" {
 
   export interface ImageStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
     display?: DisplayValue;
-    transform?: string;
+    transform?: string | TransformValue;
   }
 
   export interface TextStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
@@ -435,7 +394,7 @@ declare module "react-native" {
     fontFeatureSettings?: string;
     textOverflow?: "clip" | "ellipsis";
     textTransform?: "none" | "capitalize" | "uppercase" | "lowercase";
-    transform?: string;
+    transform?: string | TransformValue;
     whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap";
     wordBreak?: "normal" | "break-all" | "keep-all";
   }
@@ -447,7 +406,7 @@ declare module "react-native" {
     display?: DisplayValue;
     position?: PositionValue;
     scrollBehavior?: "auto" | "smooth";
-    transform?: string;
+    transform?: string | TransformValue;
     visibility?: VisibilityValue;
   }
 

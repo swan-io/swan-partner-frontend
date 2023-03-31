@@ -129,7 +129,7 @@ export const MaskedCard = ({
       }}
     >
       {/* garantee the credit card ratio */}
-      <Svg accessibilityRole="none" viewBox="0 0 85 55" />
+      <Svg role="none" viewBox="0 0 85 55" />
 
       <ImageBackground
         source={{ uri: cardDesignUrl }}

@@ -167,7 +167,7 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
 
   return (
     <ScrollView style={styles.base} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header} accessibilityRole="banner">
+      <View style={styles.header} role="banner">
         {isNotNullish(projectLogoUri) ? (
           <>
             <Image
@@ -188,10 +188,10 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
         )}
       </View>
 
-      <View accessibilityRole="none" style={styles.topFixedSpace} />
+      <View role="none" style={styles.topFixedSpace} />
 
       <WithPartnerAccentColor color={accentColor}>
-        <View accessibilityRole="main" style={styles.card}>
+        <View role="main" style={styles.card}>
           <View style={[styles.gradient, { backgroundImage }]}>
             <Svg viewBox="0 0 90 90" style={styles.icon}>
               <Path
@@ -232,7 +232,7 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
         </View>
       </WithPartnerAccentColor>
 
-      <View accessibilityRole="none" style={styles.bottomVariableSpace} />
+      <View role="none" style={styles.bottomVariableSpace} />
     </ScrollView>
   );
 };

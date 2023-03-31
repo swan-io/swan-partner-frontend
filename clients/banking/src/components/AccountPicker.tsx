@@ -127,7 +127,7 @@ const Item = ({ onPress, isActive, membership }: ItemProps) => {
   }
   return (
     <Pressable
-      accessibilityRole="listitem"
+      role="listitem"
       onPress={onPress}
       style={({ hovered, pressed }) => [
         styles.account,
@@ -209,7 +209,7 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
           user == null ? null : (
             <View>
               <FlatList
-                accessibilityRole="list"
+                role="list"
                 style={styles.list}
                 data={user.accountMemberships.edges}
                 disableVirtualization={true}

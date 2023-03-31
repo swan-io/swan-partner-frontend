@@ -100,7 +100,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
   const route = Router.useRoute([...accountAreaRoutes]);
 
   return (
-    <View accessibilityRole="navigation" style={[styles.sidebar, desktop && styles.desktopSidebar]}>
+    <View role="navigation" style={[styles.sidebar, desktop && styles.desktopSidebar]}>
       {menu.map(({ hidden = false, ...item }) => {
         const isActive = item.matchRoutes.some(name => name === route?.name);
 
@@ -147,7 +147,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
                         <Fill minWidth={24} />
 
                         <View
-                          accessibilityRole="alert"
+                          role="alert"
                           accessibilityLabel={t("common.actionRequired")}
                           style={styles.notificationPill}
                         >

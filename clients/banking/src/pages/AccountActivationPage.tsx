@@ -210,7 +210,7 @@ const StepTile = ({ variant, title, description, onPress, footer }: StepTileProp
       ) : (
         <>
           {desktop && variant !== "inert" && (
-            <View accessibilityRole="none" style={styles.stepTileActiveIndicator} />
+            <View role="none" style={styles.stepTileActiveIndicator} />
           )}
 
           <Pressable disabled={variant === "inert"} onPress={onPress}>
@@ -625,7 +625,7 @@ export const AccountActivationPage = ({
 
   return (
     <Box
-      accessibilityRole="main"
+      role="main"
       direction="row"
       style={[
         styles.container,

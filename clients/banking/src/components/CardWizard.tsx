@@ -157,6 +157,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[96],
     paddingVertical: spacings[24],
   },
+  mobileContents: {
+    paddingHorizontal: spacings[24],
+    paddingVertical: spacings[24],
+    flexGrow: 1,
+  },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],
     flexGrow: 1,
@@ -462,7 +467,7 @@ export const CardWizard = ({
           <View style={styles.contents}>
             <ScrollView
               style={styles.contentsContainer}
-              contentContainerStyle={large ? styles.contentsContents : styles.mobileZonePadding}
+              contentContainerStyle={large ? styles.contentsContents : styles.mobileContents}
             >
               {match(step)
                 .with({ name: "CardProductType" }, ({ cardProduct }) => (

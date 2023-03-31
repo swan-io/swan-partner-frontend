@@ -68,7 +68,7 @@ const styles = StyleSheet.create({
     maxWidth: 360,
     overflow: "hidden",
     width: "100%",
-    boxShadow: shadows.tileHover,
+    boxShadow: shadows.tile,
   },
   gradient: {
     height: 208,

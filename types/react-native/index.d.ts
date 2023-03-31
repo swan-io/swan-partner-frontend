@@ -212,8 +212,6 @@ declare module "react-native" {
 
   // https://github.com/necolas/react-native-web/blob/0.19.1/packages/react-native-web/src/types/styles.js
 
-  type NumberOrString = number | string;
-
   /**
    * Animations and transitions
    */

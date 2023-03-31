@@ -5,14 +5,7 @@ const path = require("path");
 const errorOnCI = process.env.CI === "true" ? "error" : "warn";
 
 module.exports = {
-  plugins: [
-    "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "react-native",
-    "react-native-a11y",
-    "swan",
-  ],
+  plugins: ["@typescript-eslint", "react", "react-hooks", "react-native", "swan"],
 
   extends: [
     "eslint:recommended",

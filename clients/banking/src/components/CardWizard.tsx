@@ -172,6 +172,9 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     paddingHorizontal: spacings[96],
   },
+  button: {
+    flex: 1,
+  },
   title: {
     position: "absolute",
     top: "50%",
@@ -927,7 +930,7 @@ export const CardWizard = ({
               <LakeButtonGroup>
                 <LakeButton
                   mode="secondary"
-                  grow={true}
+                  style={styles.button}
                   onPress={() =>
                     match(step)
                       .with({ name: "CardProductType" }, () => onPressClose?.())
@@ -974,7 +977,7 @@ export const CardWizard = ({
                 <LakeButton
                   mode="primary"
                   color="current"
-                  grow={true}
+                  style={styles.button}
                   loading={cardOrder.isLoading()}
                   onPress={() =>
                     match(step.name)

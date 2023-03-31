@@ -392,11 +392,11 @@ declare module "react-native" {
     enabled?: boolean;
     itemStyle?: StyleProp<TextStyle>;
     mode?: "dialog" | "dropdown";
-    onValueChange?: (itemValue: any, itemPosition: number) => void;
     prompt?: string;
     selectedValue?: string;
     style?: StyleProp<TextStyle>;
     testID?: string;
+    onValueChange?: (itemValue: any, itemPosition: number) => void;
   }
 
   interface PickerItemProps {

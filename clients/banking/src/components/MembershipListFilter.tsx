@@ -166,7 +166,7 @@ export const MembershipListFilter = ({
             <Space width={16} />
 
             <LakeButton
-              accessibilityLabel={t("common.refresh")}
+              ariaLabel={t("common.refresh")}
               mode="secondary"
               size="small"
               icon="arrow-counterclockwise-filled"

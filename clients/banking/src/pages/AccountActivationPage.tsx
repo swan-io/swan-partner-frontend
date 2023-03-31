@@ -142,7 +142,7 @@ const StepScrollView = ({ children, onClose }: StepScrollViewProps) => {
       {!desktop && (
         <>
           <LakeButton
-            accessibilityLabel={t("common.closeButton")}
+            ariaLabel={t("common.closeButton")}
             mode="tertiary"
             icon="dismiss-regular"
             onPress={onClose}

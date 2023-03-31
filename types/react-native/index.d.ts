@@ -51,54 +51,47 @@ declare module "react-native" {
     | "textbox";
 
   export interface WebAccessibilityProps {
-    accessibilityActiveDescendant?: string;
-    accessibilityAtomic?: boolean;
-    accessibilityAutoComplete?: string;
-    accessibilityBusy?: boolean;
-    accessibilityChecked?: boolean | "mixed";
-    accessibilityColumnCount?: number;
-    accessibilityColumnIndex?: number;
-    accessibilityColumnSpan?: number;
-    accessibilityControls?: string;
-    accessibilityCurrent?: boolean | "page" | "step" | "location" | "date" | "time";
-    accessibilityDescribedBy?: string;
-    accessibilityDetails?: string;
-    accessibilityDisabled?: boolean;
-    accessibilityErrorMessage?: string;
-    accessibilityExpanded?: boolean;
-    accessibilityFlowTo?: string;
-    accessibilityHasPopup?: string;
-    accessibilityHidden?: boolean;
-    accessibilityInvalid?: boolean;
-    accessibilityKeyShortcuts?: string[];
-    accessibilityLabel?: string;
-    accessibilityLabelledBy?: string;
-    accessibilityLevel?: number;
-    accessibilityLiveRegion?: "assertive" | "off" | "polite";
-    accessibilityModal?: boolean;
-    accessibilityMultiSelectable?: boolean;
-    accessibilityMultiline?: boolean;
-    accessibilityOrientation?: "horizontal" | "vertical";
-    accessibilityOwns?: string;
-    accessibilityPlaceholder?: string;
-    accessibilityPosInSet?: number;
-    accessibilityPressed?: boolean;
-    accessibilityReadOnly?: boolean;
-    accessibilityRequired?: boolean;
-    accessibilityRoleDescription?: string;
-    accessibilityRowCount?: number;
-    accessibilityRowIndex?: number;
-    accessibilityRowSpan?: number;
-    accessibilitySelected?: boolean;
-    accessibilitySetSize?: number;
-    accessibilitySort?: "ascending" | "descending" | "none" | "other";
-    accessibilityValueMax?: number;
-    accessibilityValueMin?: number;
-    accessibilityValueNow?: number;
-    accessibilityValueText?: string;
-
-    // Additional properties
+    /**
+     * Additional accessibility props
+     */
     tabIndex?: 0 | -1;
+
+    /**
+     * Aria props (additional, minus existants)
+     * @see https://necolas.github.io/react-native-web/docs/accessibility
+     * @see https://reactnative.dev/docs/accessibility#aria-valuemax
+     */
+    "aria-activedescendant"?: string;
+    "aria-atomic"?: boolean;
+    "aria-autocomplete"?: string;
+    "aria-colcount"?: number;
+    "aria-colindex"?: number;
+    "aria-colspan"?: number;
+    "aria-controls"?: string;
+    "aria-current"?: boolean | "page" | "step" | "location" | "date" | "time";
+    "aria-describedby"?: string;
+    "aria-details"?: string;
+    "aria-errormessage"?: string;
+    "aria-flowto"?: string;
+    "aria-haspopup"?: string;
+    "aria-invalid"?: boolean;
+    "aria-keyshortcuts"?: string;
+    "aria-level"?: number;
+    "aria-multiline"?: boolean;
+    "aria-multiselectable"?: boolean;
+    "aria-orientation"?: "horizontal" | "vertical";
+    "aria-owns"?: string;
+    "aria-placeholder"?: string;
+    "aria-posinset"?: number;
+    "aria-pressed"?: boolean;
+    "aria-readonly"?: boolean;
+    "aria-required"?: boolean;
+    "aria-roledescription"?: string;
+    "aria-rowcount"?: number;
+    "aria-rowindex"?: number;
+    "aria-rowspan"?: number;
+    "aria-setsize"?: number;
+    "aria-sort"?: "ascending" | "descending" | "none" | "other";
   }
 
   export interface ImageProps extends WebAccessibilityProps {
@@ -341,30 +334,10 @@ declare module "react-native" {
    * Transforms
    */
 
-  // TODO: Delete this once we migrated away from Animated
-  type TransformValue = (
-    | { perspective: NumberOrString }
-    | { rotate: string }
-    | { rotateX: string }
-    | { rotateY: string }
-    | { rotateZ: string }
-    | { scale3d: string }
-    | { scale: number }
-    | { scaleX: number }
-    | { scaleY: number }
-    | { scaleZ: number }
-    | { skewX: string }
-    | { skewY: string }
-    | { translate3d: string }
-    | { translateX: NumberOrString }
-    | { translateY: NumberOrString }
-    | { translateZ: NumberOrString }
-  )[];
-
   export interface TransformsStyle {
     perspective?: number | string;
     perspectiveOrigin?: string;
-    transform?: string | TransformValue;
+    transform?: string;
     transformOrigin?: string;
     transformStyle?: "flat" | "preserve-3d";
   }
@@ -386,7 +359,7 @@ declare module "react-native" {
 
   export interface ImageStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
     display?: DisplayValue;
-    transform?: string | TransformValue;
+    transform?: string;
   }
 
   export interface TextStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
@@ -394,7 +367,7 @@ declare module "react-native" {
     fontFeatureSettings?: string;
     textOverflow?: "clip" | "ellipsis";
     textTransform?: "none" | "capitalize" | "uppercase" | "lowercase";
-    transform?: string | TransformValue;
+    transform?: string;
     whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap";
     wordBreak?: "normal" | "break-all" | "keep-all";
   }
@@ -406,7 +379,7 @@ declare module "react-native" {
     display?: DisplayValue;
     position?: PositionValue;
     scrollBehavior?: "auto" | "smooth";
-    transform?: string | TransformValue;
+    transform?: string;
     visibility?: VisibilityValue;
   }
 
@@ -439,12 +412,5 @@ declare module "react-native" {
     static MODE_DIALOG: string;
     static MODE_DROPDOWN: string;
     static Item: React.ComponentType<PickerItemProps>;
-  }
-
-  interface ImageBackgroundProps extends ImagePropsBase {
-    imageStyle?: StyleProp<ImageStyle> | undefined;
-    style?: StyleProp<ViewStyle> | undefined;
-    imageRef?(image: Image): void;
-    children?: React.ReactNode;
   }
 }

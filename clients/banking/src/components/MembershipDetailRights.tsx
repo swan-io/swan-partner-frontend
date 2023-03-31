@@ -344,7 +344,7 @@ export const MembershipDetailRights = ({
                   icon="lock-closed-regular"
                   loading={membershipSuspension.isLoading()}
                   onPress={onPressSuspend}
-                  accessibilityLabel={t("membershipDetail.suspend")}
+                  ariaLabel={t("membershipDetail.suspend")}
                 >
                   {large ? t("membershipDetail.suspend") : null}
                 </LakeButton>
@@ -363,7 +363,7 @@ export const MembershipDetailRights = ({
                   loading={membershipUnsuspension.isLoading()}
                   onPress={onPressUnsuspend}
                   color="warning"
-                  accessibilityLabel={t("membershipDetail.unsuspend")}
+                  ariaLabel={t("membershipDetail.unsuspend")}
                 >
                   {large ? t("membershipDetail.unsuspend") : null}
                 </LakeButton>
@@ -387,7 +387,7 @@ export const MembershipDetailRights = ({
                 icon="subtract-circle-regular"
                 color="negative"
                 onPress={() => setIsCancelConfirmationModalOpen(true)}
-                accessibilityLabel={t("membershipDetail.permanentlyBlock")}
+                ariaLabel={t("membershipDetail.permanentlyBlock")}
               >
                 {large ? t("membershipDetail.permanentlyBlock") : null}
               </LakeButton>

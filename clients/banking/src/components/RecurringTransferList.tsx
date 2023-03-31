@@ -134,7 +134,7 @@ const RecurringTransferHistory = ({
 
       <ListRightPanelContent large={large}>
         <LakeButton
-          accessibilityLabel={t("common.refresh")}
+          ariaLabel={t("common.refresh")}
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
@@ -723,7 +723,7 @@ export const RecurringTransferList = ({
             <Space width={8} />
 
             <LakeButton
-              accessibilityLabel={t("common.refresh")}
+              ariaLabel={t("common.refresh")}
               mode="secondary"
               size="small"
               icon="arrow-counterclockwise-filled"

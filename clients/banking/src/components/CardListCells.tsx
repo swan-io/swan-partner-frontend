@@ -345,16 +345,12 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
           .with("SingleUseVirtual", () => (
             <>
               {spendingLimits.some(({ period }) => period === "Always") ? (
-                <Tag
-                  color="gray"
-                  icon="flash-regular"
-                  accessibilityLabel={t("cards.periodicity.oneOff")}
-                />
+                <Tag color="gray" icon="flash-regular" ariaLabel={t("cards.periodicity.oneOff")} />
               ) : (
                 <Tag
                   color="gray"
                   icon="clock-regular"
-                  accessibilityLabel={t("cards.periodicity.recurring")}
+                  ariaLabel={t("cards.periodicity.recurring")}
                 />
               )}
             </>
@@ -363,14 +359,14 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
             <Tag
               color="mediumSladeBlue"
               icon="phone-regular"
-              accessibilityLabel={t("cards.format.virtual")}
+              ariaLabel={t("cards.format.virtual")}
             />
           ))
           .with("VirtualAndPhysical", () => (
             <Tag
               color="shakespear"
               icon="payment-regular"
-              accessibilityLabel={t("cards.format.virtualAndPhysical")}
+              ariaLabel={t("cards.format.virtualAndPhysical")}
             />
           ))
           .exhaustive()}

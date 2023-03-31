@@ -414,7 +414,7 @@ export const CardWizard = ({
                     mode="tertiary"
                     icon="dismiss-regular"
                     onPress={onPressClose}
-                    accessibilityLabel={t("common.closeButton")}
+                    ariaLabel={t("common.closeButton")}
                   />
 
                   <Space width={large ? 32 : 8} />

@@ -173,7 +173,7 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
             <Image
               source={{ uri: projectLogoUri }}
               resizeMode="contain"
-              accessibilityLabel={projectName}
+              aria-label={projectName}
               style={styles.logo}
             />
 

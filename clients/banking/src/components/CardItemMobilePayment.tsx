@@ -92,7 +92,7 @@ const DigitalCardTile = ({
         <LakeTooltip placement="left" content={t("card.mobilePayment.disconnect")}>
           <LakeButton
             mode="tertiary"
-            accessibilityLabel={t("card.mobilePayment.cancel")}
+            ariaLabel={t("card.mobilePayment.cancel")}
             icon="subtract-circle-regular"
             onPress={onPressCancel}
           />

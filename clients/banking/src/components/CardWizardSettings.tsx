@@ -170,7 +170,7 @@ const CardWizardSettingsBooleanTile = ({
   return (
     <Pressable
       role="checkbox"
-      accessibilityChecked={checked}
+      aria-checked={checked}
       onPress={() => onChange(!checked)}
       style={styles.container}
     >

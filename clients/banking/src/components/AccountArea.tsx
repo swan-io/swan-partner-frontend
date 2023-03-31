@@ -481,7 +481,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 <Box alignItems="center">
                   <View style={styles.logo}>
                     <AutoWidthImage
-                      accessibilityLabel={projectName}
+                      aria-label={projectName}
                       sourceUri={projectLogo ?? logoSwan}
                       height={LOGO_MAX_HEIGHT}
                       maxWidth={LOGO_MAX_WIDTH}
@@ -596,7 +596,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     style={styles.headerMobile}
                   >
                     <AutoWidthImage
-                      accessibilityLabel={projectName}
+                      aria-label={projectName}
                       sourceUri={projectLogo ?? logoSwan}
                       height={32}
                       resizeMode="contain"
@@ -605,7 +605,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     {env.APP_TYPE === "SANDBOX" && (
                       <>
                         <Space width={12} />
-                        <Tag color="sandbox" accessibilityLabel="Sandbox" icon="beaker-regular" />
+                        <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
                       </>
                     )}
                   </Box>

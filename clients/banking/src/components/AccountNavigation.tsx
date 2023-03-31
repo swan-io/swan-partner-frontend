@@ -116,7 +116,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
           >
             <Link
               to={item.to}
-              accessibilityLabel={item.name}
+              aria-label={item.name}
               onPress={onPressLink}
               numberOfLines={1}
               style={({ hovered }) => [
@@ -148,7 +148,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
 
                         <View
                           role="alert"
-                          accessibilityLabel={t("common.actionRequired")}
+                          aria-label={t("common.actionRequired")}
                           style={styles.notificationPill}
                         >
                           {isActive ? null : <View style={styles.notificationPillAnimation} />}

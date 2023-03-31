@@ -373,6 +373,8 @@ declare module "react-native" {
   export interface ViewStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
     appearance?: "none";
     backgroundImage?: string;
+    backgroundRepeat?: string;
+    backgroundSize?: string;
     boxShadow?: string;
     display?: DisplayValue;
     position?: PositionValue;

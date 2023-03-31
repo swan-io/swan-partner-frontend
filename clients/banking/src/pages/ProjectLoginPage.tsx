@@ -4,7 +4,7 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
+import { colors, invariantColors, shadows } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
@@ -68,14 +68,7 @@ const styles = StyleSheet.create({
     maxWidth: 360,
     overflow: "hidden",
     width: "100%",
-
-    shadowColor: invariantColors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 7.49,
+    boxShadow: shadows.tileHover,
   },
   gradient: {
     height: 208,

@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   title: {
     position: "absolute",
     top: "50%",
-    transform: [{ translateY: "-50%" }],
+    transform: "translateY(-50%)",
     left: 0,
     right: 0,
   },

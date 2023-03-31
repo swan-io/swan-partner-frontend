@@ -67,10 +67,10 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 0.25 }],
+    transform: "translateX(-50%) translateY(-50%) scale(0.25)",
     animationKeyframes: {
       "100%": {
-        transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 0.75 }],
+        transform: "translateX(-50%) translateY(-50%) scale(0.75)",
         opacity: 0,
       },
     },

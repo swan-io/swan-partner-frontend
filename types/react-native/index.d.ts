@@ -282,8 +282,6 @@ declare module "react-native" {
 
   // https://github.com/necolas/react-native-web/blob/0.19.1/packages/react-native-web/src/types/styles.js
 
-  type NumberOrString = number | string;
-
   /**
    * Animations and transitions
    */
@@ -404,29 +402,10 @@ declare module "react-native" {
    * Transforms
    */
 
-  type TransformValue = (
-    | { perspective: NumberOrString }
-    | { rotate: string }
-    | { rotateX: string }
-    | { rotateY: string }
-    | { rotateZ: string }
-    | { scale3d: string }
-    | { scale: number }
-    | { scaleX: number }
-    | { scaleY: number }
-    | { scaleZ: number }
-    | { skewX: string }
-    | { skewY: string }
-    | { translate3d: string }
-    | { translateX: NumberOrString }
-    | { translateY: NumberOrString }
-    | { translateZ: NumberOrString }
-  )[];
-
   export interface TransformsStyle {
-    perspective?: NumberOrString;
+    perspective?: number | string;
     perspectiveOrigin?: string;
-    transform?: TransformValue;
+    transform?: string;
     transformOrigin?: string;
     transformStyle?: "flat" | "preserve-3d";
   }
@@ -448,7 +427,7 @@ declare module "react-native" {
 
   export interface ImageStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
     display?: DisplayValue;
-    transform?: TransformValue;
+    transform?: string;
   }
 
   export interface TextStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
@@ -456,7 +435,7 @@ declare module "react-native" {
     fontFeatureSettings?: string;
     textOverflow?: "clip" | "ellipsis";
     textTransform?: "none" | "capitalize" | "uppercase" | "lowercase";
-    transform?: TransformValue;
+    transform?: string;
     whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap";
     wordBreak?: "normal" | "break-all" | "keep-all";
   }
@@ -468,7 +447,7 @@ declare module "react-native" {
     display?: DisplayValue;
     position?: PositionValue;
     scrollBehavior?: "auto" | "smooth";
-    transform?: TransformValue;
+    transform?: string;
     visibility?: VisibilityValue;
   }
 

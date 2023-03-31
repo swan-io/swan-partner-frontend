@@ -481,7 +481,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 <Box alignItems="center">
                   <View style={styles.logo}>
                     <AutoWidthImage
-                      aria-label={projectName}
+                      ariaLabel={projectName}
                       sourceUri={projectLogo ?? logoSwan}
                       height={LOGO_MAX_HEIGHT}
                       maxWidth={LOGO_MAX_WIDTH}
@@ -596,7 +596,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     style={styles.headerMobile}
                   >
                     <AutoWidthImage
-                      aria-label={projectName}
+                      ariaLabel={projectName}
                       sourceUri={projectLogo ?? logoSwan}
                       height={32}
                       resizeMode="contain"

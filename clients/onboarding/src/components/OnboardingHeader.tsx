@@ -61,7 +61,7 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
           style={[styles.container, large && styles.containerDesktop]}
         >
           <AutoWidthImage
-            aria-label={projectName}
+            ariaLabel={projectName}
             sourceUri={projectLogo}
             height={small ? 30 : 40}
             resizeMode="contain"

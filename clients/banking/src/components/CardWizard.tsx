@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
     ...commonStyles.fill,
   },
   header: {
-    paddingTop: spacings[48],
-    paddingBottom: spacings[12],
+    paddingVertical: spacings[12],
   },
   headerContents: {
     flexDirection: "row",

@@ -100,7 +100,7 @@ type Documents = Partial<
 >;
 
 type Props = {
-  templateLanguage: "en" | "fr";
+  templateLanguage: "en" | "fr" | "es" | "de";
   collection: Collection;
   refetchCollection: () => void;
 };

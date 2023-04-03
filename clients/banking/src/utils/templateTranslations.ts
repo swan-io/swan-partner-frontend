@@ -17,6 +17,7 @@ export const getSupportingDocumentPurposeLabel = (category: SupportingDocumentPu
     .with("ProofOfIndividualIncome", () => t("supportingDocuments.ProofOfIndividualIncome.title"))
     .with("ProofOfOriginOfFunds", () => t("supportingDocuments.ProofOfOriginOfFunds.title"))
     .with("SignedStatus", () => t("supportingDocuments.SignedStatus.title"))
+    .with("SwornStatement", () => t("supportingDocuments.SwornStatement.title"))
     .with("UBODeclaration", () => t("supportingDocuments.UBODeclaration.title"))
     .exhaustive();
 
@@ -42,6 +43,7 @@ export const getSupportingDocumentPurposeDescriptionLabel = (
     )
     .with("ProofOfOriginOfFunds", () => t("supportingDocuments.ProofOfOriginOfFunds.description"))
     .with("SignedStatus", () => t("supportingDocuments.SignedStatus.description"))
+    .with("SwornStatement", () => t("supportingDocuments.SwornStatement.description"))
     .with("UBODeclaration", () => t("supportingDocuments.UBODeclaration.description"))
     .exhaustive();
 

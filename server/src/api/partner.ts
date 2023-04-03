@@ -122,13 +122,19 @@ export const onboardIndividualAccountHolder = ({
     );
 };
 
+type FinalizeOnboardingRejectionTypename =
+  | "ForbiddenRejection"
+  | "InternalErrorRejection"
+  | "OnboardingNotCompletedRejection"
+  | "ValidationRejection";
+
 class FinalizeOnboardingRejection extends Error {
   onboardingId: string;
-  __typename: "ForbiddenRejection" | "InternalErrorRejection" | "OnboardingNotCompletedRejection";
+  __typename: FinalizeOnboardingRejectionTypename;
   message: string;
   constructor(
     onboardingId: string,
-    __typename: "ForbiddenRejection" | "InternalErrorRejection" | "OnboardingNotCompletedRejection",
+    __typename: FinalizeOnboardingRejectionTypename,
     message: string,
   ) {
     super();
@@ -194,23 +200,21 @@ export const finalizeOnboarding = ({
     });
 };
 
+type BindAccountMembershipRejectionTypename =
+  | "AccountMembershipNotFoundRejection"
+  | "AccountMembershipNotReadyToBeBoundRejection"
+  | "BadAccountStatusRejection"
+  | "IdentityAlreadyBindToAccountMembershipRejection"
+  | "RestrictedToUserRejection"
+  | "ValidationRejection";
+
 class BindAccountMembershipRejection extends Error {
   accountMembershipId: string;
-  __typename:
-    | "AccountMembershipNotFoundRejection"
-    | "AccountMembershipNotReadyToBeBoundRejection"
-    | "BadAccountStatusRejection"
-    | "IdentityAlreadyBindToAccountMembershipRejection"
-    | "RestrictedToUserRejection";
+  __typename: BindAccountMembershipRejectionTypename;
   message: string;
   constructor(
     accountMembershipId: string,
-    __typename:
-      | "AccountMembershipNotFoundRejection"
-      | "AccountMembershipNotReadyToBeBoundRejection"
-      | "BadAccountStatusRejection"
-      | "IdentityAlreadyBindToAccountMembershipRejection"
-      | "RestrictedToUserRejection",
+    __typename: BindAccountMembershipRejectionTypename,
     message: string,
   ) {
     super();

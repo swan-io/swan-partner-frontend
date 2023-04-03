@@ -150,6 +150,7 @@ export const TransactionMethodCell = ({ transaction }: { transaction: Transactio
       <LakeText align="right" variant="smallMedium" color={colors.gray[600]}>
         {match(transaction)
           .with({ __typename: "CardTransaction" }, () => t("transactions.method.Card"))
+          .with({ __typename: "CheckTransaction" }, () => t("transactions.method.Check"))
           .with({ __typename: "FeeTransaction" }, () => t("transactions.method.Fees"))
           .with(
             { __typename: "InternalCreditTransfer" },

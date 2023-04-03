@@ -4,7 +4,7 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
+import { colors, invariantColors, shadows } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
@@ -68,14 +68,7 @@ const styles = StyleSheet.create({
     maxWidth: 360,
     overflow: "hidden",
     width: "100%",
-
-    shadowColor: invariantColors.black,
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.2,
-    shadowRadius: 7.49,
+    boxShadow: shadows.tile,
   },
   gradient: {
     height: 208,
@@ -174,13 +167,13 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
 
   return (
     <ScrollView style={styles.base} contentContainerStyle={styles.contentContainer}>
-      <View style={styles.header} accessibilityRole="banner">
+      <View style={styles.header} role="banner">
         {isNotNullish(projectLogoUri) ? (
           <>
             <Image
               source={{ uri: projectLogoUri }}
               resizeMode="contain"
-              accessibilityLabel={projectName}
+              aria-label={projectName}
               style={styles.logo}
             />
 
@@ -195,10 +188,10 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
         )}
       </View>
 
-      <View accessibilityRole="none" style={styles.topFixedSpace} />
+      <View role="none" style={styles.topFixedSpace} />
 
       <WithPartnerAccentColor color={accentColor}>
-        <View accessibilityRole="main" style={styles.card}>
+        <View role="main" style={styles.card}>
           <View style={[styles.gradient, { backgroundImage }]}>
             <Svg viewBox="0 0 90 90" style={styles.icon}>
               <Path
@@ -239,7 +232,7 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
         </View>
       </WithPartnerAccentColor>
 
-      <View accessibilityRole="none" style={styles.bottomVariableSpace} />
+      <View role="none" style={styles.bottomVariableSpace} />
     </ScrollView>
   );
 };

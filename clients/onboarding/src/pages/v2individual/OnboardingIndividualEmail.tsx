@@ -39,7 +39,7 @@ const styles = StyleSheet.create({
   linkIcon: {
     marginLeft: 4,
     display: "inline-block",
-    textAlignVertical: "center",
+    verticalAlign: "middle",
   },
 });
 
@@ -151,7 +151,7 @@ export const OnboardingIndividualEmail = ({
                       label={t("individual.step.email.label")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           autoFocus={true}
                           placeholder="example@gmail.com"
                           value={value}

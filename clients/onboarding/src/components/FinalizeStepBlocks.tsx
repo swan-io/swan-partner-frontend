@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
   tcuLinkIcon: {
     marginLeft: 4,
     display: "inline-block",
-    textAlignVertical: "center",
+    verticalAlign: "middle",
   },
 });
 
@@ -181,7 +181,7 @@ export const TcuCheckbox = ({
   <Box alignItems="center" style={styles.tcu}>
     <Box alignItems="start">
       <Box direction="row" alignItems="start">
-        <Pressable accessibilityChecked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
+        <Pressable aria-checked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
           <LakeCheckbox value={accepted} isError={isNotNullish(error)} />
         </Pressable>
 

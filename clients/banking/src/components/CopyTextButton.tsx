@@ -27,7 +27,7 @@ export const CopyTextButton = ({
         mode="secondary"
         size="small"
         icon="copy-regular"
-        accessibilityLabel={t("copyButton.copyTooltip")}
+        ariaLabel={t("copyButton.copyTooltip")}
         onPress={() => {
           Clipboard.setString(value);
           setVisibleState("copied");

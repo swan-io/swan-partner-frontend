@@ -1056,7 +1056,7 @@ input ActivatePhysicalCardInput {
   consentRedirectUrl: String!
 }
 
-union ActivatePhysicalCardPayload = ActivatePhysicalCardSuccessPayload | BadAccountStatusRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection | CannotActivatePhysicalCardRejection | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection
+union ActivatePhysicalCardPayload = ActivatePhysicalCardSuccessPayload | BadAccountStatusRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection | CannotActivatePhysicalCardRejection | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection | ValidationRejection
 
 type ActivatePhysicalCardSuccessPayload {
   """The consent required to activate this physical card"""
@@ -1165,7 +1165,7 @@ input AddCardInput {
   spendingLimit: SpendingLimitInput
 }
 
-union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedRejection | BadAccountStatusRejection | CardProductDisabledRejection | CardProductSuspendedRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection
+union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedRejection | BadAccountStatusRejection | CardProductDisabledRejection | CardProductSuspendedRejection | EnabledCardDesignNotFoundRejection | ForbiddenRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 """Input to add a new cards"""
 input AddCardsInput {
@@ -1177,9 +1177,12 @@ input AddCardsInput {
 
   """The id of the card product to use to create the new cards."""
   cardProductId: ID
+
+  """Custom options to use for physical cards."""
+  physicalCardCustomOptions: PhysicalCardCustomOptionsInput
 }
 
-union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection
+union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddCardsSuccessPayload {
   """The newly created cards"""
@@ -1204,9 +1207,12 @@ input AddCardsWithGroupDeliveryInput {
 
   """The id of the card product to use to create the new cards."""
   cardProductId: ID
+
+  """Custom options to use for physical cards."""
+  physicalCardCustomOptions: PhysicalCardCustomOptionsForGroupDeliveryInput
 }
 
-union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection
+union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddCardsWithGroupDeliverySuccessPayload {
   """The newly created cards"""
@@ -1226,7 +1232,7 @@ input AddDigitalCardInput {
 }
 
 """Payload returned on mutation completion"""
-union AddDigitalCardPayload = AddDigitalCardSuccessPayload | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection
+union AddDigitalCardPayload = AddDigitalCardSuccessPayload | CardNotFoundRejection | CardCanNotBeDigitalizedRejection | ApplePayNotAllowedForProjectRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | UserNotCardHolderRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddDigitalCardSuccessPayload {
   """
@@ -1352,7 +1358,7 @@ input AddFundingLimitSettingsChangeRequestInput {
 }
 
 """Payload returned on mutation completion"""
-union AddFundingLimitSettingsChangeRequestPayload = AddFundingLimitSettingsChangeRequestSuccessPayload | FundingLimitSettingsChangeRequestBadAmountRejection | AccountHolderNotFoundRejection | ForbiddenRejection
+union AddFundingLimitSettingsChangeRequestPayload = AddFundingLimitSettingsChangeRequestSuccessPayload | FundingLimitSettingsChangeRequestBadAmountRejection | AccountHolderNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 """Add Funding Limit Settings Change Request Success Payload"""
 type AddFundingLimitSettingsChangeRequestSuccessPayload {
@@ -1629,7 +1635,7 @@ input AddSingleUseVirtualCardInput {
   cardProductId: ID
 }
 
-union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection
+union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayload | AddSingleUseVirtualCardSuccessForProjectOwnerPayload | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 """Input to add a new single-use virtual cards"""
 input AddSingleUseVirtualCardsInput {
@@ -1643,7 +1649,7 @@ input AddSingleUseVirtualCardsInput {
   cardProductId: ID
 }
 
-union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection
+union AddSingleUseVirtualCardsPayload = AddSingleUseVirtualCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | TooManyItemsRejection | BadAccountStatusRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type AddSingleUseVirtualCardsSuccessPayload {
   """The newly created single use virtual cards"""
@@ -1663,7 +1669,7 @@ type AddSingleUseVirtualCardSuccessForUserPayload {
   card: Card!
 }
 
-union AddVirtualIbanEntryPayload = AddVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection
+union AddVirtualIbanEntryPayload = AddVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | ValidationRejection
 
 type AddVirtualIbanEntrySuccessPayload {
   virtualIbanEntry: VirtualIBANEntry!
@@ -1681,7 +1687,7 @@ input AllowSddInput {
   accountId: ID!
 }
 
-union AllowSddPayload = AllowSddSuccessPayload | AccountNotFoundRejection
+union AllowSddPayload = AllowSddSuccessPayload | AccountNotFoundRejection | ValidationRejection
 
 type AllowSddSuccessPayload {
   account: Account!
@@ -1691,7 +1697,7 @@ input AllowSddVirtualIbanEntryInput {
   ibanEntryId: ID!
 }
 
-union AllowSddVirtualIbanEntryPayload = AllowSddVirtualIbanEntrySuccessPayload | BadAccountStatusRejection
+union AllowSddVirtualIbanEntryPayload = AllowSddVirtualIbanEntrySuccessPayload | BadAccountStatusRejection | ValidationRejection
 
 type AllowSddVirtualIbanEntrySuccessPayload {
   virtualIbanEntry: VirtualIBANEntry!
@@ -1875,7 +1881,7 @@ input BindAccountMembershipInput {
   accountMembershipId: ID!
 }
 
-union BindAccountMembershipPayload = BindAccountMembershipSuccessPayload | BadAccountStatusRejection | AccountMembershipNotFoundRejection | AccountMembershipNotReadyToBeBoundRejection | IdentityAlreadyBindToAccountMembershipRejection | RestrictedToUserRejection
+union BindAccountMembershipPayload = BindAccountMembershipSuccessPayload | BadAccountStatusRejection | AccountMembershipNotFoundRejection | AccountMembershipNotReadyToBeBoundRejection | IdentityAlreadyBindToAccountMembershipRejection | RestrictedToUserRejection | ValidationRejection
 
 type BindAccountMembershipSuccessPayload {
   accountMembership: AccountMembership!
@@ -1923,7 +1929,7 @@ input CancelCardInput {
   cardId: ID!
 }
 
-union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection
+union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelCardSuccessPayload {
   """the card canceled"""
@@ -1949,7 +1955,7 @@ input CancelDigitalCardInput {
   digitalCardId: ID!
 }
 
-union CancelDigitalCardPayload = CancelDigitalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | DigitalCardNotFoundRejection | ForbiddenRejection
+union CancelDigitalCardPayload = CancelDigitalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | DigitalCardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelDigitalCardSuccessPayload {
   """the digital card canceled"""
@@ -2031,7 +2037,7 @@ input CancelPhysicalCardInput {
   reason: CancelPhysicalCardReason!
 }
 
-union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection
+union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
 
 """reason why the physical card is canceled"""
 enum CancelPhysicalCardReason {
@@ -2082,7 +2088,7 @@ input CancelVirtualIbanEntryInput {
   virtualIbanEntryId: ID!
 }
 
-union CancelVirtualIbanEntryPayload = CancelVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | InternalErrorRejection
+union CancelVirtualIbanEntryPayload = CancelVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | InternalErrorRejection | ValidationRejection
 
 type CancelVirtualIbanEntrySuccessPayload {
   virtualIbanEntry: VirtualIBANEntry!
@@ -3002,6 +3008,12 @@ type CardTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 enum CardTransactionCategory {
@@ -3117,11 +3129,113 @@ type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Product"""
+  rollingReserve: RollingReserve
+}
+
+input CheckPaymentCollectionInput {
+  """ID of the Merchant profile associated to the Swan creditor account"""
+  merchantProfileId: ID!
+
+  """
+  31-caracter unique identifier located at the bottom of the check.
+  CMC7 is composed of 3 sections (check number (7 char.), check issuing bank code (12 char.), check holder account number (12 char.)).
+  Combined with RLMC key, it  allows the check traceability.
+  """
+  cmc7: String!
+
+  """
+  2-digit key used to check the integrity of the CMC7 line, located at the bottom right of the check.
+  Combined with CMC7 line, it allows the check traceability.
+  """
+  rlmcKey: String!
 }
 
 input CheckPaymentProductInput {
   """Determine whether the payment product must be activated or not"""
   activate: Boolean = false
+}
+
+"""Check transaction"""
+type CheckTransaction implements Transaction {
+  """unique identifier of the transaction"""
+  id: ID!
+
+  """
+  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain.
+  """
+  reference: String!
+
+  """payment method identifier used for this transaction: accountNumber"""
+  paymentMethodIdentifier: String!
+
+  """side (Credit or Debit)"""
+  side: TransactionSide!
+
+  """type"""
+  type: TransactionTypeEnum!
+
+  """amount"""
+  amount: Amount!
+
+  """label"""
+  label: String!
+
+  """status information"""
+  statusInfo: TransactionStatusInfo!
+
+  """ID of the payment associated to this transaction"""
+  paymentId: String
+
+  """payment associated to this transaction"""
+  payment: Payment
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+
+  """
+  name of the counterparty. e.g Merchant name, Creditor name, Beneficiary Name ...
+  """
+  counterparty: String!
+
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount
+
+  """payment product used for this transaction"""
+  paymentProduct: PaymentProduct!
+
+  """creditor information"""
+  creditor: InternalDirectDebitCreditor!
+
+  """matching account for the transaction"""
+  account: Account
+
+  """
+  an arbitrary identifier that was defined by you when you created this transaction.
+  
+  For example, you can define it in the CreditTransferInput mutation.
+  """
+  externalReference: String
+
+  """
+  a date that reflects the execution date of a transaction from a user viewpoint. Can be used for sorting transactions.
+  """
+  executionDate: DateTime!
+
+  """
+  a date that reflects the time at which the user asked the transaction to be executed
+  """
+  requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 input CloseAccountInput {
@@ -3132,7 +3246,7 @@ input CloseAccountInput {
   consentRedirectUrl: String!
 }
 
-union CloseAccountPayload = CloseAccountSuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | InternalErrorRejection
+union CloseAccountPayload = CloseAccountSuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection
 
 """
 Define a reason with a message and a specific type for closing account action
@@ -3632,10 +3746,21 @@ input CreditTransferInput {
   externalReference: String
 
   """
+  *SOON TO BE DEPRECATED*
   if the transfer will execute as instant
-  feature is coming soon
   """
   isInstant: Boolean
+
+  """
+  if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
+  """
+  mode: CreditTransferMode
+}
+
+enum CreditTransferMode {
+  InstantWithoutFallback
+  InstantWithFallback
+  Regular
 }
 
 """Custom information for a CSV statement"""
@@ -3679,7 +3804,7 @@ input DeleteSupportingDocumentInput {
   id: ID!
 }
 
-union DeleteSupportingDocumentPayload = DeleteSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowDeletionRejection
+union DeleteSupportingDocumentPayload = DeleteSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowDeletionRejection | ValidationRejection
 
 type DeleteSupportingDocumentSuccessPayload {
   id: String!
@@ -3689,7 +3814,7 @@ input DenySddInput {
   accountId: ID!
 }
 
-union DenySddPayload = DenySddSuccessPayload | BadAccountStatusRejection | AccountNotFoundRejection | InvalidArgumentRejection
+union DenySddPayload = DenySddSuccessPayload | BadAccountStatusRejection | AccountNotFoundRejection | InvalidArgumentRejection | ValidationRejection
 
 type DenySddSuccessPayload {
   account: Account!
@@ -3699,7 +3824,7 @@ input DenySddVirtualIbanEntryInput {
   ibanEntryId: ID!
 }
 
-union DenySddVirtualIbanEntryPayload = DenySddVirtualIbanEntrySuccessPayload | BadAccountStatusRejection
+union DenySddVirtualIbanEntryPayload = DenySddVirtualIbanEntrySuccessPayload | BadAccountStatusRejection | ValidationRejection
 
 type DenySddVirtualIbanEntrySuccessPayload {
   virtualIbanEntry: VirtualIBANEntry!
@@ -3956,7 +4081,7 @@ input DisableAccountMembershipInput {
   accountMembershipId: ID!
 }
 
-union DisableAccountMembershipPayload = DisableAccountMembershipSuccessPayload | AccountMembershipCannotBeDisabledRejection | AccountMembershipNotFoundRejection | ForbiddenRejection | InternalErrorRejection | LegalRepresentativeAccountMembershipCannotBeDisabledRejection | UserNotAllowedToDisableItsOwnAccountMembershipRejection
+union DisableAccountMembershipPayload = DisableAccountMembershipSuccessPayload | AccountMembershipCannotBeDisabledRejection | AccountMembershipNotFoundRejection | ForbiddenRejection | InternalErrorRejection | LegalRepresentativeAccountMembershipCannotBeDisabledRejection | UserNotAllowedToDisableItsOwnAccountMembershipRejection | ValidationRejection
 
 type DisableAccountMembershipSuccessPayload {
   accountMembership: AccountMembership
@@ -4393,6 +4518,12 @@ type FeeTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 enum FieldValidationError {
@@ -4403,7 +4534,7 @@ input FinalizeOnboardingInput {
   onboardingId: String!
 }
 
-union FinalizeOnboardingPayload = FinalizeOnboardingSuccessPayload | InternalErrorRejection | ForbiddenRejection | OnboardingNotCompletedRejection
+union FinalizeOnboardingPayload = FinalizeOnboardingSuccessPayload | InternalErrorRejection | ForbiddenRejection | OnboardingNotCompletedRejection | ValidationRejection
 
 type FinalizeOnboardingSuccessPayload {
   onboarding: Onboarding!
@@ -4745,7 +4876,7 @@ input GenerateSupportingDocumentUploadUrlInput {
   supportingDocumentPurpose: SupportingDocumentPurposeEnum
 }
 
-union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUploadUrlSuccessPayload | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | SupportingDocumentUploadNotAllowedRejection
+union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUploadUrlSuccessPayload | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | SupportingDocumentUploadNotAllowedRejection | ValidationRejection
 
 type GenerateSupportingDocumentUploadUrlSuccessPayload {
   """Id of the supporting document created for this uploadUrl"""
@@ -4779,7 +4910,7 @@ input GrantConsentWithServerSignatureInput {
 }
 
 """Payload of the `grantConsentWithServerSignature` mutation"""
-union GrantConsentWithServerSignaturePayload = GrantConsentWithServerSignatureSuccessPayload | ConsentNotFoundRejection | NotReachableConsentStatusRejection | ForbiddenRejection | ConsentTypeNotSupportedByServerConsentRejection | ServerConsentNotAllowedForConsentOperationRejection | ProjectNotFoundRejection | ServerConsentNotAllowedForProjectRejection | ServerConsentProjectSettingsNotFoundRejection | ServerConsentProjectCredentialMissingRejection | ServerConsentProjectCredentialNotFoundRejection | ServerConsentSignatureNotValidRejection
+union GrantConsentWithServerSignaturePayload = GrantConsentWithServerSignatureSuccessPayload | ConsentNotFoundRejection | NotReachableConsentStatusRejection | ForbiddenRejection | ConsentTypeNotSupportedByServerConsentRejection | ServerConsentNotAllowedForConsentOperationRejection | ProjectNotFoundRejection | ServerConsentNotAllowedForProjectRejection | ServerConsentProjectSettingsNotFoundRejection | ServerConsentProjectCredentialMissingRejection | ServerConsentProjectCredentialNotFoundRejection | ServerConsentCredentialsNotValidOrOutdatedRejection | ServerConsentSignatureNotValidRejection
 
 """Success payload of the `grantConsentWithServerSignature` mutation"""
 type GrantConsentWithServerSignatureSuccessPayload {
@@ -4982,23 +5113,23 @@ interface IndividualUltimateBeneficialOwnerInfo {
 
 input IndividualUltimateBeneficialOwnerInput {
   """
-  Individual beneficial owner first name. Length must be from 1 to 100 characters
+  Individual beneficial owner first name. Length must be from 0 to 100 characters
   """
   firstName: String
 
   """
-  Individual beneficial owner  last name. Length must be from 1 to 100 characters
+  Individual beneficial owner  last name. Length must be from 0 to 100 characters
   """
   lastName: String
 
   """Individual birth date. Must be a valid date"""
   birthDate: String
 
-  """Individual birth city. Length must be from 1 to 100 characters"""
+  """Individual birth city. Length must be from 0 to 100 characters"""
   birthCity: String
 
   """
-  Individual birth city postal code. Length must be from 1 to 50 characters
+  Individual birth city postal code. Length must be from 0 to 50 characters
   """
   birthCityPostalCode: String
 
@@ -5136,11 +5267,14 @@ type InitiateFundingRequestSuccessPayload {
 }
 
 input InitiateMerchantPaymentCollectionInput {
-  """amount of the concerned payment collection"""
+  """
+  Amount of the concerned payment collection. For check deposit, the amount should not exceed 10 000€.
+  """
   amount: AmountInput!
 
   """
-  label of the concerned payment collection, which will be displayed on the bank statement of the payer/debtor
+  Label of the concerned payment collection, which will be displayed on Swan bank statement -
+  For checks transaction, if empty, default label will be set as "Check N° [1st part of CMC7 - 7 char.]
   """
   label: String
 
@@ -5154,6 +5288,9 @@ input InitiateMerchantPaymentCollectionInput {
 
   """Internal direct debit type of payment collection"""
   internalDirectDebit: InternalDirectDebitPaymentCollectionInput
+
+  """Check type of payment collection"""
+  check: CheckPaymentCollectionInput
 }
 
 union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
@@ -5277,6 +5414,12 @@ type InternalCreditTransfer implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 """Internal Credit Transfer creditor"""
@@ -5375,6 +5518,9 @@ type InternalDirectDebitMerchantPaymentProduct implements MerchantPaymentProduct
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Product"""
+  rollingReserve: RollingReserve
 }
 
 input InternalDirectDebitPaymentCollectionInput {
@@ -5480,6 +5626,12 @@ type InternalDirectDebitTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 """Rejection returned on unexpected server error"""
@@ -6237,6 +6389,9 @@ interface MerchantPaymentProduct {
 
   """Date at which the Merchant Payment Product was last updated"""
   updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Product"""
+  rollingReserve: RollingReserve
 }
 
 """The different statuses a MerchantPaymentProduct can have"""
@@ -6878,12 +7033,12 @@ type OAuthRedirectParameters {
 
 input OAuthRedirectParametersInput {
   """
-  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 1 to 255 characters
+  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 0 to 255 characters
   """
   state: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 1 to 255 characters
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 0 to 255 characters
   """
   redirectUrl: String
 }
@@ -6892,15 +7047,15 @@ input OAuthRedirectParametersInput {
 input OnboardCompanyAccountHolderInput {
   """
   Account name of the company account holder.
-  Length must be from 1 to 100 characters
+  Length must be from 0 to 100 characters
   """
   accountName: String
 
-  """Name of the company. Length must be from 1 to 255 characters"""
+  """Name of the company. Length must be from 0 to 255 characters"""
   name: String
 
   """
-  Registration number of the company (SIRET, ...). Length must be from 1 to 50 characters
+  Registration number of the company (SIRET, ...). Length must be from 0 to 50 characters
   """
   registrationNumber: String
 
@@ -6911,7 +7066,7 @@ input OnboardCompanyAccountHolderInput {
   businessActivity: BusinessActivity
 
   """
-  Business activity description. Length must be from 1 to 1024 characters
+  Business activity description. Length must be from 0 to 1024 characters
   """
   businessActivityDescription: String
 
@@ -6936,7 +7091,7 @@ input OnboardCompanyAccountHolderInput {
   residencyAddress: ResidencyAddressInput
 
   """
-  Email of the legal representative. Length must be from 1 to 255 characters
+  Email of the legal representative. Length must be from 0 to 255 characters
   """
   email: String
 
@@ -6945,7 +7100,7 @@ input OnboardCompanyAccountHolderInput {
 
   """
   URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking.
-  Length must be from 1 to 255 characters
+  Length must be from 0 to 255 characters
   """
   redirectUrl: String
 
@@ -6988,7 +7143,7 @@ input OnboardCompanyShareholderInput {
 
 input OnboardIndividualAccountHolderInput {
   """
-  Account name of the individual account holder. Length must be from 1 to 255 characters
+  Account name of the individual account holder. Length must be from 0 to 255 characters
   """
   accountName: String
 
@@ -7008,14 +7163,14 @@ input OnboardIndividualAccountHolderInput {
   """
   residencyAddress: ResidencyAddressInput
 
-  """Email. Length must be from 1 to 255 characters"""
+  """Email. Length must be from 0 to 255 characters"""
   email: String
 
   """Language of the onboarding process. Must be compliant with RFC 5646"""
   language: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 1 to 255 characters
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 0 to 255 characters
   """
   redirectUrl: String
 
@@ -7773,6 +7928,9 @@ enum PaymentProduct {
 
   """When the payment is an Internal Direct Debit operation"""
   InternalDirectDebit
+
+  """When the payment is a Check operation"""
+  Check
 }
 
 """Payment status rejected"""
@@ -7999,6 +8157,21 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
   consent: Consent!
 }
 
+input PhysicalCardCustomOptionsForGroupDeliveryInput {
+  """Additional line to be embossed on the card."""
+  additionalEmbossedLine: String
+}
+
+input PhysicalCardCustomOptionsForPrintInput {
+  """Additional line to be embossed on the card."""
+  additionalEmbossedLine: String
+}
+
+input PhysicalCardCustomOptionsInput {
+  """Additional line to be embossed on the card."""
+  additionalEmbossedLine: String
+}
+
 """Rejection returned when the Physical Card does not exist"""
 type PhysicalCardNotFoundRejection implements Rejection {
   message: String!
@@ -8147,9 +8320,12 @@ input PrintPhysicalCardInput {
 
   """URL the user is redirected to after consent has been given"""
   consentRedirectUrl: String!
+
+  """Custom options to use for physical cards."""
+  physicalCardCustomOptions: PhysicalCardCustomOptionsForPrintInput
 }
 
-union PrintPhysicalCardPayload = PrintPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | AlreadyValidPhysicalCardRejection | BadAccountStatusRejection | BadRequestRejection | CardNotFoundRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection
+union PrintPhysicalCardPayload = PrintPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | AlreadyValidPhysicalCardRejection | BadAccountStatusRejection | BadRequestRejection | CardNotFoundRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | MissingMandatoryFieldRejection | ValidationRejection
 
 type PrintPhysicalCardSuccessPayload {
   """The physicalCard created"""
@@ -9002,6 +9178,9 @@ type RejectedTransactionStatusInfo implements TransactionStatusInfo {
 
   """reason code"""
   reason: RejectedReasonCode!
+
+  """`true` if the transaction had a fallback"""
+  hasFallback: Boolean!
 }
 
 """Rejected Verification Reason"""
@@ -9066,26 +9245,26 @@ input RequestSupportingDocumentCollectionReviewInput {
   supportingDocumentCollectionId: ID!
 }
 
-union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocumentCollectionReviewSuccessPayload | ForbiddenRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusNotAllowedRejection
+union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocumentCollectionReviewSuccessPayload | ForbiddenRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusNotAllowedRejection | ValidationRejection
 
 type RequestSupportingDocumentCollectionReviewSuccessPayload {
   supportingDocumentCollection: SupportingDocumentCollection!
 }
 
 input ResidencyAddressInput {
-  """Address line 1. Length must be from 1 to 255 characters"""
+  """Address line 1. Length must be from 0 to 255 characters"""
   addressLine1: String
 
-  """AddressLine2. Length must be from 1 to 255 characters"""
+  """AddressLine2. Length must be from 0 to 255 characters"""
   addressLine2: String
 
-  """City. Length must be from 1 to 100 characters"""
+  """City. Length must be from 0 to 100 characters"""
   city: String
 
-  """Postal code. Length must be from 1 to 50 characters"""
+  """Postal code. Length must be from 0 to 50 characters"""
   postalCode: String
 
-  """State of residency. Length must be from 1 to 100 characters"""
+  """State of residency. Length must be from 0 to 100 characters"""
   state: String
 
   """Country"""
@@ -9137,7 +9316,7 @@ input ResumeAccountMembershipInput {
   consentRedirectUrl: String!
 }
 
-union ResumeAccountMembershipPayload = ResumeAccountMembershipSuccessPayload | ForbiddenRejection | UserNotAllowedToManageAccountMembershipRejection
+union ResumeAccountMembershipPayload = ResumeAccountMembershipSuccessPayload | ForbiddenRejection | UserNotAllowedToManageAccountMembershipRejection | ValidationRejection
 
 type ResumeAccountMembershipSuccessPayload {
   consent: Consent!
@@ -9152,7 +9331,7 @@ input ResumePhysicalCardInput {
   consentRedirectUrl: String!
 }
 
-union ResumePhysicalCardPayload = ResumePhysicalCardSuccessPayload | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection
+union ResumePhysicalCardPayload = ResumePhysicalCardSuccessPayload | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection | ValidationRejection
 
 type ResumePhysicalCardSuccessPayload {
   """The physicalCard to resume"""
@@ -9520,6 +9699,12 @@ type SEPACreditTransferTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 """Sepa Direct Debit Creditor"""
@@ -9735,6 +9920,12 @@ type SEPADirectDebitTransaction implements Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 """Payment direct debit mandate for SEPA"""
@@ -9975,6 +10166,13 @@ with some follow extra rules :
 """
 scalar SepaReference
 
+"""
+Rejection returned when signature is not valid or remote IP address is not allowed
+"""
+type ServerConsentCredentialsNotValidOrOutdatedRejection implements Rejection {
+  message: String!
+}
+
 """Rejection returned when server consent is not allowed on the consent"""
 type ServerConsentNotAllowedForConsentOperationRejection implements Rejection {
   message: String!
@@ -10008,7 +10206,10 @@ type ServerConsentProjectSettingsNotFoundRejection implements Rejection {
   message: String!
 }
 
-"""Rejection returned when the signature is not valid"""
+"""
+Rejection returned when the signature is not valid
+@Deprecated
+"""
 type ServerConsentSignatureNotValidRejection implements Rejection {
   message: String!
 }
@@ -10621,6 +10822,9 @@ enum SupportingDocumentPurposeEnum {
 
   """UBO Declaration"""
   UBODeclaration
+
+  """Sworn statement"""
+  SwornStatement
 }
 
 """Supporting document with Refused status"""
@@ -10791,6 +10995,9 @@ enum SupportingDocumentType {
 
   """Notarial deed"""
   NotarialDeed
+
+  """Sworn statement"""
+  SwornStatement
 }
 
 """Supporting document with Uploaded status"""
@@ -10848,7 +11055,7 @@ input SuspendAccountMembershipInput {
   accountMembershipId: ID!
 }
 
-union SuspendAccountMembershipPayload = SuspendAccountMembershipSuccessPayload | InternalErrorRejection | LegalRepresentativeAccountMembershipCannotBeSuspendedRejection | UserNotAllowedToManageAccountMembershipRejection | UserNotAllowedToSuspendItsOwnAccountMembershipRejection
+union SuspendAccountMembershipPayload = SuspendAccountMembershipSuccessPayload | InternalErrorRejection | LegalRepresentativeAccountMembershipCannotBeSuspendedRejection | UserNotAllowedToManageAccountMembershipRejection | UserNotAllowedToSuspendItsOwnAccountMembershipRejection | ValidationRejection
 
 type SuspendAccountMembershipSuccessPayload {
   accountMembership: AccountMembership!
@@ -10912,7 +11119,7 @@ input SuspendPhysicalCardInput {
   cardId: ID!
 }
 
-union SuspendPhysicalCardPayload = SuspendPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection
+union SuspendPhysicalCardPayload = SuspendPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
 
 type SuspendPhysicalCardSuccessPayload {
   """The physicalCard suspended"""
@@ -11051,6 +11258,12 @@ interface Transaction {
   a date that reflects the time at which the user asked the transaction to be executed
   """
   requestedExecutionAt: DateTime
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
 }
 
 """Please see the Connection interface"""
@@ -11091,6 +11304,11 @@ input TransactionsFiltersInput {
 
   """To filter on some transaction types"""
   type: [TransactionTypeEnum!]
+
+  """
+  To filter so it includes rejected transactions that had a fallback (`true` by default)
+  """
+  includeRejectedWithFallback: Boolean
 }
 
 """Transaction side"""
@@ -11279,6 +11497,12 @@ enum TransactionTypeEnum {
 
   """When a Internal Direct Debit debited a Swan account."""
   InternalDirectDebitOut
+
+  """
+  *COMING SOON*
+  When a Check credited a Swan account.
+  """
+  CheckIn
 }
 
 """Quality of the account holder doing the onboarding"""
@@ -11425,9 +11649,10 @@ type UpcomingTransactionStatusInfo implements TransactionStatusInfo {
 input UpdateAccountHolderInput {
   accountHolderId: ID!
   vatNumber: String
+  taxIdentificationNumber: String
 }
 
-union UpdateAccountHolderPayload = UpdateAccountHolderSuccessPayload | AccountHolderNotFoundRejection
+union UpdateAccountHolderPayload = UpdateAccountHolderSuccessPayload | AccountHolderNotFoundRejection | ValidationRejection
 
 type UpdateAccountHolderSuccessPayload {
   accountHolder: AccountHolder!
@@ -11491,7 +11716,7 @@ type UpdateAccountMembershipSuccessPayload {
   consent: Consent!
 }
 
-union UpdateAccountPayload = UpdateAccountSuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | InternalErrorRejection
+union UpdateAccountPayload = UpdateAccountSuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | InternalErrorRejection | ValidationRejection
 
 type UpdateAccountSuccessPayload {
   account: Account!
@@ -11529,7 +11754,7 @@ input UpdateCardInput {
   name: String
 }
 
-union UpdateCardPayload = UpdateCardSuccessPayload | AccountNotFoundRejection | CardNotFoundRejection | AccountMembershipNotAllowedRejection
+union UpdateCardPayload = UpdateCardSuccessPayload | AccountNotFoundRejection | CardNotFoundRejection | AccountMembershipNotAllowedRejection | ValidationRejection
 
 type UpdateCardSuccessPayload {
   consent: Consent!
@@ -11537,7 +11762,7 @@ type UpdateCardSuccessPayload {
 
 input UpdateCompanyOnboardingInput {
   """
-  Account name of the company account holder. Length must be from 1 to 100 characters
+  Account name of the company account holder. Length must be from 0 to 100 characters
   """
   accountName: String
 
@@ -11546,11 +11771,11 @@ input UpdateCompanyOnboardingInput {
   """
   accountCountry: AccountCountry
 
-  """Name of the company. Length must be from 1 to 255 characters"""
+  """Name of the company. Length must be from 0 to 255 characters"""
   name: String
 
   """
-  Registration number of the company (SIRET, ...). Length must be from 1 to 50 characters
+  Registration number of the company (SIRET, ...). Length must be from 0 to 50 characters
   """
   registrationNumber: String
 
@@ -11561,7 +11786,7 @@ input UpdateCompanyOnboardingInput {
   businessActivity: BusinessActivity
 
   """
-  Business activity description. Length must be from 1 to 1024 characters
+  Business activity description. Length must be from 0 to 1024 characters
   """
   businessActivityDescription: String
 
@@ -11581,7 +11806,7 @@ input UpdateCompanyOnboardingInput {
   residencyAddress: ResidencyAddressInput
 
   """
-  Email of the legal representative. Length must be from 1 to 255 characters
+  Email of the legal representative. Length must be from 0 to 255 characters
   """
   email: String
 
@@ -11632,7 +11857,7 @@ input UpdatedRestrictedToInput {
 
 input UpdateIndividualOnboardingInput {
   """
-  Account name of the individual account holder. Length must be from 1 to 255 characters
+  Account name of the individual account holder. Length must be from 0 to 255 characters
   """
   accountName: String
 
@@ -11652,7 +11877,7 @@ input UpdateIndividualOnboardingInput {
   """
   residencyAddress: ResidencyAddressInput
 
-  """Email. Length must be from 1 to 255 characters"""
+  """Email. Length must be from 0 to 255 characters"""
   email: String
 
   """Language of the onboarding process. Must be compliant with RFC 5646"""
@@ -11718,7 +11943,7 @@ input UpdateSupportingDocumentInput {
   supportingDocumentPurpose: SupportingDocumentPurposeEnum
 }
 
-union UpdateSupportingDocumentPayload = UpdateSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowUpdateRejection
+union UpdateSupportingDocumentPayload = UpdateSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowUpdateRejection | ValidationRejection
 
 type UpdateSupportingDocumentSuccessPayload {
   supportingDocument: SupportingDocument!
@@ -11804,6 +12029,12 @@ type User {
   When it is "null" it means that the preferences have not been updated. Default SMS in use
   """
   preferredNotificationChannel: PreferredNotificationChannel
+
+  """Creation date of the user"""
+  createdAt: DateTime!
+
+  """Last update date of the user"""
+  updatedAt: DateTime!
 
   """The list of account memberships"""
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
@@ -11942,7 +12173,7 @@ input ViewCardNumbersInput {
   consentRedirectUrl: String!
 }
 
-union ViewCardNumbersPayload = ViewCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection
+union ViewCardNumbersPayload = ViewCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection
 
 type ViewCardNumbersSuccessPayload {
   """The consent required to view card numbers"""
@@ -11957,7 +12188,7 @@ input ViewPhysicalCardNumbersInput {
   consentRedirectUrl: String!
 }
 
-union ViewPhysicalCardNumbersPayload = ViewPhysicalCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection
+union ViewPhysicalCardNumbersPayload = ViewPhysicalCardNumbersSuccessPayload | UserNotCardHolderRejection | CardNotFoundRejection | ValidationRejection
 
 type ViewPhysicalCardNumbersSuccessPayload {
   """The consent required to view card numbers"""
@@ -11972,7 +12203,7 @@ input ViewPhysicalCardPinInput {
   consentRedirectUrl: String!
 }
 
-union ViewPhysicalCardPinPayload = ViewPhysicalCardPinSuccessPayload | CardNotFoundRejection | PhysicalCardNotFoundRejection | PINNotReadyRejection | UserNotCardHolderRejection
+union ViewPhysicalCardPinPayload = ViewPhysicalCardPinSuccessPayload | CardNotFoundRejection | PhysicalCardNotFoundRejection | PINNotReadyRejection | UserNotCardHolderRejection | ValidationRejection
 
 type ViewPhysicalCardPinSuccessPayload {
   """The consent required to view card numbers"""

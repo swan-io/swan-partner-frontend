@@ -32,6 +32,7 @@ const styles = StyleSheet.create({
   },
 
   panBottomSpacer: {
+    pointerEvents: "none",
     height: "9.5%",
   },
   bottomLineRow: {
@@ -49,6 +50,7 @@ const styles = StyleSheet.create({
   monospacedText: {
     fontFamily: '"Inter Card", Inter, monospace',
     lineHeight: "1" as unknown as number,
+    userSelect: "none",
   },
   statusLayer: {
     position: "absolute",
@@ -127,7 +129,7 @@ export const MaskedCard = ({
       }}
     >
       {/* garantee the credit card ratio */}
-      <Svg accessibilityRole="none" viewBox="0 0 85 55" />
+      <Svg role="none" viewBox="0 0 85 55" />
 
       <ImageBackground
         source={{ uri: cardDesignUrl }}
@@ -163,24 +165,15 @@ export const MaskedCard = ({
           {match(status)
             .with("Activated", "Enabled", "Renewed", "ToActivate", "Suspended", () => (
               <>
-                <Text
-                  selectable={false}
-                  style={[styles.monospacedText, { color: textColor, fontSize: panFontSize }]}
-                >
+                <Text style={[styles.monospacedText, { color: textColor, fontSize: panFontSize }]}>
                   {formatPan(pan)}
                 </Text>
 
-                <View
-                  pointerEvents="none"
-                  focusable={false}
-                  collapsable={true}
-                  style={styles.panBottomSpacer}
-                />
+                <View tabIndex={-1} collapsable={true} style={styles.panBottomSpacer} />
 
                 <Box direction="row" alignItems="center" style={styles.bottomLineRow}>
                   <View style={styles.expiryDateWrapper}>
                     <Text
-                      selectable={false}
                       style={[
                         styles.monospacedText,
                         { color: textColor, fontSize: expiryDateFontSize },
@@ -192,7 +185,6 @@ export const MaskedCard = ({
 
                   <Box direction="row" alignItems="center" style={styles.cvvWrapper}>
                     <Text
-                      selectable={false}
                       style={[
                         styles.monospacedText,
                         { color: textColor, fontSize: expiryDateFontSize },

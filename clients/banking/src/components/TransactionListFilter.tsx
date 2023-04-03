@@ -19,7 +19,7 @@ import { validateDate } from "../utils/validations";
 
 const isAfterUpdatedAtFilter: FilterDateDef = {
   type: "date",
-  label: t("transationList.filter.isAfterUpdatedAt"),
+  label: t("transactionList.filter.isAfterUpdatedAt"),
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
   dateFormat: locale.dateFormat,
@@ -29,7 +29,7 @@ const isAfterUpdatedAtFilter: FilterDateDef = {
 
 const isBeforeUpdatedAtFilter: FilterDateDef = {
   type: "date",
-  label: t("transationList.filter.isBeforeUpdatedAt"),
+  label: t("transactionList.filter.isBeforeUpdatedAt"),
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
   dateFormat: locale.dateFormat,
@@ -39,7 +39,7 @@ const isBeforeUpdatedAtFilter: FilterDateDef = {
 
 const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {
   type: "checkbox",
-  label: t("transationList.filter.paymentMethod"),
+  label: t("transactionList.filter.paymentMethod"),
   submitText: t("common.filters.apply"),
   checkAllLabel: t("common.filters.all"),
   items: [
@@ -52,7 +52,7 @@ const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {
 
 const statusFilter: FilterCheckboxDef<TransactionStatus> = {
   type: "checkbox",
-  label: t("transationList.filter.status"),
+  label: t("transactionList.filter.status"),
   submitText: t("common.filters.apply"),
   checkAllLabel: t("common.filters.all"),
   items: [
@@ -111,19 +111,19 @@ export const TransactionListFilter = ({
         [
           {
             name: "isAfterUpdatedAt",
-            label: t("transationList.filter.isAfterUpdatedAt"),
+            label: t("transactionList.filter.isAfterUpdatedAt"),
           },
           {
             name: "isBeforeUpdatedAt",
-            label: t("transationList.filter.isBeforeUpdatedAt"),
+            label: t("transactionList.filter.isBeforeUpdatedAt"),
           },
           {
             name: "paymentProduct",
-            label: t("transationList.filter.paymentMethod"),
+            label: t("transactionList.filter.paymentMethod"),
           },
           {
             name: "status",
-            label: t("transationList.filter.status"),
+            label: t("transactionList.filter.status"),
           },
         ] as const
       ).filter(item => availableSet.has(item.name)),
@@ -172,7 +172,7 @@ export const TransactionListFilter = ({
             <Space width={16} />
 
             <LakeButton
-              accessibilityLabel={t("common.refresh")}
+              ariaLabel={t("common.refresh")}
               mode="secondary"
               size="small"
               icon="arrow-counterclockwise-filled"

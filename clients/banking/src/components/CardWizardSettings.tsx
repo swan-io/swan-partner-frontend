@@ -169,8 +169,8 @@ const CardWizardSettingsBooleanTile = ({
 }: CardWizardSettingsBooleanTileProps) => {
   return (
     <Pressable
-      accessibilityRole="checkbox"
-      accessibilityChecked={checked}
+      role="checkbox"
+      aria-checked={checked}
       onPress={() => onChange(!checked)}
       style={styles.container}
     >
@@ -185,7 +185,7 @@ const CardWizardSettingsBooleanTile = ({
                 <LakeHeading
                   level={3}
                   variant="h5"
-                  selectable={false}
+                  userSelect="none"
                   style={styles.booleanTileText}
                 >
                   {title}
@@ -194,11 +194,7 @@ const CardWizardSettingsBooleanTile = ({
 
               {desktop && (
                 <View style={styles.text}>
-                  <LakeText
-                    variant="smallRegular"
-                    selectable={false}
-                    style={styles.booleanTileText}
-                  >
+                  <LakeText variant="smallRegular" userSelect="none" style={styles.booleanTileText}>
                     {description}
                   </LakeText>
                 </View>
@@ -325,7 +321,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                 optionalLabel={t("form.optional")}
                 render={id => (
                   <LakeTextInput
-                    nativeID={id}
+                    id={id}
                     value={currentSettings.cardName ?? ""}
                     onChangeText={cardName =>
                       setCurrentSettings(settings => ({
@@ -376,7 +372,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       label={t("cardSettings.spendingLimit.period")}
                       render={id => (
                         <LakeSelect
-                          nativeID={id}
+                          id={id}
                           items={PERIODS}
                           value={currentSettings.spendingLimit.period}
                           onValueChange={period =>
@@ -398,12 +394,12 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       label={t("cardSettings.amount")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           unit="€"
                           value={dirtyValue ?? ""}
                           onChangeText={setDirtyValue}
                           onBlur={sanitizeInput}
-                          keyboardType="decimal-pad"
+                          inputMode="decimal"
                           error={
                             validation?.includes("InvalidAmount") ?? false
                               ? t("common.form.invalidAmount")
@@ -503,7 +499,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
 
                         <Space height={24} />
 
-                        <LakeHeading selectable={false} level={3} variant="h3">
+                        <LakeHeading userSelect="none" level={3} variant="h3">
                           {period === "Always"
                             ? t("cards.periodicity.oneOff")
                             : t("cards.periodicity.recurring")}
@@ -513,7 +509,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
 
                         <View style={styles.descriptionContainer}>
                           <LakeText
-                            selectable={false}
+                            userSelect="none"
                             variant="smallRegular"
                             align="center"
                             style={styles.description}

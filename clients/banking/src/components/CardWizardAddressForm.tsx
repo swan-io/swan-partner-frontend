@@ -82,7 +82,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
           <Field name="country">
             {({ value, onChange, error }) => (
               <CountryPicker
-                nativeID={id}
+                id={id}
                 error={error}
                 value={value}
                 placeholder={t("cardWizard.address.countryPlaceholder")}
@@ -131,7 +131,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                     label={t("cardWizard.address.line2")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         error={error}
                         placeholder={t("cardWizard.address.line2Placeholder")}
                         value={value}
@@ -148,7 +148,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                     label={t("cardWizard.address.postalCode")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         error={error}
                         placeholder={t("cardWizard.address.postalCodePlaceholder")}
                         value={value}
@@ -165,7 +165,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                     label={t("cardWizard.address.state")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         error={error}
                         placeholder={t("cardWizard.address.statePlaceholder")}
                         value={value}
@@ -182,7 +182,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                     label={t("cardWizard.address.city")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         error={error}
                         placeholder={t("cardWizard.address.cityPlaceholder")}
                         value={value}

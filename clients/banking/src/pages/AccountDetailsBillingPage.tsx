@@ -112,7 +112,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
                   color={colors.gray[300]}
                   size={18}
                   name="arrow-download-filled"
-                  focusable={true}
+                  tabIndex={0}
                 />
               </LakeTooltip>
             </CellAction>
@@ -185,7 +185,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
                   color={colors.gray[300]}
                   size={18}
                   name="arrow-download-filled"
-                  focusable={true}
+                  tabIndex={0}
                 />
               </LakeTooltip>
             </CellAction>

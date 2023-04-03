@@ -143,7 +143,7 @@ export const AccountDetailsIbanPage = ({
                     togglableOnFocus={true}
                     hideArrow={true}
                   >
-                    <Icon name="error-circle-regular" size={20} focusable={true} />
+                    <Icon name="error-circle-regular" size={20} tabIndex={0} />
                   </LakeTooltip>
                 }
               />
@@ -166,7 +166,7 @@ export const AccountDetailsIbanPage = ({
                 togglableOnFocus={true}
                 hideArrow={true}
               >
-                <Icon name="error-circle-regular" size={20} focusable={true} />
+                <Icon name="error-circle-regular" size={20} tabIndex={0} />
               </LakeTooltip>
             }
           />

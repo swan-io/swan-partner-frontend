@@ -250,7 +250,7 @@ export const TransactionListPage = ({
                 size="small"
                 color="current"
                 icon="arrow-download-filled"
-                accessibilityLabel={t("accountStatements.title")}
+                ariaLabel={t("accountStatements.title")}
               >
                 {large ? t("accountStatements.title") : null}
               </LakeButton>

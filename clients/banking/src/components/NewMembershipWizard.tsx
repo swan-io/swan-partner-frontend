@@ -404,7 +404,7 @@ export const NewMembershipWizard = ({
                             label={t("membershipDetail.edit.firstName")}
                             render={id => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -425,7 +425,7 @@ export const NewMembershipWizard = ({
                             label={t("membershipDetail.edit.lastName")}
                             render={id => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -446,13 +446,13 @@ export const NewMembershipWizard = ({
                             label={t("membershipDetail.edit.phoneNumber")}
                             render={id => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 placeholder="+33600000000"
                                 value={value ?? ""}
                                 valid={valid}
                                 error={error}
                                 onChangeText={onChange}
-                                keyboardType="phone-pad"
+                                inputMode="tel"
                               />
                             )}
                           />
@@ -471,7 +471,7 @@ export const NewMembershipWizard = ({
                                 label={t("membershipDetail.edit.birthDate")}
                                 render={id => (
                                   <LakeTextInput
-                                    nativeID={id}
+                                    id={id}
                                     placeholder={locale.datePlaceholder}
                                     value={value ?? ""}
                                     valid={valid}
@@ -493,7 +493,7 @@ export const NewMembershipWizard = ({
                         label={t("membershipDetail.edit.email")}
                         render={id => (
                           <LakeTextInput
-                            nativeID={id}
+                            id={id}
                             value={value}
                             valid={valid}
                             error={error}
@@ -582,7 +582,7 @@ export const NewMembershipWizard = ({
                         label={t("membershipDetail.edit.country")}
                         render={id => (
                           <CountryPicker
-                            nativeID={id}
+                            id={id}
                             items={countries}
                             value={value}
                             onValueChange={onChange}
@@ -634,7 +634,7 @@ export const NewMembershipWizard = ({
                             label={t("membershipDetail.edit.postalCode")}
                             render={id => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -655,7 +655,7 @@ export const NewMembershipWizard = ({
                             label={t("membershipDetail.edit.city")}
                             render={id => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -679,7 +679,7 @@ export const NewMembershipWizard = ({
                                 render={id => (
                                   <LakeTextInput
                                     placeholder={locale.taxIdentificationNumberPlaceholder}
-                                    nativeID={id}
+                                    id={id}
                                     value={value}
                                     valid={valid}
                                     error={error}

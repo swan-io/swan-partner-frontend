@@ -42,7 +42,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
         render={id => {
           return (
             <Box direction="row">
-              <LakeTextInput nativeID={id} readOnly={true} value={value} hideErrors={true} />
+              <LakeTextInput id={id} readOnly={true} value={value} hideErrors={true} />
               <Space width={12} />
               <CopyTextButton value={value} />
             </Box>

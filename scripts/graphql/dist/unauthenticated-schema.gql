@@ -2336,7 +2336,7 @@ input GenerateSupportingDocumentUploadUrlInput {
   supportingDocumentPurpose: SupportingDocumentPurposeEnum
 }
 
-union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUploadUrlSuccessPayload | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | SupportingDocumentUploadNotAllowedRejection
+union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUploadUrlSuccessPayload | SupportingDocumentCollectionNotFoundRejection | ForbiddenRejection | InternalErrorRejection | SupportingDocumentUploadNotAllowedRejection | ValidationRejection
 
 type GenerateSupportingDocumentUploadUrlSuccessPayload {
   """Id of the supporting document created for this uploadUrl"""
@@ -2517,23 +2517,23 @@ interface IndividualUltimateBeneficialOwnerInfo {
 
 input IndividualUltimateBeneficialOwnerInput {
   """
-  Individual beneficial owner first name. Length must be from 1 to 100 characters
+  Individual beneficial owner first name. Length must be from 0 to 100 characters
   """
   firstName: String
 
   """
-  Individual beneficial owner  last name. Length must be from 1 to 100 characters
+  Individual beneficial owner  last name. Length must be from 0 to 100 characters
   """
   lastName: String
 
   """Individual birth date. Must be a valid date"""
   birthDate: String
 
-  """Individual birth city. Length must be from 1 to 100 characters"""
+  """Individual birth city. Length must be from 0 to 100 characters"""
   birthCity: String
 
   """
-  Individual birth city postal code. Length must be from 1 to 50 characters
+  Individual birth city postal code. Length must be from 0 to 50 characters
   """
   birthCityPostalCode: String
 
@@ -2757,12 +2757,12 @@ type OAuthRedirectParameters {
 
 input OAuthRedirectParametersInput {
   """
-  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 1 to 255 characters
+  Custom state provided by partner to prevent XSRF attack, will be filled by onBoardingId in case of nullity. Length must be from 0 to 255 characters
   """
   state: String
 
   """
-  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 1 to 255 characters
+  URL used to redirect the user at the end of the onboarding process. If `null` the user is redirected to the white label web banking. Length must be from 0 to 255 characters
   """
   redirectUrl: String
 }
@@ -3684,19 +3684,19 @@ interface Rejection {
 }
 
 input ResidencyAddressInput {
-  """Address line 1. Length must be from 1 to 255 characters"""
+  """Address line 1. Length must be from 0 to 255 characters"""
   addressLine1: String
 
-  """AddressLine2. Length must be from 1 to 255 characters"""
+  """AddressLine2. Length must be from 0 to 255 characters"""
   addressLine2: String
 
-  """City. Length must be from 1 to 100 characters"""
+  """City. Length must be from 0 to 100 characters"""
   city: String
 
-  """Postal code. Length must be from 1 to 50 characters"""
+  """Postal code. Length must be from 0 to 50 characters"""
   postalCode: String
 
-  """State of residency. Length must be from 1 to 100 characters"""
+  """State of residency. Length must be from 0 to 100 characters"""
   state: String
 
   """Country"""
@@ -4057,6 +4057,9 @@ enum SupportingDocumentPurposeEnum {
 
   """UBO Declaration"""
   UBODeclaration
+
+  """Sworn statement"""
+  SwornStatement
 }
 
 """Supporting document with Refused status"""
@@ -4227,6 +4230,9 @@ enum SupportingDocumentType {
 
   """Notarial deed"""
   NotarialDeed
+
+  """Sworn statement"""
+  SwornStatement
 }
 
 """Supporting document with Uploaded status"""
@@ -4553,6 +4559,12 @@ type User {
   When it is "null" it means that the preferences have not been updated. Default SMS in use
   """
   preferredNotificationChannel: PreferredNotificationChannel
+
+  """Creation date of the user"""
+  createdAt: DateTime!
+
+  """Last update date of the user"""
+  updatedAt: DateTime!
 
   """The list of account memberships"""
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!

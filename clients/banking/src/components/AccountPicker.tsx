@@ -95,6 +95,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[100],
   },
   bottomGradient: {
+    pointerEvents: "none",
     height: 50,
     position: "absolute",
     left: 0,
@@ -126,7 +127,7 @@ const Item = ({ onPress, isActive, membership }: ItemProps) => {
   }
   return (
     <Pressable
-      accessibilityRole="listitem"
+      role="listitem"
       onPress={onPress}
       style={({ hovered, pressed }) => [
         styles.account,
@@ -208,7 +209,7 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
           user == null ? null : (
             <View>
               <FlatList
-                accessibilityRole="list"
+                role="list"
                 style={styles.list}
                 data={user.accountMemberships.edges}
                 disableVirtualization={true}
@@ -233,7 +234,6 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
 
               <View
                 style={[styles.bottomGradient, showScrollAid && styles.visibleBottomGradient]}
-                pointerEvents="none"
               />
             </View>
           ),

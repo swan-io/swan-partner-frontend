@@ -72,7 +72,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     right: spacings[16],
     top: "50%",
-    transform: [{ translateY: "-50%" }],
+    transform: "translateY(-50%)",
   },
   additionalLink: {
     flexDirection: "row",
@@ -276,7 +276,7 @@ export const NavigationTabBar = ({
 
                             <LakeText
                               numberOfLines={1}
-                              selectable={false}
+                              userSelect="none"
                               variant="medium"
                               color={active ? colors.current[500] : colors.gray[500]}
                             >

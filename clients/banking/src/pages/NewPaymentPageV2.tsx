@@ -333,7 +333,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                             <Field name="creditorName">
                               {({ value, onChange, onBlur, error, valid }) => (
                                 <LakeTextInput
-                                  nativeID={id}
+                                  id={id}
                                   value={value}
                                   error={error}
                                   valid={valid}
@@ -353,7 +353,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                             <Field name="creditorIban">
                               {({ value, onChange, onBlur, error, validating, valid }) => (
                                 <LakeTextInput
-                                  nativeID={id}
+                                  id={id}
                                   placeholder={t("transfer.new.iban.placeholder")}
                                   value={printIbanFormat(value)}
                                   validating={validating}
@@ -384,7 +384,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                                 <Field name="transferLabel">
                                   {({ value, onChange, onBlur, error, valid }) => (
                                     <LakeTextInput
-                                      nativeID={id}
+                                      id={id}
                                       value={value}
                                       error={error}
                                       valid={value !== "" && valid}
@@ -409,7 +409,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                                 <Field name="transferReference">
                                   {({ value, onChange, onBlur, error, valid }) => (
                                     <LakeTextInput
-                                      nativeID={id}
+                                      id={id}
                                       value={value}
                                       error={error}
                                       valid={value !== "" && valid}
@@ -434,7 +434,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                             <Field name="transferAmount">
                               {({ value, onChange, onBlur, error, valid }) => (
                                 <LakeTextInput
-                                  nativeID={id}
+                                  id={id}
                                   value={value}
                                   error={error}
                                   valid={valid}

@@ -142,21 +142,21 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
             <Tag
               color="positive"
               icon="checkmark-filled"
-              accessibilityLabel={t("accountDetails.virtualIbans.status.enabled")}
+              ariaLabel={t("accountDetails.virtualIbans.status.enabled")}
             />
           ))
           .with("Canceled", () => (
             <Tag
               color="negative"
               icon="subtract-circle-regular"
-              accessibilityLabel={t("accountDetails.virtualIbans.status.canceled")}
+              ariaLabel={t("accountDetails.virtualIbans.status.canceled")}
             />
           ))
           .with("Suspended", () => (
             <Tag
               color="warning"
               icon="lock-closed-regular"
-              accessibilityLabel={t("accountDetails.virtualIbans.status.suspended")}
+              ariaLabel={t("accountDetails.virtualIbans.status.suspended")}
             />
           ))
           .exhaustive()}

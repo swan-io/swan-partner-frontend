@@ -404,7 +404,7 @@ export const MembershipDetailEditor = ({
                     onChange={() => {}}
                     {...rifmDateProps}
                   >
-                    {({ value }) => <LakeTextInput nativeID={id} readOnly={true} value={value} />}
+                    {({ value }) => <LakeTextInput id={id} readOnly={true} value={value} />}
                   </Rifm>
                 )}
               />
@@ -413,7 +413,7 @@ export const MembershipDetailEditor = ({
                 label={t("membershipDetail.edit.phoneNumber")}
                 render={id => (
                   <LakeTextInput
-                    nativeID={id}
+                    id={id}
                     readOnly={true}
                     placeholder="+33600000000"
                     value={accountMembership.user.mobilePhoneNumber ?? ""}
@@ -427,7 +427,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.email")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -487,7 +487,7 @@ export const MembershipDetailEditor = ({
                     render={id => (
                       <Box direction="row">
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           value={value}
                           valid={valid}
                           error={error}
@@ -506,7 +506,7 @@ export const MembershipDetailEditor = ({
                                   onPress={sendInvitation}
                                   disabled={value !== editingAccountMembership.email}
                                   loading={invitationSending.isLoading()}
-                                  accessibilityLabel={t("membershipDetail.edit.resendInvitation")}
+                                  ariaLabel={t("membershipDetail.edit.resendInvitation")}
                                   icon={large ? undefined : "send-regular"}
                                 >
                                   {large ? t("membershipDetail.edit.resendInvitation") : null}
@@ -525,7 +525,7 @@ export const MembershipDetailEditor = ({
                                   }
                                   disabled={value !== editingAccountMembership.email}
                                   loading={invitationSending.isLoading()}
-                                  accessibilityLabel={t("membershipDetail.edit.showLink")}
+                                  ariaLabel={t("membershipDetail.edit.showLink")}
                                   icon={large ? undefined : "link-filled"}
                                 >
                                   {large ? t("membershipDetail.edit.showLink") : null}
@@ -546,7 +546,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.lastName")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -563,7 +563,7 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.firstName")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         valid={valid}
                         error={error}
@@ -582,7 +582,7 @@ export const MembershipDetailEditor = ({
                         label={t("membershipDetail.edit.birthDate")}
                         render={id => (
                           <LakeTextInput
-                            nativeID={id}
+                            id={id}
                             placeholder={locale.datePlaceholder}
                             value={value ?? ""}
                             valid={valid}
@@ -602,13 +602,13 @@ export const MembershipDetailEditor = ({
                     label={t("membershipDetail.edit.phoneNumber")}
                     render={id => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         placeholder="+33600000000"
                         value={value ?? ""}
                         valid={valid}
                         error={error}
                         onChangeText={onChange}
-                        keyboardType="phone-pad"
+                        inputMode="tel"
                       />
                     )}
                   />
@@ -628,7 +628,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.country")}
                   render={id => (
                     <CountryPicker
-                      nativeID={id}
+                      id={id}
                       items={countries}
                       value={value}
                       onValueChange={onChange}
@@ -678,7 +678,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.postalCode")}
                   render={id => (
                     <LakeTextInput
-                      nativeID={id}
+                      id={id}
                       value={value}
                       valid={valid}
                       error={error}
@@ -695,7 +695,7 @@ export const MembershipDetailEditor = ({
                   label={t("membershipDetail.edit.city")}
                   render={id => (
                     <LakeTextInput
-                      nativeID={id}
+                      id={id}
                       value={value}
                       valid={valid}
                       error={error}
@@ -717,7 +717,7 @@ export const MembershipDetailEditor = ({
                           render={id => (
                             <LakeTextInput
                               placeholder={locale.taxIdentificationNumberPlaceholder}
-                              nativeID={id}
+                              id={id}
                               value={value}
                               valid={valid}
                               error={error}
@@ -788,7 +788,7 @@ export const MembershipDetailEditor = ({
                   icon="lock-closed-regular"
                   loading={membershipSuspension.isLoading()}
                   onPress={onPressSuspend}
-                  accessibilityLabel={t("membershipDetail.suspend")}
+                  ariaLabel={t("membershipDetail.suspend")}
                 >
                   {large ? t("membershipDetail.suspend") : null}
                 </LakeButton>
@@ -807,7 +807,7 @@ export const MembershipDetailEditor = ({
                   loading={membershipUnsuspension.isLoading()}
                   onPress={onPressUnsuspend}
                   color="warning"
-                  accessibilityLabel={t("membershipDetail.unsuspend")}
+                  ariaLabel={t("membershipDetail.unsuspend")}
                 >
                   {large ? t("membershipDetail.unsuspend") : null}
                 </LakeButton>
@@ -831,7 +831,7 @@ export const MembershipDetailEditor = ({
                 icon="subtract-circle-regular"
                 color="negative"
                 onPress={() => setIsCancelConfirmationModalOpen(true)}
-                accessibilityLabel={t("membershipDetail.permanentlyBlock")}
+                ariaLabel={t("membershipDetail.permanentlyBlock")}
               >
                 {large ? t("membershipDetail.permanentlyBlock") : null}
               </LakeButton>

@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   title: {
     position: "absolute",
     top: "50%",
-    transform: [{ translateY: "-50%" }],
+    transform: "translateY(-50%)",
     left: 0,
     right: 0,
   },
@@ -414,7 +414,7 @@ export const CardWizard = ({
                     mode="tertiary"
                     icon="dismiss-regular"
                     onPress={onPressClose}
-                    accessibilityLabel={t("common.closeButton")}
+                    ariaLabel={t("common.closeButton")}
                   />
 
                   <Space width={large ? 32 : 8} />

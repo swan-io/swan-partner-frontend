@@ -342,7 +342,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                           <Field name="creditorName">
                             {({ value, onChange, onBlur, error, valid }) => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 value={value}
                                 error={error}
                                 valid={valid}
@@ -362,7 +362,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                           <Field name="creditorIban">
                             {({ value, onChange, onBlur, error, valid, validating }) => (
                               <LakeTextInput
-                                nativeID={id}
+                                id={id}
                                 placeholder={t("recurringTransfer.new.iban.placeholder")}
                                 value={printIbanFormat(value)}
                                 validating={validating}
@@ -396,7 +396,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                               <Field name="transferLabel">
                                 {({ value, onChange, onBlur, error, valid }) => (
                                   <LakeTextInput
-                                    nativeID={id}
+                                    id={id}
                                     value={value}
                                     error={error}
                                     valid={value !== "" && valid}
@@ -421,7 +421,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                               <Field name="transferReference">
                                 {({ value, onChange, onBlur, error, valid }) => (
                                   <LakeTextInput
-                                    nativeID={id}
+                                    id={id}
                                     value={value}
                                     error={error}
                                     valid={value !== "" && valid}
@@ -481,7 +481,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                                   <Field name="transferAmount">
                                     {({ value, onChange, onBlur, error, valid }) => (
                                       <LakeTextInput
-                                        nativeID={id}
+                                        id={id}
                                         value={value}
                                         error={error}
                                         valid={valid}

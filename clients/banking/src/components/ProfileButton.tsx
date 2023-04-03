@@ -70,7 +70,7 @@ export const ProfileButton = memo<Props>(
     return (
       <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>
         {({ active }) => (
-          <View accessibilityRole="button" style={styles.button}>
+          <View role="button" style={styles.button}>
             <Avatar size={25} initials={initials} />
 
             {fullName && (
@@ -80,7 +80,7 @@ export const ProfileButton = memo<Props>(
                 <View style={styles.informations}>
                   <LakeText
                     numberOfLines={1}
-                    selectable={false}
+                    userSelect="none"
                     variant="smallMedium"
                     color={colors.gray[700]}
                   >

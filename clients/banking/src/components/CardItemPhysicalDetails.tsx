@@ -170,7 +170,7 @@ const CardItemPhysicalShippingForm = ({
             render={id => (
               <CountryPicker
                 readOnly={isLoading}
-                nativeID={id}
+                id={id}
                 error={error}
                 value={value}
                 placeholder={t("members.form.address.countryPlaceholder")}
@@ -223,7 +223,7 @@ const CardItemPhysicalShippingForm = ({
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
-                nativeID={id}
+                id={id}
                 value={value}
                 valid={valid}
                 error={error}
@@ -242,7 +242,7 @@ const CardItemPhysicalShippingForm = ({
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
-                nativeID={id}
+                id={id}
                 value={value}
                 valid={valid}
                 error={error}
@@ -261,7 +261,7 @@ const CardItemPhysicalShippingForm = ({
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
-                nativeID={id}
+                id={id}
                 value={value}
                 valid={valid}
                 error={error}
@@ -331,7 +331,7 @@ const CardItemPhysicalPermanentlyBlockForm = ({
             render={id => (
               <LakeSelect
                 readOnly={isLoading}
-                nativeID={id}
+                id={id}
                 error={error}
                 items={cancelReasons}
                 value={value}
@@ -381,7 +381,7 @@ const CardItemPhysicalActivationForm = ({
         {({ value, onChange }) => (
           <LakeLabel
             label={t("card.physical.identifier")}
-            render={id => <LakeTextInput nativeID={id} value={value} onChangeText={onChange} />}
+            render={id => <LakeTextInput id={id} value={value} onChangeText={onChange} />}
           />
         )}
       </Field>

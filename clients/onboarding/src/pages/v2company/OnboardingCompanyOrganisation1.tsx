@@ -360,7 +360,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           optionalLabel={isRegistered.value ? undefined : t("common.optional")}
                           render={id => (
                             <LakeTextInput
-                              nativeID={id}
+                              id={id}
                               placeholder={t(
                                 "company.step.organisation1.registrationNumberPlaceholder",
                               )}
@@ -386,7 +386,7 @@ export const OnboardingCompanyOrganisation1 = ({
                       optionalLabel={t("common.optional")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           placeholder={t("company.step.organisation1.vatPlaceholder")}
                           value={value}
                           valid={valid}
@@ -409,7 +409,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           optionalLabel={t("common.optional")}
                           render={id => (
                             <LakeTextInput
-                              nativeID={id}
+                              id={id}
                               placeholder={t("company.step.organisation1.taxNumberPlaceholder")}
                               value={value}
                               valid={valid}

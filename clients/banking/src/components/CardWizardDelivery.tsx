@@ -71,7 +71,7 @@ export const CardWizardDelivery = forwardRef<CardWizardDeliveryRef, Props>(
 
                 <Space height={24} />
 
-                <LakeHeading selectable={false} level={3} variant="h3">
+                <LakeHeading userSelect="none" level={3} variant="h3">
                   {match(cardDeliveryMode)
                     .with("Grouped", () => t("cards.delivery.grouped"))
                     .with("Individual", () => t("cards.delivery.individual"))
@@ -82,7 +82,7 @@ export const CardWizardDelivery = forwardRef<CardWizardDeliveryRef, Props>(
 
                 <View style={styles.descriptionContainer}>
                   <LakeText
-                    selectable={false}
+                    userSelect="none"
                     variant="smallRegular"
                     align="center"
                     style={styles.description}

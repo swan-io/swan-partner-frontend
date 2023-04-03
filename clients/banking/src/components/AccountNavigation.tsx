@@ -35,6 +35,7 @@ const styles = StyleSheet.create({
     color: colors.gray[500],
     borderTopLeftRadius: radii[4],
     borderBottomLeftRadius: radii[4],
+    userSelect: "none",
   },
   active: {
     color: colors.current[500],
@@ -66,10 +67,10 @@ const styles = StyleSheet.create({
     width: 20,
     height: 20,
     borderRadius: 10,
-    transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 0.25 }],
+    transform: "translateX(-50%) translateY(-50%) scale(0.25)",
     animationKeyframes: {
       "100%": {
-        transform: [{ translateX: "-50%" }, { translateY: "-50%" }, { scale: 0.75 }],
+        transform: "translateX(-50%) translateY(-50%) scale(0.75)",
         opacity: 0,
       },
     },
@@ -99,7 +100,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
   const route = Router.useRoute([...accountAreaRoutes]);
 
   return (
-    <View accessibilityRole="navigation" style={[styles.sidebar, desktop && styles.desktopSidebar]}>
+    <View role="navigation" style={[styles.sidebar, desktop && styles.desktopSidebar]}>
       {menu.map(({ hidden = false, ...item }) => {
         const isActive = item.matchRoutes.some(name => name === route?.name);
 
@@ -115,9 +116,8 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
           >
             <Link
               to={item.to}
-              accessibilityLabel={item.name}
+              aria-label={item.name}
               onPress={onPressLink}
-              selectable={false}
               numberOfLines={1}
               style={({ hovered }) => [
                 styles.navItem,
@@ -147,8 +147,8 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
                         <Fill minWidth={24} />
 
                         <View
-                          accessibilityRole="alert"
-                          accessibilityLabel={t("common.actionRequired")}
+                          role="alert"
+                          aria-label={t("common.actionRequired")}
                           style={styles.notificationPill}
                         >
                           {isActive ? null : <View style={styles.notificationPillAnimation} />}

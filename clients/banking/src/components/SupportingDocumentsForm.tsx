@@ -55,12 +55,7 @@ const Help = ({ onPress, text, width }: HelpProps) => {
 
   return (
     <LakeTooltip content={text} placement="top" togglableOnFocus={true} width={width}>
-      <Pressable
-        accessibilityRole="button"
-        disabled={isNullish(onPress)}
-        onPress={onPress}
-        style={styles.help}
-      >
+      <Pressable role="button" disabled={isNullish(onPress)} onPress={onPress} style={styles.help}>
         <Icon color={colors.gray[600]} name="question-circle-regular" size={desktop ? 16 : 20} />
 
         {desktop && (

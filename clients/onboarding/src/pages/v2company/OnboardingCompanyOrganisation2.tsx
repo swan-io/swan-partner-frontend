@@ -210,7 +210,7 @@ export const OnboardingCompanyOrganisation2 = ({
                       label={t("company.step.organisation2.descriptionLabel")}
                       render={id => (
                         <LakeTextInput
-                          nativeID={id}
+                          id={id}
                           placeholder={t("company.step.organisation2.descriptionPlaceholder")}
                           value={value}
                           valid={valid}

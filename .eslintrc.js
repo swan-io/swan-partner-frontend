@@ -3,17 +3,9 @@
 const path = require("path");
 
 const errorOnCI = process.env.CI === "true" ? "error" : "warn";
-const touchables = ["PressableImage", "PressableText", "PressableTextInput"];
 
 module.exports = {
-  plugins: [
-    "@typescript-eslint",
-    "react",
-    "react-hooks",
-    "react-native",
-    "react-native-a11y",
-    "swan",
-  ],
+  plugins: ["@typescript-eslint", "react", "react-hooks", "react-native", "swan"],
 
   extends: [
     "eslint:recommended",
@@ -99,11 +91,6 @@ module.exports = {
     "react-native/no-inline-styles": errorOnCI,
     "react-native/no-single-element-style-arrays": errorOnCI,
     "react-native/no-unused-styles": errorOnCI,
-
-    // https://github.com/FormidableLabs/eslint-plugin-react-native-a11y
-    // "react-native-a11y/has-accessibility-hint": [errorOnCI, { touchables }],
-    // "react-native-a11y/has-accessibility-props": [errorOnCI, { touchables }],
-    "react-native-a11y/no-nested-touchables": [errorOnCI, { touchables }],
 
     "swan/jsx-newline": errorOnCI,
     "swan/no-template-in-t": "error",

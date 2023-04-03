@@ -142,7 +142,7 @@ const StepScrollView = ({ children, onClose }: StepScrollViewProps) => {
       {!desktop && (
         <>
           <LakeButton
-            accessibilityLabel={t("common.closeButton")}
+            ariaLabel={t("common.closeButton")}
             mode="tertiary"
             icon="dismiss-regular"
             onPress={onClose}
@@ -210,7 +210,7 @@ const StepTile = ({ variant, title, description, onPress, footer }: StepTileProp
       ) : (
         <>
           {desktop && variant !== "inert" && (
-            <View accessibilityRole="none" style={styles.stepTileActiveIndicator} />
+            <View role="none" style={styles.stepTileActiveIndicator} />
           )}
 
           <Pressable disabled={variant === "inert"} onPress={onPress}>
@@ -625,7 +625,7 @@ export const AccountActivationPage = ({
 
   return (
     <Box
-      accessibilityRole="main"
+      role="main"
       direction="row"
       style={[
         styles.container,
@@ -755,7 +755,7 @@ export const AccountActivationPage = ({
                     <Icon name="chat-help-filled" size={20} color={colors.partner.primary} />
                     <Space width={8} />
 
-                    <LakeText variant="smallMedium" color={colors.gray[900]} selectable={false}>
+                    <LakeText variant="smallMedium" color={colors.gray[900]} userSelect="none">
                       {t("needHelpButton.text")}
                     </LakeText>
                   </LakeButton>

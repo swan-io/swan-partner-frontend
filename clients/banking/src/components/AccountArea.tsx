@@ -16,9 +16,9 @@ import { defaultAccentColor } from "@swan-io/lake/src/constants/colors";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
+import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useUpdateEffect } from "@swan-io/lake/src/hooks/useUpdateEffect";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
@@ -416,15 +416,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   );
 
   const accountPickerButtonRef = useRef<View | null>(null);
-
-  const [{ selectedMembershipId, isAccountPickerOpen }, setAccountPickerState] = useState({
-    selectedMembershipId: accountMembershipId,
-    isAccountPickerOpen: false,
-  });
-
-  useUpdateEffect(() => {
-    Router.push("AccountRoot", { accountMembershipId: selectedMembershipId });
-  }, [selectedMembershipId]);
+  const [isAccountPickerOpen, setAccountPickerOpen] = useBoolean(false);
 
   const signout = () => {
     fetch(`/auth/logout`, {
@@ -503,55 +495,40 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 {match(membership)
                   .with(Result.pattern.Ok(P.select()), ({ accountMembership }) => (
                     <>
-                      <Suspense fallback={null}>
-                        <Space height={32} />
+                      <Space height={32} />
 
-                        <AccountPickerButton
-                          ref={accountPickerButtonRef}
-                          desktop={true}
-                          accountMembershipId={accountMembershipId}
-                          activationTag={activationTag}
-                          activationLinkActive={route?.name === "AccountActivation"}
-                          hasMultipleMemberships={hasMultipleMemberships}
-                          selectedAccountMembership={accountMembership}
-                          onPress={() => {
-                            setAccountPickerState(({ selectedMembershipId }) => ({
-                              selectedMembershipId,
-                              isAccountPickerOpen: true,
-                            }));
-                          }}
-                          availableBalance={availableBalance}
-                        />
+                      <AccountPickerButton
+                        ref={accountPickerButtonRef}
+                        desktop={true}
+                        accountMembershipId={accountMembershipId}
+                        activationTag={activationTag}
+                        activationLinkActive={route?.name === "AccountActivation"}
+                        hasMultipleMemberships={hasMultipleMemberships}
+                        selectedAccountMembership={accountMembership}
+                        onPress={setAccountPickerOpen.on}
+                        availableBalance={availableBalance}
+                      />
 
-                        <Popover
-                          referenceRef={accountPickerButtonRef}
-                          matchReferenceMinWidth={true}
-                          visible={isAccountPickerOpen}
-                          onDismiss={() => {
-                            setAccountPickerState(({ selectedMembershipId }) => ({
-                              selectedMembershipId,
-                              isAccountPickerOpen: false,
-                            }));
-                          }}
-                        >
-                          <View style={styles.accountPicker}>
-                            <AccountPicker
-                              accountMembershipId={accountMembershipId}
-                              onPressItem={accountMembershipId => {
-                                setAccountPickerState({
-                                  selectedMembershipId: accountMembershipId,
-                                  isAccountPickerOpen: false,
-                                });
-                              }}
-                              availableBalance={availableBalance}
-                            />
-                          </View>
-                        </Popover>
+                      <Popover
+                        referenceRef={accountPickerButtonRef}
+                        matchReferenceMinWidth={true}
+                        visible={isAccountPickerOpen}
+                        onDismiss={setAccountPickerOpen.off}
+                      >
+                        <View style={styles.accountPicker}>
+                          <AccountPicker
+                            accountMembershipId={accountMembershipId}
+                            availableBalance={availableBalance}
+                            onPressItem={accountMembershipId => {
+                              setAccountPickerOpen.off();
+                              Router.push("AccountRoot", { accountMembershipId });
+                            }}
+                          />
+                        </View>
+                      </Popover>
 
-                        <Space height={32} />
-                        <AccountNavigation menu={menu} />
-                      </Suspense>
-
+                      <Space height={32} />
+                      <AccountNavigation menu={menu} />
                       <Fill minHeight={48} />
 
                       <Pressable role="button" style={styles.additionalLink} onPress={signout}>

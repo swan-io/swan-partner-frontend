@@ -223,18 +223,18 @@ declare module "react-native" {
   type AnimationPlayState = "paused" | "running";
 
   export interface AnimationStyles {
-    animationDelay?: string | string[];
-    animationDirection?: AnimationDirection | AnimationDirection[];
-    animationDuration?: string | string[];
-    animationFillMode?: AnimationFillMode | AnimationFillMode[];
-    animationIterationCount?: AnimationIterationCount | AnimationIterationCount[];
+    animationDelay?: string;
+    animationDirection?: AnimationDirection;
+    animationDuration?: string;
+    animationFillMode?: AnimationFillMode;
+    animationIterationCount?: AnimationIterationCount;
     animationKeyframes?: AnimationKeyframes | AnimationKeyframes[];
-    animationPlayState?: AnimationPlayState | AnimationPlayState[];
-    animationTimingFunction?: string | string[];
-    transitionDelay?: string | string[];
-    transitionDuration?: string | string[];
-    transitionProperty?: string | string[];
-    transitionTimingFunction?: string | string[];
+    animationPlayState?: AnimationPlayState;
+    animationTimingFunction?: string;
+    transitionDelay?: string;
+    transitionDuration?: string;
+    transitionProperty?: string;
+    transitionTimingFunction?: string;
   }
 
   /**

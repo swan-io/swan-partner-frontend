@@ -46,28 +46,36 @@ const styles = StyleSheet.create({
 
 type HelpProps = {
   onPress?: () => void;
-  text: string;
+  text: string | undefined;
   width?: number;
 };
 
 const Help = ({ onPress, text, width }: HelpProps) => {
   const { desktop } = useResponsive();
 
+  const content = (
+    <Pressable role="button" disabled={isNullish(onPress)} onPress={onPress} style={styles.help}>
+      <Icon color={colors.gray[600]} name="question-circle-regular" size={desktop ? 16 : 20} />
+
+      {desktop && (
+        <>
+          <Space width={8} />
+
+          <LakeText color={colors.gray[600]} variant="smallMedium">
+            {t("supportingDocuments.button.whatIsThis")}
+          </LakeText>
+        </>
+      )}
+    </Pressable>
+  );
+
+  if (isNullish(text)) {
+    return content;
+  }
+
   return (
     <LakeTooltip content={text} placement="top" togglableOnFocus={true} width={width}>
-      <Pressable role="button" disabled={isNullish(onPress)} onPress={onPress} style={styles.help}>
-        <Icon color={colors.gray[600]} name="question-circle-regular" size={desktop ? 16 : 20} />
-
-        {desktop && (
-          <>
-            <Space width={8} />
-
-            <LakeText color={colors.gray[600]} variant="smallMedium">
-              {t("supportingDocuments.button.whatIsThis")}
-            </LakeText>
-          </>
-        )}
-      </Pressable>
+      {content}
     </LakeTooltip>
   );
 };
@@ -112,6 +120,7 @@ export type SupportingDocumentsFormRef = {
 export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Props>(
   ({ templateLanguage, collection, refetchCollection }, forwardedRef) => {
     const [powerOfAttorneyModalVisible, setPowerOfAttorneyModalVisible] = useBoolean(false);
+    const [swornStatementModalVisible, setSwornStatementModalVisible] = useBoolean(false);
     const [feedbackEnabled, setFeedbackEnabled] = useBoolean(false);
     const [localDocuments, setLocalDocuments] = useState<LocalDocument[]>([]);
 
@@ -321,9 +330,10 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
                 help={
                   <Help
                     text={getSupportingDocumentPurposeDescriptionLabel(purpose)}
-                    onPress={
-                      purpose === "PowerOfAttorney" ? setPowerOfAttorneyModalVisible.on : undefined
-                    }
+                    onPress={match(purpose)
+                      .with("PowerOfAttorney", () => setPowerOfAttorneyModalVisible.on)
+                      .with("SwornStatement", () => setSwornStatementModalVisible.on)
+                      .otherwise(() => undefined)}
                   />
                 }
                 render={() => (
@@ -378,6 +388,26 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
               onPress={() => window.open(`/power-of-attorney-template/${templateLanguage}.pdf`)}
             >
               {t("supportingDocuments.powerAttorneyModal.downloadButton")}
+            </LakeButton>
+          </LakeButtonGroup>
+        </LakeModal>
+
+        <LakeModal
+          visible={swornStatementModalVisible}
+          title={t("supportingDocuments.swornStatementModal.title")}
+          icon="document-regular"
+          onPressClose={setSwornStatementModalVisible.off}
+        >
+          <LakeText>{t("supportingDocuments.swornStatementModal.text")}</LakeText>
+          <Space height={16} />
+
+          <LakeButtonGroup paddingBottom={0}>
+            <LakeButton
+              grow={true}
+              color="current"
+              onPress={() => window.open(`/sworn-statement-template/es.pdf`)}
+            >
+              {t("supportingDocuments.swornStatementModal.downloadButton")}
             </LakeButton>
           </LakeButtonGroup>
         </LakeModal>

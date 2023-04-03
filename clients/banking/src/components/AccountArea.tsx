@@ -520,8 +520,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                             accountMembershipId={accountMembershipId}
                             availableBalance={availableBalance}
                             onPressItem={accountMembershipId => {
-                              setAccountPickerOpen.off();
-                              Router.push("AccountRoot", { accountMembershipId });
+                              // TODO: Prevent full reload by tweaking layout + Suspense
+                              window.location.assign(Router.AccountRoot({ accountMembershipId }));
                             }}
                           />
                         </View>

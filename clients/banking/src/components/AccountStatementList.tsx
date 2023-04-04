@@ -20,9 +20,12 @@ const styles = StyleSheet.create({
   root: {
     height: 300,
     overflow: "hidden",
+    borderTopColor: colors.gray[100],
+    borderTopWidth: 1,
   },
   cellContainerLarge: {
-    paddingHorizontal: spacings[24],
+    paddingLeft: spacings[24],
+    paddingRight: spacings[40],
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",
@@ -30,6 +33,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   cellContainer: {
+    paddingRight: spacings[16],
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",

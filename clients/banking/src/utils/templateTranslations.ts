@@ -43,8 +43,9 @@ export const getSupportingDocumentPurposeDescriptionLabel = (
     )
     .with("ProofOfOriginOfFunds", () => t("supportingDocuments.ProofOfOriginOfFunds.description"))
     .with("SignedStatus", () => t("supportingDocuments.SignedStatus.description"))
-    .with("SwornStatement", () => t("supportingDocuments.SwornStatement.description"))
     .with("UBODeclaration", () => t("supportingDocuments.UBODeclaration.description"))
+    // For sworn statement, we don't want to display a tooltip with a description because the target is a button
+    .with("SwornStatement", () => undefined)
     .exhaustive();
 
 export const getSupportingDocumentStatusLabel = (status: UploadedFile["status"]) =>

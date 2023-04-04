@@ -302,7 +302,11 @@ export const AccountActivationPage = ({
   const holderName = holder?.info.name;
   const isCompany = holder?.info.__typename === "AccountHolderCompanyInfo";
   const country = holder?.residencyAddress.country;
-  const templateLanguage = country === "FRA" ? "fr" : "en";
+  const templateLanguage = match(country)
+    .with("FR", () => "fr" as const)
+    .with("DE", () => "de" as const)
+    .with("ES", () => "es" as const)
+    .otherwise(() => "en" as const);
 
   const user = accountMembership?.user;
   const identificationStatus = user?.identificationStatus;

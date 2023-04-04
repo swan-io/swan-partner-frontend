@@ -356,6 +356,7 @@ export const ProfilePage = ({
                       mode="secondary"
                       color="gray"
                       icon="send-regular"
+                      grow={small}
                     >
                       {t("profile.chat.sendMessage")}
                     </LakeButton>
@@ -380,6 +381,7 @@ export const ProfilePage = ({
                   mode="secondary"
                   color="gray"
                   icon="open-regular"
+                  grow={small}
                 >
                   {t("profile.faq.goToSupport")}
                 </LakeButton>

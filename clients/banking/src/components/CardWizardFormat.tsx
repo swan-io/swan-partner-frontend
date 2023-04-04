@@ -70,7 +70,7 @@ export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
             <View style={styles.item}>
               <Box alignItems="center">
                 <Icon
-                  color={currentFormat == cardFormat ? colors.swan[300] : colors.swan[200]}
+                  color={currentFormat === cardFormat ? colors.swan[300] : colors.swan[200]}
                   size={148}
                   name={match(cardFormat)
                     .with("Virtual", () => "lake-card-virtual" as const)

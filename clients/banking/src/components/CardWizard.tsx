@@ -126,8 +126,7 @@ const styles = StyleSheet.create({
     ...commonStyles.fill,
   },
   header: {
-    paddingTop: spacings[48],
-    paddingBottom: spacings[12],
+    paddingVertical: spacings[12],
   },
   headerContents: {
     flexDirection: "row",
@@ -157,6 +156,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[96],
     paddingVertical: spacings[24],
   },
+  mobileContents: {
+    paddingHorizontal: spacings[24],
+    paddingVertical: spacings[24],
+    flexGrow: 1,
+  },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],
     flexGrow: 1,
@@ -171,6 +175,9 @@ const styles = StyleSheet.create({
     maxWidth: 1520,
     marginHorizontal: "auto",
     paddingHorizontal: spacings[96],
+  },
+  button: {
+    flex: 1,
   },
   title: {
     position: "absolute",
@@ -459,7 +466,7 @@ export const CardWizard = ({
           <View style={styles.contents}>
             <ScrollView
               style={styles.contentsContainer}
-              contentContainerStyle={large ? styles.contentsContents : styles.mobileZonePadding}
+              contentContainerStyle={large ? styles.contentsContents : styles.mobileContents}
             >
               {match(step)
                 .with({ name: "CardProductType" }, ({ cardProduct }) => (
@@ -927,7 +934,7 @@ export const CardWizard = ({
               <LakeButtonGroup>
                 <LakeButton
                   mode="secondary"
-                  grow={true}
+                  style={styles.button}
                   onPress={() =>
                     match(step)
                       .with({ name: "CardProductType" }, () => onPressClose?.())
@@ -974,7 +981,7 @@ export const CardWizard = ({
                 <LakeButton
                   mode="primary"
                   color="current"
-                  grow={true}
+                  style={styles.button}
                   loading={cardOrder.isLoading()}
                   onPress={() =>
                     match(step.name)

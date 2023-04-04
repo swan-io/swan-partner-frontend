@@ -23,7 +23,7 @@ const styles = StyleSheet.create({
   },
   cellContainerLarge: {
     paddingLeft: spacings[24],
-    paddingRight: 54,
+    paddingRight: spacings[40],
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",
@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
   },
   cellContainer: {
-    paddingRight: 28,
+    paddingRight: spacings[16],
     flexGrow: 1,
     alignSelf: "stretch",
     alignItems: "center",

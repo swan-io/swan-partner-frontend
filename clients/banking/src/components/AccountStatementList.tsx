@@ -20,6 +20,8 @@ const styles = StyleSheet.create({
   root: {
     height: 300,
     overflow: "hidden",
+    borderTopColor: colors.gray[100],
+    borderTopWidth: 1,
   },
   cellContainerLarge: {
     paddingLeft: spacings[24],

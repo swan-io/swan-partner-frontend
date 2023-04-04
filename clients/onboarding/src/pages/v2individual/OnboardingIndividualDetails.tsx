@@ -209,6 +209,7 @@ export const OnboardingIndividualDetails = ({
                           onBlur={onBlur}
                           accountCountry={accountCountry}
                           isCompany={false}
+                          isOptional={true}
                         />
                       )}
                     </Field>

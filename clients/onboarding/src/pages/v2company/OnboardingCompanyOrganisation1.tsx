@@ -18,7 +18,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect } from "react";
-import { hasDefinedKeys, useForm } from "react-ux-form";
+import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -30,6 +30,7 @@ import {
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { CompanySuggestion } from "../../utils/Pappers";
+import { env } from "../../utils/env";
 import { locale, t } from "../../utils/i18n";
 import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
@@ -104,6 +105,7 @@ export const OnboardingCompanyOrganisation1 = ({
   const canSetTaxIdentification =
     (accountCountry === "DEU" && country === "DEU") ||
     (accountCountry === "ESP" && country === "ESP");
+  const isTaxIdentificationRequired = accountCountry === "ESP" && country === "ESP";
 
   const { Field, FieldsListener, submitForm, setFieldValue, listenFields, setFieldError } = useForm(
     {
@@ -130,7 +132,12 @@ export const OnboardingCompanyOrganisation1 = ({
       },
       taxIdentificationNumber: {
         initialValue: initialTaxIdentificationNumber,
-        validate: canSetTaxIdentification ? validateCompanyTaxNumber(accountCountry) : undefined,
+        validate: canSetTaxIdentification
+          ? combineValidators(
+              isTaxIdentificationRequired && validateRequired,
+              validateCompanyTaxNumber(accountCountry),
+            )
+          : undefined,
         sanitize: value => value.trim(),
       },
       address: {
@@ -415,6 +422,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           onBlur={onBlur}
                           accountCountry={accountCountry}
                           isCompany={true}
+                          isOptional={!isTaxIdentificationRequired}
                         />
                       )}
                     </Field>
@@ -437,7 +445,7 @@ export const OnboardingCompanyOrganisation1 = ({
                   setFieldValue={setFieldValue}
                   listenFields={listenFields}
                   isLarge={large}
-                  apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
+                  apiKey={env.GOOGLE_MAP_API_KEY}
                 />
               </Tile>
             </>

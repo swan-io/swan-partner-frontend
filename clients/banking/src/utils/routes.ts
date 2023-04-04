@@ -39,7 +39,7 @@ const routes = {
       Upcoming: "/upcoming",
     }),
 
-    ...createGroup("Payments", "/payments", {
+    ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
       Area: "/*",
       Root: "/",
       New: "/new",

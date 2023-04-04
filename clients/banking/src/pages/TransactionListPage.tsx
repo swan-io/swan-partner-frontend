@@ -11,10 +11,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { showToast } from "@swan-io/lake/src/state/toasts";
-import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -28,6 +25,7 @@ import {
 } from "../components/TransactionListFilter";
 import { Amount } from "../graphql/graphcache";
 import { TransactionListPageDocument } from "../graphql/partner";
+import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -77,63 +75,9 @@ export const TransactionListPage = ({
   params,
   canQueryCardOnTransaction,
 }: Props) => {
-  const isFirstMount = useFirstMountState();
-
-  useEffect(() => {
-    if (isFirstMount) {
-      const newTransferConsent = transferConsent.toUndefined();
-
-      match(newTransferConsent)
-        .with({ status: "Accepted", isStandingOrder: true }, () => {
-          showToast({
-            variant: "success",
-            title: t("recurringTransfer.consent.success.title"),
-            description: t("recurringTransfer.consent.success.description"),
-            autoClose: false,
-          });
-        })
-        .with({ status: "Accepted", isStandingOrder: false }, () => {
-          showToast({
-            variant: "success",
-            title: t("transfer.consent.success.title"),
-            description: t("transfer.consent.success.description"),
-            autoClose: false,
-          });
-        })
-        .with({ status: "Canceled", isStandingOrder: true }, () => {
-          showToast({
-            variant: "error",
-            title: t("recurringTransfer.consent.error.canceled.title"),
-          });
-        })
-        .with({ status: "Canceled", isStandingOrder: false }, () => {
-          showToast({
-            variant: "error",
-            title: t("transfer.consent.error.canceled.title"),
-          });
-        })
-        .with({ isStandingOrder: true }, () => {
-          showToast({
-            variant: "error",
-            title: t("recurringTransfer.consent.error.rejected.title"),
-            description: t("recurringTransfer.consent.error.rejected.description"),
-          });
-        })
-        .with({ isStandingOrder: false }, () => {
-          showToast({
-            variant: "error",
-            title: t("transfer.consent.error.rejected.title"),
-            description: t("transfer.consent.error.rejected.description"),
-          });
-        })
-        .with(P.nullish, noop)
-        .exhaustive();
-
-      if (transferConsent.isSome()) {
-        Router.replace("AccountTransactionsListRoot", { accountMembershipId });
-      }
-    }
-  }, [isFirstMount, transferConsent, accountMembershipId]);
+  useTransferToastWithRedirect(transferConsent, () =>
+    Router.replace("AccountTransactionsListRoot", { accountMembershipId }),
+  );
 
   const filters: TransactionFiltersState = useMemo(() => {
     return {

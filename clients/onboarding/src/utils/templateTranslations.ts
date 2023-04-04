@@ -111,5 +111,5 @@ export const getRegistrationNumberName = (country: CountryCCA3) => {
   if (name == null) {
     return "";
   }
-  return ` (${name})`;
+  return ` - ${name}`;
 };

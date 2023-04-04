@@ -422,7 +422,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           onBlur={onBlur}
                           accountCountry={accountCountry}
                           isCompany={true}
-                          isOptional={!isTaxIdentificationRequired}
+                          required={isTaxIdentificationRequired}
                         />
                       )}
                     </Field>

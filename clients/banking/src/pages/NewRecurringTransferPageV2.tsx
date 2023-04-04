@@ -11,6 +11,7 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
@@ -19,9 +20,11 @@ import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { Rifm } from "rifm";
 import { match } from "ts-pattern";
 import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
@@ -33,7 +36,8 @@ import {
   StandingOrderPeriod,
   ValidIbanInformationFragment,
 } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import { encodeDate } from "../utils/date";
+import { formatCurrency, locale, rifmDateProps, t } from "../utils/i18n";
 import { getIbanValidation, printIbanFormat } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
@@ -42,6 +46,7 @@ import {
   validateReference,
   validateRequired,
   validateSepaBeneficiaryNameAlphabet,
+  validateTodayOrAfter,
 } from "../utils/validations";
 
 const styles = StyleSheet.create({
@@ -108,7 +113,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
     return Result.Error(new Error("No available balance"));
   });
 
-  const { Field, submitForm } = useForm({
+  const { Field, FieldsListener, submitForm } = useForm({
     creditorIban: {
       initialValue: "",
       sanitize: printIbanFormat,
@@ -166,6 +171,39 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
     period: {
       initialValue: "Daily" as StandingOrderPeriod,
     },
+    firstExecutionDate: {
+      initialValue: dayjs.utc().format(locale.dateFormat),
+      validate: combineValidators(validateRequired, validateTodayOrAfter),
+      sanitize: value => value?.trim(),
+    },
+    withLastExecutionDate: {
+      initialValue: false,
+    },
+    lastExecutionDate: {
+      initialValue: "",
+      validate: (value, { getFieldState }) => {
+        const withLastExecutionDate = getFieldState("withLastExecutionDate").value;
+        if (!withLastExecutionDate) {
+          return;
+        }
+
+        if (value === "") {
+          return t("common.form.required");
+        }
+
+        const lastExecutionDate = dayjs.utc(value, locale.dateFormat);
+        if (!lastExecutionDate.isValid()) {
+          return t("common.form.invalidDate");
+        }
+
+        const firstExecution = getFieldState("firstExecutionDate").value;
+        const firstExecutionDate = dayjs.utc(firstExecution, locale.dateFormat);
+        if (lastExecutionDate.isBefore(firstExecutionDate)) {
+          return t("error.lastExecutionDateBeforeFirstExecutionDate");
+        }
+      },
+      sanitize: value => value?.trim(),
+    },
     hasFixedAmount: {
       initialValue: true,
     },
@@ -181,6 +219,8 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
           "transferLabel",
           "transferReference",
           "period",
+          "firstExecutionDate",
+          "lastExecutionDate",
           "hasFixedAmount",
         ])
       ) {
@@ -195,6 +235,11 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
           consentRedirectUrl,
           label: values.transferLabel !== "" ? values.transferLabel : null,
           reference: values.transferReference !== "" ? values.transferReference : null,
+          firstExecutionDate: encodeDate(values.firstExecutionDate),
+          lastExecutionDate:
+            values.withLastExecutionDate === true
+              ? encodeDate(values.lastExecutionDate)
+              : undefined,
           sepaBeneficiary: {
             name: values.creditorName,
             save: false,
@@ -524,6 +569,81 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                               />
                             )}
                           </Field>
+                        )}
+                      />
+
+                      <Space height={24} />
+
+                      <LakeLabel
+                        label={t("recurringTransfer.new.firstExecutionDate.label")}
+                        render={id => (
+                          <Field name="firstExecutionDate">
+                            {({ value, onChange, onBlur, error, valid }) => (
+                              <Rifm value={value} onChange={onChange} {...rifmDateProps}>
+                                {({ value, onChange }) => (
+                                  <LakeTextInput
+                                    id={id}
+                                    placeholder={locale.datePlaceholder}
+                                    value={value}
+                                    error={error}
+                                    valid={value !== "" && valid}
+                                    onChange={onChange}
+                                    onBlur={onBlur}
+                                  />
+                                )}
+                              </Rifm>
+                            )}
+                          </Field>
+                        )}
+                      />
+
+                      <Space height={4} />
+
+                      <Box direction="row" alignItems="center">
+                        <Field name="withLastExecutionDate">
+                          {({ value, onChange }) => (
+                            <Switch value={value} onValueChange={onChange} />
+                          )}
+                        </Field>
+
+                        <Space width={12} />
+
+                        <LakeText color={colors.gray[700]} variant="smallMedium">
+                          {t("recurringTransfer.new.setEndDate")}
+                        </LakeText>
+                      </Box>
+
+                      <Space height={24} />
+
+                      <LakeLabel
+                        label={t("recurringTransfer.new.lastExecutionDate.label")}
+                        render={id => (
+                          <FieldsListener names={["withLastExecutionDate"]}>
+                            {({ withLastExecutionDate }) => (
+                              <Field name="lastExecutionDate">
+                                {({ value, onChange, onBlur, error, valid }) => (
+                                  <Rifm value={value} onChange={onChange} {...rifmDateProps}>
+                                    {({ value, onChange }) => (
+                                      <LakeTextInput
+                                        id={id}
+                                        placeholder={
+                                          withLastExecutionDate.value
+                                            ? locale.datePlaceholder
+                                            : undefined
+                                        }
+                                        value={withLastExecutionDate.value ? value : undefined}
+                                        error={withLastExecutionDate.value ? error : undefined}
+                                        disabled={!withLastExecutionDate.value}
+                                        valid={value !== "" && valid}
+                                        onChange={onChange}
+                                        onBlur={onBlur}
+                                      />
+                                    )}
+                                  </Rifm>
+                                )}
+                              </Field>
+                            )}
+                          </FieldsListener>
                         )}
                       />
                     </Tile>

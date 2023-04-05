@@ -12,16 +12,6 @@ fragment TransactionDetails on Transaction {
     createdAt
   }
   originTransactionId
-  originTransaction {
-    id
-    statusInfo {
-      ... on RejectedTransactionStatusInfo {
-        status
-        reason
-        hasFallback
-      }
-    }
-  }
   statusInfo {
     status
     __typename

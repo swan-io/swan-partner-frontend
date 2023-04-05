@@ -127,7 +127,7 @@ export const OnboardingCompanyOrganisation1 = ({
       },
       taxIdentificationNumber: {
         initialValue: initialTaxIdentificationNumber,
-        validate: canSetTaxIdentification ? validateCompanyTaxNumber : undefined,
+        validate: canSetTaxIdentification ? validateCompanyTaxNumber(accountCountry) : undefined,
         sanitize: value => value.trim(),
       },
       address: {

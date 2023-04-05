@@ -92,7 +92,7 @@ export const OnboardingIndividualDetails = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      validate: canSetTaxIdentification ? validateIndividualTaxNumber : undefined,
+      validate: canSetTaxIdentification ? validateIndividualTaxNumber(accountCountry) : undefined,
       sanitize: value => value.trim(),
     },
   });

@@ -574,78 +574,85 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
 
                       <Space height={24} />
 
-                      <LakeLabel
-                        label={t("recurringTransfer.new.firstExecutionDate.label")}
-                        render={id => (
-                          <Field name="firstExecutionDate">
-                            {({ value, onChange, onBlur, error, valid }) => (
-                              <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                                {({ value, onChange }) => (
-                                  <LakeTextInput
-                                    id={id}
-                                    placeholder={locale.datePlaceholder}
-                                    value={value}
-                                    error={error}
-                                    valid={value !== "" && valid}
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                  />
-                                )}
-                              </Rifm>
+                      <Box
+                        direction={small ? "column" : "row"}
+                        alignItems={small ? undefined : "center"}
+                      >
+                        <LakeLabel
+                          label={t("recurringTransfer.new.firstExecutionDate.label")}
+                          style={styles.inlineInput}
+                          render={id => (
+                            <Field name="firstExecutionDate">
+                              {({ value, onChange, onBlur, error, valid }) => (
+                                <Rifm value={value} onChange={onChange} {...rifmDateProps}>
+                                  {({ value, onChange }) => (
+                                    <LakeTextInput
+                                      id={id}
+                                      placeholder={locale.datePlaceholder}
+                                      value={value}
+                                      error={error}
+                                      valid={value !== "" && valid}
+                                      onChange={onChange}
+                                      onBlur={onBlur}
+                                    />
+                                  )}
+                                </Rifm>
+                              )}
+                            </Field>
+                          )}
+                        />
+
+                        <Space width={24} height={4} />
+
+                        <Box direction="row" alignItems="center">
+                          <Field name="withLastExecutionDate">
+                            {({ value, onChange }) => (
+                              <Switch value={value} onValueChange={onChange} />
                             )}
                           </Field>
-                        )}
-                      />
 
-                      <Space height={4} />
+                          <Space width={12} />
 
-                      <Box direction="row" alignItems="center">
-                        <Field name="withLastExecutionDate">
-                          {({ value, onChange }) => (
-                            <Switch value={value} onValueChange={onChange} />
+                          <LakeText color={colors.gray[700]} variant="smallMedium">
+                            {t("recurringTransfer.new.setEndDate")}
+                          </LakeText>
+                        </Box>
+
+                        <Space width={24} height={24} />
+
+                        <LakeLabel
+                          label={t("recurringTransfer.new.lastExecutionDate.label")}
+                          style={styles.inlineInput}
+                          render={id => (
+                            <FieldsListener names={["withLastExecutionDate"]}>
+                              {({ withLastExecutionDate }) => (
+                                <Field name="lastExecutionDate">
+                                  {({ value, onChange, onBlur, error, valid }) => (
+                                    <Rifm value={value} onChange={onChange} {...rifmDateProps}>
+                                      {({ value, onChange }) => (
+                                        <LakeTextInput
+                                          id={id}
+                                          placeholder={
+                                            withLastExecutionDate.value
+                                              ? locale.datePlaceholder
+                                              : undefined
+                                          }
+                                          value={withLastExecutionDate.value ? value : undefined}
+                                          error={withLastExecutionDate.value ? error : undefined}
+                                          disabled={!withLastExecutionDate.value}
+                                          valid={value !== "" && valid}
+                                          onChange={onChange}
+                                          onBlur={onBlur}
+                                        />
+                                      )}
+                                    </Rifm>
+                                  )}
+                                </Field>
+                              )}
+                            </FieldsListener>
                           )}
-                        </Field>
-
-                        <Space width={12} />
-
-                        <LakeText color={colors.gray[700]} variant="smallMedium">
-                          {t("recurringTransfer.new.setEndDate")}
-                        </LakeText>
+                        />
                       </Box>
-
-                      <Space height={24} />
-
-                      <LakeLabel
-                        label={t("recurringTransfer.new.lastExecutionDate.label")}
-                        render={id => (
-                          <FieldsListener names={["withLastExecutionDate"]}>
-                            {({ withLastExecutionDate }) => (
-                              <Field name="lastExecutionDate">
-                                {({ value, onChange, onBlur, error, valid }) => (
-                                  <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                                    {({ value, onChange }) => (
-                                      <LakeTextInput
-                                        id={id}
-                                        placeholder={
-                                          withLastExecutionDate.value
-                                            ? locale.datePlaceholder
-                                            : undefined
-                                        }
-                                        value={withLastExecutionDate.value ? value : undefined}
-                                        error={withLastExecutionDate.value ? error : undefined}
-                                        disabled={!withLastExecutionDate.value}
-                                        valid={value !== "" && valid}
-                                        onChange={onChange}
-                                        onBlur={onBlur}
-                                      />
-                                    )}
-                                  </Rifm>
-                                )}
-                              </Field>
-                            )}
-                          </FieldsListener>
-                        )}
-                      />
                     </Tile>
 
                     <Space height={32} />

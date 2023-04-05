@@ -81,6 +81,7 @@ export const TransactionListPage = ({
 
   const filters: TransactionFiltersState = useMemo(() => {
     return {
+      includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: isNotNullish(params.paymentProduct)

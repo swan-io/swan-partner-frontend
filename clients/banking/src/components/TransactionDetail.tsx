@@ -135,15 +135,60 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
       <ListRightPanelContent large={large} style={styles.container}>
         <Tile
           style={styles.tile}
-          footer={match(transaction.statusInfo)
-            .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => (
-              <LakeAlert
-                anchored={true}
-                title={getTransactionRejectedReasonLabel(reason)}
-                variant="error"
-              />
-            ))
+          footer={match(transaction)
+            .with(
+              { statusInfo: { __typename: "RejectedTransactionStatusInfo" } },
+              ({ statusInfo }) => (
+                <LakeAlert
+                  anchored={true}
+                  title={getTransactionRejectedReasonLabel(statusInfo.reason)}
+                  variant="error"
+                />
+              ),
+            )
+            //TODO: switch this condition with the next one to display the warning message as soon as the back had fixed its issue
+
+            .with(
+              { statusInfo: { __typename: "BookedTransactionStatusInfo" } },
+              { statusInfo: { __typename: "CanceledTransactionStatusInfo" } },
+              { statusInfo: { __typename: "PendingTransactionStatusInfo" } },
+              { statusInfo: { __typename: "ReleasedTransactionStatusInfo" } },
+              { statusInfo: { __typename: "UpcomingTransactionStatusInfo" } },
+              ({ originTransactionId }) =>
+                isNotNullish(originTransactionId) ? (
+                  <LakeAlert
+                    variant="warning"
+                    title={t("transaction.instantTransferUnavailable")}
+                    children={t("transaction.instantTransferUnavailable.description")}
+                  />
+                ) : (
+                  <></>
+                ),
+            )
             .otherwise(() => null)}
+
+          // .with(
+          //   { statusInfo: { __typename: "BookedTransactionStatusInfo" } },
+          //   { statusInfo: { __typename: "CanceledTransactionStatusInfo" } },
+          //   { statusInfo: { __typename: "PendingTransactionStatusInfo" } },
+          //   { statusInfo: { __typename: "ReleasedTransactionStatusInfo" } },
+          //   { statusInfo: { __typename: "UpcomingTransactionStatusInfo" } },
+          //   ({ originTransaction }) =>
+          //     match(originTransaction)
+          //       .with(
+          //         { statusInfo: { __typename: "RejectedTransactionStatusInfo" } },
+          //         ({ statusInfo }) =>
+          //           statusInfo.hasFallback && (
+          //             <LakeAlert
+          //               variant="warning"
+          //               title={t("transaction.instantTransferUnavailable")}
+          //               children={t("transaction.instantTransferUnavailable.description")}
+          //             />
+          //           ),
+          //       )
+          //       .otherwise(() => null),
+          // )
+          // .exhaustive()}
         >
           {match(transaction.statusInfo.__typename)
             .with("PendingTransactionStatusInfo", () => (

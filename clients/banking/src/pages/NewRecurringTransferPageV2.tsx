@@ -632,15 +632,13 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
                                       {({ value, onChange }) => (
                                         <LakeTextInput
                                           id={id}
-                                          placeholder={
-                                            withLastExecutionDate.value
-                                              ? locale.datePlaceholder
-                                              : undefined
-                                          }
+                                          placeholder={locale.datePlaceholder}
                                           value={withLastExecutionDate.value ? value : undefined}
                                           error={withLastExecutionDate.value ? error : undefined}
                                           disabled={!withLastExecutionDate.value}
-                                          valid={value !== "" && valid}
+                                          valid={
+                                            withLastExecutionDate.value && value !== "" && valid
+                                          }
                                           onChange={onChange}
                                           onBlur={onBlur}
                                         />

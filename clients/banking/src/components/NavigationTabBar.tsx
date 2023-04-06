@@ -198,7 +198,7 @@ export const NavigationTabBar = ({
         >
           {isScrolled ? (
             <Pressable onPress={onScrollToTop} style={styles.scrollTopButton}>
-              <Icon name="arrow-up-filled" color={colors.gray[600]} size={24} />
+              <Icon name="arrow-up-filled" color={colors.gray[600]} size={20} />
             </Pressable>
           ) : null}
         </TransitionView>

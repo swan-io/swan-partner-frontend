@@ -1,7 +1,7 @@
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
 import path from "path";
-import { defineConfig } from "vitest";
+import { defineConfig } from "vitest/config";
 
 const root = path.resolve(__dirname, "./src");
 
@@ -16,6 +16,7 @@ const getAllowedPaths = () => {
   }
 };
 
+/** @type {import('vitest/config').UserConfigFn} */
 export default defineConfig({
   root,
   build: {

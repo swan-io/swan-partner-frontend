@@ -1,5 +1,6 @@
-import { defineConfig } from "vitest";
+import { defineConfig } from "vitest/config";
 
+/** @type {import('vitest/config').UserConfigFn} */
 export default defineConfig({
   resolve: {
     alias: {

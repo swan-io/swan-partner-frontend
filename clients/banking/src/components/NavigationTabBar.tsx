@@ -59,6 +59,22 @@ const styles = StyleSheet.create({
     boxShadow: shadows.tile,
     flexDirection: "row",
     justifyContent: "center",
+    overflow: "hidden",
+  },
+  scrollTopButtonContainer: {
+    zIndex: 1,
+    position: "absolute",
+    left: 0,
+    height: 40,
+    width: 40,
+    borderRightWidth: 1,
+    borderColor: colors.gray[100],
+  },
+  scrollTopButton: {
+    width: "100%",
+    height: "100%",
+    justifyContent: "center",
+    alignItems: "center",
   },
   tabBarItem: {
     paddingHorizontal: spacings[16],
@@ -123,6 +139,8 @@ type Props = {
   refetchAccountAreaQuery: () => void;
   additionalInfo: AdditionalInfo;
   shouldDisplayIdVerification: boolean;
+  isScrolled: boolean;
+  onScrollToTop: () => void;
 };
 
 export const NavigationTabBar = ({
@@ -135,6 +153,8 @@ export const NavigationTabBar = ({
   lastName,
   identificationStatus,
   shouldDisplayIdVerification,
+  isScrolled,
+  onScrollToTop,
 }: Props) => {
   const [screen, setScreen] = useState<null | "menu" | "memberships">(null);
   const route = Router.useRoute([...accountAreaRoutes, "AccountActivation", "AccountProfile"]);
@@ -172,6 +192,17 @@ export const NavigationTabBar = ({
   return (
     <View style={styles.tabBarContainer}>
       <View style={styles.tabBar}>
+        <TransitionView
+          style={styles.scrollTopButtonContainer}
+          {...animations.fadeAndSlideInFromBottom}
+        >
+          {isScrolled ? (
+            <Pressable onPress={onScrollToTop} style={styles.scrollTopButton}>
+              <Icon name="arrow-up-filled" color={colors.gray[600]} size={20} />
+            </Pressable>
+          ) : null}
+        </TransitionView>
+
         <Pressable style={styles.tabBarItem} onPress={() => setScreen("menu")}>
           {match(route)
             .with({ name: "AccountActivation" }, () => (

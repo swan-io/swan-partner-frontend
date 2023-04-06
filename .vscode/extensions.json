@@ -4,7 +4,6 @@
     "editorconfig.editorconfig",
     "esbenp.prettier-vscode",
     "graphql.vscode-graphql",
-    "graphql.vscode-graphql-syntax",
-    "ms-playwright.playwright"
+    "graphql.vscode-graphql-syntax"
   ]
 }

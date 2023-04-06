@@ -10,12 +10,12 @@ import fs from "node:fs";
 import { Http2SecureServer } from "node:http2";
 import path from "node:path";
 import url from "node:url";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
-  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
+  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {
@@ -182,11 +182,14 @@ export const start = async ({
    * Try to refresh the tokens if expired or expiring soon
    */
   app.addHook("preHandler", async (request, reply) => {
+    if (!request.url.startsWith("/api/")) {
+      return;
+    }
     const TEN_SECONDS = 10_000;
     const refreshToken = request.session.get("refreshToken");
     const expiresAt = request.session.get("expiresAt") ?? 0;
     if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
-      refreshAccessToken({
+      await refreshAccessToken({
         refreshToken,
         redirectUri: `${env.BANKING_URL}/auth/callback`,
       })

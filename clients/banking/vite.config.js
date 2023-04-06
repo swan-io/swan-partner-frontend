@@ -1,7 +1,7 @@
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { defineConfig } from "vite";
+import path from "node:path";
+import { defineConfig } from "vitest/config";
 
 const root = path.resolve(__dirname, "./src");
 
@@ -11,11 +11,12 @@ const getAllowedPaths = () => {
     const lakePath = localeConfig.default.lake;
 
     return typeof lakePath === "string" ? [root, lakePath] : undefined;
-  } catch (e) {
+  } catch {
     // if locale-config.js is not present `server.fs.allow` will be undefined
   }
 };
 
+/** @type {import('vitest/config').UserConfigFn} */
 export default defineConfig({
   root,
   build: {

@@ -607,6 +607,7 @@ export const OnboardingCompanyOwnership = ({
       >
         <BeneficiaryForm
           ref={beneficiaryFormRef}
+          googleMapApiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
           initialState={match(pageState)
             .with({ type: "edit" }, ({ ubo }) => ubo)
             .otherwise(() => undefined)}

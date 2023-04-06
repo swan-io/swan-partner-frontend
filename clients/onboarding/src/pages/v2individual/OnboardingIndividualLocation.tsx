@@ -12,7 +12,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { AddressSearchInput } from "@swan-io/shared-business/src/components/AddressSearchInput";
+import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
 import {
   CountryCCA3,
   individualCountriesItems,
@@ -203,7 +203,7 @@ export const OnboardingIndividualLocation = ({
                         <LakeLabel
                           label={t("individual.step.location.addressLabel")}
                           render={id => (
-                            <AddressSearchInput
+                            <GMapAddressSearchInput
                               emptyResultText={t("common.noResult")}
                               apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
                               shouldDisplaySuggestions={!manualModeEnabled}

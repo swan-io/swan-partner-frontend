@@ -2,8 +2,8 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { AddressSearchInput } from "@swan-io/shared-business/src/components/AddressSearchInput";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
 import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
 import { View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -103,7 +103,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                   <LakeLabel
                     label={t("cardWizard.address.line1")}
                     render={id => (
-                      <AddressSearchInput
+                      <GMapAddressSearchInput
                         emptyResultText={t("common.noResults")}
                         apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
                         placeholder={t("addressInput.placeholder")}

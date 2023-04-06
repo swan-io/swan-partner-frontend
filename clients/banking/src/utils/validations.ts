@@ -54,6 +54,50 @@ export const validateDate: Validator<string> = value => {
   }
 };
 
+export const validateTodayOrAfter: Validator<string> = value => {
+  if (value === "") {
+    return;
+  }
+
+  const date = dayjs.utc(value, "DD/MM/YYYY");
+  if (!date.isValid()) {
+    return t("common.form.invalidDate");
+  }
+
+  const today = dayjs.utc();
+  if (date.isBefore(today, "day")) {
+    return t("common.form.dateCannotBePast");
+  }
+};
+
+export const validateTime =
+  (minHours: number, minMinutes: number): Validator<string> =>
+  value => {
+    const [hoursStr, minutesStr] = value.split(":");
+
+    if (hoursStr?.length !== 2 || minutesStr?.length !== 2) {
+      return t("common.form.invalidTime");
+    }
+
+    const hours = Number(hoursStr);
+    const minutes = Number(minutesStr);
+
+    if (isNaN(hours) || isNaN(minutes)) {
+      return t("common.form.invalidTime");
+    }
+
+    if (hours < 0 || hours > 23) {
+      return t("common.form.invalidTime");
+    }
+
+    if (minutes < 0 || minutes > 59) {
+      return t("common.form.invalidTime");
+    }
+    if (hours < minHours || (hours === minHours && minutes < minMinutes)) {
+      return t("common.form.dateCannotBePast");
+    }
+  };
+
 export const validateAddressLine: Validator<string> = value => {
   if (value.length > 38) {
     return t("common.form.invalidAddressLine");

@@ -1,5 +1,6 @@
 import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -11,6 +12,7 @@ import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -23,6 +25,7 @@ import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/cou
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
@@ -33,7 +36,8 @@ import {
   InitiateSepaCreditTransfersDocument,
   ValidIbanInformationFragment,
 } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import { encodeDateTime, isToday } from "../utils/date";
+import { formatCurrency, locale, rifmDateProps, rifmTimeProps, t } from "../utils/i18n";
 import { getIbanValidation, printIbanFormat } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
@@ -42,6 +46,8 @@ import {
   validateReference,
   validateRequired,
   validateSepaBeneficiaryNameAlphabet,
+  validateTime,
+  validateTodayOrAfter,
 } from "../utils/validations";
 
 const styles = StyleSheet.create({
@@ -69,6 +75,17 @@ const styles = StyleSheet.create({
 });
 
 const MIN_AMOUNT = 0;
+
+const scheduleItems: RadioGroupItem<boolean>[] = [
+  {
+    name: t("transfer.new.schedule.today"),
+    value: false,
+  },
+  {
+    name: t("transfer.new.schedule.later"),
+    value: true,
+  },
+];
 
 type Props = {
   accountId: string;
@@ -105,7 +122,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     .flatMap(result => result.toOption())
     .flatMap(({ account }) => Option.fromUndefined(account?.IBAN ?? undefined));
 
-  const { Field, submitForm } = useForm({
+  const { Field, FieldsListener, submitForm } = useForm({
     creditorIban: {
       initialValue: "",
       sanitize: printIbanFormat,
@@ -156,6 +173,28 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
       validate: validateReference,
       strategy: "onSuccessOrBlur",
     },
+    isScheduled: {
+      initialValue: false,
+    },
+    scheduledDate: {
+      initialValue: "",
+      validate: combineValidators(validateRequired, validateTodayOrAfter),
+    },
+    scheduleTime: {
+      initialValue: "",
+      validate: (value, { getFieldState }) => {
+        if (value === "") {
+          return t("common.form.required");
+        }
+
+        const date = getFieldState("scheduledDate").value;
+        const isScheduleToday = isToday(date);
+        const minHours = isScheduleToday ? new Date().getHours() : 0;
+        const minMinutes = isScheduleToday ? new Date().getMinutes() : 0;
+
+        return validateTime(minHours, minMinutes)(value);
+      },
+    },
     isInstant: {
       initialValue: false,
     },
@@ -182,6 +221,10 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
           return;
         }
 
+        const requestedExecutionAt = hasDefinedKeys(values, ["scheduledDate", "scheduleTime"])
+          ? encodeDateTime(values.scheduledDate, `${values.scheduleTime}:00`)
+          : undefined;
+
         const input: InitiateCreditTransfersInput = {
           accountId,
           consentRedirectUrl:
@@ -191,6 +234,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
               amount: { currency: "EUR", value: values.transferAmount },
               label: values.transferLabel ? values.transferLabel : null,
               reference: values.transferReference ? values.transferReference : null,
+              requestedExecutionAt,
               sepaBeneficiary: {
                 name: values.creditorName,
                 save: false,
@@ -451,25 +495,124 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                       <Space height={32} />
                       <FieldsetTitle isMobile={small}>{t("transfer.new.schedule")}</FieldsetTitle>
 
-                      {canSendInstantTransfer ? (
-                        <Tile>
-                          <Field name="isInstant">
-                            {({ value, onChange }) => (
-                              <LakeLabelledCheckbox
-                                label={t("transfer.new.instantTransfer")}
-                                value={value}
-                                onValueChange={onChange}
-                              />
-                            )}
-                          </Field>
-                        </Tile>
-                      ) : (
-                        <LakeAlert
-                          title={t("transfer.new.instantTransferNotAvailable")}
-                          subtitle={t("transfer.new.bankNotAcceptInstantTransfer")}
-                          variant="info"
+                      <Tile
+                        footer={
+                          !canSendInstantTransfer ? (
+                            <View style={styles.tileFooter}>
+                              <Box direction="row" alignItems="end">
+                                <Icon
+                                  name="info-regular"
+                                  size={20}
+                                  color={colors.shakespear[700]}
+                                />
+
+                                <Space width={12} />
+
+                                <LakeText variant="smallRegular" color={colors.shakespear[700]}>
+                                  {t("transfer.new.instantTransferNotAvailable")}
+                                </LakeText>
+                              </Box>
+
+                              <Space height={16} />
+
+                              <LakeText variant="smallRegular" color={colors.gray[700]}>
+                                {t("transfer.new.bankNotAcceptInstantTransfer")}
+                              </LakeText>
+                            </View>
+                          ) : undefined
+                        }
+                      >
+                        <LakeLabel
+                          label={t("transfer.new.schedule.label")}
+                          type="radioGroup"
+                          render={() => (
+                            <Field name="isScheduled">
+                              {({ value, onChange }) => (
+                                <RadioGroup
+                                  direction="row"
+                                  items={scheduleItems}
+                                  value={value}
+                                  onValueChange={onChange}
+                                />
+                              )}
+                            </Field>
+                          )}
                         />
-                      )}
+
+                        <Space height={24} />
+
+                        <FieldsListener names={["isScheduled"]}>
+                          {({ isScheduled }) =>
+                            isScheduled.value ? (
+                              <Box direction={small ? "column" : "row"}>
+                                <LakeLabel
+                                  label={t("transfer.new.scheduleDate.label")}
+                                  style={styles.inlineInput}
+                                  render={id => (
+                                    <Field name="scheduledDate">
+                                      {({ value, onChange, onBlur, error, valid }) => (
+                                        <Rifm value={value} onChange={onChange} {...rifmDateProps}>
+                                          {({ value, onChange }) => (
+                                            <LakeTextInput
+                                              id={id}
+                                              placeholder={locale.datePlaceholder}
+                                              value={value}
+                                              error={error}
+                                              valid={valid}
+                                              onChange={onChange}
+                                              onBlur={onBlur}
+                                            />
+                                          )}
+                                        </Rifm>
+                                      )}
+                                    </Field>
+                                  )}
+                                />
+
+                                <Space width={12} height={12} />
+
+                                <LakeLabel
+                                  label={t("transfer.new.scheduleTime.label")}
+                                  style={styles.inlineInput}
+                                  render={id => (
+                                    <Field name="scheduleTime">
+                                      {({ value, onChange, onBlur, error, valid }) => (
+                                        <Rifm value={value} onChange={onChange} {...rifmTimeProps}>
+                                          {({ value, onChange }) => (
+                                            <LakeTextInput
+                                              id={id}
+                                              placeholder={locale.timePlaceholder.slice(0, -3)}
+                                              value={value}
+                                              error={error}
+                                              valid={valid}
+                                              onChange={onChange}
+                                              onBlur={onBlur}
+                                            />
+                                          )}
+                                        </Rifm>
+                                      )}
+                                    </Field>
+                                  )}
+                                />
+                              </Box>
+                            ) : (
+                              <>
+                                {canSendInstantTransfer && (
+                                  <Field name="isInstant">
+                                    {({ value, onChange }) => (
+                                      <LakeLabelledCheckbox
+                                        label={t("transfer.new.instantTransfer")}
+                                        value={value}
+                                        onValueChange={onChange}
+                                      />
+                                    )}
+                                  </Field>
+                                )}
+                              </>
+                            )
+                          }
+                        </FieldsListener>
+                      </Tile>
 
                       <Space height={32} />
 

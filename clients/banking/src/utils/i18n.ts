@@ -179,6 +179,12 @@ export const rifmDateProps = getRifmProps({
   maxLength: 8,
 });
 
+export const rifmTimeProps = getRifmProps({
+  accept: "numeric",
+  charMap: { 2: ":" },
+  maxLength: 4,
+});
+
 type Language = {
   name: string;
   native: string;

@@ -197,7 +197,6 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                 iban: values.creditorIban,
                 isMyOwnIban: false, // TODO
               },
-              isInstant: values.isInstant,
               mode: values.isInstant === true ? "InstantWithFallback" : "Regular",
             },
           ],

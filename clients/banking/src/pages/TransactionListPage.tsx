@@ -89,6 +89,7 @@ export const TransactionListPage = ({
               .with(
                 "Card",
                 "Fees",
+                "Check",
                 "InternalCreditTransfer",
                 "InternalDirectDebit",
                 "SEPACreditTransfer",

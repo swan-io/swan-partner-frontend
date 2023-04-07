@@ -5,7 +5,7 @@ import { env } from "../env.js";
 import { AccountCountry, OnboardingRedirectInfoFragment, getSdk } from "../graphql/partner.js";
 import { getClientAccessToken } from "./oauth2.js";
 
-const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));
+export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));
 
 class NetworkError extends Error {
   constructor(error: unknown) {
@@ -14,7 +14,7 @@ class NetworkError extends Error {
   }
 }
 
-const toFuture = <T>(promise: Promise<T>): Future<Result<T, Error>> => {
+export const toFuture = <T>(promise: Promise<T>): Future<Result<T, Error>> => {
   return Future.fromPromise(promise).mapError(error => new NetworkError(error));
 };
 
@@ -24,7 +24,7 @@ export const getProjectId = (): Future<Result<string, Error>> => {
   if (projectId != undefined) {
     return projectId;
   }
-  projectId = getClientAccessToken()
+  projectId = getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(sdk.ProjectId({}, { Authorization: `Bearer ${accessToken}` })),
     )
@@ -48,7 +48,7 @@ export const parseAccountCountry = (
     .with("FRA", "DEU", "ESP", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
-class OnboardingRejection extends Error {
+export class OnboardingRejection extends Error {
   __typename: "BadRequestRejection" | "ForbiddenRejection" | "ValidationRejection";
   message: string;
   constructor(
@@ -67,7 +67,7 @@ export const onboardCompanyAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
 }): Future<Result<string, Error>> => {
-  return getClientAccessToken()
+  return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
         sdk.OnboardPublicCompanyAccountHolder(
@@ -97,7 +97,7 @@ export const onboardIndividualAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
 }): Future<Result<string, Error>> => {
-  return getClientAccessToken()
+  return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
         sdk.OnboardPublicIndividualAccountHolder(

@@ -27,6 +27,50 @@ query OnboardingRedirect($onboardingId: ID!) {
   }
 }
 
+query GetAccountMembershipInvitationData(
+  $inviterAccountMembershipId: ID!
+  $inviteeAccountMembershipId: ID!
+) {
+  projectInfo {
+    name
+    accentColor
+    logoUri
+  }
+  inviterAccountMembership: accountMembership(id: $inviterAccountMembershipId) {
+    email
+    user {
+      firstName
+      lastName
+    }
+    account {
+      name
+      number
+      holder {
+        info {
+          ... on AccountHolderCompanyInfo {
+            name
+          }
+          ... on AccountHolderIndividualInfo {
+            name
+          }
+        }
+      }
+    }
+  }
+  inviteeAccountMembership: accountMembership(id: $inviteeAccountMembershipId) {
+    id
+    email
+    statusInfo {
+      __typename
+      ... on AccountMembershipInvitationSentStatusInfo {
+        restrictedTo {
+          firstName
+        }
+      }
+    }
+  }
+}
+
 mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
   finalizeOnboarding(input: $input) {
     __typename

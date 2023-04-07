@@ -188,7 +188,7 @@ export const MembershipsArea = ({
         const xhr = new XMLHttpRequest();
         xhr.open(
           "POST",
-          `/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+          `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
           true,
         );
         xhr.addEventListener("load", () => {

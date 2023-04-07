@@ -3,19 +3,20 @@ import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import fastifyStatic from "@fastify/static";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify, { onRequestAsyncHookHandler } from "fastify";
+import fastify from "fastify";
+// @ts-expect-error
+import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
-import { Http2SecureServer } from "node:http2";
 import path from "node:path";
 import url from "node:url";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
+  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
-  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {
@@ -35,8 +36,10 @@ const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const COOKIE_MAX_AGE = 7_776_000; // 90 days
 const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
 
-type InvitationConfig = {
+export type InvitationConfig = {
   accessToken: string;
+  projectId: string;
+  requestLanguage: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
 };
@@ -45,7 +48,6 @@ type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
   sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<boolean>;
-  onRequest?: onRequestAsyncHookHandler<Http2SecureServer>;
 };
 
 declare module "@fastify/secure-session" {
@@ -68,6 +70,7 @@ declare module "fastify" {
       clientSecret: string;
     };
     accessToken: string | undefined;
+    detectedLng: string;
   }
 }
 
@@ -95,12 +98,7 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({
-  mode,
-  httpsConfig,
-  onRequest,
-  sendAccountMembershipInvitation,
-}: AppConfig) => {
+export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
   if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
@@ -178,48 +176,52 @@ export const start = async ({
     credentials: true,
   });
 
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  await app.register(languageParser, {
+    order: ["query"],
+    fallbackLng: "en",
+    supportedLngs: ["en", "fr"],
+  });
+
   /**
    * Try to refresh the tokens if expired or expiring soon
    */
-  app.addHook("preHandler", async (request, reply) => {
+  app.addHook("preHandler", (request, reply, done) => {
     if (!request.url.startsWith("/api/")) {
-      return;
-    }
-    const TEN_SECONDS = 10_000;
-    const refreshToken = request.session.get("refreshToken");
-    const expiresAt = request.session.get("expiresAt") ?? 0;
-    if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
-      await refreshAccessToken({
-        refreshToken,
-        redirectUri: `${env.BANKING_URL}/auth/callback`,
-      })
-        .tapOk(({ expiresAt, accessToken, refreshToken }) => {
-          request.session.options({
-            domain: new URL(request.hostname).hostname,
-            maxAge: COOKIE_MAX_AGE,
-          });
-          request.session.set("expiresAt", expiresAt);
-          request.session.set("accessToken", accessToken);
-          request.session.set("refreshToken", refreshToken);
+      done();
+    } else {
+      const TEN_SECONDS = 10_000;
+      const refreshToken = request.session.get("refreshToken");
+      const expiresAt = request.session.get("expiresAt") ?? 0;
+      if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
+        refreshAccessToken({
+          refreshToken,
+          redirectUri: `${env.BANKING_URL}/auth/callback`,
         })
-        .tapError(() => {
-          request.session.delete();
-          void reply.redirect("/login");
-        });
+          .tapOk(({ expiresAt, accessToken, refreshToken }) => {
+            request.session.options({
+              maxAge: COOKIE_MAX_AGE,
+            });
+            request.session.set("expiresAt", expiresAt);
+            request.session.set("accessToken", accessToken);
+            request.session.set("refreshToken", refreshToken);
+          })
+          .tapError(() => {
+            request.session.delete();
+            void reply.redirect("/login");
+          })
+          .tap(() => {
+            done();
+          });
+      } else {
+        done();
+      }
     }
   });
 
   app.addHook("onRequest", (request, reply, done) => {
     request.accessToken = request.session.get("accessToken");
     done();
-  });
-
-  app.addHook("onRequest", function (request, reply) {
-    if (onRequest != undefined) {
-      return onRequest.call(this, request, reply);
-    } else {
-      return Promise.resolve();
-    }
   });
 
   /**
@@ -299,10 +301,10 @@ export const start = async ({
 
   /**
    * Accept an account membership invitation
-   * e.g. /invitation/:id
+   * e.g. /api/invitation/:id
    */
   app.get<{ Querystring: Record<string, string>; Params: { accountMembershipId: string } }>(
-    "/invitation/:accountMembershipId",
+    "/api/invitation/:accountMembershipId",
     (request, reply) => {
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
@@ -312,10 +314,10 @@ export const start = async ({
 
   /**
    * Send an account membership invitation
-   * e.g. /invitation/:id/send?inviterAccountMembershipId=1234
+   * e.g. /api/invitation/:id/send?inviterAccountMembershipId=1234
    */
   app.post<{ Querystring: Record<string, string>; Params: { inviteeAccountMembershipId: string } }>(
-    "/invitation/:inviteeAccountMembershipId/send",
+    "/api/invitation/:inviteeAccountMembershipId/send",
     async (request, reply) => {
       const accessToken = request.accessToken;
       if (accessToken == undefined) {
@@ -329,11 +331,17 @@ export const start = async ({
         return reply.status(400).send("Missing inviterAccountMembershipId");
       }
       try {
-        const result = await sendAccountMembershipInvitation({
-          accessToken,
-          inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
-          inviterAccountMembershipId,
-        });
+        const result = await getProjectId().flatMapOk(projectId =>
+          Future.fromPromise(
+            sendAccountMembershipInvitation({
+              accessToken,
+              projectId,
+              requestLanguage: request.detectedLng,
+              inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
+              inviterAccountMembershipId,
+            }),
+          ),
+        );
         return reply.send({ success: result });
       } catch (err) {
         return reply.status(400).send("An error occured");
@@ -373,7 +381,6 @@ export const start = async ({
       .otherwise(() => ({ id, type: "Redirect" as const, redirectTo }));
 
     request.session.options({
-      domain: new URL(request.hostname).hostname,
       maxAge: OAUTH_STATE_COOKIE_MAX_AGE,
     });
     // store the state ID to compare it with what we receive
@@ -395,11 +402,12 @@ export const start = async ({
   /**
    * OAuth2 Redirection handler
    */
-  app.get<{ Querystring: Record<string, string> }>("/auth/callback", (request, reply) => {
+  app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
     const state = Result.fromExecution(
       () => JSON.parse(request.query.state ?? "{}") as unknown,
     ).getWithDefault({});
     const stateId = request.session.get("state") ?? "UNKNOWN";
+    const projectId = await getProjectId();
 
     return (
       match({
@@ -415,14 +423,17 @@ export const start = async ({
             state: getOAuth2StatePattern(stateId),
           },
           ({ code, state }) => {
-            getTokenFromCode({
+            return getTokenFromCode({
               redirectUri: `${env.BANKING_URL}/auth/callback`,
+              authMode: projectId.match({
+                Ok: () => "FormData",
+                Error: () => "AuthorizationHeader",
+              }),
               code,
             })
               .tapOk(({ expiresAt, accessToken, refreshToken }) => {
                 // Store the tokens
                 request.session.options({
-                  domain: new URL(request.hostname).hostname,
                   maxAge: COOKIE_MAX_AGE,
                 });
                 request.session.set("expiresAt", expiresAt);
@@ -461,7 +472,7 @@ export const start = async ({
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
-                    bindAccountMembership({ accountMembershipId, accessToken })
+                    return bindAccountMembership({ accountMembershipId, accessToken })
                       .tapOk(({ accountMembershipId }) => {
                         return reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
                       })

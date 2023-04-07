@@ -34,6 +34,7 @@ import { AccountActivationPageDocument, AccountActivationPageQuery } from "../gr
 import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import { useQueryWithErrorBoundary } from "../utils/urql";
 
 const styles = StyleSheet.create({
@@ -412,17 +413,22 @@ export const AccountActivationPage = ({
 
   const handleProveIdentity = useCallback(() => {
     const identificationLevel = accountMembership?.recommendedIdentificationLevel ?? "Expert";
+    const params = new URLSearchParams();
+    params.set("projectId", projectInfo.id);
+
     openPopup({
       url: match(identificationStatus)
         // means that the last started process is a QES one
-        .with(
-          "ReadyToSign",
-          () => `/auth/login?identificationLevel=QES&projectId=${projectInfo.id}`,
-        )
-        .otherwise(
-          () =>
-            `/auth/login?identificationLevel=${identificationLevel}&projectId=${projectInfo.id}`,
-        ),
+        .with("ReadyToSign", () => {
+          params.set("identificationLevel", "QES");
+          params.set("redirectTo", Router.PopupCallback());
+          return `/auth/login?${params.toString()}`;
+        })
+        .otherwise(() => {
+          params.set("identificationLevel", identificationLevel);
+          params.set("redirectTo", Router.PopupCallback());
+          return `/auth/login?${params.toString()}`;
+        }),
       onClose: refetchQueries,
     });
   }, [projectInfo, refetchQueries, identificationStatus, accountMembership]);

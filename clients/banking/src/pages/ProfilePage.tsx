@@ -25,6 +25,7 @@ import { useLegacyAccentColor } from "../contexts/legacyAccentColor";
 import { IdentificationLevel, ProfilePageDocument } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import { useQueryWithErrorBoundary } from "../utils/urql";
 
 const styles = StyleSheet.create({
@@ -75,17 +76,20 @@ export const ProfilePage = ({
     .join("");
 
   const handleProveIdentity = useCallback(() => {
+    const params = new URLSearchParams();
+    params.set("projectId", data.projectInfo.id);
+    params.set("redirectTo", Router.PopupCallback());
     openPopup({
       url: match(user?.identificationStatus)
         // means that the last started process is a QES one
-        .with(
-          "ReadyToSign",
-          () => `/auth/login?identificationLevel=QES&projectId=${data.projectInfo.id}`,
-        )
-        .otherwise(
-          () =>
-            `/auth/login?identificationLevel=${recommendedIdentificationLevel}&projectId=${data.projectInfo.id}`,
-        ),
+        .with("ReadyToSign", () => {
+          params.set("identificationLevel", "QES");
+          return `/auth/login?${params.toString()}`;
+        })
+        .otherwise(() => {
+          params.set("identificationLevel", recommendedIdentificationLevel);
+          return `/auth/login?${params.toString()}`;
+        }),
       onClose: () => refetchAccountAreaQuery(),
     });
   }, [data.projectInfo, refetchAccountAreaQuery, user, recommendedIdentificationLevel]);

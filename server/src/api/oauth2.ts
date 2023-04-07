@@ -36,14 +36,18 @@ type OAuth2Session = {
 
 export const getTokenFromCode = ({
   redirectUri,
+  authMode,
   code,
 }: {
   redirectUri: string;
+  authMode: "FormData" | "AuthorizationHeader";
   code: string;
 }): Future<Result<OAuth2Session, Error>> => {
   const formData = new FormData();
-  formData.append("client_id", env.OAUTH_CLIENT_ID);
-  formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  if (authMode === "FormData") {
+    formData.append("client_id", env.OAUTH_CLIENT_ID);
+    formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  }
   formData.append("grant_type", "authorization_code");
   formData.append("code", code);
   formData.append("redirect_uri", redirectUri);
@@ -51,6 +55,14 @@ export const getTokenFromCode = ({
   const data = query(`${env.OAUTH_SERVER_URL}/oauth2/token`, {
     method: "POST",
     body: formData,
+    headers:
+      authMode === "AuthorizationHeader"
+        ? {
+            Authorization: `Basic ${Buffer.from(
+              `${env.OAUTH_CLIENT_ID}:${env.OAUTH_CLIENT_SECRET}`,
+            ).toString("base64")}`,
+          }
+        : undefined,
   });
 
   return data.mapResult(data =>
@@ -124,15 +136,30 @@ export const refreshAccessToken = ({
   );
 };
 
-export const getClientAccessToken = () => {
+export const getClientAccessToken = ({
+  authMode,
+}: {
+  authMode: "FormData" | "AuthorizationHeader";
+}) => {
   const formData = new FormData();
-  formData.append("client_id", env.OAUTH_CLIENT_ID);
-  formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  if (authMode === "FormData") {
+    formData.append("client_id", env.OAUTH_CLIENT_ID);
+    formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  }
   formData.append("grant_type", "client_credentials");
   const data = query(`${env.OAUTH_SERVER_URL}/oauth2/token`, {
     method: "POST",
     body: formData,
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...(authMode === "AuthorizationHeader"
+        ? {
+            Authorization: `Basic ${Buffer.from(
+              `${env.OAUTH_CLIENT_ID}:${env.OAUTH_CLIENT_SECRET}`,
+            ).toString("base64")}`,
+          }
+        : undefined),
+    },
   });
 
   return data.mapResult(data =>

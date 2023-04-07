@@ -20,6 +20,7 @@
     "link-locale-lake": "sh scripts/lake/link-locale-lake.sh",
     "unlink-locale-lake": "sh scripts/lake/unlink-locale-lake.sh",
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
+    "dev-swan": "tsx -r dotenv/config server/src/index.swan.ts --dev dotenv_config_path=.env.swan",
     "build": "tsx -r dotenv/config scripts/build/index.ts",
     "typecheck": "tsc --noEmit",
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",

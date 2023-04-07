@@ -5,6 +5,7 @@ import { StyleSheet, View } from "react-native";
 import { IdentificationLevel, IdentificationStatus } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   container: {
@@ -34,8 +35,12 @@ export const CardItemIdentityVerificationGate = ({
   onComplete,
 }: Props) => {
   const onPressProve = () => {
+    const params = new URLSearchParams();
+    params.set("redirectTo", Router.PopupCallback());
+    params.set("identificationLevel", recommendedIdentificationLevel);
+    params.set("projectId", projectId);
     openPopup({
-      url: `/auth/login?identificationLevel=${recommendedIdentificationLevel}&projectId=${projectId}`,
+      url: `/auth/login?${params.toString()}`,
       onClose: () => onComplete(),
     });
   };

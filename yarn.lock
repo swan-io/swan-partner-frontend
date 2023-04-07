@@ -1898,7 +1898,7 @@
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.4.0.tgz#08d6c5e20cf7e4cc02fd181c4b0c225cd31dbb60"
   integrity sha512-dfLbk+PwWvFzSxwk3n5ySL0hfBog779o8h68wK/7/APo/7cgyWp5jcXockbxdk5kFRkbeXWm4Fbi9FrdN381sA==
 
-"@lokalise/node-api@9.8.0", "@lokalise/node-api@^9.6.1":
+"@lokalise/node-api@^9.6.1":
   version "9.8.0"
   resolved "https://registry.yarnpkg.com/@lokalise/node-api/-/node-api-9.8.0.tgz#b71032c53f2ad119647309872f5ada8f3fe739e9"
   integrity sha512-t8k9xw3OtBFFBoAaJXkC/KeGlyACUP7MWOnYn1w37xOBi8p0CnvgFvVEwCFltGYwodeBxXm05GE7x3QM2PHvQw==

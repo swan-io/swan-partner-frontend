@@ -5,6 +5,7 @@ query ProjectId {
 }
 
 fragment OnboardingRedirectInfo on Onboarding {
+  __typename
   id
   account {
     legalRepresentativeMembership {
@@ -23,6 +24,7 @@ fragment OnboardingRedirectInfo on Onboarding {
 
 query OnboardingRedirect($onboardingId: ID!) {
   onboarding(id: $onboardingId) {
+    __typename
     ...OnboardingRedirectInfo
   }
 }
@@ -79,6 +81,7 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
     }
     ... on FinalizeOnboardingSuccessPayload {
       onboarding {
+        __typename
         ...OnboardingRedirectInfo
       }
     }

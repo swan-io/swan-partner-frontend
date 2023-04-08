@@ -11,7 +11,7 @@ export const onboardCompanyAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
   projectId: string;
-}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
+}) => {
   return getClientAccessToken({ authMode: "AuthorizationHeader" })
     .flatMapOk(token => exchangeToken(token, { type: "ProjectToken", projectId }))
     .flatMapOk(accessToken =>
@@ -45,7 +45,7 @@ export const onboardIndividualAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
   projectId: string;
-}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
+}) => {
   return getClientAccessToken({ authMode: "AuthorizationHeader" })
     .flatMapOk(token => exchangeToken(token, { type: "ProjectToken", projectId }))
     .flatMapOk(accessToken =>

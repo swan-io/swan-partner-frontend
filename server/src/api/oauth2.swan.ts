@@ -3,11 +3,11 @@
  * ---
  * This file is for Swan's internal usage only
  */
-import { Future, Result } from "@swan-io/boxed";
+import { Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
 import { validate } from "valienv";
 import { url } from "../env";
-import { OAuth2Error, OAuth2ServerError, query } from "./oauth2";
+import { OAuth2Error, query } from "./oauth2";
 
 const additionalEnv = {
   ...validate({
@@ -19,16 +19,15 @@ const additionalEnv = {
   SWAN_AUTH_TOKEN: process.env.SWAN_AUTH_TOKEN,
 };
 
-class OAuth2ExchangeTokenError extends OAuth2Error {}
+class OAuth2ExchangeTokenError extends OAuth2Error {
+  tag = "OAuth2ExchangeTokenError";
+}
 
 type ExchangeTokenConfig =
   | { type: "ProjectToken"; projectId: string }
   | { type: "AccountMemberToken"; projectId: string };
 
-export const exchangeToken = (
-  originalAccessToken: string,
-  config: ExchangeTokenConfig,
-): Future<Result<string, OAuth2ServerError | OAuth2ExchangeTokenError>> => {
+export const exchangeToken = (originalAccessToken: string, config: ExchangeTokenConfig) => {
   return query(additionalEnv.SWAN_AUTH_URL, {
     method: "POST",
     body: JSON.stringify(

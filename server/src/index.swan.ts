@@ -16,7 +16,6 @@ import { string, validate } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan.js";
 import {
   OnboardingRejectionError,
-  ServerError,
   UnsupportedAccountCountryError,
   parseAccountCountry,
 } from "./api/partner.js";
@@ -237,15 +236,15 @@ start({
           })
           .tapError(error => {
             match(error)
-              .with(P.instanceOf(ServerError), error => request.log.error(error))
               .with(
                 P.instanceOf(UnsupportedAccountCountryError),
                 P.instanceOf(OnboardingRejectionError),
                 error => request.log.warn(error),
               )
-              .exhaustive();
-            return reply.status(400).send(error);
-          });
+              .otherwise(error => request.log.error(error));
+            return reply.status(400).send(error.constructor.name);
+          })
+          .map(() => undefined);
       },
     );
 
@@ -266,15 +265,15 @@ start({
           })
           .tapError(error => {
             match(error)
-              .with(P.instanceOf(ServerError), error => request.log.error(error))
               .with(
                 P.instanceOf(UnsupportedAccountCountryError),
                 P.instanceOf(OnboardingRejectionError),
                 error => request.log.warn(error),
               )
-              .exhaustive();
-            return reply.status(400).send(error);
-          });
+              .otherwise(error => request.log.error(error));
+            return reply.status(400).send(error.constructor.name);
+          })
+          .map(() => undefined);
       },
     );
 

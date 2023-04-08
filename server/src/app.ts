@@ -21,7 +21,6 @@ import {
 } from "./api/oauth2.js";
 import {
   OnboardingRejectionError,
-  ServerError,
   UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
@@ -150,6 +149,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         },
       }),
     },
+    genReqId: () => `req-${randomUUID()}`,
   });
 
   /**
@@ -235,10 +235,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Decorates the `reply` object with a `sendFile`
    */
-  await app.register(fastifyStatic, {
-    root: path.join(dirname, "../dist"),
-    wildcard: false,
-  });
+  if (env.NODE_ENV != "development") {
+    await app.register(fastifyStatic, {
+      root: path.join(dirname, "../dist"),
+      wildcard: false,
+    });
+  }
 
   /**
    * Proxies the Swan "unauthenticated" GraphQL API.
@@ -279,15 +281,15 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         })
         .tapError(error => {
           match(error)
-            .with(P.instanceOf(ServerError), error => request.log.error(error))
             .with(
               P.instanceOf(UnsupportedAccountCountryError),
               P.instanceOf(OnboardingRejectionError),
               error => request.log.warn(error),
             )
-            .exhaustive();
-          return reply.status(400).send(error);
-        });
+            .otherwise(error => request.log.error(error));
+          return reply.status(400).send(error.constructor.name);
+        })
+        .map(() => undefined);
     },
   );
 
@@ -306,15 +308,15 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         })
         .tapError(error => {
           match(error)
-            .with(P.instanceOf(ServerError), error => request.log.error(error))
             .with(
               P.instanceOf(UnsupportedAccountCountryError),
               P.instanceOf(OnboardingRejectionError),
               error => request.log.warn(error),
             )
-            .exhaustive();
-          return reply.status(400).send(error);
-        });
+            .otherwise(error => request.log.error(error));
+          return reply.status(400).send(error.constructor.name);
+        })
+        .map(() => undefined);
     },
   );
 
@@ -504,7 +506,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               .tapError(error => {
                 request.log.error(error);
                 return reply.status(401).send("An error occured");
-              });
+              })
+              .map(() => undefined);
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {

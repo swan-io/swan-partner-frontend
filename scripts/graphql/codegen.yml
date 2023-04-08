@@ -61,6 +61,7 @@ server-config: &SERVER_CONFIG
   defaultScalarType: unknown
   scalars:
     AccountNumber: string
+  inlineFragmentTypes: combine
 
 graphcache-config: &GRAPHCACHE_CONFIG
   scalars: *SCALARS

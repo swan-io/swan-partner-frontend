@@ -14,27 +14,38 @@ export const getOAuth2StatePattern = (id: string) =>
     { id, type: "BindAccountMembership" as const, accountMembershipId: P.string },
   );
 
-export class OAuth2Error extends Error {}
-export class OAuth2ServerError extends OAuth2Error {}
-class OAuth2TokenFromCodeError extends OAuth2Error {}
-class OAuth2RefreshTokenError extends OAuth2Error {}
-class OAuth2ClientCredentialsError extends OAuth2Error {}
+export class OAuth2Error extends Error {
+  tag = "OAuth2Error";
+}
+export class OAuth2NetworkError extends OAuth2Error {
+  tag = "OAuth2NetworkError";
+}
+export class OAuth2ServerError extends OAuth2Error {
+  tag = "OAuth2ServerError";
+}
+class OAuth2TokenFromCodeError extends OAuth2Error {
+  tag = "OAuth2TokenFromCodeError";
+}
+class OAuth2RefreshTokenError extends OAuth2Error {
+  tag = "OAuth2RefreshTokenError";
+}
+export class OAuth2ClientCredentialsError extends OAuth2Error {
+  tag = "OAuth2ClientCredentialsError";
+}
 
-export const query = (
-  input: RequestInfo,
-  init?: RequestInit,
-): Future<Result<unknown, OAuth2ServerError>> => {
-  const request = Future.fromPromise(fetch(input, init)).mapError(error => error as Error);
-  return request.flatMapOk(res => {
+export const query = (input: RequestInfo, init?: RequestInit) => {
+  const request = Future.fromPromise(fetch(input, init)).mapError(
+    error => new OAuth2NetworkError(undefined, { cause: error }),
+  );
+
+  const f = (res: Response) => {
     const json: Promise<unknown> = res.json();
-    const data: Future<Result<unknown, Error>> = Future.fromPromise(json).mapError(
-      error => error as Error,
-    );
+    const data = Future.fromPromise(json).mapError(error => error as SyntaxError);
     if (res.ok) {
       return data;
     } else {
       return data.mapResult(json =>
-        Result.Error(
+        Result.Error<unknown, OAuth2ServerError>(
           new OAuth2ServerError(
             JSON.stringify({
               data: json,
@@ -44,7 +55,8 @@ export const query = (
         ),
       );
     }
-  });
+  };
+  return request.flatMapOk(f);
 };
 
 type OAuth2Session = {

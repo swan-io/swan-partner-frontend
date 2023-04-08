@@ -126,11 +126,11 @@ const getMailjetInput = ({
 
 const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {
   return getAccountMembershipInvitationData({
+    accessToken: invitationConfig.accessToken,
     inviteeAccountMembershipId: invitationConfig.inviteeAccountMembershipId,
     inviterAccountMembershipId: invitationConfig.inviterAccountMembershipId,
-    projectId: invitationConfig.projectId,
   })
-    .mapOk(invitationData =>
+    .mapResult(invitationData =>
       getMailjetInput({ invitationData, requestLanguage: invitationConfig.requestLanguage }),
     )
     .flatMapOk(data => {
@@ -140,7 +140,10 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
           .request(data)
           .then(
             () => true,
-            () => false,
+            error => {
+              console.log(error);
+              return false;
+            },
           ),
       );
     })
@@ -205,7 +208,6 @@ start({
               Future.fromPromise(
                 sendAccountMembershipInvitation({
                   accessToken,
-                  projectId: request.params.projectId,
                   requestLanguage: request.detectedLng,
                   inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
                   inviterAccountMembershipId,
@@ -215,6 +217,7 @@ start({
             .resultToPromise();
           return reply.send({ success: result });
         } catch (err) {
+          console.log(err);
           return reply.status(400).send("An error occured");
         }
       },

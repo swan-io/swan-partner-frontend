@@ -38,7 +38,6 @@ const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
 
 export type InvitationConfig = {
   accessToken: string;
-  projectId: string;
   requestLanguage: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
@@ -331,17 +330,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         return reply.status(400).send("Missing inviterAccountMembershipId");
       }
       try {
-        const result = await getProjectId().flatMapOk(projectId =>
-          Future.fromPromise(
-            sendAccountMembershipInvitation({
-              accessToken,
-              projectId,
-              requestLanguage: request.detectedLng,
-              inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
-              inviterAccountMembershipId,
-            }),
-          ),
-        );
+        const result = await sendAccountMembershipInvitation({
+          accessToken,
+          requestLanguage: request.detectedLng,
+          inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
+          inviterAccountMembershipId,
+        });
         return reply.send({ success: result });
       } catch (err) {
         return reply.status(400).send("An error occured");

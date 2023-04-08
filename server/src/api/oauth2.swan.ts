@@ -50,7 +50,7 @@ export const exchangeToken = (
       match(config)
         .with({ type: "ProjectToken" }, ({ projectId }) => ({
           token: originalAccessToken,
-          impersonatedProjectId: projectId,
+          impersonatedProjectIdByMember: projectId,
           clientCredentials: "true",
         }))
         .with({ type: "AccountMemberToken" }, ({ projectId }) => ({

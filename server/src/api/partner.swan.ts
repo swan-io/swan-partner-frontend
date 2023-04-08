@@ -74,23 +74,18 @@ export const onboardIndividualAccountHolder = ({
 };
 
 export const getAccountMembershipInvitationData = ({
+  accessToken,
   inviterAccountMembershipId,
   inviteeAccountMembershipId,
-  projectId,
 }: {
+  accessToken: string;
   inviterAccountMembershipId: string;
   inviteeAccountMembershipId: string;
-  projectId: string;
 }): Future<Result<GetAccountMembershipInvitationDataQuery, Error>> => {
-  return getClientAccessToken({ authMode: "AuthorizationHeader" })
-    .flatMapOk(token => exchangeToken(token, { type: "ProjectToken", projectId }))
-    .mapResult(token => token.toResult(new Error("Couldn't get token")))
-    .flatMapOk(accessToken =>
-      toFuture(
-        sdk.GetAccountMembershipInvitationData(
-          { inviterAccountMembershipId, inviteeAccountMembershipId },
-          { "x-swan-token": `Bearer ${accessToken}` },
-        ),
-      ),
-    );
+  return toFuture(
+    sdk.GetAccountMembershipInvitationData(
+      { inviterAccountMembershipId, inviteeAccountMembershipId },
+      { "x-swan-token": `Bearer ${accessToken}` },
+    ),
+  );
 };

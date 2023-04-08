@@ -19,7 +19,7 @@ export const onboardCompanyAccountHolder = ({
       toFuture(
         sdk.OnboardPublicCompanyAccountHolder(
           { input: { accountCountry } },
-          { Authorization: `Bearer ${accessToken}` },
+          { "x-swan-token": `Bearer ${accessToken}` },
         ),
       ),
     )
@@ -53,7 +53,7 @@ export const onboardIndividualAccountHolder = ({
       toFuture(
         sdk.OnboardPublicIndividualAccountHolder(
           { input: { accountCountry } },
-          { Authorization: `Bearer ${accessToken}` },
+          { "x-swan-token": `Bearer ${accessToken}` },
         ),
       ),
     )

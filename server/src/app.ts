@@ -2,8 +2,10 @@ import cors from "@fastify/cors";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import fastifyStatic from "@fastify/static";
+import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify from "fastify";
+import mustache from "mustache";
 // @ts-expect-error
 import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
@@ -12,6 +14,7 @@ import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import { P, match } from "ts-pattern";
+import { version } from "../package.json";
 import {
   OAuth2State,
   createAuthUrl,
@@ -178,6 +181,15 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     credentials: true,
   });
 
+  /**
+   * View engine for pretty error rendering
+   */
+  await app.register(fastifyView, {
+    engine: {
+      mustache,
+    },
+  });
+
   // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
   await app.register(languageParser, {
     order: ["query"],
@@ -253,17 +265,14 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    * Proxies the Swan "partner" GraphQL API.
    */
   app.post("/api/partner", async (request, reply) => {
-    const accessToken = request.accessToken;
-    if (accessToken == undefined) {
-      return reply.status(401).send("Unauthorized");
-    } else {
-      return reply.from(env.PARTNER_API_URL, {
-        rewriteRequestHeaders: (_req, headers) => ({
-          ...headers,
-          Authorization: `Bearer ${accessToken}`,
-        }),
-      });
-    }
+    return reply.from(env.PARTNER_API_URL, {
+      rewriteRequestHeaders: (_req, headers) => ({
+        ...headers,
+        ...(request.accessToken != undefined
+          ? { Authorization: `Bearer ${request.accessToken}` }
+          : undefined),
+      }),
+    });
   });
 
   /**
@@ -287,7 +296,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return reply.status(400).send(error.constructor.name);
+          return reply.status(400).view("views/error.html", { requestId: request.id as string });
         })
         .map(() => undefined);
     },
@@ -314,7 +323,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return reply.status(400).send(error.constructor.name);
+          return reply.status(400).view("views/error.html", { requestId: request.id as string });
         })
         .map(() => undefined);
     },
@@ -361,7 +370,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         return reply.send({ success: result });
       } catch (err) {
         request.log.error(err);
-        return reply.status(400).send("An error occured");
+        return reply.status(400).view("views/error.html", { requestId: request.id as string });
       }
     },
   );
@@ -485,7 +494,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return reply.status(400).send("An error occured");
+                        return reply
+                          .status(400)
+                          .view("views/error.html", { requestId: request.id as string });
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
@@ -505,7 +516,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               })
               .tapError(error => {
                 request.log.error(error);
-                return reply.status(401).send("An error occured");
+                return reply
+                  .status(400)
+                  .view("views/error.html", { requestId: request.id as string });
               })
               .map(() => undefined);
           },
@@ -563,6 +576,14 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       .send(`window.__env = ${JSON.stringify(data)};`);
   });
 
+  app.get("/health", async (request, reply) => {
+    return reply.header("cache-control", `public, max-age=0`).status(200).send({
+      version,
+      date: new Date().toISOString(),
+      env: env.NODE_ENV,
+    });
+  });
+
   if (mode === "development") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
@@ -577,7 +598,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   app.setErrorHandler((error, request, reply) => {
     console.error(error);
     // Send error response
-    return reply.status(500).send({ ok: false });
+    return reply.status(500).view("views/error.html", { requestId: request.id as string });
   });
 
   return {

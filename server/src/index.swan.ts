@@ -242,7 +242,7 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return reply.status(400).send(error.constructor.name);
+            return reply.status(400).view("views/error.html", { requestId: request.id as string });
           })
           .map(() => undefined);
       },
@@ -271,7 +271,7 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return reply.status(400).send(error.constructor.name);
+            return reply.status(400).view("views/error.html", { requestId: request.id as string });
           })
           .map(() => undefined);
       },

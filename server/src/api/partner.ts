@@ -70,7 +70,7 @@ export const onboardCompanyAccountHolder = ({
   return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
-        sdk.OnboardPublicCompanyAccountHolder(
+        sdk.OnboardCompanyAccountHolder(
           { input: { accountCountry } },
           { Authorization: `Bearer ${accessToken}` },
         ),
@@ -100,7 +100,7 @@ export const onboardIndividualAccountHolder = ({
   return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
-        sdk.OnboardPublicIndividualAccountHolder(
+        sdk.OnboardIndividualAccountHolder(
           { input: { accountCountry } },
           { Authorization: `Bearer ${accessToken}` },
         ),

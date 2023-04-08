@@ -85,7 +85,7 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
   }
 }
 
-mutation OnboardPublicIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
+mutation OnboardIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
   onboardIndividualAccountHolder(input: $input) {
     ... on OnboardIndividualAccountHolderSuccessPayload {
       __typename
@@ -104,7 +104,7 @@ mutation OnboardPublicIndividualAccountHolder($input: OnboardIndividualAccountHo
   }
 }
 
-mutation OnboardPublicCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
+mutation OnboardCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
   onboardCompanyAccountHolder(input: $input) {
     ... on OnboardCompanyAccountHolderSuccessPayload {
       __typename

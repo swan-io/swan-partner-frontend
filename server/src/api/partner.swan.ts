@@ -17,7 +17,7 @@ export const onboardCompanyAccountHolder = ({
     .mapResult(token => token.toResult(new Error("Couldn't get token")))
     .flatMapOk(accessToken =>
       toFuture(
-        sdk.OnboardPublicCompanyAccountHolder(
+        sdk.OnboardCompanyAccountHolder(
           { input: { accountCountry } },
           { "x-swan-token": `Bearer ${accessToken}` },
         ),
@@ -51,7 +51,7 @@ export const onboardIndividualAccountHolder = ({
     .mapResult(token => token.toResult(new Error("Couldn't get token")))
     .flatMapOk(accessToken =>
       toFuture(
-        sdk.OnboardPublicIndividualAccountHolder(
+        sdk.OnboardIndividualAccountHolder(
           { input: { accountCountry } },
           { "x-swan-token": `Bearer ${accessToken}` },
         ),

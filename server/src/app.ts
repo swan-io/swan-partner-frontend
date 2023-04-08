@@ -35,6 +35,7 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
+import { renderError } from "./views/error";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -200,7 +201,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Try to refresh the tokens if expired or expiring soon
    */
-  app.addHook("preHandler", (request, reply, done) => {
+  app.addHook("onRequest", (request, reply, done) => {
     if (!request.url.startsWith("/api/")) {
       done();
     } else {
@@ -296,7 +297,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return reply.status(400).view("views/error.html", { requestId: request.id as string });
+          return renderError(reply, { status: 400, requestId: request.id as string });
         })
         .map(() => undefined);
     },
@@ -323,7 +324,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return reply.status(400).view("views/error.html", { requestId: request.id as string });
+          return renderError(reply, { status: 400, requestId: request.id as string });
         })
         .map(() => undefined);
     },
@@ -370,7 +371,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         return reply.send({ success: result });
       } catch (err) {
         request.log.error(err);
-        return reply.status(400).view("views/error.html", { requestId: request.id as string });
+        return renderError(reply, { status: 400, requestId: request.id as string });
       }
     },
   );
@@ -494,9 +495,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return reply
-                          .status(400)
-                          .view("views/error.html", { requestId: request.id as string });
+                        return renderError(reply, { status: 400, requestId: request.id as string });
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
@@ -516,9 +515,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               })
               .tapError(error => {
                 request.log.error(error);
-                return reply
-                  .status(400)
-                  .view("views/error.html", { requestId: request.id as string });
+                return renderError(reply, { status: 400, requestId: request.id as string });
               })
               .map(() => undefined);
           },
@@ -598,7 +595,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   app.setErrorHandler((error, request, reply) => {
     console.error(error);
     // Send error response
-    return reply.status(500).view("views/error.html", { requestId: request.id as string });
+    return renderError(reply, { status: 500, requestId: request.id as string });
   });
 
   return {

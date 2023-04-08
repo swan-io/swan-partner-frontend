@@ -27,6 +27,7 @@ import {
 import { InvitationConfig, start } from "./app.js";
 import { env } from "./env.js";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
+import { renderError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -242,7 +243,7 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return reply.status(400).view("views/error.html", { requestId: request.id as string });
+            return renderError(reply, { status: 400, requestId: request.id as string });
           })
           .map(() => undefined);
       },
@@ -271,7 +272,7 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return reply.status(400).view("views/error.html", { requestId: request.id as string });
+            return renderError(reply, { status: 400, requestId: request.id as string });
           })
           .map(() => undefined);
       },

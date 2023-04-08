@@ -7,20 +7,15 @@ import { getClientAccessToken } from "./oauth2.js";
 
 export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));
 
-class NetworkError extends Error {
-  constructor(error: unknown) {
-    super();
-    this.message = `NetworkError ${error instanceof Error ? error.message : String(error)}`;
-  }
-}
+export class ServerError extends Error {}
 
 export const toFuture = <T>(promise: Promise<T>): Future<Result<T, Error>> => {
-  return Future.fromPromise(promise).mapError(error => new NetworkError(error));
+  return Future.fromPromise(promise).mapError(error => new ServerError(JSON.stringify(error)));
 };
 
 let projectId: Future<Result<string, Error>>;
 
-export const getProjectId = (): Future<Result<string, Error>> => {
+export const getProjectId = (): Future<Result<string, ServerError>> => {
   if (projectId != undefined) {
     return projectId;
   }
@@ -32,41 +27,22 @@ export const getProjectId = (): Future<Result<string, Error>> => {
   return projectId;
 };
 
-class UnsupportedAccountCountryError extends Error {
-  country: string;
-  constructor(accountCountry: string) {
-    super(`UnsupportedAccountCountry`);
-    this.message = "UnsupportedAccountCountry: ${accountCountry}";
-    this.country = accountCountry;
-  }
-}
+export class UnsupportedAccountCountryError extends Error {}
 
 export const parseAccountCountry = (
   accountCountry: unknown,
-): Result<AccountCountry | undefined, Error> =>
+): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
   match(accountCountry)
     .with("FRA", "DEU", "ESP", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
-export class OnboardingRejection extends Error {
-  __typename: "BadRequestRejection" | "ForbiddenRejection" | "ValidationRejection";
-  message: string;
-  constructor(
-    __typename: "BadRequestRejection" | "ForbiddenRejection" | "ValidationRejection",
-    message: string,
-  ) {
-    super();
-    this.message = `OnboardingRejection: ${__typename} (${message})`;
-    this.__typename = __typename;
-    this.message = message;
-  }
-}
+export class OnboardingRejectionError extends Error {}
 
 export const onboardCompanyAccountHolder = ({
   accountCountry,
 }: {
   accountCountry?: AccountCountry;
-}): Future<Result<string, Error>> => {
+}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
   return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
@@ -86,7 +62,8 @@ export const onboardCompanyAccountHolder = ({
           {
             __typename: P.union("BadRequestRejection", "ForbiddenRejection", "ValidationRejection"),
           },
-          ({ __typename, message }) => Result.Error(new OnboardingRejection(__typename, message)),
+          ({ __typename, message }) =>
+            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
         )
         .exhaustive(),
     );
@@ -96,7 +73,7 @@ export const onboardIndividualAccountHolder = ({
   accountCountry,
 }: {
   accountCountry?: AccountCountry;
-}): Future<Result<string, Error>> => {
+}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
   return getClientAccessToken({ authMode: "FormData" })
     .flatMapOk(accessToken =>
       toFuture(
@@ -116,34 +93,14 @@ export const onboardIndividualAccountHolder = ({
           {
             __typename: P.union("ForbiddenRejection", "ValidationRejection"),
           },
-          ({ __typename, message }) => Result.Error(new OnboardingRejection(__typename, message)),
+          ({ __typename, message }) =>
+            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
         )
         .exhaustive(),
     );
 };
 
-type FinalizeOnboardingRejectionTypename =
-  | "ForbiddenRejection"
-  | "InternalErrorRejection"
-  | "OnboardingNotCompletedRejection"
-  | "ValidationRejection";
-
-class FinalizeOnboardingRejection extends Error {
-  onboardingId: string;
-  __typename: FinalizeOnboardingRejectionTypename;
-  message: string;
-  constructor(
-    onboardingId: string,
-    __typename: FinalizeOnboardingRejectionTypename,
-    message: string,
-  ) {
-    super();
-    this.message = `OnboardingRejection: ${__typename} (${message})`;
-    this.onboardingId = onboardingId;
-    this.__typename = __typename;
-    this.message = message;
-  }
-}
+export class FinalizeOnboardingRejectionError extends Error {}
 
 export const finalizeOnboarding = ({
   onboardingId,
@@ -158,7 +115,7 @@ export const finalizeOnboarding = ({
       redirectUrl: string | undefined;
       state: string | undefined;
     },
-    Error
+    ServerError | FinalizeOnboardingRejectionError
   >
 > => {
   const onboarding = toFuture(
@@ -182,7 +139,11 @@ export const finalizeOnboarding = ({
                 Result.Ok(onboarding),
               )
               .otherwise(({ __typename, message }) =>
-                Result.Error(new FinalizeOnboardingRejection(onboardingId, __typename, message)),
+                Result.Error(
+                  new FinalizeOnboardingRejectionError(
+                    JSON.stringify({ onboardingId, __typename, message }),
+                  ),
+                ),
               ),
           );
         });
@@ -200,30 +161,7 @@ export const finalizeOnboarding = ({
     });
 };
 
-type BindAccountMembershipRejectionTypename =
-  | "AccountMembershipNotFoundRejection"
-  | "AccountMembershipNotReadyToBeBoundRejection"
-  | "BadAccountStatusRejection"
-  | "IdentityAlreadyBindToAccountMembershipRejection"
-  | "RestrictedToUserRejection"
-  | "ValidationRejection";
-
-class BindAccountMembershipRejection extends Error {
-  accountMembershipId: string;
-  __typename: BindAccountMembershipRejectionTypename;
-  message: string;
-  constructor(
-    accountMembershipId: string,
-    __typename: BindAccountMembershipRejectionTypename,
-    message: string,
-  ) {
-    super();
-    this.message = `OnboardingRejection: ${__typename} (${message})`;
-    this.accountMembershipId = accountMembershipId;
-    this.__typename = __typename;
-    this.message = message;
-  }
-}
+export class BindAccountMembershipRejectionError extends Error {}
 
 export const bindAccountMembership = ({
   accountMembershipId,
@@ -236,7 +174,7 @@ export const bindAccountMembership = ({
     {
       accountMembershipId: string;
     },
-    Error
+    ServerError | BindAccountMembershipRejectionError
   >
 > => {
   const bindAccountMembership = toFuture(
@@ -253,7 +191,11 @@ export const bindAccountMembership = ({
           Result.Ok<{ accountMembershipId: string }, Error>({ accountMembershipId: id }),
       )
       .otherwise(({ __typename, message }) =>
-        Result.Error(new BindAccountMembershipRejection(accountMembershipId, __typename, message)),
+        Result.Error(
+          new BindAccountMembershipRejectionError(
+            JSON.stringify({ accountMembershipId, __typename, message }),
+          ),
+        ),
       );
   });
 };

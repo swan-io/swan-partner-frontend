@@ -3,24 +3,11 @@
  * ---
  * This file is for Swan's internal usage only
  */
-import { Future, Option, Result } from "@swan-io/boxed";
+import { Future, Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
 import { validate } from "valienv";
 import { url } from "../env";
-
-const query = (input: RequestInfo, init?: RequestInit): Future<Result<unknown, Error>> => {
-  return Future.fromPromise(
-    fetch(input, init)
-      .then(res => {
-        if (res.ok) {
-          return res;
-        } else {
-          throw new Error(`Failed with status ${res.status}`);
-        }
-      })
-      .then(res => res.json() as unknown),
-  ).mapError(error => error as Error);
-};
+import { OAuth2Error, OAuth2ServerError, query } from "./oauth2";
 
 const additionalEnv = {
   ...validate({
@@ -32,18 +19,16 @@ const additionalEnv = {
   SWAN_AUTH_TOKEN: process.env.SWAN_AUTH_TOKEN,
 };
 
+class OAuth2ExchangeTokenError extends OAuth2Error {}
+
 type ExchangeTokenConfig =
   | { type: "ProjectToken"; projectId: string }
   | { type: "AccountMemberToken"; projectId: string };
 
 export const exchangeToken = (
-  originalAccessToken: string | undefined,
+  originalAccessToken: string,
   config: ExchangeTokenConfig,
-): Future<Result<Option<string>, Error>> => {
-  if (originalAccessToken == undefined) {
-    return Future.value(Result.Ok(Option.None()));
-  }
-
+): Future<Result<string, OAuth2ServerError | OAuth2ExchangeTokenError>> => {
   return query(additionalEnv.SWAN_AUTH_URL, {
     method: "POST",
     body: JSON.stringify(
@@ -66,14 +51,13 @@ export const exchangeToken = (
         ? { "x-swan-frontend": additionalEnv.SWAN_AUTH_TOKEN }
         : undefined),
     },
-  }).mapOk(payload => {
+  }).mapResult(payload => {
     return match(payload)
       .with({ token: P.string }, ({ token }) => {
-        return Option.Some(token);
+        return Result.Ok(token);
       })
-      .otherwise(err => {
-        console.log(err);
-        return Option.None();
+      .otherwise(data => {
+        return Result.Error(new OAuth2ExchangeTokenError(JSON.stringify(data)));
       });
   });
 };

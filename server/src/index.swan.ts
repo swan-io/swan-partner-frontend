@@ -5,7 +5,7 @@
  * including specifics such as the slightly different token logic &
  * invitation emails.
  */
-import { Future, Option, Result } from "@swan-io/boxed";
+import { Future, Result } from "@swan-io/boxed";
 import { UnionToTuple } from "@swan-io/lake/src/utils/types";
 import chalk from "chalk";
 import Mailjet from "node-mailjet";
@@ -14,7 +14,12 @@ import url from "node:url";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan.js";
-import { parseAccountCountry } from "./api/partner.js";
+import {
+  OnboardingRejectionError,
+  ServerError,
+  UnsupportedAccountCountryError,
+  parseAccountCountry,
+} from "./api/partner.js";
 import {
   getAccountMembershipInvitationData,
   onboardCompanyAccountHolder,
@@ -134,18 +139,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
       getMailjetInput({ invitationData, requestLanguage: invitationConfig.requestLanguage }),
     )
     .flatMapOk(data => {
-      return Future.fromPromise(
-        mailjet
-          .post("send", { version: "v3.1" })
-          .request(data)
-          .then(
-            () => true,
-            error => {
-              console.log(error);
-              return false;
-            },
-          ),
-      );
+      return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
     })
     .resultToPromise();
 };
@@ -165,6 +159,9 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
+        if (request.accessToken == undefined) {
+          return reply.status(401).send("Unauthorized");
+        }
         const projectUserToken = await exchangeToken(request.accessToken, {
           type: "AccountMemberToken",
           projectId: request.params.projectId,
@@ -173,7 +170,7 @@ start({
           rewriteRequestHeaders: (_req, headers) => ({
             ...headers,
             ...match(projectUserToken)
-              .with(Result.pattern.Ok(Option.pattern.Some(P.select())), token => ({
+              .with(Result.pattern.Ok(P.select()), token => ({
                 "x-swan-token": `Bearer ${token}`,
               }))
               .otherwise(() => null),
@@ -192,18 +189,18 @@ start({
     }>(
       "/api/projects/:projectId/invitation/:inviteeAccountMembershipId/send",
       async (request, reply) => {
-        const accessToken = request.accessToken;
-
         const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
         if (inviterAccountMembershipId == null) {
           return reply.status(400).send("Missing inviterAccountMembershipId");
         }
+        if (request.accessToken == undefined) {
+          return reply.status(401).send("Unauthorized");
+        }
         try {
-          const result = await exchangeToken(accessToken, {
+          const result = await exchangeToken(request.accessToken, {
             type: "AccountMemberToken",
             projectId: request.params.projectId,
           })
-            .mapResult(token => token.toResult(new Error("Can't generate token")))
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({
@@ -217,7 +214,7 @@ start({
             .resultToPromise();
           return reply.send({ success: result });
         } catch (err) {
-          console.log(err);
+          request.log.error(err);
           return reply.status(400).send("An error occured");
         }
       },
@@ -229,9 +226,9 @@ start({
      */
     app.get<{ Params: { projectId: string }; Querystring: Record<string, string> }>(
       "/projects/:projectId/onboarding/individual/start",
-      (request, reply) => {
+      async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
-        Future.value(accountCountry)
+        return Future.value(accountCountry)
           .flatMapOk(accountCountry =>
             onboardIndividualAccountHolder({ accountCountry, projectId: request.params.projectId }),
           )
@@ -239,6 +236,14 @@ start({
             return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
           })
           .tapError(error => {
+            match(error)
+              .with(P.instanceOf(ServerError), error => request.log.error(error))
+              .with(
+                P.instanceOf(UnsupportedAccountCountryError),
+                P.instanceOf(OnboardingRejectionError),
+                error => request.log.warn(error),
+              )
+              .exhaustive();
             return reply.status(400).send(error);
           });
       },
@@ -250,9 +255,9 @@ start({
      */
     app.get<{ Params: { projectId: string }; Querystring: Record<string, string> }>(
       "/projects/:projectId/onboarding/company/start",
-      (request, reply) => {
+      async (request, reply) => {
         const accountCountry = parseAccountCountry(request.query.accountCountry);
-        Future.value(accountCountry)
+        return Future.value(accountCountry)
           .flatMapOk(accountCountry =>
             onboardCompanyAccountHolder({ accountCountry, projectId: request.params.projectId }),
           )
@@ -260,6 +265,14 @@ start({
             return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
           })
           .tapError(error => {
+            match(error)
+              .with(P.instanceOf(ServerError), error => request.log.error(error))
+              .with(
+                P.instanceOf(UnsupportedAccountCountryError),
+                P.instanceOf(OnboardingRejectionError),
+                error => request.log.warn(error),
+              )
+              .exhaustive();
             return reply.status(400).send(error);
           });
       },

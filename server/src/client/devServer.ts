@@ -76,23 +76,25 @@ export async function startDevServer(
 
     switch (host) {
       case BANKING_HOST:
-        webBankingProxy(
+        return webBankingProxy(
           request.raw as unknown as IncomingMessage,
           reply.raw as unknown as ServerResponse,
           request.url,
           {},
         );
-        break;
       case ONBOARDING_HOST:
-        onboardingProxy(
+        return onboardingProxy(
           request.raw as unknown as IncomingMessage,
           reply.raw as unknown as ServerResponse,
           request.url,
           {},
         );
-        break;
       default:
-        break;
+        return reply
+          .status(404)
+          .send(
+            `Unknown host: "${host}", should be either "${BANKING_HOST}" or "${ONBOARDING_HOST}"`,
+          );
     }
   };
 

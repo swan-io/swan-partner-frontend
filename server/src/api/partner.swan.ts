@@ -3,7 +3,7 @@ import { P, match } from "ts-pattern";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "../graphql/partner";
 import { getClientAccessToken } from "./oauth2";
 import { exchangeToken } from "./oauth2.swan";
-import { OnboardingRejection, sdk, toFuture } from "./partner";
+import { OnboardingRejectionError, ServerError, sdk, toFuture } from "./partner";
 
 export const onboardCompanyAccountHolder = ({
   accountCountry,
@@ -11,10 +11,9 @@ export const onboardCompanyAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
   projectId: string;
-}): Future<Result<string, Error>> => {
+}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
   return getClientAccessToken({ authMode: "AuthorizationHeader" })
     .flatMapOk(token => exchangeToken(token, { type: "ProjectToken", projectId }))
-    .mapResult(token => token.toResult(new Error("Couldn't get token")))
     .flatMapOk(accessToken =>
       toFuture(
         sdk.OnboardCompanyAccountHolder(
@@ -33,7 +32,8 @@ export const onboardCompanyAccountHolder = ({
           {
             __typename: P.union("BadRequestRejection", "ForbiddenRejection", "ValidationRejection"),
           },
-          ({ __typename, message }) => Result.Error(new OnboardingRejection(__typename, message)),
+          ({ __typename, message }) =>
+            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
         )
         .exhaustive(),
     );
@@ -45,10 +45,9 @@ export const onboardIndividualAccountHolder = ({
 }: {
   accountCountry?: AccountCountry;
   projectId: string;
-}): Future<Result<string, Error>> => {
+}): Future<Result<string, ServerError | OnboardingRejectionError>> => {
   return getClientAccessToken({ authMode: "AuthorizationHeader" })
     .flatMapOk(token => exchangeToken(token, { type: "ProjectToken", projectId }))
-    .mapResult(token => token.toResult(new Error("Couldn't get token")))
     .flatMapOk(accessToken =>
       toFuture(
         sdk.OnboardIndividualAccountHolder(
@@ -67,7 +66,8 @@ export const onboardIndividualAccountHolder = ({
           {
             __typename: P.union("ForbiddenRejection", "ValidationRejection"),
           },
-          ({ __typename, message }) => Result.Error(new OnboardingRejection(__typename, message)),
+          ({ __typename, message }) =>
+            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
         )
         .exhaustive(),
     );
@@ -81,7 +81,7 @@ export const getAccountMembershipInvitationData = ({
   accessToken: string;
   inviterAccountMembershipId: string;
   inviteeAccountMembershipId: string;
-}): Future<Result<GetAccountMembershipInvitationDataQuery, Error>> => {
+}): Future<Result<GetAccountMembershipInvitationDataQuery, ServerError>> => {
   return toFuture(
     sdk.GetAccountMembershipInvitationData(
       { inviterAccountMembershipId, inviteeAccountMembershipId },

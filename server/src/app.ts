@@ -20,6 +20,9 @@ import {
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {
+  OnboardingRejectionError,
+  ServerError,
+  UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
   getProjectId,
@@ -46,7 +49,7 @@ export type InvitationConfig = {
 type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
-  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<boolean>;
+  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
 };
 
 declare module "@fastify/secure-session" {
@@ -205,7 +208,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
             request.session.set("accessToken", accessToken);
             request.session.set("refreshToken", refreshToken);
           })
-          .tapError(() => {
+          .tapError(error => {
+            request.log.debug(error);
             request.session.delete();
             void reply.redirect("/login");
           })
@@ -239,14 +243,14 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Proxies the Swan "unauthenticated" GraphQL API.
    */
-  app.post("/api/unauthenticated", (request, reply) => {
+  app.post("/api/unauthenticated", async (request, reply) => {
     return reply.from(env.UNAUTHENTICATED_API_URL);
   });
 
   /**
    * Proxies the Swan "partner" GraphQL API.
    */
-  app.post("/api/partner", (request, reply) => {
+  app.post("/api/partner", async (request, reply) => {
     const accessToken = request.accessToken;
     if (accessToken == undefined) {
       return reply.status(401).send("Unauthorized");
@@ -266,14 +270,22 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    */
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/individual/start",
-    (request, reply) => {
+    async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      Future.value(accountCountry)
+      return Future.value(accountCountry)
         .flatMapOk(accountCountry => onboardIndividualAccountHolder({ accountCountry }))
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
+          match(error)
+            .with(P.instanceOf(ServerError), error => request.log.error(error))
+            .with(
+              P.instanceOf(UnsupportedAccountCountryError),
+              P.instanceOf(OnboardingRejectionError),
+              error => request.log.warn(error),
+            )
+            .exhaustive();
           return reply.status(400).send(error);
         });
     },
@@ -285,14 +297,22 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    */
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/company/start",
-    (request, reply) => {
+    async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      Future.value(accountCountry)
+      return Future.value(accountCountry)
         .flatMapOk(accountCountry => onboardCompanyAccountHolder({ accountCountry }))
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
+          match(error)
+            .with(P.instanceOf(ServerError), error => request.log.error(error))
+            .with(
+              P.instanceOf(UnsupportedAccountCountryError),
+              P.instanceOf(OnboardingRejectionError),
+              error => request.log.warn(error),
+            )
+            .exhaustive();
           return reply.status(400).send(error);
         });
     },
@@ -304,7 +324,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    */
   app.get<{ Querystring: Record<string, string>; Params: { accountMembershipId: string } }>(
     "/api/invitation/:accountMembershipId",
-    (request, reply) => {
+    async (request, reply) => {
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
       return reply.redirect(`/auth/login?${queryString.toString()}`);
@@ -338,6 +358,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         });
         return reply.send({ success: result });
       } catch (err) {
+        request.log.error(err);
         return reply.status(400).send("An error occured");
       }
     },
@@ -346,7 +367,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Builds a OAuth2 auth link and redirects to it.
    */
-  app.get<{ Querystring: Record<string, string> }>("/auth/login", (request, reply) => {
+  app.get<{ Querystring: Record<string, string> }>("/auth/login", async (request, reply) => {
     const {
       redirectTo,
       scope = "",
@@ -501,7 +522,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Clears the session
    */
-  app.post("/auth/logout", (request, reply) => {
+  app.post("/auth/logout", async (request, reply) => {
     if (request.session.get("accessToken") == null) {
       return reply.send({ success: false });
     } else {

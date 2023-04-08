@@ -6,7 +6,8 @@ import url from "node:url";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const template = fs.readFileSync(path.join(dirname, "error.html"), "utf-8");
+const errorTemplate = fs.readFileSync(path.join(dirname, "error.html"), "utf-8");
+const authErrorTemplate = fs.readFileSync(path.join(dirname, "auth-error.html"), "utf-8");
 
 export const renderError = (
   reply: FastifyReply<Http2SecureServer, Http2ServerRequest, Http2ServerResponse>,
@@ -15,5 +16,15 @@ export const renderError = (
   return reply
     .status(status)
     .header("content-type", "text/html")
-    .send(template.replace("{{REQUEST_ID}}", requestId));
+    .send(errorTemplate.replaceAll("{{REQUEST_ID}}", requestId));
+};
+
+export const renderAuthError = (
+  reply: FastifyReply<Http2SecureServer, Http2ServerRequest, Http2ServerResponse>,
+  { status, description }: { status: number; description: string },
+) => {
+  return reply
+    .status(status)
+    .header("content-type", "text/html")
+    .send(authErrorTemplate.replaceAll("{{description}}", description));
 };

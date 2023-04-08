@@ -35,7 +35,7 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
-import { renderError } from "./views/error";
+import { renderAuthError, renderError } from "./views/error";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -521,13 +521,16 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {
-          return reply.header("Content-Type", "text/html").status(400).send(`
-        <style>html { font-family: sans-serif; }</style>
-        <h1>Error: ${error}</h1>
-        <p>Error: ${errorDescription}</p>`);
+          return renderAuthError(reply, {
+            status: 400,
+            description: error === "access_denied" ? "Login failed" : errorDescription,
+          });
         })
         .otherwise(() => {
-          return reply.status(400).send("Invalid `code` or `state`");
+          return renderAuthError(reply, {
+            status: 400,
+            description: "Could not initiate session",
+          });
         })
     );
   });

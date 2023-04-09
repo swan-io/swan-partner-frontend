@@ -8,6 +8,7 @@
 import { Future, Result } from "@swan-io/boxed";
 import { UnionToTuple } from "@swan-io/lake/src/utils/types";
 import chalk from "chalk";
+import fastifyJaeger from "fastify-jaeger";
 import Mailjet from "node-mailjet";
 import path from "node:path";
 import url from "node:url";
@@ -51,6 +52,7 @@ const additionalEnv = validate({
   validators: {
     MAILJET_API_KEY: string,
     MAILJET_API_SECRET: string,
+    TRACING_SERVICE_NAME: string,
   },
 });
 
@@ -155,7 +157,11 @@ start({
       : undefined,
   sendAccountMembershipInvitation,
 }).then(
-  ({ app, ports }) => {
+  async ({ app, ports }) => {
+    await app.register(fastifyJaeger, {
+      serviceName: additionalEnv.TRACING_SERVICE_NAME,
+    });
+
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {

@@ -2,23 +2,29 @@ import cors from "@fastify/cors";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import fastifyStatic from "@fastify/static";
+import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify, { onRequestAsyncHookHandler } from "fastify";
+import fastify from "fastify";
+import mustache from "mustache";
+// @ts-expect-error
+import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
-import { Http2SecureServer } from "node:http2";
 import path from "node:path";
 import url from "node:url";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
+import { version } from "../package.json";
 import {
+  OAuth2State,
   createAuthUrl,
   getOAuth2StatePattern,
   getTokenFromCode,
-  OAuth2State,
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {
+  OnboardingRejectionError,
+  UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
   getProjectId,
@@ -29,14 +35,16 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
+import { renderAuthError, renderError } from "./views/error";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const COOKIE_MAX_AGE = 7_776_000; // 90 days
 const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
 
-type InvitationConfig = {
+export type InvitationConfig = {
   accessToken: string;
+  requestLanguage: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
 };
@@ -44,8 +52,7 @@ type InvitationConfig = {
 type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
-  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<boolean>;
-  onRequest?: onRequestAsyncHookHandler<Http2SecureServer>;
+  sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
 };
 
 declare module "@fastify/secure-session" {
@@ -68,6 +75,7 @@ declare module "fastify" {
       clientSecret: string;
     };
     accessToken: string | undefined;
+    detectedLng: string;
   }
 }
 
@@ -95,12 +103,7 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({
-  mode,
-  httpsConfig,
-  onRequest,
-  sendAccountMembershipInvitation,
-}: AppConfig) => {
+export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
   if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
@@ -150,6 +153,7 @@ export const start = async ({
         },
       }),
     },
+    genReqId: () => `req-${randomUUID()}`,
   });
 
   /**
@@ -179,47 +183,61 @@ export const start = async ({
   });
 
   /**
+   * View engine for pretty error rendering
+   */
+  await app.register(fastifyView, {
+    engine: {
+      mustache,
+    },
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
+  await app.register(languageParser, {
+    order: ["query"],
+    fallbackLng: "en",
+    supportedLngs: ["en", "fr"],
+  });
+
+  /**
    * Try to refresh the tokens if expired or expiring soon
    */
-  app.addHook("preHandler", async (request, reply) => {
+  app.addHook("onRequest", (request, reply, done) => {
     if (!request.url.startsWith("/api/")) {
-      return;
-    }
-    const TEN_SECONDS = 10_000;
-    const refreshToken = request.session.get("refreshToken");
-    const expiresAt = request.session.get("expiresAt") ?? 0;
-    if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
-      await refreshAccessToken({
-        refreshToken,
-        redirectUri: `${env.BANKING_URL}/auth/callback`,
-      })
-        .tapOk(({ expiresAt, accessToken, refreshToken }) => {
-          request.session.options({
-            domain: new URL(request.hostname).hostname,
-            maxAge: COOKIE_MAX_AGE,
-          });
-          request.session.set("expiresAt", expiresAt);
-          request.session.set("accessToken", accessToken);
-          request.session.set("refreshToken", refreshToken);
+      done();
+    } else {
+      const TEN_SECONDS = 10_000;
+      const refreshToken = request.session.get("refreshToken");
+      const expiresAt = request.session.get("expiresAt") ?? 0;
+      if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
+        refreshAccessToken({
+          refreshToken,
+          redirectUri: `${env.BANKING_URL}/auth/callback`,
         })
-        .tapError(() => {
-          request.session.delete();
-          void reply.redirect("/login");
-        });
+          .tapOk(({ expiresAt, accessToken, refreshToken }) => {
+            request.session.options({
+              maxAge: COOKIE_MAX_AGE,
+            });
+            request.session.set("expiresAt", expiresAt);
+            request.session.set("accessToken", accessToken);
+            request.session.set("refreshToken", refreshToken);
+          })
+          .tapError(error => {
+            request.log.debug(error);
+            request.session.delete();
+            void reply.redirect("/login");
+          })
+          .tap(() => {
+            done();
+          });
+      } else {
+        done();
+      }
     }
   });
 
   app.addHook("onRequest", (request, reply, done) => {
     request.accessToken = request.session.get("accessToken");
     done();
-  });
-
-  app.addHook("onRequest", function (request, reply) {
-    if (onRequest != undefined) {
-      return onRequest.call(this, request, reply);
-    } else {
-      return Promise.resolve();
-    }
   });
 
   /**
@@ -230,33 +248,32 @@ export const start = async ({
   /**
    * Decorates the `reply` object with a `sendFile`
    */
-  await app.register(fastifyStatic, {
-    root: path.join(dirname, "../dist"),
-    wildcard: false,
-  });
+  if (env.NODE_ENV != "development") {
+    await app.register(fastifyStatic, {
+      root: path.join(dirname, "../dist"),
+      wildcard: false,
+    });
+  }
 
   /**
    * Proxies the Swan "unauthenticated" GraphQL API.
    */
-  app.post("/api/unauthenticated", (request, reply) => {
+  app.post("/api/unauthenticated", async (request, reply) => {
     return reply.from(env.UNAUTHENTICATED_API_URL);
   });
 
   /**
    * Proxies the Swan "partner" GraphQL API.
    */
-  app.post("/api/partner", (request, reply) => {
-    const accessToken = request.accessToken;
-    if (accessToken == undefined) {
-      return reply.status(401).send("Unauthorized");
-    } else {
-      return reply.from(env.PARTNER_API_URL, {
-        rewriteRequestHeaders: (_req, headers) => ({
-          ...headers,
-          Authorization: `Bearer ${accessToken}`,
-        }),
-      });
-    }
+  app.post("/api/partner", async (request, reply) => {
+    return reply.from(env.PARTNER_API_URL, {
+      rewriteRequestHeaders: (_req, headers) => ({
+        ...headers,
+        ...(request.accessToken != undefined
+          ? { Authorization: `Bearer ${request.accessToken}` }
+          : undefined),
+      }),
+    });
   });
 
   /**
@@ -265,16 +282,24 @@ export const start = async ({
    */
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/individual/start",
-    (request, reply) => {
+    async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      Future.value(accountCountry)
+      return Future.value(accountCountry)
         .flatMapOk(accountCountry => onboardIndividualAccountHolder({ accountCountry }))
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
-          return reply.status(400).send(error);
-        });
+          match(error)
+            .with(
+              P.instanceOf(UnsupportedAccountCountryError),
+              P.instanceOf(OnboardingRejectionError),
+              error => request.log.warn(error),
+            )
+            .otherwise(error => request.log.error(error));
+          return renderError(reply, { status: 400, requestId: request.id as string });
+        })
+        .map(() => undefined);
     },
   );
 
@@ -284,26 +309,34 @@ export const start = async ({
    */
   app.get<{ Querystring: Record<string, string> }>(
     "/onboarding/company/start",
-    (request, reply) => {
+    async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      Future.value(accountCountry)
+      return Future.value(accountCountry)
         .flatMapOk(accountCountry => onboardCompanyAccountHolder({ accountCountry }))
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
-          return reply.status(400).send(error);
-        });
+          match(error)
+            .with(
+              P.instanceOf(UnsupportedAccountCountryError),
+              P.instanceOf(OnboardingRejectionError),
+              error => request.log.warn(error),
+            )
+            .otherwise(error => request.log.error(error));
+          return renderError(reply, { status: 400, requestId: request.id as string });
+        })
+        .map(() => undefined);
     },
   );
 
   /**
    * Accept an account membership invitation
-   * e.g. /invitation/:id
+   * e.g. /api/invitation/:id
    */
   app.get<{ Querystring: Record<string, string>; Params: { accountMembershipId: string } }>(
-    "/invitation/:accountMembershipId",
-    (request, reply) => {
+    "/api/invitation/:accountMembershipId",
+    async (request, reply) => {
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
       return reply.redirect(`/auth/login?${queryString.toString()}`);
@@ -312,10 +345,10 @@ export const start = async ({
 
   /**
    * Send an account membership invitation
-   * e.g. /invitation/:id/send?inviterAccountMembershipId=1234
+   * e.g. /api/invitation/:id/send?inviterAccountMembershipId=1234
    */
   app.post<{ Querystring: Record<string, string>; Params: { inviteeAccountMembershipId: string } }>(
-    "/invitation/:inviteeAccountMembershipId/send",
+    "/api/invitation/:inviteeAccountMembershipId/send",
     async (request, reply) => {
       const accessToken = request.accessToken;
       if (accessToken == undefined) {
@@ -331,12 +364,14 @@ export const start = async ({
       try {
         const result = await sendAccountMembershipInvitation({
           accessToken,
+          requestLanguage: request.detectedLng,
           inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
           inviterAccountMembershipId,
         });
         return reply.send({ success: result });
       } catch (err) {
-        return reply.status(400).send("An error occured");
+        request.log.error(err);
+        return renderError(reply, { status: 400, requestId: request.id as string });
       }
     },
   );
@@ -344,7 +379,7 @@ export const start = async ({
   /**
    * Builds a OAuth2 auth link and redirects to it.
    */
-  app.get<{ Querystring: Record<string, string> }>("/auth/login", (request, reply) => {
+  app.get<{ Querystring: Record<string, string> }>("/auth/login", async (request, reply) => {
     const {
       redirectTo,
       scope = "",
@@ -373,7 +408,6 @@ export const start = async ({
       .otherwise(() => ({ id, type: "Redirect" as const, redirectTo }));
 
     request.session.options({
-      domain: new URL(request.hostname).hostname,
       maxAge: OAUTH_STATE_COOKIE_MAX_AGE,
     });
     // store the state ID to compare it with what we receive
@@ -395,11 +429,12 @@ export const start = async ({
   /**
    * OAuth2 Redirection handler
    */
-  app.get<{ Querystring: Record<string, string> }>("/auth/callback", (request, reply) => {
+  app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
     const state = Result.fromExecution(
       () => JSON.parse(request.query.state ?? "{}") as unknown,
     ).getWithDefault({});
     const stateId = request.session.get("state") ?? "UNKNOWN";
+    const projectId = await getProjectId();
 
     return (
       match({
@@ -415,14 +450,17 @@ export const start = async ({
             state: getOAuth2StatePattern(stateId),
           },
           ({ code, state }) => {
-            getTokenFromCode({
+            return getTokenFromCode({
               redirectUri: `${env.BANKING_URL}/auth/callback`,
+              authMode: projectId.match({
+                Ok: () => "FormData",
+                Error: () => "AuthorizationHeader",
+              }),
               code,
             })
               .tapOk(({ expiresAt, accessToken, refreshToken }) => {
                 // Store the tokens
                 request.session.options({
-                  domain: new URL(request.hostname).hostname,
                   maxAge: COOKIE_MAX_AGE,
                 });
                 request.session.set("expiresAt", expiresAt);
@@ -457,11 +495,11 @@ export const start = async ({
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return reply.status(400).send("An error occured");
+                        return renderError(reply, { status: 400, requestId: request.id as string });
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
-                    bindAccountMembership({ accountMembershipId, accessToken })
+                    return bindAccountMembership({ accountMembershipId, accessToken })
                       .tapOk(({ accountMembershipId }) => {
                         return reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
                       })
@@ -477,18 +515,22 @@ export const start = async ({
               })
               .tapError(error => {
                 request.log.error(error);
-                return reply.status(401).send("An error occured");
-              });
+                return renderError(reply, { status: 400, requestId: request.id as string });
+              })
+              .map(() => undefined);
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {
-          return reply.header("Content-Type", "text/html").status(400).send(`
-        <style>html { font-family: sans-serif; }</style>
-        <h1>Error: ${error}</h1>
-        <p>Error: ${errorDescription}</p>`);
+          return renderAuthError(reply, {
+            status: 400,
+            description: error === "access_denied" ? "Login failed" : errorDescription,
+          });
         })
         .otherwise(() => {
-          return reply.status(400).send("Invalid `code` or `state`");
+          return renderAuthError(reply, {
+            status: 400,
+            description: "Could not initiate session",
+          });
         })
     );
   });
@@ -496,7 +538,7 @@ export const start = async ({
   /**
    * Clears the session
    */
-  app.post("/auth/logout", (request, reply) => {
+  app.post("/auth/logout", async (request, reply) => {
     if (request.session.get("accessToken") == null) {
       return reply.send({ success: false });
     } else {
@@ -534,6 +576,14 @@ export const start = async ({
       .send(`window.__env = ${JSON.stringify(data)};`);
   });
 
+  app.get("/health", async (request, reply) => {
+    return reply.header("cache-control", `public, max-age=0`).status(200).send({
+      version,
+      date: new Date().toISOString(),
+      env: env.NODE_ENV,
+    });
+  });
+
   if (mode === "development") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
@@ -548,7 +598,7 @@ export const start = async ({
   app.setErrorHandler((error, request, reply) => {
     console.error(error);
     // Send error response
-    return reply.status(500).send({ ok: false });
+    return renderError(reply, { status: 500, requestId: request.id as string });
   });
 
   return {

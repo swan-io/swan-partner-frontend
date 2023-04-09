@@ -110,7 +110,9 @@ const cache = cacheExchange<GraphCacheConfig>({
 
 const onError = (error: CombinedError, operation: Operation) => {
   const response = error.response as Partial<Response> | undefined;
-  const is401 = response?.status === 401;
+  const is401 =
+    response?.status === 401 ||
+    error.graphQLErrors.some(error => error.message === "401: Unauthorized");
 
   if (is401) {
     const { path } = getLocation();
@@ -133,16 +135,16 @@ export const unauthenticatedContext: OperationContext = {
 };
 
 export const partnerApiClient = new Client({
-  url: `/api/partner`,
+  url: match(projectConfiguration)
+    .with(
+      Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+      projectId => `/api/projects/${projectId}/partner`,
+    )
+    .otherwise(() => `/api/partner`),
   requestPolicy: "network-only",
   suspense: true,
   fetchOptions: {
     credentials: "include",
-    headers: match(projectConfiguration)
-      .with(Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }), projectId => ({
-        "impersonated-project-id": projectId,
-      }))
-      .otherwise(() => ({})),
   },
   exchanges: [dedupExchange, cache, requestIdExchange, errorExchange({ onError }), fetchExchange],
 });

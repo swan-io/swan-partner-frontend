@@ -337,13 +337,19 @@ export const MembershipDetailEditor = ({
       // TODO: oauth2
       const query = new URLSearchParams();
       query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
-      xhr.open("POST", `/invitation/${editingAccountMembershipId}/send?${query.toString()}`, true);
-
-      match(projectConfiguration)
-        .with(Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }), projectId => {
-          xhr.setRequestHeader("impersonated-project-id", projectId);
-        })
-        .otherwise(() => {});
+      xhr.open(
+        "POST",
+        match(projectConfiguration)
+          .with(
+            Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+            projectId =>
+              `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          )
+          .otherwise(
+            () => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          ),
+        true,
+      );
 
       xhr.withCredentials = true;
       xhr.responseType = "json";

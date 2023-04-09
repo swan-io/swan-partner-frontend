@@ -111,9 +111,8 @@ const HelpLink = ({ to, emoji, children }: { to: string; emoji: string; children
 const SUPPORT_ROOT_URL = `https://support.swan.io/${getFirstSupportedLanguage(["en", "fr"])}`;
 
 export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
-  const [{ data, error }] = useQuery({ query: AuthStatusDocument });
-  const errorResponse = error?.response as Partial<Response> | undefined;
-  const authenticated = isNotNullish(data) || Boolean(errorResponse?.ok);
+  const [{ data }] = useQuery({ query: AuthStatusDocument });
+  const authenticated = isNotNullish(data?.user);
 
   useLayoutEffect(() => {
     authenticated && Router.push("ProjectRootRedirect");
@@ -139,6 +138,7 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
       params.set("redirectTo", redirectTo);
       window.location.replace(`/auth/login?${params.toString()}`);
     } else {
+      params.set("redirectTo", Router.PopupCallback());
       openPopup({
         url: `/auth/login?${params.toString()}`,
         onClose: () => {

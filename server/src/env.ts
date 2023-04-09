@@ -2,7 +2,7 @@ import { oneOf, string, validate, Validator } from "valienv";
 
 const buffer: Validator<Buffer> = value => Buffer.from(value, "hex");
 
-const url: Validator<string> = value => {
+export const url: Validator<string> = value => {
   try {
     new URL(value);
     return value;

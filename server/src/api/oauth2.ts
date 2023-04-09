@@ -14,18 +14,49 @@ export const getOAuth2StatePattern = (id: string) =>
     { id, type: "BindAccountMembership" as const, accountMembershipId: P.string },
   );
 
-const query = (input: RequestInfo, init?: RequestInit): Future<Result<unknown, Error>> => {
-  return Future.fromPromise(
-    fetch(input, init)
-      .then(res => {
-        if (res.ok) {
-          return res;
-        } else {
-          throw new Error(`Failed with status ${res.status}`);
-        }
-      })
-      .then(res => res.json() as unknown),
-  ).mapError(error => error as Error);
+export class OAuth2Error extends Error {
+  tag = "OAuth2Error";
+}
+export class OAuth2NetworkError extends OAuth2Error {
+  tag = "OAuth2NetworkError";
+}
+export class OAuth2ServerError extends OAuth2Error {
+  tag = "OAuth2ServerError";
+}
+class OAuth2TokenFromCodeError extends OAuth2Error {
+  tag = "OAuth2TokenFromCodeError";
+}
+class OAuth2RefreshTokenError extends OAuth2Error {
+  tag = "OAuth2RefreshTokenError";
+}
+export class OAuth2ClientCredentialsError extends OAuth2Error {
+  tag = "OAuth2ClientCredentialsError";
+}
+
+export const query = (input: RequestInfo, init?: RequestInit) => {
+  const request = Future.fromPromise(fetch(input, init)).mapError(
+    error => new OAuth2NetworkError(undefined, { cause: error }),
+  );
+
+  const f = (res: Response) => {
+    const json: Promise<unknown> = res.json();
+    const data = Future.fromPromise(json).mapError(error => error as SyntaxError);
+    if (res.ok) {
+      return data;
+    } else {
+      return data.mapResult(json =>
+        Result.Error<unknown, OAuth2ServerError>(
+          new OAuth2ServerError(
+            JSON.stringify({
+              data: json,
+              status: res.status,
+            }),
+          ),
+        ),
+      );
+    }
+  };
+  return request.flatMapOk(f);
 };
 
 type OAuth2Session = {
@@ -36,14 +67,18 @@ type OAuth2Session = {
 
 export const getTokenFromCode = ({
   redirectUri,
+  authMode,
   code,
 }: {
   redirectUri: string;
+  authMode: "FormData" | "AuthorizationHeader";
   code: string;
-}): Future<Result<OAuth2Session, Error>> => {
+}) => {
   const formData = new FormData();
-  formData.append("client_id", env.OAUTH_CLIENT_ID);
-  formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  if (authMode === "FormData") {
+    formData.append("client_id", env.OAUTH_CLIENT_ID);
+    formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  }
   formData.append("grant_type", "authorization_code");
   formData.append("code", code);
   formData.append("redirect_uri", redirectUri);
@@ -51,20 +86,30 @@ export const getTokenFromCode = ({
   const data = query(`${env.OAUTH_SERVER_URL}/oauth2/token`, {
     method: "POST",
     body: formData,
+    headers:
+      authMode === "AuthorizationHeader"
+        ? {
+            Authorization: `Basic ${Buffer.from(
+              `${env.OAUTH_CLIENT_ID}:${env.OAUTH_CLIENT_SECRET}`,
+            ).toString("base64")}`,
+          }
+        : undefined,
   });
 
   return data.mapResult(data =>
     match(data)
       .with(
         { expires_in: P.number, access_token: P.string, refresh_token: P.string },
-        ({ expires_in, access_token, refresh_token }) =>
-          Result.Ok({
+        ({ expires_in, access_token, refresh_token }) => {
+          const session: OAuth2Session = {
             expiresAt: Date.now() + expires_in * 1000,
             accessToken: access_token,
             refreshToken: refresh_token,
-          }),
+          };
+          return Result.Ok(session);
+        },
       )
-      .otherwise(() => Result.Error(new Error("OAuth2: invalid data received"))),
+      .otherwise(data => Result.Error(new OAuth2TokenFromCodeError(JSON.stringify(data)))),
   );
 };
 
@@ -120,24 +165,39 @@ export const refreshAccessToken = ({
             refreshToken: refresh_token,
           }),
       )
-      .otherwise(() => Result.Error(new Error("OAuth2: invalid data received"))),
+      .otherwise(data => Result.Error(new OAuth2RefreshTokenError(JSON.stringify(data)))),
   );
 };
 
-export const getClientAccessToken = () => {
+export const getClientAccessToken = ({
+  authMode,
+}: {
+  authMode: "FormData" | "AuthorizationHeader";
+}) => {
   const formData = new FormData();
-  formData.append("client_id", env.OAUTH_CLIENT_ID);
-  formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  if (authMode === "FormData") {
+    formData.append("client_id", env.OAUTH_CLIENT_ID);
+    formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
+  }
   formData.append("grant_type", "client_credentials");
   const data = query(`${env.OAUTH_SERVER_URL}/oauth2/token`, {
     method: "POST",
     body: formData,
-    headers: { Accept: "application/json" },
+    headers: {
+      Accept: "application/json",
+      ...(authMode === "AuthorizationHeader"
+        ? {
+            Authorization: `Basic ${Buffer.from(
+              `${env.OAUTH_CLIENT_ID}:${env.OAUTH_CLIENT_SECRET}`,
+            ).toString("base64")}`,
+          }
+        : undefined),
+    },
   });
 
   return data.mapResult(data =>
     match(data)
       .with({ access_token: P.string }, ({ access_token }) => Result.Ok(access_token))
-      .otherwise(() => Result.Error(new Error("OAuth2: could not get client access token"))),
+      .otherwise(data => Result.Error(new OAuth2ClientCredentialsError(JSON.stringify(data)))),
   );
 };

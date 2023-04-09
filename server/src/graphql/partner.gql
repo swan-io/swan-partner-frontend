@@ -5,6 +5,7 @@ query ProjectId {
 }
 
 fragment OnboardingRedirectInfo on Onboarding {
+  __typename
   id
   account {
     legalRepresentativeMembership {
@@ -23,7 +24,52 @@ fragment OnboardingRedirectInfo on Onboarding {
 
 query OnboardingRedirect($onboardingId: ID!) {
   onboarding(id: $onboardingId) {
+    __typename
     ...OnboardingRedirectInfo
+  }
+}
+
+query GetAccountMembershipInvitationData(
+  $inviterAccountMembershipId: ID!
+  $inviteeAccountMembershipId: ID!
+) {
+  projectInfo {
+    name
+    accentColor
+    logoUri
+  }
+  inviterAccountMembership: accountMembership(id: $inviterAccountMembershipId) {
+    email
+    user {
+      firstName
+      lastName
+    }
+    account {
+      name
+      number
+      holder {
+        info {
+          ... on AccountHolderCompanyInfo {
+            name
+          }
+          ... on AccountHolderIndividualInfo {
+            name
+          }
+        }
+      }
+    }
+  }
+  inviteeAccountMembership: accountMembership(id: $inviteeAccountMembershipId) {
+    id
+    email
+    statusInfo {
+      __typename
+      ... on AccountMembershipInvitationSentStatusInfo {
+        restrictedTo {
+          firstName
+        }
+      }
+    }
   }
 }
 
@@ -35,13 +81,14 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
     }
     ... on FinalizeOnboardingSuccessPayload {
       onboarding {
+        __typename
         ...OnboardingRedirectInfo
       }
     }
   }
 }
 
-mutation OnboardPublicIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
+mutation OnboardIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
   onboardIndividualAccountHolder(input: $input) {
     ... on OnboardIndividualAccountHolderSuccessPayload {
       __typename
@@ -60,7 +107,7 @@ mutation OnboardPublicIndividualAccountHolder($input: OnboardIndividualAccountHo
   }
 }
 
-mutation OnboardPublicCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
+mutation OnboardCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
   onboardCompanyAccountHolder(input: $input) {
     ... on OnboardCompanyAccountHolderSuccessPayload {
       __typename

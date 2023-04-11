@@ -44,6 +44,7 @@ const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {
   checkAllLabel: t("common.filters.all"),
   items: [
     { value: "Card", label: t("paymentMethod.card") },
+    { value: "Check", label: t("paymentMethod.check") },
     { value: "SEPACreditTransfer", label: t("paymentMethod.transfer") },
     { value: "SEPADirectDebit", label: t("paymentMethod.directDebit") },
     { value: "Fees", label: t("paymentMethod.fees") },

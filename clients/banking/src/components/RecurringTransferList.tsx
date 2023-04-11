@@ -711,12 +711,7 @@ export const RecurringTransferList = ({
               openFilters={openFilters}
               label={t("common.filters")}
               title={t("common.chooseFilter")}
-              onAddFilter={filter => {
-                if (filter === "canceled") {
-                  setFilters(filters => ({ ...filters, canceled: true }));
-                }
-                setOpenFilters(openFilters => [...openFilters, filter]);
-              }}
+              onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
               large={large}
             />
 

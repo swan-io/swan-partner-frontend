@@ -1,19 +1,17 @@
 import { Result } from "@swan-io/boxed";
-import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useEffect } from "react";
@@ -81,7 +79,9 @@ export const OnboardingIndividualDetails = ({
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
-  const canSetTaxIdentification = accountCountry === "DEU" && country === "DEU";
+  const canSetTaxIdentification =
+    (accountCountry === "DEU" && country === "DEU") ||
+    (accountCountry === "ESP" && country === "ESP");
 
   const { Field, submitForm, setFieldError } = useForm({
     employmentStatus: {
@@ -200,34 +200,15 @@ export const OnboardingIndividualDetails = ({
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, onChange, error, valid }) => (
-                        <LakeLabel
-                          label={t("occupationPage.taxIdentificationNumber")}
-                          optionalLabel={t("common.optional")}
-                          help={
-                            <LakeTooltip
-                              content={t("occupationPage.taxIdentificationNumberHelp")}
-                              placement="top"
-                              width={800}
-                            >
-                              <Icon
-                                name="question-circle-regular"
-                                size={16}
-                                color={colors.gray[600]}
-                              />
-                            </LakeTooltip>
-                          }
-                          render={id => (
-                            <LakeTextInput
-                              id={id}
-                              placeholder={t("occupationPage.taxIdentificationNumberPlaceholder")}
-                              value={value}
-                              valid={valid}
-                              error={error}
-                              disabled={updateResult.isLoading()}
-                              onChangeText={onChange}
-                            />
-                          )}
+                      {({ value, valid, error, onChange, onBlur }) => (
+                        <TaxIdentificationNumberInput
+                          value={value}
+                          error={error}
+                          valid={valid}
+                          onChange={onChange}
+                          onBlur={onBlur}
+                          accountCountry={accountCountry}
+                          isCompany={false}
                         />
                       )}
                     </Field>

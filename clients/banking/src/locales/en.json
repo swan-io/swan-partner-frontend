@@ -155,6 +155,7 @@
   "card.settings.withdrawal": "Withdrawal",
   "card.settings.withdrawal.description": "Allow withdrawals at ATMs",
   "card.shipping": "Shipping",
+  "card.shippingAddress": "Shipping address",
   "card.spendingLimit": "Spending limit",
   "card.spendingLimit.remaining.always": "Remaining (all time)",
   "card.spendingLimit.remaining.daily": "Remaining (next 24 hours)",

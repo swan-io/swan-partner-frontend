@@ -21,7 +21,11 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  countries,
+  getCountryNameByCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -869,6 +873,34 @@ export const CardItemPhysicalDetails = ({
                       </>
                     );
                   },
+                )
+                .otherwise(() => null)}
+
+              {match(physicalCard.statusInfo)
+                .with(
+                  { __typename: "PhysicalCardToActivateStatusInfo" },
+                  { __typename: "PhysicalCardRenewedStatusInfo" },
+                  ({ address }) => (
+                    <>
+                      <LakeAlert
+                        variant={"info"}
+                        title={t("card.shippingAddress")}
+                        subtitle={[
+                          address.addressLine1,
+                          address.addressLine2,
+                          address.postalCode,
+                          address.city,
+                          address.country != null
+                            ? getCountryNameByCCA3(address.country)
+                            : undefined,
+                        ]
+                          .filter(Boolean)
+                          .join(", ")}
+                      />
+
+                      <Space height={24} />
+                    </>
+                  ),
                 )
                 .otherwise(() => null)}
 

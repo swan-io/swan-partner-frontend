@@ -1948,6 +1948,11 @@ mutation AddSingleUseVirtualCard($input: AddSingleUseVirtualCardInput!) {
         ...CardFragment
       }
     }
+    ... on AddSingleUseVirtualCardSuccessForProjectOwnerPayload {
+      card {
+        ...CardFragment
+      }
+    }
     ... on Rejection {
       message
     }

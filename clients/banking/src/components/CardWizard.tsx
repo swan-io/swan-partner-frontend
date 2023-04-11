@@ -229,6 +229,8 @@ export const CardWizard = ({
   const [, createMultiConsent] = useUrqlMutation(CreateMultiConsentDocument);
 
   const addCardsWrapper = (input: AddCardsInput) => {
+    setCardOrder(AsyncData.Loading());
+
     const card = input.cards[0];
 
     if (
@@ -249,40 +251,52 @@ export const CardWizard = ({
           spendingLimit: card.spendingLimit,
         },
       })
-        .mapOk(payload =>
-          match(payload.addCard)
-            .with(
-              {
-                __typename: "AddCardSuccessPayload",
-                card: { statusInfo: { __typename: "CardConsentPendingStatusInfo" } },
-              },
-              ({ card }) => Option.Some(card.statusInfo.consent.consentUrl),
+        .mapResult(({ addCard }) =>
+          match(addCard)
+            .with({ __typename: "AddCardSuccessPayload" }, ({ card }) => Result.Ok(card))
+            .otherwise(rejection => Result.Error(rejection)),
+        )
+        .mapOk(({ statusInfo }) =>
+          match(statusInfo)
+            .with({ __typename: "CardConsentPendingStatusInfo" }, ({ consent }) =>
+              Option.Some(consent.consentUrl),
             )
             .otherwise(() => Option.None()),
         )
+        .tap(() => setCardOrder(AsyncData.NotAsked()))
+        .tapOk(value => {
+          value.match({
+            Some: consentUrl => window.location.replace(consentUrl),
+            None: () => {},
+          });
+        })
         .tapError(() => {
-          setCardOrder(AsyncData.NotAsked());
           showToast({ variant: "error", title: t("error.generic") });
         });
     } else {
       return addCards({ input })
-        .flatMapOk(payload => {
-          return match(payload.addCards)
-            .with({ __typename: "AddCardsSuccessPayload" }, ({ cards }) =>
-              generateMultiConsent(cards),
-            )
-            .otherwise(({ __typename }) =>
-              Future.value(Result.Error<Option<string>, Error>(new Error(__typename))),
-            );
+        .mapResult(({ addCards }) =>
+          match(addCards)
+            .with({ __typename: "AddCardsSuccessPayload" }, ({ cards }) => Result.Ok(cards))
+            .otherwise(rejection => Result.Error(rejection)),
+        )
+        .flatMapOk(cards => generateMultiConsent(cards))
+        .tap(() => setCardOrder(AsyncData.NotAsked()))
+        .tapOk(value => {
+          value.match({
+            Some: consentUrl => window.location.replace(consentUrl),
+            None: () => {},
+          });
         })
         .tapError(() => {
-          setCardOrder(AsyncData.NotAsked());
           showToast({ variant: "error", title: t("error.generic") });
         });
     }
   };
 
   const addSingleUseCardsWrapper = (input: AddSingleUseVirtualCardsInput) => {
+    setCardOrder(AsyncData.Loading());
+
     const card = input.cards[0];
 
     if (input.cards.length === 1 && card != undefined) {
@@ -295,34 +309,48 @@ export const CardWizard = ({
           consentRedirectUrl: input.consentRedirectUrl,
         },
       })
-        .mapOk(payload =>
-          match(payload.addSingleUseVirtualCard)
-            .with(
-              {
-                __typename: "AddSingleUseVirtualCardSuccessForUserPayload",
-                card: { statusInfo: { __typename: "CardConsentPendingStatusInfo" } },
-              },
-              ({ card }) => Option.Some(card.statusInfo.consent.consentUrl),
+        .mapResult(({ addSingleUseVirtualCard }) =>
+          match(addSingleUseVirtualCard)
+            .with({ __typename: "AddSingleUseVirtualCardSuccessForUserPayload" }, ({ card }) =>
+              Result.Ok(card),
+            )
+            .otherwise(rejection => Result.Error(rejection)),
+        )
+        .mapOk(({ statusInfo }) =>
+          match(statusInfo)
+            .with({ __typename: "CardConsentPendingStatusInfo" }, ({ consent }) =>
+              Option.Some(consent.consentUrl),
             )
             .otherwise(() => Option.None()),
         )
+        .tap(() => setCardOrder(AsyncData.NotAsked()))
+        .tapOk(value => {
+          value.match({
+            Some: consentUrl => window.location.replace(consentUrl),
+            None: () => {},
+          });
+        })
         .tapError(() => {
-          setCardOrder(AsyncData.NotAsked());
           showToast({ variant: "error", title: t("error.generic") });
         });
     } else {
       return addSingleUseCards({ input })
-        .flatMapOk(payload => {
-          return match(payload.addSingleUseVirtualCards)
-            .with({ __typename: "AddSingleUseVirtualCardsSuccessPayload" }, ({ cards }) => {
-              return generateMultiConsent(cards);
-            })
-            .otherwise(({ __typename }) => {
-              return Future.value(Result.Error<Option<string>, Error>(new Error(__typename)));
-            });
+        .mapResult(({ addSingleUseVirtualCards }) =>
+          match(addSingleUseVirtualCards)
+            .with({ __typename: "AddSingleUseVirtualCardsSuccessPayload" }, ({ cards }) =>
+              Result.Ok(cards),
+            )
+            .otherwise(rejection => Result.Error(rejection)),
+        )
+        .flatMapOk(cards => generateMultiConsent(cards))
+        .tap(() => setCardOrder(AsyncData.NotAsked()))
+        .tapOk(value => {
+          value.match({
+            Some: consentUrl => window.location.replace(consentUrl),
+            None: () => {},
+          });
         })
         .tapError(() => {
-          setCardOrder(AsyncData.NotAsked());
           showToast({ variant: "error", title: t("error.generic") });
         });
     }
@@ -541,7 +569,6 @@ export const CardWizard = ({
                               ...cardSettings,
                             });
                           } else {
-                            setCardOrder(AsyncData.Loading());
                             if (cardFormat === "SingleUseVirtual") {
                               addSingleUseCardsWrapper({
                                 cardProductId: cardProduct.id,
@@ -557,12 +584,6 @@ export const CardWizard = ({
                                     spendingLimit: cardSettings.spendingLimit,
                                   };
                                 }),
-                              }).tapOk(value => {
-                                setCardOrder(AsyncData.NotAsked());
-                                value.match({
-                                  Some: consentUrl => window.location.replace(consentUrl),
-                                  None: () => {},
-                                });
                               });
                             } else {
                               addCardsWrapper({
@@ -584,12 +605,6 @@ export const CardWizard = ({
                                       cardSettings.nonMainCurrencyTransactions,
                                   };
                                 }),
-                              }).tapOk(value => {
-                                setCardOrder(AsyncData.NotAsked());
-                                value.match({
-                                  Some: consentUrl => window.location.replace(consentUrl),
-                                  None: () => {},
-                                });
                               });
                             }
                           }
@@ -647,7 +662,6 @@ export const CardWizard = ({
                               });
                             }
                           } else {
-                            setCardOrder(AsyncData.Loading());
                             if (cardFormat === "SingleUseVirtual") {
                               addSingleUseCardsWrapper({
                                 cardProductId: cardProduct.id,
@@ -664,12 +678,6 @@ export const CardWizard = ({
                                     spendingLimit,
                                   };
                                 }),
-                              }).tapOk(value => {
-                                setCardOrder(AsyncData.NotAsked());
-                                value.match({
-                                  Some: consentUrl => window.location.replace(consentUrl),
-                                  None: () => {},
-                                });
                               });
                             } else {
                               addCardsWrapper({
@@ -690,12 +698,6 @@ export const CardWizard = ({
                                     nonMainCurrencyTransactions,
                                   };
                                 }),
-                              }).tapOk(value => {
-                                setCardOrder(AsyncData.NotAsked());
-                                value.match({
-                                  Some: consentUrl => window.location.replace(consentUrl),
-                                  None: () => {},
-                                });
                               });
                             }
                           }
@@ -811,28 +813,24 @@ export const CardWizard = ({
                               })),
                             },
                           })
-                            .flatMapOk(payload =>
-                              match(payload.addCardsWithGroupDelivery)
+                            .mapResult(({ addCardsWithGroupDelivery }) =>
+                              match(addCardsWithGroupDelivery)
                                 .with(
                                   { __typename: "AddCardsWithGroupDeliverySuccessPayload" },
-                                  ({ cards }) => generateMultiConsent(cards),
+                                  ({ cards }) => Result.Ok(cards),
                                 )
-                                .otherwise(({ __typename }) =>
-                                  Future.value(
-                                    Result.Error<Option<string>, Error>(new Error(__typename)),
-                                  ),
-                                ),
+                                .otherwise(rejection => Result.Error(rejection)),
                             )
-                            .tapError(() => {
-                              setCardOrder(AsyncData.NotAsked());
-                              showToast({ variant: "error", title: t("error.generic") });
-                            })
+                            .flatMapOk(cards => generateMultiConsent(cards))
+                            .tap(() => setCardOrder(AsyncData.NotAsked()))
                             .tapOk(value => {
-                              setCardOrder(AsyncData.NotAsked());
                               value.match({
                                 Some: consentUrl => window.location.replace(consentUrl),
                                 None: () => {},
                               });
+                            })
+                            .tapError(() => {
+                              showToast({ variant: "error", title: t("error.generic") });
                             });
                         }}
                       />
@@ -880,8 +878,6 @@ export const CardWizard = ({
                           state: accountMembership.account.holder.residencyAddress.state,
                         }}
                         onSubmit={individualDeliveryConfig => {
-                          setCardOrder(AsyncData.Loading());
-
                           addCardsWrapper({
                             cardProductId: cardProduct.id,
                             consentRedirectUrl:
@@ -912,13 +908,6 @@ export const CardWizard = ({
                                 },
                               }),
                             ),
-                          }).tapOk(value => {
-                            setCardOrder(AsyncData.NotAsked());
-
-                            value.match({
-                              Some: consentUrl => window.location.replace(consentUrl),
-                              None: () => {},
-                            });
                           });
                         }}
                       />

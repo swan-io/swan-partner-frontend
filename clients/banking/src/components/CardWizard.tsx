@@ -311,8 +311,10 @@ export const CardWizard = ({
       })
         .mapResult(({ addSingleUseVirtualCard }) =>
           match(addSingleUseVirtualCard)
-            .with({ __typename: "AddSingleUseVirtualCardSuccessForUserPayload" }, ({ card }) =>
-              Result.Ok(card),
+            .with(
+              { __typename: "AddSingleUseVirtualCardSuccessForUserPayload" },
+              { __typename: "AddSingleUseVirtualCardSuccessForProjectOwnerPayload" },
+              ({ card }) => Result.Ok(card),
             )
             .otherwise(rejection => Result.Error(rejection)),
         )

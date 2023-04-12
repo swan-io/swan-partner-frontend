@@ -2,6 +2,7 @@ import { Option, Result } from "@swan-io/boxed";
 import chalk from "chalk";
 import fs from "fs/promises";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import os from "os";
 import path from "path";
 import prompts from "prompts";
 import tiktoken from "tiktoken-node";
@@ -57,6 +58,8 @@ const printLocale = (locale: Locale): string => chalk.green(locales[locale]);
 
 const printCost = (cost: number): string => chalk.yellow(`${cost.toFixed(4)}$`);
 
+const printDuration = (duration: number): string => chalk.cyan(`${(duration / 1000).toFixed(2)}s`);
+
 const getTranslationsToRun = (): [AppName, Locale][] => {
   const appNames = Object.keys(appTranslationsPaths) as AppName[];
   const localesKeys = Object.keys(locales).filter(locale => locale !== baseLocale) as Locale[];
@@ -97,7 +100,7 @@ const writeLocaleFile = async (
   const localePath = path.join(appTranslationsPaths[app], `${locale}.json`);
 
   try {
-    await fs.writeFile(localePath, JSON.stringify(content, null, 2), "utf-8");
+    await fs.writeFile(localePath, JSON.stringify(content, null, 2) + os.EOL, "utf-8");
     return Result.Ok(undefined);
   } catch (error) {
     console.error(error);
@@ -246,8 +249,15 @@ const getChatPrompt = (
 
 const createChatCompletion = async (
   messages: ChatCompletionRequestMessage[],
-): Promise<Result<{ translatedMessages: Record<string, string>; cost: number }, OpenAIError>> => {
+): Promise<
+  Result<
+    { translatedMessages: Record<string, string>; cost: number; duration: number },
+    OpenAIError
+  >
+> => {
   try {
+    const start = Date.now();
+
     const { data } = await openai.createChatCompletion({
       model: MODEL,
       messages,
@@ -284,7 +294,9 @@ const createChatCompletion = async (
       );
     }
 
-    return Result.Ok({ translatedMessages, cost });
+    const duration = Date.now() - start;
+
+    return Result.Ok({ translatedMessages, cost, duration });
   } catch (error) {
     console.error(error);
     return Result.Error(new OpenAIError("Failed to create chat completion", 0));
@@ -294,7 +306,9 @@ const createChatCompletion = async (
 const translateApp = async (
   app: keyof typeof appTranslationsPaths,
   targetLocale: Locale,
-): Promise<Result<{ cost: Option<number>; cancelled?: boolean }, Error | OpenAIError>> => {
+): Promise<
+  Result<{ cost: Option<number>; duration: number; cancelled?: boolean }, Error | OpenAIError>
+> => {
   const baseJson = await readLocaleFile(app, baseLocale);
   const targetJson = await readLocaleFile(app, targetLocale);
 
@@ -308,7 +322,7 @@ const translateApp = async (
   const promptOption = getChatPrompt(baseJson.value, targetJson.value, targetLocale);
 
   if (promptOption.isNone()) {
-    return Result.Ok({ cost: Option.None() });
+    return Result.Ok({ cost: Option.None(), duration: 0 });
   }
 
   const { messages, approximatedPrice } = promptOption.value;
@@ -324,7 +338,7 @@ const translateApp = async (
   const confirmed = response.confirmed === true;
 
   if (!confirmed) {
-    return Result.Ok({ cost: Option.None(), cancelled: true });
+    return Result.Ok({ cost: Option.None(), cancelled: true, duration: 0 });
   }
 
   const chatCompletion = await createChatCompletion(messages);
@@ -333,7 +347,7 @@ const translateApp = async (
     return Result.Error(chatCompletion.getError());
   }
 
-  const { translatedMessages, cost } = chatCompletion.value;
+  const { translatedMessages, cost, duration } = chatCompletion.value;
 
   const updatedTargetJson = sortRecord({
     ...targetJson.value,
@@ -346,7 +360,7 @@ const translateApp = async (
     return Result.Error(new OpenAIError(writeResult.getError().message, cost));
   }
 
-  return Result.Ok({ cost: Option.Some(cost) });
+  return Result.Ok({ cost: Option.Some(cost), duration });
 };
 
 const main = async () => {
@@ -356,7 +370,7 @@ const main = async () => {
     const result = await translateApp(app, targetLocale);
 
     result.match({
-      Ok: ({ cost, cancelled }) => {
+      Ok: ({ cost, duration, cancelled }) => {
         if (cancelled === true) {
           console.log(
             `Cancelled translation of ${printAppName(app)} to ${printLocale(targetLocale)}`,
@@ -368,7 +382,7 @@ const main = async () => {
             console.log(
               `App ${printAppName(app)} translated to ${printLocale(
                 targetLocale,
-              )}, cost: ${printCost(cost)}`,
+              )}, duration: ${printDuration(duration)}, cost: ${printCost(cost)}`,
             ),
           None: () =>
             console.log(

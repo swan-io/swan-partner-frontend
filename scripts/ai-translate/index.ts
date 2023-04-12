@@ -1,7 +1,9 @@
 import { Option, Result } from "@swan-io/boxed";
 import chalk from "chalk";
+import cliSpinners from "cli-spinners";
 import fs from "fs/promises";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
+import ora from "ora";
 import os from "os";
 import path from "path";
 import prompts from "prompts";
@@ -59,6 +61,35 @@ const printLocale = (locale: Locale): string => chalk.green(locales[locale]);
 const printCost = (cost: number): string => chalk.yellow(`${cost.toFixed(4)}$`);
 
 const printDuration = (duration: number): string => chalk.cyan(`${(duration / 1000).toFixed(2)}s`);
+
+const startSpinner = (text: string) => {
+  const spinner = ora({
+    spinner: cliSpinners.circleHalves,
+    text,
+  });
+
+  const startTimestamp = Date.now();
+  let timeout: NodeJS.Timeout | undefined;
+
+  const updateTime = () => {
+    timeout = setTimeout(() => {
+      const elapsed = Date.now() - startTimestamp;
+      const seconds = elapsed / 1000;
+      spinner.suffixText = ` ${seconds.toFixed(1)}s`;
+
+      updateTime();
+    }, 100);
+  };
+
+  updateTime();
+
+  spinner.start();
+
+  return () => {
+    clearTimeout(timeout);
+    spinner.stop();
+  };
+};
 
 const getTranslationsToRun = (): [AppName, Locale][] => {
   const appNames = Object.keys(appTranslationsPaths) as AppName[];
@@ -344,7 +375,11 @@ const translateApp = async (
     return Result.Ok({ cost: Option.None(), cancelled: true, duration: 0, nbTranslatedKeys: 0 });
   }
 
+  const stopSpinner = startSpinner(
+    `Translating ${printAppName(app)} to ${printLocale(targetLocale)}`,
+  );
   const chatCompletion = await createChatCompletion(messages);
+  stopSpinner();
 
   if (chatCompletion.isError()) {
     return Result.Error(chatCompletion.getError());

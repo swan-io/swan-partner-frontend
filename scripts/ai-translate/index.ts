@@ -307,7 +307,10 @@ const translateApp = async (
   app: keyof typeof appTranslationsPaths,
   targetLocale: Locale,
 ): Promise<
-  Result<{ cost: Option<number>; duration: number; cancelled?: boolean }, Error | OpenAIError>
+  Result<
+    { cost: Option<number>; duration: number; nbTranslatedKeys: number; cancelled?: boolean },
+    Error | OpenAIError
+  >
 > => {
   const baseJson = await readLocaleFile(app, baseLocale);
   const targetJson = await readLocaleFile(app, targetLocale);
@@ -322,7 +325,7 @@ const translateApp = async (
   const promptOption = getChatPrompt(baseJson.value, targetJson.value, targetLocale);
 
   if (promptOption.isNone()) {
-    return Result.Ok({ cost: Option.None(), duration: 0 });
+    return Result.Ok({ cost: Option.None(), duration: 0, nbTranslatedKeys: 0 });
   }
 
   const { messages, approximatedPrice } = promptOption.value;
@@ -338,7 +341,7 @@ const translateApp = async (
   const confirmed = response.confirmed === true;
 
   if (!confirmed) {
-    return Result.Ok({ cost: Option.None(), cancelled: true, duration: 0 });
+    return Result.Ok({ cost: Option.None(), cancelled: true, duration: 0, nbTranslatedKeys: 0 });
   }
 
   const chatCompletion = await createChatCompletion(messages);
@@ -360,7 +363,11 @@ const translateApp = async (
     return Result.Error(new OpenAIError(writeResult.getError().message, cost));
   }
 
-  return Result.Ok({ cost: Option.Some(cost), duration });
+  return Result.Ok({
+    cost: Option.Some(cost),
+    duration,
+    nbTranslatedKeys: Object.keys(translatedMessages).length,
+  });
 };
 
 const main = async () => {
@@ -370,7 +377,7 @@ const main = async () => {
     const result = await translateApp(app, targetLocale);
 
     result.match({
-      Ok: ({ cost, duration, cancelled }) => {
+      Ok: ({ cost, duration, nbTranslatedKeys, cancelled }) => {
         if (cancelled === true) {
           console.log(
             `Cancelled translation of ${printAppName(app)} to ${printLocale(targetLocale)}`,
@@ -380,7 +387,7 @@ const main = async () => {
         cost.match({
           Some: cost =>
             console.log(
-              `App ${printAppName(app)} translated to ${printLocale(
+              `App ${printAppName(app)} translated ${nbTranslatedKeys} keys to ${printLocale(
                 targetLocale,
               )}, duration: ${printDuration(duration)}, cost: ${printCost(cost)}`,
             ),

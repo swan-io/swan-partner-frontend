@@ -9,7 +9,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CSSProperties, Fragment } from "react";
 import { StyleSheet } from "react-native";
@@ -40,10 +40,11 @@ const styles = StyleSheet.create({
     width: "100%",
   },
   tile: {
-    paddingVertical: 16,
+    paddingVertical: spacings[16],
   },
   tcu: {
-    paddingHorizontal: 24,
+    paddingHorizontal: spacings[24],
+    marginHorizontal: "auto",
   },
   tcuCheckbox: {
     top: 3, // center checkbox with text
@@ -53,7 +54,7 @@ const styles = StyleSheet.create({
     textDecorationLine: "underline",
   },
   tcuLinkIcon: {
-    marginLeft: 4,
+    marginLeft: spacings[4],
     display: "inline-block",
     verticalAlign: "middle",
   },
@@ -178,37 +179,35 @@ export const TcuCheckbox = ({
   error,
   onAcceptChange,
 }: TcuCheckboxProps) => (
-  <Box alignItems="center" style={styles.tcu}>
-    <Box alignItems="start">
-      <Box direction="row" alignItems="start">
-        <Pressable aria-checked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
-          <LakeCheckbox value={accepted} isError={isNotNullish(error)} />
-        </Pressable>
+  <Box alignItems="start" style={styles.tcu}>
+    <Box direction="row" alignItems="start">
+      <Pressable aria-checked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
+        <LakeCheckbox value={accepted} isError={isNotNullish(error)} />
+      </Pressable>
 
-        <Space width={12} />
+      <Space width={12} />
 
-        <LakeText>
-          {formatNestedMessage("step.finalize.terms", {
-            firstLink: (
-              <Link target="blank" to={tcuUrl} style={styles.tcuLink}>
-                {t("emailPage.firstLink")}
+      <LakeText>
+        {formatNestedMessage("step.finalize.terms", {
+          firstLink: (
+            <Link target="blank" to={tcuUrl} style={styles.tcuLink}>
+              {t("emailPage.firstLink")}
 
-                <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
-              </Link>
-            ),
-            secondLink: (
-              <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.tcuLink}>
-                {t("emailPage.secondLink", { partner: projectName })}
+              <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
+            </Link>
+          ),
+          secondLink: (
+            <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.tcuLink}>
+              {t("emailPage.secondLink", { partner: projectName })}
 
-                <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
-              </Link>
-            ),
-          })}
-        </LakeText>
-      </Box>
-
-      <Space height={4} />
-      <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
+              <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
+            </Link>
+          ),
+        })}
+      </LakeText>
     </Box>
+
+    <Space height={4} />
+    <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
   </Box>
 );

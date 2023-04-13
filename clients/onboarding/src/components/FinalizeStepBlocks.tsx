@@ -44,7 +44,7 @@ const styles = StyleSheet.create({
   },
   tcu: {
     paddingHorizontal: spacings[24],
-    margin: "auto",
+    marginHorizontal: "auto",
   },
   tcuCheckbox: {
     top: 3, // center checkbox with text
@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
   tcuLinkIcon: {
     marginLeft: spacings[4],
     display: "inline-block",
-    textAlignVertical: "center",
+    verticalAlign: "middle",
   },
 });
 

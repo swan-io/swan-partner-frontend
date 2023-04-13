@@ -302,27 +302,23 @@ const getChatPrompt = (
       role: "user",
       content: `Can you translate this JSON file to ${locales[targetLocale]}?:\n ${JSON.stringify(
         baseLocaleForContext,
-        null,
-        2,
       )}`,
     },
     {
       role: "assistant",
-      content: JSON.stringify(targetLocaleForContext, null, 2),
+      content: JSON.stringify(targetLocaleForContext),
     },
     {
       role: "user",
       content: `Can you translate this JSON file to ${locales[targetLocale]}?:\n ${JSON.stringify(
         jsonToTranslate,
-        null,
-        2,
       )}`,
     },
   ];
 
   const nbInputTokens = countInputTokens(messages);
   // we do the hypothesis that the output will be approximately the same size as the input
-  const approximatedOutputTokens = countTokens(JSON.stringify(jsonToTranslate, null, 2));
+  const approximatedOutputTokens = countTokens(JSON.stringify(jsonToTranslate));
   const approximatedNbTokens = nbInputTokens + approximatedOutputTokens;
   const approximatedPrice = computePrice(approximatedNbTokens);
 

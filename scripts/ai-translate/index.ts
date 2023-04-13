@@ -10,6 +10,20 @@ import prompts from "prompts";
 import tiktoken from "tiktoken-node";
 import type { Except } from "type-fest";
 
+/**
+ * This script is used to translate the app using OpenAI's GPT-3.5 API.
+ * - First we list all the translations we want to run with tuples of [app, locale]
+ * - For each tuple, we generate a prompt
+ *   - this prompt contains as context some translated keys with the translation we use. (This explain to openai how we translated other keys and help it to generate consistent translations)
+ *   - creating a context is just a list of message where we can say "When I ask you this, you should answer this"
+ * - Once the prompt is generated, we compute a price approximation
+ *   - first we count the number of tokens in the prompt (because proce is based on number of tokens) https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them
+ *     (it uses tiktoken-node, after a few test results wasn't 100% accurate, but it's close enough for approximating the price)
+ *   - then we apply openai api price per token and display a prompt to confirm if we want to call openai api
+ * - If the user confirms, we call openai api and wait for the result with a spinner because it can take a while (~1 second per key to translate)
+ * - Once we have the result, we parse it and edit the translation file
+ */
+
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 if (OPENAI_API_KEY == null) {
   throw new Error("OPENAI_API_KEY is not defined");
@@ -58,10 +72,15 @@ const printAppName = (appName: AppName): string => chalk.magenta(appName);
 
 const printLocale = (locale: Locale): string => chalk.green(locales[locale]);
 
+const printNbKeys = (nbKeys: number): string => chalk.bold(nbKeys);
+
 const printCost = (cost: number): string => chalk.yellow(`${cost.toFixed(4)}$`);
 
 const printDuration = (duration: number): string => chalk.cyan(`${(duration / 1000).toFixed(2)}s`);
 
+/**
+ * Create a spinner with clock
+ */
 const startSpinner = (text: string) => {
   const spinner = ora({
     spinner: cliSpinners.circleHalves,
@@ -91,6 +110,9 @@ const startSpinner = (text: string) => {
   };
 };
 
+/**
+ * List tuples of [app, locale] to run
+ */
 const getTranslationsToRun = (): [AppName, Locale][] => {
   const appNames = Object.keys(appTranslationsPaths) as AppName[];
   const localesKeys = Object.keys(locales).filter(locale => locale !== baseLocale) as Locale[];
@@ -106,6 +128,9 @@ const getTranslationsToRun = (): [AppName, Locale][] => {
   return translationsToRun;
 };
 
+/**
+ * Read JSON file from disk
+ */
 const readLocaleFile = async (
   app: AppName,
   locale: Locale,
@@ -123,6 +148,9 @@ const readLocaleFile = async (
   }
 };
 
+/**
+ * Write JSON file to disk
+ */
 const writeLocaleFile = async (
   app: keyof typeof appTranslationsPaths,
   locale: Locale,
@@ -139,6 +167,9 @@ const writeLocaleFile = async (
   }
 };
 
+/**
+ * Typeguard used to check if openai response is a Record<string, string>
+ */
 const isRecordOfString = (value: unknown): value is Record<string, string> => {
   return (
     typeof value === "object" &&
@@ -148,6 +179,9 @@ const isRecordOfString = (value: unknown): value is Record<string, string> => {
   );
 };
 
+/**
+ * Sort keys by alphabetical order to avoid unnecessary diff
+ */
 const sortRecord = <T extends Record<string, unknown>>(record: T): T => {
   const keys = Object.keys(record).sort();
   const sortedRecord: Record<string, unknown> = {};
@@ -157,6 +191,9 @@ const sortRecord = <T extends Record<string, unknown>>(record: T): T => {
   return sortedRecord as T;
 };
 
+/**
+ * Remove keys from a Record
+ */
 const omit = <Key extends string, O extends Record<Key, string>>(
   values: O,
   keys: Key[],
@@ -165,6 +202,9 @@ const omit = <Key extends string, O extends Record<Key, string>>(
   return Object.fromEntries(entries) as Except<O, Key>;
 };
 
+/**
+ * Pick keys from a Record
+ */
 const pick = <Key extends string, O extends Record<Key, string>>(
   values: O,
   keys: Key[],
@@ -173,6 +213,10 @@ const pick = <Key extends string, O extends Record<Key, string>>(
   return Object.fromEntries(entries) as Pick<O, Key>;
 };
 
+/**
+ * Compute the price based on OpenAI pricing
+ * https://openai.com/pricing
+ */
 const computePrice = (nbTokens: number): number => {
   return (nbTokens * MODEL_TOKEN_PRICE) / 1000;
 };
@@ -180,13 +224,16 @@ const computePrice = (nbTokens: number): number => {
 /**
  * This counts the number of tokens in a string
  * Giving us the possibility to get a price approximation before calling OpenAI
+ * The result isn't 100% accurate but it's good enough for approximating the price
  */
 const countTokens = (text: string) => {
   const tokenized = tokenEncoder.encode(text);
-  //   tokenEncoder.free();
   return tokenized.length;
 };
 
+/**
+ * This counts the number of tokens in a list of messages
+ */
 const countInputTokens = (input: ChatCompletionRequestMessage[]): number => {
   return input.reduce((acc, { content }) => acc + countTokens(content), 0);
 };
@@ -229,7 +276,11 @@ const getChatPrompt = (
   baseLocaleJson: Record<string, string>,
   targetLocaleJson: Record<string, string>,
   targetLocale: Locale,
-): Option<{ messages: ChatCompletionRequestMessage[]; approximatedPrice: number }> => {
+): Option<{
+  messages: ChatCompletionRequestMessage[];
+  approximatedPrice: number;
+  nbKeys: number;
+}> => {
   const jsonToTranslate = getNewMessages(baseLocaleJson, targetLocaleJson);
   const nonTranslatedKeys = Object.keys(jsonToTranslate);
   const alreadyTranslatedJson = omit(baseLocaleJson, nonTranslatedKeys);
@@ -275,9 +326,13 @@ const getChatPrompt = (
   const approximatedNbTokens = nbInputTokens + approximatedOutputTokens;
   const approximatedPrice = computePrice(approximatedNbTokens);
 
-  return Option.Some({ messages, approximatedPrice });
+  return Option.Some({ messages, approximatedPrice, nbKeys: Object.keys(jsonToTranslate).length });
 };
 
+/**
+ * Call OpenAI with a list of messages
+ * And parse the result which should be a JSON
+ */
 const createChatCompletion = async (
   messages: ChatCompletionRequestMessage[],
 ): Promise<
@@ -334,6 +389,12 @@ const createChatCompletion = async (
   }
 };
 
+/**
+ * Translate one app to one locale
+ * - it creates the prompt with price approximation
+ * - then it asks for confirmation to the user
+ * - if user confirms, it calls OpenAI
+ */
 const translateApp = async (
   app: keyof typeof appTranslationsPaths,
   targetLocale: Locale,
@@ -359,12 +420,12 @@ const translateApp = async (
     return Result.Ok({ cost: Option.None(), duration: 0, nbTranslatedKeys: 0 });
   }
 
-  const { messages, approximatedPrice } = promptOption.value;
+  const { messages, approximatedPrice, nbKeys } = promptOption.value;
 
   const response = await prompts({
     type: "confirm",
     name: "confirmed",
-    message: `Translate ${printAppName(app)} to ${printLocale(
+    message: `Translate ${nbKeys} keys in ${printAppName(app)} to ${printLocale(
       targetLocale,
     )}? This will cost ${printCost(approximatedPrice)}`,
   });
@@ -422,9 +483,11 @@ const main = async () => {
         cost.match({
           Some: cost =>
             console.log(
-              `App ${printAppName(app)} translated ${nbTranslatedKeys} keys to ${printLocale(
-                targetLocale,
-              )}, duration: ${printDuration(duration)}, cost: ${printCost(cost)}`,
+              `App ${printAppName(app)} translated ${printNbKeys(
+                nbTranslatedKeys,
+              )} keys to ${printLocale(targetLocale)}, duration: ${printDuration(
+                duration,
+              )}, cost: ${printCost(cost)}`,
             ),
           None: () =>
             console.log(

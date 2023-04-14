@@ -222,7 +222,7 @@ const computePrice = (nbTokens: number): number => {
 };
 
 /**
- * This counts the number of tokens in a string
+ * This counts the number of tokens into a string
  * Giving us the possibility to get a price approximation before calling OpenAI
  * The result isn't 100% accurate but it's good enough for approximating the price
  */
@@ -232,7 +232,7 @@ const countTokens = (text: string) => {
 };
 
 /**
- * This counts the number of tokens in a list of messages
+ * This counts the number of tokens into a list of messages
  */
 const countInputTokens = (input: ChatCompletionRequestMessage[]): number => {
   return input.reduce((acc, { content }) => acc + countTokens(content), 0);
@@ -296,7 +296,7 @@ const getChatPrompt = (
     {
       role: "system",
       content:
-        "You are a helpfull assistant who translate JSON files for a Bank as a Service applications. Translations use ICU message format syntax. The answer must contains only the translated JSON.",
+        "You are a helpful assistant who translate JSON files for Bank as a Service applications. Translations use ICU message format syntax. The answer must contains only the translated JSON.",
     },
     {
       role: "user",
@@ -352,9 +352,7 @@ const createChatCompletion = async (
     const finishReason = data.choices[0]?.finish_reason ?? "unknown";
 
     if (finishReason !== "stop") {
-      return Result.Error(
-        new OpenAIError(`Failed to complete chat completion, reason: ${finishReason}`, cost),
-      );
+      return Result.Error(new OpenAIError(`Chat completion failed, reason: ${finishReason}`, cost));
     }
 
     const content = data.choices[0]?.message?.content;
@@ -421,7 +419,7 @@ const translateApp = async (
   const response = await prompts({
     type: "confirm",
     name: "confirmed",
-    message: `Translate ${nbKeys} keys in ${printAppName(app)} to ${printLocale(
+    message: `Translate ${nbKeys} keys of ${printAppName(app)} into ${printLocale(
       targetLocale,
     )}? This will cost ${printCost(approximatedPrice)}`,
   });
@@ -472,7 +470,7 @@ const main = async () => {
       Ok: ({ cost, duration, nbTranslatedKeys, cancelled }) => {
         if (cancelled === true) {
           console.log(
-            `Cancelled translation of ${printAppName(app)} to ${printLocale(targetLocale)}`,
+            `Cancelled translation of ${printAppName(app)} into ${printLocale(targetLocale)}`,
           );
           return;
         }

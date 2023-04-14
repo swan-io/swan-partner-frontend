@@ -1,9 +1,12 @@
 import { Result } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -12,6 +15,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -32,6 +36,12 @@ import {
 } from "../../utils/validation";
 
 const styles = StyleSheet.create({
+  tcu: {
+    marginHorizontal: "auto",
+  },
+  tcuCheckbox: {
+    top: 3, // center checkbox with text
+  },
   link: {
     color: colors.partner[500],
     textDecorationLine: "underline",
@@ -68,11 +78,21 @@ export const OnboardingIndividualEmail = ({
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
+  const haveToAcceptTcu = accountCountry === "DEU";
+
   const { Field, submitForm, setFieldError } = useForm({
     email: {
       initialValue: initialEmail,
       validate: combineValidators(validateRequired, validateEmail),
       sanitize: value => value.trim(),
+    },
+    tcuAccepted: {
+      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      validate: value => {
+        if (value === false) {
+          return t("step.finalize.termsError");
+        }
+      },
     },
   });
 
@@ -165,30 +185,61 @@ export const OnboardingIndividualEmail = ({
                 </Field>
               </Tile>
 
-              {accountCountry !== "DEU" && (
-                <>
-                  <Space height={small ? 24 : 32} />
+              <Box alignItems="start" style={styles.tcu}>
+                <Box direction="row">
+                  {haveToAcceptTcu && (
+                    <>
+                      <Field name="tcuAccepted">
+                        {({ value, error, onChange }) => (
+                          <Pressable
+                            aria-checked={value}
+                            onPress={() => onChange(!value)}
+                            style={styles.tcuCheckbox}
+                          >
+                            <LakeCheckbox value={value} isError={isNotNullish(error)} />
+                          </Pressable>
+                        )}
+                      </Field>
 
-                  <LakeText align="center">
-                    {formatNestedMessage("emailPage.terms", {
-                      firstLink: (
-                        <Link target="blank" to={tcuUrl} style={styles.link}>
-                          {t("emailPage.firstLink")}
+                      <Space width={12} />
+                    </>
+                  )}
 
-                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                        </Link>
-                      ),
-                      secondLink: (
-                        <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                          {t("emailPage.secondLink", { partner: projectName })}
+                  <LakeText>
+                    {formatNestedMessage(
+                      haveToAcceptTcu ? "step.finalize.terms" : "emailPage.terms",
+                      {
+                        firstLink: (
+                          <Link target="blank" to={tcuUrl} style={styles.link}>
+                            {t("emailPage.firstLink")}
 
-                          <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                        </Link>
-                      ),
-                    })}
+                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                          </Link>
+                        ),
+                        secondLink: (
+                          <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
+                            {t("emailPage.secondLink", { partner: projectName })}
+
+                            <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                          </Link>
+                        ),
+                      },
+                    )}
                   </LakeText>
-                </>
-              )}
+                </Box>
+
+                {haveToAcceptTcu && (
+                  <>
+                    <Space height={4} />
+
+                    <Field name="tcuAccepted">
+                      {({ error }) => (
+                        <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
+                      )}
+                    </Field>
+                  </>
+                )}
+              </Box>
             </>
           )}
         </ResponsiveContainer>

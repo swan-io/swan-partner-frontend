@@ -200,10 +200,6 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
             legalRepresentativeRecommendedIdentificationLevel={
               onboarding.legalRepresentativeRecommendedIdentificationLevel
             }
-            accountCountry={accountCountry}
-            tcuUrl={onboarding.tcuUrl}
-            tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
-            projectName={onboarding.projectInfo?.name ?? ""}
             steps={steps}
             alreadySubmitted={finalized}
             onSubmitWithErrors={setFinalized.on}

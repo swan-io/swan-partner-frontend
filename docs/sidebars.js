@@ -134,7 +134,7 @@ module.exports = {
             },
             {
               type: "doc",
-              id: "specs/banking/payments",
+              id: "specs/banking/transfer",
             },
             {
               type: "doc",

@@ -23,15 +23,17 @@ import {
   refreshAccessToken,
 } from "./api/oauth2.js";
 import {
-  OnboardingRejectionError,
   UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
   getProjectId,
-  onboardCompanyAccountHolder,
-  onboardIndividualAccountHolder,
   parseAccountCountry,
 } from "./api/partner.js";
+import {
+  OnboardingRejectionError,
+  onboardCompanyAccountHolder,
+  onboardIndividualAccountHolder,
+} from "./api/unauthenticated.js";
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
@@ -284,8 +286,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     "/onboarding/individual/start",
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      return Future.value(accountCountry)
-        .flatMapOk(accountCountry => onboardIndividualAccountHolder({ accountCountry }))
+      const projectId = await getProjectId();
+      return Future.value(Result.allFromDict({ accountCountry, projectId }))
+        .flatMapOk(({ accountCountry, projectId }) =>
+          onboardIndividualAccountHolder({ accountCountry, projectId }),
+        )
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
@@ -311,8 +316,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     "/onboarding/company/start",
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
-      return Future.value(accountCountry)
-        .flatMapOk(accountCountry => onboardCompanyAccountHolder({ accountCountry }))
+      const projectId = await getProjectId();
+      return Future.value(Result.allFromDict({ accountCountry, projectId }))
+        .flatMapOk(({ accountCountry, projectId }) =>
+          onboardCompanyAccountHolder({ accountCountry, projectId }),
+        )
         .tapOk(onboardingId => {
           return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })

@@ -71,7 +71,7 @@ type Account {
   legalRepresentativeMembership: AccountMembership!
 
   """
-  Type of the account : EMoney if account holder has not finished the KYC requirements, PaymentService otherwise 
+  Type of the account : EMoney if account holder has not finished the KYC requirements, PaymentService otherwise
   """
   paymentAccountType: PaymentAccountType!
 
@@ -276,6 +276,9 @@ input AccountHolderFilterInput {
 
   """Searches company name, first name, last name"""
   search: String
+  firstName: String
+  lastName: String
+  birthDate: String
 }
 
 """Individual account holder."""
@@ -420,10 +423,10 @@ type AccountMembership {
   """Periodic Spending limit list"""
   spendingLimits: [SpendingLimit!]
 
-  """created date"""
+  """Created date"""
   createdAt: DateTime!
 
-  """updated date"""
+  """Updated date"""
   updatedAt: DateTime!
 
   """
@@ -447,6 +450,9 @@ type AccountMembership {
   Indicate if the identity bound to the account membership has required identification level
   """
   hasRequiredIdentificationLevel: Boolean
+
+  """Disabled date"""
+  disabledAt: DateTime
 
   """account membership's cards"""
   cards(
@@ -2709,6 +2715,8 @@ enum MonthlyPaymentVolume {
 }
 
 type Mutation {
+  unauthenticatedOnboardPublicCompanyAccountHolder(input: UnauthenticatedOnboardPublicCompanyAccountHolderInput): UnauthenticatedOnboardPublicCompanyAccountHolderPayload!
+  unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
   unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
   unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
 
@@ -3654,6 +3662,11 @@ enum ProjectType {
   CompanyAndCustomers
 }
 
+"""Rejection returned when the public onboarding is disabled"""
+type PublicOnboardingDisabledRejection implements Rejection {
+  message: String!
+}
+
 type Query {
   projectInfoById(id: ID!): ProjectInfo!
   cardInfos(input: CardInfosInput!): CardInfos
@@ -4452,6 +4465,30 @@ enum UltimateBeneficialOwnerType {
   IndirectCompany
 }
 
+input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
+  projectId: ID!
+  verificationFlow: VerificationFlow! = Upfront
+  accountCountry: AccountCountry
+}
+
+union UnauthenticatedOnboardPublicCompanyAccountHolderPayload = UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload | PublicOnboardingDisabledRejection | ValidationRejection
+
+type UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload {
+  onboarding: OnboardingInfo!
+}
+
+input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
+  projectId: ID!
+  verificationFlow: VerificationFlow! = Upfront
+  accountCountry: AccountCountry
+}
+
+union UnauthenticatedOnboardPublicIndividualAccountHolderPayload = UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload | PublicOnboardingDisabledRejection | ValidationRejection
+
+type UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload {
+  onboarding: OnboardingInfo!
+}
+
 input UnauthenticatedUpdateCompanyOnboardingInput {
   accountName: String
   businessActivity: BusinessActivity
@@ -4547,9 +4584,9 @@ type User {
   identificationStatus: IdentificationStatus
 
   """
-  DO NOT USE.
+  List of identification levels available for the user.
   
-  This feature is currently in development, it probably doesn't work and we will make breaking changes without warning.
+  Whenever TRUE, it means the identification was successful for the associated level.
   """
   identificationLevels: IdentificationLevels
 
@@ -4568,6 +4605,31 @@ type User {
 
   """The list of account memberships"""
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type UserConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """UserEdge list"""
+  edges: [UserEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type UserEdge implements Edge {
+  """
+  Opaque identifier pointing to this consent node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The consent"""
+  node: User!
 }
 
 type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejection {

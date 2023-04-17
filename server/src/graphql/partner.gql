@@ -88,48 +88,6 @@ mutation FinalizeOnboarding($input: FinalizeOnboardingInput!) {
   }
 }
 
-mutation OnboardIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
-  onboardIndividualAccountHolder(input: $input) {
-    ... on OnboardIndividualAccountHolderSuccessPayload {
-      __typename
-      onboarding {
-        id
-      }
-    }
-    ... on ForbiddenRejection {
-      __typename
-      message
-    }
-    ... on ValidationRejection {
-      __typename
-      message
-    }
-  }
-}
-
-mutation OnboardCompanyAccountHolder($input: OnboardCompanyAccountHolderInput!) {
-  onboardCompanyAccountHolder(input: $input) {
-    ... on OnboardCompanyAccountHolderSuccessPayload {
-      __typename
-      onboarding {
-        id
-      }
-    }
-    ... on ForbiddenRejection {
-      __typename
-      message
-    }
-    ... on BadRequestRejection {
-      __typename
-      message
-    }
-    ... on ValidationRejection {
-      __typename
-      message
-    }
-  }
-}
-
 mutation BindAccountMembership($input: BindAccountMembershipInput!) {
   bindAccountMembership(input: $input) {
     __typename

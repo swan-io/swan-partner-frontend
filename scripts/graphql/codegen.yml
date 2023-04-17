@@ -107,6 +107,12 @@ generates:
     config: *SERVER_CONFIG
     plugins: *SERVER_PLUGINS
 
+  server/src/graphql/unauthenticated.ts:
+    documents: "server/src/graphql/unauthenticated.gql"
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    config: *SERVER_CONFIG
+    plugins: *SERVER_PLUGINS
+
   clients/banking/src/graphql/introspection.json:
     schema: "scripts/graphql/dist/partner-schema.gql"
     plugins:

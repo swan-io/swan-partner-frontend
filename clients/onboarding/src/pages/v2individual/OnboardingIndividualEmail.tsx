@@ -185,6 +185,8 @@ export const OnboardingIndividualEmail = ({
                 </Field>
               </Tile>
 
+              <Space height={small ? 24 : 32} />
+
               <Box alignItems="start" style={styles.tcu}>
                 <Box direction="row">
                   {haveToAcceptTcu && (

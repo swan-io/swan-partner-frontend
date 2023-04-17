@@ -1,6 +1,6 @@
+import { print as printQuery } from "@0no-co/graphql.web";
 import { captureException /*, init*/ } from "@sentry/react";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { print as printQuery } from "graphql";
 import { CombinedError, Operation, OperationContext } from "urql";
 // import { env } from "./env";
 

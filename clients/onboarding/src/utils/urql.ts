@@ -1,6 +1,5 @@
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { cacheExchange } from "@urql/exchange-graphcache";
-import { IntrospectionQuery } from "graphql";
 import { Except, SetRequired } from "type-fest";
 import {
   AnyVariables,
@@ -10,7 +9,6 @@ import {
   UseQueryArgs,
   UseQueryResponse,
   UseQueryState,
-  dedupExchange,
   errorExchange,
   fetchExchange,
   useQuery,
@@ -22,7 +20,7 @@ import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { logBackendError } from "./logger";
 
 const cache = cacheExchange<GraphCacheConfig>({
-  schema: schema as unknown as IntrospectionQuery,
+  schema: schema as NonNullable<GraphCacheConfig["schema"]>,
   keys: {
     AddressInfo: _data => null,
     OnboardingCompanyAccountHolderInfo: _data => null,
@@ -38,13 +36,7 @@ export const urql = new Client({
   requestPolicy: "network-only",
   suspense: true,
   url: `${env.BANKING_URL}/api/unauthenticated`,
-  exchanges: [
-    dedupExchange,
-    cache,
-    requestIdExchange,
-    errorExchange({ onError: logBackendError }),
-    fetchExchange,
-  ],
+  exchanges: [cache, requestIdExchange, errorExchange({ onError: logBackendError }), fetchExchange],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

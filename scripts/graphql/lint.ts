@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { readFile } from "fs/promises";
-import glob from "glob";
+import { glob } from "glob";
 import { InlineFragmentNode, parse, SelectionNode } from "graphql";
 import path from "path";
 

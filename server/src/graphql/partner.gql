@@ -22,13 +22,6 @@ fragment OnboardingRedirectInfo on Onboarding {
   }
 }
 
-query OnboardingRedirect($onboardingId: ID!) {
-  onboarding(id: $onboardingId) {
-    __typename
-    ...OnboardingRedirectInfo
-  }
-}
-
 query GetAccountMembershipInvitationData(
   $inviterAccountMembershipId: ID!
   $inviteeAccountMembershipId: ID!

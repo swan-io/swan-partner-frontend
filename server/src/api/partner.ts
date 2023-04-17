@@ -2,7 +2,7 @@ import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
 import { match } from "ts-pattern";
 import { env } from "../env.js";
-import { AccountCountry, OnboardingRedirectInfoFragment, getSdk } from "../graphql/partner.js";
+import { AccountCountry, getSdk } from "../graphql/partner.js";
 import {
   OAuth2ClientCredentialsError,
   OAuth2NetworkError,
@@ -57,42 +57,22 @@ export const finalizeOnboarding = ({
   onboardingId: string;
   accessToken: string;
 }) => {
-  const onboarding = toFuture(
-    sdk.OnboardingRedirect({ onboardingId }, { Authorization: `Bearer ${accessToken}` }),
-  ).mapOk(({ onboarding }) => onboarding);
-
-  return onboarding
-    .flatMapOk(onboarding => {
-      return match<
-        OnboardingRedirectInfoFragment,
-        Future<
-          Result<OnboardingRedirectInfoFragment, ServerError | FinalizeOnboardingRejectionError>
-        >
-      >(onboarding)
-        .with({ statusInfo: { __typename: "OnboardingFinalizedStatusInfo" } }, () =>
-          Future.value(Result.Ok(onboarding)),
+  return toFuture(
+    sdk.FinalizeOnboarding({ input: { onboardingId } }, { Authorization: `Bearer ${accessToken}` }),
+  )
+    .mapResult(({ finalizeOnboarding }) =>
+      match(finalizeOnboarding)
+        .with({ __typename: "FinalizeOnboardingSuccessPayload" }, ({ onboarding }) =>
+          Result.Ok(onboarding),
         )
-        .otherwise(() => {
-          return toFuture(
-            sdk.FinalizeOnboarding(
-              { input: { onboardingId } },
-              { Authorization: `Bearer ${accessToken}` },
+        .otherwise(({ __typename, message }) =>
+          Result.Error(
+            new FinalizeOnboardingRejectionError(
+              JSON.stringify({ onboardingId, __typename, message }),
             ),
-          ).mapResult(({ finalizeOnboarding }) =>
-            match(finalizeOnboarding)
-              .with({ __typename: "FinalizeOnboardingSuccessPayload" }, ({ onboarding }) =>
-                Result.Ok(onboarding),
-              )
-              .otherwise(({ __typename, message }) =>
-                Result.Error(
-                  new FinalizeOnboardingRejectionError(
-                    JSON.stringify({ onboardingId, __typename, message }),
-                  ),
-                ),
-              ),
-          );
-        });
-    })
+          ),
+        ),
+    )
     .mapOk(onboarding => {
       const redirectUrl = match(onboarding.oAuthRedirectParameters?.redirectUrl?.trim())
         .with("", () => undefined)

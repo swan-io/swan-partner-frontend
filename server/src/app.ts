@@ -457,16 +457,18 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
             code: P.string,
             state: getOAuth2StatePattern(stateId),
           },
-          ({ code, state }) => {
-            return getTokenFromCode({
+          async ({ code, state }) => {
+            const token = await getTokenFromCode({
               redirectUri: `${env.BANKING_URL}/auth/callback`,
               authMode: projectId.match({
                 Ok: () => "FormData",
                 Error: () => "AuthorizationHeader",
               }),
               code,
-            })
-              .tapOk(({ expiresAt, accessToken, refreshToken }) => {
+            });
+
+            return token.match({
+              Ok: ({ expiresAt, accessToken, refreshToken }) => {
                 // Store the tokens
                 request.session.options({
                   maxAge: COOKIE_MAX_AGE,
@@ -477,12 +479,13 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
 
                 return match(state)
                   .with({ type: "Redirect" }, ({ redirectTo = "/swanpopupcallback" }) => {
-                    return reply.redirect(redirectTo);
+                    void reply.redirect(redirectTo);
+                    return Future.value(Result.Ok(undefined));
                   })
                   .with({ type: "FinalizeOnboarding" }, ({ onboardingId }) => {
                     // Finalize the onboarding with the received user token
-                    finalizeOnboarding({ onboardingId, accessToken })
-                      .tapOk(({ redirectUrl, state, accountMembershipId }) => {
+                    return finalizeOnboarding({ onboardingId, accessToken })
+                      .mapOk(({ redirectUrl, state, accountMembershipId }) => {
                         const queryString = new URLSearchParams();
                         if (redirectUrl != undefined) {
                           const authUri = createAuthUrl({
@@ -497,19 +500,24 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                           queryString.append("accountMembershipId", accountMembershipId);
                         }
 
-                        return reply.redirect(
+                        void reply.redirect(
                           `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
                         );
+                        return undefined;
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return renderError(reply, { status: 400, requestId: request.id as string });
+                        return renderError(reply, {
+                          status: 400,
+                          requestId: request.id as string,
+                        });
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
                     return bindAccountMembership({ accountMembershipId, accessToken })
-                      .tapOk(({ accountMembershipId }) => {
-                        return reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
+                      .mapOk(({ accountMembershipId }) => {
+                        void reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
+                        return undefined;
                       })
                       .tapError(error => {
                         request.log.error(error);
@@ -518,27 +526,31 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                   })
                   .otherwise(error => {
                     request.log.error(error);
-                    return reply.redirect("/swanpopupcallback");
+                    void reply.redirect("/swanpopupcallback");
+                    return Future.value(Result.Ok(undefined));
                   });
-              })
-              .tapError(error => {
+              },
+              Error: error => {
                 request.log.error(error);
-                return renderError(reply, { status: 400, requestId: request.id as string });
-              })
-              .map(() => undefined);
+                void renderError(reply, { status: 400, requestId: request.id as string });
+                return Future.value(Result.Ok(undefined));
+              },
+            });
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {
-          return renderAuthError(reply, {
+          void renderAuthError(reply, {
             status: 400,
             description: error === "access_denied" ? "Login failed" : errorDescription,
           });
+          return Future.value(undefined);
         })
         .otherwise(() => {
-          return renderAuthError(reply, {
+          void renderAuthError(reply, {
             status: 400,
             description: "Could not initiate session",
           });
+          return Future.value(undefined);
         })
     );
   });

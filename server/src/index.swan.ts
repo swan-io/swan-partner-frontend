@@ -15,16 +15,13 @@ import url from "node:url";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan.js";
+import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner.js";
+import { getAccountMembershipInvitationData } from "./api/partner.swan.js";
 import {
   OnboardingRejectionError,
-  UnsupportedAccountCountryError,
-  parseAccountCountry,
-} from "./api/partner.js";
-import {
-  getAccountMembershipInvitationData,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/partner.swan.js";
+} from "./api/unauthenticated.js";
 import { InvitationConfig, start } from "./app.js";
 import { env } from "./env.js";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";

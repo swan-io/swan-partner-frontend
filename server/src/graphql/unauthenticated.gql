@@ -1,0 +1,41 @@
+mutation OnboardIndividualAccountHolder(
+  $input: UnauthenticatedOnboardPublicIndividualAccountHolderInput!
+) {
+  unauthenticatedOnboardPublicIndividualAccountHolder(input: $input) {
+    ... on UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload {
+      __typename
+      onboarding {
+        id
+      }
+    }
+    ... on PublicOnboardingDisabledRejection {
+      __typename
+      message
+    }
+    ... on ValidationRejection {
+      __typename
+      message
+    }
+  }
+}
+
+mutation OnboardCompanyAccountHolder(
+  $input: UnauthenticatedOnboardPublicCompanyAccountHolderInput!
+) {
+  unauthenticatedOnboardPublicCompanyAccountHolder(input: $input) {
+    ... on UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload {
+      __typename
+      onboarding {
+        id
+      }
+    }
+    ... on PublicOnboardingDisabledRejection {
+      __typename
+      message
+    }
+    ... on ValidationRejection {
+      __typename
+      message
+    }
+  }
+}

@@ -71,7 +71,7 @@ type Account {
   legalRepresentativeMembership: AccountMembership!
 
   """
-  Type of the account : EMoney if account holder has not finished the KYC requirements, PaymentService otherwise 
+  Type of the account : EMoney if account holder has not finished the KYC requirements, PaymentService otherwise
   """
   paymentAccountType: PaymentAccountType!
 
@@ -460,6 +460,9 @@ input AccountHolderFilterInput {
 
   """Searches company name, first name, last name"""
   search: String
+  firstName: String
+  lastName: String
+  birthDate: String
 }
 
 """Individual account holder."""
@@ -612,10 +615,10 @@ type AccountMembership {
   """Periodic Spending limit list"""
   spendingLimits: [SpendingLimit!]
 
-  """created date"""
+  """Created date"""
   createdAt: DateTime!
 
-  """updated date"""
+  """Updated date"""
   updatedAt: DateTime!
 
   """
@@ -639,6 +642,9 @@ type AccountMembership {
   Indicate if the identity bound to the account membership has required identification level
   """
   hasRequiredIdentificationLevel: Boolean
+
+  """Disabled date"""
+  disabledAt: DateTime
 
   """Periodic Spending"""
   spending: Spending
@@ -1177,9 +1183,6 @@ input AddCardsInput {
 
   """The id of the card product to use to create the new cards."""
   cardProductId: ID
-
-  """Custom options to use for physical cards."""
-  physicalCardCustomOptions: PhysicalCardCustomOptionsInput
 }
 
 union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
@@ -1207,9 +1210,6 @@ input AddCardsWithGroupDeliveryInput {
 
   """The id of the card product to use to create the new cards."""
   cardProductId: ID
-
-  """Custom options to use for physical cards."""
-  physicalCardCustomOptions: PhysicalCardCustomOptionsForGroupDeliveryInput
 }
 
 union AddCardsWithGroupDeliveryPayload = AddCardsWithGroupDeliverySuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
@@ -2539,6 +2539,9 @@ input CardConfigWithGroupDeliveryInput {
 
   """`true` when you wish for print an associated physical card"""
   printPhysicalCard: Boolean!
+
+  """Custom options to use for physical cards."""
+  physicalCardCustomOptions: PhysicalCardCustomOptionsForGroupDeliveryInput
 }
 
 """
@@ -3167,8 +3170,21 @@ type CheckTransaction implements Transaction {
   """
   reference: String!
 
-  """payment method identifier used for this transaction: accountNumber"""
+  """payment method identifier used for this transaction: check number"""
   paymentMethodIdentifier: String!
+
+  """
+  31-caracter unique identifier located at the bottom of the check.
+  CMC7 is composed of 3 sections (check number (7 char.), check issuing bank code (12 char.), check holder account number (12 char.)).
+  Combined with RLMC key, it  allows the check traceability.
+  """
+  cmc7: String!
+
+  """
+  2-digit key used to check the integrity of the CMC7 line, located at the bottom right of the check.
+  Combined with CMC7 line, it allows the check traceability.
+  """
+  rlmcKey: String!
 
   """side (Credit or Debit)"""
   side: TransactionSide!
@@ -8144,6 +8160,9 @@ type PhysicalCardCancelingStatusInfo implements PhysicalCardStatusInfo {
 input PhysicalCardConfigInput {
   """address to deliver the physical card"""
   deliveryAddress: CompleteAddressInput!
+
+  """Custom options to use for physical cards."""
+  physicalCardCustomOptions: PhysicalCardCustomOptionsInput
 }
 
 """when the user has to authorize production of the physical card"""
@@ -8536,6 +8555,11 @@ enum ProjectType {
   CompanyAndCustomers
 }
 
+"""Rejection returned when the public onboarding is disabled"""
+type PublicOnboardingDisabledRejection implements Rejection {
+  message: String!
+}
+
 type Query {
   """Returns funding source by id."""
   fundingSource(id: ID!): FundingSource
@@ -8555,6 +8579,17 @@ type Query {
   *This query is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   user: User
+
+  """
+  Returns the list of user that joined the project
+  
+  DO NOT USE.
+  
+  This feature is currently in development, it probably doesn't work and we will make breaking changes without warning.
+  
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  users(first: Int! = 50, after: String): UserConnection!
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -12017,9 +12052,9 @@ type User {
   identificationStatus: IdentificationStatus
 
   """
-  DO NOT USE.
+  List of identification levels available for the user.
   
-  This feature is currently in development, it probably doesn't work and we will make breaking changes without warning.
+  Whenever TRUE, it means the identification was successful for the associated level.
   """
   identificationLevels: IdentificationLevels
 
@@ -12040,6 +12075,20 @@ type User {
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
 }
 
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type UserConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """UserEdge list"""
+  edges: [UserEdge!]!
+}
+
 type UserConsentSettings {
   """Preferred notification channel"""
   preferredNotificationChannel: PreferredNotificationChannel!
@@ -12049,6 +12098,17 @@ type UserConsentSettings {
 
   """Project identifier"""
   projectId: String!
+}
+
+"""Implements the Relay Edge interface"""
+type UserEdge implements Edge {
+  """
+  Opaque identifier pointing to this consent node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The consent"""
+  node: User!
 }
 
 type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejection {

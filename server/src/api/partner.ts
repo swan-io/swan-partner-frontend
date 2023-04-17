@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import { env } from "../env.js";
 import { AccountCountry, OnboardingRedirectInfoFragment, getSdk } from "../graphql/partner.js";
 import {
@@ -45,72 +45,6 @@ export const parseAccountCountry = (
   match(accountCountry)
     .with("FRA", "DEU", "ESP", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
-
-export class OnboardingRejectionError extends Error {
-  tag = "OnboardingRejectionError";
-}
-
-export const onboardCompanyAccountHolder = ({
-  accountCountry,
-}: {
-  accountCountry?: AccountCountry;
-}) => {
-  return getClientAccessToken({ authMode: "FormData" })
-    .flatMapOk(accessToken =>
-      toFuture(
-        sdk.OnboardCompanyAccountHolder(
-          { input: { accountCountry } },
-          { Authorization: `Bearer ${accessToken}` },
-        ),
-      ),
-    )
-    .mapResult(({ onboardCompanyAccountHolder }) =>
-      match(onboardCompanyAccountHolder)
-        .with(
-          { __typename: "OnboardCompanyAccountHolderSuccessPayload" },
-          ({ onboarding: { id } }) => Result.Ok(id),
-        )
-        .with(
-          {
-            __typename: P.union("BadRequestRejection", "ForbiddenRejection", "ValidationRejection"),
-          },
-          ({ __typename, message }) =>
-            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
-        )
-        .exhaustive(),
-    );
-};
-
-export const onboardIndividualAccountHolder = ({
-  accountCountry,
-}: {
-  accountCountry?: AccountCountry;
-}) => {
-  return getClientAccessToken({ authMode: "FormData" })
-    .flatMapOk(accessToken =>
-      toFuture(
-        sdk.OnboardIndividualAccountHolder(
-          { input: { accountCountry } },
-          { Authorization: `Bearer ${accessToken}` },
-        ),
-      ),
-    )
-    .mapResult(({ onboardIndividualAccountHolder }) =>
-      match(onboardIndividualAccountHolder)
-        .with(
-          { __typename: "OnboardIndividualAccountHolderSuccessPayload" },
-          ({ onboarding: { id } }) => Result.Ok(id),
-        )
-        .with(
-          {
-            __typename: P.union("ForbiddenRejection", "ValidationRejection"),
-          },
-          ({ __typename, message }) =>
-            Result.Error(new OnboardingRejectionError(JSON.stringify({ __typename, message }))),
-        )
-        .exhaustive(),
-    );
-};
 
 export class FinalizeOnboardingRejectionError extends Error {
   tag = "FinalizeOnboardingRejectionError";

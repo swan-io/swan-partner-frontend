@@ -5,7 +5,6 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CombinedError, Operation, OperationContext, OperationResult } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { relayPagination } from "@urql/exchange-graphcache/extras";
-import { IntrospectionQuery } from "graphql";
 import { P, match } from "ts-pattern";
 import { Except, SetRequired } from "type-fest";
 import {
@@ -14,7 +13,6 @@ import {
   UseQueryArgs,
   UseQueryResponse,
   UseQueryState,
-  dedupExchange,
   errorExchange,
   fetchExchange,
   useQuery,
@@ -27,7 +25,7 @@ import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
 const cache = cacheExchange<GraphCacheConfig>({
-  schema: schema as unknown as IntrospectionQuery,
+  schema: schema as NonNullable<GraphCacheConfig["schema"]>,
   keys: {
     // TODO: Check for cache keys identifiers
     // https://studio.apollographql.com/graph/swan-io-admin/schema/reference/objects
@@ -146,7 +144,7 @@ export const partnerApiClient = new Client({
   fetchOptions: {
     credentials: "include",
   },
-  exchanges: [dedupExchange, cache, requestIdExchange, errorExchange({ onError }), fetchExchange],
+  exchanges: [cache, requestIdExchange, errorExchange({ onError }), fetchExchange],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

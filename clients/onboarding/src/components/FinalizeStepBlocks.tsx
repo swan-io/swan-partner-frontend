@@ -3,18 +3,15 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CSSProperties, Fragment } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { formatNestedMessage, t } from "../utils/i18n";
+import { t } from "../utils/i18n";
 import { CompanyOnboardingRoute, IndividualOnboardingRoute, Router } from "../utils/routes";
 import { getErrorFieldLabel } from "../utils/templateTranslations";
 
@@ -41,22 +38,6 @@ const styles = StyleSheet.create({
   },
   tile: {
     paddingVertical: spacings[16],
-  },
-  tcu: {
-    paddingHorizontal: spacings[24],
-    marginHorizontal: "auto",
-  },
-  tcuCheckbox: {
-    top: 3, // center checkbox with text
-  },
-  tcuLink: {
-    color: colors.partner[500],
-    textDecorationLine: "underline",
-  },
-  tcuLinkIcon: {
-    marginLeft: spacings[4],
-    display: "inline-block",
-    verticalAlign: "middle",
   },
 });
 
@@ -161,53 +142,3 @@ export const FinalizeBlock = ({ isMobile }: { isMobile: boolean }) => {
     </>
   );
 };
-
-type TcuCheckboxProps = {
-  tcuUrl: string;
-  tcuDocumentUri: string | undefined;
-  projectName: string;
-  accepted: boolean;
-  error: string | undefined;
-  onAcceptChange: () => void;
-};
-
-export const TcuCheckbox = ({
-  tcuUrl,
-  tcuDocumentUri,
-  projectName,
-  accepted,
-  error,
-  onAcceptChange,
-}: TcuCheckboxProps) => (
-  <Box alignItems="start" style={styles.tcu}>
-    <Box direction="row" alignItems="start">
-      <Pressable aria-checked={accepted} onPress={onAcceptChange} style={styles.tcuCheckbox}>
-        <LakeCheckbox value={accepted} isError={isNotNullish(error)} />
-      </Pressable>
-
-      <Space width={12} />
-
-      <LakeText>
-        {formatNestedMessage("step.finalize.terms", {
-          firstLink: (
-            <Link target="blank" to={tcuUrl} style={styles.tcuLink}>
-              {t("emailPage.firstLink")}
-
-              <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
-            </Link>
-          ),
-          secondLink: (
-            <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.tcuLink}>
-              {t("emailPage.secondLink", { partner: projectName })}
-
-              <Icon name="open-filled" size={16} style={styles.tcuLinkIcon} />
-            </Link>
-          ),
-        })}
-      </LakeText>
-    </Box>
-
-    <Space height={4} />
-    <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
-  </Box>
-);

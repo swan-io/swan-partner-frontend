@@ -7,14 +7,10 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { useEffect } from "react";
-import {
-  FinalizeBlock,
-  FinalizeInvalidSteps,
-  TcuCheckbox,
-} from "../../components/FinalizeStepBlocks";
+import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { AccountCountry, IdentificationLevel } from "../../graphql/unauthenticated";
+import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
 import { t } from "../../utils/i18n";
@@ -23,10 +19,6 @@ import { IndividualOnboardingRoute, Router } from "../../utils/routes";
 type Props = {
   onboardingId: string;
   legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel;
-  accountCountry: AccountCountry;
-  tcuUrl: string;
-  tcuDocumentUri: string | undefined;
-  projectName: string;
   steps: WizardStep<IndividualOnboardingRoute>[];
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;
@@ -35,18 +27,12 @@ type Props = {
 export const OnboardingIndividualFinalize = ({
   onboardingId,
   legalRepresentativeRecommendedIdentificationLevel,
-  accountCountry,
-  tcuUrl,
-  tcuDocumentUri,
-  projectName,
   steps,
   alreadySubmitted,
   onSubmitWithErrors,
 }: Props) => {
   const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
   const [shakeError, setShakeError] = useBoolean(false);
-  // only german account require TCU acceptance
-  const [tcuAccepted, setTcuAccepted] = useBoolean(accountCountry !== "DEU");
 
   useEffect(() => {
     if (shakeError) {
@@ -64,10 +50,6 @@ export const OnboardingIndividualFinalize = ({
   const onPressNext = () => {
     if (containsErrors) {
       setShakeError.on();
-      onSubmitWithErrors();
-      return;
-    }
-    if (!tcuAccepted) {
       onSubmitWithErrors();
       return;
     }
@@ -116,27 +98,6 @@ export const OnboardingIndividualFinalize = ({
           )}
         </ResponsiveContainer>
       </OnboardingStepContent>
-
-      {accountCountry === "DEU" && (
-        <>
-          <Space height={12} />
-
-          <TcuCheckbox
-            tcuUrl={tcuUrl}
-            tcuDocumentUri={tcuDocumentUri}
-            projectName={projectName}
-            accepted={tcuAccepted}
-            error={
-              alreadySubmitted && !containsErrors && !tcuAccepted
-                ? t("step.finalize.termsError")
-                : undefined
-            }
-            onAcceptChange={setTcuAccepted.toggle}
-          />
-
-          <Space height={12} />
-        </>
-      )}
 
       <OnboardingFooter
         nextLabel={t("wizard.finalize")}

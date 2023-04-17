@@ -30,7 +30,9 @@ import {
 } from "@swan-io/shared-business/src/components/BeneficiaryForm";
 import {
   CountryCCA3,
+  getCCA3forCCA2,
   getCountryNameByCCA3,
+  isCountryCCA2,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
@@ -149,7 +151,9 @@ const convertFetchUboToInput = (
     lastName: fetchedUbo.lastName ?? "",
     birthCountryCode: isCountryCCA3(fetchedUbo.birthCountryCode)
       ? fetchedUbo.birthCountryCode
-      : accountCountry,
+      : isCountryCCA2(fetchedUbo.birthCountryCode)
+      ? getCCA3forCCA2(fetchedUbo.birthCountryCode)
+      : undefined,
     birthCity: fetchedUbo.birthCity ?? "",
     birthCityPostalCode: fetchedUbo.birthCityPostalCode ?? "",
     // Slice to remove the time part because the backend sends a DateTime instead of a Date

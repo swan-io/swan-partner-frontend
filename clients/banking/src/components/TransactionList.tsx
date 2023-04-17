@@ -58,8 +58,8 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     renderCell: ({ item }) => <TransactionNameCell transaction={item} />,
   },
   {
-    id: "fees",
-    width: 120,
+    id: "method",
+    width: 160,
     title: t("transactions.method"),
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
     renderCell: ({ item }) => <TransactionMethodCell transaction={item} />,

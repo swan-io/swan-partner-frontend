@@ -110,6 +110,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     .otherwise(() => null);
 
   const truncatesTransactionId = truncateTransactionId(transaction.id);
+
   const transactionId = (
     <LakeLabel
       type="viewSmall"
@@ -130,17 +131,19 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
       )}
     />
   );
+
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
         <Tile
           style={styles.tile}
-          footer={match(transaction.statusInfo)
-            .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => (
+          footer={match(transaction)
+            .with({ originTransactionId: P.string }, () => (
+              // TODO: switch this condition with the next one to display the warning message as soon as the back had fixed its issue
               <LakeAlert
-                anchored={true}
-                title={getTransactionRejectedReasonLabel(reason)}
-                variant="error"
+                variant="warning"
+                title={t("transaction.instantTransferUnavailable")}
+                children={t("transaction.instantTransferUnavailable.description")}
               />
             ))
             .otherwise(() => null)}

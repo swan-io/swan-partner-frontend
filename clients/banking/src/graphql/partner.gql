@@ -11,6 +11,7 @@ fragment TransactionDetails on Transaction {
     id
     createdAt
   }
+  originTransactionId
   statusInfo {
     status
     __typename

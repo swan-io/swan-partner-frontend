@@ -124,22 +124,6 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
           </>
         ))
         .otherwise(() => null)}
-
-      {match(transaction.type)
-        .with(
-          "SepaInstantCreditTransferIn",
-          "SepaInstantCreditTransferOut",
-          "InternalCreditTransferIn",
-          "InternalCreditTransferOut",
-          () => (
-            <>
-              <Space width={16} />
-              <Tag color="shakespear">{t("transactionType.instant")}</Tag>
-            </>
-          ),
-        )
-
-        .otherwise(() => null)}
     </View>
   );
 };
@@ -154,8 +138,12 @@ export const TransactionMethodCell = ({ transaction }: { transaction: Transactio
           .with({ __typename: "FeeTransaction" }, () => t("transactions.method.Fees"))
           .with(
             { __typename: "InternalCreditTransfer" },
-            { __typename: "SEPACreditTransferTransaction" },
-            () => t("transactions.method.Transfer"),
+            { type: "SepaInstantCreditTransferIn" },
+            { type: "SepaInstantCreditTransferOut" },
+            () => t("transactions.method.InstantTransfer"),
+          )
+          .with({ __typename: "SEPACreditTransferTransaction" }, () =>
+            t("transactions.method.Transfer"),
           )
           .with(
             { __typename: "InternalDirectDebitTransaction" },
@@ -275,22 +263,6 @@ export const TransactionSummaryCell = ({ transaction }: { transaction: Transacti
               <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
             </>
           ))
-          .otherwise(() => null)}
-
-        {match(transaction.type)
-          .with(
-            "SepaInstantCreditTransferIn",
-            "SepaInstantCreditTransferOut",
-            "InternalCreditTransferIn",
-            "InternalCreditTransferOut",
-            () => (
-              <>
-                <Space width={12} height={4} />
-                <Tag color="shakespear">{t("transactionType.instant")}</Tag>
-              </>
-            ),
-          )
-
           .otherwise(() => null)}
       </View>
     </View>

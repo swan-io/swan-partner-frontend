@@ -56,12 +56,12 @@ export const TransactionsArea = ({
   canViewAccountStatement,
   onBalanceReceive,
 }: Props) => {
-  const [{ data }, reload] = useQuery({
+  const [{ data }] = useQuery({
     query: GetAccountBalanceDocument,
     variables: { accountId },
   });
-  const route = Router.useRoute(accountTransactionsRoutes);
 
+  const route = Router.useRoute(accountTransactionsRoutes);
   const account = data?.account;
   const availableBalance = account?.balances?.available;
 
@@ -162,7 +162,6 @@ export const TransactionsArea = ({
                 <UpcomingTransactionListPage
                   accountId={accountId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
-                  onReceiveData={reload}
                 />
               );
             })

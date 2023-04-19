@@ -1557,7 +1557,8 @@ query UpcomingTransactionListPage(
   $after: String
 ) {
   account(accountId: $accountId) {
-    id
+    ...AccountBalances
+
     number
     name
     transactions(
@@ -1807,15 +1808,21 @@ query GetTransactionDetails($transactionId: ID!, $canQueryCardOnTransaction: Boo
   }
 }
 
+fragment AccountBalances on Account {
+  __typename
+  id
+  balances {
+    available {
+      value
+      currency
+    }
+  }
+}
+
 query GetAccountBalance($accountId: ID!) {
   account(accountId: $accountId) {
-    id
-    balances {
-      available {
-        currency
-        value
-      }
-    }
+    ...AccountBalances
+
     upcomingTransactions: transactions(filters: { status: Upcoming }) {
       totalCount
     }

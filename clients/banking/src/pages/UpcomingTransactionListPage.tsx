@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -7,8 +7,7 @@ import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { P, match } from "ts-pattern";
+import { useCallback, useRef, useState } from "react";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
@@ -20,14 +19,9 @@ const NUM_TO_RENDER = 20;
 type Props = {
   accountId: string;
   canQueryCardOnTransaction: boolean;
-  onReceiveData: () => void;
 };
 
-export const UpcomingTransactionListPage = ({
-  accountId,
-  canQueryCardOnTransaction,
-  onReceiveData,
-}: Props) => {
+export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransaction }: Props) => {
   const { data, nextData, setAfter } = useUrqlPaginatedQuery(
     {
       query: UpcomingTransactionListPageDocument,
@@ -48,14 +42,6 @@ export const UpcomingTransactionListPage = ({
     .flatMap(data => Option.fromNullable(data.account?.transactions))
     .map(({ edges }) => edges.map(({ node }) => node))
     .getWithDefault([]);
-
-  useEffect(() => {
-    match(data)
-      .with(AsyncData.pattern.Done(Result.pattern.Ok(P._)), () => {
-        onReceiveData();
-      })
-      .otherwise(() => {});
-  }, [data, onReceiveData]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 

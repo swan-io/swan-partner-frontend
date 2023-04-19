@@ -73,7 +73,6 @@ const cache = cacheExchange<GraphCacheConfig>({
     SupportingDocumentPurpose: _data => null,
     SupportingDocumentSettings: _data => null,
     ValidIban: ({ iban }) => iban ?? null,
-    WebBankingSettings: _data => null,
   },
 
   resolvers: {

@@ -34,12 +34,24 @@ partnerIntrospection
     process.exit(1);
   });
 
+const ignoredObjects = new Set([
+  "Query",
+  "Mutation",
+  "Subscription",
+  "__Schema",
+  "__Type",
+  "__Field",
+  "__InputValue",
+  "__EnumValue",
+  "__Directive",
+]);
+
 void partnerIntrospection.then(x => {
   const idLessObjects = x.__schema.types
     .filter(
       item =>
-        !item.name.startsWith("_") &&
         item.kind === "OBJECT" &&
+        !ignoredObjects.has(item.name) &&
         !item.fields.some(field => field.name === "id"),
     )
     .map(item => item.name);
@@ -78,8 +90,8 @@ void unauthenticatedIntrospection.then(x => {
   const idLessObjects = x.__schema.types
     .filter(
       item =>
-        !item.name.startsWith("_") &&
         item.kind === "OBJECT" &&
+        !ignoredObjects.has(item.name) &&
         !item.fields.some(field => field.name === "id"),
     )
     .map(item => item.name);

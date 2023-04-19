@@ -45,7 +45,7 @@ void partnerIntrospection.then(x => {
     .map(item => item.name);
   fs.writeFileSync(
     path.join(__dirname, "dist/partner-idless-objects.json"),
-    JSON.stringify(idLessObjects, null, 2),
+    JSON.stringify(idLessObjects, null, 2) + "\n",
     "utf-8",
   );
 });
@@ -85,7 +85,7 @@ void unauthenticatedIntrospection.then(x => {
     .map(item => item.name);
   fs.writeFileSync(
     path.join(__dirname, "dist/unauthenticated-idless-objects.json"),
-    JSON.stringify(idLessObjects, null, 2),
+    JSON.stringify(idLessObjects, null, 2) + "\n",
     "utf-8",
   );
 });

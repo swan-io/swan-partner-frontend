@@ -1,4 +1,3 @@
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Exchange, Operation, OperationResult, makeOperation } from "@urql/core";
 import { map, pipe, tap } from "wonka";
 
@@ -12,10 +11,7 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
       return operation;
     }
 
-    const lastOccurrence = operations.get(operation.key);
-    const currentTime = new Date().getTime();
-
-    if (isNotNullish(lastOccurrence) && currentTime - lastOccurrence <= RENDER_LEEWAY) {
+    if (new Date().getTime() - (operations.get(operation.key) ?? 0) <= RENDER_LEEWAY) {
       return makeOperation(operation.kind, operation, {
         ...operation.context,
         requestPolicy: "cache-only",
@@ -26,15 +22,8 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
   };
 
   const processIncomingResults = ({ operation }: OperationResult): void => {
-    const lastOccurrence = operations.get(operation.key);
-    const currentTime = new Date().getTime();
-
-    if (isNullish(lastOccurrence) || currentTime - lastOccurrence > RENDER_LEEWAY) {
-      operations.set(operation.key, currentTime);
-    }
-
-    if (operation.context.requestPolicy === "cache-only") {
-      operations.delete(operation.key);
+    if (operation.context.requestPolicy === "network-only") {
+      operations.set(operation.key, new Date().getTime());
     }
   };
 

@@ -26,7 +26,6 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
   };
 
   const processIncomingResults = ({ operation }: OperationResult): void => {
-    const { meta } = operation.context;
     const lastOccurrence = operations.get(operation.key);
     const currentTime = new Date().getTime();
 
@@ -34,7 +33,7 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
       operations.set(operation.key, currentTime);
     }
 
-    if (isNotNullish(meta) && meta.cacheOutcome !== "miss") {
+    if (operation.context.requestPolicy === "cache-only") {
       operations.delete(operation.key);
     }
   };

@@ -12,8 +12,8 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
       return operation;
     }
 
-    const currentTime = new Date().getTime();
     const lastOccurrence = operations.get(operation.key);
+    const currentTime = new Date().getTime();
 
     if (isNotNullish(lastOccurrence) && currentTime - lastOccurrence <= RENDER_LEEWAY) {
       return makeOperation(operation.kind, operation, {
@@ -27,8 +27,8 @@ export const suspenseDedupExchange: Exchange = ({ forward }) => {
 
   const processIncomingResults = ({ operation }: OperationResult): void => {
     const { meta } = operation.context;
-    const currentTime = new Date().getTime();
     const lastOccurrence = operations.get(operation.key);
+    const currentTime = new Date().getTime();
 
     if (isNullish(lastOccurrence) || currentTime - lastOccurrence > RENDER_LEEWAY) {
       operations.set(operation.key, currentTime);

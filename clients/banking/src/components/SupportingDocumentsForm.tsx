@@ -255,15 +255,22 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             id: supportingDocumentId,
             name: file.name,
             progress: 0,
-            finished: false,
+            status: "UPLOADING",
           };
 
-          const finalState: LocalDocument = {
+          const finalStateFinished: LocalDocument = {
             purpose,
             id: supportingDocumentId,
             name: file.name,
-            progress: 100,
-            finished: true,
+            status: "FINISHED",
+          };
+
+          const finalStateError: LocalDocument = {
+            purpose,
+            id: supportingDocumentId,
+            name: file.name,
+            error: t("error.generic"),
+            status: "FAILED",
           };
 
           setLocalDocuments(prevState => [...prevState, initialState]);
@@ -276,7 +283,7 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item)) {
+              if (isNotNullish(item) && item.status === "UPLOADING") {
                 clone[index] = {
                   ...item,
                   progress,
@@ -290,15 +297,20 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
           };
 
           xhr.onload = () => {
+            const uploadFailed = xhr.status !== 200 && xhr.status !== 204;
             setLocalDocuments(prevState => {
               const clone = [...prevState];
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
               if (isNotNullish(item)) {
-                clone[index] = finalState;
+                if (uploadFailed) {
+                  clone[index] = finalStateError;
+                } else {
+                  clone[index] = finalStateFinished;
+                }
               } else {
-                clone.push(finalState);
+                clone.push(finalStateFinished);
               }
 
               return clone;
@@ -311,7 +323,9 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
 
           xhr.send(formData);
         })
-        .catch(console.error);
+        .catch(() => {
+          showToast({ variant: "error", title: t("error.generic") });
+        });
     };
 
     return (

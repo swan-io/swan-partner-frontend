@@ -17,6 +17,7 @@ import {
   fetchExchange,
   useQuery,
 } from "urql";
+import idLessObjects from "../../../../scripts/graphql/dist/partner-idless-objects.json";
 import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
@@ -27,53 +28,8 @@ import { Router } from "./routes";
 const cache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
   keys: {
-    // TODO: Check for cache keys identifiers
-    // https://studio.apollographql.com/graph/swan-io-admin/schema/reference/objects
-    AccountBalances: _data => null,
-    AccountHolderCompanyInfo: _data => null,
-    AccountHolderIndividualInfo: _data => null,
-    AccountMembershipBindingUserErrorStatusInfo: _data => null,
-    AccountMembershipConsentPendingStatusInfo: _data => null,
-    AccountMembershipDisabledStatusInfo: _data => null,
-    AccountMembershipEnabledStatusInfo: _data => null,
-    AccountMembershipInvitationSentStatusInfo: _data => null,
-    AccountOpenedStatus: _data => null,
-    Address: _data => null,
-    AddressInfo: _data => null,
-    Amount: _data => null,
-    Authenticator: _data => null,
-    Bank: _data => null,
-    BookedTransactionStatusInfo: _data => null,
-    CanceledTransactionStatusInfo: _data => null,
-    CardCanceledStatusInfo: _data => null,
-    CardConsentPendingStatusInfo: _data => null,
-    CardEnabledStatusInfo: _data => null,
-    IdentificationLevels: _data => null,
-    InvalidIban: ({ iban }) => iban ?? null,
-    PdfStatement: _data => null,
-    PendingTransactionStatusInfo: _data => null,
-    PhysicalCard: _data => null,
-    PhysicalCardToActivateStatusInfo: _data => null,
-    Reachability: _data => null,
-    RejectedTransactionStatusInfo: _data => null,
-    ReleasedTransactionStatusInfo: _data => null,
-    RestrictedTo: _data => null,
-    SEPABeneficiary: _data => null, // contains an ID by it's always null
-    SEPADirectDebitOutCreditor: _data => null,
-    SEPACreditTransferInCreditor: _data => null,
-    SEPACreditTransferInDebtor: _data => null,
-    SEPACreditTransferOutCreditor: _data => null,
-    SEPACreditTransferOutDebtor: _data => null,
-    Spending: _data => null,
-    SpendingLimit: _data => null,
-    StandingOrderCanceledStatusInfo: _data => null,
-    StandingOrderEnabledStatusInfo: _data => null,
-    SupportingDocumentCollectionApprovedStatusInfo: _data => null,
-    SupportingDocumentCollectionPendingReviewStatusInfo: _data => null,
-    SupportingDocumentPurpose: _data => null,
-    SupportingDocumentSettings: _data => null,
+    ...Object.fromEntries(idLessObjects.map(item => [item, (_: unknown) => null])),
     ValidIban: ({ iban }) => iban ?? null,
-    WebBankingSettings: _data => null,
   },
 
   resolvers: {

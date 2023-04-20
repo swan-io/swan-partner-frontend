@@ -255,14 +255,14 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             id: supportingDocumentId,
             name: file.name,
             progress: 0,
-            status: "UPLOADING",
+            status: "uploading",
           };
 
           const finalStateFinished: LocalDocument = {
             purpose,
             id: supportingDocumentId,
             name: file.name,
-            status: "FINISHED",
+            status: "finished",
           };
 
           const finalStateError: LocalDocument = {
@@ -270,7 +270,7 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             id: supportingDocumentId,
             name: file.name,
             error: t("error.generic"),
-            status: "FAILED",
+            status: "failed",
           };
 
           setLocalDocuments(prevState => [...prevState, initialState]);
@@ -283,7 +283,7 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item) && item.status === "UPLOADING") {
+              if (isNotNullish(item) && item.status === "uploading") {
                 clone[index] = {
                   ...item,
                   progress,

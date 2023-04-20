@@ -21,12 +21,40 @@ import idLessObjects from "../../../../scripts/graphql/dist/partner-idless-objec
 import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
+import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
 import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
-const cache = cacheExchange<GraphCacheConfig>({
+const onError = (error: CombinedError, operation: Operation) => {
+  const response = error.response as Partial<Response> | undefined;
+  const is401 =
+    response?.status === 401 ||
+    error.graphQLErrors.some(error => error.message === "401: Unauthorized");
+
+  if (is401) {
+    const { path } = getLocation();
+
+    if (last(path) === "login") {
+      return;
+    }
+
+    Router.push("ProjectLogin");
+  } else {
+    logBackendError(error, operation);
+  }
+};
+
+export const unauthenticatedContext: OperationContext = {
+  url: `/api/unauthenticated`,
+  requestPolicy: "network-only",
+  suspense: true,
+  fetchOptions: () => ({ credentials: "include" }),
+};
+
+const partnerApiCache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
+
   keys: {
     ...Object.fromEntries(idLessObjects.map(item => [item, (_: unknown) => null])),
     ValidIban: ({ iban }) => iban ?? null,
@@ -62,32 +90,6 @@ const cache = cacheExchange<GraphCacheConfig>({
   },
 });
 
-const onError = (error: CombinedError, operation: Operation) => {
-  const response = error.response as Partial<Response> | undefined;
-  const is401 =
-    response?.status === 401 ||
-    error.graphQLErrors.some(error => error.message === "401: Unauthorized");
-
-  if (is401) {
-    const { path } = getLocation();
-
-    if (last(path) === "login") {
-      return;
-    }
-
-    Router.push("ProjectLogin");
-  } else {
-    logBackendError(error, operation);
-  }
-};
-
-export const unauthenticatedContext: OperationContext = {
-  url: `/api/unauthenticated`,
-  requestPolicy: "network-only",
-  suspense: true,
-  fetchOptions: () => ({ credentials: "include" }),
-};
-
 export const partnerApiClient = new Client({
   url: match(projectConfiguration)
     .with(
@@ -95,12 +97,17 @@ export const partnerApiClient = new Client({
       projectId => `/api/projects/${projectId}/partner`,
     )
     .otherwise(() => `/api/partner`),
+
   requestPolicy: "network-only",
   suspense: true,
-  fetchOptions: {
-    credentials: "include",
-  },
-  exchanges: [cache, requestIdExchange, errorExchange({ onError }), fetchExchange],
+  fetchOptions: { credentials: "include" },
+  exchanges: [
+    suspenseDedupExchange,
+    partnerApiCache,
+    requestIdExchange,
+    errorExchange({ onError }),
+    fetchExchange,
+  ],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

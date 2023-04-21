@@ -13,8 +13,8 @@ import {
   fetchExchange,
   useQuery,
 } from "urql";
-import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";
+import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { logBackendError } from "./logger";

@@ -26,28 +26,26 @@ scalars: &SCALARS
   SepaCreditorIdentifier: string
   SepaReference: string
   TokenRequestorId: string
-  Upload: unknown
   URL: string
+  Upload: unknown
   WalletToken: string
   join__FieldSet: unknown
 
-documents-plugins: &DOCUMENTS_PLUGINS
+client-plugins: &CLIENT_PLUGINS
   - "typescript"
   - "typescript-operations"
   - "typed-document-node"
-
-graphcache-plugins: &GRAPHCACHE_PLUGINS
-  - "typescript"
   - "typescript-urql-graphcache"
 
-documents-config: &DOCUMENTS_CONFIG
+client-config: &CLIENT_CONFIG
   scalars: *SCALARS
   dedupeOperationSuffix: true
   enumsAsTypes: true
   preResolveTypes: true
   skipTypename: false
-  nonOptionalTypename: true
-  onlyOperationTypes: true
+  nonOptionalTypename: false
+  onlyOperationTypes: false
+  defaultScalarType: unknown
   inlineFragmentTypes: combine
 
 server-plugins: &SERVER_PLUGINS
@@ -56,50 +54,50 @@ server-plugins: &SERVER_PLUGINS
   - "typescript-graphql-request"
 
 server-config: &SERVER_CONFIG
+  scalars: *SCALARS
   enumsAsTypes: true
   federation: true
   defaultScalarType: unknown
-  scalars:
-    AccountNumber: string
-  inlineFragmentTypes: combine
-
-graphcache-config: &GRAPHCACHE_CONFIG
-  scalars: *SCALARS
-  enumsAsTypes: true
-  nonOptionalTypename: true
-  onlyOperationTypes: false
-  skipTypename: false
   inlineFragmentTypes: combine
 
 generates:
-  clients/onboarding/src/graphql/unauthenticated.tsx:
+  clients/onboarding/src/graphql/unauthenticated.ts:
     documents: "clients/onboarding/src/graphql/unauthenticated.gql"
     schema: "scripts/graphql/dist/unauthenticated-schema.gql"
-    plugins: *DOCUMENTS_PLUGINS
-    config: *DOCUMENTS_CONFIG
+    plugins: *CLIENT_PLUGINS
+    config: *CLIENT_CONFIG
 
-  clients/onboarding/src/graphql/graphcache.ts:
-    schema:
-      - "scripts/graphql/dist/unauthenticated-schema.gql"
-    plugins: *GRAPHCACHE_PLUGINS
-    config: *GRAPHCACHE_CONFIG
+  clients/onboarding/src/graphql/introspection.json:
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    plugins:
+      - "introspection"
+    config:
+      descriptions: false
+    hooks:
+      afterOneFileWrite:
+        - "node scripts/graphql/cleanIntrospectionSchema.js"
 
-  clients/banking/src/graphql/partner.tsx:
+  clients/banking/src/graphql/partner.ts:
     documents: "clients/banking/src/graphql/partner.gql"
     schema: "scripts/graphql/dist/partner-schema.gql"
-    plugins: *DOCUMENTS_PLUGINS
-    config: *DOCUMENTS_CONFIG
+    plugins: *CLIENT_PLUGINS
+    config: *CLIENT_CONFIG
 
-  clients/banking/src/graphql/unauthenticated.tsx:
+  clients/banking/src/graphql/unauthenticated.ts:
     documents: "clients/banking/src/graphql/unauthenticated.gql"
     schema: "scripts/graphql/dist/unauthenticated-schema.gql"
-    plugins: *DOCUMENTS_PLUGINS
-    config: *DOCUMENTS_CONFIG
+    plugins: *CLIENT_PLUGINS
+    config: *CLIENT_CONFIG
 
-  clients/banking/src/graphql/graphcache.ts:
+  clients/banking/src/graphql/introspection.json:
     schema: "scripts/graphql/dist/partner-schema.gql"
-    plugins: *GRAPHCACHE_PLUGINS
-    config: *GRAPHCACHE_CONFIG
+    plugins:
+      - "introspection"
+    config:
+      descriptions: false
+    hooks:
+      afterOneFileWrite:
+        - "node scripts/graphql/cleanIntrospectionSchema.js"
 
   server/src/graphql/partner.ts:
     documents: "server/src/graphql/partner.gql"
@@ -112,23 +110,3 @@ generates:
     schema: "scripts/graphql/dist/unauthenticated-schema.gql"
     config: *SERVER_CONFIG
     plugins: *SERVER_PLUGINS
-
-  clients/banking/src/graphql/introspection.json:
-    schema: "scripts/graphql/dist/partner-schema.gql"
-    plugins:
-      - "introspection"
-    config:
-      descriptions: false
-    hooks:
-      afterOneFileWrite:
-        - "node scripts/graphql/cleanIntrospectionSchema.js"
-
-  clients/onboarding/src/graphql/introspection.json:
-    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
-    plugins:
-      - "introspection"
-    config:
-      descriptions: false
-    hooks:
-      afterOneFileWrite:
-        - "node scripts/graphql/cleanIntrospectionSchema.js"

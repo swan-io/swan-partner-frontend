@@ -18,8 +18,8 @@ import {
   useQuery,
 } from "urql";
 import idLessObjects from "../../../../scripts/graphql/dist/partner-idless-objects.json";
-import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";
+import { GraphCacheConfig } from "../graphql/partner";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
 import { logBackendError } from "./logger";
@@ -28,6 +28,7 @@ import { Router } from "./routes";
 
 const onError = (error: CombinedError, operation: Operation) => {
   const response = error.response as Partial<Response> | undefined;
+
   const is401 =
     response?.status === 401 ||
     error.graphQLErrors.some(error => error.message === "401: Unauthorized");
@@ -52,7 +53,7 @@ export const unauthenticatedContext: OperationContext = {
   fetchOptions: () => ({ credentials: "include" }),
 };
 
-const partnerApiCache = cacheExchange<GraphCacheConfig>({
+const partnerCache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
 
   keys: {
@@ -103,7 +104,7 @@ export const partnerClient = new Client({
   fetchOptions: { credentials: "include" },
   exchanges: [
     suspenseDedupExchange,
-    partnerApiCache,
+    partnerCache,
     requestIdExchange,
     errorExchange({ onError }),
     fetchExchange,

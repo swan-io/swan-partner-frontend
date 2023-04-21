@@ -8,6 +8,8 @@ const RENDER_LEEWAY = 500;
  * fired twice: one at initial component render: suspense throw a promise, go up
  * in the react tree to display a loader, then render the app with data, reexecuting
  * the urql useQuery hook.
+ *
+ * This might be solve with the future `use` hook: https://github.com/reactjs/rfcs/pull/229
  */
 export const suspenseDedupExchange: Exchange = ({ forward }) => {
   const operations = new Map<number, number>();

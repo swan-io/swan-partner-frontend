@@ -5,7 +5,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { colors, defaultAccentColor } from "@swan-io/lake/src/constants/colors";
 import { Suspense } from "react";
 import { P, match } from "ts-pattern";
-import { Provider as UrqlProvider } from "urql";
+import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { GetOnboardingDocument } from "./graphql/unauthenticated";
@@ -17,7 +17,7 @@ import { OnboardingIndividualWizard } from "./pages/v2individual/OnboardingIndiv
 import { env } from "./utils/env";
 import { locale } from "./utils/i18n";
 import { Router } from "./utils/routes";
-import { urql, useQueryWithErrorBoundary } from "./utils/urql";
+import { client, useQueryWithErrorBoundary } from "./utils/urql";
 
 type Props = {
   onboardingId: string;
@@ -87,7 +87,7 @@ export const App = () => {
   return (
     <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
       <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
-        <UrqlProvider value={urql}>
+        <ClientProvider value={client}>
           {match(route)
             .with({ name: "PopupCallback" }, ({ params: { redirectUrl, accountMembershipId } }) => (
               <PopupCallbackPage
@@ -100,7 +100,7 @@ export const App = () => {
             ))
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}
-        </UrqlProvider>
+        </ClientProvider>
       </Suspense>
 
       <ToastStack />

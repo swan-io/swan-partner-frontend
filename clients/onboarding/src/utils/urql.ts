@@ -31,7 +31,7 @@ const cache = cacheExchange<GraphCacheConfig>({
   },
 });
 
-export const urql = new Client({
+export const client = new Client({
   fetchOptions: () => ({ credentials: "include" }),
   requestPolicy: "network-only",
   suspense: true,

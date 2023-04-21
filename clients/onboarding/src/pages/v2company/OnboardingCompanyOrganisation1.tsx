@@ -38,7 +38,7 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../utils/templateTranslations";
-import { parseOperationResult, urql } from "../../utils/urql";
+import { client, parseOperationResult } from "../../utils/urql";
 import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
@@ -256,7 +256,7 @@ export const OnboardingCompanyOrganisation1 = ({
   const onSelectCompany = useCallback(
     (suggestion: CompanySuggestion) => {
       // once a company is selected from auto-completion, we query our API to get some informations not available with auto-completion
-      urql
+      client
         .query(
           GetCompanyInfoDocument,
           { siren: suggestion.siren },

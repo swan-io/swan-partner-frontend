@@ -14,7 +14,6 @@ import fs from "node:fs";
 import path from "node:path";
 import url from "node:url";
 import { P, match } from "ts-pattern";
-import { version } from "../package.json";
 import {
   OAuth2State,
   createAuthUrl,
@@ -37,9 +36,12 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
-import { renderAuthError, renderError } from "./views/error";
+import { renderAuthError, renderError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const packageJson = JSON.parse(
+  fs.readFileSync(path.join(dirname, "../package.json"), "utf-8"),
+) as unknown as { version: string };
 
 const COOKIE_MAX_AGE = 7_776_000; // 90 days
 const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
@@ -598,7 +600,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
 
   app.get("/health", async (request, reply) => {
     return reply.header("cache-control", `public, max-age=0`).status(200).send({
-      version,
+      version: packageJson.version,
       date: new Date().toISOString(),
       env: env.NODE_ENV,
     });

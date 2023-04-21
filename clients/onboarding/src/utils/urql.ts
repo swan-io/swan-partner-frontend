@@ -13,6 +13,7 @@ import {
   fetchExchange,
   useQuery,
 } from "urql";
+import { suspenseDedupExchange } from "../../../banking/src/utils/exchanges/suspenseDedupExchange";
 import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
@@ -33,11 +34,11 @@ const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
 });
 
 export const unauthenticatedClient = new Client({
-  fetchOptions: () => ({ credentials: "include" }),
+  url: `${env.BANKING_URL}/api/unauthenticated`,
   requestPolicy: "network-only",
   suspense: true,
-  url: `${env.BANKING_URL}/api/unauthenticated`,
   exchanges: [
+    suspenseDedupExchange,
     unauthenticatedCache,
     requestIdExchange,
     errorExchange({ onError: logBackendError }),

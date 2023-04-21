@@ -47,10 +47,9 @@ const onError = (error: CombinedError, operation: Operation) => {
 };
 
 export const unauthenticatedContext: OperationContext = {
-  url: `/api/unauthenticated`,
+  url: "/api/unauthenticated",
   requestPolicy: "network-only",
   suspense: true,
-  fetchOptions: () => ({ credentials: "include" }),
 };
 
 const partnerCache = cacheExchange<GraphCacheConfig>({

@@ -58,9 +58,6 @@ const styles = StyleSheet.create({
     ...commonStyles.fill,
     flexDirection: "column",
   },
-  tags: {
-    flexDirection: "row",
-  },
   spendingContainer: {
     ...commonStyles.fill,
   },
@@ -86,9 +83,6 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 1,
-  },
-  dimmed: {
-    opacity: 0.4,
   },
 });
 
@@ -127,7 +121,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
 
         <Space height={8} />
 
-        <View style={styles.tags}>
+        <Box direction="row">
           {match(card.type)
             .with("SingleUseVirtual", () => (
               <>
@@ -159,7 +153,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
               </Tag>
             ))
             .exhaustive()}
-        </View>
+        </Box>
       </View>
     </View>
   );
@@ -245,7 +239,7 @@ export const CardStatusCell = ({ card }: { card: Card }) => {
         .with(
           { statusInfo: { __typename: "CardCanceledStatusInfo" } },
           { statusInfo: { __typename: "CardCancelingStatusInfo" } },
-          () => <Tag color="gray">{t("cardList.status.Canceled")}</Tag>,
+          () => <Tag color="negative">{t("cardList.status.Canceled")}</Tag>,
         )
         .with(
           { statusInfo: { __typename: "CardEnabledStatusInfo" } },
@@ -260,18 +254,7 @@ export const CardStatusCell = ({ card }: { card: Card }) => {
 export const CardSummaryCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
   return (
-    <View
-      style={[
-        styles.cell,
-        match(card)
-          .with(
-            { statusInfo: { __typename: "CardCanceledStatusInfo" } },
-            { statusInfo: { __typename: "CardCancelingStatusInfo" } },
-            () => styles.dimmed,
-          )
-          .otherwise(() => null),
-      ]}
-    >
+    <View style={styles.cell}>
       <View>
         <Image source={{ uri: card.cardDesignUrl }} style={styles.cardDesignSmall} />
 
@@ -340,7 +323,20 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
         ) : null}
       </View>
 
-      <View style={styles.tags}>
+      <Box direction="row">
+        {match(card)
+          .with(
+            { statusInfo: { __typename: "CardCanceledStatusInfo" } },
+            { statusInfo: { __typename: "CardCancelingStatusInfo" } },
+            () => (
+              <>
+                <Tag color="negative" icon="subtract-circle-regular" />
+                <Space width={12} />
+              </>
+            ),
+          )
+          .otherwise(() => null)}
+
         {match(card.type)
           .with("SingleUseVirtual", () => (
             <>
@@ -370,7 +366,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
             />
           ))
           .exhaustive()}
-      </View>
+      </Box>
 
       <Space width={12} />
       <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />

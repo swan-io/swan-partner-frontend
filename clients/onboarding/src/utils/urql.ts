@@ -13,11 +13,11 @@ import {
   fetchExchange,
   useQuery,
 } from "urql";
-import { suspenseDedupExchange } from "../../../banking/src/utils/exchanges/suspenseDedupExchange";
 import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
+import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
 import { logBackendError } from "./logger";
 
 const unauthenticatedCache = cacheExchange<GraphCacheConfig>({

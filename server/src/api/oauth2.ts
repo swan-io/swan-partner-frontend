@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
-import { env } from "../env.js";
+import { env } from "../env";
 
 export type OAuth2State =
   | { id: string; type: "Redirect"; redirectTo?: string }

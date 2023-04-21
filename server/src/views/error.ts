@@ -2,12 +2,9 @@ import { FastifyReply } from "fastify";
 import fs from "node:fs";
 import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node:http2";
 import path from "node:path";
-import url from "node:url";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-
-const errorTemplate = fs.readFileSync(path.join(dirname, "error.html"), "utf-8");
-const authErrorTemplate = fs.readFileSync(path.join(dirname, "auth-error.html"), "utf-8");
+const errorTemplate = fs.readFileSync(path.join(__dirname, "error.html"), "utf-8");
+const authErrorTemplate = fs.readFileSync(path.join(__dirname, "auth-error.html"), "utf-8");
 
 export const renderError = (
   reply: FastifyReply<Http2SecureServer, Http2ServerRequest, Http2ServerResponse>,

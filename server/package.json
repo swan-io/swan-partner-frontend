@@ -4,23 +4,18 @@
   "version": "1.0.0",
   "private": true,
   "engines": {
-    "node": ">=14.0.0",
+    "node": ">=18.0.0",
     "yarn": "^1.20.0"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "start": "node src/index.js",
-    "build": "tsc -p tsconfig.json",
-    "prepack": "tsc --build",
-    "clean": "tsc --clean"
-  },
-  "devDependencies": {
-    "@types/mustache": "4.2.2",
-    "graphql": "16.6.0"
+    "start": "node dist",
+    "build": "yarn clean && tsc -p tsconfig.json && copyfiles src/**/*.html tmp && mv tmp/src dist && rimraf tmp",
+    "clean": "rimraf dist tmp",
+    "prepack": "yarn build"
   },
   "dependencies": {
     "@fastify/cors": "8.2.1",
@@ -29,7 +24,6 @@
     "@fastify/static": "6.9.0",
     "@fastify/view": "7.4.1",
     "@swan-io/boxed": "0.13.0",
-    "chalk": "5.2.0",
     "fast-proxy": "2.1.0",
     "fastify": "4.15.0",
     "fastify-jaeger": "1.0.2",
@@ -38,8 +32,15 @@
     "graphql-request": "5.1.0",
     "mustache": "4.2.0",
     "node-mailjet": "6.0.2",
+    "picocolors": "1.0.0",
     "pino-pretty": "10.0.0",
     "ts-pattern": "4.2.2",
     "valienv": "0.4.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "4.2.2",
+    "copyfiles": "2.4.1",
+    "graphql": "16.6.0",
+    "rimraf": "5.0.0"
   }
 }

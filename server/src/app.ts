@@ -12,7 +12,6 @@ import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
 import path from "node:path";
-import url from "node:url";
 import { P, match } from "ts-pattern";
 import { version } from "../package.json";
 import {
@@ -21,25 +20,23 @@ import {
   getOAuth2StatePattern,
   getTokenFromCode,
   refreshAccessToken,
-} from "./api/oauth2.js";
+} from "./api/oauth2";
 import {
   UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
   getProjectId,
   parseAccountCountry,
-} from "./api/partner.js";
+} from "./api/partner";
 import {
   OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/unauthenticated.js";
-import { HttpsConfig, startDevServer } from "./client/devServer.js";
-import { getProductionRequestHandler } from "./client/prodServer.js";
-import { env } from "./env.js";
+} from "./api/unauthenticated";
+import { HttpsConfig, startDevServer } from "./client/devServer";
+import { getProductionRequestHandler } from "./client/prodServer";
+import { env } from "./env";
 import { renderAuthError, renderError } from "./views/error";
-
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const COOKIE_MAX_AGE = 7_776_000; // 90 days
 const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
@@ -252,7 +249,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    */
   if (env.NODE_ENV != "development") {
     await app.register(fastifyStatic, {
-      root: path.join(dirname, "../dist"),
+      root: path.join(__dirname, "../dist"),
       wildcard: false,
     });
   }

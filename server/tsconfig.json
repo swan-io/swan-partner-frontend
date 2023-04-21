@@ -1,25 +1,31 @@
 {
   "include": ["src"],
-  "exclude": ["node_modules"],
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
-    "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "jsx": "react-jsx",
+    "module": "CommonJS",
+    "target": "ES2018",
+    "lib": ["DOM", "ESNext"],
     "moduleResolution": "Node",
+    "outDir": "tmp",
 
     "allowJs": false,
     "strict": true,
     "isolatedModules": true,
+    "noEmit": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
-    "incremental": false,
+    "incremental": true,
     "esModuleInterop": true,
+
+    "declaration": false,
+    "noEmitOnError": true,
+    "pretty": true,
+    "sourceMap": true,
 
     "allowSyntheticDefaultImports": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
+
     "typeRoots": ["types", "node_modules/@types"]
   }
 }

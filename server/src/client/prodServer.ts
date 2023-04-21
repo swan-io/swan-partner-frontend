@@ -2,10 +2,7 @@ import { FastifyReply, RouteHandlerMethod } from "fastify";
 import { Http2SecureServer } from "http2";
 import fs, { Stats } from "node:fs";
 import path from "node:path";
-import url from "node:url";
-import { env } from "../env.js";
-
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+import { env } from "../env";
 
 const yearInSeconds = 31536000;
 const yearInMilliseconds = yearInSeconds * 1000;
@@ -23,21 +20,21 @@ const handleRequest = async (
     const date = new Date();
     date.setTime(date.getTime() + yearInMilliseconds);
     await reply.header("expires", date.toUTCString());
-    return reply.sendFile(reqPath, path.join(dirname, "../../dist", appName));
+    return reply.sendFile(reqPath, path.join(__dirname, "../../dist", appName));
   } else {
     const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
       if (err == null && stat.isFile()) {
-        return reply.sendFile(reqPath, path.join(dirname, "../../dist", appName));
+        return reply.sendFile(reqPath, path.join(__dirname, "../../dist", appName));
       } else {
         // Prevents having old HTMLs in cache referencing assets that
         // do not longer exist in its files
         await reply.header("cache-control", `public, max-age=0`);
-        return reply.sendFile("/index.html", path.join(dirname, "../../dist", appName));
+        return reply.sendFile("/index.html", path.join(__dirname, "../../dist", appName));
       }
     };
 
     fs.stat(
-      path.join(dirname, "../../dist", appName, reqPath),
+      path.join(__dirname, "../../dist", appName, reqPath),
       (err, stat) => void handleRequest(err, stat),
     );
   }

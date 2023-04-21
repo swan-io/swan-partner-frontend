@@ -7,27 +7,24 @@
  */
 import { Future, Result } from "@swan-io/boxed";
 import { UnionToTuple } from "@swan-io/lake/src/utils/types";
-import chalk from "chalk";
 import fastifyJaeger from "fastify-jaeger";
 import Mailjet from "node-mailjet";
 import path from "node:path";
-import url from "node:url";
+import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
-import { exchangeToken } from "./api/oauth2.swan.js";
-import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner.js";
-import { getAccountMembershipInvitationData } from "./api/partner.swan.js";
+import { exchangeToken } from "./api/oauth2.swan";
+import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner";
+import { getAccountMembershipInvitationData } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/unauthenticated.js";
-import { InvitationConfig, start } from "./app.js";
-import { env } from "./env.js";
-import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
-import { renderError } from "./views/error.js";
-
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+} from "./api/unauthenticated";
+import { InvitationConfig, start } from "./app";
+import { env } from "./env";
+import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
+import { renderError } from "./views/error";
 
 const accountCountries: UnionToTuple<AccountCountry> = ["DEU", "ESP", "FRA"];
 
@@ -148,8 +145,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
+          key: path.join(__dirname, "../keys/_wildcard.swan.local-key.pem"),
+          cert: path.join(__dirname, "../keys/_wildcard.swan.local.pem"),
         }
       : undefined,
   sendAccountMembershipInvitation,
@@ -297,28 +294,28 @@ start({
     ports.forEach(port => void listenPort(port));
 
     console.log(``);
-    console.log(`${chalk.magenta("swan-partner-frontend")}`);
-    console.log(`${chalk.white("---")}`);
-    console.log(chalk.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
+    console.log(`${pc.magenta("swan-partner-frontend")}`);
+    console.log(`${pc.white("---")}`);
+    console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
     console.log(``);
-    console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
-    console.log(`${chalk.magenta("Onboarding Individual")}`);
+    console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
+    console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/individual/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.magenta("Onboarding Company")}`);
+    console.log(`${pc.magenta("Onboarding Company")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.white("---")}`);
+    console.log(`${pc.white("---")}`);
     console.log(``);
     console.log(``);
   },

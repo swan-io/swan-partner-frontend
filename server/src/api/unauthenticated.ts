@@ -1,8 +1,8 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
 import { P, match } from "ts-pattern";
-import { env } from "../env.js";
-import { AccountCountry, getSdk } from "../graphql/unauthenticated.js";
+import { env } from "../env";
+import { AccountCountry, getSdk } from "../graphql/unauthenticated";
 
 export const sdk = getSdk(new GraphQLClient(env.UNAUTHENTICATED_API_URL, { timeout: 30_000 }));
 

@@ -5,7 +5,7 @@ import http, { IncomingMessage, ServerResponse } from "node:http";
 import { Http2SecureServer } from "node:http2";
 import https from "node:https";
 import path from "node:path";
-import { env } from "../env.js";
+import { env } from "../env";
 
 export type HttpsConfig = {
   key: string;

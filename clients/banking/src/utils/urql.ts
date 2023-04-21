@@ -90,7 +90,7 @@ const partnerApiCache = cacheExchange<GraphCacheConfig>({
   },
 });
 
-export const partnerApiClient = new Client({
+export const partnerClient = new Client({
   url: match(projectConfiguration)
     .with(
       Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),

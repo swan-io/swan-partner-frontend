@@ -14,7 +14,7 @@ import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { partnerApiClient } from "./utils/urql";
+import { partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -36,7 +36,7 @@ export const App = () => {
       key={route?.name}
       fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
     >
-      <ClientProvider value={partnerApiClient}>
+      <ClientProvider value={partnerClient}>
         {match(route)
           .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
 

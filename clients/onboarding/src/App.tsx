@@ -17,7 +17,7 @@ import { OnboardingIndividualWizard } from "./pages/v2individual/OnboardingIndiv
 import { env } from "./utils/env";
 import { locale } from "./utils/i18n";
 import { Router } from "./utils/routes";
-import { client, useQueryWithErrorBoundary } from "./utils/urql";
+import { unauthenticatedClient, useQueryWithErrorBoundary } from "./utils/urql";
 
 type Props = {
   onboardingId: string;
@@ -87,7 +87,7 @@ export const App = () => {
   return (
     <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
       <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
-        <ClientProvider value={client}>
+        <ClientProvider value={unauthenticatedClient}>
           {match(route)
             .with({ name: "PopupCallback" }, ({ params: { redirectUrl, accountMembershipId } }) => (
               <PopupCallbackPage

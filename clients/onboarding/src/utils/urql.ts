@@ -19,8 +19,9 @@ import { env } from "./env";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { logBackendError } from "./logger";
 
-const cache = cacheExchange<GraphCacheConfig>({
+const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
+
   keys: {
     AddressInfo: _data => null,
     OnboardingCompanyAccountHolderInfo: _data => null,
@@ -31,12 +32,17 @@ const cache = cacheExchange<GraphCacheConfig>({
   },
 });
 
-export const client = new Client({
+export const unauthenticatedClient = new Client({
   fetchOptions: () => ({ credentials: "include" }),
   requestPolicy: "network-only",
   suspense: true,
   url: `${env.BANKING_URL}/api/unauthenticated`,
-  exchanges: [cache, requestIdExchange, errorExchange({ onError: logBackendError }), fetchExchange],
+  exchanges: [
+    unauthenticatedCache,
+    requestIdExchange,
+    errorExchange({ onError: logBackendError }),
+    fetchExchange,
+  ],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

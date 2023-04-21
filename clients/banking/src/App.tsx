@@ -5,7 +5,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { Suspense } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
-import { Provider as UrqlProvider } from "urql";
+import { Provider as ClientProvider } from "urql";
 import { AccountArea } from "./components/AccountArea";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
@@ -14,7 +14,7 @@ import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { partnerApiClient } from "./utils/urql";
+import { partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -36,7 +36,7 @@ export const App = () => {
       key={route?.name}
       fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
     >
-      <UrqlProvider value={partnerApiClient}>
+      <ClientProvider value={partnerClient}>
         {match(route)
           .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
 
@@ -66,7 +66,7 @@ export const App = () => {
 
           .with(P.nullish, () => <NotFoundPage style={styles.base} />)
           .exhaustive()}
-      </UrqlProvider>
+      </ClientProvider>
 
       <ToastStack />
     </ErrorBoundary>

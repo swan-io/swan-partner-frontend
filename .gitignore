@@ -3,15 +3,13 @@
 node_modules/
 
 clients/*/src/graphql/*.ts
-clients/*/src/graphql/*.tsx
-server/src/graphql/*.ts
-server/src/**/*.js
-server/src/graphql/*.tsx
 clients/*/src/graphql/introspection.json
-!scripts/graphql/dist/
-scripts/graphql/tmp
+server/src/**/*.js
+server/src/graphql/*.ts
 
+!scripts/graphql/dist/
 scripts/graphql/codegen-verify.yml
+scripts/graphql/tmp
 
 server/keys/_wildcard.swan.local-key.pem
 server/keys/_wildcard.swan.local.pem

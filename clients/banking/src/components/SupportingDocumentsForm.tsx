@@ -258,21 +258,6 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             status: "uploading",
           };
 
-          const finalStateFinished: LocalDocument = {
-            purpose,
-            id: supportingDocumentId,
-            name: file.name,
-            status: "finished",
-          };
-
-          const finalStateError: LocalDocument = {
-            purpose,
-            id: supportingDocumentId,
-            name: file.name,
-            error: t("error.generic"),
-            status: "failed",
-          };
-
           setLocalDocuments(prevState => [...prevState, initialState]);
 
           xhr.upload.onprogress = event => {
@@ -283,11 +268,8 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item) && item.status === "uploading") {
-                clone[index] = {
-                  ...item,
-                  progress,
-                };
+              if (item?.status === "uploading") {
+                clone[index] = { ...item, progress };
               } else {
                 clone.push(initialState);
               }
@@ -298,20 +280,36 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
 
           xhr.onload = () => {
             const uploadFailed = xhr.status !== 200 && xhr.status !== 204;
+
+            const finishedState: LocalDocument = {
+              purpose,
+              id: supportingDocumentId,
+              name: file.name,
+              status: "finished",
+            };
+
             setLocalDocuments(prevState => {
               const clone = [...prevState];
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item)) {
-                if (uploadFailed) {
-                  clone[index] = finalStateError;
-                } else {
-                  clone[index] = finalStateFinished;
-                }
-              } else {
-                clone.push(finalStateFinished);
+              if (isNullish(item)) {
+                clone.push(finishedState);
+                return clone;
               }
+
+              if (!uploadFailed) {
+                clone[index] = finishedState;
+                return clone;
+              }
+
+              clone[index] = {
+                purpose,
+                id: supportingDocumentId,
+                name: file.name,
+                error: t("error.generic"),
+                status: "failed",
+              };
 
               return clone;
             });

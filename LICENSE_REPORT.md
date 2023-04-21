@@ -5,20 +5,20 @@ Name | Version | License | URL | VendorUrl | VendorName
 @0no-co/graphql.web | 1.0.0 | MIT | https://github.com/0no-co/graphql.web | Unknown | 0no.co
 @fastify/cors | 8.2.1 | MIT | https://github.com/fastify/fastify-cors.git | https://github.com/fastify/fastify-cors#readme | Tomas Della Vedova - @delvedor
 @fastify/reply-from | 9.0.1 | MIT | https://github.com/fastify/fastify-reply-from.git | https://github.com/fastify/fastify-reply-from#readme | Matteo Collina
-@fastify/secure-session | 6.0.0 | MIT | https://github.com/fastify/fastify-secure-session.git | https://github.com/fastify/fastify-secure-session#readme | Matteo Collina
-@fastify/static | 6.9.0 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
+@fastify/secure-session | 6.1.0 | MIT | https://github.com/fastify/fastify-secure-session.git | https://github.com/fastify/fastify-secure-session#readme | Matteo Collina
+@fastify/static | 6.10.1 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
 @fastify/view | 7.4.1 | MIT | https://github.com/fastify/point-of-view.git | https://github.com/fastify/point-of-view#readme | Tomas Della Vedova - @delvedor
-@formatjs/intl | 2.7.0 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
-@sentry/react | 7.48.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
+@formatjs/intl | 2.7.1 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
+@sentry/react | 7.49.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
 @testing-library/react | 14.0.0 | MIT | https://github.com/testing-library/react-testing-library | https://github.com/testing-library/react-testing-library#readme | Kent C. Dodds
 @testing-library/user-event | 14.4.3 | MIT | https://github.com/testing-library/user-event | https://github.com/testing-library/user-event#readme | Giorgio Polvara
 @types/iban | 0.0.32 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | Unknown | Unknown
 @types/mustache | 4.2.2 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
-@types/react | 18.0.35 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
+@types/react | 18.0.37 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
 @types/react-dom | 18.0.11 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
-@types/react-native | 0.71.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
+@types/react-native | 0.71.6 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.1 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
-@urql/exchange-graphcache | 6.0.1 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | Unknown
+@urql/exchange-graphcache | 6.0.2 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | Unknown
 @vitejs/plugin-legacy | 4.0.2 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme | Evan You
 @vitejs/plugin-react-swc | 3.3.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
 chalk | 4.1.2 | MIT | https://github.com/chalk/chalk.git | Unknown | Unknown
@@ -36,7 +36,7 @@ graphql-request | 6.0.0 | MIT | https://github.com/jasonkuhrt/graphql-request.gi
 graphql-request | 5.1.0 | MIT | https://github.com/prisma/graphql-request.git | https://github.com/prisma/graphql-request | Prisma Labs Team
 iban | 0.0.14 | MIT | https://github.com/arhs/iban.js | Unknown | Laurent VB
 jsdom | 21.1.1 | MIT | https://github.com/jsdom/jsdom.git | Unknown | Unknown
-libphonenumber-js | 1.10.26 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
+libphonenumber-js | 1.10.28 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
 mustache | 4.2.0 | MIT | https://github.com/janl/mustache.js.git | https://github.com/janl/mustache.js | mustache.js Authors
 nanoid | 3.3.6 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
 nanoid | 4.0.2 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
@@ -54,8 +54,9 @@ urql | 4.0.0 | MIT | https://github.com/urql-graphql/urql.git | https://formidab
 uuid | 9.0.0 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 valienv | 0.4.0 | MIT | https://github.com/zoontek/valienv.git | https://github.com/zoontek/valienv#readme | Mathieu Acthernoene
-vite | 4.2.1 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/#readme | Evan You
+vite | 4.3.1 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/#readme | Evan You
 vitest | 0.30.1 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
+wonka | 6.3.1 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
 fastify-jaeger | 1.0.2 | ISC | https://github.com/maumercado/fastify-jaeger.git | https://github.com/maumercado/fastify-jaeger#readme | Mauricio Mercado - @maumercado
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

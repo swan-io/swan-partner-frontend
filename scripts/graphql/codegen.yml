@@ -43,7 +43,7 @@ client-config: &CLIENT_CONFIG
   enumsAsTypes: true
   preResolveTypes: true
   skipTypename: false
-  nonOptionalTypename: false
+  nonOptionalTypename: true
   onlyOperationTypes: false
   defaultScalarType: unknown
   inlineFragmentTypes: combine

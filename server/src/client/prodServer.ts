@@ -19,10 +19,10 @@ const handleRequest = async (
   reply: FastifyReply<Http2SecureServer>,
 ) => {
   if (reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js")) {
-    await reply.header("cache-control", `public, max-age=${yearInSeconds}, immutable`);
+    void reply.header("cache-control", `public, max-age=${yearInSeconds}, immutable`);
     const date = new Date();
     date.setTime(date.getTime() + yearInMilliseconds);
-    await reply.header("expires", date.toUTCString());
+    void reply.header("expires", date.toUTCString());
     return reply.sendFile(reqPath, path.join(dirname, "../../dist", appName));
   } else {
     const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
@@ -31,7 +31,7 @@ const handleRequest = async (
       } else {
         // Prevents having old HTMLs in cache referencing assets that
         // do not longer exist in its files
-        await reply.header("cache-control", `public, max-age=0`);
+        void reply.header("cache-control", `public, max-age=0`);
         return reply.sendFile("/index.html", path.join(dirname, "../../dist", appName));
       }
     };

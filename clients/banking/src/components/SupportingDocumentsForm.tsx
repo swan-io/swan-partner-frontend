@@ -255,15 +255,7 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             id: supportingDocumentId,
             name: file.name,
             progress: 0,
-            finished: false,
-          };
-
-          const finalState: LocalDocument = {
-            purpose,
-            id: supportingDocumentId,
-            name: file.name,
-            progress: 100,
-            finished: true,
+            status: "uploading",
           };
 
           setLocalDocuments(prevState => [...prevState, initialState]);
@@ -276,11 +268,8 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item)) {
-                clone[index] = {
-                  ...item,
-                  progress,
-                };
+              if (item?.status === "uploading") {
+                clone[index] = { ...item, progress };
               } else {
                 clone.push(initialState);
               }
@@ -290,16 +279,37 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
           };
 
           xhr.onload = () => {
+            const uploadFailed = xhr.status !== 200 && xhr.status !== 204;
+
+            const finishedState: LocalDocument = {
+              purpose,
+              id: supportingDocumentId,
+              name: file.name,
+              status: "finished",
+            };
+
             setLocalDocuments(prevState => {
               const clone = [...prevState];
               const index = clone.findIndex(item => item.id === supportingDocumentId);
               const item = clone[index];
 
-              if (isNotNullish(item)) {
-                clone[index] = finalState;
-              } else {
-                clone.push(finalState);
+              if (isNullish(item)) {
+                clone.push(finishedState);
+                return clone;
               }
+
+              if (!uploadFailed) {
+                clone[index] = finishedState;
+                return clone;
+              }
+
+              clone[index] = {
+                purpose,
+                id: supportingDocumentId,
+                name: file.name,
+                error: t("error.generic"),
+                status: "failed",
+              };
 
               return clone;
             });
@@ -311,7 +321,9 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
 
           xhr.send(formData);
         })
-        .catch(console.error);
+        .catch(() => {
+          showToast({ variant: "error", title: t("error.generic") });
+        });
     };
 
     return (

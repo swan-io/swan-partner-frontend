@@ -6,8 +6,8 @@
 import { Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
 import { validate } from "valienv";
-import { url } from "../env";
-import { OAuth2Error, query } from "./oauth2";
+import { url } from "../env.js";
+import { OAuth2Error, query } from "./oauth2.js";
 
 const additionalEnv = {
   ...validate({

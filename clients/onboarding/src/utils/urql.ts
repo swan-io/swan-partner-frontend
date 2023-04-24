@@ -13,14 +13,16 @@ import {
   fetchExchange,
   useQuery,
 } from "urql";
-import { GraphCacheConfig } from "../graphql/graphcache";
 import schema from "../graphql/introspection.json";
+import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
+import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
 import { logBackendError } from "./logger";
 
-const cache = cacheExchange<GraphCacheConfig>({
+const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
+
   keys: {
     AddressInfo: _data => null,
     OnboardingCompanyAccountHolderInfo: _data => null,
@@ -31,12 +33,17 @@ const cache = cacheExchange<GraphCacheConfig>({
   },
 });
 
-export const urql = new Client({
-  fetchOptions: () => ({ credentials: "include" }),
+export const unauthenticatedClient = new Client({
+  url: `${env.BANKING_URL}/api/unauthenticated`,
   requestPolicy: "network-only",
   suspense: true,
-  url: `${env.BANKING_URL}/api/unauthenticated`,
-  exchanges: [cache, requestIdExchange, errorExchange({ onError: logBackendError }), fetchExchange],
+  exchanges: [
+    suspenseDedupExchange,
+    unauthenticatedCache,
+    requestIdExchange,
+    errorExchange({ onError: logBackendError }),
+    fetchExchange,
+  ],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

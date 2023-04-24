@@ -49,7 +49,9 @@ const start = async () => {
   console.log("");
   console.log("Generating a new key for cookie encryption");
 
-  const hexKey = execSync("./node_modules/@fastify/secure-session/genkey.js").toString("hex");
+  const hexKey = execSync(
+    path.join(process.cwd(), "node_modules/@fastify/secure-session/genkey.js"),
+  ).toString("hex");
 
   const envTemplate = fs.readFileSync(path.join(process.cwd(), ".env.example"), "utf-8");
   const clientId = OAUTH_CLIENT_ID.OAUTH_CLIENT_ID as string;

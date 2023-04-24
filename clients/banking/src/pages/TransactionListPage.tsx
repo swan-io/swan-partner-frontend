@@ -23,8 +23,7 @@ import {
   TransactionFiltersState,
   TransactionListFilter,
 } from "../components/TransactionListFilter";
-import { Amount } from "../graphql/graphcache";
-import { TransactionListPageDocument } from "../graphql/partner";
+import { Amount, TransactionListPageDocument } from "../graphql/partner";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";

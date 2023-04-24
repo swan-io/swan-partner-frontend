@@ -19,9 +19,9 @@ import { GetNode } from "@swan-io/lake/src/utils/types";
 import { forwardRef, useCallback, useEffect, useState } from "react";
 import { FlatList, GestureResponderEvent, Pressable, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { Amount } from "../graphql/graphcache";
 import {
   AccountAreaQuery,
+  Amount,
   GetAccountMembershipsDocument,
   GetAccountMembershipsQuery,
 } from "../graphql/partner";

@@ -1,7 +1,10 @@
 import chalk from "chalk";
 import { execSync } from "node:child_process";
+import path from "node:path";
 
-const hexKey = execSync("./node_modules/@fastify/secure-session/genkey.js").toString("hex");
+const hexKey = execSync(
+  path.join(process.cwd(), "node_modules/@fastify/secure-session/genkey.js"),
+).toString("hex");
 
 console.log(``);
 console.log(`${chalk.magenta("swan-partner-frontend")}`);

@@ -32,9 +32,9 @@ import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import cardIdentifier from "../assets/images/card-identifier.svg";
 import physicalCardPlaceholder from "../assets/images/physical-card-placeholder.svg";
-import { AddressInfo } from "../graphql/graphcache";
 import {
   ActivatePhysicalCardDocument,
+  AddressInfo,
   CancelPhysicalCardDocument,
   CancelPhysicalCardReason,
   CardPageQuery,

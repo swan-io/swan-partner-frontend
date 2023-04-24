@@ -3762,7 +3762,7 @@ input CreditTransferInput {
   externalReference: String
 
   """
-  *SOON TO BE DEPRECATED*
+  *DEPRECATED*
   if the transfer will execute as instant
   """
   isInstant: Boolean
@@ -8616,6 +8616,7 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
+  accountInvoice(invoiceId: ID!): Invoice
 
   """Returns an account statement by id"""
   accountStatement(id: ID!): Statement!

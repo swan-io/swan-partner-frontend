@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
-import { GetAccountMembershipInvitationDataQuery } from "../graphql/partner";
-import { ServerError, sdk, toFuture } from "./partner";
+import { GetAccountMembershipInvitationDataQuery } from "../graphql/partner.js";
+import { ServerError, sdk, toFuture } from "./partner.js";
 
 export const getAccountMembershipInvitationData = ({
   accessToken,

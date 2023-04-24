@@ -12,8 +12,7 @@ import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { useQuery } from "urql";
-import { Amount } from "../graphql/graphcache";
-import { GetAccountBalanceDocument } from "../graphql/partner";
+import { Amount, GetAccountBalanceDocument } from "../graphql/partner";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
@@ -56,12 +55,12 @@ export const TransactionsArea = ({
   canViewAccountStatement,
   onBalanceReceive,
 }: Props) => {
-  const [{ data }, reload] = useQuery({
+  const [{ data }] = useQuery({
     query: GetAccountBalanceDocument,
     variables: { accountId },
   });
-  const route = Router.useRoute(accountTransactionsRoutes);
 
+  const route = Router.useRoute(accountTransactionsRoutes);
   const account = data?.account;
   const availableBalance = account?.balances?.available;
 
@@ -162,7 +161,6 @@ export const TransactionsArea = ({
                 <UpcomingTransactionListPage
                   accountId={accountId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
-                  onReceiveData={reload}
                 />
               );
             })

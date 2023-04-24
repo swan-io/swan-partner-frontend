@@ -36,6 +36,7 @@
     "fastify-language-parser": "3.0.0",
     "get-port": "6.1.2",
     "graphql-request": "5.1.0",
+    "graphql-tag": "2.12.6",
     "mustache": "4.2.0",
     "node-mailjet": "6.0.2",
     "pino-pretty": "10.0.0",

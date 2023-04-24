@@ -1,11 +1,10 @@
-FROM node:18
+FROM node:18 AS builder
+WORKDIR /app
+ADD ./server/ ./
+RUN npm install
 
-ADD ./yarn.lock /home/node/app/
-ADD ./server/ /home/node/app/
-
-RUN cd /home/node/app/ && yarn install --production && node-prune
-
-WORKDIR /home/node/app/
-
-CMD yarn start
+FROM cgr.dev/chainguard/node:18
+WORKDIR /app
+COPY --chown=node:node --from=builder /app ./
+CMD ["/usr/bin/npm", "start"]
 EXPOSE 8080

@@ -38,3 +38,26 @@ jobs:
         run: yarn lokalise sync
         env:
           LOKALISE_API_KEY: ${{ secrets.LOKALISE_API_KEY }}
+
+      - name: Configure AWS Credentials
+        if: "contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE }}
+          aws-region: eu-west-1
+
+      - name: Login to Docker Registry
+        if: "contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY }}
+
+      - name: Dockerize & Push to Registry
+        if: "contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          push: true
+          tags: |
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.sha }}
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.ref_name }}

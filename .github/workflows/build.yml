@@ -32,3 +32,9 @@ jobs:
 
       - name: Compile project
         run: yarn build
+
+      - name: Push translation keys
+        if: "contains('refs/heads/main', github.ref)"
+        run: yarn lokalise sync
+        env:
+          LOKALISE_API_KEY: ${{ secrets.LOKALISE_API_KEY }}

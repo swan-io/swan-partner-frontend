@@ -52,6 +52,9 @@ export function getProductionRequestHandler() {
     const params = request.params as Record<string, string>;
 
     const reqPath = params["*"] ?? "index.html";
+    if (reqPath.includes("..")) {
+      return reply.code(404).send("404");
+    }
     switch (host) {
       case BANKING_HOST:
         void handleRequest(reqPath, "banking", reply);

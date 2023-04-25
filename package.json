@@ -54,7 +54,7 @@
     "@graphql-codegen/typed-document-node": "3.0.2",
     "@graphql-codegen/typescript": "3.0.3",
     "@graphql-codegen/typescript-graphql-request": "4.5.9",
-    "@graphql-codegen/typescript-operations": "3.0.3",
+    "@graphql-codegen/typescript-operations": "3.0.4",
     "@graphql-codegen/typescript-urql-graphcache": "2.4.4",
     "@sentry/cli": "2.17.4",
     "@swan-io/boxed": "0.13.0",

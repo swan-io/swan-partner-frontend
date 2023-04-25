@@ -1,0 +1,97 @@
+{
+  "$schema": "https://raw.githubusercontent.com/localazy/cli-schema/master/localazy.json",
+
+  "upload": {
+    "type": "json",
+    "importAsNew": true,
+    "deprecateMissing": true,
+
+    "files": [
+      {
+        "group": "onboarding",
+        "lang": "en",
+        "pattern": "clients/onboarding/src/locales/en.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "de",
+        "pattern": "clients/onboarding/src/locales/de.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "es",
+        "pattern": "clients/onboarding/src/locales/es.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "fr",
+        "pattern": "clients/onboarding/src/locales/fr.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "it",
+        "pattern": "clients/onboarding/src/locales/it.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "nl",
+        "pattern": "clients/onboarding/src/locales/nl.json"
+      },
+      {
+        "group": "onboarding",
+        "lang": "pt",
+        "pattern": "clients/onboarding/src/locales/pt.json"
+      },
+
+      {
+        "group": "banking",
+        "lang": "en",
+        "pattern": "clients/banking/src/locales/en.json"
+      },
+      {
+        "group": "banking",
+        "lang": "de",
+        "pattern": "clients/banking/src/locales/de.json"
+      },
+      {
+        "group": "banking",
+        "lang": "es",
+        "pattern": "clients/banking/src/locales/es.json"
+      },
+      {
+        "group": "banking",
+        "lang": "fr",
+        "pattern": "clients/banking/src/locales/fr.json"
+      },
+      {
+        "group": "banking",
+        "lang": "it",
+        "pattern": "clients/banking/src/locales/it.json"
+      },
+      {
+        "group": "banking",
+        "lang": "nl",
+        "pattern": "clients/banking/src/locales/nl.json"
+      },
+      {
+        "group": "banking",
+        "lang": "pt",
+        "pattern": "clients/banking/src/locales/pt.json"
+      }
+    ]
+  },
+
+  "download": {
+    "includeSourceLang": true,
+    "files": [
+      {
+        "group": "onboarding",
+        "output": "clients/onboarding/src/locales/${lang}.json"
+      },
+      {
+        "group": "banking",
+        "output": "clients/banking/src/locales/${lang}.json"
+      }
+    ]
+  }
+}

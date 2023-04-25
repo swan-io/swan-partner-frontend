@@ -9,15 +9,3 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/clients/onboarding"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/clients/banking"
-    schedule:
-      interval: "weekly"
-  - package-ecosystem: "npm"
-    directory: "/server"
-    schedule:
-      interval: "weekly"

@@ -74,7 +74,7 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-native": "4.0.0",
     "eslint-plugin-swan": "file:scripts/eslint",
-    "glob": "10.2.1",
+    "glob": "10.2.2",
     "graphql": "16.6.0",
     "lint-staged": "13.2.1",
     "prettier": "2.8.7",

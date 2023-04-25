@@ -2360,10 +2360,10 @@
   dependencies:
     "@types/react" "*"
 
-"@types/react@*", "@types/react@18.0.37":
-  version "18.0.37"
-  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.0.37.tgz#7a784e2a8b8f83abb04dc6b9ed9c9b4c0aee9be7"
-  integrity sha512-4yaZZtkRN3ZIQD3KSEwkfcik8s0SWV+82dlJot1AbGYHCzJkWP3ENBY6wYeDRmKZ6HkrgoGAmR2HqdwYGp6OEw==
+"@types/react@*", "@types/react@18.2.0":
+  version "18.2.0"
+  resolved "https://registry.yarnpkg.com/@types/react/-/react-18.2.0.tgz#15cda145354accfc09a18d2f2305f9fc099ada21"
+  integrity sha512-0FLj93y5USLHdnhIhABk83rm8XEGA7kH3cr+YUlvxoUGp1xNt/DINUMvqPxLyOQMzLmZe8i4RTHbvb8MC7NmrA==
   dependencies:
     "@types/prop-types" "*"
     "@types/scheduler" "*"
@@ -2381,6 +2381,7 @@
 
 "@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@github:zoontek/types-testing-library-vitest-dom":
   version "5.14.5"
+  uid "0a0de96e76b403e1808429506fad50f90d28fced"
   resolved "https://codeload.github.com/zoontek/types-testing-library-vitest-dom/tar.gz/0a0de96e76b403e1808429506fad50f90d28fced"
 
 "@types/uuid@9.0.1":

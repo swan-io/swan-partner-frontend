@@ -48,7 +48,7 @@
     "@testing-library/user-event": "14.4.3",
     "@types/iban": "0.0.32",
     "@types/react": "18.0.37",
-    "@types/react-dom": "18.0.11",
+    "@types/react-dom": "18.2.0",
     "@types/react-native": "0.71.6",
     "@vitejs/plugin-legacy": "4.0.2",
     "@vitejs/plugin-react-swc": "3.3.0",

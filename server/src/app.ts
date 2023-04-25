@@ -234,6 +234,27 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
             done();
           });
       } else {
+        // each API call extends the existing session lifetime
+        const refreshToken = request.session.get("refreshToken");
+        const expiresAt = request.session.get("expiresAt");
+        const accessToken = request.session.get("accessToken");
+        match({ refreshToken, expiresAt, accessToken })
+          .with(
+            {
+              refreshToken: P.not(P.nullish),
+              expiresAt: P.not(P.nullish),
+              accessToken: P.not(P.nullish),
+            },
+            ({ expiresAt, accessToken, refreshToken }) => {
+              request.session.options({
+                maxAge: COOKIE_MAX_AGE,
+              });
+              request.session.set("expiresAt", expiresAt);
+              request.session.set("accessToken", accessToken);
+              request.session.set("refreshToken", refreshToken);
+            },
+          )
+          .otherwise(() => {});
         done();
       }
     }

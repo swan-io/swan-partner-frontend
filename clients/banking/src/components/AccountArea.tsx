@@ -199,7 +199,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const hasPvidOrQesValidation =
     account?.country === "FRA" &&
     (user?.identificationLevels?.PVID === true || user?.identificationLevels?.QES === true);
-  console.log("hasValidPvidVerification", hasPvidOrQesValidation);
 
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;

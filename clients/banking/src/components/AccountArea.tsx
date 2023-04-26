@@ -196,6 +196,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     typeof value === "boolean" ? Option.Some(value) : Option.None(),
   ).some(isValid => isValid);
 
+  const requireFirstTransfer =
+    account?.country === "FRA" &&
+    user?.identificationLevels?.PVID === false &&
+    user?.identificationLevels?.QES === false;
+
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;
 
@@ -797,6 +802,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                               )
                               .with({ name: "AccountActivation" }, () => (
                                 <AccountActivationPage
+                                  requireFirstTransfer={requireFirstTransfer}
                                   accentColor={accentColor}
                                   accountMembershipId={accountMembershipId}
                                   additionalInfo={additionalInfo}

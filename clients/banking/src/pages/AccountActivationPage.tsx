@@ -250,6 +250,8 @@ const StepTile = ({ variant, title, description, onPress, footer }: StepTileProp
 };
 
 const STEP_INDEXES = {
+  StepNotDisplayed: 0,
+
   IdentityVerificationTodo: 1,
   IdentityVerificationPending: 1,
   IdentityVerificationToRedo: 1,
@@ -274,6 +276,7 @@ type Props = {
   canViewAccountDetails: boolean;
   projectName: string;
   refetchAccountAreaQuery: () => void;
+  requireFirstTransfer: boolean;
 };
 
 export const AccountActivationPage = ({
@@ -283,6 +286,7 @@ export const AccountActivationPage = ({
   canViewAccountDetails,
   projectName,
   refetchAccountAreaQuery,
+  requireFirstTransfer,
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
@@ -343,9 +347,10 @@ export const AccountActivationPage = ({
         {
           identificationStatus: typeof identificationStatus;
           account: NonNullable<AccountActivationPageQuery["accountMembership"]>["account"];
+          requireFirstTransfer: boolean;
         },
         Step | undefined
-      >({ identificationStatus, account })
+      >({ identificationStatus, account, requireFirstTransfer })
         .with({ identificationStatus: P.nullish }, () => undefined)
         // handle legacy account that didn't go through the new process
         .with(
@@ -381,25 +386,28 @@ export const AccountActivationPage = ({
               .exhaustive();
           }
 
-          if (!hasTransactions) {
+          if (requireFirstTransfer && !hasTransactions) {
             return canViewAccountDetails && hasIBAN
               ? "AddMoneyToYourNewAccountViaIbanTodo"
               : "AddMoneyToYourNewAccountIbanMissing";
           }
-
+          if (!requireFirstTransfer) {
+            return "StepNotDisplayed";
+          }
           return "Done";
         })
         .exhaustive()
     );
   }, [
-    canViewAccountDetails,
-    documentCollectMode,
-    documentCollectionStatus,
-    hasIBAN,
-    hasTransactions,
     identificationStatus,
-    isCompany,
     account,
+    requireFirstTransfer,
+    isCompany,
+    hasTransactions,
+    documentCollectionStatus,
+    documentCollectMode,
+    canViewAccountDetails,
+    hasIBAN,
   ]);
 
   const [contentVisible, setContentVisible] = useBoolean(false);
@@ -631,6 +639,7 @@ export const AccountActivationPage = ({
         </Box>
       </StepScrollView>
     ))
+    .with("StepNotDisplayed", () => null)
     .exhaustive();
 
   return (

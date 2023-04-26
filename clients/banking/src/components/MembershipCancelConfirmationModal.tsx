@@ -30,7 +30,7 @@ export const MembershipCancelConfirmationModal = ({
   const onPressConfirm = () => {
     if (accountMembershipId != null) {
       disableMembership({ accountMembershipId })
-        .mapResult(({ disableAccountMembership }) => {
+        .mapOkToResult(({ disableAccountMembership }) => {
           return match(disableAccountMembership)
             .with({ __typename: "DisableAccountMembershipSuccessPayload" }, () =>
               Result.Ok(undefined),

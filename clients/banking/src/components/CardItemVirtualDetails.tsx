@@ -84,7 +84,7 @@ export const CardItemVirtualDetails = ({
           window.location.origin + Router.AccountCardsItem({ cardId, accountMembershipId }),
       },
     })
-      .mapResult(({ viewCardNumbers }) => {
+      .mapOkToResult(({ viewCardNumbers }) => {
         return match(viewCardNumbers)
           .with({ __typename: "ViewCardNumbersSuccessPayload" }, value =>
             Result.Ok(value.consent.consentUrl),

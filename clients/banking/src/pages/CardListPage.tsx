@@ -142,14 +142,14 @@ export const CardListPage = ({
     return {
       search: params.search,
       statuses: isNotNullish(params.statuses)
-        ? Array.keepMap(params.statuses, item =>
+        ? Array.filterMap(params.statuses, item =>
             match(item)
               .with("Active", "Canceled", item => Option.Some(item))
               .otherwise(() => Option.None()),
           )
         : undefined,
       type: isNotNullish(params.type)
-        ? Array.keepMap(params.type, item =>
+        ? Array.filterMap(params.type, item =>
             match(item)
               .with("Virtual", "VirtualAndPhysical", "SingleUseVirtual", item => Option.Some(item))
               .otherwise(() => Option.None()),

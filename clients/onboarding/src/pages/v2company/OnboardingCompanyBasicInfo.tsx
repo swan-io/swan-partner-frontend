@@ -136,7 +136,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
         },
         language: locale.language,
       })
-        .mapResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
+        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
           match(unauthenticatedUpdateCompanyOnboarding)
             .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
               Result.Ok(value),

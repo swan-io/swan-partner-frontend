@@ -84,7 +84,7 @@ export const TransactionListPage = ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: isNotNullish(params.paymentProduct)
-        ? Array.keepMap(params.paymentProduct, item =>
+        ? Array.filterMap(params.paymentProduct, item =>
             match(item)
               .with(
                 "Card",
@@ -101,7 +101,7 @@ export const TransactionListPage = ({
         : undefined,
       search: params.search,
       status: isNotNullish(params.transactionStatus)
-        ? Array.keepMap(params.transactionStatus, item =>
+        ? Array.filterMap(params.transactionStatus, item =>
             match(item)
               .with("Booked", "Canceled", "Pending", "Rejected", "Released", item =>
                 Option.Some(item),

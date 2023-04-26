@@ -76,14 +76,14 @@ export const AccountMembersDetailsCardList = ({
     return {
       search: params.cardSearch,
       statuses: isNotNullish(params.cardStatuses)
-        ? Array.keepMap(params.cardStatuses, item =>
+        ? Array.filterMap(params.cardStatuses, item =>
             match(item)
               .with("Active", "Canceled", item => Option.Some(item))
               .otherwise(() => Option.None()),
           )
         : undefined,
       type: isNotNullish(params.cardType)
-        ? Array.keepMap(params.cardType, item =>
+        ? Array.filterMap(params.cardType, item =>
             match(item)
               .with("Virtual", "VirtualAndPhysical", "SingleUseVirtual", item => Option.Some(item))
               .otherwise(() => Option.None()),

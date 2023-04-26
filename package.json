@@ -57,7 +57,7 @@
     "@graphql-codegen/typescript-operations": "3.0.3",
     "@graphql-codegen/typescript-urql-graphcache": "2.4.4",
     "@sentry/cli": "2.17.4",
-    "@swan-io/boxed": "0.13.0",
+    "@swan-io/boxed": "1.0.1",
     "@swan-io/lokalise-sync-cli": "1.0.3",
     "@testing-library/jest-dom": "5.16.5",
     "@types/glob": "8.1.0",

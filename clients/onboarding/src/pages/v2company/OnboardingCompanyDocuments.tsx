@@ -87,7 +87,7 @@ export const OnboardingCompanyDocuments = ({
         filename: file.name,
       },
     })
-      .mapResult(({ generateSupportingDocumentUploadUrl }) =>
+      .mapOkToResult(({ generateSupportingDocumentUploadUrl }) =>
         match(generateSupportingDocumentUploadUrl)
           .with(
             { __typename: "GenerateSupportingDocumentUploadUrlSuccessPayload" },

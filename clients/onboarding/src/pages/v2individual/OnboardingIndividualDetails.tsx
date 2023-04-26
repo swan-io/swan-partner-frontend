@@ -127,7 +127,7 @@ export const OnboardingIndividualDetails = ({
         },
         language: locale.language,
       })
-        .mapResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
+        .mapOkToResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
           match(unauthenticatedUpdateIndividualOnboarding)
             .with(
               { __typename: "UnauthenticatedUpdateIndividualOnboardingSuccessPayload" },

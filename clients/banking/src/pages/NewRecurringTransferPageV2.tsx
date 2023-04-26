@@ -103,7 +103,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
     Option.None(),
   );
 
-  const availableBalance = data.mapResult(({ account }) => {
+  const availableBalance = data.mapOkToResult(({ account }) => {
     if (account?.balances?.available) {
       return Result.Ok({
         amount: Number(account.balances.available.value),
@@ -262,7 +262,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
         };
 
         initiateScheduleStandingOrder({ input })
-          .mapResult(response =>
+          .mapOkToResult(response =>
             match(response.scheduleStandingOrder)
               .with(
                 { __typename: "InvalidArgumentRejection" },

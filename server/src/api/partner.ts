@@ -60,7 +60,7 @@ export const finalizeOnboarding = ({
   return toFuture(
     sdk.FinalizeOnboarding({ input: { onboardingId } }, { Authorization: `Bearer ${accessToken}` }),
   )
-    .mapResult(({ finalizeOnboarding }) =>
+    .mapOkToResult(({ finalizeOnboarding }) =>
       match(finalizeOnboarding)
         .with({ __typename: "FinalizeOnboardingSuccessPayload" }, ({ onboarding }) =>
           Result.Ok(onboarding),
@@ -103,7 +103,7 @@ export const bindAccountMembership = ({
       { Authorization: `Bearer ${accessToken}` },
     ),
   );
-  return bindAccountMembership.mapResult(({ bindAccountMembership }) => {
+  return bindAccountMembership.mapOkToResult(({ bindAccountMembership }) => {
     return match(bindAccountMembership)
       .with(
         { __typename: "BindAccountMembershipSuccessPayload" },

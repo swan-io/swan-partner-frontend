@@ -340,7 +340,7 @@ export const NewMembershipWizard = ({
             taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
           },
         })
-          .mapResult(({ addAccountMembership }) => {
+          .mapOkToResult(({ addAccountMembership }) => {
             // TODO: send email
             return match(addAccountMembership)
               .with(

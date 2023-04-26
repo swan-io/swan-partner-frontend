@@ -666,7 +666,7 @@ export const RecurringTransferList = ({
   const onCancelRecurringTransfer = () => {
     if (recurringTransferToCancelId != null) {
       cancelRecurringTransfer({ id: recurringTransferToCancelId })
-        .mapResult(({ cancelStandingOrder }) =>
+        .mapOkToResult(({ cancelStandingOrder }) =>
           match(cancelStandingOrder)
             .with({ __typename: "CancelStandingOrderSuccessPayload" }, result => Result.Ok(result))
             .otherwise(error => Result.Error(error)),
@@ -682,8 +682,8 @@ export const RecurringTransferList = ({
     }
   };
 
-  const recurringTransfers = data.mapResult(result =>
-    Result.Ok(result.account?.standingOrders.edges.map(({ node }) => node) ?? []),
+  const recurringTransfers = data.mapOk(
+    result => result.account?.standingOrders.edges.map(({ node }) => node) ?? [],
   );
 
   const recurringTransferList = recurringTransfers

@@ -260,7 +260,7 @@ export const MembershipDetailEditor = ({
           taxIdentificationNumber: values.taxIdentificationNumber,
         },
       })
-        .mapResult(({ updateAccountMembership }) => {
+        .mapOkToResult(({ updateAccountMembership }) => {
           return match(updateAccountMembership)
             .with(
               { __typename: "UpdateAccountMembershipSuccessPayload" },
@@ -283,7 +283,7 @@ export const MembershipDetailEditor = ({
         accountMembershipId: editingAccountMembershipId,
       },
     })
-      .mapResult(({ suspendAccountMembership }) => {
+      .mapOkToResult(({ suspendAccountMembership }) => {
         return match(suspendAccountMembership)
           .with({ __typename: "SuspendAccountMembershipSuccessPayload" }, () =>
             Result.Ok(undefined),
@@ -310,7 +310,7 @@ export const MembershipDetailEditor = ({
           }),
       },
     })
-      .mapResult(({ resumeAccountMembership }) => {
+      .mapOkToResult(({ resumeAccountMembership }) => {
         return match(resumeAccountMembership)
           .with(
             { __typename: "ResumeAccountMembershipSuccessPayload" },

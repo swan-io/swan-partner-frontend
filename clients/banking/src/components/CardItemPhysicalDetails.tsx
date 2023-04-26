@@ -456,7 +456,7 @@ export const CardItemPhysicalDetails = ({
         address,
       },
     })
-      .mapResult(({ printPhysicalCard }) => {
+      .mapOkToResult(({ printPhysicalCard }) => {
         return match(printPhysicalCard)
           .with(
             {
@@ -499,7 +499,7 @@ export const CardItemPhysicalDetails = ({
         reason,
       },
     })
-      .mapResult(({ cancelPhysicalCard }) => {
+      .mapOkToResult(({ cancelPhysicalCard }) => {
         return match(cancelPhysicalCard)
           .with(
             {
@@ -520,7 +520,7 @@ export const CardItemPhysicalDetails = ({
 
   const suspendCard = () => {
     suspendPhysicalCard({ cardId })
-      .mapResult(({ suspendPhysicalCard }) => {
+      .mapOkToResult(({ suspendPhysicalCard }) => {
         return match(suspendPhysicalCard)
           .with({ __typename: "SuspendPhysicalCardSuccessPayload" }, () => Result.Ok(undefined))
           .otherwise(error => Result.Error(error));
@@ -542,7 +542,7 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapResult(({ resumePhysicalCard }) => {
+      .mapOkToResult(({ resumePhysicalCard }) => {
         return match(resumePhysicalCard)
           .with({ __typename: "ResumePhysicalCardSuccessPayload" }, ({ consent: { consentUrl } }) =>
             Result.Ok(consentUrl),
@@ -566,7 +566,7 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapResult(({ viewPhysicalCardPin }) => {
+      .mapOkToResult(({ viewPhysicalCardPin }) => {
         return match(viewPhysicalCardPin)
           .with(
             { __typename: "ViewPhysicalCardPinSuccessPayload" },
@@ -591,7 +591,7 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapResult(({ activatePhysicalCard }) => {
+      .mapOkToResult(({ activatePhysicalCard }) => {
         return match(activatePhysicalCard)
           .with(
             { __typename: "ActivatePhysicalCardSuccessPayload" },
@@ -615,7 +615,7 @@ export const CardItemPhysicalDetails = ({
           window.location.origin + Router.AccountCardsItem({ cardId, accountMembershipId }),
       },
     })
-      .mapResult(({ viewPhysicalCardNumbers }) => {
+      .mapOkToResult(({ viewPhysicalCardNumbers }) => {
         return match(viewPhysicalCardNumbers)
           .with({ __typename: "ViewPhysicalCardNumbersSuccessPayload" }, value =>
             Result.Ok(value.consent.consentUrl),

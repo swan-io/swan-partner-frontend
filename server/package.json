@@ -28,7 +28,7 @@
     "@fastify/secure-session": "6.1.0",
     "@fastify/static": "6.10.1",
     "@fastify/view": "7.4.1",
-    "@swan-io/boxed": "0.13.0",
+    "@swan-io/boxed": "1.0.1",
     "chalk": "5.2.0",
     "fast-proxy": "2.1.0",
     "fastify": "4.15.0",

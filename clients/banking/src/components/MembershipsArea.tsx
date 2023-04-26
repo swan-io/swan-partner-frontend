@@ -84,7 +84,7 @@ export const MembershipsArea = ({
   const filters: MembershipFilters = useMemo(() => {
     return {
       statuses: isNotNullish(params.statuses)
-        ? Array.keepMap(params.statuses, item =>
+        ? Array.filterMap(params.statuses, item =>
             match(item)
               .with(...statusList, value => Option.Some(value))
               .otherwise(() => Option.None()),

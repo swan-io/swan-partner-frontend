@@ -65,7 +65,7 @@ export const MembershipConflictResolutionEditor = ({
           }),
       },
     })
-      .mapResult(({ updateAccountMembership }) => {
+      .mapOkToResult(({ updateAccountMembership }) => {
         return match(updateAccountMembership)
           .with({ __typename: "UpdateAccountMembershipSuccessPayload" }, value =>
             Result.Ok(value.consent.consentUrl),

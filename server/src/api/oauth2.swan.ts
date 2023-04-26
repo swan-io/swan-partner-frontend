@@ -50,7 +50,7 @@ export const exchangeToken = (originalAccessToken: string, config: ExchangeToken
         ? { "x-swan-frontend": additionalEnv.SWAN_AUTH_TOKEN }
         : undefined),
     },
-  }).mapResult(payload => {
+  }).mapOkToResult(payload => {
     return match(payload)
       .with({ token: P.string }, ({ token }) => {
         return Result.Ok(token);

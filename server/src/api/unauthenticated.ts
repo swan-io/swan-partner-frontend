@@ -38,7 +38,7 @@ export const onboardCompanyAccountHolder = ({
 }) => {
   return toFuture(
     sdk.OnboardCompanyAccountHolder({ input: { accountCountry, projectId } }),
-  ).mapResult(({ unauthenticatedOnboardPublicCompanyAccountHolder }) =>
+  ).mapOkToResult(({ unauthenticatedOnboardPublicCompanyAccountHolder }) =>
     match(unauthenticatedOnboardPublicCompanyAccountHolder)
       .with(
         { __typename: "UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload" },
@@ -64,7 +64,7 @@ export const onboardIndividualAccountHolder = ({
 }) => {
   return toFuture(
     sdk.OnboardIndividualAccountHolder({ input: { accountCountry, projectId } }),
-  ).mapResult(({ unauthenticatedOnboardPublicIndividualAccountHolder }) =>
+  ).mapOkToResult(({ unauthenticatedOnboardPublicIndividualAccountHolder }) =>
     match(unauthenticatedOnboardPublicIndividualAccountHolder)
       .with(
         { __typename: "UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload" },

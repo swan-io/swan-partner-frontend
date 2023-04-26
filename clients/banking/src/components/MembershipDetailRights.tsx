@@ -139,7 +139,7 @@ export const MembershipDetailRights = ({
           ...rights,
         },
       })
-        .mapResult(({ updateAccountMembership }) => {
+        .mapOkToResult(({ updateAccountMembership }) => {
           return match(updateAccountMembership)
             .with(
               { __typename: "UpdateAccountMembershipSuccessPayload" },
@@ -162,7 +162,7 @@ export const MembershipDetailRights = ({
         accountMembershipId: editingAccountMembershipId,
       },
     })
-      .mapResult(({ suspendAccountMembership }) => {
+      .mapOkToResult(({ suspendAccountMembership }) => {
         return match(suspendAccountMembership)
           .with({ __typename: "SuspendAccountMembershipSuccessPayload" }, () =>
             Result.Ok(undefined),
@@ -189,7 +189,7 @@ export const MembershipDetailRights = ({
           }),
       },
     })
-      .mapResult(({ resumeAccountMembership }) => {
+      .mapOkToResult(({ resumeAccountMembership }) => {
         return match(resumeAccountMembership)
           .with(
             { __typename: "ResumeAccountMembershipSuccessPayload" },

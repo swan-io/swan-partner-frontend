@@ -8,7 +8,7 @@ const environmentVariables = Object.keys(
   parse(fs.readFileSync(path.join(process.cwd(), ".env"), "utf-8")),
 );
 
-const clientEnvironmentVariables = Array.keepMap(environmentVariables, key =>
+const clientEnvironmentVariables = Array.filterMap(environmentVariables, key =>
   key.startsWith("CLIENT_") ? Option.Some(key) : Option.None(),
 );
 

@@ -100,7 +100,7 @@ export const CardItemTransactionList = ({
       search: params.search,
       paymentProduct: undefined,
       status: isNotNullish(params.status)
-        ? Array.keepMap(params.status, item =>
+        ? Array.filterMap(params.status, item =>
             match(item)
               .with("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming", item =>
                 Option.Some(item),

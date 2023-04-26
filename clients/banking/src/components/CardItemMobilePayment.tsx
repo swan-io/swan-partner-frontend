@@ -128,7 +128,7 @@ export const CardItemMobilePayment = ({
 
   const onPressCancel = ({ digitalCardId }: { digitalCardId: string }) => {
     cancelDigitalCard({ digitalCardId })
-      .mapResult(({ cancelDigitalCard }) => {
+      .mapOkToResult(({ cancelDigitalCard }) => {
         return match(cancelDigitalCard)
           .with({ __typename: "CancelDigitalCardSuccessPayload" }, () => Result.Ok(undefined))
           .otherwise(error => Result.Error(error));
@@ -142,7 +142,7 @@ export const CardItemMobilePayment = ({
       });
   };
 
-  const digitalCards = Array.keepMap(card.digitalCards.edges, card => {
+  const digitalCards = Array.filterMap(card.digitalCards.edges, card => {
     return match(card)
       .with(
         {

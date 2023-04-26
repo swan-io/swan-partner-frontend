@@ -185,7 +185,7 @@ export const OnboardingCompanyRegistration = ({
         input: updateInput,
         language: locale.language,
       })
-        .mapResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
+        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
           match(unauthenticatedUpdateCompanyOnboarding)
             .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
               Result.Ok(value),

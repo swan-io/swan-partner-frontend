@@ -28,7 +28,7 @@ export const CardCancelConfirmationModal = ({
   const onPressConfirm = () => {
     if (cardId != null) {
       cancelCard({ cardId })
-        .mapResult(({ cancelCard }) => {
+        .mapOkToResult(({ cancelCard }) => {
           return match(cancelCard)
             .with({ __typename: "CancelCardSuccessPayload" }, () => Result.Ok(undefined))
             .otherwise(error => Result.Error(error));

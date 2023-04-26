@@ -68,7 +68,7 @@ const getNextStep = (
   currentStep: CompanyOnboardingRoute,
   steps: WizardStep<CompanyOnboardingRoute>[],
 ): CompanyOnboardingRoute => {
-  return Array.getIndexBy(steps, step => step.id === currentStep)
+  return Array.findIndex(steps, step => step.id === currentStep)
     .flatMap(index => Option.fromNullable(steps[index + 1]))
     .map(step => step.id)
     .getWithDefault(currentStep);
@@ -78,7 +78,7 @@ const getPreviousStep = (
   currentStep: CompanyOnboardingRoute,
   steps: WizardStep<CompanyOnboardingRoute>[],
 ): CompanyOnboardingRoute => {
-  return Array.getIndexBy(steps, step => step.id === currentStep)
+  return Array.findIndex(steps, step => step.id === currentStep)
     .flatMap(index => Option.fromNullable(steps[index - 1]))
     .map(step => step.id)
     .getWithDefault(currentStep);

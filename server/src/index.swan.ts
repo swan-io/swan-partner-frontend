@@ -134,7 +134,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     inviteeAccountMembershipId: invitationConfig.inviteeAccountMembershipId,
     inviterAccountMembershipId: invitationConfig.inviterAccountMembershipId,
   })
-    .mapResult(invitationData =>
+    .mapOkToResult(invitationData =>
       getMailjetInput({ invitationData, requestLanguage: invitationConfig.requestLanguage }),
     )
     .flatMapOk(data => {

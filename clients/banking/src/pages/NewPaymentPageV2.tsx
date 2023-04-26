@@ -107,7 +107,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     .map(({ reachability }) => reachability.sepaCreditTransferInst)
     .getWithDefault(false);
 
-  const availableBalance = data.mapResult(({ account }) => {
+  const availableBalance = data.mapOkToResult(({ account }) => {
     if (account?.balances?.available) {
       return Result.Ok({
         amount: Number(account.balances.available.value),
@@ -247,7 +247,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
         };
 
         initiateTransfers({ input })
-          .mapResult(response =>
+          .mapOkToResult(response =>
             match(response.initiateCreditTransfers)
               .with(
                 P.nullish,

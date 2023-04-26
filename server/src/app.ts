@@ -607,7 +607,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         Error: () => undefined,
       }),
       ...Object.fromEntries(
-        Array.keepMap(Object.entries(process.env), ([key, value]) =>
+        Array.filterMap(Object.entries(process.env), ([key, value]) =>
           key.startsWith("CLIENT_") ? Option.Some([key, value]) : Option.None(),
         ),
       ),

@@ -38,7 +38,7 @@ export const extractServerValidationErrors = <T extends string>(
   { fields }: UpdateValidationErrorsFragment,
   pathToFieldName: (path: string[]) => T | null = () => null,
 ): { fieldName: T; code: ValidationFieldErrorCode }[] => {
-  return Array.keepMap(fields, ({ path, code }) => {
+  return Array.filterMap(fields, ({ path, code }) => {
     const fieldName = pathToFieldName(path);
     if (fieldName != null) {
       return Option.Some({ fieldName, code });
@@ -53,7 +53,7 @@ export const extractServerInvalidFields = <T extends string>(
 ): { fieldName: T; code: ServerInvalidFieldCode }[] => {
   return match(statusInfo)
     .with({ __typename: "OnboardingInvalidStatusInfo" }, ({ errors }) =>
-      Array.keepMap(errors, error => {
+      Array.filterMap(errors, error => {
         const fieldName = getFieldName(error.field);
         if (fieldName != null) {
           return Option.Some({ fieldName, code: "Missing" as const });

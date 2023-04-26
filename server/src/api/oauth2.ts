@@ -44,7 +44,7 @@ export const query = (input: RequestInfo, init?: RequestInit) => {
     if (res.ok) {
       return data;
     } else {
-      return data.mapResult(json =>
+      return data.mapOkToResult(json =>
         Result.Error<unknown, OAuth2ServerError>(
           new OAuth2ServerError(
             JSON.stringify({
@@ -96,7 +96,7 @@ export const getTokenFromCode = ({
         : undefined,
   });
 
-  return data.mapResult(data =>
+  return data.mapOkToResult(data =>
     match(data)
       .with(
         { expires_in: P.number, access_token: P.string, refresh_token: P.string },
@@ -154,7 +154,7 @@ export const refreshAccessToken = ({
     body: formData,
   });
 
-  return data.mapResult(data =>
+  return data.mapOkToResult(data =>
     match(data)
       .with(
         { expires_in: P.number, access_token: P.string, refresh_token: P.string },
@@ -195,7 +195,7 @@ export const getClientAccessToken = ({
     },
   });
 
-  return data.mapResult(data =>
+  return data.mapOkToResult(data =>
     match(data)
       .with({ access_token: P.string }, ({ access_token }) => Result.Ok(access_token))
       .otherwise(data => Result.Error(new OAuth2ClientCredentialsError(JSON.stringify(data)))),

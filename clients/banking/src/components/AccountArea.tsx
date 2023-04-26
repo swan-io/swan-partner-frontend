@@ -192,7 +192,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const userStatusIsProcessing = identificationStatus === "Processing";
 
   // checks that at least one identificationLevel is valid
-  const idVerified = Array.keepMap(Dict.entries(identificationLevels), ([_, value]) =>
+  const idVerified = Array.filterMap(Dict.entries(identificationLevels), ([_, value]) =>
     typeof value === "boolean" ? Option.Some(value) : Option.None(),
   ).some(isValid => isValid);
 

@@ -70,7 +70,7 @@ export const CardItemSettings = ({
         nonMainCurrencyTransactions,
       },
     })
-      .mapResult(({ updateCard }) => {
+      .mapOkToResult(({ updateCard }) => {
         return match(updateCard)
           .with({ __typename: "UpdateCardSuccessPayload" }, ({ consent }) =>
             Result.Ok(consent.consentUrl),

@@ -251,7 +251,7 @@ export const CardWizard = ({
           spendingLimit: card.spendingLimit,
         },
       })
-        .mapResult(({ addCard }) =>
+        .mapOkToResult(({ addCard }) =>
           match(addCard)
             .with({ __typename: "AddCardSuccessPayload" }, ({ card }) => Result.Ok(card))
             .otherwise(rejection => Result.Error(rejection)),
@@ -275,7 +275,7 @@ export const CardWizard = ({
         });
     } else {
       return addCards({ input })
-        .mapResult(({ addCards }) =>
+        .mapOkToResult(({ addCards }) =>
           match(addCards)
             .with({ __typename: "AddCardsSuccessPayload" }, ({ cards }) => Result.Ok(cards))
             .otherwise(rejection => Result.Error(rejection)),
@@ -309,7 +309,7 @@ export const CardWizard = ({
           consentRedirectUrl: input.consentRedirectUrl,
         },
       })
-        .mapResult(({ addSingleUseVirtualCard }) =>
+        .mapOkToResult(({ addSingleUseVirtualCard }) =>
           match(addSingleUseVirtualCard)
             .with(
               { __typename: "AddSingleUseVirtualCardSuccessForUserPayload" },
@@ -337,7 +337,7 @@ export const CardWizard = ({
         });
     } else {
       return addSingleUseCards({ input })
-        .mapResult(({ addSingleUseVirtualCards }) =>
+        .mapOkToResult(({ addSingleUseVirtualCards }) =>
           match(addSingleUseVirtualCards)
             .with({ __typename: "AddSingleUseVirtualCardsSuccessPayload" }, ({ cards }) =>
               Result.Ok(cards),
@@ -361,7 +361,7 @@ export const CardWizard = ({
   const generateMultiConsent = (cards: CardFragment[]) => {
     const cardsRequiringConsent = [
       ...new Set(
-        Array.keepMap(cards, card =>
+        Array.filterMap(cards, card =>
           card.statusInfo.__typename === "CardConsentPendingStatusInfo"
             ? Option.Some(card.statusInfo.consent.id)
             : Option.None(),
@@ -815,7 +815,7 @@ export const CardWizard = ({
                               })),
                             },
                           })
-                            .mapResult(({ addCardsWithGroupDelivery }) =>
+                            .mapOkToResult(({ addCardsWithGroupDelivery }) =>
                               match(addCardsWithGroupDelivery)
                                 .with(
                                   { __typename: "AddCardsWithGroupDeliverySuccessPayload" },

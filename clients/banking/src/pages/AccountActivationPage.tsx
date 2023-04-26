@@ -639,7 +639,7 @@ export const AccountActivationPage = ({
         </Box>
       </StepScrollView>
     ))
-    .with("StepNotDisplayed", () => <></>)
+    .with("StepNotDisplayed", () => null)
     .exhaustive();
 
   return (

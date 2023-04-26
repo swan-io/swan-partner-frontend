@@ -196,6 +196,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     typeof value === "boolean" ? Option.Some(value) : Option.None(),
   ).some(isValid => isValid);
 
+  const hasPvidOrQesValidation =
+    account?.country === "FRA" &&
+    (user?.identificationLevels?.PVID === true || user?.identificationLevels?.QES === true);
+  console.log("hasValidPvidVerification", hasPvidOrQesValidation);
+
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;
 
@@ -797,6 +802,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                               )
                               .with({ name: "AccountActivation" }, () => (
                                 <AccountActivationPage
+                                  hasPvidOrQesValidation={hasPvidOrQesValidation}
                                   accentColor={accentColor}
                                   accountMembershipId={accountMembershipId}
                                   additionalInfo={additionalInfo}

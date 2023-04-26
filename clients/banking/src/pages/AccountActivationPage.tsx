@@ -276,7 +276,7 @@ type Props = {
   canViewAccountDetails: boolean;
   projectName: string;
   refetchAccountAreaQuery: () => void;
-  hasPvidOrQesValidation: boolean;
+  requireFirstTransfer: boolean;
 };
 
 export const AccountActivationPage = ({
@@ -286,7 +286,7 @@ export const AccountActivationPage = ({
   canViewAccountDetails,
   projectName,
   refetchAccountAreaQuery,
-  hasPvidOrQesValidation,
+  requireFirstTransfer,
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
@@ -347,10 +347,10 @@ export const AccountActivationPage = ({
         {
           identificationStatus: typeof identificationStatus;
           account: NonNullable<AccountActivationPageQuery["accountMembership"]>["account"];
-          hasPvidOrQesValidation: boolean;
+          requireFirstTransfer: boolean;
         },
         Step | undefined
-      >({ identificationStatus, account, hasPvidOrQesValidation })
+      >({ identificationStatus, account, requireFirstTransfer })
         .with({ identificationStatus: P.nullish }, () => undefined)
         // handle legacy account that didn't go through the new process
         .with(
@@ -386,12 +386,12 @@ export const AccountActivationPage = ({
               .exhaustive();
           }
 
-          if (!hasPvidOrQesValidation && !hasTransactions) {
+          if (requireFirstTransfer && !hasTransactions) {
             return canViewAccountDetails && hasIBAN
               ? "AddMoneyToYourNewAccountViaIbanTodo"
               : "AddMoneyToYourNewAccountIbanMissing";
           }
-          if (hasPvidOrQesValidation) {
+          if (!requireFirstTransfer) {
             return "StepNotDisplayed";
           }
           return "Done";
@@ -401,7 +401,7 @@ export const AccountActivationPage = ({
   }, [
     identificationStatus,
     account,
-    hasPvidOrQesValidation,
+    requireFirstTransfer,
     isCompany,
     hasTransactions,
     documentCollectionStatus,

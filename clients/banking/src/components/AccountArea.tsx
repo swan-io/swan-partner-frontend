@@ -198,7 +198,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   const requireFirstTransfer =
     account?.country === "FRA" &&
-    (user?.identificationLevels?.PVID === false || user?.identificationLevels?.QES === false);
+    user?.identificationLevels?.PVID === false &&
+    user?.identificationLevels?.QES === false;
 
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;

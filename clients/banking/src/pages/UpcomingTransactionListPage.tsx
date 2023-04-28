@@ -27,7 +27,7 @@ export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransacti
       query: UpcomingTransactionListPageDocument,
       variables: {
         accountId,
-        first: 20,
+        first: NUM_TO_RENDER,
         canQueryCardOnTransaction,
       },
     },
@@ -56,7 +56,7 @@ export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransacti
         NotAsked: () => null,
         Loading: () => (
           <PlainListViewPlaceholder
-            count={20}
+            count={NUM_TO_RENDER}
             rowVerticalSpacing={0}
             groupHeaderHeight={48}
             headerHeight={48}
@@ -78,7 +78,7 @@ export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransacti
                 onActiveRowChange={onActiveRowChange}
                 loading={{
                   isLoading: nextData.isLoading(),
-                  count: 20,
+                  count: 2,
                 }}
                 onEndReached={() => {
                   if (data.account?.transactions?.pageInfo.hasNextPage ?? false) {

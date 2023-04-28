@@ -58,7 +58,6 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  B2BMembershipIDVerification: boolean;
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   accountMembershipId: string;
   accountId: string | undefined;
@@ -133,7 +132,6 @@ const useDisplayableCardsInformation = ({
 };
 
 export const CardsArea = ({
-  B2BMembershipIDVerification,
   accountMembership,
   accountMembershipId,
   accountId,
@@ -235,7 +233,6 @@ export const CardsArea = ({
                         userStatusIsProcessing={userStatusIsProcessing}
                         canManageAccountMembership={canManageAccountMembership}
                         canOrderPhysicalCards={canOrderPhysicalCards}
-                        B2BMembershipIDVerification={B2BMembershipIDVerification}
                         large={large}
                       />
                     </>

@@ -43,7 +43,6 @@ type Props = {
   userStatusIsProcessing: boolean;
   canManageAccountMembership: boolean;
   canOrderPhysicalCards: boolean;
-  B2BMembershipIDVerification: boolean;
   large?: boolean;
 };
 
@@ -54,7 +53,6 @@ export const CardItemArea = ({
   refetchAccountAreaQuery,
   canManageAccountMembership,
   canOrderPhysicalCards,
-  B2BMembershipIDVerification,
   large = true,
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
@@ -110,47 +108,7 @@ export const CardItemArea = ({
 
   const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
 
-  const cardRequiresIdentityVerification = match({ B2BMembershipIDVerification, card })
-    // Project allows bypassing identity verification for memberships with no rights
-    .with(
-      {
-        B2BMembershipIDVerification: false,
-        card: {
-          accountMembership: {
-            canManageAccountMembership: false,
-            canManageBeneficiaries: false,
-            canViewAccount: false,
-            canInitiatePayments: false,
-            user: { identificationStatus: P.not("ValidIdentity") },
-          },
-        },
-      },
-      () => true,
-    )
-    // In any other case, if recommended level isn't met
-    .with(
-      {
-        card: {
-          accountMembership: P.union(
-            {
-              recommendedIdentificationLevel: "Expert",
-              user: {
-                identificationLevels: { expert: P.not(true) },
-              },
-            },
-            {
-              recommendedIdentificationLevel: "QES",
-              user: {
-                identificationLevels: { QES: P.not(true) },
-              },
-            },
-          ),
-        },
-      },
-      () => true,
-    )
-    // We have a user with a verified identity or settings allow not
-    .otherwise(() => false);
+  const cardRequiresIdentityVerification = card?.accountMembership.statusInfo.status !== "Enabled";
 
   const identificationStatus = card?.accountMembership.user?.identificationStatus ?? undefined;
 

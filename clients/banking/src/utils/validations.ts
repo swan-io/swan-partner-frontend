@@ -54,6 +54,20 @@ export const validateDate: Validator<string> = value => {
   }
 };
 
+// birthdate can be only in the past, today or tomorrow (to allow timezones)
+export const validateBirthdate: Validator<string> = value => {
+  const date = dayjs(value, locale.dateFormat);
+  if (!date.isValid()) {
+    return t("common.form.invalidDate");
+  }
+
+  const tomorrow = dayjs().startOf("day").add(1, "day");
+
+  if (date.isAfter(tomorrow)) {
+    return t("common.form.birthdateCannotBeFuture");
+  }
+};
+
 export const validateTodayOrAfter: Validator<string> = value => {
   if (value === "") {
     return;

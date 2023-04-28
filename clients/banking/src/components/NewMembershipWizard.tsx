@@ -24,7 +24,7 @@ import { locale, rifmDateProps, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
-  validateDate,
+  validateBirthdate,
   validateEmail,
   validateIndividualTaxNumber,
   validateRequired,
@@ -177,13 +177,13 @@ export const NewMembershipWizard = ({
             { canManageBeneficiaries: true },
             { canManageAccountMembership: true },
             () => {
-              const validate = combineValidators(validateRequired, validateDate);
+              const validate = combineValidators(validateRequired, validateBirthdate);
               return validate(value);
             },
           )
           .otherwise(() => {
             if (value !== "") {
-              return validateDate(value);
+              return validateBirthdate(value);
             }
           });
       },

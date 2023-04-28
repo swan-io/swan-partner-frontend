@@ -767,9 +767,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   userStatusIsProcessing={userStatusIsProcessing}
                                   canManageAccountMembership={canManageAccountMembership}
                                   canOrderPhysicalCards={canOrderPhysicalCards}
-                                  B2BMembershipIDVerification={Boolean(
-                                    projectInfo.B2BMembershipIDVerification,
-                                  )}
                                 />
                               ))
                               .with({ name: "AccountMembersArea" }, ({ params }) =>

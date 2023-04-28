@@ -36,7 +36,7 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
@@ -351,9 +351,8 @@ export const OnboardingCompanyOwnership = ({
   ubos,
 }: Props) => {
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
-  const editableUbos = useMemo(
-    () => ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
-    [ubos, accountCountry],
+  const [editableUbos, setEditableUbos] = useState(() =>
+    ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
   );
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
@@ -386,8 +385,48 @@ export const OnboardingCompanyOwnership = ({
     }));
   };
 
-  const updateUbos = (newUbos: LocalStateUbo[]) => {
-    const individualUltimateBeneficialOwners = newUbos.map(
+  const addUbo = (newUbo: BeneficiaryFormState) => {
+    // errors is empty because beneficiaries form already validates the ubo
+    setEditableUbos(ubos => [...ubos, { ...newUbo, errors: {} }]);
+    resetPageState();
+  };
+
+  const updateUbo = (ubo: BeneficiaryFormState) => {
+    // errors is empty because beneficiaries form already validates the ubo
+    setEditableUbos(ubos =>
+      ubos.map(u => (u.reference === ubo.reference ? { ...ubo, errors: {} } : u)),
+    );
+    resetPageState();
+  };
+
+  const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
+    setPageState({
+      type: "deleting",
+      reference: ubo.reference,
+      name: [ubo.firstName, ubo.lastName].filter(Boolean).join(" "),
+    });
+  };
+
+  const deleteUbo = () => {
+    // Should be always true because we only open the modal when the pageState is deleting
+    if (pageState.type === "deleting") {
+      setEditableUbos(ubos => ubos.filter(u => u.reference !== pageState.reference));
+    }
+    resetPageState();
+  };
+
+  const onPressPrevious = () => {
+    Router.push(previousStep, { onboardingId });
+  };
+
+  const submitStep = () => {
+    // if there are some ubos with errors, we don't submit
+    if (editableUbos.filter(isUboInvalid).length > 0) {
+      setShakeError.on();
+      return;
+    }
+
+    const individualUltimateBeneficialOwners = editableUbos.map(
       ({
         reference,
         residencyAddressCountry,
@@ -431,7 +470,9 @@ export const OnboardingCompanyOwnership = ({
           )
           .otherwise(error => Result.Error(error)),
       )
-      .tapOk(resetPageState)
+      .tapOk(() => {
+        Router.push(nextStep, { onboardingId });
+      })
       .tapError(error => {
         const errorMessage = getUpdateOnboardingError(error);
         showToast({
@@ -440,45 +481,6 @@ export const OnboardingCompanyOwnership = ({
           description: errorMessage.description,
         });
       });
-  };
-
-  const addUbo = (newUbo: BeneficiaryFormState) => {
-    // errors is empty because beneficiaries form already validates the ubo
-    updateUbos([...editableUbos, { ...newUbo, errors: {} }]);
-  };
-
-  const updateUbo = (ubo: BeneficiaryFormState) => {
-    // errors is empty because beneficiaries form already validates the ubo
-    updateUbos(editableUbos.map(u => (u.reference === ubo.reference ? { ...ubo, errors: {} } : u)));
-  };
-
-  const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
-    setPageState({
-      type: "deleting",
-      reference: ubo.reference,
-      name: [ubo.firstName, ubo.lastName].filter(Boolean).join(" "),
-    });
-  };
-
-  const deleteUbo = () => {
-    // Should be always true because we only open the modal when the pageState is deleting
-    if (pageState.type === "deleting") {
-      updateUbos(editableUbos.filter(u => u.reference !== pageState.reference));
-    }
-  };
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
-
-  const submitStep = () => {
-    // if there are some ubos with errors, we don't submit
-    if (editableUbos.filter(isUboInvalid).length > 0) {
-      setShakeError.on();
-      return;
-    }
-
-    Router.push(nextStep, { onboardingId });
   };
 
   const onPressNext = () => {
@@ -574,7 +576,11 @@ export const OnboardingCompanyOwnership = ({
         </ResponsiveContainer>
       </OnboardingStepContent>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+      <OnboardingFooter
+        onPrevious={onPressPrevious}
+        onNext={onPressNext}
+        loading={updateResult.isLoading() && !showConfirmNoUboModal}
+      />
 
       <ConfirmModal
         visible={showConfirmNoUboModal}
@@ -583,6 +589,7 @@ export const OnboardingCompanyOwnership = ({
         confirmText={t("company.step.owners.confirmModal.confirm")}
         onConfirm={submitStep}
         onCancel={setShowConfirmNoUboModal.off}
+        loading={updateResult.isLoading()}
       />
 
       <ConfirmModal

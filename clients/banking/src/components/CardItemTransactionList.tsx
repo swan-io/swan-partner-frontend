@@ -118,7 +118,7 @@ export const CardItemTransactionList = ({
       query: CardTransactionsPageDocument,
       variables: {
         cardId,
-        first: 20,
+        first: NUM_TO_RENDER,
         filters: {
           ...filters,
           status: filters.status ?? DEFAULT_STATUSES,
@@ -181,7 +181,7 @@ export const CardItemTransactionList = ({
             NotAsked: () => null,
             Loading: () => (
               <PlainListViewPlaceholder
-                count={20}
+                count={NUM_TO_RENDER}
                 rowVerticalSpacing={0}
                 headerHeight={48}
                 groupHeaderHeight={48}
@@ -203,7 +203,7 @@ export const CardItemTransactionList = ({
                     onActiveRowChange={onActiveRowChange}
                     loading={{
                       isLoading: nextData.isLoading(),
-                      count: 20,
+                      count: 2,
                     }}
                     onEndReached={() => {
                       if (card?.transactions?.pageInfo.hasNextPage ?? false) {

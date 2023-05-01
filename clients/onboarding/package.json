@@ -38,7 +38,7 @@
     "ts-pattern": "4.2.2",
     "urql": "4.0.0",
     "uuid": "9.0.0",
-    "wonka": "6.3.1"
+    "wonka": "6.3.2"
   },
   "devDependencies": {
     "@testing-library/react": "14.0.0",

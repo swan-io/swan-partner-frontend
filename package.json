@@ -58,7 +58,6 @@
     "@localazy/cli": "1.7.1",
     "@sentry/cli": "2.18.1",
     "@swan-io/boxed": "1.0.2",
-    "@swan-io/lokalise-sync-cli": "1.0.3",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.4",
     "@types/sodium-native": "2.3.5",

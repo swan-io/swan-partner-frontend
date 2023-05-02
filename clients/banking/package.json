@@ -41,7 +41,7 @@
     "rifm": "0.12.1",
     "ts-pattern": "4.2.2",
     "urql": "4.0.0",
-    "wonka": "6.3.1"
+    "wonka": "6.3.2"
   },
   "devDependencies": {
     "@testing-library/react": "14.0.0",

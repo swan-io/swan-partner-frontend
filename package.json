@@ -30,7 +30,8 @@
     "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",
     "generate-cookie-key": "tsx scripts/cookie/generateCookieKey.ts",
     "deploy-ci": "tsx scripts/deploy/deploy.ts",
-    "ai-translate": "tsx -r dotenv/config scripts/ai-translate/index.ts"
+    "ai-translate": "tsx -r dotenv/config scripts/ai-translate/index.ts",
+    "sort-locales": "tsx scripts/locales/sort.ts"
   },
   "workspaces": {
     "packages": [

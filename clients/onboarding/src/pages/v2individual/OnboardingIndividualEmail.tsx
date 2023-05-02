@@ -80,7 +80,7 @@ export const OnboardingIndividualEmail = ({
 
   const haveToAcceptTcu = accountCountry === "DEU";
 
-  const { Field, submitForm, setFieldError } = useForm({
+  const { Field, submitForm, setFieldError, FieldsListener } = useForm({
     email: {
       initialValue: initialEmail,
       validate: combineValidators(validateRequired, validateEmail),
@@ -234,11 +234,11 @@ export const OnboardingIndividualEmail = ({
                   <>
                     <Space height={4} />
 
-                    <Field name="tcuAccepted">
-                      {({ error }) => (
-                        <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
+                    <FieldsListener names={["tcuAccepted"]}>
+                      {({ tcuAccepted }) => (
+                        <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
                       )}
-                    </Field>
+                    </FieldsListener>
                   </>
                 )}
               </Box>

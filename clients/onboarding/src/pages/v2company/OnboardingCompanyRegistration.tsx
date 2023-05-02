@@ -360,11 +360,11 @@ export const OnboardingCompanyRegistration = ({
                   <>
                     <Space height={4} />
 
-                    <Field name="tcuAccepted">
-                      {({ error }) => (
-                        <LakeText color={colors.negative[500]}>{error ?? " "}</LakeText>
+                    <FieldsListener names={["tcuAccepted"]}>
+                      {({ tcuAccepted }) => (
+                        <LakeText color={colors.negative[500]}>{tcuAccepted.error ?? " "}</LakeText>
                       )}
-                    </Field>
+                    </FieldsListener>
                   </>
                 )}
               </Box>

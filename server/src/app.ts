@@ -490,10 +490,6 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
           async ({ code, state }) => {
             const token = await getTokenFromCode({
               redirectUri: `${env.BANKING_URL}/auth/callback`,
-              authMode: projectId.match({
-                Ok: () => "FormData",
-                Error: () => "AuthorizationHeader",
-              }),
               code,
             });
 

@@ -27,7 +27,7 @@ export const getProjectId = () => {
   if (projectId != undefined) {
     return projectId;
   }
-  projectId = getClientAccessToken({ authMode: "FormData" })
+  projectId = getClientAccessToken()
     .flatMapOk(accessToken =>
       toFuture(sdk.ProjectId({}, { Authorization: `Bearer ${accessToken}` })),
     )

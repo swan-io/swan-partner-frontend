@@ -538,6 +538,49 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {transactionId}
               </ReadOnlyFieldList>
             ))
+            .with({ __typename: "CheckTransaction" }, ({ cmc7, rlmcKey }) => (
+              <ReadOnlyFieldList>
+                {bookingDateTime}
+                {executionDateTime}
+                {rejectedDate}
+                {rejectedReason}
+                {transactionId}
+
+                <LakeLabel
+                  type="viewSmall"
+                  label={t("transaction.cmc7")}
+                  actions={
+                    <LakeCopyButton
+                      valueToCopy={cmc7}
+                      copiedText={t("copyButton.copiedTooltip")}
+                      copyText={t("copyButton.copyTooltip")}
+                    />
+                  }
+                  render={() => (
+                    <LakeText variant="regular" color={colors.gray[900]}>
+                      {cmc7}
+                    </LakeText>
+                  )}
+                />
+
+                <LakeLabel
+                  type="viewSmall"
+                  label={t("transaction.rlmcKey")}
+                  actions={
+                    <LakeCopyButton
+                      valueToCopy={rlmcKey}
+                      copiedText={t("copyButton.copiedTooltip")}
+                      copyText={t("copyButton.copyTooltip")}
+                    />
+                  }
+                  render={() => (
+                    <LakeText variant="regular" color={colors.gray[900]}>
+                      {rlmcKey}
+                    </LakeText>
+                  )}
+                />
+              </ReadOnlyFieldList>
+            ))
             .otherwise(() => (
               <ReadOnlyFieldList>
                 {bookingDateTime}

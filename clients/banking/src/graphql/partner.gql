@@ -7,6 +7,7 @@ fragment TransactionDetails on Transaction {
   type
   label
   counterparty
+  reference
   payment {
     id
     createdAt
@@ -61,7 +62,6 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on SEPACreditTransferTransaction {
-    reference
     creditor {
       __typename
       name
@@ -78,7 +78,6 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on InternalDirectDebitTransaction {
-    reference
     creditor {
       accountId
     }
@@ -90,7 +89,6 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on FeeTransaction {
-    reference
     feesType
     creditor {
       name
@@ -98,7 +96,6 @@ fragment TransactionDetails on Transaction {
   }
   ... on SEPADirectDebitTransaction {
     __typename
-    reference
     creditor {
       name
     }
@@ -116,7 +113,6 @@ fragment TransactionDetails on Transaction {
       }
     }
     ... on SEPADirectDebitTransaction {
-      reference
       creditor {
         name
       }
@@ -136,10 +132,13 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on InternalCreditTransfer {
-    reference
     creditor {
       name
     }
+  }
+  ... on CheckTransaction {
+    cmc7
+    rlmcKey
   }
 }
 

@@ -568,15 +568,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 <LakeLabel
                   type="viewSmall"
                   label={t("transaction.rlmcKey")}
-                  actions={
-                    transaction.type === "CheckIn" ? (
-                      <LakeCopyButton
-                        valueToCopy={rlmcKey}
-                        copiedText={t("copyButton.copiedTooltip")}
-                        copyText={t("copyButton.copyTooltip")}
-                      />
-                    ) : undefined
-                  }
                   render={() => (
                     <LakeText variant="regular" color={colors.gray[900]}>
                       {rlmcKey}

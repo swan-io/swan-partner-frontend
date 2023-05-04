@@ -550,13 +550,11 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   type="viewSmall"
                   label={t("transaction.cmc7")}
                   actions={
-                    transaction.type === "CheckIn" ? (
-                      <LakeCopyButton
-                        valueToCopy={cmc7}
-                        copiedText={t("copyButton.copiedTooltip")}
-                        copyText={t("copyButton.copyTooltip")}
-                      />
-                    ) : undefined
+                    <LakeCopyButton
+                      valueToCopy={cmc7}
+                      copiedText={t("copyButton.copiedTooltip")}
+                      copyText={t("copyButton.copyTooltip")}
+                    />
                   }
                   render={() => (
                     <LakeText variant="regular" color={colors.gray[900]}>
@@ -568,6 +566,13 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 <LakeLabel
                   type="viewSmall"
                   label={t("transaction.rlmcKey")}
+                  actions={
+                    <LakeCopyButton
+                      valueToCopy={rlmcKey}
+                      copiedText={t("copyButton.copiedTooltip")}
+                      copyText={t("copyButton.copyTooltip")}
+                    />
+                  }
                   render={() => (
                     <LakeText variant="regular" color={colors.gray[900]}>
                       {rlmcKey}

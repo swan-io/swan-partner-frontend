@@ -265,6 +265,13 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     done();
   });
 
+  app.addHook("onRequest", (request, reply, done) => {
+    if (request.url.startsWith("/api/") || !request.url.startsWith("/auth/")) {
+      void reply.header("cache-control", `public, max-age=0`);
+    }
+    done();
+  });
+
   /**
    * Used to proxy Swan GraphQL APIs
    */

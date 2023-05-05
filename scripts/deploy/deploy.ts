@@ -41,7 +41,7 @@ fs.writeFileSync(
 );
 
 execSync(
-  `cd ${tmp}/${repoName} && git -am "Update with tag: ${process.env.DEPLOY_ENVIRONMENT}-${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
+  `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.DEPLOY_ENVIRONMENT}-${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
 
 execSync(

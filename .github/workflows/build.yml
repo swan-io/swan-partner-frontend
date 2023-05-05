@@ -61,7 +61,7 @@ jobs:
         uses: docker/build-push-action@v4
         with:
           context: .
-          file: {context}/Dockerfile-swan
+          file: "{context}/Dockerfile-swan"
           push: true
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.sha }}

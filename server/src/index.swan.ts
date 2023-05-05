@@ -168,6 +168,8 @@ start({
         const projectUserToken = await exchangeToken(request.accessToken, {
           type: "AccountMemberToken",
           projectId: request.params.projectId,
+        }).tapError(error => {
+          request.log.error(error);
         });
         return reply.from(env.PARTNER_API_URL, {
           rewriteRequestHeaders: (_req, headers) => ({
@@ -204,6 +206,9 @@ start({
             type: "AccountMemberToken",
             projectId: request.params.projectId,
           })
+            .tapError(error => {
+              request.log.error(error);
+            })
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({

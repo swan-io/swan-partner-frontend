@@ -4,7 +4,7 @@ import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { Suspense } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
 import { AccountArea } from "./components/AccountArea";
 import { ErrorView } from "./components/ErrorView";

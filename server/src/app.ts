@@ -472,7 +472,6 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       () => JSON.parse(request.query.state ?? "{}") as unknown,
     ).getWithDefault({});
     const stateId = request.session.get("state") ?? "UNKNOWN";
-    const projectId = await getProjectId();
 
     return (
       match({

@@ -65,14 +65,7 @@ type OAuth2Session = {
   refreshToken: string;
 };
 
-export const getTokenFromCode = ({
-  redirectUri,
-  authMode,
-  code,
-}: {
-  redirectUri: string;
-  code: string;
-}) => {
+export const getTokenFromCode = ({ redirectUri, code }: { redirectUri: string; code: string }) => {
   const formData = new FormData();
   formData.append("client_id", env.OAUTH_CLIENT_ID);
   formData.append("client_secret", env.OAUTH_CLIENT_SECRET);

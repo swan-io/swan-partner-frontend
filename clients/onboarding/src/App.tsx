@@ -89,12 +89,16 @@ export const App = () => {
       <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
         <ClientProvider value={unauthenticatedClient}>
           {match(route)
-            .with({ name: "PopupCallback" }, ({ params: { redirectUrl, accountMembershipId } }) => (
-              <PopupCallbackPage
-                redirectUrl={redirectUrl}
-                accountMembershipId={accountMembershipId}
-              />
-            ))
+            .with(
+              { name: "PopupCallback" },
+              ({ params: { redirectUrl, accountMembershipId, projectId } }) => (
+                <PopupCallbackPage
+                  redirectUrl={redirectUrl}
+                  accountMembershipId={accountMembershipId}
+                  projectId={projectId}
+                />
+              ),
+            )
             .with({ name: "OnboardingArea" }, ({ params: { onboardingId } }) => (
               <FlowPicker onboardingId={onboardingId} />
             ))

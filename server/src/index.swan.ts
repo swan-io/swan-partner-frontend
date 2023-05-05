@@ -114,7 +114,7 @@ const getMailjetInput = ({
                 accountHolderName: inviterAccountMembership.account.holder.info.name,
                 accountName: inviterAccountMembership.account.name,
                 accountNumber: inviterAccountMembership.account.number,
-                ctaUrl: `${env.BANKING_URL}/api/invitation/${inviteeAccountMembership.id}`,
+                ctaUrl: `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
                 ctaColor: projectInfo.accentColor,
                 inviteeFirstName: inviteeAccountMembership.statusInfo.restrictedTo.firstName,
                 inviterEmail: inviterAccountMembership.email,
@@ -227,6 +227,20 @@ start({
         }
       },
     );
+
+    /**
+     * Accept an account membership invitation
+     * e.g. /api/projects/:projectId/invitation/:id
+     */
+    app.get<{
+      Querystring: Record<string, string>;
+      Params: { accountMembershipId: string; projectId: string };
+    }>("/api/projects/:projectId/invitation/:accountMembershipId", async (request, reply) => {
+      const queryString = new URLSearchParams();
+      queryString.append("accountMembershipId", request.params.accountMembershipId);
+      queryString.append("projectId", request.params.projectId);
+      return reply.redirect(`/auth/login?${queryString.toString()}`);
+    });
 
     /**
      * Starts a new individual onboarding and redirects to the onboarding URL

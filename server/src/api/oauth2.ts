@@ -5,13 +5,27 @@ import { env } from "../env.js";
 export type OAuth2State =
   | { id: string; type: "Redirect"; redirectTo?: string }
   | { id: string; type: "FinalizeOnboarding"; onboardingId: string }
-  | { id: string; type: "BindAccountMembership"; accountMembershipId: string };
+  | { id: string; type: "BindAccountMembership"; accountMembershipId: string }
+  | { id: string; type: "Swan__FinalizeOnboarding"; onboardingId: string; projectId: string }
+  | {
+      id: string;
+      type: "Swan__BindAccountMembership";
+      accountMembershipId: string;
+      projectId: string;
+    };
 
 export const getOAuth2StatePattern = (id: string) =>
   P.union(
     { id, type: "Redirect" as const, redirectTo: P.optional(P.string) },
     { id, type: "FinalizeOnboarding" as const, onboardingId: P.string },
+    { id, type: "Swan__FinalizeOnboarding" as const, onboardingId: P.string, projectId: P.string },
     { id, type: "BindAccountMembership" as const, accountMembershipId: P.string },
+    {
+      id,
+      type: "Swan__BindAccountMembership" as const,
+      accountMembershipId: P.string,
+      projectId: P.string,
+    },
   );
 
 export class OAuth2Error extends Error {

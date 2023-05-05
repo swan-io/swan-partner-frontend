@@ -27,6 +27,7 @@ query GetAccountMembershipInvitationData(
   $inviteeAccountMembershipId: ID!
 ) {
   projectInfo {
+    id
     name
     accentColor
     logoUri

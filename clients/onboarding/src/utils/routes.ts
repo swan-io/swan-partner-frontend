@@ -6,7 +6,7 @@ import { projectConfiguration } from "./projectId";
 export const Router = createRouter(
   {
     Onboarding: "/onboardings/:onboardingId",
-    PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId",
+    PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
 
     // Onboarding revamp, once completed, we should remove v2 prefix and `Onboarding` route above
     ...createGroup("Onboarding", "/onboardings/:onboardingId", {

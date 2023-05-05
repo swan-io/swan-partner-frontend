@@ -28,6 +28,7 @@ import {
   getProjectId,
   parseAccountCountry,
 } from "./api/partner.js";
+import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan.js";
 import {
   OnboardingRejectionError,
   onboardCompanyAccountHolder,
@@ -438,11 +439,26 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
     const state: OAuth2State = match({ onboardingId, accountMembershipId })
+      .with({ onboardingId: P.string, projectId: P.string }, ({ onboardingId, projectId }) => ({
+        id,
+        type: "Swan__FinalizeOnboarding" as const,
+        onboardingId,
+        projectId,
+      }))
       .with({ onboardingId: P.string }, ({ onboardingId }) => ({
         id,
         type: "FinalizeOnboarding" as const,
         onboardingId,
       }))
+      .with(
+        { accountMembershipId: P.string, projectId: P.string },
+        ({ accountMembershipId, projectId }) => ({
+          id,
+          type: "Swan__BindAccountMembership" as const,
+          accountMembershipId,
+          projectId,
+        }),
+      )
       .with({ accountMembershipId: P.string }, ({ accountMembershipId }) => ({
         id,
         type: "BindAccountMembership" as const,
@@ -512,6 +528,38 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                     void reply.redirect(redirectTo);
                     return Future.value(Result.Ok(undefined));
                   })
+                  .with({ type: "Swan__FinalizeOnboarding" }, ({ onboardingId, projectId }) => {
+                    // Finalize the onboarding with the received user token
+                    return swan__finalizeOnboarding({ onboardingId, accessToken, projectId })
+                      .mapOk(({ redirectUrl, state, accountMembershipId }) => {
+                        const queryString = new URLSearchParams();
+                        if (redirectUrl != undefined) {
+                          const authUri = createAuthUrl({
+                            scope: [],
+                            redirectUri: redirectUrl,
+                            state: state ?? onboardingId,
+                            params: {},
+                          });
+                          queryString.append("redirectUrl", authUri);
+                        }
+                        if (accountMembershipId != undefined) {
+                          queryString.append("accountMembershipId", accountMembershipId);
+                        }
+                        queryString.append("projectId", projectId);
+
+                        void reply.redirect(
+                          `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
+                        );
+                        return undefined;
+                      })
+                      .tapError(error => {
+                        request.log.error(error);
+                        return renderError(reply, {
+                          status: 400,
+                          requestId: request.id as string,
+                        });
+                      });
+                  })
                   .with({ type: "FinalizeOnboarding" }, ({ onboardingId }) => {
                     // Finalize the onboarding with the received user token
                     return finalizeOnboarding({ onboardingId, accessToken })
@@ -554,6 +602,24 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                         return reply.redirect(env.BANKING_URL);
                       });
                   })
+                  .with(
+                    { type: "Swan__BindAccountMembership" },
+                    ({ accountMembershipId, projectId }) => {
+                      return swan__bindAccountMembership({
+                        accountMembershipId,
+                        accessToken,
+                        projectId,
+                      })
+                        .mapOk(({ accountMembershipId }) => {
+                          void reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
+                          return undefined;
+                        })
+                        .tapError(error => {
+                          request.log.error(error);
+                          return reply.redirect(env.BANKING_URL);
+                        });
+                    },
+                  )
                   .otherwise(error => {
                     request.log.error(error);
                     void reply.redirect("/swanpopupcallback");
@@ -646,7 +712,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   }
 
   app.setErrorHandler((error, request, reply) => {
-    console.error(error);
+    request.log.error(error);
     // Send error response
     return renderError(reply, { status: 500, requestId: request.id as string });
   });

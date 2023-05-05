@@ -7,16 +7,22 @@ import { env } from "../utils/env";
 type Props = {
   redirectUrl?: string;
   accountMembershipId?: string;
+  projectId?: string;
 };
 
-export const PopupCallbackPage = ({ redirectUrl, accountMembershipId }: Props) => {
+export const PopupCallbackPage = ({ redirectUrl, accountMembershipId, projectId }: Props) => {
   useEffect(() => {
     const url = isNotNullish(redirectUrl)
       ? redirectUrl
-      : match(accountMembershipId)
+      : match({ accountMembershipId, projectId })
           .with(
-            P.string,
-            accountMembershipId => `${env.BANKING_URL}/${accountMembershipId}/activation`,
+            { accountMembershipId: P.string, projectId: P.string },
+            ({ accountMembershipId, projectId }) =>
+              `${env.BANKING_URL}/projects/${projectId}/${accountMembershipId}/activation`,
+          )
+          .with(
+            { accountMembershipId: P.string },
+            ({ accountMembershipId }) => `${env.BANKING_URL}/${accountMembershipId}/activation`,
           )
           .otherwise(() => `${env.BANKING_URL}?source=onboarding`);
 
@@ -24,7 +30,7 @@ export const PopupCallbackPage = ({ redirectUrl, accountMembershipId }: Props) =
       // If we don't manage to close a popup, redirect from there
       window.location.replace(url);
     }
-  }, [redirectUrl, accountMembershipId]);
+  }, [redirectUrl, projectId, accountMembershipId]);
 
   return null;
 };

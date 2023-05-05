@@ -1,12 +1,15 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { P, match } from "ts-pattern";
 import { useQuery } from "urql";
 import { MembershipDetailDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
+import { projectConfiguration } from "../utils/projectId";
 import { CopyTextButton } from "./CopyTextButton";
 
 type Props = {
@@ -20,7 +23,13 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
     pause: accountMembershipId == null,
   });
 
-  const value = `${__env.BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`;
+  const value = match(projectConfiguration)
+    .with(
+      Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+      projectId =>
+        `${__env.BANKING_URL}/api/projects/${projectId}/invitation/${accountMembershipId ?? ""}`,
+    )
+    .otherwise(() => `${__env.BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`);
 
   const accountMembership = data?.accountMembership;
 

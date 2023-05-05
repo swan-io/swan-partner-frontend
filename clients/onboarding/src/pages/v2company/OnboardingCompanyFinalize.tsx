@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -7,6 +8,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { useEffect } from "react";
+import { P, match } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -14,6 +16,7 @@ import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
 import { t } from "../../utils/i18n";
+import { projectConfiguration } from "../../utils/projectId";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
 type Props = {
@@ -59,6 +62,13 @@ export const OnboardingCompanyFinalize = ({
     const queryString = new URLSearchParams();
     queryString.append("identificationLevel", legalRepresentativeRecommendedIdentificationLevel);
     queryString.append("onboardingId", onboardingId);
+
+    match(projectConfiguration)
+      .with(Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }), projectId =>
+        queryString.append("projectId", projectId),
+      )
+      .otherwise(() => {});
+
     const url = `${env.BANKING_URL}/auth/login?${queryString.toString()}`;
 
     if (isMobile) {

@@ -22,7 +22,7 @@ const file = fs.readFileSync(
     tmp,
     repoName,
     process.env.DEPLOY_ENVIRONMENT,
-    `${process.env.DEPLOY_APP_NAME}-values.yml`,
+    `${process.env.DEPLOY_APP_NAME}-values.yaml`,
   ),
   "utf-8",
 );
@@ -34,7 +34,7 @@ fs.writeFileSync(
     tmp,
     repoName,
     process.env.DEPLOY_ENVIRONMENT,
-    `${process.env.DEPLOY_APP_NAME}-values.yml`,
+    `${process.env.DEPLOY_APP_NAME}-values.yaml`,
   ),
   updatedFile,
   "utf-8",

@@ -2397,7 +2397,6 @@
 
 "@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@github:zoontek/types-testing-library-vitest-dom":
   version "5.14.5"
-  uid "0a0de96e76b403e1808429506fad50f90d28fced"
   resolved "https://codeload.github.com/zoontek/types-testing-library-vitest-dom/tar.gz/0a0de96e76b403e1808429506fad50f90d28fced"
 
 "@types/uuid@9.0.1":

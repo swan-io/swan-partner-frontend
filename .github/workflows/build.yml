@@ -66,3 +66,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.sha }}
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.ref_name }}
+
+      - name: Deploy
+        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
+        run: tsx scripts/deploy/deploy.ts
+        env:
+          TAG: ${{ github.sha }}
+          DEPLOY_SWAN_TOKEN: ${{ secrets.DEPLOY_SWAN_TOKEN }}
+          DEPLOY_SWAN_REPOSITORY: ${{ secrets.DEPLOY_SWAN_REPOSITORY }}
+          DEPLOY_ENVIRONMENT: master
+          DEPLOY_APP_NAME: partner-frontend

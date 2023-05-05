@@ -155,6 +155,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
           target: "pino-pretty",
           options: { colorize: true },
         },
+        formatters: {
+          level(label) {
+            return { level: label };
+          },
+        },
       }),
     },
     genReqId: () => `req-${randomUUID()}`,

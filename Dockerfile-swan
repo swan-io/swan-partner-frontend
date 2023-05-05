@@ -6,5 +6,5 @@ RUN npm install
 FROM cgr.dev/chainguard/node:18
 WORKDIR /app
 COPY --chown=node:node --from=builder /app ./
-CMD ["/usr/bin/npm", "start-swan"]
+CMD ["/usr/bin/npm", "run", "start-swan"]
 EXPOSE 8080

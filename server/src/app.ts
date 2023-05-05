@@ -163,7 +163,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Handles the session storage in `swan_session_id`
    *
-   * The session can contain the auth informations (`expiresAt`, `accessToken`, `refreshToken`).
+   * The session can contain the auth information (`expiresAt`, `accessToken`, `refreshToken`).
    * During an OAuth2 flow, we also set a `state` property, which we use for compararison
    * between start and callback to mitigate CSRF risks.
    */

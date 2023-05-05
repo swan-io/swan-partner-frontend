@@ -3,7 +3,7 @@ title: Onboarding flows
 sidebar_label: Flows
 ---
 
-Onboarding is a big form that End Customers fill in order to **create their bank account**. It enables us to **collect the necessary informations and documents**.
+Onboarding is a big form that End Customers fill in order to **create their bank account**. It enables us to **collect the necessary information and documents**.
 
 The onboarding UI uses the **unauthenticated API**, and **requires an existing onboarding (we store the information behind its ID, as the user isn’t authenticated yet)**.
 

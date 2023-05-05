@@ -7,7 +7,7 @@ An **Account Membership** represents the link between a **User** and an **Accoun
 We can query the **Account Memberships** to see what accounts the user can access.
 
 :::info
-A user can have an account membership to an account **without any permissions** (sort of a _blind membership_). In this case the user won’t be able to access the `account` informations (not even its ID). The usual use-case for this setup is to order cards for users and only let them access this section.
+A user can have an account membership to an account **without any permissions** (sort of a _blind membership_). In this case the user won’t be able to access the `account` information (not even its ID). The usual use-case for this setup is to order cards for users and only let them access this section.
 :::
 
 ## Web Banking settings

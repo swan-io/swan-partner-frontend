@@ -255,7 +255,7 @@ export const OnboardingCompanyOrganisation1 = ({
 
   const onSelectCompany = useCallback(
     (suggestion: CompanySuggestion) => {
-      // once a company is selected from auto-completion, we query our API to get some informations not available with auto-completion
+      // once a company is selected from auto-completion, we query our API to get some information not available with auto-completion
       unauthenticatedClient
         .query(
           GetCompanyInfoDocument,

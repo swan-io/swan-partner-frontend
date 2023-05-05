@@ -2,9 +2,9 @@
 
 On each step, clicking on **Next** should update the onboarding in the API. This helps resuming the onboarding after a page reload.
 
-# First informations
+# First information
 
-The first screen asks for basic informations that condition the rest of the flow:
+The first screen asks for basic information that condition the rest of the flow:
 
 - The organization (company, association …) country
 - How the user represents the organization (wether being a **legal representative**, or **someone with a power of attorney**, in which case we’ll require the document)
@@ -77,7 +77,7 @@ This step is only applicable if the organization is a **company**, **home owner 
 :::
 
 :::info
-The ultimate beneficiary owners are fetched automatically on onboarding update if the information is available, as soon as the necessary informations (like the registration number) are gathered, **in most cases, this should not require any filling from the user**!
+The ultimate beneficiary owners are fetched automatically on onboarding update if the information is available, as soon as the necessary information (like the registration number) are gathered, **in most cases, this should not require any filling from the user**!
 :::
 
 On this step, the user can add the organization’s ultimate beneficiary owners.

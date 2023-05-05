@@ -11,7 +11,7 @@ const start = async () => {
   console.log(chalk.green(`Welcome!`));
   console.log("");
 
-  console.log("Let's get the necessary informations to start");
+  console.log("Let's get the necessary information to start");
   console.log("");
   console.log(
     `First, go to ${chalk.magenta(

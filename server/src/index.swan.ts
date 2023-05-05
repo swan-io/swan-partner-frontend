@@ -255,7 +255,9 @@ start({
             onboardIndividualAccountHolder({ accountCountry, projectId: request.params.projectId }),
           )
           .tapOk(onboardingId => {
-            return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
+            return reply.redirect(
+              `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
+            );
           })
           .tapError(error => {
             match(error)
@@ -284,7 +286,9 @@ start({
             onboardCompanyAccountHolder({ accountCountry, projectId: request.params.projectId }),
           )
           .tapOk(onboardingId => {
-            return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
+            return reply.redirect(
+              `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
+            );
           })
           .tapError(error => {
             match(error)

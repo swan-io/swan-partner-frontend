@@ -69,7 +69,7 @@ jobs:
 
       - name: Deploy
         if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
-        run: tsx scripts/deploy/deploy.ts
+        run: yarn deploy-ci
         env:
           TAG: ${{ github.sha }}
           DEPLOY_SWAN_TOKEN: ${{ secrets.DEPLOY_SWAN_TOKEN }}

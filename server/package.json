@@ -14,6 +14,7 @@
   },
   "scripts": {
     "start": "node src/index.js",
+    "start-swan": "node src/index.swan.js",
     "build": "tsc -p tsconfig.json",
     "prepack": "tsc --build",
     "clean": "tsc --clean"

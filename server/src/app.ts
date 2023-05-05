@@ -600,10 +600,10 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     const projectId = await getProjectId();
     const data = {
       SWAN_ENVIRONMENT: env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX",
-      GOOGLE_MAPS_API_KEY: process.env.GOOGLE_MAPS_API_KEY,
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
         .with(P.nullish, () => "LINK")
         .otherwise(() => "EMAIL"),
+      BANKING_URL: env.BANKING_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

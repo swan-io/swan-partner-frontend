@@ -18,6 +18,7 @@ const file = `
     SWAN_PROJECT_ID?: string;
     SWAN_ENVIRONMENT: "SANDBOX" | "LIVE";
     ACCOUNT_MEMBERSHIP_INVITATION_MODE: "LINK" | "EMAIL";
+    BANKING_URL: string;
     // Client
     ${clientEnvironmentVariables.map(variableName => `${variableName}: string;`).join("\n    ")}
   }

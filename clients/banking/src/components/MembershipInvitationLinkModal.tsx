@@ -20,7 +20,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
     pause: accountMembershipId == null,
   });
 
-  const value = `${__env.CLIENT_BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`;
+  const value = `${__env.BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`;
 
   const accountMembership = data?.accountMembership;
 

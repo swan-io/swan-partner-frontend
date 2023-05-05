@@ -14,7 +14,7 @@ assert(process.env.DEPLOY_ENVIRONMENT);
 assert(process.env.DEPLOY_APP_NAME);
 
 execSync(
-  `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
+  `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
 );
 
 const file = fs.readFileSync(

@@ -23,7 +23,7 @@ import {
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated.js";
 import { InvitationConfig, start } from "./app.js";
-import { env } from "./env.js";
+import { env, url as validateUrl } from "./env.js";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
 import { renderError } from "./views/error.js";
 
@@ -47,6 +47,7 @@ const onboardingCountries = accountCountries
 const additionalEnv = validate({
   env: process.env,
   validators: {
+    SWAN_AUTH_URL: validateUrl,
     MAILJET_API_KEY: string,
     MAILJET_API_SECRET: string,
     TRACING_SERVICE_NAME: string,

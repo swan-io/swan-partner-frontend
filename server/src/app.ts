@@ -439,6 +439,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
     const state: OAuth2State = match({ onboardingId, accountMembershipId, projectId })
+      // Internal usage only
       .with({ onboardingId: P.string, projectId: P.string }, ({ onboardingId, projectId }) => ({
         id,
         type: "Swan__FinalizeOnboarding" as const,
@@ -450,6 +451,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         type: "FinalizeOnboarding" as const,
         onboardingId,
       }))
+      // Internal usage only
       .with(
         { accountMembershipId: P.string, projectId: P.string },
         ({ accountMembershipId, projectId }) => ({

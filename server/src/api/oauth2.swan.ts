@@ -5,17 +5,10 @@
  */
 import { Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
-import { validate } from "valienv";
-import { url } from "../env.js";
 import { OAuth2Error, query } from "./oauth2.js";
 
 const additionalEnv = {
-  ...validate({
-    env: process.env,
-    validators: {
-      SWAN_AUTH_URL: url,
-    },
-  }),
+  SWAN_AUTH_URL: process.env.SWAN_AUTH_URL as string,
   SWAN_AUTH_TOKEN: process.env.SWAN_AUTH_TOKEN,
 };
 

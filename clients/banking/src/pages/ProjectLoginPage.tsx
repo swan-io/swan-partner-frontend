@@ -20,7 +20,6 @@ import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { unauthenticatedContext } from "../utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -124,7 +123,6 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
       projectId,
       env: env.APP_TYPE === "LIVE" ? "Live" : "Sandbox",
     },
-    context: unauthenticatedContext,
   });
 
   const invalidUUID = isNotNullish(projectInfoQuery.error);

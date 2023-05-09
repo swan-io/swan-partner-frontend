@@ -6,7 +6,7 @@
  * invitation emails.
  */
 import { Future, Result } from "@swan-io/boxed";
-import { UnionToTuple } from "@swan-io/lake/src/utils/types";
+import { unionToArray } from "@swan-io/lake/src/utils/function";
 import chalk from "chalk";
 import fastifyJaeger from "fastify-jaeger";
 import Mailjet from "node-mailjet";
@@ -29,7 +29,7 @@ import { renderError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const accountCountries: UnionToTuple<AccountCountry> = ["DEU", "ESP", "FRA"];
+const accountCountries = unionToArray<AccountCountry>({ DEU: true, ESP: true, FRA: true });
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",

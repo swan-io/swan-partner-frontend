@@ -36,22 +36,22 @@ export const App = () => {
       key={route?.name}
       fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
     >
-      {match(route)
-        .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
-        .with({ name: "ProjectLogin" }, () =>
-          projectConfiguration.match({
-            None: () => <ErrorView />,
-            Some: ({ projectId }) => (
-              <ClientProvider value={unauthenticatedClient}>
-                <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
-                  <ProjectLoginPage projectId={projectId} />
-                </Suspense>
-              </ClientProvider>
-            ),
-          }),
-        )
-        .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route => (
-          <ClientProvider value={partnerClient}>
+      <ClientProvider value={partnerClient}>
+        {match(route)
+          .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
+          .with({ name: "ProjectLogin" }, () =>
+            projectConfiguration.match({
+              None: () => <ErrorView />,
+              Some: ({ projectId }) => (
+                <ClientProvider value={unauthenticatedClient}>
+                  <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
+                    <ProjectLoginPage projectId={projectId} />
+                  </Suspense>
+                </ClientProvider>
+              ),
+            }),
+          )
+          .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route => (
             <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
               {match(route)
                 .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
@@ -62,10 +62,10 @@ export const App = () => {
                 ))
                 .exhaustive()}
             </Suspense>
-          </ClientProvider>
-        ))
-        .with(P.nullish, () => <NotFoundPage style={styles.base} />)
-        .exhaustive()}
+          ))
+          .with(P.nullish, () => <NotFoundPage style={styles.base} />)
+          .exhaustive()}
+      </ClientProvider>
 
       <ToastStack />
     </ErrorBoundary>

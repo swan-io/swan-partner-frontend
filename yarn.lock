@@ -2,10 +2,15 @@
 # yarn lockfile v1
 
 
-"@0no-co/graphql.web@1.0.0", "@0no-co/graphql.web@^1.0.0":
+"@0no-co/graphql.web@1.0.0":
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.0.tgz#af3f5e3b9359d2f011bc37a93654348b92d4d893"
   integrity sha512-JBq2pWyDchE1vVjj/+c4dzZ8stbpew4RrzpZ3vYdn1WJFGHfYg6YIX1fDdMKtSXJJM9FUlsoDOxemr9WMM2p+A==
+
+"@0no-co/graphql.web@^1.0.0", "@0no-co/graphql.web@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.1.tgz#db3da0d2cd41548b50f0583c0d2f4743c767e56b"
+  integrity sha512-6Yaxyv6rOwRkLIvFaL0NrLDgfNqC/Ng9QOPmTmlqW4mORXMEKmh5NYGkIvvt5Yw8fZesnMAqkj8cIqTj8f40cQ==
 
 "@adobe/css-tools@^4.0.1":
   version "4.2.0"
@@ -2538,14 +2543,14 @@
     "@0no-co/graphql.web" "^1.0.0"
     wonka "^6.3.0"
 
-"@urql/exchange-graphcache@6.0.2":
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/@urql/exchange-graphcache/-/exchange-graphcache-6.0.2.tgz#1c011dde3535c38cdd1399cef361ed3c1a462f3e"
-  integrity sha512-j6P02Nyv05NG2URTT/JtonuQQsxKImt1QMyjkb732yjKCI8A+5b5Myh8bnNUw428bIUFYx2oE7OfuB45+ta/CQ==
+"@urql/exchange-graphcache@6.0.4":
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/@urql/exchange-graphcache/-/exchange-graphcache-6.0.4.tgz#55b9dab64369f4a887f10a1a5e5f855ba68283ae"
+  integrity sha512-fzfCUrHzhLycPRa6kYrQYryk0pwmUfeHY9Xqh11A6wtp4/diV7FASlffB5k2j3AWRBxBnqThXDssRXI/G8cACQ==
   dependencies:
-    "@0no-co/graphql.web" "^1.0.0"
+    "@0no-co/graphql.web" "^1.0.1"
     "@urql/core" ">=4.0.0"
-    wonka "^6.3.0"
+    wonka "^6.3.2"
 
 "@urql/introspection@1.0.2":
   version "1.0.2"
@@ -7694,7 +7699,7 @@ why-is-node-running@^2.2.2:
     siginfo "^2.0.0"
     stackback "0.0.2"
 
-wonka@6.3.2, wonka@^6.3.0:
+wonka@6.3.2, wonka@^6.3.0, wonka@^6.3.2:
   version "6.3.2"
   resolved "https://registry.yarnpkg.com/wonka/-/wonka-6.3.2.tgz#6f32992b332251d7b696b038990f4dc284b3b33d"
   integrity sha512-2xXbQ1LnwNS7egVm1HPhW2FyKrekolzhpM3mCwXdQr55gO+tAiY76rhb32OL9kKsW8taj++iP7C6hxlVzbnvrw==

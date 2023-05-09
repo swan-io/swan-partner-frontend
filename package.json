@@ -45,7 +45,7 @@
     "clients/**/src/**/*.gql": "yarn graphql-codegen"
   },
   "resolutions": {
-    "@types/testing-library__jest-dom": "github:zoontek/types-testing-library-vitest-dom"
+    "@types/testing-library__jest-dom": "github:zoontek/types-testing-library-vitest-dom#0.31.0"
   },
   "devDependencies": {
     "@fluentui/svg-icons": "1.1.198",

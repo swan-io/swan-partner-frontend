@@ -2,7 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { getLocation } from "@swan-io/chicane";
 import { last } from "@swan-io/lake/src/utils/array";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { CombinedError, Operation, OperationContext, OperationResult } from "@urql/core";
+import { CombinedError, Operation, OperationResult } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { relayPagination } from "@urql/exchange-graphcache/extras";
 import { P, match } from "ts-pattern";
@@ -44,12 +44,6 @@ const onError = (error: CombinedError, operation: Operation) => {
   } else {
     logBackendError(error, operation);
   }
-};
-
-export const unauthenticatedContext: OperationContext = {
-  url: "/api/unauthenticated",
-  requestPolicy: "network-only",
-  suspense: true,
 };
 
 const partnerCache = cacheExchange<GraphCacheConfig>({
@@ -108,6 +102,13 @@ export const partnerClient = new Client({
     errorExchange({ onError }),
     fetchExchange,
   ],
+});
+
+export const unauthenticatedClient = new Client({
+  url: "/api/unauthenticated",
+  requestPolicy: "network-only",
+  suspense: true,
+  exchanges: [requestIdExchange, errorExchange({ onError }), fetchExchange],
 });
 
 export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {

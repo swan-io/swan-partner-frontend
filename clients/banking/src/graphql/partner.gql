@@ -496,6 +496,7 @@ fragment CardListItem on Card {
   type
   name
   statusInfo {
+    __typename
     status
   }
   spendingLimits {

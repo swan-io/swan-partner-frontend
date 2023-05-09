@@ -2546,10 +2546,10 @@
     "@urql/core" ">=4.0.0"
     wonka "^6.3.0"
 
-"@urql/introspection@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@urql/introspection/-/introspection-1.0.1.tgz#8f5d9ce10b1ad49e4cbf465b005bcdf1343a62cb"
-  integrity sha512-QM0rMdCDZSRXPRqmGKTIR54J0ioQclHzqaJTUqv3wXxLcwAS1osuh5s6WmqZpbFEL9+edP/6L0l43GgdSlL37A==
+"@urql/introspection@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@urql/introspection/-/introspection-1.0.2.tgz#220769ab8b8a18737a45dda89ee9b5abf37fe0c5"
+  integrity sha512-vPuX+DjbmL5EUsvwgAMV8dkxc7JKuuNTzDfsNvtCuVmbAED4Nx39p08HImjTWAewSatjyzZZs+fAhU7z/4P+UQ==
 
 "@vitejs/plugin-legacy@4.0.2":
   version "4.0.2"

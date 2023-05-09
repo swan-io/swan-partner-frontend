@@ -64,7 +64,6 @@ export const App = () => {
             </Suspense>
           </ClientProvider>
         ))
-
         .with(P.nullish, () => <NotFoundPage style={styles.base} />)
         .exhaustive()}
 

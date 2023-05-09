@@ -1,4 +1,4 @@
-import { UnionToTuple } from "@swan-io/lake/src/utils/types";
+import { unionToArray } from "@swan-io/lake/src/utils/function";
 import chalk from "chalk";
 import path from "node:path";
 import url from "node:url";
@@ -8,7 +8,7 @@ import { AccountCountry } from "./graphql/partner.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const accountCountries: UnionToTuple<AccountCountry> = ["DEU", "ESP", "FRA"];
+const accountCountries = unionToArray<AccountCountry>({ DEU: true, ESP: true, FRA: true });
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",

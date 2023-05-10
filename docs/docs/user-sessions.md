@@ -3,25 +3,24 @@ title: User sessions
 sidebar_label: User sessions
 ---
 
-The server uses [@fastify/secure-session](https://github.com/fastify/fastify-secure-session) to **store the user session** data as an encrypted, secure, HTTP-only cookie.
+The server uses [@fastify/secure-session](https://github.com/fastify/fastify-secure-session) to **store user session data** as an encrypted, secure, HTTP-only cookie.
 
 ## Setup
 
 This techniques requires a `COOKIE_KEY` environment variable.
-
-You can generate one using the following command:
+Generate one using the following command:
 
 ```console
 $ yarn generate-cookie-key
 ```
 
 :::warning
-Use a different `COOKIE_KEY` for each of your environments, and do not check it in your repository.
+Use a different `COOKIE_KEY` for each environments, and do not save it in your repository.
 :::
 
 ## Contents
 
-In request handlers, you can access the session data using `request.session`:
+In request handlers, access the session data using `request.session`:
 
 ```ts
 // get session data
@@ -30,9 +29,9 @@ request.session.get("myKey");
 request.session.set("myKey", "myValue");
 ```
 
-## User Access Token
+## User access token
 
-For convenience, you can access the Swan User Access Token directly using `request.accessToken`
+For convenience, request a Swan user access token directly using `request.accessToken`:
 
 ```ts
 const accessToken = request.accessToken;
@@ -44,3 +43,7 @@ if (accessToken == undefined) {
   // do something with `accessToken`
 }
 ```
+:::tip
+Learn more about [Swan and access tokens](
+https://docs.swan.io/api/authentication) in our main docs.
+:::

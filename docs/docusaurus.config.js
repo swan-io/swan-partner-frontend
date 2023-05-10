@@ -3,7 +3,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
-  title: "Swan Partner Front-End",
+  title: "Swan Partner Frontend",
   tagline: "Onboarding & Banking clients for Swan",
   url: "https://swan-io.github.io",
   baseUrl: "/swan-partner-frontend/",
@@ -14,9 +14,9 @@ module.exports = {
   projectName: "swan-partner-frontend", // Usually your repo name.
   themeConfig: {
     navbar: {
-      title: "Swan Partner Front-End",
+      title: "Swan Partner Frontend",
       logo: {
-        alt: "Swan Partner Front-End",
+        alt: "Swan Partner Frontend",
         src: "img/logo.svg",
       },
       items: [

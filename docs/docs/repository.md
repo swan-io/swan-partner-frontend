@@ -3,7 +3,7 @@ title: Repository
 sidebar_label: Repository
 ---
 
-The Swan Partner Front-End repository contains two main elements:
+The Swan Partner Frontend repository contains two main elements:
 
 ## Clients
 
@@ -18,7 +18,7 @@ The Swan Partner Front-End repository contains two main elements:
 
 ### Structure
 
-In the `./clients` directory, you'll find the two front-end clients:
+In the `./clients` directory, you'll find the two frontend clients:
 
 - **banking**: the banking interface, including transactions, cards, payments & memberships
 - **onboarding**: the form for an end user to create a Swan account

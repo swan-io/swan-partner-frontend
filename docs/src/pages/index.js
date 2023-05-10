@@ -11,7 +11,7 @@ function HomepageHeader() {
     <header className={"hero hero--primary " + styles.hero}>
       <img src={"./img/logo.svg"} alt="" className={styles.logo} />
       <div className="container">
-        <h1 className={styles.heroTitle}>Partner Front-End</h1>
+        <h1 className={styles.heroTitle}>Partner Frontend</h1>
         <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
         <div>
           <Link className="button button--lg" to="/getting-started">
@@ -72,7 +72,7 @@ const Home = () => {
 
   return (
     <Layout
-      title={`Swan Partner Front-End: ${siteConfig.tagline}`}
+      title={`Swan Partner Frontend: ${siteConfig.tagline}`}
       description="Onboarding & Banking clients for Swan"
     >
       <HomepageHeader />

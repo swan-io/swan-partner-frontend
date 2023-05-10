@@ -3,7 +3,7 @@ title: Getting started
 sidebar_label: Introduction
 ---
 
-**Swan Partner Front-End** is Swan's official client for:
+**Swan Partner Frontend** is Swan's official client for:
 
 - **onboarding**: the form for an end user to create a Swan account
 - **banking**: the banking interface, including transactions, cards, payments & memberships

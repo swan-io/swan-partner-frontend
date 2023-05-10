@@ -24,7 +24,6 @@ match(projectConfiguration)
   .with(Option.pattern.None, () => {
     const url = new URL(window.location.href);
     const [...envHostName] = url.hostname.split(".");
-    console.log(url.protocol);
     window.location.replace(`${url.protocol}//${["partner", ...envHostName].join(".")}/`);
   })
   .otherwise(() => {

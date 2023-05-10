@@ -2,13 +2,11 @@
 title: Getting started
 sidebar_label: Introduction
 ---
+import PartialExample from '_clients.mdx';
 
 **Swan Partner Frontend** is Swan's official client for user onboarding and web banking.
 
-- **User onboarding**: process of opening new accounts for your users that follows specific steps to meet legal requirements
-- **Web banking**: banking interface where users can manage their financial needs around transactions, cards, payments, and memberships
-
-This project contains the same code used internally at Swan to provide a white-labeled, no-code banking experience.
+<PartialExample/>
 
 This project might be interesting to you if:
 

@@ -72,7 +72,7 @@ const Home = () => {
 
   return (
     <Layout
-      title={`Swan Partner Frontend: ${siteConfig.tagline}`}
+      title={`Swan Banking Frontend: ${siteConfig.tagline}`}
       description="Onboarding & Banking clients for Swan"
     >
       <HomepageHeader />

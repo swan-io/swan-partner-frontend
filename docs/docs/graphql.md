@@ -4,7 +4,7 @@ sidebar_label: GraphQL
 ---
 
 Swan exposes a [GraphQL](https://graphql.org/) API.
-Everyone is free to try it out in Sandbox on the [API Explorer](https://explorer.swan.io/).
+Anyone can try it out on the [API Explorer](https://explorer.swan.io/) in Sandbox mode.
 
 ## Schemas
 
@@ -58,5 +58,5 @@ const MyComponent = () => {
 ```
 
 :::info
-Generated files are **not versioned** to avoid unnecessary conflicts. Instead, they're generated with the CI.
+Generated files are **not versioned** to avoid unnecessary conflicts. Instead, they're generated with CI.
 :::

@@ -16,8 +16,8 @@ swan-partner-frontend
 ---
 dev server started
 
-Banking > https://banking.swan.local:8080
-Onboarding Individual > https://onboarding.swan.local:8080/onboarding/individual/start
-Onboarding Company > https://onboarding.swan.local:8080/onboarding/company/start
+Banking: https://banking.swan.local:8080
+Onboarding Individual: https://onboarding.swan.local:8080/onboarding/individual/start
+Onboarding Company: https://onboarding.swan.local:8080/onboarding/company/start
 ---
 ```

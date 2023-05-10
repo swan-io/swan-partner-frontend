@@ -15,7 +15,7 @@ $ yarn generate-cookie-key
 ```
 
 :::warning
-Use a different `COOKIE_KEY` for each environments, and do not save it in your repository.
+Use a different `COOKIE_KEY` for each environment, and do not save it in your repository.
 :::
 
 ## Contents
@@ -43,7 +43,7 @@ if (accessToken == undefined) {
   // do something with `accessToken`
 }
 ```
-:::tip
+:::info
 Learn more about [Swan and access tokens](
 https://docs.swan.io/api/authentication) in our main docs.
 :::

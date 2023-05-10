@@ -1,6 +1,7 @@
 # OAuth2
 
 Swan uses [OAuth2](https://oauth.net/2/) for authentication.
+Learn more about [Swan and OAuth2](https://docs.swan.io/api/authentication) in our main docs.
 
 ## GET `/auth/login`
 
@@ -9,14 +10,14 @@ This endpoint redirects to the Swan OAuth2 server and performs the correct flow 
 ### Generic query params
 
 - `scope`: additional OAuth2 scopes (always includes `openid` and `offline`)
-- `identificationLevel`: level of identification for the user should be prompted with (`Expert`, `PVID`, or `QES`)
+- `identificationLevel`: [level of identification](https://docs.swan.io/concept/user#identification-level) for the user to verify their identity (`Expert`, `PVID`, or `QES`)
 
 ### Specific params
 
 For some specific flows, the server needs to perform an action after the user is authentified.
-It will encode the information in the OAuth2 flow's `state`.
+The server will encode the information in the OAuth2 flow's `state`.
 
-| Flow | Param | Description |
+| Flow | Parameter | Description |
 | ---- | ---- | ----------- |
 | Login and redirection | `redirectTo` | absolute path (such as `/path/to/x`) where the user will be redirected after the authentication flow |
 | Onboarding finalization | `onboardingId` | ID for the onboarding the user is finalizing |

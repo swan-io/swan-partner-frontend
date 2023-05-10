@@ -7,7 +7,7 @@ sidebar_label: Set up your instance
 
 ## 1. Clone the project
 
-Clone the project using `git`:
+Clone the project using `git`.
 
 ```console
 $ git clone git@github.com:swan-io/swan-partner-frontend.git
@@ -25,7 +25,7 @@ $ yarn
 ## 3. Set up hosts
 
 We need to be able to replicate the subdomains used in production.
-You might need to use `sudo` to be able to edit the `hosts` file.
+You might need to use `sudo` to edit the `hosts` file.
 
 Add the following to your `/etc/hosts` file:
 
@@ -37,8 +37,7 @@ Add the following to your `/etc/hosts` file:
 ## 4. Set up HTTPS and `mkcert`
 
 In order to replicate the production conditions (primarily for session cookies), the local server runs in HTTPS.
-By default, your system will warn against a self-signed certificate.
-Use [mkcert](https://github.com/FiloSottile/mkcert) to make your system trust the self-signed certificate.
+Your system will warn against a self-signed certificate by default, so use [mkcert](https://github.com/FiloSottile/mkcert) to make your system trust it.
 
 import Tabs from "@theme/Tabs";
 import TabItem from "@theme/TabItem";
@@ -95,5 +94,5 @@ https://banking.swan.local:8080/auth/callback
 ```
 
 :::tipSuccess
-🎉 Your repository is now ready for development!
+🎉 Your repository is ready for development!
 :::

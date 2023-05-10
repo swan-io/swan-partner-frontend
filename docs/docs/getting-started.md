@@ -3,17 +3,15 @@ title: Getting started
 sidebar_label: Introduction
 ---
 
-**Swan Partner Frontend** is Swan's official client for:
+**Swan Partner Frontend** is Swan's official client for user onboarding and web banking.
 
-- **onboarding**: the form for an end user to create a Swan account
-- **banking**: the banking interface, including transactions, cards, payments & memberships
+- **User onboarding**: process of opening new accounts for your users that follows specific steps to meet legal requirements
+- **Web banking**: banking interface where users can manage their financial needs around transactions, cards, payments, and memberships
 
-This project is used internally at Swan to provide the white-label experience.
+This project contains the same code used internally at Swan to provide a white-labeled, no-code banking experience.
 
-## How can this be useful for me?
+This project might be interesting to you if:
 
-This project can help you:
-
-- **bootstrap** your Swan UI quickly
-- **customize** the user experience even further
-- **learn** from Swan's own reference implementation
+* You need to **bootstrap** your Swan UI quickly.
+* You need to **customize** your user experience, whether with fonts and colors or by eliminating optional components.
+* You'd like to **learn from Swan's reference** implementation.

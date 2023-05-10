@@ -4,37 +4,48 @@ Swan uses [OAuth2](https://oauth.net/2/) for authentication.
 
 ## GET `/auth/login`
 
-This endpoint redirects to Swan OAuth2 server and performs the correct flow given parameters.
+This endpoint redirects to the Swan OAuth2 server and performs the correct flow based on given parameters.
 
 ### Generic query params
 
-- `scope`: additional OAuth2 scopes (`openid` and `offline` will always be added)
-- `identificationLevel`: level of identification for the user should be prompted with (`Expert` or `QES`)
+- `scope`: additional OAuth2 scopes (always includes `openid` and `offline`)
+- `identificationLevel`: level of identification for the user should be prompted with (`Expert`, `PVID`, or `QES`)
 
 ### Specific params
 
-For some specific flows, the server needs to perform some action after the user authentified, it will encode the information in the OAuth2 flow's `state`.
+For some specific flows, the server needs to perform an action after the user is authentified.
+It will encode the information in the OAuth2 flow's `state`.
 
-#### Login & redirection flow
+| Flow | Param | Description |
+| ---- | ---- | ----------- |
+| Login and redirection | `redirectTo` | absolute path (such as `/path/to/x`) where the user will be redirected after the authentication flow |
+| Onboarding finalization | `onboardingId` | ID for the onboarding the user is finalizing |
+| Account membership invitation | `accountMembershipId` | ID for the account membership to which you're binding the user |
 
-- `redirectTo`: absolute path (e.g. `/path/to/x`) where to redirect the user after the flow
+:::caution
+You must use the **Banking URL** (`${CLIENT_BANKING_URL}/auth/login?...`) to generate onboarding links. This ensures the session cookie is written on the correct domain, avoiding an unnecessary login flow.
+:::
+
+<!-- #### Login and redirection flow
+
+- `redirectTo`: absolute path (such as `/path/to/x`) where the user will be redirected after the authentication flow
 
 #### Onboarding finalization flow
 
-- `onboardingId`: the onboarding the user wishes to finalize
+- `onboardingId`: ID for the onboarding the user is finalizing
 
 :::caution
-The link must be generated using the **Banking URL** (`${CLIENT_BANKING_URL}/auth/login?...`) so that the session cookie is written on the correct domain, avoiding an unnecessary login flow.
+You must use the **Banking URL** (`${CLIENT_BANKING_URL}/auth/login?...`) to generate onboarding links. This ensures the session cookie is written on the correct domain, avoiding an unnecessary login flow.
 :::
 
 #### Account membership invitation
 
-- `accountMembershipId`: the membership the user wishes to bind their user to
+- `accountMembershipId`: ID for the account membership to which you're binding the user -->
 
 ## GET `/auth/callback`
 
-Endpoint to which Swan's OAuth2 server redirects, performs the necessary actions given the received `state`.
+This endpoint is where Swan's OAuth2 server redirects to, permorming the necessary actions based on the received `state`.
 
 ## POST `/auth/logout`
 
-Clears the user session.
+This endpoint clears the user session.

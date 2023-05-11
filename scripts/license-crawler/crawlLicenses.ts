@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { exec as originalExec } from "child_process";
 import fs from "node:fs";
-import path from "node:path";
+import path from "pathe";
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {

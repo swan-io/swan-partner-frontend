@@ -2,7 +2,7 @@ import assert from "node:assert";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import os from "node:os";
-import path from "node:path";
+import path from "pathe";
 
 const tmp = os.tmpdir();
 const repoName = "deploy";

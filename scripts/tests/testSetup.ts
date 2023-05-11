@@ -7,7 +7,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import dotenv from "dotenv";
-import path from "path";
+import path from "pathe";
 import { expect } from "vitest";
 
 // @ts-expect-error

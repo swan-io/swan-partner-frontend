@@ -43,7 +43,7 @@ if (accessToken == undefined) {
   // do something with `accessToken`
 }
 ```
+
 :::info
-Learn more about [Swan and access tokens](
-https://docs.swan.io/api/authentication) in our main docs.
+Learn more about [Swan and access tokens](https://docs.swan.io/api/authentication) in our main docs.
 :::

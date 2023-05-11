@@ -17,11 +17,11 @@ This endpoint redirects to the Swan OAuth2 server and performs the correct flow 
 For some specific flows, the server needs to perform an action after the user is authentified.
 The server will encode the information in the OAuth2 flow's `state`.
 
-| Flow | Parameter | Description |
-| ---- | ---- | ----------- |
-| Login and redirection | `redirectTo` | absolute path (such as `/path/to/x`) where the user will be redirected after the authentication flow |
-| Onboarding finalization | `onboardingId` | ID for the onboarding the user is finalizing |
-| Account membership invitation | `accountMembershipId` | ID for the account membership to which you're binding the user |
+| Flow                          | Parameter             | Description                                                                                          |
+| ----------------------------- | --------------------- | ---------------------------------------------------------------------------------------------------- |
+| Login and redirection         | `redirectTo`          | absolute path (such as `/path/to/x`) where the user will be redirected after the authentication flow |
+| Onboarding finalization       | `onboardingId`        | ID for the onboarding the user is finalizing                                                         |
+| Account membership invitation | `accountMembershipId` | ID for the account membership to which you're binding the user                                       |
 
 :::caution
 You must use the **Banking URL** (`${CLIENT_BANKING_URL}/auth/login?...`) to generate onboarding links. This ensures the session cookie is written on the correct domain, avoiding an unnecessary login flow.

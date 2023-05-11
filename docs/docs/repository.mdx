@@ -2,7 +2,8 @@
 title: GitHub repository
 sidebar_label: GitHub repository
 ---
-import PartialExample from './_clients.mdx';
+
+import PartialExample from "./_clients.mdx";
 
 The Swan Banking Frontend repository, hosted on GitHub, contains two main directories: **clients** and **server**.
 
@@ -21,7 +22,7 @@ The Swan Banking Frontend repository, hosted on GitHub, contains two main direct
 
 In the `./clients` directory, you'll find two frontend clients:
 
-<PartialExample/>
+<PartialExample />
 
 #### `public`
 
@@ -33,20 +34,20 @@ This can be useful for favicons, `robots.txt` files, and more.
 The application lives in the `src` directory with the following content:
 
 - Entry files
-    - `index.html`: HTML entry point
-    - `index.tsx`: TypeScript entry point
-    - `App.tsx`: root React app component
+  - `index.html`: HTML entry point
+  - `index.tsx`: TypeScript entry point
+  - `App.tsx`: root React app component
 - Directories
-    - `assets`: files you want to import from the TypeScript application
-    - `components`: React components
-    - `graphql`: GraphQL documents used in the app
-    - `locales`: translation files (JSON)
-    - `pages`: "root" components for pages
-    - `utils`: files used around the codebase
+  - `assets`: files you want to import from the TypeScript application
+  - `components`: React components
+  - `graphql`: GraphQL documents used in the app
+  - `locales`: translation files (JSON)
+  - `pages`: "root" components for pages
+  - `utils`: files used around the codebase
 
 ## Server
 
-In the `./server` directory, you'll find the *Backend for Frontend*, sometimes referred to as BFF.
+In the `./server` directory, you'll find the _Backend for Frontend_, sometimes referred to as BFF.
 
 BFF is responsible for:
 
@@ -70,10 +71,10 @@ BFF is responsible for:
 The application lives in the `src` directory with the following content:
 
 - Entry files
-    - `index.ts`: server entry point
-    - `app.ts`: server main router
-    - `env.ts`: environment variables
+  - `index.ts`: server entry point
+  - `app.ts`: server main router
+  - `env.ts`: environment variables
 - Directories
-    - `api`: OAuth2 and API-related functions
-    - `client`: logic for serving and caching files based on the environment
-    - `graphql`: queries and mutations performed by the server
+  - `api`: OAuth2 and API-related functions
+  - `client`: logic for serving and caching files based on the environment
+  - `graphql`: queries and mutations performed by the server

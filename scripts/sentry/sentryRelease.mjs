@@ -1,6 +1,6 @@
 import SentryCli from "@sentry/cli";
 import fs from "fs";
-import path from "path";
+import path from "pathe";
 import url from "url";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));

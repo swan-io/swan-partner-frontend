@@ -1,6 +1,6 @@
 import { IntrospectionQuery, buildClientSchema, getIntrospectionQuery, printSchema } from "graphql";
 import fs from "node:fs";
-import path from "node:path";
+import path from "pathe";
 import { string, validate } from "valienv";
 
 const introspectionQuery = getIntrospectionQuery();

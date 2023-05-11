@@ -1,6 +1,6 @@
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
-import path from "node:path";
+import path from "pathe";
 import { defineConfig } from "vitest/config";
 
 const root = path.resolve(__dirname, "./src");

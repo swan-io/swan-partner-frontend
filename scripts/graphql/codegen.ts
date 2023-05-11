@@ -17,7 +17,10 @@ const addTypenames: Types.DocumentTransformFunction = ({ documents }) =>
         SelectionSet: {
           leave(node) {
             const hasTypename = node.selections.some(
-              selection => selection.kind === Kind.FIELD && selection.name.value === "__typename",
+              selection =>
+                selection.kind === Kind.FIELD &&
+                (selection.name.value === "__typename" ||
+                  selection.name.value.lastIndexOf("__", 0) === 0),
             );
 
             if (!hasTypename) {
@@ -82,9 +85,6 @@ const serverConfig = {
   federation: true,
 };
 
-const partnerSchema = file("./dist/partner-schema.gql");
-const unauthenticatedSchema = file("./dist/unauthenticated-schema.gql");
-
 const config: CodegenConfig = {
   errorsOnly: true,
   overwrite: true,
@@ -96,14 +96,14 @@ const config: CodegenConfig = {
   generates: {
     [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
-      schema: unauthenticatedSchema,
+      schema: file("./dist/unauthenticated-schema.gql"),
       plugins: clientPlugins,
       config: clientConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
 
     [file("../../clients/onboarding/src/graphql/introspection.json")]: {
-      schema: unauthenticatedSchema,
+      schema: file("./dist/unauthenticated-schema.gql"),
       plugins: ["introspection"],
       config: { descriptions: false },
       hooks: {
@@ -113,7 +113,7 @@ const config: CodegenConfig = {
 
     [file("../../clients/banking/src/graphql/partner.ts")]: {
       documents: file("../../clients/banking/src/graphql/partner.gql"),
-      schema: partnerSchema,
+      schema: file("./dist/partner-schema.gql"),
       plugins: clientPlugins,
       config: clientConfig,
       documentTransforms: [{ transform: addTypenames }],
@@ -121,14 +121,14 @@ const config: CodegenConfig = {
 
     [file("../../clients/banking/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/banking/src/graphql/unauthenticated.gql"),
-      schema: unauthenticatedSchema,
+      schema: file("./dist/unauthenticated-schema.gql"),
       config: clientConfig,
       plugins: clientPlugins,
       documentTransforms: [{ transform: addTypenames }],
     },
 
     [file("../../clients/banking/src/graphql/introspection.json")]: {
-      schema: partnerSchema,
+      schema: file("./dist/partner-schema.gql"),
       plugins: ["introspection"],
       config: { descriptions: false },
       hooks: {
@@ -138,7 +138,7 @@ const config: CodegenConfig = {
 
     [file("../../server/src/graphql/partner.ts")]: {
       documents: file("../../server/src/graphql/partner.gql"),
-      schema: partnerSchema,
+      schema: file("./dist/partner-schema.gql"),
       plugins: serverPlugins,
       config: serverConfig,
       documentTransforms: [{ transform: addTypenames }],
@@ -146,7 +146,7 @@ const config: CodegenConfig = {
 
     [file("../../server/src/graphql/unauthenticated.ts")]: {
       documents: file("../../server/src/graphql/unauthenticated.gql"),
-      schema: unauthenticatedSchema,
+      schema: file("./dist/unauthenticated-schema.gql"),
       plugins: serverPlugins,
       config: serverConfig,
       documentTransforms: [{ transform: addTypenames }],

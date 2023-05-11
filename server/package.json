@@ -40,6 +40,7 @@
     "graphql-tag": "2.12.6",
     "mustache": "4.2.0",
     "node-mailjet": "6.0.2",
+    "pathe": "1.1.0",
     "pino-pretty": "10.0.0",
     "ts-pattern": "4.3.0",
     "valienv": "0.4.0"

@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { exec as originalExec } from "node:child_process";
 import fs from "node:fs";
-import path from "node:path";
+import path from "pathe";
 import prompts from "prompts";
 import semverGt from "semver/functions/gt.js";
 

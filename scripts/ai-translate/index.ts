@@ -5,7 +5,7 @@ import fs from "fs/promises";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import ora from "ora";
 import os from "os";
-import path from "path";
+import path from "pathe";
 import prompts from "prompts";
 import tiktoken from "tiktoken-node";
 import type { Except } from "type-fest";

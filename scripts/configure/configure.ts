@@ -47,6 +47,15 @@ const start = async () => {
   });
 
   console.log("");
+  console.log("");
+  console.log(
+    `Don't forget to add ${chalk.magenta(
+      "https://banking.swan.local:8080/auth/callback",
+    )} to your redirect URIs ${chalk.magenta(
+      "https://dashboard.swan.io > Developers > API > OAuth 2.0 Credentials",
+    )}`,
+  );
+  console.log("");
   console.log("Generating a new key for cookie encryption");
 
   const hexKey = execSync(

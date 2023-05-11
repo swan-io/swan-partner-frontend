@@ -16,12 +16,8 @@ const addTypenames: Types.DocumentTransformFunction = ({ documents }) =>
       document: visit(document, {
         SelectionSet: {
           leave(node) {
-            // If selections already have a __typename or is introspection do nothing.
             const hasTypename = node.selections.some(
-              selection =>
-                selection.kind === Kind.FIELD &&
-                (selection.name.value === "__typename" ||
-                  selection.name.value.lastIndexOf("__", 0) === 0),
+              selection => selection.kind === Kind.FIELD && selection.name.value === "__typename",
             );
 
             if (!hasTypename) {

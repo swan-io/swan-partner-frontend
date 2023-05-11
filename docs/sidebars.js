@@ -70,6 +70,17 @@ module.exports = {
         },
       ],
     },
+    {
+      type: "category",
+      label: "Customization",
+      collapsed: false,
+      items: [
+        {
+          type: "doc",
+          id: "invitation",
+        },
+      ],
+    },
   ],
   specs: [
     {

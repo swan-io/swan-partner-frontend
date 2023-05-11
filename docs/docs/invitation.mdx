@@ -1,0 +1,57 @@
+---
+title: Account Membership email
+sidebar_label: Account Membership email
+---
+
+By default, the banking interface will give a user who invites another one a link to accept the membership.
+
+If you want to send an email to your users, you can provide a `sendAccountMembershipInvitation` to the `start` function called in `server/src/index.ts`
+
+It's expected signature is the following:
+
+```ts
+export type InvitationConfig = {
+  accessToken: string;
+  requestLanguage: string;
+  inviteeAccountMembershipId: string;
+  inviterAccountMembershipId: string;
+};
+
+type sendAccountMembershipInvitation = (config: InvitationConfig) => Promise<unknown>;
+```
+
+For instance, here's our internal implementation:
+
+```ts title="index.ts"
+const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {
+  // Get data from the API
+  return (
+    getAccountMembershipInvitationData({
+      accessToken: invitationConfig.accessToken,
+      inviteeAccountMembershipId: invitationConfig.inviteeAccountMembershipId,
+      inviterAccountMembershipId: invitationConfig.inviterAccountMembershipId,
+    })
+      // Build mailjet config
+      .mapOkToResult(invitationData =>
+        getMailjetInput({ invitationData, requestLanguage: invitationConfig.requestLanguage }),
+      )
+      // Send email
+      .flatMapOk(data => {
+        return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
+      })
+      .resultToPromise()
+  );
+};
+```
+
+Which we then pass to the `start` function parameters:
+
+```ts title="index.ts"
+start({
+  mode: env.NODE_ENV,
+  // ...
+  sendAccountMembershipInvitation,
+});
+```
+
+When configured this way, the frontend will automatically call the function instead of showing the link.

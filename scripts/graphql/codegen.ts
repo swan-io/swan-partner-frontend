@@ -124,6 +124,7 @@ const config: CodegenConfig = {
       schema: unauthenticatedSchema,
       config: clientConfig,
       plugins: clientPlugins,
+      documentTransforms: [{ transform: addTypenames }],
     },
 
     [file("../../clients/banking/src/graphql/introspection.json")]: {

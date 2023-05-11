@@ -70,10 +70,7 @@ const clientConfig = {
   scalars,
   dedupeOperationSuffix: true,
   enumsAsTypes: true,
-  preResolveTypes: true,
-  skipTypename: false,
   nonOptionalTypename: true,
-  onlyOperationTypes: false,
   defaultScalarType: "unknown",
   inlineFragmentTypes: "combine",
 };
@@ -81,11 +78,8 @@ const clientConfig = {
 const serverPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
 
 const serverConfig = {
-  scalars,
-  enumsAsTypes: true,
+  ...clientConfig,
   federation: true,
-  defaultScalarType: "unknown",
-  inlineFragmentTypes: "combine",
 };
 
 const partnerSchema = file("./dist/partner-schema.gql");

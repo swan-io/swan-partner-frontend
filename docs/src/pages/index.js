@@ -11,7 +11,7 @@ function HomepageHeader() {
     <header className={"hero hero--primary " + styles.hero}>
       <img src={"./img/logo.svg"} alt="" className={styles.logo} />
       <div className="container">
-        <h1 className={styles.heroTitle}>Partner Frontend</h1>
+        <h1 className={styles.heroTitle}>Banking Frontend</h1>
         <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>
         <div>
           <Link className="button button--lg" to="/getting-started">

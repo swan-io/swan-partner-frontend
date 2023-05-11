@@ -14,7 +14,6 @@
   "scripts": {
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
-    "graphql-lint": "tsx scripts/graphql/lint.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
     "format": "prettier '**/*' --ignore-unknown --write",
     "link-locale-lake": "sh scripts/lake/link-locale-lake.sh",
@@ -76,7 +75,6 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-native": "4.0.0",
     "eslint-plugin-swan": "file:scripts/eslint",
-    "glob": "10.2.2",
     "graphql": "16.6.0",
     "lint-staged": "13.2.2",
     "openai": "3.2.1",

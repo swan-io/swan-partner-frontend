@@ -1,13 +1,19 @@
 ---
-title: Account Membership email
-sidebar_label: Account Membership email
+title: Automate account membership invitation
+sidebar_label: Automate account membership invitation
 ---
 
-By default, the banking interface will give a user who invites another one a link to accept the membership.
+When a new account membership is created, the invited user must accept the membership.
 
-If you want to send an email to your users, you can provide a `sendAccountMembershipInvitation` to the `start` function called in `server/src/index.ts`
+By default, this is done with an invitation link.
+The link needs to be copied manually from the app and sent to the invited user.
+Then, the invited user opens the links and follows the prompts to accept the membership.
 
-Its expected signature is the following:
+Alternatively, you can **automate sending the link** by including a `sendAccountMembershipInvitation` in the `start` function called in `server/src/index.ts`.
+
+## Write expected signature
+
+The expected signature contains the following information:
 
 ```ts
 export type InvitationConfig = {
@@ -20,7 +26,9 @@ export type InvitationConfig = {
 type sendAccountMembershipInvitation = (config: InvitationConfig) => Promise<unknown>;
 ```
 
-As an example, here's our internal implementation:
+## Review example
+
+Review Swan's internal implementation:
 
 ```ts title="index.ts"
 const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {
@@ -44,7 +52,9 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
 };
 ```
 
-Which we then pass to the `start` function parameters:
+## Pass to function parameters
+
+Pass the expected signature to the `start` function parameters:
 
 ```ts title="index.ts"
 start({
@@ -54,4 +64,6 @@ start({
 });
 ```
 
-When configured this way, the frontend will automatically call the function instead of showing the link.
+:::tipsuccess
+With this configuration, sending the invitation is automated thanks to your function.
+:::

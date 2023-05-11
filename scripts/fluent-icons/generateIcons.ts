@@ -1,7 +1,7 @@
 import { Array, Option } from "@swan-io/boxed";
 import fs from "node:fs";
-import path from "node:path";
 import { EOL } from "os";
+import path from "pathe";
 
 const icons = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), "scripts/fluent-icons/icons.json"), "utf-8"),

@@ -11,8 +11,8 @@ import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
-import path from "node:path";
 import url from "node:url";
+import path from "pathe";
 import { P, match } from "ts-pattern";
 import {
   OAuth2State,

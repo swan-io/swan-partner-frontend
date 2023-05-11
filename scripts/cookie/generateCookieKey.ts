@@ -1,6 +1,6 @@
 import chalk from "chalk";
 import { execSync } from "node:child_process";
-import path from "node:path";
+import path from "pathe";
 
 const hexKey = execSync(
   path.join(process.cwd(), "node_modules/@fastify/secure-session/genkey.js"),

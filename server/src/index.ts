@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import path from "node:path";
 import url from "node:url";
+import path from "pathe";
 import { start } from "./app.js";
 import { env } from "./env.js";
 import { AccountCountry } from "./graphql/partner.js";

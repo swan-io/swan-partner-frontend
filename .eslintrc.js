@@ -1,6 +1,6 @@
 // https://github.com/facebook/create-react-app/tree/v4.0.0/packages/eslint-config-react-app
 // const { dependencies } = require("./package.json");
-const path = require("path");
+const path = require("pathe");
 
 const errorOnCI = process.env.CI === "true" ? "error" : "warn";
 

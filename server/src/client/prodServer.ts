@@ -1,8 +1,8 @@
 import { FastifyReply, RouteHandlerMethod } from "fastify";
 import { Http2SecureServer } from "http2";
 import fs, { Stats } from "node:fs";
-import path from "node:path";
 import url from "node:url";
+import path from "pathe";
 import { env } from "../env.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));

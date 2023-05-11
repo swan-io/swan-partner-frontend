@@ -1,4 +1,4 @@
-import PartialExample from './_clients.mdx';
+import PartialExample from "./_clients.mdx";
 
 # Build and deploy
 
@@ -20,24 +20,24 @@ $ docker build
 
 ## Required environment variables
 
-| Type | Variable | Description |
-| ---- | ---- | ----------- |
-| Environment | `NODE_ENV` | *development* or *production* |
-| Environment | `LOG_LEVEL` | *fatal*, *error*, *warn*, *info*, *debug*, *trace*, or *silent* |
-| API | `PARTNER_API_URL` | Swan Partner API URL |
-| API | `UNAUTHENTICATED_API_URL` | Swan Unauthenticated API URL |
-| API | `OAUTH_SERVER_URL` | Swan OAuth2 server URL |
-| API | `OAUTH_CLIENT_ID` | your Swan project's OAuth2 Client ID |
-| API | `OAUTH_CLIENT_SECRET` | your Swan project's OAuth2 Client Secret |
-| Sessions | `COOKIE_KEY` | key to encrypt session cookies<br />(generate using `yarn generate-cookie-key`) |
-| URLs to expose | `BANKING_URL` | URL for the banking app |
-| URLs to expose | `ONBOARDING_URL` |  URL for the onboarding process |
+| Type           | Variable                  | Description                                                                     |
+| -------------- | ------------------------- | ------------------------------------------------------------------------------- |
+| Environment    | `NODE_ENV`                | _development_ or _production_                                                   |
+| Environment    | `LOG_LEVEL`               | _fatal_, _error_, _warn_, _info_, _debug_, _trace_, or _silent_                 |
+| API            | `PARTNER_API_URL`         | Swan Partner API URL                                                            |
+| API            | `UNAUTHENTICATED_API_URL` | Swan Unauthenticated API URL                                                    |
+| API            | `OAUTH_SERVER_URL`        | Swan OAuth2 server URL                                                          |
+| API            | `OAUTH_CLIENT_ID`         | your Swan project's OAuth2 Client ID                                            |
+| API            | `OAUTH_CLIENT_SECRET`     | your Swan project's OAuth2 Client Secret                                        |
+| Sessions       | `COOKIE_KEY`              | key to encrypt session cookies<br />(generate using `yarn generate-cookie-key`) |
+| URLs to expose | `BANKING_URL`             | URL for the banking app                                                         |
+| URLs to expose | `ONBOARDING_URL`          | URL for the onboarding process                                                  |
 
 ## Exposing the app
 
 The server is a **single application** that serves both banking and onboarding domains.
 
-<PartialExample/>
+<PartialExample />
 
 :::tip
 We recommend pointing both subdomains **to the same application** so that you don't have any sync issues between onboarding and banking.

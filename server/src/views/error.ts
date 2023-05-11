@@ -1,8 +1,8 @@
 import { FastifyReply } from "fastify";
 import fs from "node:fs";
 import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node:http2";
-import path from "node:path";
 import url from "node:url";
+import path from "pathe";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 

@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs";
-import path from "path";
+import path from "pathe";
 import { build } from "vite";
 
 const { version } = JSON.parse(

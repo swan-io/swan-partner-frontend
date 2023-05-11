@@ -1,5 +1,5 @@
 import fs from "node:fs";
-import path from "node:path";
+import path from "pathe";
 
 import { Array, Option } from "@swan-io/boxed";
 import { parse } from "dotenv";

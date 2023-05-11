@@ -14,8 +14,7 @@
   "scripts": {
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
-    "graphql-lint": "tsx scripts/graphql/lint.ts",
-    "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.yml",
+    "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
     "format": "prettier '**/*' --ignore-unknown --write",
     "link-locale-lake": "sh scripts/lake/link-locale-lake.sh",
     "unlink-locale-lake": "sh scripts/lake/unlink-locale-lake.sh",
@@ -76,11 +75,11 @@
     "eslint-plugin-react-hooks": "4.6.0",
     "eslint-plugin-react-native": "4.0.0",
     "eslint-plugin-swan": "file:scripts/eslint",
-    "glob": "10.2.2",
     "graphql": "16.6.0",
     "lint-staged": "13.2.2",
     "openai": "3.2.1",
     "ora": "6.3.0",
+    "pathe": "1.1.0",
     "prettier": "2.8.8",
     "prettier-plugin-organize-imports": "3.2.2",
     "prompts": "2.4.2",
@@ -92,7 +91,6 @@
     "type-fest": "3.7.0",
     "typescript": "5.0.4",
     "vite": "4.3.5",
-    "vitest": "0.31.0",
-    "yaml": "2.2.2"
+    "vitest": "0.31.0"
   }
 }

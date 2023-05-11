@@ -27,6 +27,8 @@ Should call the `addVirtualIbanEntry` mutation.
 
 ## Settings
 
+![](./images/account/settings.png)
+
 ### Details
 
 Should use the `updateAccount` mutation:

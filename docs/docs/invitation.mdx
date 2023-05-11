@@ -7,7 +7,7 @@ By default, the banking interface will give a user who invites another one a lin
 
 If you want to send an email to your users, you can provide a `sendAccountMembershipInvitation` to the `start` function called in `server/src/index.ts`
 
-It's expected signature is the following:
+Its expected signature is the following:
 
 ```ts
 export type InvitationConfig = {
@@ -20,7 +20,7 @@ export type InvitationConfig = {
 type sendAccountMembershipInvitation = (config: InvitationConfig) => Promise<unknown>;
 ```
 
-For instance, here's our internal implementation:
+As an example, here's our internal implementation:
 
 ```ts title="index.ts"
 const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {

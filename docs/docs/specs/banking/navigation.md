@@ -12,7 +12,7 @@ A user can have an account membership to an account **without any permissions** 
 
 ## Web Banking settings
 
-The project holds some **feature flags** for the Web Banking to make the no-code experience more flexible. Note that they’re only front-end flags, and don’t prevent these actions API-wise.
+The project holds some **feature flags** for the Web Banking to make the no-code experience more flexible. Note that they’re only frontend flags, and don’t prevent these actions API-wise.
 
 - **canAddNewMembers**: toggles the “New” button in the Members section
 - **canViewMembers**: toggles the Members section

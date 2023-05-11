@@ -36,11 +36,7 @@ module.exports = {
         },
         {
           type: "doc",
-          id: "build",
-        },
-        {
-          type: "doc",
-          id: "deploy",
+          id: "build-deploy",
         },
       ],
     },

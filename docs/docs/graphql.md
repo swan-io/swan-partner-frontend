@@ -3,23 +3,26 @@ title: GraphQL
 sidebar_label: GraphQL
 ---
 
-Swan exposes a [GraphQL](https://graphql.org/) API, which you can try on the [GraphQL Explorer](https://explorer.swan.io/).
+Swan exposes a [GraphQL](https://graphql.org/) API.
+Anyone can try it out on the [API Explorer](https://explorer.swan.io/) in Sandbox mode.
 
 ## Schemas
 
-In order to update the GraphQL schemas, you can run the following command:
+Update GraphQL schemas with the following command:
 
 ```console
 $ yarn graphql-update-schemas
 ```
 
 :::info
-In order for Continous Integration (CI) to be deterministic, the schemas are versioned in the repository
+Versioned schemas are stored in the repository to maintain consistent Continuous Integration (CI).
 :::
 
 ## Documents
 
-All the documents are in each applications `graphql` directory.
+All required documents are in the `graphql` directory for each application.
+
+Replace `$consentId` with your consent ID.
 
 ```graphql title="clients/banking/src/graphql/partner.gql"
 query ConsentCallbackPage($consentId: ID!) {
@@ -32,17 +35,17 @@ query ConsentCallbackPage($consentId: ID!) {
 # ...
 ```
 
-## Codegen
+## Code generator
 
 In order to benefit from GraphQL's types, we use [GraphQL Codegen](https://the-guild.dev/graphql/codegen).
 
-We can run the codegen using the following command:
+Run codegen with the following command:
 
 ```console
 $ yarn graphql-codegen
 ```
 
-Using our previous example, it will generate a `partner.ts` file next to the document one, which we can import:
+In this example, `codegen` generates a new file `partner.ts`, housed with documents, which we can import:
 
 ```ts
 import { ConsentCallbackPage } from "../graphql/partner";
@@ -55,5 +58,5 @@ const MyComponent = () => {
 ```
 
 :::info
-Generated files are **not versioned** to avoid unnecessary conflicts, they're instead generated on the CI.
+Generated files are **not versioned** to avoid unnecessary conflicts. Instead, they're generated with CI.
 :::

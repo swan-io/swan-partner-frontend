@@ -71,7 +71,7 @@ const FeatureList = [
     ),
     description: (
       <>
-        Swan Partner Front-End lets you <strong>fully customize</strong> your onboarding & banking
+        Swan Banking Frontend lets you <strong>fully customize</strong> your onboarding & banking
         experience.
       </>
     ),

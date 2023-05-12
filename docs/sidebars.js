@@ -12,12 +12,9 @@ module.exports = {
     {
       type: "category",
       label: "Getting Started",
+      link: { type: "doc", id: "getting-started" },
       collapsed: false,
       items: [
-        {
-          type: "doc",
-          id: "getting-started",
-        },
         {
           type: "doc",
           id: "setup",
@@ -86,12 +83,9 @@ module.exports = {
     {
       type: "category",
       label: "Onboarding",
+      link: { type: "doc", id: "specs/onboarding/onboarding" },
       collapsed: false,
       items: [
-        {
-          type: "doc",
-          id: "specs/onboarding/onboarding",
-        },
         {
           type: "doc",
           id: "specs/onboarding/individual",
@@ -105,30 +99,20 @@ module.exports = {
     {
       type: "category",
       label: "Banking",
+      link: { type: "doc", id: "specs/banking/banking" },
       collapsed: false,
       items: [
         {
           type: "doc",
-          id: "specs/banking/banking",
+          id: "specs/banking/branding",
+        },
+        {
+          type: "doc",
+          id: "specs/banking/navigation",
         },
         {
           type: "category",
-          label: "General",
-          collapsed: false,
-          items: [
-            {
-              type: "doc",
-              id: "specs/banking/branding",
-            },
-            {
-              type: "doc",
-              id: "specs/banking/navigation",
-            },
-          ],
-        },
-        {
-          type: "category",
-          label: "Sections",
+          label: "Pages",
           collapsed: false,
           items: [
             {
@@ -159,7 +143,7 @@ module.exports = {
         },
         {
           type: "category",
-          label: "Gotchas",
+          label: "Workarounds",
           collapsed: false,
           items: [
             {

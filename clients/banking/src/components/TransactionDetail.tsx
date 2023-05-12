@@ -538,49 +538,70 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {transactionId}
               </ReadOnlyFieldList>
             ))
-            .with({ __typename: "CheckTransaction" }, ({ cmc7, rlmcKey }) => (
-              <ReadOnlyFieldList>
-                {bookingDateTime}
-                {executionDateTime}
-                {rejectedDate}
-                {rejectedReason}
-                {transactionId}
+            .with({ __typename: "CheckTransaction" }, ({ cmc7, rlmcKey }) => {
+              // The check number is the first 7 numbers of the cmc7
+              const checkNumber = cmc7.slice(0, 7);
+              return (
+                <ReadOnlyFieldList>
+                  {bookingDateTime}
+                  {executionDateTime}
+                  {rejectedDate}
+                  {rejectedReason}
+                  {transactionId}
 
-                <LakeLabel
-                  type="viewSmall"
-                  label={t("transaction.cmc7")}
-                  actions={
-                    <LakeCopyButton
-                      valueToCopy={cmc7}
-                      copiedText={t("copyButton.copiedTooltip")}
-                      copyText={t("copyButton.copyTooltip")}
-                    />
-                  }
-                  render={() => (
-                    <LakeText variant="regular" color={colors.gray[900]}>
-                      {cmc7}
-                    </LakeText>
-                  )}
-                />
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.cmc7")}
+                    actions={
+                      <LakeCopyButton
+                        valueToCopy={cmc7}
+                        copiedText={t("copyButton.copiedTooltip")}
+                        copyText={t("copyButton.copyTooltip")}
+                      />
+                    }
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {cmc7}
+                      </LakeText>
+                    )}
+                  />
 
-                <LakeLabel
-                  type="viewSmall"
-                  label={t("transaction.rlmcKey")}
-                  actions={
-                    <LakeCopyButton
-                      valueToCopy={rlmcKey}
-                      copiedText={t("copyButton.copiedTooltip")}
-                      copyText={t("copyButton.copyTooltip")}
-                    />
-                  }
-                  render={() => (
-                    <LakeText variant="regular" color={colors.gray[900]}>
-                      {rlmcKey}
-                    </LakeText>
-                  )}
-                />
-              </ReadOnlyFieldList>
-            ))
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.rlmcKey")}
+                    actions={
+                      <LakeCopyButton
+                        valueToCopy={rlmcKey}
+                        copiedText={t("copyButton.copiedTooltip")}
+                        copyText={t("copyButton.copyTooltip")}
+                      />
+                    }
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {rlmcKey}
+                      </LakeText>
+                    )}
+                  />
+
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.checkNumber")}
+                    actions={
+                      <LakeCopyButton
+                        valueToCopy={checkNumber}
+                        copiedText={t("copyButton.copiedTooltip")}
+                        copyText={t("copyButton.copyTooltip")}
+                      />
+                    }
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {checkNumber}
+                      </LakeText>
+                    )}
+                  />
+                </ReadOnlyFieldList>
+              );
+            })
             .otherwise(() => (
               <ReadOnlyFieldList>
                 {bookingDateTime}

@@ -579,6 +579,24 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     </LakeText>
                   )}
                 />
+
+                <LakeLabel
+                  type="viewSmall"
+                  label={t("transaction.checkNumber")}
+                  actions={
+                    <LakeCopyButton
+                      //The check number is the first 7 numbers of the cmc7
+                      valueToCopy={cmc7.slice(0, 7)}
+                      copiedText={t("copyButton.copiedTooltip")}
+                      copyText={t("copyButton.copyTooltip")}
+                    />
+                  }
+                  render={() => (
+                    <LakeText variant="regular" color={colors.gray[900]}>
+                      {cmc7.slice(0, 7)}
+                    </LakeText>
+                  )}
+                />
               </ReadOnlyFieldList>
             ))
             .otherwise(() => (

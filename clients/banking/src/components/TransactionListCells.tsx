@@ -77,6 +77,8 @@ export const getTransactionLabel = (transaction: Transaction): string =>
         .with("BankingFee", () => transaction.label)
         .exhaustive();
     })
+    //The check number is the first 7 numbers of the cmc7
+    .with({ __typename: "CheckTransaction" }, ({ cmc7 }) => `Check N° ${cmc7.slice(0, 7)}`)
     .otherwise(() => transaction.label);
 
 export const TransactionTypeCell = ({ transaction }: { transaction: Transaction }) => {

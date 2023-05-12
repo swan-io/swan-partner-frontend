@@ -605,6 +605,7 @@
   "tooltip.copy": "Click to copy",
   "transaction.bookingDateTime": "Booking date",
   "transaction.cardHolder": "Card holder",
+  "transaction.checkNumber": "Check number",
   "transaction.close": "Close transaction detail",
   "transaction.cmc7": "CMC7",
   "transaction.creditorIban": "Creditor's IBAN",

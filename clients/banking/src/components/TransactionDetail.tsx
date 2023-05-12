@@ -141,6 +141,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             .with({ originTransactionId: P.string }, () => (
               // TODO: switch this condition with the next one to display the warning message as soon as the back had fixed its issue
               <LakeAlert
+                anchored={true}
                 variant="warning"
                 title={t("transaction.instantTransferUnavailable")}
                 children={t("transaction.instantTransferUnavailable.description")}

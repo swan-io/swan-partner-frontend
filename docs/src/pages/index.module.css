@@ -46,12 +46,24 @@
 
 .featuredImage {
   text-align: left;
-  max-width: 50%;
+  width: 50%;
+  flex-shrink: 0;
   margin: 0 auto;
+  aspect-ratio: 2920 / 1874;
+  position: relative;
+}
+
+@media (max-width: 1200px) {
+  .featuredImage {
+    width: 100%;
+    max-width: 50%;
+    flex-shrink: 1;
+  }
 }
 
 @media (max-width: 1000px) {
   .featuredImage {
+    width: 100%;
     max-width: 100%;
     margin: 0 auto;
   }

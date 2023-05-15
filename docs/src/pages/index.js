@@ -21,7 +21,17 @@ function HomepageHeader() {
       </div>
       <div className={styles.featuredImage}>
         <img
-          style={{ width: "100%" }}
+          style={{
+            width: "100%",
+            height: "100%",
+            position: "absolute",
+            top: 0,
+            left: 0,
+            objectFit: "contain",
+            objectPosition: "50% 50%",
+          }}
+          widht={2920}
+          height={1874}
           loading="lazy"
           src="/swan-partner-frontend/img/banking.png"
           alt="Screenshot of Swan's banking interface"

@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Lazy, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -17,10 +17,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
-import {
-  CountryCCA3,
-  companyCountriesItems,
-} from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, allCountriesItems } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -44,6 +41,10 @@ import {
   validateEmail,
   validateRequired,
 } from "../../utils/validation";
+
+// exclude USA from country list because we can't open account for American citizens
+// https://support.swan.io/hc/en-150/articles/5767279299741
+const countryItems = Lazy(() => allCountriesItems.filter(item => item.cca3 !== "USA"));
 
 const styles = StyleSheet.create({
   tcu: {
@@ -279,7 +280,7 @@ export const OnboardingCompanyRegistration = ({
                         <OnboardingCountryPicker
                           label={t("company.step.registration.countryLabel")}
                           value={value}
-                          items={companyCountriesItems}
+                          items={countryItems.get()}
                           holderType="company"
                           onlyIconHelp={small}
                           onValueChange={onChange}

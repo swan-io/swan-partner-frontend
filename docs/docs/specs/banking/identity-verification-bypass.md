@@ -1,10 +1,18 @@
-# Identity verification bypass
+# Bypass identity verification
 
-For specific use-cases validated by Swan’s compliance team, a certain set of conditions allow a membership not to validate their identity if:
+For specific use cases validated by Swan, account members might not need to verify their identity.
+All of the following must be `false`:
 
-- `projectInfo.B2BMembershipIDVerification` is `false`
-- `accountMembership.canManageAccountMembership` is `false`
-- `accountMembership.canInitiatePayments` is `false`
-- `accountMembership.canManageBeneficiaries` is `false`
+- `projectInfo.B2BMembershipIDVerification`
+- `accountMembership.canManageAccountMembership`
+- `accountMembership.canInitiatePayments`
+- `accountMembership.canManageBeneficiaries`
 
-This is mostly used to allow simple card holders with no permission on the account **when their identity is already known** (e.g. expense management inside a given company). **In this context, we shouldn’t actively invite the user to verify their identity**.
+:::tip Sample use case
+
+The company issues Swan cards for expense management.
+An account member is a cardholder with no additional permissions, and their identity is already known.
+
+In this case, **if approved by Swan**, the user **should not be asked to verify their identity**.
+
+:::

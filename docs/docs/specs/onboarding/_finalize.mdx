@@ -1,0 +1,14 @@
+When a user clicks **Finalize**, several events occur.
+
+1. The user is instructed to get their mobile device.
+1. Swan checks for potential onboarding errors using `statusInfo`.
+1. The user is redircted to the OAuth2 server (if there are no issues with `statusInfo`).
+1. The user completes steps to enroll in the Swan constent app.
+
+The OAuth2 link must have the following query parameters:
+
+| Parameter                                           | Description                                                                                                            |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `identificationLevel`                               | Must match the value provided with your [query paramaters](../../oauth2.md#get-authlogin) (`Expert`, `PVID`, or `QES`) |
+| `legalRepresentativeRecommendedIdentificationLevel` | Determined by the account country's legal requirements                                                                 |
+| `onboardingId`                                      | Link the user's [onboarding ID](./onboarding.md#onboarding-id)                                                         |

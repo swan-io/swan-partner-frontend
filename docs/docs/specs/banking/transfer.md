@@ -1,28 +1,52 @@
 # Transfer
 
-## Listing
+Along with the main navigation, the **transfer page** should include the following content:
 
-![](./images/transfer/transfer.png)
+- **Send transfer** call to action
+- **Schedule recurring transfer** call to action
+- List of **active recurring transfers** with option to filter for canceled recurring transfers
+    - Recipient
+    - Short explanation
+    - Recurrence
+    - Next execution
+    - Amount
+    - Actions (notably, a **cancel** button)
 
-The page should show two call to actions:
 
-- New Transfer
-- New Recurring Transfer
+![](./images/transfer-home.png)
 
-Below the actions, a list of the currently active recurring transfers should be shown.
+## New transfer
 
-## New Transfer
+When sending a new transfer, the following information should be collected from the user:
 
-![](./images/transfer/new-transfer.png)
+- Recipient name
+- Recipient IBAN
+- Reason (short explanation, reference number—whatever is needed for your use case)
+- Transfer amount
+- Schedule (*standard* by default; can also choose *instant*)
 
-:::info
-We recommend to use the `InstantWithFallback` mode in case the `Instant` option is selected in order to automatically fallback to a regular transfer if instant isn't available.
+After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
+
+:::info Instant transfers with fallback
+For instant transfers, consider using `InstantWithFallback` mode.
+If instant transfers aren't available for any reason, the transfer will continue as a standard transfer.
+This saves the user from needing to send a different transaction.
+Learn more about [transfer modes](https://docs.swan.io/concept/payment/instant-credit-transfer#fallback-to-standard-transfer) in our main documentation.
 :::
 
-At the end, redirect to the provided consent URL.
+![](./images/transfer-new.png)
 
-## New Recurring Transfer
+## New recurring transfer
 
-![](./images/transfer/new-recurring-transfer.png)
+When sending a new recurring transfer, the following information should be collected from the user:
 
-At the end, redirect to the provided consent URL.
+- Recipient name
+- Recipient IBAN
+- Reason (short explanation, reference number—whatever is needed for your use case)
+- Transfer type (*specified amount* or *full balance*) and amount
+    - For *full balance transfers*, the user indicates how much should be left in the account. Everything else is transferred.
+- Schedule (*daily*, *weekly*, or *monthly*)
+
+After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
+
+![](./images/transfer-new-recurring.png)

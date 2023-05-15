@@ -1,13 +1,38 @@
 # Members
 
-![](./images/members/members.png)
+Account memberships provide account access to as many people as needed with various levels of permission.
+Learn more about [account memberships](https://docs.swan.io/guide/give-access-to-your-account) in our main documentation.
 
-The main listing shoud show the current account memberships and their current status.
+## Primary members content
 
-## New member
+Along with the main navigation, the **members page** should include the following content:
 
-![](./images/members/new-member.png)
+- Button to add a new account membership
+- Filters for **status** and **permission type**
+- List of current account memberships
+    - Full name
+    - Permissions (*can view account*, *can initiate payments*, *can manage memberships*, and *can manage beneficiaries*)
+    - Email
+    - Phone number
+- Current status
 
-:::info 🇩🇪 German Account
-For German accounts, there should be a second step asking for the residency address of the member, and if they live in Germany, their Tax Identification Number.
+![](./images/members-main.png)
+
+## Add a new account member
+
+When adding a new account member, the user should provide the following information about that person:
+
+- First or given name
+- Last or family name
+- Phone number
+- Birth date
+- Email
+- Permissions checkboxes (*can view account*, *can initiate payments*, *can manage memberships*, and *can manage beneficiaries*)
+
+When the user clicks **Send invitation**, an invitation is sent to the potential new account member by email, which they must open and accept.
+
+![](./images/members-new.png)
+
+:::caution 🇩🇪 Germany
+For German accounts, **add a second step** asking for the **residency address** of the potential new account member. If that address in Germany, you must also collect their **tax identification number** (*Steuer-Identifikationsnummer*).
 :::

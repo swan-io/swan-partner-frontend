@@ -62,6 +62,7 @@ type Props = {
   cardRequiresIdentityVerification: boolean;
   onRefreshAccountRequest: () => void;
   identificationStatus?: IdentificationStatus;
+  bindingUserError: boolean;
 };
 
 export const CardItemVirtualDetails = ({
@@ -73,6 +74,7 @@ export const CardItemVirtualDetails = ({
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
   identificationStatus,
+  bindingUserError,
 }: Props) => {
   const [cardNumberViewing, viewCardNumbers] = useUrqlMutation(ViewCardNumbersDocument);
 
@@ -188,7 +190,10 @@ export const CardItemVirtualDetails = ({
 
                       <View style={styles.spendingContainer}>
                         <View style={styles.spendingLimitText}>
-                          <LakeText color={colors.gray[800]} variant="smallRegular">
+                          <LakeText
+                            color={bindingUserError ? colors.gray[300] : colors.gray[800]}
+                            variant="smallRegular"
+                          >
                             {t("card.spendingLimit")}
                           </LakeText>
 
@@ -196,7 +201,10 @@ export const CardItemVirtualDetails = ({
 
                           <LakeText
                             color={
-                              Number(spending.amount.value) >= Number(spendingLimit.amount.value)
+                              bindingUserError
+                                ? colors.gray[300]
+                                : Number(spending.amount.value) >=
+                                  Number(spendingLimit.amount.value)
                                 ? colors.negative[500]
                                 : colors.gray[800]
                             }
@@ -212,7 +220,10 @@ export const CardItemVirtualDetails = ({
                           <LakeText variant="smallRegular">{"/"}</LakeText>
                           <Space width={4} />
 
-                          <LakeText color={colors.gray[500]} variant="smallRegular">
+                          <LakeText
+                            color={bindingUserError ? colors.gray[300] : colors.gray[500]}
+                            variant="smallRegular"
+                          >
                             {formatCurrency(
                               Number(spendingLimit.amount.value),
                               spendingLimit.amount.currency,
@@ -240,7 +251,10 @@ export const CardItemVirtualDetails = ({
                         <Space height={8} />
 
                         <View style={styles.spendingLimitText}>
-                          <LakeText color={colors.gray[800]} variant="smallRegular">
+                          <LakeText
+                            color={bindingUserError ? colors.gray[300] : colors.gray[800]}
+                            variant="smallRegular"
+                          >
                             {match(spendingLimit.period)
                               .with("Daily", () => t("card.spendingLimit.remaining.daily"))
                               .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
@@ -251,7 +265,10 @@ export const CardItemVirtualDetails = ({
 
                           <Fill minWidth={24} />
 
-                          <LakeText color={colors.gray[500]} variant="smallRegular">
+                          <LakeText
+                            color={bindingUserError ? colors.gray[300] : colors.gray[500]}
+                            variant="smallRegular"
+                          >
                             {formatCurrency(remainderToSpend, spending.amount.currency)}
                           </LakeText>
                         </View>

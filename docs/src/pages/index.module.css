@@ -17,6 +17,12 @@
   font-size: 48px;
 }
 
+@media (max-width: 1000px) {
+  .heroTitle {
+    font-size: 30px;
+  }
+}
+
 .heroSubtitle {
   font-size: 20px;
   line-height: 1.2;

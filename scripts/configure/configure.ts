@@ -3,6 +3,7 @@ import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
 import prompts from "prompts";
+import sodium from "sodium-native";
 
 const start = async () => {
   console.log(``);
@@ -58,9 +59,9 @@ const start = async () => {
   console.log("");
   console.log("Generating a new key for cookie encryption");
 
-  const hexKey = execSync(
-    path.join(process.cwd(), "node_modules/@fastify/secure-session/genkey.js"),
-  ).toString("hex");
+  const buffer = Buffer.allocUnsafe(sodium.crypto_secretbox_KEYBYTES);
+  sodium.randombytes_buf(buffer);
+  const hexKey = buffer.toString("hex");
 
   const envTemplate = fs.readFileSync(path.join(process.cwd(), ".env.example"), "utf-8");
   const clientId = OAUTH_CLIENT_ID.OAUTH_CLIENT_ID as string;

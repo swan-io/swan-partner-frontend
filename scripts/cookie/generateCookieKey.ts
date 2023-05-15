@@ -1,10 +1,11 @@
 import chalk from "chalk";
-import { execSync } from "node:child_process";
-import path from "pathe";
 
-const hexKey = execSync(
-  path.join(process.cwd(), "node_modules/@fastify/secure-session/genkey.js"),
-).toString("hex");
+import sodium from "sodium-native";
+
+const buffer = Buffer.allocUnsafe(sodium.crypto_secretbox_KEYBYTES);
+sodium.randombytes_buf(buffer);
+
+const hexKey = buffer.toString("hex");
 
 console.log(``);
 console.log(`${chalk.magenta("swan-partner-frontend")}`);

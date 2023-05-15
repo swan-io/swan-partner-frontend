@@ -4,7 +4,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/oceanicNext");
 /** @type {import('@docusaurus/types').DocusaurusConfig} */
 module.exports = {
   title: "Swan Banking Frontend",
-  tagline: "Onboarding & Banking clients for Swan",
+  tagline: "Onboarding & Banking interfaces for Swan",
   url: "https://swan-io.github.io",
   baseUrl: "/swan-partner-frontend/",
   onBrokenLinks: "throw",

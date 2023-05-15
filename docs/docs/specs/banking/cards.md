@@ -1,28 +1,31 @@
 # Cards
 
-## Query
+The **cards** page is presented differently based on the user's account membership settings, so let's review the GraphQL queries first.
 
-The cards section can be presented in different ways given the user's account membership.
+## GraphQL queries
 
-### With access to account
+### With account access
 
-If the user can access the account (`canViewAccount`: `true`), get all the account cards using the root `cards` query field, with an `accountId` filter:
+The following query works if the user can access the account (`canViewAccount`: `true`).
+
+Retrieve all the account cards using the root `cards` query field and an `accountId` filter:
 
 ```graphql
 query {
-  cards(filters: {accountId: $currentAccountId}) {
+  cards(filters: {accountId: $CURRENT_ACCOUNT_ID}) {
     # ....
   }
 }
 ```
+### No account access
 
-### Without access to account
+The following query works if the user doesn't have view access to the account (`canViewAccount`: `false`).
 
-If the user can **not** access the account (`canViewAccount`: `false`), get the cards attached to their membership:
+Retrive cards attached only to their membership:
 
 ```graphql
 query {
-  accountMembership(id: $currentAccountMembershipId) {
+  accountMembership(id: $CURRENT_ACCOUNT_MEMBERSHIP_ID) {
     cards {
       # ...
     }
@@ -30,22 +33,38 @@ query {
 }
 ```
 
-## Listing
+## Card list views
+
+The view of the card list changes based on how many cards are displayed.
 
 ### No cards
 
-If the query returns no cards, show a message with an "Add card" link.
+If the **query returns no cards**, provide a way for users to add a card.
+No other content is needed in the body of the page.
 
-![](./images/cards/empty.png)
+![](./images/cards-empty.png)
 
 ### Single card
 
-If the query returns a single card, show the card detail directly (with no breadcrumbs).
+If the **query returns a single card**, the body of the page should include the following content:
 
-![](./images/cards/single.png)
+- Tabs for **virtual cards**, **physical cards**, **mobile payments**, and **transactions**
+- **Large image** of the card with all card details (such as cardholder name, card number)
+- Card's **spending limit**
+- **Remaining amount available** to be spent over the next 30 days
+
+![](./images/cards-single.png)
 
 ### Multiple cards
 
-If the query returns multiple cards, show the card listing.
+If the **query returns multiple cards**, the body of the page should include the following content in a list format:
 
-![](./images/cards/cards.png)
+- Button to add a new card
+- Filters for **status** and **format**
+- List of cards
+  - Small image of the card
+  - Full name and card format
+  - Card name
+  - Spending limit (remaining balance over total spending limit)
+
+![](./images/cards-multiple.png)

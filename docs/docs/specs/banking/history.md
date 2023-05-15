@@ -1,28 +1,48 @@
 # History
 
-> The History section
+Along with the main navigation, the **history page** should include the following content:
 
-## Layout
+- Available **account balance**
+- **History tab**: list of past transactions
+- **Upcoming tab**: list of upcoming transactions
 
-![](./images/history/layout.png)
+![](./images/history-main.png)
 
-The layout should show:
+## History tab
 
-- the **account’s available balance if acce**
+The body of the history tab should include the following content:
 
-Two tabs:
+- List of past transactions
+  - Name of the transaction
+  - Transaction method (such as instant or recurring transfer)
+  - Date
+  - Amount
+- Button to download account statements
+- Filters
+  - Updated after
+  - Updated before
+  - Payment method
+  - Status
+- Refresh button (refreshes the list of transactions)
+- Search (only searches transactions)
 
-- **History**: a list of past transactions
-- **Upcoming**: a list of, _you guessed it_, upcoming transactions
+:::info History tab statuses
+The history tab shouldn't display transactions with the status `Released` or `Upcoming`.
+These are card authorizations, not actual transactions, and are irrelevant for the end user.
+:::
 
-## History
+![](./images/history-tab-history.png)
+
+### GraphQL query
+
+Use the following GraphQL query to retrieve information about the transaction history.
 
 <details>
-<summary>GraphQL Query</summary>
+<summary>GraphQL query</summary>
 
 ```graphql
 query {
-  account(accountId: $accountId) {
+  account(accountId: $ACCOUNT_ID) {
     transactions(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
         hasNextPage
@@ -42,20 +62,42 @@ query {
 
 </details>
 
-:::caution
-The History **must not** allow seing `Released` or `Upcoming` transactions. These transactions are card authorizations that only is noise to users.
+### Account statements
+
+Always provide a method for users to **download their transaction history**.
+
+The source code provides this with button in the history tab.
+When a user clicks **Account statements**, a pop-in appears with a list of months for which downloadable account statements are available.
+
+![](./images/history-account-statements.png)
+
+## Upcoming tab
+
+The body of the upcoming tab should include the following content:
+
+- List of upcoming transactions
+  - Name of the transaction
+  - Transaction method (such as instant or recurring)
+  - Date
+  - Amount
+
+:::info Upcoming tab statuses
+The upcoming tab should **only** display transactions with the status `Upcoming`.
+It is recommended not to provide filters.
 :::
 
-In the filters, show a primary button to open the **[Account Statements](#account-statements)** modal.
+![](./images/history-tab-upcoming.png)
 
-## Upcoming
+### GraphQL query
+
+Use the following GraphQL query to retrieve information about upcoming transactions.
 
 <details>
 <summary>GraphQL Query</summary>
 
 ```graphql
 query {
-  account(accountId: $accountId) {
+  account(accountId: $ACCOUNT_ID) {
     transactions(
       first: $first
       after: $after
@@ -79,11 +121,3 @@ query {
 ```
 
 </details>
-
-:::info
-Only show transactions with an `Upcoming` status and **don’t** show filters.
-:::
-
-## Account statements
-
-![](./images/history/statements.png)

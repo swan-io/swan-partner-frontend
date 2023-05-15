@@ -82,7 +82,23 @@ module.exports = {
   specs: [
     {
       type: "category",
-      label: "Banking",
+      label: "Onboarding",
+      link: { type: "doc", id: "specs/onboarding/onboarding" },
+      collapsed: false,
+      items: [
+        {
+          type: "doc",
+          id: "specs/onboarding/individual",
+        },
+        {
+          type: "doc",
+          id: "specs/onboarding/company",
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "Web banking",
       link: { type: "doc", id: "specs/banking/banking" },
       collapsed: false,
       items: [
@@ -135,22 +151,6 @@ module.exports = {
               id: "specs/banking/identity-verification-bypass",
             },
           ],
-        },
-      ],
-    },
-    {
-      type: "category",
-      label: "Onboarding",
-      link: { type: "doc", id: "specs/onboarding/onboarding" },
-      collapsed: false,
-      items: [
-        {
-          type: "doc",
-          id: "specs/onboarding/individual",
-        },
-        {
-          type: "doc",
-          id: "specs/onboarding/company",
         },
       ],
     },

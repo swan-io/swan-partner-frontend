@@ -1,25 +1,31 @@
 # Profile
 
-Profile is a **user-centric** page.
+Along with the main navigation, the **user profile** should include the following content:
 
-## Personal information
-
-![](./images/profile/personal-info.png)
-
-Show basic information about the user:
-
-- First & last name
-- Email (no email is stored on a User object, we show the email of the currently selected account membership)
+- User's first and last name
+- Email address (connected to account memberships)
 - Phone number
-- Birth date
+- User creation date
 - Identification status
+- Language preference
 
-If the identification status is `Uninitiated`, `InsufficientDocumentQuality` or `InvalidIdentity`, an OAuth2 link is presented to trigger a identity verification flow with the current membership’s `recommendedIdentificationLevel` as identification level.
+Additionally, there should be links to various user resources, whether to your own or to [Swan Customer Support](https://support.swan.io/hc).
 
-If the identification status is `ReadyToSign`, an OAuth2 link is presented to trigger a identity verification flow with `QES` as identification level (`ReadyToSign` is specific to the QES flow), mentioning that the user show finish their verification.
+:::info Default language
+By default, the language matches the `navigation.languages` value of the user's web browser.
+If the user overrides this default, the override is stored in the client’s local storage.
+:::
 
-Below the block, a select shows the different supported locales, and lets the user override the language choice (by default inferred from the `navigation.languages` value).
+![](./images/profile.png)
 
-:::info
-The override is stored in the client’s local storage
+:::note Identification statuses
+
+Some identification statuses trigger verification events.
+
+| Status | Note |
+| -- | -- |
+| `Uninitiated`, `InsufficientDocumentQuality`, `InvalidIdentity` | User is presented an OAuth2 link; when clicked, it triggers an identity verification flow using the current membership’s `recommendedIdentificationLevel`. |
+| `ReadyToSign` (unique to `QES`) | User is presented an OAuth2 link; when clicked, it triggers an identity verification flow with `QES`, prompting the user to finish their verification. |
+
+Refer to the page on OAuth2 for more information about [identification levels](../../oauth2.md).
 :::

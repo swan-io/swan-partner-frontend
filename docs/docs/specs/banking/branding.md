@@ -1,8 +1,9 @@
 # Branding
 
-Banking is white-label interface, and therefore needs to use the branding defined on the project it manages accounts on.
+Web banking uses the branding (logo, name, and accent color) defined at the project level.
+Additionally, you can modify your instance of the open source code to customize fonts and more.
 
-You can receive get the **logo**, **name** and **accent color**, you can use the following fragment.
+You can retrieve the **logo**, **name**, and **accent color** with the following fragment:
 
 ```graphql
 fragment ProjectBranding on ProjectInfo {
@@ -13,7 +14,7 @@ fragment ProjectBranding on ProjectInfo {
 }
 ```
 
-On the Partner API, with a user token (when logged in):
+If logged in, use the **Partner API** and a **user access token** to run the following query:
 
 ```graphql
 query {
@@ -23,7 +24,7 @@ query {
 }
 ```
 
-On the Unauthenticated API (when logged out):
+If logged out, use the **Unauthenticated API** to run the following query:
 
 ```graphql
 query {

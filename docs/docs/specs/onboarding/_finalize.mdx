@@ -5,12 +5,10 @@ When a user clicks **Finalize**, several events occur.
 1. The user is redircted to the OAuth2 server (if there are no issues with `statusInfo`).
 1. The user completes steps to enroll in the Swan constent app.
 
-
 The OAuth2 link must have the following query parameters:
 
-| Parameter | Description |
-| -- | -- |
-| `identificationLevel` | Must match the value provided with your [query paramaters](../../oauth2.md#get-authlogin) (`Expert`, `PVID`, or `QES`) |
-| `legalRepresentativeRecommendedIdentificationLevel` | Determined by the account country's legal requirements |
-| `onboardingId` | Link the user's [onboarding ID](./onboarding.md#onboarding-id) |
-| `projectId` | Link to your [project ID](https://docs.swan.io/regulatory/go-live-process#send-us-your-project-id) |
+| Parameter                                           | Description                                                                                                            |
+| --------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `identificationLevel`                               | Must match the value provided with your [query paramaters](../../oauth2.md#get-authlogin) (`Expert`, `PVID`, or `QES`) |
+| `legalRepresentativeRecommendedIdentificationLevel` | Determined by the account country's legal requirements                                                                 |
+| `onboardingId`                                      | Link the user's [onboarding ID](./onboarding.md#onboarding-id)                                                         |

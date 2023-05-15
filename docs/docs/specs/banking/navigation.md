@@ -140,4 +140,4 @@ Show the current user:
 - Avatar
 - First & last name
 
-If the user’s `identificationStatus` is `Unitiated`, `InsufficientDocumentQuality`, `InvalidIdentity` or `ReadyToSign`, show a an “Action Required” tag [if the project and membership require](./identity-verification-bypass).
+If the user’s `identificationStatus` is `Uninitiated`, `InsufficientDocumentQuality`, `InvalidIdentity` or `ReadyToSign`, show a an “Action Required” tag [if the project and membership require](./identity-verification-bypass).

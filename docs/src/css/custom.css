@@ -36,3 +36,7 @@ html[data-theme="dark"] .docusaurus-highlight-code-line {
 pre {
   line-height: 1.7;
 }
+
+.footer--dark {
+  --ifm-footer-background-color: #14191a;
+}

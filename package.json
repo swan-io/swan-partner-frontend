@@ -86,7 +86,7 @@
     "prompts": "2.4.2",
     "semver": "7.5.0",
     "sodium-native": "^4.0.0",
-    "terser": "5.17.2",
+    "terser": "5.17.3",
     "tiktoken-node": "0.0.5",
     "ts-prune": "0.10.3",
     "tsx": "3.12.7",

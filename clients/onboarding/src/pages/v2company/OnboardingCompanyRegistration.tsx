@@ -42,6 +42,8 @@ import {
   validateRequired,
 } from "../../utils/validation";
 
+// exclude USA from country list because we can't open account for American citizens
+// https://support.swan.io/hc/en-150/articles/5767279299741
 const countryItems = Lazy(() => allCountriesItems.filter(item => item.cca3 !== "USA"));
 
 const styles = StyleSheet.create({

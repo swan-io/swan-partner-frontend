@@ -9,7 +9,7 @@ function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
   return (
     <header className={"hero hero--primary " + styles.hero}>
-      <img src={"./img/logo.svg"} alt="" className={styles.logo} />
+      <img src={"./img/logo.svg"} alt="" className={styles.logo} width={150} height={150} />
       <div className="container">
         <h1 className={styles.heroTitle}>Banking Frontend</h1>
         <p className={styles.heroSubtitle}>{siteConfig.tagline}</p>

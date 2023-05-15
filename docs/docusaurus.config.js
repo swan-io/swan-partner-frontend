@@ -18,6 +18,8 @@ module.exports = {
       logo: {
         alt: "Swan Banking Frontend",
         src: "img/logo.svg",
+        width: 32,
+        height: 32,
       },
       items: [
         {

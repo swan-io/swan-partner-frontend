@@ -25,7 +25,7 @@
   },
   "dependencies": {
     "@fastify/cors": "8.2.1",
-    "@fastify/reply-from": "9.0.1",
+    "@fastify/reply-from": "9.0.2",
     "@fastify/secure-session": "6.1.0",
     "@fastify/static": "6.10.1",
     "@fastify/view": "7.4.1",

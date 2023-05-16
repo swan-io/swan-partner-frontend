@@ -20,7 +20,7 @@ The body of the **main IBAN tab** should include the following content:
     - Zip code
     - Country
 
-![](./images/account-main-iban.png)
+![Screenshot of the main IBAN tab with sample content](./images/account-main-iban.png)
 
 ## Virtual IBANs
 
@@ -33,7 +33,7 @@ The body of the **virtual IBANs tab** should include the following content:
     - Status
     - **Cancel** button for enabled virtual IBANs
 
-![](./images/account-virtual-ibans.png)
+![Screenshot of the virtual IBANs tab with sample content](./images/account-virtual-ibans.png)
 
 ### Add a new virtual IBAN
 
@@ -46,7 +46,7 @@ Users should be able to cancel enabled virtual IBANs anytime.
 
 It's not quite the same as deleting an IBAN, which isn't possible, but the end-user function is the same: when a user cancels a virtual IBAN, it won't be available to send or receive payments.
 
-![](./images/account-virtual-iban-cancel.png)
+![Focused screenshot of canceling a virtual IBAN button and modal](./images/account-virtual-iban-cancel.png)
 
 ## Settings
 
@@ -62,4 +62,4 @@ The body of the **settings tab** should include the following content:
 If the `accountHolder` is a **company**, add a field for the `vatNumber` that uses the `updateAccountHolder` mutation.
 :::
 
-![](./images/account-settings.png)
+![Screenshot of the settings tab with sample content](./images/account-settings.png)

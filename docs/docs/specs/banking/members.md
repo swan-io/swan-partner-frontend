@@ -16,7 +16,7 @@ Along with the main navigation, the **members page** should include the followin
     - Phone number
 - Current status
 
-![](./images/members-main.png)
+![Screenshot of the main members page with sample content](./images/members-main.png)
 
 ## Add a new account member
 
@@ -31,7 +31,7 @@ When adding a new account member, the user should provide the following informat
 
 When the user clicks **Send invitation**, an invitation is sent to the potential new account member by email, which they must open and accept.
 
-![](./images/members-new.png)
+![Screenshot of modal to invite a new account member](./images/members-new.png)
 
 :::caution 🇩🇪 Germany
 For German accounts, **add a second step** asking for the **residency address** of the potential new account member. If that address in Germany, you must also collect their **tax identification number** (*Steuer-Identifikationsnummer*).

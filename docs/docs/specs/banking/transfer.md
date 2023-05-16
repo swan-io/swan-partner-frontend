@@ -13,7 +13,7 @@ Along with the main navigation, the **transfer page** should include the followi
     - Actions (notably, a **cancel** button)
 
 
-![](./images/transfer-home.png)
+![Screenshot of the main transfer page](./images/transfer-home.png)
 
 ## New transfer
 
@@ -34,7 +34,7 @@ This saves the user from needing to send a different transaction.
 Learn more about [transfer modes](https://docs.swan.io/concept/payment/instant-credit-transfer#fallback-to-standard-transfer) in our main documentation.
 :::
 
-![](./images/transfer-new.png)
+![Screenshot of a portion of the new transfer form](./images/transfer-new.png)
 
 ## New recurring transfer
 
@@ -49,4 +49,4 @@ When sending a new recurring transfer, the following information should be colle
 
 After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
 
-![](./images/transfer-new-recurring.png)
+![Screenshot of a portion of the new recurring transfer form](./images/transfer-new-recurring.png)

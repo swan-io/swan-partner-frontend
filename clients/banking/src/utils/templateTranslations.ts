@@ -143,9 +143,8 @@ export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
     )
     .exhaustive();
 
-export const getFeesDescription = (fees: FeesTypeEnum) =>
+export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
   match(fees)
-    .with("BankingFee", () => t("transaction.fees.description.bankingFee"))
     .with("CardPaymentsOutsideSEPA", () =>
       t("transaction.fees.description.cardPaymentsOutsideSEPA"),
     )

@@ -141,7 +141,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Tile
           style={styles.tile}
           footer={match(transaction)
-            .with({ feesType: P.string }, ({ feesType }) => (
+            // BankingFee should never happened and is a default value, so there isn't any wording for it
+            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => (
               <LakeAlert anchored={true} variant="info" title={getFeesDescription(feesType)} />
             ))
             .with(

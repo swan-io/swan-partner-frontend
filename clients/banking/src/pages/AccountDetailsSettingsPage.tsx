@@ -190,7 +190,7 @@ export const AccountDetailsSettingsPage = ({
         {isCompany && (
           <>
             <LakeLabel
-              label="VAT"
+              label={t("accountDetails.settings.vatLabel")}
               render={id => (
                 <Field name="vatNumber">
                   {({ error, onBlur, onChange, valid, value }) => (

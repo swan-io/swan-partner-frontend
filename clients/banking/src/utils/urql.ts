@@ -107,7 +107,6 @@ export const partnerClient = new Client({
 export const unauthenticatedClient = new Client({
   url: "/api/unauthenticated",
   requestPolicy: "network-only",
-  suspense: true,
   exchanges: [requestIdExchange, errorExchange({ onError }), fetchExchange],
 });
 

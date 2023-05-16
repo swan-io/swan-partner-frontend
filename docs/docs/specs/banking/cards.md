@@ -42,7 +42,7 @@ The view of the card list changes based on how many cards are displayed.
 If the **query returns no cards**, provide a way for users to add a card.
 No other content is needed in the body of the page.
 
-![](./images/cards-empty.png)
+![Screenshot of the cards page when query returns zero cards](./images/cards-empty.png)
 
 ### Single card
 
@@ -53,7 +53,7 @@ If the **query returns a single card**, the body of the page should include the 
 - Card's **spending limit**
 - **Remaining amount available** to be spent over the next 30 days
 
-![](./images/cards-single.png)
+![Screenshot of the cards page when query returns one card](./images/cards-single.png)
 
 ### Multiple cards
 
@@ -67,4 +67,4 @@ If the **query returns multiple cards**, the body of the page should include the
   - Card name
   - Spending limit (remaining balance over total spending limit)
 
-![](./images/cards-multiple.png)
+![Screenshot of the cards page when query returns multiple cards](./images/cards-multiple.png)

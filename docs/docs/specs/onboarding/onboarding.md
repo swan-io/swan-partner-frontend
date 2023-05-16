@@ -24,4 +24,4 @@ After fetching the onboarding, route to the correct onboarding flow based on the
 There can be validation discrepencies between client-side and server-side.
 To avoid blocking the user, you cannot finalize an onboarding if `statusInfo` is invalid.
 
-![](./images/validation.png)
+![Screenshot of warning state for missing information in onboarding flow](./images/onboarding-validation.png)

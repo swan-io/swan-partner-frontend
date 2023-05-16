@@ -16,7 +16,7 @@ By default, the language matches the `navigation.languages` value of the user's 
 If the user overrides this default, the override is stored in the client’s local storage.
 :::
 
-![](./images/profile.png)
+![Screenshot of a user profile with sample content](./images/profile.png)
 
 :::note Identification statuses
 

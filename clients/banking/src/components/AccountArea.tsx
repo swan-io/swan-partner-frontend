@@ -146,6 +146,8 @@ const defaultIdentificationLevels: IdentificationLevelsFragment = {
   PVID: false,
 };
 
+const COOKIE_REFRESH_INTERVAL = 30000; // 30s
+
 export const AccountArea = ({ accountMembershipId }: Props) => {
   const { desktop } = useResponsive();
 
@@ -159,10 +161,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     setIsScrolled(event.nativeEvent.contentOffset.y > 0);
   }, []);
 
+  // call API to extend cookie TTL
   useEffect(() => {
     const intervalId = setInterval(() => {
       void fetch("/api/ping", { method: "POST" });
-    }, 30000);
+    }, COOKIE_REFRESH_INTERVAL);
     return () => clearInterval(intervalId);
   }, []);
 

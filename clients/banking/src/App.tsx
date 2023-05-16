@@ -14,7 +14,7 @@ import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { partnerClient, unauthenticatedClient } from "./utils/urql";
+import { partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -37,34 +37,28 @@ export const App = () => {
       fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
     >
       <ClientProvider value={partnerClient}>
-        {match(route)
-          .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
-          .with({ name: "ProjectLogin" }, () =>
-            projectConfiguration.match({
-              None: () => <ErrorView />,
-              Some: ({ projectId }) => (
-                <ClientProvider value={unauthenticatedClient}>
-                  <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
-                    <ProjectLoginPage projectId={projectId} />
-                  </Suspense>
-                </ClientProvider>
-              ),
-            }),
-          )
-          .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route => (
-            <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
-              {match(route)
+        <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
+          {match(route)
+            .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
+            .with({ name: "ProjectLogin" }, () =>
+              projectConfiguration.match({
+                None: () => <ErrorView />,
+                Some: ({ projectId }) => <ProjectLoginPage projectId={projectId} />,
+              }),
+            )
+            .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route =>
+              match(route)
                 .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
                   <AccountArea accountMembershipId={accountMembershipId} />
                 ))
                 .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
                   <ProjectRootRedirect to={to} source={source} />
                 ))
-                .exhaustive()}
-            </Suspense>
-          ))
-          .with(P.nullish, () => <NotFoundPage style={styles.base} />)
-          .exhaustive()}
+                .exhaustive(),
+            )
+            .with(P.nullish, () => <NotFoundPage style={styles.base} />)
+            .exhaustive()}
+        </Suspense>
       </ClientProvider>
 
       <ToastStack />

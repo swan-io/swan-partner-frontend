@@ -1210,17 +1210,17 @@
   dependencies:
     fast-json-stringify "^5.7.0"
 
-"@fastify/reply-from@9.0.1":
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.0.1.tgz#aa918519c2f9c1a7399ddfa6b6437303af51d2a7"
-  integrity sha512-q9vFNUiXZTY1x8omDPe59os2MYq+3y7KgO/kZoXpZlnud+45Nd8Ot/svEvrUATzjkizIggfS4K8LR9zXDyZZKg==
+"@fastify/reply-from@9.0.2":
+  version "9.0.2"
+  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.0.2.tgz#b2323d1eb004c7a5350d1bf95c5b0239919c98b8"
+  integrity sha512-uJZcZ+0x3HireZrTq34tnPHrN6N7y3BBGq6yv2zsbBiSX5BI9KPGKv2FB+i+8VBNiRfDCfeo3Trr6TKOe83Mvg==
   dependencies:
     "@fastify/error" "^3.0.0"
     end-of-stream "^1.4.4"
     fast-querystring "^1.0.0"
     fastify-plugin "^4.0.0"
     pump "^3.0.0"
-    tiny-lru "^10.0.0"
+    tiny-lru "^11.0.0"
     undici "^5.19.1"
 
 "@fastify/secure-session@6.1.0":
@@ -2369,6 +2369,7 @@
 
 "@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@github:zoontek/types-testing-library-vitest-dom#0.31.0":
   version "5.14.5"
+  uid c6c0674058874ae627073feeab60898cee56742e
   resolved "https://codeload.github.com/zoontek/types-testing-library-vitest-dom/tar.gz/c6c0674058874ae627073feeab60898cee56742e"
 
 "@types/uuid@9.0.1":
@@ -7069,12 +7070,7 @@ time-zone@^1.0.0:
   resolved "https://registry.yarnpkg.com/time-zone/-/time-zone-1.0.0.tgz#99c5bf55958966af6d06d83bdf3800dc82faec5d"
   integrity sha512-TIsDdtKo6+XrPtiTm1ssmMngN1sAhyKnTO2kunQWqNPWIVvCm15Wmw4SWInwTVgJ5u/Tr04+8Ei9TNcw4x4ONA==
 
-tiny-lru@^10.0.0:
-  version "10.4.1"
-  resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-10.4.1.tgz#dec67a62115a4cb31d2065b8116d010daac362fe"
-  integrity sha512-buLIzw7ppqymuO3pt10jHk/6QMeZLbidihMQU+N6sogF6EnBzG0qtDWIHuhw1x3dyNgVL/KTGIZsTK81+yCzLg==
-
-tiny-lru@^11.0.1:
+tiny-lru@^11.0.0, tiny-lru@^11.0.1:
   version "11.0.1"
   resolved "https://registry.yarnpkg.com/tiny-lru/-/tiny-lru-11.0.1.tgz#629d6ddd88bd03c0929722680167f1feadf576f2"
   integrity sha512-iNgFugVuQgBKrqeO/mpiTTgmBsTP0WL6yeuLfLs/Ctf0pI/ixGqIRm8sDCwMcXGe9WWvt2sGXI5mNqZbValmJg==

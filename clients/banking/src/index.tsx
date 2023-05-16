@@ -21,7 +21,7 @@ initSentry();
 const rootTag = document.getElementById("app-root");
 
 match(projectConfiguration)
-  .with(Option.pattern.None, () => {
+  .with(Option.P.None, () => {
     const url = new URL(window.location.href);
     const [...envHostName] = url.hostname.split(".");
     window.location.replace(`${url.protocol}//${["partner", ...envHostName].join(".")}/`);

@@ -341,7 +341,7 @@ export const MembershipDetailEditor = ({
         "POST",
         match(projectConfiguration)
           .with(
-            Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+            Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
             projectId =>
               `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
           )

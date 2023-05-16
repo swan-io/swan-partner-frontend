@@ -155,8 +155,8 @@ export const TransactionListPage = ({
   useEffect(() => {
     match(data)
       .with(
-        AsyncData.pattern.Done(
-          Result.pattern.Ok({
+        AsyncData.P.Done(
+          Result.P.Ok({
             account: {
               balances: {
                 available: P.select(),

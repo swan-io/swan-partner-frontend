@@ -62,7 +62,7 @@ export const OnboardingIndividualFinalize = ({
     queryString.append("onboardingId", onboardingId);
 
     match(projectConfiguration)
-      .with(Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }), projectId =>
+      .with(Option.P.Some({ projectId: P.select(), mode: "MultiProject" }), projectId =>
         queryString.append("projectId", projectId),
       )
       .otherwise(() => {});

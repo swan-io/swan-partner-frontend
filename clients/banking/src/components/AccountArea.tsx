@@ -252,7 +252,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   useEffect(() => {
     match(currentAccountMembership)
-      .with(Result.pattern.Ok({ id: P.select(), user: { id: user?.id } }), accountMembershipId =>
+      .with(Result.P.Ok({ id: P.select(), user: { id: user?.id } }), accountMembershipId =>
         setAccountMembershipState({ accountMembershipId }),
       )
       .otherwise(() => setAccountMembershipState({}));
@@ -515,7 +515,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 )}
 
                 {match(membership)
-                  .with(Result.pattern.Ok(P.select()), ({ accountMembership }) => (
+                  .with(Result.P.Ok(P.select()), ({ accountMembership }) => (
                     <>
                       <Space height={32} />
 
@@ -621,7 +621,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 >
                   {match(membership)
                     .with(
-                      Result.pattern.Ok(P.select()),
+                      Result.P.Ok(P.select()),
                       ({
                         accountMembership,
                         canAddCard,

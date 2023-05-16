@@ -153,9 +153,7 @@ export const CardItemTransactionList = ({
             .with(
               {
                 hasFilters: false,
-                data: AsyncData.pattern.Done(
-                  Result.pattern.Ok({ card: { transactions: { totalCount: 0 } } }),
-                ),
+                data: AsyncData.P.Done(Result.P.Ok({ card: { transactions: { totalCount: 0 } } })),
               },
               () => null,
             )

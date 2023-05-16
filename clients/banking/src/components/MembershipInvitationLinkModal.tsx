@@ -25,7 +25,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
 
   const value = match(projectConfiguration)
     .with(
-      Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
       projectId =>
         `${__env.BANKING_URL}/api/projects/${projectId}/invitation/${accountMembershipId ?? ""}`,
     )

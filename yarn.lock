@@ -2044,10 +2044,10 @@
   resolved "https://registry.yarnpkg.com/@sindresorhus/is/-/is-5.3.0.tgz#0ec9264cf54a527671d990eb874e030b55b70dcc"
   integrity sha512-CX6t4SYQ37lzxicAqsBtxA3OseeoVrh9cSJ5PFYam0GksYlupRfy1A+Q4aYD3zvcfECLc0zO2u+ZnR2UYKvCrw==
 
-"@swan-io/boxed@1.0.1", "@swan-io/boxed@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-1.0.1.tgz#1cb38dc17e5f66550ffe3155699fc5a16de991d5"
-  integrity sha512-IFUbuu2FLeSGUf5skI2Ajqv5IY9PXxtplmSyHTFq36Wgt83HHl3xOd3wiQ8tYDkLe+6u2mfnfZIEI6fw2GCGjQ==
+"@swan-io/boxed@1.0.2", "@swan-io/boxed@^1.0.1":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-1.0.2.tgz#77a61d4a65169e86d928d865acea60c7c543e8c8"
+  integrity sha512-Mm7qV+62BUIgOL4/RvBx+hKIij07pAfDsvbuftEqTwbAZidHKta0q8b6Sddgf69vubwPM5K86cY61WMqqUfm8Q==
 
 "@swan-io/chicane@1.3.4", "@swan-io/chicane@^1.3.4":
   version "1.3.4"
@@ -2367,9 +2367,8 @@
   dependencies:
     "@types/node" "*"
 
-"@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@github:zoontek/types-testing-library-vitest-dom#0.31.0":
+"@types/testing-library__jest-dom@^5.9.1", "@types/testing-library__jest-dom@zoontek/types-testing-library-vitest-dom#0.31.0":
   version "5.14.5"
-  uid c6c0674058874ae627073feeab60898cee56742e
   resolved "https://codeload.github.com/zoontek/types-testing-library-vitest-dom/tar.gz/c6c0674058874ae627073feeab60898cee56742e"
 
 "@types/uuid@9.0.1":

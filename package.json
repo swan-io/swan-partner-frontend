@@ -45,7 +45,7 @@
     "clients/**/src/**/*.gql": "yarn graphql-codegen"
   },
   "resolutions": {
-    "@types/testing-library__jest-dom": "github:zoontek/types-testing-library-vitest-dom#0.31.0"
+    "@types/testing-library__jest-dom": "zoontek/types-testing-library-vitest-dom#0.31.0"
   },
   "devDependencies": {
     "@fluentui/svg-icons": "1.1.198",
@@ -58,7 +58,7 @@
     "@graphql-codegen/typescript-operations": "3.0.4",
     "@graphql-codegen/typescript-urql-graphcache": "2.4.4",
     "@sentry/cli": "2.17.5",
-    "@swan-io/boxed": "1.0.1",
+    "@swan-io/boxed": "1.0.2",
     "@swan-io/lokalise-sync-cli": "1.0.3",
     "@testing-library/jest-dom": "5.16.5",
     "@types/glob": "8.1.0",

@@ -632,7 +632,7 @@ export const RecurringTransferList = ({
   const { endCursor, hasNextPage } = useMemo(
     () =>
       match(data)
-        .with(AsyncData.pattern.Done(Result.pattern.Ok(P.select())), ({ account }) => ({
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account }) => ({
           endCursor: account?.standingOrders.pageInfo.endCursor ?? null,
           hasNextPage: account?.standingOrders.pageInfo.hasNextPage ?? false,
         }))

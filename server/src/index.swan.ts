@@ -175,7 +175,7 @@ start({
           rewriteRequestHeaders: (_req, headers) => ({
             ...headers,
             ...match(projectUserToken)
-              .with(Result.pattern.Ok(P.select()), token => ({
+              .with(Result.P.Ok(P.select()), token => ({
                 "x-swan-token": `Bearer ${token}`,
               }))
               .otherwise(() => null),

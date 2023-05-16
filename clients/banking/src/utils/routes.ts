@@ -122,7 +122,7 @@ export const membershipsDetailRoutes = [
 export const Router = createRouter(routes, {
   basePath: match(projectConfiguration)
     .with(
-      Option.pattern.Some({ projectId: P.select(), mode: "MultiProject" }),
+      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
       projectId => `/projects/${projectId}`,
     )
     .otherwise(() => undefined),

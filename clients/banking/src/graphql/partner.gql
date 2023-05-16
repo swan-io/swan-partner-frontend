@@ -738,7 +738,6 @@ query CardPage($cardId: ID!) {
       totalCount
     }
     physicalCard {
-      __typename
       expiryDate
       cardMaskedNumber
 

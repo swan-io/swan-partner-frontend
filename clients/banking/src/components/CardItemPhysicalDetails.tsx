@@ -633,6 +633,8 @@ export const CardItemPhysicalDetails = ({
       });
   };
 
+  const textColor = bindingUserError ? colors.gray[300] : colors.gray[800];
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
@@ -731,31 +733,20 @@ export const CardItemPhysicalDetails = ({
                   <>
                     <Space height={24} />
 
-                    {bindingUserError ? (
-                      <LakeTooltip content={t("card.tooltipConflict")} placement="bottom">
-                        <LakeButton
-                          color="current"
-                          onPress={() => setIsActivationModalOpen(true)}
-                          loading={physicalCardActivation.isLoading()}
-                          disabled={bindingUserError}
-                        >
-                          {t("card.physical.activate")}
-                        </LakeButton>
-                      </LakeTooltip>
-                    ) : (
-                      <>
-                        <LakeAlert title={t("card.physical.activateDescription")} variant="info" />
-                        <Space height={24} />
-
-                        <LakeButton
-                          color="current"
-                          onPress={() => setIsActivationModalOpen(true)}
-                          loading={physicalCardActivation.isLoading()}
-                        >
-                          {t("card.physical.activate")}
-                        </LakeButton>
-                      </>
-                    )}
+                    <LakeTooltip
+                      content={t("card.tooltipConflict")}
+                      placement="bottom"
+                      showTooltip={!bindingUserError}
+                    >
+                      <LakeButton
+                        color="current"
+                        onPress={() => setIsActivationModalOpen(true)}
+                        loading={physicalCardActivation.isLoading()}
+                        disabled={bindingUserError}
+                      >
+                        {t("card.physical.activate")}
+                      </LakeButton>
+                    </LakeTooltip>
                   </>
                 ))
                 .otherwise(() => null)}
@@ -777,20 +768,13 @@ export const CardItemPhysicalDetails = ({
                   },
                   () => (
                     <>
-                      {bindingUserError ? (
-                        <LakeTooltip content={t("card.tooltipConflict")} placement="bottom">
-                          <LakeButton
-                            disabled={bindingUserError}
-                            mode="secondary"
-                            icon="eye-regular"
-                            loading={physicalCardNumberViewing.isLoading()}
-                            onPress={onPressRevealPhysicalCardNumbers}
-                          >
-                            {t("card.revealNumbers")}
-                          </LakeButton>
-                        </LakeTooltip>
-                      ) : (
+                      <LakeTooltip
+                        content={t("card.tooltipConflict")}
+                        placement="bottom"
+                        showTooltip={!bindingUserError}
+                      >
                         <LakeButton
+                          disabled={bindingUserError}
                           mode="secondary"
                           icon="eye-regular"
                           loading={physicalCardNumberViewing.isLoading()}
@@ -798,7 +782,7 @@ export const CardItemPhysicalDetails = ({
                         >
                           {t("card.revealNumbers")}
                         </LakeButton>
-                      )}
+                      </LakeTooltip>
 
                       <Space height={24} />
                     </>
@@ -831,10 +815,7 @@ export const CardItemPhysicalDetails = ({
 
                         <View style={styles.spendingContainer}>
                           <View style={styles.spendingLimitText}>
-                            <LakeText
-                              color={bindingUserError ? colors.gray[300] : colors.gray[800]}
-                              variant="smallRegular"
-                            >
+                            <LakeText color={textColor} variant="smallRegular">
                               {t("card.spendingLimit")}
                             </LakeText>
 
@@ -859,19 +840,13 @@ export const CardItemPhysicalDetails = ({
 
                             <Space width={4} />
 
-                            <LakeText
-                              color={bindingUserError ? colors.gray[300] : colors.gray[800]}
-                              variant="smallRegular"
-                            >
+                            <LakeText color={textColor} variant="smallRegular">
                               {"/"}
                             </LakeText>
 
                             <Space width={4} />
 
-                            <LakeText
-                              color={bindingUserError ? colors.gray[300] : colors.gray[500]}
-                              variant="smallRegular"
-                            >
+                            <LakeText color={textColor} variant="smallRegular">
                               {formatCurrency(
                                 Number(spendingLimit.amount.value),
                                 spendingLimit.amount.currency,
@@ -899,10 +874,7 @@ export const CardItemPhysicalDetails = ({
                           <Space height={8} />
 
                           <View style={styles.spendingLimitText}>
-                            <LakeText
-                              color={bindingUserError ? colors.gray[300] : colors.gray[800]}
-                              variant="smallRegular"
-                            >
+                            <LakeText color={textColor} variant="smallRegular">
                               {match(spendingLimit.period)
                                 .with("Daily", () => t("card.spendingLimit.remaining.daily"))
                                 .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
@@ -913,10 +885,7 @@ export const CardItemPhysicalDetails = ({
 
                             <Fill minWidth={24} />
 
-                            <LakeText
-                              color={bindingUserError ? colors.gray[300] : colors.gray[500]}
-                              variant="smallRegular"
-                            >
+                            <LakeText color={textColor} variant="smallRegular">
                               {formatCurrency(remainderToSpend, spending.amount.currency)}
                             </LakeText>
                           </View>
@@ -958,7 +927,7 @@ export const CardItemPhysicalDetails = ({
                 .otherwise(() => null)}
 
               <QuickActions
-                disabled={bindingUserError}
+                showTooltip={bindingUserError}
                 tooltipText={t("card.tooltipConflict")}
                 actions={[
                   ...match(physicalCard)
@@ -1127,29 +1096,21 @@ export const CardItemPhysicalDetails = ({
                   },
                   () => (
                     <>
-                      {bindingUserError ? (
-                        <>
-                          <Space height={24} />
+                      <Space height={24} />
 
-                          <LakeTooltip content={t("card.tooltipConflict")} placement="bottom">
-                            <LakeButton
-                              disabled={true}
-                              color="current"
-                              onPress={() => setIsOrderModalOpen(true)}
-                            >
-                              {t("card.physical.order")}
-                            </LakeButton>
-                          </LakeTooltip>
-                        </>
-                      ) : (
-                        <>
-                          <Space height={24} />
-
-                          <LakeButton color="current" onPress={() => setIsOrderModalOpen(true)}>
-                            {t("card.physical.order")}
-                          </LakeButton>
-                        </>
-                      )}
+                      <LakeTooltip
+                        content={t("card.tooltipConflict")}
+                        placement="bottom"
+                        showTooltip={!bindingUserError}
+                      >
+                        <LakeButton
+                          disabled={bindingUserError}
+                          color="current"
+                          onPress={() => setIsOrderModalOpen(true)}
+                        >
+                          {t("card.physical.order")}
+                        </LakeButton>
+                      </LakeTooltip>
                     </>
                   ),
                 )

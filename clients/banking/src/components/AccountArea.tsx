@@ -159,6 +159,13 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     setIsScrolled(event.nativeEvent.contentOffset.y > 0);
   }, []);
 
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      void fetch("/api/ping", { method: "POST" });
+    }, 30000);
+    return () => clearInterval(intervalId);
+  }, []);
+
   const [
     {
       data: { accountMembership, projectInfo, user },

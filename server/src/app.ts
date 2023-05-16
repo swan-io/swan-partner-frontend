@@ -44,7 +44,7 @@ const packageJson = JSON.parse(
   fs.readFileSync(path.join(dirname, "../package.json"), "utf-8"),
 ) as unknown as { version: string };
 
-const COOKIE_MAX_AGE = 7_776_000; // 90 days
+const COOKIE_MAX_AGE = 300; // 5 minutes
 const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
 
 export type InvitationConfig = {
@@ -292,6 +292,15 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       wildcard: false,
     });
   }
+
+  /**
+   * An no-op to extend the cookie duration.
+   */
+  app.post("/api/ping", async (request, reply) => {
+    return reply.header("cache-control", `public, max-age=0`).status(200).send({
+      ok: true,
+    });
+  });
 
   /**
    * Proxies the Swan "unauthenticated" GraphQL API.

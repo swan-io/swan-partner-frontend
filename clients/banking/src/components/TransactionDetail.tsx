@@ -147,11 +147,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             ))
             .with(
               {
-                type: P.union("SepaCreditTransferOut", "SepaCreditTransferIn"),
-                originTransactionId: P.string,
+                originTransaction: {
+                  type: P.union(
+                    "SepaInstantCreditTransferIn",
+                    "SepaInstantCreditTransferInRecall",
+                    "SepaInstantCreditTransferOut",
+                    "SepaInstantCreditTransferOutRecall",
+                  ),
+                },
               },
               () => (
-                // TODO: update the condition to display the warning message as soon as the original transaction is available
                 <LakeAlert
                   anchored={true}
                   variant="warning"

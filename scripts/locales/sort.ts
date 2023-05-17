@@ -1,37 +1,27 @@
 import fs from "node:fs";
-import path from "node:path";
+import os from "node:os";
+import path from "pathe";
 
-const packages = ["banking", "onboarding"];
+const isStringRecord = (value: unknown): value is Record<string, string> =>
+  String(value) === "[object Object]" &&
+  value != null &&
+  Object.values(value).every(item => typeof item === "string");
 
-const isRecord = (value: unknown): value is Record<string, string> => {
-  return value != null && Object.values(value).every(v => typeof v === "string");
-};
+const localesPath = path.resolve(__dirname, "../src/locales");
+const files = fs.readdirSync(localesPath).map(file => path.join(localesPath, file));
 
-const sortJson = (json: Record<string, string>) => {
-  const keys = Object.keys(json).sort();
-  const sortedJson: Record<string, string> = {};
-  keys.forEach(key => {
-    sortedJson[key] = json[key] as string;
-  });
-  return sortedJson;
-};
+files.forEach(file => {
+  const content = fs.readFileSync(file, "utf-8");
+  const json: unknown = JSON.parse(content);
 
-packages.forEach(packageName => {
-  const dirPath = `clients/${packageName}/src/locales`;
-  const files = fs.readdirSync(dirPath);
+  if (!isStringRecord(json)) {
+    throw new Error(`Invalid JSON: ${file}`);
+  }
 
-  files.forEach(file => {
-    const filePath = path.join(dirPath, file);
-    const content = fs.readFileSync(filePath, "utf8");
-    const json: unknown = JSON.parse(content);
+  const sorted = Object.keys(json)
+    .sort()
+    .reduce<Record<string, string>>((acc, key) => ({ ...acc, [key]: json[key] as string }), {});
 
-    if (!isRecord(json)) {
-      throw new Error(`Invalid JSON: ${filePath}`);
-    }
-
-    const sorted = sortJson(json);
-
-    fs.writeFileSync(filePath, JSON.stringify(sorted, null, 2));
-    console.log(`Sorted ${filePath}`);
-  });
+  fs.writeFileSync(file, JSON.stringify(sorted, null, 2) + os.EOL, "utf-8");
+  console.log(`Sorted ${file}`);
 });

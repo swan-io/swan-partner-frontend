@@ -40,9 +40,9 @@
     ]
   },
   "lint-staged": {
+    "clients/**/src/locales/*.json": "yarn sort-locales",
     "*": "prettier --ignore-unknown --write",
     "**/*.{js,ts,tsx}": "eslint --fix",
-    "clients/**/src/locales/*.json": "yarn sort-locales",
     "clients/**/src/**/*.gql": "yarn graphql-codegen"
   },
   "devDependencies": {

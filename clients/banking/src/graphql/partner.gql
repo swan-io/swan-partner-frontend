@@ -20,12 +20,6 @@ fragment TransactionDetails on Transaction {
       currency
       value
     }
-    statusInfo {
-      status
-      ... on RejectedTransactionStatusInfo {
-        reason
-      }
-    }
   }
   statusInfo {
     status

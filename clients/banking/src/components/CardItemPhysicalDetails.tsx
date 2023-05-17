@@ -736,7 +736,7 @@ export const CardItemPhysicalDetails = ({
                     <LakeTooltip
                       content={t("card.tooltipConflict")}
                       placement="bottom"
-                      showTooltip={!bindingUserError}
+                      disabled={!bindingUserError}
                     >
                       <LakeButton
                         color="current"
@@ -771,7 +771,7 @@ export const CardItemPhysicalDetails = ({
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
                         placement="bottom"
-                        showTooltip={!bindingUserError}
+                        disabled={!bindingUserError}
                       >
                         <LakeButton
                           disabled={bindingUserError}
@@ -927,7 +927,7 @@ export const CardItemPhysicalDetails = ({
                 .otherwise(() => null)}
 
               <QuickActions
-                showTooltip={bindingUserError}
+                tooltipDisabled={!bindingUserError}
                 tooltipText={t("card.tooltipConflict")}
                 actions={[
                   ...match(physicalCard)
@@ -1101,7 +1101,7 @@ export const CardItemPhysicalDetails = ({
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
                         placement="bottom"
-                        showTooltip={!bindingUserError}
+                        disabled={!bindingUserError}
                       >
                         <LakeButton
                           disabled={bindingUserError}

@@ -148,12 +148,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             .with(
               {
                 originTransaction: {
-                  type: P.union(
-                    "SepaInstantCreditTransferIn",
-                    "SepaInstantCreditTransferInRecall",
-                    "SepaInstantCreditTransferOut",
-                    "SepaInstantCreditTransferOutRecall",
-                  ),
+                  type: P.union("SepaInstantCreditTransferIn", "SepaInstantCreditTransferOut"),
                 },
               },
               () => (

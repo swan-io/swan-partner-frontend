@@ -594,31 +594,18 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                           />
                         ))
                         .with("DirectDebitRejection", () => (
-                          <>
-                            <LakeLabel
-                              type="viewSmall"
-                              label={t("transaction.rejectedAmount")}
-                              render={() => (
-                                <LakeText variant="regular" color={colors.gray[900]}>
-                                  {formatCurrency(
-                                    Number(originTransaction.amount.value),
-                                    originTransaction.amount.currency,
-                                  )}
-                                </LakeText>
-                              )}
-                            />
-
-                            <LakeLabel
-                              type="viewSmall"
-                              label={t("transaction.originalTransactionAmountRejectedReason")}
-                              render={() => (
-                                <LakeText variant="regular" color={colors.gray[900]}>
-                                  {/* TODO: Translate status */}
-                                  {originTransaction.statusInfo.status}
-                                </LakeText>
-                              )}
-                            />
-                          </>
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.rejectedAmount")}
+                            render={() => (
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {formatCurrency(
+                                  Number(originTransaction.amount.value),
+                                  originTransaction.amount.currency,
+                                )}
+                              </LakeText>
+                            )}
+                          />
                         ))
                         .otherwise(() => null)}
                     </>

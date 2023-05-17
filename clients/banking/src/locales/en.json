@@ -627,7 +627,6 @@
   "transaction.instantTransferUnavailable.description": "Unfortunately, instant transfers are not available right now. We'll send this as a standard transfer instead.",
   "transaction.maskedPan": "Card number",
   "transaction.originalTransactionAmount": "Original transaction amount",
-  "transaction.originalTransactionAmountRejectedReason": "Rejected reason",
   "transaction.originalTransactionDate": "Original transaction date",
   "transaction.originalTransactionId": "Original transaction ID",
   "transaction.paymentDateTime": "Payment date",

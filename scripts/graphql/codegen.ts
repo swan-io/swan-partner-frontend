@@ -14,7 +14,7 @@ const addTypenames: Types.DocumentTransformFunction = ({ documents }) =>
     return {
       ...rest,
       document: visit(document, {
-        SelectionSet: {
+        [Kind.SELECTION_SET]: {
           leave(node) {
             const hasTypename = node.selections.some(
               selection =>

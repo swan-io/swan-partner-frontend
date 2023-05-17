@@ -31,9 +31,8 @@ const visitor: ASTVisitor = {
 };
 
 fs.readdirSync(schemasPath)
-  .map(file => path.join(schemasPath, file))
-  .map(file => fs.readFileSync(file, "utf-8"))
-  .map(schema => parse(schema))
+  .filter(file => file.endsWith(".gql"))
+  .map(file => parse(fs.readFileSync(path.join(schemasPath, file), "utf-8")))
   .forEach(schema => visit(schema, visitor));
 
 keys.sort(); // sort in place
@@ -46,6 +45,15 @@ fs.readdirSync(localesPath).map(file => {
     throw new Error(`Invalid JSON: ${file}`);
   }
 
-  const record = Object.fromEntries(keys.map(key => [key, json[key] ?? ""]));
+  const record = Object.fromEntries(
+    (file === "en.json"
+      ? keys
+      : keys.filter(key => {
+          const value = json[key];
+          return value != null && value.trim() !== "";
+        })
+    ).map(key => [key, json[key] ?? ""]),
+  );
+
   fs.writeFileSync(filePath, JSON.stringify(record, null, 2) + os.EOL, "utf-8");
 });

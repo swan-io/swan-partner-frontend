@@ -7,6 +7,12 @@ import { t } from "./i18n";
 import { parseOperationResult } from "./urql";
 export { isValid as isValidIban, printFormat as printIbanFormat } from "iban";
 
+export const validateIban = (iban: string) => {
+  if (!isValidIban(iban)) {
+    return t("error.iban.invalid");
+  }
+};
+
 // Cache already validated IBANs to avoid backend call on submit
 const alreadyValidatedIbans: Record<string, ValidIbanInformationFragment> = {};
 

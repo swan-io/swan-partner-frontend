@@ -138,7 +138,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Tile
           style={styles.tile}
           footer={match(transaction)
-            .with({ originTransactionId: P.string }, () => (
+            .with({ type: "SepaCreditTransferOut" }, { originTransactionId: P.string }, () => (
               // TODO: switch this condition with the next one to display the warning message as soon as the back had fixed its issue
               <LakeAlert
                 anchored={true}

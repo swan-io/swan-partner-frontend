@@ -39,21 +39,25 @@ keys.sort(); // sort in place
 
 fs.readdirSync(localesPath).map(file => {
   const filePath = path.join(localesPath, file);
-  const json: unknown = JSON.parse(fs.readFileSync(filePath, "utf-8"));
+  const currentText = fs.readFileSync(filePath, "utf-8");
+  const currentJson: unknown = JSON.parse(currentText);
 
-  if (!isStringRecord(json)) {
+  if (!isStringRecord(currentJson)) {
     throw new Error(`Invalid JSON: ${file}`);
   }
 
-  const record = Object.fromEntries(
-    (file === "en.json"
+  const filteredKeys =
+    file === "en.json"
       ? keys
       : keys.filter(key => {
-          const value = json[key];
+          const value = currentJson[key];
           return value != null && value.trim() !== "";
-        })
-    ).map(key => [key, json[key] ?? ""]),
-  );
+        });
 
-  fs.writeFileSync(filePath, JSON.stringify(record, null, 2) + os.EOL, "utf-8");
+  const nextJson = Object.fromEntries(filteredKeys.map(key => [key, currentJson[key] ?? ""]));
+  const nextText = JSON.stringify(nextJson, null, 2) + os.EOL;
+
+  if (nextText !== currentText) {
+    fs.writeFileSync(filePath, nextText, "utf-8");
+  }
 });

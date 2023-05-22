@@ -1,9 +1,9 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 import type { Types } from "@graphql-codegen/plugin-helpers";
 import { Kind, visit } from "graphql";
-import { resolve } from "pathe";
+import { normalize, resolve } from "pathe";
 
-const file = (path: string) => resolve(__dirname, path);
+const file = (path: string) => normalize(resolve(__dirname, path));
 
 const addTypenames: Types.DocumentTransformFunction = ({ documents }) =>
   documents.map(({ document, ...rest }) => {

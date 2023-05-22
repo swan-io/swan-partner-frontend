@@ -139,9 +139,10 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
           style={styles.tile}
           footer={match(transaction)
             .with(
-              { type: "SepaCreditTransferOut" },
-              { type: "SepaCreditTransferIn" },
-              { originTransactionId: P.string },
+              {
+                type: "SepaCreditTransferOut" || "SepaCreditTransferIn",
+                originTransactionId: P.string,
+              },
               () => (
                 // TODO: update the condition to display the warning message as soon as the original transaction is available
                 <LakeAlert

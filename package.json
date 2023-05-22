@@ -24,7 +24,7 @@
     "typecheck": "tsc --noEmit",
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",
-    "lint": "eslint --ext ts,tsx clients/*/src",
+    "lint": "eslint --ext ts,tsx clients/*/src/**/*",
     "test": "vitest run --passWithNoTests",
     "icons": "tsx scripts/fluent-icons/generateIcons.ts",
     "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",

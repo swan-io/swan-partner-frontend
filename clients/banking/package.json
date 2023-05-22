@@ -49,7 +49,7 @@
     "@types/iban": "0.0.32",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
-    "@types/react-native": "0.71.6",
+    "@types/react-native": "0.72.1",
     "@vitejs/plugin-legacy": "4.0.3",
     "@vitejs/plugin-react-swc": "3.3.1",
     "jsdom": "22.0.0",

@@ -180,6 +180,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       path: "/",
       secure: true,
       httpOnly: true,
+      domain: `.${new URL(env.BANKING_URL).hostname}`,
     },
   });
 

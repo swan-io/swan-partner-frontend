@@ -641,6 +641,7 @@ export const CardWizard = ({
                             if (memberships.length === 1) {
                               setStep({
                                 name: "CardProductIndividualDelivery",
+                                cardName,
                                 cardProduct,
                                 cardFormat,
                                 memberships,
@@ -653,6 +654,7 @@ export const CardWizard = ({
                             } else {
                               setStep({
                                 name: "CardProductDelivery",
+                                cardName,
                                 cardProduct,
                                 cardFormat,
                                 memberships,
@@ -710,6 +712,7 @@ export const CardWizard = ({
                 .with(
                   { name: "CardProductDelivery" },
                   ({
+                    cardName,
                     cardProduct,
                     cardFormat,
                     memberships,
@@ -725,6 +728,7 @@ export const CardWizard = ({
                         if (mode === "Grouped") {
                           setStep({
                             name: "CardProductGroupedDelivery",
+                            cardName,
                             cardProduct,
                             cardFormat,
                             memberships,
@@ -737,6 +741,7 @@ export const CardWizard = ({
                         } else {
                           setStep({
                             name: "CardProductIndividualDelivery",
+                            cardName,
                             cardProduct,
                             cardFormat,
                             memberships,

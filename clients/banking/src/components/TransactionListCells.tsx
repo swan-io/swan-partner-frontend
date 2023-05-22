@@ -265,6 +265,12 @@ export const TransactionSummaryCell = ({ transaction }: { transaction: Transacti
               <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
             </>
           ))
+          .with("CanceledTransactionStatusInfo", () => (
+            <>
+              <Space width={12} />
+              <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
+            </>
+          ))
           .otherwise(() => null)}
       </View>
     </View>

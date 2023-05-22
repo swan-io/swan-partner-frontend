@@ -138,15 +138,21 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Tile
           style={styles.tile}
           footer={match(transaction)
-            .with({ originTransactionId: P.string }, () => (
-              // TODO: switch this condition with the next one to display the warning message as soon as the back had fixed its issue
-              <LakeAlert
-                anchored={true}
-                variant="warning"
-                title={t("transaction.instantTransferUnavailable")}
-                children={t("transaction.instantTransferUnavailable.description")}
-              />
-            ))
+            .with(
+              {
+                type: P.union("SepaCreditTransferOut", "SepaCreditTransferIn"),
+                originTransactionId: P.string,
+              },
+              () => (
+                // TODO: update the condition to display the warning message as soon as the original transaction is available
+                <LakeAlert
+                  anchored={true}
+                  variant="warning"
+                  title={t("transaction.instantTransferUnavailable")}
+                  children={t("transaction.instantTransferUnavailable.description")}
+                />
+              ),
+            )
             .otherwise(() => null)}
         >
           {match(transaction.statusInfo.__typename)

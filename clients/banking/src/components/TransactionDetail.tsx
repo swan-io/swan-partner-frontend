@@ -139,8 +139,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
           style={styles.tile}
           footer={match(transaction)
             .with(
+              P.union("SepaCreditTransferOut", "SepaCreditTransferIn"),
               {
-                type: "SepaCreditTransferOut" || "SepaCreditTransferIn",
                 originTransactionId: P.string,
               },
               () => (

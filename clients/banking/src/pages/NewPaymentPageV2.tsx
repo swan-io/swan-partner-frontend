@@ -1,9 +1,7 @@
 import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -21,24 +19,21 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
-import { useClient } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import { FieldsetTitle } from "../components/FormText";
 import {
   GetAccountDocument,
   InitiateCreditTransfersInput,
   InitiateSepaCreditTransfersDocument,
-  ValidIbanInformationFragment,
 } from "../graphql/partner";
 import { encodeDateTime, isToday } from "../utils/date";
 import { formatCurrency, locale, rifmDateProps, rifmTimeProps, t } from "../utils/i18n";
-import { getIbanValidation, printIbanFormat } from "../utils/iban";
+import { printIbanFormat, validateIban } from "../utils/iban";
 import { Router } from "../utils/routes";
 import {
   REFERENCE_MAX_LENGTH,
@@ -61,12 +56,6 @@ const styles = StyleSheet.create({
   },
   inlineInput: {
     flex: 1,
-  },
-  tileFooter: {
-    padding: 24,
-    backgroundColor: colors.shakespear[0],
-    borderTopWidth: 1,
-    borderTopColor: colors.shakespear[100],
   },
   confirmButtonDesktop: {
     alignSelf: "flex-start",
@@ -94,18 +83,9 @@ type Props = {
 };
 
 export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
-  const client = useClient();
   const [transfer, initiateTransfers] = useUrqlMutation(InitiateSepaCreditTransfersDocument);
   const { data } = useUrqlQuery({ query: GetAccountDocument, variables: { accountId } }, []);
   const [insufisantBalanceOpened, setInsufisantBalanceOpened] = useState(false);
-
-  const [ibanInformations, setIbanInformations] = useState<Option<ValidIbanInformationFragment>>(
-    Option.None(),
-  );
-
-  const canSendInstantTransfer = ibanInformations
-    .map(({ reachability }) => reachability.sepaCreditTransferInst)
-    .getWithDefault(false);
 
   const availableBalance = data.mapOkToResult(({ account }) => {
     if (account?.balances?.available) {
@@ -126,17 +106,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     creditorIban: {
       initialValue: "",
       sanitize: printIbanFormat,
-      validate: async value => {
-        const result = await getIbanValidation(client, value);
-
-        // If previous validation was an error, this will not trigger a new render
-        // Because all `Option.None` refers to the same object, and set state run a new render only if the reference change
-        setIbanInformations(result.toOption());
-
-        if (result.isError()) {
-          return result.getError();
-        }
-      },
+      validate: combineValidators(validateRequired, validateIban),
     },
     creditorName: {
       initialValue: "",
@@ -337,40 +307,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                       <Space height={32} />
                       <FieldsetTitle isMobile={small}>{t("transfer.new.recipient")}</FieldsetTitle>
 
-                      <Tile
-                        footer={ibanInformations.match({
-                          None: () => undefined,
-                          Some: ({ bank }) => (
-                            <View style={styles.tileFooter}>
-                              <LakeText variant="medium" color={colors.gray[900]}>
-                                {t("transfer.new.recipient.bankDetails")}
-                              </LakeText>
-
-                              <Space height={16} />
-
-                              <LakeText variant="smallRegular" color={colors.gray[700]}>
-                                {bank.name}
-                              </LakeText>
-
-                              <Space height={4} />
-
-                              <LakeText variant="smallRegular" color={colors.gray[700]}>
-                                {[
-                                  bank.address.addressLine1,
-                                  bank.address.addressLine2,
-                                  bank.address.postalCode,
-                                  bank.address.city,
-                                  bank.address.country != null
-                                    ? getCountryNameByCCA3(bank.address.country)
-                                    : undefined,
-                                ]
-                                  .filter(Boolean)
-                                  .join(", ")}
-                              </LakeText>
-                            </View>
-                          ),
-                        })}
-                      >
+                      <Tile>
                         <LakeLabel
                           label={t("transfer.new.recipient.label")}
                           render={id => (
@@ -495,33 +432,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                       <Space height={32} />
                       <FieldsetTitle isMobile={small}>{t("transfer.new.schedule")}</FieldsetTitle>
 
-                      <Tile
-                        footer={
-                          !canSendInstantTransfer ? (
-                            <View style={styles.tileFooter}>
-                              <Box direction="row" alignItems="end">
-                                <Icon
-                                  name="info-regular"
-                                  size={20}
-                                  color={colors.shakespear[700]}
-                                />
-
-                                <Space width={12} />
-
-                                <LakeText variant="smallRegular" color={colors.shakespear[700]}>
-                                  {t("transfer.new.instantTransferNotAvailable")}
-                                </LakeText>
-                              </Box>
-
-                              <Space height={16} />
-
-                              <LakeText variant="smallRegular" color={colors.gray[700]}>
-                                {t("transfer.new.bankNotAcceptInstantTransfer")}
-                              </LakeText>
-                            </View>
-                          ) : undefined
-                        }
-                      >
+                      <Tile>
                         <LakeLabel
                           label={t("transfer.new.schedule.label")}
                           type="radioGroup"
@@ -595,21 +506,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                                   )}
                                 />
                               </Box>
-                            ) : (
-                              <>
-                                {canSendInstantTransfer && (
-                                  <Field name="isInstant">
-                                    {({ value, onChange }) => (
-                                      <LakeLabelledCheckbox
-                                        label={t("transfer.new.instantTransfer")}
-                                        value={value}
-                                        onValueChange={onChange}
-                                      />
-                                    )}
-                                  </Field>
-                                )}
-                              </>
-                            )
+                            ) : null
                           }
                         </FieldsListener>
                       </Tile>

@@ -457,7 +457,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     })
       .then(async response => {
         if (response.ok) {
-          Router.replace("ProjectLogin");
+          window.location.replace(Router.ProjectLogin());
         } else {
           const message = await response.text();
           throw new Error(message);

@@ -169,7 +169,7 @@ export const NavigationTabBar = ({
     })
       .then(async response => {
         if (response.status >= 200 && response.status < 300) {
-          Router.replace("ProjectLogin");
+          window.location.replace(Router.ProjectLogin());
         } else {
           const message = await response.text();
           throw new Error(message);

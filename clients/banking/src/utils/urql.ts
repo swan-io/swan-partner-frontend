@@ -40,7 +40,7 @@ const onError = (error: CombinedError, operation: Operation) => {
       return;
     }
 
-    Router.push("ProjectLogin");
+    window.location.replace(Router.ProjectLogin());
   } else {
     logBackendError(error, operation);
   }

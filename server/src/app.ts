@@ -683,7 +683,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     const projectId = await getProjectId();
     const data = {
       SWAN_ENVIRONMENT:
-        process.env.SWAN_ENV ?? (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
+        process.env.SWAN_ENVIRONMENT ??
+        (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
         .with(P.nullish, () => "LINK")
         .otherwise(() => "EMAIL"),

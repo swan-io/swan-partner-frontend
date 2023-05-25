@@ -388,6 +388,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Registration number of the company (SIRET, ...)."""
   registrationNumber: String
 
+  """Registration date of the company."""
+  companyRegistrationDate: Date
+
   """Legal form of the company (SAS, SCI, SASU, ...)."""
   companyType: CompanyType
 
@@ -602,7 +605,7 @@ type AccountMembership {
   canInitiatePayments: Boolean!
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean!
 
@@ -1989,6 +1992,14 @@ type CanceledFundingSourceStatusInfo implements FundingSourceStatusInfo {
   reasonCode: CanceledFundingSourceReason!
 }
 
+"""CanceledMerchantPaymentMethodStatusInfo"""
+type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method canceled date"""
+  canceledAt: Date!
+}
+
 """CanceledMerchantPaymentProductStatusInfo"""
 type CanceledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -3109,6 +3120,34 @@ input Certificate {
   value: String!
 }
 
+"""CheckMerchantPaymentMethod"""
+type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """CheckMerchantPaymentProduct"""
 type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
   """
@@ -3153,6 +3192,11 @@ input CheckPaymentCollectionInput {
   Combined with CMC7 line, it allows the check traceability.
   """
   rlmcKey: String!
+}
+
+input CheckPaymentMethodInput {
+  """Determine whether the payment product must be activated or not"""
+  activate: Boolean = false
 }
 
 input CheckPaymentProductInput {
@@ -3223,9 +3267,6 @@ type CheckTransaction implements Transaction {
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
-
-  """creditor information"""
-  creditor: InternalDirectDebitCreditor!
 
   """matching account for the transaction"""
   account: Account
@@ -3771,6 +3812,12 @@ input CreditTransferInput {
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
   """
   mode: CreditTransferMode
+
+  """
+  *COMING SOON*
+  if the transfer will credit a new international beneficiary
+  """
+  internationalBeneficiary: InternationalBeneficiaryInput
 }
 
 enum CreditTransferMode {
@@ -4109,6 +4156,14 @@ type DisabledFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatu
   reason: String!
 }
 
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method disabled date"""
+  disabledAt: Date!
+}
+
 """EnabledMerchantPaymentProductStatusInfo"""
 type DisabledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -4160,6 +4215,14 @@ type EnabledFundingSourceStatusInfo implements FundingSourceStatusInfo {
   status: FundingSourceStatus!
 
   """Date at which the funding source was enabled"""
+  enabledAt: Date!
+}
+
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type EnabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method enabled date"""
   enabledAt: Date!
 }
 
@@ -4442,13 +4505,36 @@ type FeeOutDebtor implements FeeDebtor {
 
 """Fees type"""
 enum FeesTypeEnum {
+  """
+  Processing of judicial or administrative seizures, notice to third-party holders
+  """
   ProcessingJudicialOrAdministrativeSeizure
+
+  """Drafting a circulation letter for a legal entity holder"""
   CirculationLetterDraftingFee
+
+  """When a cash withdrawal is made from an ATM outside the SEPA area"""
   CashWithdrawalsOutsideSEPA
+
+  """
+  When a card payment for goods and services is made outside the SEPA area
+  """
   CardPaymentsOutsideSEPA
+
+  """When a cash withdrawal is made from an ATM in the SEPA area"""
   CashWithdrawalsWithinSEPA
+
+  """
+  When a direct debit was rejected due to an insufficient account balance
+  """
   DirectDebitRejection
+
+  """
+  Fee for attempting or performing acts in violation of the law and/or this Account Agreement
+  """
   ImproperUseOfAccount
+
+  """Intervention fee for managing unauthorized overdrafts"""
   UnauthorizedOverdraft
   BankingFee
 }
@@ -4991,6 +5077,22 @@ enum IdentificationLevel {
   PVID
 }
 
+"""User identification levels input payload."""
+enum IdentificationLevelInput {
+  """Identity verified by an expert (Ubble-like)"""
+  Expert
+
+  """
+  Identity verified by an expert with a Remote Identity Verification Service
+  """
+  PVID
+
+  """
+  Identity verified by an expert and a Qualified Electronic Signature has been done
+  """
+  QES
+}
+
 """Identification levels"""
 type IdentificationLevels {
   PVID: Boolean!
@@ -5267,6 +5369,7 @@ input InitiateFundingRequestInput {
   requestedExecutionAt: DateTime
 
   """
+  *SOON TO BE DEPRECATED*
   If `true` the funds should be available immediately. If `false` or `null`, the funds will be available
   after the resolution of the credit transaction.
   """
@@ -5492,6 +5595,39 @@ type InternalCreditTransferOutDebtor implements InternalCreditTransferDebtor {
   accountNumber: AccountNumber!
 }
 
+"""InternalDirectDebitB2BMerchantPaymentMethod"""
+type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+input InternalDirectDebitB2BPaymentMethodInput {
+  """If `true`, the PaymentProduct will become Disabled"""
+  activate: Boolean = false
+}
+
 """Internal Direct Debit Creditor"""
 type InternalDirectDebitCreditor {
   """unique identifier of the creditor account"""
@@ -5561,6 +5697,39 @@ enum InternalDirectDebitScheme {
 enum InternalDirectDebitSequence {
   OneOff
   Recurring
+}
+
+"""InternalDirectDebitStandardMerchantPaymentMethod"""
+type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+input InternalDirectDebitStandardPaymentMethodInput {
+  """If `true`, the PaymentProduct will become Disabled"""
+  activate: Boolean = false
 }
 
 """Internal Direct Debit transaction"""
@@ -5887,6 +6056,12 @@ enum InternalReceivedDirectDebitMandateSequence {
   Recurrent
 }
 
+"""International beneficiary account"""
+input InternationalBeneficiaryInput {
+  """Currency of the international beneficiary"""
+  currency: Currency!
+}
+
 """Rejection returned on invalid argument error"""
 type InvalidArgumentRejection implements Rejection {
   message: String!
@@ -5948,6 +6123,9 @@ type InvalidSirenNumberRejection implements Rejection {
 type Invoice {
   """unique id"""
   id: ID!
+
+  """account id"""
+  accountId: ID!
 
   """name of the invoice"""
   name: String!
@@ -6382,6 +6560,57 @@ enum MerchantCategoryDescription {
   WomenReadyToWearStores
 }
 
+"""Base object for the different Payment Methods available"""
+interface MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applicated to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodStatus {
+  PendingReview
+  Enabled
+  Rejected
+  Disabled
+  Canceled
+  Suspended
+}
+
+"""The payment method status information"""
+interface MerchantPaymentMethodStatusInfo {
+  """Merchant Payment Method Status"""
+  status: MerchantPaymentMethodStatus!
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodType {
+  InternalDirectDebitStandard
+  InternalDirectDebitB2B
+  Check
+}
+
 """Base object for the different Payment Products available"""
 interface MerchantPaymentProduct {
   """
@@ -6460,7 +6689,10 @@ type MerchantProfile {
   expectedMonthlyPaymentVolume: Amount!
 
   """Payment Products associated"""
-  merchantPaymentProducts: [MerchantPaymentProduct!]
+  merchantPaymentProducts: [MerchantPaymentProduct!] @deprecated(reason: "Use merchantPaymentMethods instead")
+
+  """Payment Methods associated"""
+  merchantPaymentMethods: [MerchantPaymentMethod!]
 
   """expected average basket value."""
   expectedAverageBasket: Amount!
@@ -6600,9 +6832,13 @@ type Mutation {
   The user must have an account membership for this account with the attribute `canInitiateCreditTransfer=true`.
   """
   initiateFundingRequest(input: InitiateFundingRequestInput!): InitiateFundingRequestPayload
+  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
+
+  """Request merchant payment methods for a merchant profile"""
+  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
 
   """Request merchant payment products for a merchant profile"""
-  requestMerchantPaymentProducts(input: RequestMerchantPaymentProductsInput!): RequestMerchantPaymentProductsPayload
+  requestMerchantPaymentProducts(input: RequestMerchantPaymentProductsInput!): RequestMerchantPaymentProductsPayload @deprecated(reason: "Use requestMerchantPaymentMethods instead")
 
   """
   Schedule a standing Order
@@ -6612,7 +6848,6 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   scheduleStandingOrder(input: ScheduleStandingOrderInput!): ScheduleStandingOrderPayload!
-  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
 
   """
   Cancels an UPCOMING credit transfer
@@ -8061,6 +8296,11 @@ type PendingFundingSourceStatusInfo implements FundingSourceStatusInfo {
   status: FundingSourceStatus!
 }
 
+"""PendingMerchantPaymentMethodStatusInfo"""
+type PendingMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+}
+
 """PendingMerchantPaymentProductStatusInfo"""
 type PendingMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -8177,18 +8417,39 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
 }
 
 input PhysicalCardCustomOptionsForGroupDeliveryInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be embossed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 input PhysicalCardCustomOptionsForPrintInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be printed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 input PhysicalCardCustomOptionsInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be embossed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 """Rejection returned when the Physical Card does not exist"""
@@ -8589,7 +8850,7 @@ type Query {
   
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
-  users(first: Int! = 50, after: String): UserConnection!
+  users(after: String, before: String, filters: UserFilterInput, first: Int! = 50): UserConnection!
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -9020,6 +9281,14 @@ type RejectedFundingSourceStatusInfo implements FundingSourceStatusInfo {
   reasonCode: RejectedFundingSourceReason!
 }
 
+"""RejectedMerchantPaymentMethodStatusInfo"""
+type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method rejected date"""
+  rejectedAt: Date!
+}
+
 """RejectedMerchantPaymentProductStatusInfo"""
 type RejectedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -9257,6 +9526,26 @@ type ReportExchangeRate {
   targetCurrency: Currency!
   quotationDate: Date!
   contractIdentification: String
+}
+
+input RequestMerchantPaymentMethodsInput {
+  """ID of the Merchant Profile"""
+  merchantProfileId: ID!
+
+  """Input for the Internal Direct Debit Standard payment method"""
+  internalDirectDebitStandard: InternalDirectDebitStandardPaymentMethodInput
+
+  """Input for the Internal Direct Debit B2B payment method"""
+  internalDirectDebitB2B: InternalDirectDebitB2BPaymentMethodInput
+
+  """Input for Check payment product"""
+  check: CheckPaymentProductInput
+}
+
+union RequestMerchantPaymentMethodsPayload = RequestMerchantPaymentMethodsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
+
+type RequestMerchantPaymentMethodsSuccessPayload {
+  merchantProfile: MerchantProfile
 }
 
 input RequestMerchantPaymentProductsInput {
@@ -10580,6 +10869,9 @@ input StatementFiltersInput {
 
   """To filter before an updatedAt value"""
   isBeforeUpdatedAt: DateTime
+
+  """To filter on a specific period of statement (either custom or monthly)"""
+  period: StatementPeriod
 }
 
 """Custom information for a certain type of statement"""
@@ -11135,6 +11427,14 @@ type SuspendedFundingSourceStatusInfo implements FundingSourceStatusInfo {
   suspendedAt: Date!
 }
 
+"""SuspendedMerchantPaymentMethodStatusInfo"""
+type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method suspended date"""
+  suspendedAt: Date!
+}
+
 """SuspendedMerchantPaymentProductStatusInfo"""
 type SuspendedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -11539,6 +11839,11 @@ enum TransactionTypeEnum {
   When a Check credited a Swan account.
   """
   CheckIn
+
+  """
+  When a Check credited a Swan account and Swan or the debtor returned the funds.
+  """
+  CheckInReturn
 }
 
 """Quality of the account holder doing the onboarding"""
@@ -11729,7 +12034,7 @@ input UpdateAccountMembershipInput {
   canInitiatePayments: Boolean
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean
 
@@ -12072,6 +12377,14 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
+  """Identification documents of the user"""
+  identificationDocuments: [UserIdentificationDocument]
+
+  """
+  Date on which the user joined the project. Joining the project is done after the first accepted OAuth login.
+  """
+  joinedAt: DateTime!
+
   """The list of account memberships"""
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
 }
@@ -12112,6 +12425,30 @@ type UserEdge implements Edge {
   node: User!
 }
 
+input UserFilterInput {
+  birthDate: Date
+  firstName: String
+  identificationLevel: IdentificationLevelInput
+  lastName: String
+  mobilePhoneNumber: String
+  nationalityCCA3: CCA3
+  preferredNotificationChannel: PreferredNotificationChannel
+}
+
+type UserIdentificationDocument {
+  documentType: UserIdentificationDocumentType
+
+  """CCA3 of the country"""
+  issuingCountry: String
+}
+
+enum UserIdentificationDocumentType {
+  ID
+  PASSPORT
+  DRIVER_LICENCE
+  RESIDENT_PERMIT
+}
+
 type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejection {
   accountMembershipId: String!
   message: String!
@@ -12132,6 +12469,18 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
 """Rejection returned when the User is not the Card Holder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
+}
+
+"""Field we can use when ordering that can be applied when listing users"""
+enum UserOrderByFieldInput {
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing users"""
+input UserOrderByInput {
+  field: UserOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -12344,4 +12693,11 @@ type WebBankingSettings {
   canOrderPhysicalCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
+}
+
+"""Rejection returned when a parameter has a wrong value"""
+type WrongValueProvidedRejection implements Rejection {
+  message: String!
+  valueProvided: String!
+  parameterName: String!
 }

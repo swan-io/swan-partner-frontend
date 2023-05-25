@@ -438,7 +438,12 @@ query AccountsListPage($first: Int!, $after: String) {
   }
 }
 
-query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
+query AccountStatementsPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: StatementFiltersInput
+) {
   account(accountId: $accountId) {
     id
     name
@@ -449,7 +454,7 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
         name
       }
     }
-    statements(first: $first, after: $after) {
+    statements(first: $first, after: $after, filters: $filters) {
       totalCount
       pageInfo {
         hasNextPage

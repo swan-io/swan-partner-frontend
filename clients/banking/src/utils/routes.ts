@@ -35,8 +35,8 @@ const routes = {
           Root: "/",
           ...createGroup("Statements", "/statements", {
             Area: "/*",
-            Root: "/monthly?:search",
-            Custom: "/custom?:search",
+            Root: "/monthly",
+            Custom: "/custom?:period",
           }),
         },
       ),

@@ -1,5 +1,6 @@
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -16,23 +17,6 @@ const styles = StyleSheet.create({
     overflow: "hidden",
     borderTopColor: colors.gray[100],
     borderTopWidth: 1,
-  },
-  cellContainerLarge: {
-    paddingLeft: spacings[24],
-    paddingRight: spacings[40],
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
-  },
-  cellContainer: {
-    paddingRight: spacings[16],
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
   },
 });
 

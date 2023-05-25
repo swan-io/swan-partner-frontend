@@ -204,6 +204,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Registration number of the company (SIRET, ...)."""
   registrationNumber: String
 
+  """Registration date of the company."""
+  companyRegistrationDate: Date
+
   """Legal form of the company (SAS, SCI, SASU, ...)."""
   companyType: CompanyType
 
@@ -410,7 +413,7 @@ type AccountMembership {
   canInitiatePayments: Boolean!
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean!
 

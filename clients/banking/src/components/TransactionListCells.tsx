@@ -130,21 +130,16 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
   );
 };
 
-const toSeparateWords = (value: string) => {
+export const formatTransactionType = (typename: string) => {
+  const unprefixed = typename.startsWith("SEPA") ? typename.slice(4) : typename;
+
   return (
-    value.charAt(0).toUpperCase() +
-    value
+    unprefixed.charAt(0).toUpperCase() +
+    unprefixed
       .slice(1)
       .replace(/([A-Z])/g, " $1")
       .toLowerCase()
   );
-};
-
-export const formatTransactionType = (typename: string) => {
-  if (typename.startsWith("SEPA")) {
-    return toSeparateWords(typename.slice(4));
-  }
-  return toSeparateWords(typename);
 };
 
 export const TransactionMethodCell = ({

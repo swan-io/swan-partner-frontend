@@ -1,4 +1,4 @@
-name: Docs
+name: Build docs
 
 on:
   push:
@@ -6,17 +6,18 @@ on:
       - "main"
 
 jobs:
-  test:
-    name: Build & test
+  docs:
+    name: Build docs
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v1
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: lts/*
 
       - name: Install & build
-        run: cd docs && yarn && yarn build
+        run: cd docs && yarn install --pure-lockfile && yarn build
 
       - name: Deploy
         if: "contains('refs/heads/main', github.ref)"

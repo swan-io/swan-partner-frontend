@@ -1,26 +1,26 @@
-name: Build & test
+name: Test & build
 
 on:
   push:
     branches:
       - "*"
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout
-
 jobs:
-  test:
-    name: Build & test
+  test-and-build:
+    name: Test & build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: lts/*
 
       - name: Install dependencies
-        run: yarn
+        run: yarn install --pure-lockfile
 
       - name: GraphQL Codegen
         run: yarn graphql-codegen

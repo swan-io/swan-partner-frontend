@@ -24,8 +24,9 @@ import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPi
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
 import {
   CountryCCA3,
-  countries,
-  getCountryNameByCCA3,
+  allCountries,
+  getCountryName,
+  isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -179,7 +180,7 @@ const CardItemPhysicalShippingForm = ({
                 error={error}
                 value={value}
                 placeholder={t("members.form.address.countryPlaceholder")}
-                items={countries}
+                countries={allCountries}
                 onValueChange={onChange}
               />
             )}
@@ -912,8 +913,8 @@ export const CardItemPhysicalDetails = ({
                           address.addressLine2,
                           address.postalCode,
                           address.city,
-                          address.country != null
-                            ? getCountryNameByCCA3(address.country)
+                          address.country != null && isCountryCCA3(address.country)
+                            ? getCountryName(address.country)
                             : undefined,
                         ]
                           .filter(Boolean)

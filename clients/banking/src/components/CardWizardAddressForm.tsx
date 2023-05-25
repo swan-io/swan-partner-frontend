@@ -4,7 +4,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { locale, t } from "../utils/i18n";
@@ -86,7 +86,7 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                 error={error}
                 value={value}
                 placeholder={t("cardWizard.address.countryPlaceholder")}
-                items={countries}
+                countries={allCountries}
                 onValueChange={onChange}
               />
             )}

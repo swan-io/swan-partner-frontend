@@ -130,7 +130,23 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
   );
 };
 
-export const TransactionMethodCell = ({ transaction }: { transaction: Transaction }) => {
+export const formatTransactionType = (typename: string) => {
+  const unprefixed = typename.startsWith("SEPA") ? typename.slice(4) : typename;
+
+  return (
+    unprefixed.charAt(0).toUpperCase() +
+    unprefixed
+      .slice(1)
+      .replace(/([A-Z])/g, " $1")
+      .toLowerCase()
+  );
+};
+
+export const TransactionMethodCell = ({
+  transaction,
+}: {
+  transaction: Transaction | { __typename: string };
+}) => {
   return (
     <View style={[styles.cell, styles.cellRightAlign]}>
       <LakeText align="right" variant="smallMedium" color={colors.gray[600]}>
@@ -152,7 +168,7 @@ export const TransactionMethodCell = ({ transaction }: { transaction: Transactio
             { __typename: "SEPADirectDebitTransaction" },
             () => t("transactions.method.DirectDebit"),
           )
-          .exhaustive()}
+          .otherwise(({ __typename }) => formatTransactionType(__typename))}
       </LakeText>
     </View>
   );

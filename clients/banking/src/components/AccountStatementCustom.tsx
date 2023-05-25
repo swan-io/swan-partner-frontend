@@ -1,6 +1,5 @@
 import { Link } from "@swan-io/chicane";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -13,7 +12,6 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -25,14 +23,13 @@ import { animations, colors, spacings } from "@swan-io/lake/src/constants/design
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { GetNode, UnionToTuple } from "@swan-io/lake/src/utils/types";
+import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
-import { isMatching, match, P } from "ts-pattern";
-import { ErrorView } from "../components/ErrorView";
+import { isMatching, match } from "ts-pattern";
 import {
   AccountLanguage,
   AccountStatementsPageDocument,
@@ -42,6 +39,7 @@ import {
 } from "../graphql/partner";
 import { languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
+import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
   cellContainerLarge: {
@@ -85,9 +83,11 @@ const styles = StyleSheet.create({
   },
 });
 
-const accountLanguages: UnionToTuple<AccountLanguage> = ["de", "en", "es", "fr", "it", "nl"];
+// const accountLanguages: UnionToTuple<AccountLanguage> = ["de", "en", "es", "fr", "it", "nl"];
+const accountLanguages = ["de", "en", "es", "fr", "it", "nl"] as AccountLanguage[];
 
-const isCountryAccountLanguage = isMatching({ id: P.union(...accountLanguages) });
+// const isCountryAccountLanguage = isMatching({ id: P.union(...accountLanguages) });
+const isCountryAccountLanguage = isMatching({ id: accountLanguages });
 
 const NUM_TO_RENDER = 20;
 
@@ -133,7 +133,6 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
         textAlign="right"
         variant="smallMedium"
         text={dayjs(createdAt).format("MMM, DD YYYY")}
-        color={colors.gray[600]}
       />
     ),
   },
@@ -272,7 +271,7 @@ const NewStatementForm = ({
                   <Rifm value={value} onChange={onChange} {...rifmDateProps}>
                     {({ value, onChange }) => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         placeholder={locale.datePlaceholder}
                         onChange={e =>
@@ -300,7 +299,7 @@ const NewStatementForm = ({
                   <Rifm value={value} onChange={onChange} {...rifmDateProps}>
                     {({ value, onChange }) => (
                       <LakeTextInput
-                        nativeID={id}
+                        id={id}
                         value={value}
                         placeholder={locale.datePlaceholder}
                         onChange={e =>
@@ -325,7 +324,7 @@ const NewStatementForm = ({
               label={t("newStatement.format")}
               render={id => (
                 <LakeSelect
-                  nativeID={id}
+                  id={id}
                   value={value}
                   items={statementTypeList.map(type => ({ name: type, value: type }))}
                   onValueChange={onChange}
@@ -341,7 +340,7 @@ const NewStatementForm = ({
               label={t("newStatement.language")}
               render={id => (
                 <LakeSelect
-                  nativeID={id}
+                  id={id}
                   value={value}
                   items={languageOptions}
                   onValueChange={onChange}
@@ -371,11 +370,9 @@ const NewStatementForm = ({
 };
 
 export const AccountStatementCustom = ({ accountId, large }: Props) => {
-  const [search, setSearch] = useState("");
-
   // we enable animation in list view only if new form was opened at least once
   // it avoid to animate the first time the list is displayed
-  const [newWasOpened, setNewWasOpened] = useState(false);
+  // const [newWasOpened, setNewWasOpened] = useState(false);
 
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
   const { data, nextData, setAfter, reload } = useUrqlPaginatedQuery(
@@ -384,8 +381,9 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
       variables: {
         first: PER_PAGE,
         accountId,
-        // search
-        // period:"custom"
+        filters: {
+          period: "Custom",
+        },
       },
     },
     [accountId],
@@ -419,11 +417,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                   ) : null}
                 </TransitionView>
 
-                <TransitionView
-                  style={styles.fill}
-                  {...animations.fadeAndSlideInFromLeft}
-                  preventEnter={!newWasOpened}
-                >
+                <TransitionView style={styles.fill} {...animations.fadeAndSlideInFromLeft}>
                   {displayedView === "list" ? (
                     <>
                       <Space height={24} />
@@ -433,21 +427,13 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                           size="small"
                           icon="add-circle-filled"
                           onPress={() => {
-                            setNewWasOpened(true);
+                            // setNewWasOpened(true);
                             setDisplayedView("new");
                           }}
                           color="current"
                         >
                           {t("common.new")}
                         </LakeButton>
-
-                        <Fill minWidth={16} />
-
-                        <LakeSearchField
-                          placeholder={t("common.search")}
-                          initialValue={search}
-                          onChangeText={searchText => setSearch(searchText)}
-                        />
                       </Box>
 
                       <Space height={12} />

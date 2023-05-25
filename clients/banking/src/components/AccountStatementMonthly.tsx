@@ -1,5 +1,4 @@
 import { Link } from "@swan-io/chicane";
-import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -9,7 +8,6 @@ import {
   SimpleTitleCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -17,7 +15,6 @@ import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { ErrorView } from "../components/ErrorView";
 import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../graphql/partner";
@@ -38,9 +35,6 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "space-between",
     flexDirection: "row",
-  },
-  searchBar: {
-    paddingHorizontal: spacings[48],
   },
 });
 
@@ -79,7 +73,6 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
         textAlign="right"
         variant="smallMedium"
         text={dayjs(createdAt).format("MMM, DD YYYY")}
-        color={colors.gray[600]}
       />
     ),
   },
@@ -104,16 +97,13 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
 const PER_PAGE = 20;
 
 export const AccountStatementMonthly = ({ accountId, large }: Props) => {
-  const [search, setSearch] = useState("");
-
   const { data, nextData, setAfter } = useUrqlPaginatedQuery(
     {
       query: AccountStatementsPageDocument,
       variables: {
         first: PER_PAGE,
         accountId,
-        // search
-        // period:"monthly"
+        filters: { period: "Monthly" },
       },
     },
     [accountId],
@@ -137,18 +127,6 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
             Ok: ({ account }) => (
               <>
                 <Space height={24} />
-
-                <Box style={styles.searchBar}>
-                  <LakeSearchField
-                    maxWidth="100%"
-                    placeholder={t("common.search")}
-                    initialValue={search}
-                    onChangeText={searchText => setSearch(searchText)}
-                    totalCount={account?.statements?.totalCount ?? 0}
-                  />
-                </Box>
-
-                <Space height={12} />
 
                 <PlainListView
                   data={account?.statements?.edges?.map(({ node }) => node) ?? []}

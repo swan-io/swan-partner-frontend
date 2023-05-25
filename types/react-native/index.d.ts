@@ -354,10 +354,37 @@ declare module "react-native" {
     | "inline-flex";
 
   type PositionValue = FlexStyle["position"] | "fixed" | "static" | "sticky";
+  type WebDimensionValue = ReactNative.DimensionValue | string;
 
   export interface ImageStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
     display?: DisplayValue;
     transform?: string;
+
+    bottom?: WebDimensionValue;
+    flexBasis?: WebDimensionValue;
+    height?: WebDimensionValue;
+    left?: WebDimensionValue;
+    margin?: WebDimensionValue;
+    marginBottom?: WebDimensionValue;
+    marginHorizontal?: WebDimensionValue;
+    marginLeft?: WebDimensionValue;
+    marginRight?: WebDimensionValue;
+    marginTop?: WebDimensionValue;
+    marginVertical?: WebDimensionValue;
+    maxHeight?: WebDimensionValue;
+    maxWidth?: WebDimensionValue;
+    minHeight?: WebDimensionValue;
+    minWidth?: WebDimensionValue;
+    padding?: WebDimensionValue;
+    paddingBottom?: WebDimensionValue;
+    paddingHorizontal?: WebDimensionValue;
+    paddingLeft?: WebDimensionValue;
+    paddingRight?: WebDimensionValue;
+    paddingTop?: WebDimensionValue;
+    paddingVertical?: WebDimensionValue;
+    right?: WebDimensionValue;
+    top?: WebDimensionValue;
+    width?: WebDimensionValue;
   }
 
   export interface TextStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
@@ -368,6 +395,32 @@ declare module "react-native" {
     transform?: string;
     whiteSpace?: "normal" | "nowrap" | "pre" | "pre-line" | "pre-wrap";
     wordBreak?: "normal" | "break-all" | "keep-all";
+
+    bottom?: WebDimensionValue;
+    flexBasis?: WebDimensionValue;
+    height?: WebDimensionValue;
+    left?: WebDimensionValue;
+    margin?: WebDimensionValue;
+    marginBottom?: WebDimensionValue;
+    marginHorizontal?: WebDimensionValue;
+    marginLeft?: WebDimensionValue;
+    marginRight?: WebDimensionValue;
+    marginTop?: WebDimensionValue;
+    marginVertical?: WebDimensionValue;
+    maxHeight?: WebDimensionValue;
+    maxWidth?: WebDimensionValue;
+    minHeight?: WebDimensionValue;
+    minWidth?: WebDimensionValue;
+    padding?: WebDimensionValue;
+    paddingBottom?: WebDimensionValue;
+    paddingHorizontal?: WebDimensionValue;
+    paddingLeft?: WebDimensionValue;
+    paddingRight?: WebDimensionValue;
+    paddingTop?: WebDimensionValue;
+    paddingVertical?: WebDimensionValue;
+    right?: WebDimensionValue;
+    top?: WebDimensionValue;
+    width?: WebDimensionValue;
   }
 
   export interface ViewStyle extends AnimationStyles, InteractionStyles, TransformsStyle {
@@ -383,6 +436,32 @@ declare module "react-native" {
     scrollSnapType?: string;
     transform?: string;
     visibility?: VisibilityValue;
+
+    bottom?: WebDimensionValue;
+    flexBasis?: WebDimensionValue;
+    height?: WebDimensionValue;
+    left?: WebDimensionValue;
+    margin?: WebDimensionValue;
+    marginBottom?: WebDimensionValue;
+    marginHorizontal?: WebDimensionValue;
+    marginLeft?: WebDimensionValue;
+    marginRight?: WebDimensionValue;
+    marginTop?: WebDimensionValue;
+    marginVertical?: WebDimensionValue;
+    maxHeight?: WebDimensionValue;
+    maxWidth?: WebDimensionValue;
+    minHeight?: WebDimensionValue;
+    minWidth?: WebDimensionValue;
+    padding?: WebDimensionValue;
+    paddingBottom?: WebDimensionValue;
+    paddingHorizontal?: WebDimensionValue;
+    paddingLeft?: WebDimensionValue;
+    paddingRight?: WebDimensionValue;
+    paddingTop?: WebDimensionValue;
+    paddingVertical?: WebDimensionValue;
+    right?: WebDimensionValue;
+    top?: WebDimensionValue;
+    width?: WebDimensionValue;
   }
 
   /**

@@ -372,7 +372,7 @@ const NewStatementForm = ({
 export const AccountStatementCustom = ({ accountId, large }: Props) => {
   // we enable animation in list view only if new form was opened at least once
   // it avoid to animate the first time the list is displayed
-  // const [newWasOpened, setNewWasOpened] = useState(false);
+  const [newWasOpened, setNewWasOpened] = useState(false);
 
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
   const { data, nextData, setAfter, reload } = useUrqlPaginatedQuery(
@@ -417,7 +417,10 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                   ) : null}
                 </TransitionView>
 
-                <TransitionView style={styles.fill} {...animations.fadeAndSlideInFromLeft}>
+                <TransitionView
+                  style={styles.fill}
+                  {...(newWasOpened ? animations.fadeAndSlideInFromLeft : {})}
+                >
                   {displayedView === "list" ? (
                     <>
                       <Space height={24} />
@@ -427,7 +430,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                           size="small"
                           icon="add-circle-filled"
                           onPress={() => {
-                            // setNewWasOpened(true);
+                            setNewWasOpened(true);
                             setDisplayedView("new");
                           }}
                           color="current"

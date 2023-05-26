@@ -12,7 +12,7 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
-import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
@@ -29,7 +29,7 @@ import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
-import { isMatching, match } from "ts-pattern";
+import { P, isMatching, match } from "ts-pattern";
 import {
   AccountLanguage,
   AccountStatementsPageDocument,
@@ -83,11 +83,20 @@ const styles = StyleSheet.create({
   },
 });
 
-// const accountLanguages: UnionToTuple<AccountLanguage> = ["de", "en", "es", "fr", "it", "nl"];
-const accountLanguages = ["de", "en", "es", "fr", "it", "nl"] as AccountLanguage[];
-
-// const isCountryAccountLanguage = isMatching({ id: P.union(...accountLanguages) });
-const isCountryAccountLanguage = isMatching({ id: accountLanguages });
+const isCountryAccountLanguage = isMatching({
+  id: P.union(
+    "de" as const,
+    "en" as const,
+    "es" as const,
+    "fr" as const,
+    "it" as const,
+    "nl" as const,
+  ),
+  name: P.string,
+  native: P.string,
+  cca3: P.string,
+  flag: P.string,
+});
 
 const NUM_TO_RENDER = 20;
 
@@ -210,11 +219,11 @@ const NewStatementForm = ({
 
   const [statement, generateStatement] = useUrqlMutation(GenerateAccountStatementDocument);
 
-  const languageOptions = useMemo(
+  const languageOptions: Item<AccountLanguage>[] = useMemo(
     () =>
       languages.filter(isCountryAccountLanguage).map(country => ({
         name: country.native,
-        value: country.id as AccountLanguage, // isCountryAccountLanguage typeguard should ensure this
+        value: country.id,
       })),
     [],
   );

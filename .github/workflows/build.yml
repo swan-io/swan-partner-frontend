@@ -37,11 +37,13 @@ jobs:
       - name: Compile project
         run: yarn build
 
-      - name: Push translation keys
+      - name: Push onboarding translation keys
         if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
-        run: yarn lokalise sync
-        env:
-          LOKALISE_API_KEY: ${{ secrets.LOKALISE_API_KEY }}
+        run: yarn localazy upload onboarding -r ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }} -w ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
+
+      - name: Push banking translation keys
+        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
+        run: yarn localazy upload banking -r ${{ secrets.LOCALAZY_BANKING_READ_KEY }} -w ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
 
       - name: Configure AWS Credentials
         if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"

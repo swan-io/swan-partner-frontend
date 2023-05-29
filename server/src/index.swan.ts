@@ -140,6 +140,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     .flatMapOk(data => {
       return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
     })
+    .mapOk(response => response.response.status > 200 && response.response.status < 300)
     .resultToPromise();
 };
 

@@ -385,6 +385,7 @@
   "navigation.transfer": "Transfer",
   "needHelpButton.text": "Need help",
   "newStatement.closingIsBeforeOpening": "The closing date can't be before the opening date.",
+  "newStatement.tooLong": "Account statement cannot be longer than 3 months.",
   "newStatement.dateInTheFuture": "Date can't be in the future. We aren't time travelers.",
   "newStatement.endDate": "End date",
   "newStatement.format": "Format",

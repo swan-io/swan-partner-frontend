@@ -1,6 +1,6 @@
 import { Lazy } from "@swan-io/boxed";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Validator } from "react-ux-form";
 import { locale, t } from "./i18n";
 
@@ -156,5 +156,23 @@ const VALID_SEPA_BENEFICIARY_NAME_ALPHABET = Lazy(
 export const validateSepaBeneficiaryNameAlphabet: Validator<string> = value => {
   if (!VALID_SEPA_BENEFICIARY_NAME_ALPHABET.get().test(value)) {
     return t("error.beneficiaryNameInvalid");
+  }
+};
+
+const MAX_STATEMENT_DURATION = 3; // months
+
+export const validateStatementDates = (openingDate: Dayjs, closingDate: Dayjs) => {
+  const today = dayjs().startOf("day");
+
+  if (openingDate.isAfter(today) || closingDate.isAfter(today)) {
+    return t("newStatement.dateInTheFuture");
+  }
+
+  if (openingDate.isAfter(closingDate)) {
+    return t("newStatement.closingIsBeforeOpening");
+  }
+
+  if (openingDate.add(MAX_STATEMENT_DURATION, "month").isBefore(closingDate)) {
+    return t("newStatement.tooLong");
   }
 };

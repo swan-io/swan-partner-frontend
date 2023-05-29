@@ -38,7 +38,7 @@ import {
   StatementType,
 } from "../graphql/partner";
 import { languages, locale, rifmDateProps, t } from "../utils/i18n";
-import { validateDate, validateRequired } from "../utils/validations";
+import { validateDate, validateRequired, validateStatementDates } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -181,13 +181,14 @@ const NewStatementForm = ({
   }>({
     startDate: {
       initialValue: "",
-      validate: value => {
+      validate: (value, { getFieldState }) => {
         const openingDate = dayjs(value, locale.dateFormat);
+        const closingDate = dayjs(getFieldState("closingDate").value, locale.dateFormat);
 
-        if (openingDate.isAfter(dayjs())) {
-          return t("newStatement.dateInTheFuture");
-        }
-        return combineValidators(validateRequired, validateDate)(value);
+        return (
+          combineValidators(validateRequired, validateDate)(value) ??
+          validateStatementDates(openingDate, closingDate)
+        );
       },
     },
     closingDate: {
@@ -196,15 +197,10 @@ const NewStatementForm = ({
         const openingDate = dayjs(getFieldState("startDate").value, locale.dateFormat);
         const closingDate = dayjs(value, locale.dateFormat);
 
-        if (closingDate.isAfter(dayjs())) {
-          return t("newStatement.dateInTheFuture");
-        }
-
-        if (closingDate.isBefore(openingDate)) {
-          return t("newStatement.closingIsBeforeOpening");
-        }
-
-        return combineValidators(validateRequired, validateDate)(value);
+        return (
+          combineValidators(validateRequired, validateDate)(value) ??
+          validateStatementDates(openingDate, closingDate)
+        );
       },
     },
     format: {

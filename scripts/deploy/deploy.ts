@@ -19,7 +19,7 @@ execSync(`git config --global user.name ${process.env.DEPLOY_GIT_USER}`);
 execSync(`git config --global user.email ${process.env.DEPLOY_GIT_EMAIL}`);
 
 execSync(
-  `cd ${tmp} && git clone --single-branch --branch OPS-1464/deploy-new-frontend-apps https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
+  `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
 );
 
 const file = fs.readFileSync(

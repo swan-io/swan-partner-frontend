@@ -1,4 +1,4 @@
-name: Test & build
+name: Prerelease
 
 on:
   release:
@@ -6,7 +6,7 @@ on:
 
 jobs:
   test-and-build:
-    name: Test & build
+    name: Prerelease
     runs-on: ubuntu-latest
     permissions:
       contents: read # This is required for actions/checkout

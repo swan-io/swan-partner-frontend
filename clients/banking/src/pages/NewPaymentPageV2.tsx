@@ -2,6 +2,7 @@ import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -506,7 +507,17 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
                                   )}
                                 />
                               </Box>
-                            ) : null
+                            ) : (
+                              <Field name="isInstant">
+                                {({ value, onChange }) => (
+                                  <LakeLabelledCheckbox
+                                    label={t("transfer.new.instantTransfer")}
+                                    value={value}
+                                    onValueChange={onChange}
+                                  />
+                                )}
+                              </Field>
+                            )
                           }
                         </FieldsListener>
                       </Tile>

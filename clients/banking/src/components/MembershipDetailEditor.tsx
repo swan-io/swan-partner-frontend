@@ -27,6 +27,7 @@ import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
+  validateBirthdate,
   validateRequired,
   validateTaxIdentificationNumber,
 } from "../utils/validations";
@@ -143,6 +144,7 @@ export const MembershipDetailEditor = ({
           dayjs(user.birthDate).format(locale.dateFormat),
         )
         .otherwise(() => ""),
+      validate: validateBirthdate,
     },
     phoneNumber: {
       initialValue: match(editingAccountMembership)

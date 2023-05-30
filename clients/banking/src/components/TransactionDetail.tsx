@@ -20,7 +20,10 @@ import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
-import { getTransactionRejectedReasonLabel } from "../utils/templateTranslations";
+import {
+  getFeesDescription,
+  getTransactionRejectedReasonLabel,
+} from "../utils/templateTranslations";
 import { ErrorView } from "./ErrorView";
 import { getTransactionLabel } from "./TransactionListCells";
 
@@ -138,6 +141,10 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Tile
           style={styles.tile}
           footer={match(transaction)
+            // BankingFee should never happen, so we don't handle it
+            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => (
+              <LakeAlert anchored={true} variant="info" title={getFeesDescription(feesType)} />
+            ))
             .with(
               {
                 type: P.union("SepaCreditTransferOut", "SepaCreditTransferIn"),

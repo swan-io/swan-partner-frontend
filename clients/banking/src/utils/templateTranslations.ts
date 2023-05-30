@@ -1,6 +1,10 @@
 import { match } from "ts-pattern";
 import { UploadedFile } from "../components/SupportingDocumentsForm";
-import { RejectedReasonCode, SupportingDocumentPurposeEnum } from "../graphql/partner";
+import {
+  FeesTypeEnum,
+  RejectedReasonCode,
+  SupportingDocumentPurposeEnum,
+} from "../graphql/partner";
 import { t } from "./i18n";
 
 export const getSupportingDocumentPurposeLabel = (category: SupportingDocumentPurposeEnum) =>
@@ -137,4 +141,26 @@ export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
     .with("TransactionTypeNotAllowed", () =>
       t("transactionRejectedReason.TransactionTypeNotAllowed"),
     )
+    .exhaustive();
+
+export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
+  match(fees)
+    .with("CardPaymentsOutsideSEPA", () =>
+      t("transaction.fees.description.cardPaymentsOutsideSEPA"),
+    )
+    .with("CashWithdrawalsOutsideSEPA", () =>
+      t("transaction.fees.description.cashWithdrawalsOutsideSEPA"),
+    )
+    .with("CashWithdrawalsWithinSEPA", () =>
+      t("transaction.fees.description.cashWithdrawalsWithinSEPA"),
+    )
+    .with("CirculationLetterDraftingFee", () =>
+      t("transaction.fees.description.circulationLetterDraftingFee"),
+    )
+    .with("DirectDebitRejection", () => t("transaction.fees.description.directDebitRejection"))
+    .with("ImproperUseOfAccount", () => t("transaction.fees.description.improperUseOfAccount"))
+    .with("ProcessingJudicialOrAdministrativeSeizure", () =>
+      t("transaction.fees.description.processingJudicialOrAdministrativeSeizure"),
+    )
+    .with("UnauthorizedOverdraft", () => t("transaction.fees.description.unauthorizedOverdraft"))
     .exhaustive();

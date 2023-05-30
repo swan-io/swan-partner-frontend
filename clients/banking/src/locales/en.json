@@ -65,6 +65,7 @@
   "accountDetails.settings.save": "Save",
   "accountDetails.settings.tab": "Settings",
   "accountDetails.settings.vatLabel": "VAT",
+  "accountDetails.settings.taxIdentificationNumberInfo": "If the tax identification number wasn’t provided within 90 days after the onboarding, the account would be suspended.",
   "accountDetails.swanTermsAndConditions": "Swan's terms and conditions",
   "accountDetails.title.address": "Address",
   "accountDetails.title.contracts": "Contracts",

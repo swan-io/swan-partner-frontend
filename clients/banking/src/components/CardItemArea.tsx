@@ -110,7 +110,8 @@ export const CardItemArea = ({
 
   const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
 
-  const cardRequiresIdentityVerification = card?.accountMembership.statusInfo.status !== "Enabled";
+  const cardRequiresIdentityVerification =
+    B2BMembershipIDVerification === true && card?.accountMembership.statusInfo.status !== "Enabled";
 
   const bindingUserError = card?.accountMembership.statusInfo.status === "BindingUserError";
 

@@ -23,7 +23,6 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { getTermsAndConditionsPathByAccountCountryAndLocale } from "@swan-io/shared-business/src/constants/termsAndConditions";
 import {
   validateCompanyTaxNumber,
   validateIndividualTaxNumber,
@@ -37,8 +36,7 @@ import {
   AccountLanguage,
   UpdateAccountDocument,
 } from "../graphql/partner";
-import { env } from "../utils/env";
-import { locale, t } from "../utils/i18n";
+import { t } from "../utils/i18n";
 import { parseOperationResult, useQueryWithErrorBoundary } from "../utils/urql";
 import {
   validateAccountNameLength,
@@ -169,6 +167,8 @@ export const AccountDetailsSettingsPage = ({
   const formDisabled = !canManageAccountMembership || accountClosed;
   const shouldEditTaxIdentificationNumber =
     account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
+
+  const tcuUrl = account.holder.onboarding?.tcuUrl;
 
   return (
     <View>
@@ -310,19 +310,13 @@ export const AccountDetailsSettingsPage = ({
       <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
       <Space height={12} />
 
-      <TileGrid>
-        <Contract
-          to={getTermsAndConditionsPathByAccountCountryAndLocale({
-            accountCountry: account.country,
-            locale: locale.language,
-            rootUrl: env.SWAN_TCU_BASE_URL,
-          })}
-        >
-          {t("accountDetails.swanTermsAndConditions")}
-        </Contract>
+      {isNotNullish(tcuUrl) ? (
+        <TileGrid>
+          <Contract to={tcuUrl}>{t("accountDetails.swanTermsAndConditions")}</Contract>
 
-        {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
-      </TileGrid>
+          {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
+        </TileGrid>
+      ) : null}
 
       {!formDisabled && (
         <LakeButtonGroup>

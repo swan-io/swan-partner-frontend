@@ -364,6 +364,10 @@ query AccountDetailsSettingsPage($accountId: ID!) {
     }
     holder {
       id
+      onboarding {
+        id
+        tcuUrl
+      }
       info {
         __typename
         ... on AccountHolderCompanyInfo {

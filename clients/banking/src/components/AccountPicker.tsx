@@ -202,7 +202,7 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
 
   return accountMemberships.match({
     NotAsked: () => null,
-    Loading: () => <LoadingView style={styles.loader} />,
+    Loading: () => <LoadingView color={colors.current[500]} style={styles.loader} />,
     Done: result =>
       result.match({
         Ok: ({ user }) =>

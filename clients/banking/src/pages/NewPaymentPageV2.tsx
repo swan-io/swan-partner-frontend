@@ -280,7 +280,7 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
 
             {availableBalance.match({
               NotAsked: () => null,
-              Loading: () => <LoadingView />,
+              Loading: () => <LoadingView color={colors.current[500]} />,
               Done: result =>
                 result.match({
                   Ok: ({ amount, currency }) => (

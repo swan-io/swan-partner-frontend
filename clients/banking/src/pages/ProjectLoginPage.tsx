@@ -14,7 +14,6 @@ import { lighten } from "polished";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { useQuery } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import { SwanLogo } from "../components/SwanLogo";
 import { AuthStatusDocument } from "../graphql/partner";
@@ -23,7 +22,7 @@ import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { parseOperationResult, unauthenticatedClient } from "../utils/urql";
+import { parseOperationResult, partnerClient, unauthenticatedClient } from "../utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -114,40 +113,42 @@ const HelpLink = ({ to, emoji, children }: { to: string; emoji: string; children
 const SUPPORT_ROOT_URL = `https://support.swan.io/${getFirstSupportedLanguage(["en", "fr"])}`;
 
 export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
-  const [{ data }] = useQuery({ query: AuthStatusDocument });
-  const authenticated = isNotNullish(data?.user);
-
   const [projectInfos, setProjectInfos] = useState<
     AsyncData<Result<{ accentColor: string; name: string; logoUri?: string }, Error>>
   >(AsyncData.Loading());
 
   useLayoutEffect(() => {
-    if (authenticated) {
-      Router.push("ProjectRootRedirect");
-    } else {
-      void unauthenticatedClient
-        .query(ProjectLoginPageDocument, {
-          projectId,
-          env: env.APP_TYPE === "LIVE" ? "Live" : "Sandbox",
-        })
-        .toPromise()
-        .then(parseOperationResult)
-        .then(({ projectInfoById }) => {
-          setProjectInfos(
-            AsyncData.Done(
-              Result.Ok({
-                accentColor: projectInfoById.accentColor ?? invariantColors.gray,
-                name: projectInfoById.name,
-                logoUri: projectInfoById.logoUri ?? undefined,
-              }),
-            ),
-          );
-        })
-        .catch(error => {
-          setProjectInfos(AsyncData.Done(Result.Error(error)));
-        });
-    }
-  }, [authenticated, projectId]);
+    const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
+
+    Promise.all([
+      partnerClient.query(AuthStatusDocument, {}).toPromise(),
+      unauthenticatedClient
+        .query(ProjectLoginPageDocument, { projectId, env: envType })
+        .toPromise(),
+    ])
+      .then(([authStatusQuery, projectInfosQuery]) => {
+        const authenticated = isNotNullish(authStatusQuery.data?.user);
+
+        if (authenticated) {
+          return Router.push("ProjectRootRedirect");
+        }
+
+        const { projectInfoById } = parseOperationResult(projectInfosQuery);
+
+        setProjectInfos(
+          AsyncData.Done(
+            Result.Ok({
+              accentColor: projectInfoById.accentColor ?? invariantColors.gray,
+              name: projectInfoById.name,
+              logoUri: projectInfoById.logoUri ?? undefined,
+            }),
+          ),
+        );
+      })
+      .catch(error => {
+        setProjectInfos(AsyncData.Done(Result.Error(error)));
+      });
+  }, [projectId]);
 
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();
@@ -254,5 +255,5 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
       );
     })
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .otherwise(() => <LoadingView color={colors.current[500]} />);
+    .otherwise(() => <LoadingView color={colors.gray[400]} style={styles.base} />);
 };

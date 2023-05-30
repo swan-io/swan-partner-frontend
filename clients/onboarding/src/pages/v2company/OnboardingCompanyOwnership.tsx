@@ -31,7 +31,7 @@ import {
 import {
   CountryCCA3,
   getCCA3forCCA2,
-  getCountryNameByCCA3,
+  getCountryName,
   isCountryCCA2,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
@@ -215,9 +215,7 @@ const formatUboBirthAddress = ({
   birthCity,
   birthCityPostalCode,
 }: LocalStateUbo) => {
-  const birthCountry = isCountryCCA3(birthCountryCode)
-    ? getCountryNameByCCA3(birthCountryCode)
-    : null;
+  const birthCountry = isCountryCCA3(birthCountryCode) ? getCountryName(birthCountryCode) : null;
   return [birthCountry, birthCity, birthCityPostalCode].filter(Boolean).join(", ");
 };
 

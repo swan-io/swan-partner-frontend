@@ -13,10 +13,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
-import {
-  CountryCCA3,
-  individualCountriesItems,
-} from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
@@ -186,7 +183,7 @@ export const OnboardingIndividualLocation = ({
                     <OnboardingCountryPicker
                       label={t("individual.step.location.countryLabel")}
                       value={value}
-                      items={individualCountriesItems}
+                      countries={individualCountries}
                       holderType="individual"
                       onlyIconHelp={small}
                       onValueChange={onChange}

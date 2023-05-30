@@ -9,10 +9,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import {
-  CountryCCA3,
-  companyCountriesItems,
-} from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, companyCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect, useState } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
@@ -171,7 +168,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
                   {({ value, onChange }) => (
                     <OnboardingCountryPicker
                       label={t("company.step.basicInfo.countryLabel")}
-                      items={companyCountriesItems}
+                      countries={companyCountries}
                       value={value}
                       onValueChange={onChange}
                       holderType="company"

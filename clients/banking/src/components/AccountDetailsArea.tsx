@@ -1,4 +1,3 @@
-import { ErrorBoundary } from "@sentry/react";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -14,7 +13,6 @@ import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage"
 import { AccountDetailsVirtualIbansPage } from "../pages/AccountDetailsVirtualIbansPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
   root: {
@@ -106,67 +104,61 @@ export const AccountDetailsArea = ({
             otherLabel={t("common.tabs.other")}
           />
 
-          <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
-            {match(route)
-              .with({ name: "AccountDetailsIban" }, () => (
-                <ScrollView
-                  contentContainerStyle={[styles.content, large && styles.contentDesktop]}
+          {match(route)
+            .with({ name: "AccountDetailsIban" }, () => (
+              <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
+                <Suspense
+                  fallback={
+                    <View style={styles.placeholders}>
+                      <TilePlaceholder />
+                      <Space height={32} />
+                      <TilePlaceholder />
+                    </View>
+                  }
                 >
-                  <Suspense
-                    fallback={
-                      <View style={styles.placeholders}>
-                        <TilePlaceholder />
-                        <Space height={32} />
-                        <TilePlaceholder />
-                      </View>
-                    }
-                  >
-                    <AccountDetailsIbanPage
-                      accountId={accountId}
-                      accountMembershipId={accountMembershipId}
-                      idVerified={idVerified}
-                      userStatusIsProcessing={userStatusIsProcessing}
-                    />
-                  </Suspense>
+                  <AccountDetailsIbanPage
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    idVerified={idVerified}
+                    userStatusIsProcessing={userStatusIsProcessing}
+                  />
+                </Suspense>
 
-                  <Space height={24} />
-                </ScrollView>
-              ))
-              .with({ name: "AccountDetailsVirtualIbans" }, () => (
-                <>
-                  <Space height={40} />
-                  <AccountDetailsVirtualIbansPage accountId={accountId} />
-                </>
-              ))
-              .with({ name: "AccountDetailsBilling" }, () => (
-                <>
-                  <Space height={24} />
-                  <AccountDetailsBillingPage accountId={accountId} />
-                </>
-              ))
-              .with({ name: "AccountDetailsSettings" }, () => (
-                <ScrollView
-                  contentContainerStyle={[styles.content, large && styles.contentDesktop]}
+                <Space height={24} />
+              </ScrollView>
+            ))
+            .with({ name: "AccountDetailsVirtualIbans" }, () => (
+              <>
+                <Space height={40} />
+                <AccountDetailsVirtualIbansPage accountId={accountId} />
+              </>
+            ))
+            .with({ name: "AccountDetailsBilling" }, () => (
+              <>
+                <Space height={24} />
+                <AccountDetailsBillingPage accountId={accountId} />
+              </>
+            ))
+            .with({ name: "AccountDetailsSettings" }, () => (
+              <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
+                <Suspense
+                  fallback={
+                    <View style={styles.placeholders}>
+                      <TilePlaceholder />
+                    </View>
+                  }
                 >
-                  <Suspense
-                    fallback={
-                      <View style={styles.placeholders}>
-                        <TilePlaceholder />
-                      </View>
-                    }
-                  >
-                    <AccountDetailsSettingsPage
-                      projectName={projectName}
-                      accountId={accountId}
-                      canManageAccountMembership={canManageAccountMembership}
-                    />
-                  </Suspense>
-                </ScrollView>
-              ))
+                  <AccountDetailsSettingsPage
+                    projectName={projectName}
+                    accountId={accountId}
+                    canManageAccountMembership={canManageAccountMembership}
+                  />
+                </Suspense>
+              </ScrollView>
+            ))
 
-              .with(P.nullish, () => null)
-              .exhaustive()}
-          </ErrorBoundary>
+            .with(P.nullish, () => null)
+            .exhaustive()}
         </>
       )}
     </ResponsiveContainer>

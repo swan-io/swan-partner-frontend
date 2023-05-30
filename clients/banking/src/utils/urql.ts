@@ -1,6 +1,4 @@
 import { Option } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
-import { last } from "@swan-io/lake/src/utils/array";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CombinedError, Operation, OperationResult } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
@@ -26,21 +24,24 @@ import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
+type Response = {
+  status?: number;
+  statusCode?: number;
+};
+
+export const isUnauthenticatedError = (error: unknown) =>
+  error instanceof CombinedError &&
+  error.graphQLErrors?.some(({ extensions }) => {
+    const response = extensions.response as Response | undefined;
+    const code = extensions.code as string | undefined;
+    return code === "UNAUTHENTICATED" || response?.status === 401 || response?.statusCode === 401;
+  });
+
 const onError = (error: CombinedError, operation: Operation) => {
-  const response = error.response as Partial<Response> | undefined;
-
-  const is401 =
-    response?.status === 401 ||
-    error.graphQLErrors.some(error => error.message === "401: Unauthorized");
-
-  if (is401) {
-    const { path } = getLocation();
-
-    if (last(path) === "login") {
-      return;
+  if (isUnauthenticatedError(error)) {
+    if (isNullish(Router.getRoute(["ProjectLogin"]))) {
+      window.location.replace(Router.ProjectLogin());
     }
-
-    window.location.replace(Router.ProjectLogin());
   } else {
     logBackendError(error, operation);
   }

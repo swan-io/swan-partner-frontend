@@ -49,7 +49,7 @@ import {
   historyMenuRoutes,
   paymentMenuRoutes,
 } from "../utils/routes";
-import { useQueryWithErrorBoundary } from "../utils/urql";
+import { isUnauthenticatedError, useQueryWithErrorBoundary } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -627,7 +627,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
                 <ErrorBoundary
                   key={route?.name}
-                  fallback={({ error }) => <ErrorView error={error} />}
+                  fallback={({ error }) =>
+                    isUnauthenticatedError(error) ? <></> : <ErrorView error={error} />
+                  }
                 >
                   {match(membership)
                     .with(

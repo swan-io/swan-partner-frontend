@@ -32,10 +32,7 @@ const isResponseWithStatus = (response: unknown, status: number) => {
 export const isUnauthenticatedError = (error: unknown) =>
   error instanceof CombinedError &&
   (isResponseWithStatus(error.response, 401) ||
-    error.graphQLErrors.some(
-      ({ extensions }) =>
-        extensions.code === "UNAUTHENTICATED" || isResponseWithStatus(extensions.response, 401),
-    ));
+    error.graphQLErrors.some(({ extensions }) => isResponseWithStatus(extensions.response, 401)));
 
 const onError = (error: CombinedError, operation: Operation) => {
   if (isUnauthenticatedError(error)) {

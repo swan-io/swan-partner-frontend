@@ -24,18 +24,18 @@ import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
-type Response = {
-  status?: number;
-  statusCode?: number;
+const isResponseWithStatus = (response: unknown, status: number) => {
+  const value = response as { status?: number; statusCode?: number } | undefined;
+  return value?.status === status || value?.statusCode === status;
 };
 
 export const isUnauthenticatedError = (error: unknown) =>
   error instanceof CombinedError &&
-  error.graphQLErrors?.some(({ extensions }) => {
-    const response = extensions.response as Response | undefined;
-    const code = extensions.code as string | undefined;
-    return code === "UNAUTHENTICATED" || response?.status === 401 || response?.statusCode === 401;
-  });
+  (isResponseWithStatus(error.response, 401) ||
+    error.graphQLErrors.some(
+      ({ extensions }) =>
+        extensions.code === "UNAUTHENTICATED" || isResponseWithStatus(extensions.response, 401),
+    ));
 
 const onError = (error: CombinedError, operation: Operation) => {
   if (isUnauthenticatedError(error)) {

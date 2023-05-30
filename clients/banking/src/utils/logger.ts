@@ -14,7 +14,7 @@ export const initSentry = () => {
   if (ENABLED) {
     init({
       release: env.VERSION,
-      dsn: "https://632023ecffdc437984c7a53bbb3aa7a6@o427297.ingest.sentry.io/5454043",
+      dsn: "https://7c5c2f093c5f4fe497f727d2bbdb104c@o427297.ingest.sentry.io/5371150",
       environment: env.BANKING_URL.includes("preprod")
         ? "preprod"
         : env.BANKING_URL.includes("master")

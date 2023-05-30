@@ -190,7 +190,7 @@ export const CardItemArea = ({
         otherLabel={t("common.tabs.other")}
       />
 
-      <Suspense fallback={<LoadingView color={colors.current.primary} />}>
+      <Suspense fallback={<LoadingView color={colors.current[500]} />}>
         {match(route)
           .with({ name: "AccountCardsItem" }, ({ params: { cardId } }) => (
             <ScrollView

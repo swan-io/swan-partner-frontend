@@ -668,7 +668,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                           accountMembership.canManageAccountMembership;
 
                         return (
-                          <Suspense fallback={<LoadingView color={accentColor} />}>
+                          <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                             {match(route)
                               .with({ name: "AccountRoot" }, () =>
                                 isNotEmpty(indexUrl) ? (

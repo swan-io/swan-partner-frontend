@@ -188,7 +188,7 @@ export const CardsArea = ({
 
             {onlyCardId.isSome() ? <Space height={24} /> : null}
 
-            <Suspense fallback={<LoadingView color={colors.partner.primary} />}>
+            <Suspense fallback={<LoadingView color={colors.current[500]} />}>
               <View style={styles.contents}>
                 {match(route)
                   .with(

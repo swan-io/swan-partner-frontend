@@ -294,7 +294,7 @@ export const NewRecurringTransferPageV2 = ({ accountId, accountMembershipId, onC
 
           {availableBalance.match({
             NotAsked: () => null,
-            Loading: () => <LoadingView />,
+            Loading: () => <LoadingView color={colors.current[500]} />,
             Done: result =>
               result.match({
                 Ok: ({ amount, currency }) => (

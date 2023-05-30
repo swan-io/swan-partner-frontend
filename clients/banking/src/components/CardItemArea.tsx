@@ -115,11 +115,6 @@ export const CardItemArea = ({
 
   const bindingUserError = card?.accountMembership.statusInfo.status === "BindingUserError";
 
-  const statusCardInProgress =
-    card?.physicalCard?.statusInfo.status === "Processing" ||
-    card?.physicalCard?.statusInfo.status === "Renewed" ||
-    card?.physicalCard?.statusInfo.status === "ToActivate";
-
   const identificationStatus = card?.accountMembership.user?.identificationStatus ?? undefined;
 
   if (card == null) {
@@ -197,7 +192,7 @@ export const CardItemArea = ({
               style={styles.container}
               contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
             >
-              {bindingUserError && B2BMembershipIDVerification === true && statusCardInProgress && (
+              {bindingUserError && B2BMembershipIDVerification === true && (
                 <>
                   <Space height={24} />
 

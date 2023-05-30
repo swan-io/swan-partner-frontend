@@ -613,7 +613,6 @@
   "transaction.creditorName": "Creditor",
   "transaction.debtor": "Debtor",
   "transaction.executionDateTime": "Execution date",
-  "transaction.fees.description.bankingFee": "",
   "transaction.fees.description.cardPaymentsOutsideSEPA": "Fee for withdrawing cash or making card transactions in a currency other than euros",
   "transaction.fees.description.cashWithdrawalsOutsideSEPA": "Fee for withdrawing cash or making card transactions in a currency other than euros",
   "transaction.fees.description.cashWithdrawalsWithinSEPA": "Fee for withdrawing cash from an ATM in the eurozone",

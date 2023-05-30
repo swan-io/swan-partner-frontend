@@ -18,7 +18,7 @@ assert(process.env.DEPLOY_GIT_EMAIL);
 execSync(`git config --global user.name ${process.env.DEPLOY_GIT_USER}`);
 execSync(`git config --global user.email ${process.env.DEPLOY_GIT_EMAIL}`);
 
-execSync(`rm -fr ${repoName}`);
+execSync(`rm -fr ${tmp}/${repoName}`);
 
 execSync(
   `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,

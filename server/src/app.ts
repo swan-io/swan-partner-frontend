@@ -682,6 +682,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   app.get("/env.js", async (request, reply) => {
     const projectId = await getProjectId();
     const data = {
+      VERSION: packageJson.version,
       SWAN_ENVIRONMENT:
         process.env.SWAN_ENVIRONMENT ??
         (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
@@ -692,6 +693,10 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,
+      }),
+      IS_SWAN_MODE: projectId.match({
+        Ok: () => false,
+        Error: () => true,
       }),
       ...Object.fromEntries(
         Array.filterMap(Object.entries(process.env), ([key, value]) =>

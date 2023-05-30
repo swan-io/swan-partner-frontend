@@ -1,25 +1,25 @@
 import { print as printQuery } from "@0no-co/graphql.web";
-import { captureException /*, init*/ } from "@sentry/react";
+import { captureException, init } from "@sentry/react";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CombinedError, Operation, OperationContext } from "urql";
-// import { env } from "./env";
+import { env } from "./env";
 
-// const FORCE_DEV_LOGGING = false;
+const FORCE_DEV_LOGGING = false;
 
-const ENABLED = false;
-// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-// (process.env.NODE_ENV === "production" || FORCE_DEV_LOGGING) &&
-// env.SENTRY_ENV !== "" &&
-// env.SENTRY_DSN !== "";
+const ENABLED = env.IS_SWAN_MODE && (process.env.NODE_ENV === "production" || FORCE_DEV_LOGGING);
 
 export const initSentry = () => {
   if (ENABLED) {
-    // init({
-    //   release: __SWAN_ENV_VERSION__,
-    //   dsn: env.SENTRY_DSN,
-    //   environment: env.SENTRY_ENV,
-    //   normalizeDepth: 5,
-    // });
+    init({
+      release: env.VERSION,
+      dsn: "https://632023ecffdc437984c7a53bbb3aa7a6@o427297.ingest.sentry.io/5454043",
+      environment: env.BANKING_URL.includes("preprod")
+        ? "preprod"
+        : env.BANKING_URL.includes("master")
+        ? "master"
+        : "prod",
+      normalizeDepth: 5,
+    });
   }
 };
 

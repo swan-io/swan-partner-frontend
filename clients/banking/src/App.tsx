@@ -5,7 +5,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { Suspense } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { Provider as ClientProvider } from "urql";
+import { Provider as ClientProvider, CombinedError } from "urql";
 import { AccountArea } from "./components/AccountArea";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
@@ -34,7 +34,20 @@ export const App = () => {
   return (
     <ErrorBoundary
       key={route?.name}
-      fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
+      fallback={({ error }) => {
+        const is401 =
+          error instanceof CombinedError
+            ? error?.graphQLErrors?.some(
+                item =>
+                  (item.extensions.response as { status: number } | undefined)?.status === 401,
+              )
+            : false;
+        return is401 ? (
+          <LoadingView color={colors.gray[400]} style={styles.base} />
+        ) : (
+          <ErrorView error={error} style={styles.base} />
+        );
+      }}
     >
       <ClientProvider value={partnerClient}>
         <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>

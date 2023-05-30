@@ -18,6 +18,8 @@ assert(process.env.DEPLOY_GIT_EMAIL);
 execSync(`git config --global user.name ${process.env.DEPLOY_GIT_USER}`);
 execSync(`git config --global user.email ${process.env.DEPLOY_GIT_EMAIL}`);
 
+execSync(`rm -fr ${repoName}`);
+
 execSync(
   `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
 );
@@ -45,10 +47,8 @@ fs.writeFileSync(
   "utf-8",
 );
 
-const buffer = execSync(
+execSync(
   `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
-
-console.log(buffer.toString("utf-8"));
 
 execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);

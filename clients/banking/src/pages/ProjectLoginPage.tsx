@@ -126,8 +126,9 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
         .query(ProjectLoginPageDocument, { projectId, env: envType })
         .toPromise(),
     ])
-      .then(([authStatusQuery, projectInfosQuery]) => {
-        const authenticated = isNotNullish(authStatusQuery.data?.user);
+      .then(([{ data, error }, projectInfosQuery]) => {
+        const errorResponse = error?.response as Partial<Response> | undefined;
+        const authenticated = isNotNullish(data?.user) || Boolean(errorResponse?.ok);
 
         if (authenticated) {
           return Router.push("ProjectRootRedirect");

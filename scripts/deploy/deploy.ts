@@ -45,8 +45,10 @@ fs.writeFileSync(
   "utf-8",
 );
 
-execSync(
+const buffer = execSync(
   `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
+
+console.log(buffer.toString("utf-8"));
 
 execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);

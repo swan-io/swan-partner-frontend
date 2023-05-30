@@ -49,6 +49,4 @@ execSync(
   `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.DEPLOY_ENVIRONMENT}-${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
 
-execSync(
-  `cd ${tmp}/${repoName} && git pull --rebase origin OPS-1464/deploy-new-frontend-apps && git push origin OPS-1464/deploy-new-frontend-apps`,
-);
+execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);

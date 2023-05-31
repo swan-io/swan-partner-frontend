@@ -139,6 +139,7 @@ export const OnboardingCompanyOrganisation2 = ({
           businessActivity,
           businessActivityDescription,
           monthlyPaymentVolume,
+          language: locale.language,
         },
         language: locale.language,
       })

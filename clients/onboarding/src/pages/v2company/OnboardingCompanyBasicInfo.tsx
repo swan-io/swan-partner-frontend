@@ -130,6 +130,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
           companyType,
           typeOfRepresentation,
           residencyAddress: { country },
+          language: locale.language,
         },
         language: locale.language,
       })

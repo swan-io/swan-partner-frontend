@@ -7,7 +7,6 @@
  */
 import { Future, Result } from "@swan-io/boxed";
 import chalk from "chalk";
-import fastifyJaeger from "fastify-jaeger";
 import Mailjet from "node-mailjet";
 import url from "node:url";
 import path from "pathe";
@@ -155,10 +154,6 @@ start({
   sendAccountMembershipInvitation,
 }).then(
   async ({ app, ports }) => {
-    await app.register(fastifyJaeger, {
-      serviceName: additionalEnv.TRACING_SERVICE_NAME,
-    });
-
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {

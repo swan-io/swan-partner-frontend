@@ -210,6 +210,7 @@ export const OnboardingCompanyOrganisation1 = ({
             city,
             postalCode,
           },
+          language: locale.language,
         },
         language: locale.language,
       })

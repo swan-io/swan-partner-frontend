@@ -1,21 +1,27 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   individualFallbackCountry,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import { GetOnboardingQuery, IndividualAccountHolderFragment } from "../../graphql/unauthenticated";
-import { t } from "../../utils/i18n";
+import {
+  GetOnboardingQuery,
+  IndividualAccountHolderFragment,
+  UpdateIndividualOnboardingDocument,
+} from "../../graphql/unauthenticated";
+import { locale, t } from "../../utils/i18n";
 import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
@@ -127,6 +133,19 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
       })),
     [onboardingId, steps, finalized],
   );
+
+  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
+
+  useEffect(() => {
+    updateOnboarding({
+      input: { onboardingId, language: locale.language },
+      language: locale.language,
+    });
+  }, [onboarding.language, onboardingId, updateOnboarding]);
+
+  if (!updateResult.isDone()) {
+    return <LoadingView color={colors.gray[50]} />;
+  }
 
   return (
     <Box style={styles.container}>

@@ -126,6 +126,7 @@ export const OnboardingIndividualLocation = ({
               postalCode,
               country,
             },
+            language: locale.language,
           },
           language: locale.language,
         })

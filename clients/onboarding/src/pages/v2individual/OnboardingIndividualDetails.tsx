@@ -124,6 +124,7 @@ export const OnboardingIndividualDetails = ({
           employmentStatus,
           monthlyIncome,
           taxIdentificationNumber: emptyToUndefined(taxIdentificationNumber ?? ""),
+          language: locale.language,
         },
         language: locale.language,
       })

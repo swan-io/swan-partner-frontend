@@ -74,9 +74,14 @@ export const finalizeOnboarding = ({
         ),
     )
     .mapOk(onboarding => {
-      const redirectUrl = match(onboarding.oAuthRedirectParameters?.redirectUrl?.trim())
-        .with("", () => undefined)
-        .otherwise(value => value);
+      const oauthRedirectUrl = onboarding.oAuthRedirectParameters?.redirectUrl?.trim();
+      const legacyRedirectUrl = onboarding.redirectUrl.trim();
+      const redirectUrl =
+        oauthRedirectUrl != null && oauthRedirectUrl !== ""
+          ? oauthRedirectUrl
+          : legacyRedirectUrl != null && legacyRedirectUrl !== ""
+          ? legacyRedirectUrl
+          : undefined;
 
       return {
         accountMembershipId: onboarding.account?.legalRepresentativeMembership.id,

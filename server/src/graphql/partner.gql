@@ -12,6 +12,7 @@ fragment OnboardingRedirectInfo on Onboarding {
       id
     }
   }
+  redirectUrl
   statusInfo {
     __typename
     status

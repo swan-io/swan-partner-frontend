@@ -59,7 +59,11 @@ vite | 4.3.8 | MIT | https://github.com/vitejs/vite.git | https://github.com/vit
 vitest | 0.31.1 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
 wonka | 6.3.2 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
-fastify-jaeger | 1.0.2 | ISC | https://github.com/maumercado/fastify-jaeger.git | https://github.com/maumercado/fastify-jaeger#readme | Mauricio Mercado - @maumercado
+@opentelemetry/auto-instrumentations-node | 0.37.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node#readme | OpenTelemetry Authors
+@opentelemetry/resources | 1.13.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-resources | OpenTelemetry Authors
+@opentelemetry/sdk-node | 0.39.1 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-sdk-node | OpenTelemetry Authors
+@opentelemetry/sdk-trace-base | 1.13.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-base | OpenTelemetry Authors
+@opentelemetry/semantic-conventions | 1.13.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 3.11.0 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

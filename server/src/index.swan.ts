@@ -49,7 +49,6 @@ const additionalEnv = validate({
     SWAN_AUTH_URL: validateUrl,
     MAILJET_API_KEY: string,
     MAILJET_API_SECRET: string,
-    TRACING_SERVICE_NAME: string,
   },
 });
 

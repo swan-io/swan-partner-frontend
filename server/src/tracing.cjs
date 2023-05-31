@@ -1,9 +1,9 @@
-import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
-import { Resource } from "@opentelemetry/resources";
-import opentelemetry from "@opentelemetry/sdk-node";
-import { ConsoleSpanExporter } from "@opentelemetry/sdk-trace-base";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
-import process from "process";
+const { getNodeAutoInstrumentations } = require("@opentelemetry/auto-instrumentations-node");
+const { Resource } = require("@opentelemetry/resources");
+const opentelemetry = require("@opentelemetry/sdk-node");
+const { ConsoleSpanExporter } = require("@opentelemetry/sdk-trace-base");
+const { SemanticResourceAttributes } = require("@opentelemetry/semantic-conventions");
+const process = require("process");
 
 if (process.env.TRACING_SERVICE_NAME != null) {
   const traceExporter = new ConsoleSpanExporter();
@@ -14,9 +14,7 @@ if (process.env.TRACING_SERVICE_NAME != null) {
     traceExporter,
     instrumentations: [getNodeAutoInstrumentations()],
   });
-
   sdk.start();
-
   process.on("SIGTERM", () => {
     sdk
       .shutdown()

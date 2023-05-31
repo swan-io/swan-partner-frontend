@@ -13,8 +13,8 @@
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "start": "node -r src/tracing.js src/index.js",
-    "start-swan": "node -r src/tracing.js src/index.swan.js",
+    "start": "node -r ./src/tracing.cjs ./src/index.js",
+    "start-swan": "node -r ./src/tracing.cjs ./src/index.swan.js",
     "build": "tsc -p tsconfig.json",
     "prepack": "tsc --build",
     "clean": "tsc --clean"

@@ -423,7 +423,7 @@ export const CardWizard = ({
       query: GetEligibleCardMembershipsDocument,
       variables: {
         accountId: accountId ?? "",
-        first: 1, // TODO: replace with 20
+        first: 20,
       },
     },
     [accountId],

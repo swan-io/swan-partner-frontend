@@ -27,7 +27,7 @@
     "@fastify/cors": "8.2.1",
     "@fastify/reply-from": "9.1.0",
     "@fastify/secure-session": "6.1.0",
-    "@fastify/static": "6.10.1",
+    "@fastify/static": "6.10.2",
     "@fastify/view": "7.4.1",
     "@opentelemetry/auto-instrumentations-node": "0.37.0",
     "@opentelemetry/resources": "1.13.0",

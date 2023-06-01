@@ -126,6 +126,8 @@ const getMailjetInput = ({
     )
     .otherwise(() => Result.Error(new Error("Invalid invitation data")));
 
+class MailjetError extends Error {}
+
 const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {
   return getAccountMembershipInvitationData({
     accessToken: invitationConfig.accessToken,
@@ -138,7 +140,12 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     .flatMapOk(data => {
       return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
     })
-    .mapOk(response => response.response.status > 200 && response.response.status < 300)
+    .mapOkToResult(response => {
+      const isOk = response.response.status > 200 && response.response.status < 300;
+      return isOk
+        ? Result.Ok(true)
+        : Result.Error(new MailjetError(JSON.stringify(response.response.data)));
+    })
     .resultToPromise();
 };
 
@@ -153,7 +160,7 @@ start({
       : undefined,
   sendAccountMembershipInvitation,
 }).then(
-  async ({ app, ports }) => {
+  ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {

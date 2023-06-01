@@ -17,14 +17,8 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
-import {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
 import {
   AccountMembershipFragment,
   GetCardProductsQuery,
@@ -94,15 +88,14 @@ type Props = {
   cardProduct: CardProduct;
   accountId: string;
   initialMemberships?: Member[];
+  account: GetEligibleCardMembershipsQuery["account"];
   onSubmit: (currentMembers: Member[]) => void;
-  members: GetEligibleCardMembershipsQuery;
-  setAfter: (cursor: string) => void;
 };
 
 export type CardWizardMembersRef = { submit: () => void };
 
 export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
-  ({ initialMemberships, members, setAfter, onSubmit }: Props, ref) => {
+  ({ initialMemberships, account, onSubmit }: Props, ref) => {
     const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
 
     useImperativeHandle(
@@ -122,27 +115,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
       [currentMembers],
     );
 
-    const memberships = members.account?.memberships;
-
-    const onScroll = useCallback(
-      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-        const scrollTop = event.nativeEvent.contentOffset?.y ?? 0;
-        const layoutHeight = event.nativeEvent.layoutMeasurement.height;
-        const contentHeight = event.nativeEvent.contentSize.height;
-        const THRESHOLD = 200;
-        if (members.account == null) {
-          return;
-        }
-        if (
-          scrollTop + layoutHeight >= contentHeight - THRESHOLD &&
-          (members.account.memberships.pageInfo.hasNextPage ?? false) &&
-          members.account.memberships.pageInfo.endCursor != null
-        ) {
-          setAfter(members.account.memberships.pageInfo.endCursor);
-        }
-      },
-      [members.account, setAfter],
-    );
+    const memberships = account?.memberships;
 
     if (memberships == null) {
       return <ErrorView />;
@@ -154,8 +127,6 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
           <ScrollView
             style={large ? styles.container : styles.containerSmall}
             contentContainerStyle={styles.contents}
-            onScroll={onScroll}
-            scrollEventThrottle={16}
           >
             <Box direction="row" justifyContent="end" style={styles.titleBar}>
               <LakeHeading level={3} variant="h5" color={colors.gray[900]}>

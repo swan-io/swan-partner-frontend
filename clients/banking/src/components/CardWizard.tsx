@@ -418,7 +418,7 @@ export const CardWizard = ({
   const accountId = accountMembership.account?.id;
 
   // not ideal but we need to keep the hook at top-level
-  const { data: members } = useUrqlPaginatedQuery(
+  const { data: members, setAfter: setMembersAfterCursor } = useUrqlPaginatedQuery(
     {
       query: GetEligibleCardMembershipsDocument,
       variables: {
@@ -643,6 +643,7 @@ export const CardWizard = ({
                         cardProduct={cardProduct}
                         accountId={accountId}
                         initialMemberships={memberships}
+                        setAfter={setMembersAfterCursor}
                         account={account}
                         onSubmit={memberships => {
                           if (canOrderPhysicalCard) {

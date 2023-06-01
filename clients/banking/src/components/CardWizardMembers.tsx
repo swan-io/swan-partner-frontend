@@ -17,8 +17,14 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { forwardRef, useImperativeHandle, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
+import {
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+  ScrollView,
+  StyleSheet,
+  View,
+} from "react-native";
 import {
   AccountMembershipFragment,
   GetCardProductsQuery,
@@ -90,12 +96,13 @@ type Props = {
   initialMemberships?: Member[];
   account: GetEligibleCardMembershipsQuery["account"];
   onSubmit: (currentMembers: Member[]) => void;
+  setAfter: (cursor: string) => void;
 };
 
 export type CardWizardMembersRef = { submit: () => void };
 
 export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
-  ({ initialMemberships, account, onSubmit }: Props, ref) => {
+  ({ initialMemberships, account, onSubmit, setAfter }: Props, ref) => {
     const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
 
     useImperativeHandle(
@@ -117,6 +124,27 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
 
     const memberships = account?.memberships;
 
+    const onScroll = useCallback(
+      (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+        const scrollTop = event.nativeEvent.contentOffset?.y ?? 0;
+        const layoutHeight = event.nativeEvent.layoutMeasurement.height;
+        const contentHeight = event.nativeEvent.contentSize.height;
+        const THRESHOLD = 200;
+
+        console.log(event);
+
+        if (
+          memberships != null &&
+          scrollTop + layoutHeight >= contentHeight - THRESHOLD &&
+          (memberships.pageInfo.hasNextPage ?? false) &&
+          memberships.pageInfo.endCursor != null
+        ) {
+          setAfter(memberships.pageInfo.endCursor);
+        }
+      },
+      [memberships, setAfter],
+    );
+
     if (memberships == null) {
       return <ErrorView />;
     }
@@ -127,6 +155,8 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
           <ScrollView
             style={large ? styles.container : styles.containerSmall}
             contentContainerStyle={styles.contents}
+            onScroll={onScroll}
+            scrollEventThrottle={16}
           >
             <Box direction="row" justifyContent="end" style={styles.titleBar}>
               <LakeHeading level={3} variant="h5" color={colors.gray[900]}>
@@ -137,6 +167,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
             <View>
               {memberships.edges.map(({ node }) => {
                 const isSelected = selectedIds.has(node.id);
+
                 const initials =
                   node.user?.firstName != null && node.user?.lastName != null
                     ? `${node.user.firstName.charAt(0)}${node.user.lastName.charAt(0)}`

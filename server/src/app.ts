@@ -31,6 +31,7 @@ import {
 import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan.js";
 import {
   OnboardingRejectionError,
+  getOnboardingOAuthClientId,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated.js";
@@ -541,12 +542,22 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                     return Future.value(Result.Ok(undefined));
                   })
                   .with({ type: "Swan__FinalizeOnboarding" }, ({ onboardingId, projectId }) => {
+                    const onboardingOAuthClientId = getOnboardingOAuthClientId({ onboardingId });
                     // Finalize the onboarding with the received user token
-                    return swan__finalizeOnboarding({ onboardingId, accessToken, projectId })
-                      .mapOk(({ redirectUrl, state, accountMembershipId }) => {
+                    return onboardingOAuthClientId
+                      .flatMapOk(({ onboardingInfo }) =>
+                        swan__finalizeOnboarding({ onboardingId, accessToken, projectId }).mapOk(
+                          payload => ({
+                            ...payload,
+                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                          }),
+                        ),
+                      )
+                      .mapOk(({ redirectUrl, state, accountMembershipId, oAuthClientId }) => {
                         const queryString = new URLSearchParams();
                         if (redirectUrl != undefined) {
                           const authUri = createAuthUrl({
+                            oAuthClientId,
                             scope: [],
                             redirectUri: redirectUrl,
                             state: state ?? onboardingId,

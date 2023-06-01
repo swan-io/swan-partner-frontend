@@ -80,3 +80,7 @@ export const onboardIndividualAccountHolder = ({
       .exhaustive(),
   );
 };
+
+export const getOnboardingOAuthClientId = ({ onboardingId }: { onboardingId: string }) => {
+  return toFuture(sdk.GetOnboardingClientOAuth({ onboardingId }));
+};

@@ -312,6 +312,7 @@ export const MembershipsArea = ({
             render={(membership, large) => (
               <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                 <MembershipDetailArea
+                  params={params}
                   currentUserAccountMembershipId={accountMembershipId}
                   currentUserAccountMembership={currentUserAccountMembership}
                   editingAccountMembershipId={membership.id}

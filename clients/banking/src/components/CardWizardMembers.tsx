@@ -131,8 +131,6 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
         const contentHeight = event.nativeEvent.contentSize.height;
         const THRESHOLD = 200;
 
-        console.log(event);
-
         if (
           memberships != null &&
           scrollTop + layoutHeight >= contentHeight - THRESHOLD &&

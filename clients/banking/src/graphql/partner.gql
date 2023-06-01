@@ -286,8 +286,8 @@ query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: Stri
     virtualIbanEntries(first: $first, after: $after) {
       totalCount
       pageInfo {
-        hasNextPage
         endCursor
+        hasNextPage
       }
       edges {
         node {
@@ -411,10 +411,8 @@ mutation UpdateAccount(
 query AccountsListPage($first: Int!, $after: String) {
   accounts(first: $first, after: $after) {
     pageInfo {
-      hasNextPage
       endCursor
-      startCursor
-      hasPreviousPage
+      hasNextPage
     }
     edges {
       node {
@@ -451,10 +449,8 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
     }
     statements(first: $first, after: $after) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         cursor
@@ -812,10 +808,8 @@ query CardTransactionsPage(
     }
     transactions(first: $first, after: $after, filters: $filters) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       totalCount
       edges {
@@ -1097,20 +1091,16 @@ query StandingOrdersHistoryPage(
     }
     payments(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         node {
           id
           transactions {
             pageInfo {
-              hasNextPage
               endCursor
-              startCursor
-              hasPreviousPage
+              hasNextPage
             }
             edges {
               node {
@@ -1179,8 +1169,6 @@ query getStandingOrders(
       pageInfo {
         endCursor
         hasNextPage
-        hasPreviousPage
-        startCursor
       }
       edges {
         cursor
@@ -1325,8 +1313,6 @@ query MembersPage(
       pageInfo {
         endCursor
         hasNextPage
-        hasPreviousPage
-        startCursor
       }
       edges {
         cursor
@@ -1366,10 +1352,8 @@ query NewPaymentWizard($first: Int!, $after: String) {
         cursor
       }
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
     }
   }
@@ -1536,10 +1520,8 @@ query TransactionListPage(
     }
     transactions(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         node {
@@ -1568,10 +1550,8 @@ query UpcomingTransactionListPage(
       orderBy: { field: executionDate, direction: Asc }
     ) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         node {
@@ -1592,10 +1572,8 @@ query GetAccountMemberships(
     id
     accountMemberships(first: $first, after: $after, filters: $filters) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       totalCount
       edges {
@@ -1786,10 +1764,8 @@ query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, 
     ) {
       totalCount
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         cursor

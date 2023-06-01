@@ -94,15 +94,15 @@ type Props = {
   cardProduct: CardProduct;
   accountId: string;
   initialMemberships?: Member[];
+  account: GetEligibleCardMembershipsQuery["account"];
   onSubmit: (currentMembers: Member[]) => void;
-  members: GetEligibleCardMembershipsQuery;
   setAfter: (cursor: string) => void;
 };
 
 export type CardWizardMembersRef = { submit: () => void };
 
 export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
-  ({ initialMemberships, members, setAfter, onSubmit }: Props, ref) => {
+  ({ initialMemberships, account, onSubmit, setAfter }: Props, ref) => {
     const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
 
     useImperativeHandle(
@@ -122,7 +122,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
       [currentMembers],
     );
 
-    const memberships = members.account?.memberships;
+    const memberships = account?.memberships;
 
     const onScroll = useCallback(
       (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -130,18 +130,17 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
         const layoutHeight = event.nativeEvent.layoutMeasurement.height;
         const contentHeight = event.nativeEvent.contentSize.height;
         const THRESHOLD = 200;
-        if (members.account == null) {
-          return;
-        }
+
         if (
+          memberships != null &&
           scrollTop + layoutHeight >= contentHeight - THRESHOLD &&
-          (members.account.memberships.pageInfo.hasNextPage ?? false) &&
-          members.account.memberships.pageInfo.endCursor != null
+          (memberships.pageInfo.hasNextPage ?? false) &&
+          memberships.pageInfo.endCursor != null
         ) {
-          setAfter(members.account.memberships.pageInfo.endCursor);
+          setAfter(memberships.pageInfo.endCursor);
         }
       },
-      [members.account, setAfter],
+      [memberships, setAfter],
     );
 
     if (memberships == null) {
@@ -166,6 +165,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
             <View>
               {memberships.edges.map(({ node }) => {
                 const isSelected = selectedIds.has(node.id);
+
                 const initials =
                   node.user?.firstName != null && node.user?.lastName != null
                     ? `${node.user.firstName.charAt(0)}${node.user.lastName.charAt(0)}`

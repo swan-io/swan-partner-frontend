@@ -45,10 +45,8 @@ query {
   account(accountId: $ACCOUNT_ID) {
     transactions(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         node {
@@ -105,10 +103,8 @@ query {
       orderBy: { field: executionDate, direction: Asc }
     ) {
       pageInfo {
-        hasNextPage
         endCursor
-        startCursor
-        hasPreviousPage
+        hasNextPage
       }
       edges {
         node {

@@ -9,9 +9,10 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { useQuery } from "urql";
@@ -151,7 +152,7 @@ const styles = StyleSheet.create({
   },
   contentsContents: {
     flexGrow: 1,
-    alignItems: "stretch",
+    flexShrink: 1,
     justifyContent: "center",
     paddingHorizontal: spacings[96],
     paddingVertical: spacings[24],
@@ -160,6 +161,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[24],
     paddingVertical: spacings[24],
     flexGrow: 1,
+    flexShrink: 1,
   },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],
@@ -415,19 +417,18 @@ export const CardWizard = ({
 
   const cardProducts = data?.projectInfo.cardProducts ?? [];
   const accountId = accountMembership.account?.id;
-  const [membersAfterCursor, setMembersAfterCursor] = useState<string | null>(null);
 
-  const [{ data: members, fetching }] = useQuery({
-    query: GetEligibleCardMembershipsDocument,
-    // not ideal but we need to keep the hook at top-level
-    variables: { accountId: accountId ?? "", first: 20, after: membersAfterCursor },
-    context: useMemo(() => ({ suspense: false }), []),
-  });
-
-  const hasMoreThanOneMember =
-    preselectedAccountMembership != null
-      ? false
-      : (members?.account?.allMemberships.totalCount ?? 0) > 1;
+  // not ideal but we need to keep the hook at top-level
+  const { data: members, setAfter: setMembersAfterCursor } = useUrqlPaginatedQuery(
+    {
+      query: GetEligibleCardMembershipsDocument,
+      variables: {
+        accountId: accountId ?? "",
+        first: 20,
+      },
+    },
+    [accountId],
+  );
 
   const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";
 
@@ -435,9 +436,17 @@ export const CardWizard = ({
     return <ErrorView />;
   }
 
-  if (members == null && fetching) {
+  if (members.isNotAsked() || members.isLoading()) {
     return <LoadingView color={colors.current[500]} />;
   }
+
+  const account = members
+    .get()
+    .map(({ account }) => account)
+    .getWithDefault(undefined);
+
+  const hasMoreThanOneMember =
+    preselectedAccountMembership != null ? false : (account?.allMemberships.totalCount ?? 0) > 1;
 
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
@@ -561,7 +570,8 @@ export const CardWizard = ({
                           const memberships =
                             preselectedAccountMembership != null
                               ? [preselectedAccountMembership]
-                              : members?.account?.memberships.edges.map(({ node }) => node) ?? [];
+                              : account?.memberships.edges.map(({ node }) => node) ?? [];
+
                           if (canOrderPhysicalCard) {
                             setStep({
                               name: "CardProductIndividualDelivery",
@@ -634,8 +644,8 @@ export const CardWizard = ({
                         cardProduct={cardProduct}
                         accountId={accountId}
                         initialMemberships={memberships}
-                        members={members}
                         setAfter={setMembersAfterCursor}
+                        account={account}
                         onSubmit={memberships => {
                           if (canOrderPhysicalCard) {
                             if (memberships.length === 1) {

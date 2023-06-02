@@ -1,6 +1,8 @@
+import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
+import sensible from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
@@ -38,7 +40,7 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
-import { renderAuthError, renderError } from "./views/error.js";
+import { replyWithAuthError, replyWithError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(
@@ -166,6 +168,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     },
     genReqId: () => `req-${randomUUID()}`,
   });
+
+  /**
+   * Adds some useful utilities to your Fastify instance
+   */
+  await app.register(accepts);
+  await app.register(sensible);
 
   /**
    * Handles the session storage in `swan_session_id`
@@ -349,7 +357,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return renderError(reply, { status: 400, requestId: request.id as string });
+
+          return replyWithError(app, request, reply, {
+            status: 400,
+            requestId: request.id as string,
+          });
         })
         .map(() => undefined);
     },
@@ -379,7 +391,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return renderError(reply, { status: 400, requestId: request.id as string });
+
+          return replyWithError(app, request, reply, {
+            status: 400,
+            requestId: request.id as string,
+          });
         })
         .map(() => undefined);
     },
@@ -426,7 +442,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         return reply.send({ success: result });
       } catch (err) {
         request.log.error(err);
-        return renderError(reply, { status: 400, requestId: request.id as string });
+
+        return replyWithError(app, request, reply, {
+          status: 400,
+          requestId: request.id as string,
+        });
       }
     },
   );
@@ -577,7 +597,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return renderError(reply, {
+
+                        return replyWithError(app, request, reply, {
                           status: 400,
                           requestId: request.id as string,
                         });
@@ -608,7 +629,8 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                       })
                       .tapError(error => {
                         request.log.error(error);
-                        return renderError(reply, {
+
+                        return replyWithError(app, request, reply, {
                           status: 400,
                           requestId: request.id as string,
                         });
@@ -651,24 +673,31 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               },
               Error: error => {
                 request.log.error(error);
-                void renderError(reply, { status: 400, requestId: request.id as string });
+
+                void replyWithError(app, request, reply, {
+                  status: 400,
+                  requestId: request.id as string,
+                });
+
                 return Future.value(Result.Ok(undefined));
               },
             });
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {
-          void renderAuthError(reply, {
+          void replyWithAuthError(app, request, reply, {
             status: 400,
             description: error === "access_denied" ? "Login failed" : errorDescription,
           });
+
           return Future.value(undefined);
         })
         .otherwise(() => {
-          void renderAuthError(reply, {
+          void replyWithAuthError(app, request, reply, {
             status: 400,
             description: "Could not initiate session",
           });
+
           return Future.value(undefined);
         })
     );
@@ -743,8 +772,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
 
   app.setErrorHandler((error, request, reply) => {
     request.log.error(error);
+
     // Send error response
-    return renderError(reply, { status: 500, requestId: request.id as string });
+    return replyWithError(app, request, reply, {
+      status: 500,
+      requestId: request.id as string,
+    });
   });
 
   return {

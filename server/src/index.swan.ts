@@ -22,8 +22,8 @@ import {
 } from "./api/unauthenticated.js";
 import { InvitationConfig, start } from "./app.js";
 import { env, url as validateUrl } from "./env.js";
+import { replyWithError } from "./error.js";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
-import { replyWithError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 

@@ -40,7 +40,7 @@ import {
 import { HttpsConfig, startDevServer } from "./client/devServer.js";
 import { getProductionRequestHandler } from "./client/prodServer.js";
 import { env } from "./env.js";
-import { replyWithAuthError, replyWithError } from "./views/error.js";
+import { replyWithAuthError, replyWithError } from "./error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(

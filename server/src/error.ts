@@ -8,8 +8,8 @@ import { match } from "ts-pattern";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
-const errorTemplate = fs.readFileSync(path.join(dirname, "error.html"), "utf-8");
-const authErrorTemplate = fs.readFileSync(path.join(dirname, "auth-error.html"), "utf-8");
+const errorTemplate = fs.readFileSync(path.join(dirname, "views", "error.html"), "utf-8");
+const authErrorTemplate = fs.readFileSync(path.join(dirname, "views", "auth-error.html"), "utf-8");
 
 export const replyWithError = (
   app: FastifyInstance<Http2SecureServer, Http2ServerRequest, Http2ServerResponse>,

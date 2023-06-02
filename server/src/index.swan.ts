@@ -22,8 +22,8 @@ import {
 } from "./api/unauthenticated.js";
 import { InvitationConfig, start } from "./app.js";
 import { env, url as validateUrl } from "./env.js";
+import { replyWithError } from "./error.js";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
-import { renderError } from "./views/error.js";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
@@ -269,7 +269,11 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return renderError(reply, { status: 400, requestId: request.id as string });
+
+            return replyWithError(app, request, reply, {
+              status: 400,
+              requestId: request.id as string,
+            });
           })
           .map(() => undefined);
       },
@@ -300,7 +304,11 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return renderError(reply, { status: 400, requestId: request.id as string });
+
+            return replyWithError(app, request, reply, {
+              status: 400,
+              requestId: request.id as string,
+            });
           })
           .map(() => undefined);
       },

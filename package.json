@@ -33,6 +33,7 @@
     "deploy-ci": "tsx scripts/deploy/deploy.ts",
     "ai-translate": "tsx -r dotenv/config scripts/locales/ai-translate.ts",
     "sort-locales": "tsx scripts/locales/sort.ts",
+    "remove-unused-locales": "tsx scripts/locales/remove-unused.ts",
     "bump": "tsx scripts/version/version.ts"
   },
   "workspaces": {

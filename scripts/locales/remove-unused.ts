@@ -96,11 +96,17 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
   for (const localePath of localesPaths) {
     const locale = readJsonFile(localePath);
     // Check based on english translations
-    const keysNotExistingInReference = getKeysNotExistingInReference(
+    const keysToRemove = getKeysNotExistingInReference(
       englishTranslationsWithoutUnusedKeys,
       locale,
     );
-    const localeWithoutUnusedKeys = removeKeys(locale, keysNotExistingInReference);
+
+    // Avoid to write file if there isn't any key to remove
+    if (keysToRemove.length === 0) {
+      continue;
+    }
+
+    const localeWithoutUnusedKeys = removeKeys(locale, keysToRemove);
     writeJsonFile(localePath, localeWithoutUnusedKeys);
   }
 

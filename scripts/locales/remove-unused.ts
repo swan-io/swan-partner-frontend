@@ -32,6 +32,14 @@ const writeJsonFile = (filePath: string, json: Record<string, string>) => {
   writeFileSync(filePath, JSON.stringify(json, null, 2) + "\n", "utf-8");
 };
 
+const getKeysNotExistingInReference = (
+  referenceLocale: Record<string, string>,
+  locale: Record<string, string>,
+) => {
+  const keys = Object.keys(locale);
+  return keys.filter(key => referenceLocale[key] == null);
+};
+
 const isKeyInCode = (key: string, code: string) => {
   // when the last part is variable
   const variantKey1 = key.split(".").slice(0, -1).join(".") + ".${";
@@ -60,14 +68,12 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
   const englishTranslations = readJsonFile(`${localePath}/en.json`);
   const keys = Object.keys(englishTranslations);
 
-  let unusedKeys = [...keys];
-
   const codeSrc = path.resolve(__dirname, `../../clients/${client}/src`);
-
   const glob = new GlobSync(`${codeSrc}/**/*.{ts,tsx}`);
 
+  let unusedKeys = [...keys];
+  // Check in each file contains code
   for (const filePath of glob.found) {
-    console.log(client, unusedKeys.length);
     if (unusedKeys.length === 0) {
       break;
     }
@@ -83,8 +89,22 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
 
   const englishTranslationsWithoutUnusedKeys = removeKeys(englishTranslations, unusedKeys);
 
-  // TODO remove unused keys in other languages
+  const localesGlob = new GlobSync(`${localePath}/*.json`);
+  const localesPaths = localesGlob.found.filter(path => !path.endsWith("en.json"));
 
+  // Remove unused keys in other locales
+  for (const localePath of localesPaths) {
+    const locale = readJsonFile(localePath);
+    // Check based on english translations
+    const keysNotExistingInReference = getKeysNotExistingInReference(
+      englishTranslationsWithoutUnusedKeys,
+      locale,
+    );
+    const localeWithoutUnusedKeys = removeKeys(locale, keysNotExistingInReference);
+    writeJsonFile(localePath, localeWithoutUnusedKeys);
+  }
+
+  // Remove unused keys in english
   writeJsonFile(`${localePath}/en.json`, englishTranslationsWithoutUnusedKeys);
   console.log(`Removed ${unusedKeys.length} unused keys in ${client}`);
 };

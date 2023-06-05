@@ -52,7 +52,7 @@
   "company.step.organisation1.vatPlaceholder": "Introduza o seu número",
   "company.step.organisation2.activityLabel": "Qual é o seu ramo de atividade?",
   "company.step.organisation2.activityPlaceholder": "Escolha sua atividade empresarial",
-  "company.step.organisation2.descriptionLabel": "Descrição do seu negócio, serviço ou produto (mínimo 3 frases)",
+  "company.step.organisation2.descriptionLabel": "Descrição do seu negócio, serviço ou produto",
   "company.step.organisation2.descriptionPlaceholder": "Descreva o seu negócio em algumas palavras",
   "company.step.organisation2.monthlyPaymentLabel": "Pagamento mensal expectável da sua empresa através desta conta",
   "company.step.organisation2.title": "Detalhes da empresa",

@@ -52,7 +52,7 @@
   "company.step.organisation1.vatPlaceholder": "Saisissez votre numéro",
   "company.step.organisation2.activityLabel": "Quelle est votre activité professionnelle ?",
   "company.step.organisation2.activityPlaceholder": "Choisissez votre activité professionnelle",
-  "company.step.organisation2.descriptionLabel": "Description de votre entreprise, service ou produit (au moins 3 phrases)",
+  "company.step.organisation2.descriptionLabel": "Description de votre entreprise, service ou produit",
   "company.step.organisation2.descriptionPlaceholder": "Décrivez votre activité en quelques mots",
   "company.step.organisation2.monthlyPaymentLabel": "Le paiement mensuel prévu par votre entreprise sur ce compte",
   "company.step.organisation2.title": "Coordonnées de l'entreprise",

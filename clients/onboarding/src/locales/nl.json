@@ -52,7 +52,7 @@
   "company.step.organisation1.vatPlaceholder": "Type uw nummer",
   "company.step.organisation2.activityLabel": "Wat is uw bedrijfsactiviteit?",
   "company.step.organisation2.activityPlaceholder": "Kies uw bedrijfsactiviteit",
-  "company.step.organisation2.descriptionLabel": "Beschrijving van uw bedrijf, dienst of product (minimaal 3 zinnen)",
+  "company.step.organisation2.descriptionLabel": "Beschrijving van uw bedrijf, dienst of product",
   "company.step.organisation2.descriptionPlaceholder": "Beschrijf uw bedrijfsactiviteiten in enkele woorden",
   "company.step.organisation2.monthlyPaymentLabel": "De verwachte maandelijkse betalingen van uw bedrijf via deze rekening",
   "company.step.organisation2.title": "Bedrijfsgegevens",

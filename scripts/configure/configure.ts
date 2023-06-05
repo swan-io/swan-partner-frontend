@@ -65,10 +65,14 @@ const start = async () => {
 
   const envTemplate = fs.readFileSync(path.join(process.cwd(), ".env.example"), "utf-8");
   const clientId = OAUTH_CLIENT_ID.OAUTH_CLIENT_ID as string;
+
   const env = envTemplate
-    .replace("YOUR_CLIENT_ID", clientId)
-    .replace("YOUR_CLIENT_SECRET", OAUTH_CLIENT_SECRET.OAUTH_CLIENT_SECRET as string)
-    .replace("YOUR_COOKIE_KEY", hexKey)
+    .replace('OAUTH_CLIENT_ID=""', `OAUTH_CLIENT_ID="${clientId}"`)
+    .replace(
+      'OAUTH_CLIENT_SECRET=""',
+      `OAUTH_CLIENT_SECRET="${OAUTH_CLIENT_SECRET.OAUTH_CLIENT_SECRET as string}"`,
+    )
+    .replace('COOKIE_KEY=""', `COOKIE_KEY="${hexKey}"`)
     .replace(
       `PARTNER_API_URL="https://api.swan.io/sandbox-partner/graphql"`,
       clientId.startsWith("SANDBOX_")

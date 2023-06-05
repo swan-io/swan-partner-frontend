@@ -16,7 +16,7 @@
   "common.cancel": "Cancelar",
   "common.edit": "Modificar",
   "common.form.invalidTaxIdentificationNumber": "Este número de identificação fiscal é inválido",
-  "common.form.invalidVatNumber": "Este número de contribuinte é inválido",
+  "common.form.invalidVatNumber": "Este IVA é inválido",
   "common.learnMore": "Saiba mais",
   "common.next": "Próximo",
   "common.no": "Não",

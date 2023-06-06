@@ -12,21 +12,26 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
-import { AccountMembershipFragment, AddAccountMembershipDocument } from "../graphql/partner";
+import {
+  AccountCountry,
+  AccountMembershipFragment,
+  AddAccountMembershipDocument,
+} from "../graphql/partner";
 import { locale, rifmDateProps, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
   validateBirthdate,
   validateEmail,
-  validateIndividualTaxNumber,
   validateRequired,
 } from "../utils/validations";
 
@@ -81,7 +86,7 @@ const validatePhoneNumber = async (value: string) => {
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  accountCountry: CountryCCA3;
+  accountCountry: AccountCountry;
   currentUserAccountMembership: AccountMembershipFragment;
   onSuccess: () => void;
   onPressCancel: () => void;
@@ -273,14 +278,18 @@ export const NewMembershipWizard = ({
               canViewAccount: true,
               canInitiatePayments: true,
             },
-            () => combineValidators(validateRequired, validateIndividualTaxNumber)(value),
+            () =>
+              combineValidators(
+                validateRequired,
+                validateIndividualTaxNumber(accountCountry),
+              )(value),
           )
           .with(
             {
               accountCountry: "DEU",
               residencyAddressCountry: "DEU",
             },
-            () => combineValidators(validateIndividualTaxNumber)(value),
+            () => validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
       },
@@ -681,18 +690,13 @@ export const NewMembershipWizard = ({
                         .with({ accountCountry: "DEU", country: "DEU" }, () => (
                           <Field name="taxIdentificationNumber">
                             {({ value, valid, error, onChange }) => (
-                              <LakeLabel
-                                label={t("membershipDetail.edit.taxIdentificationNumber")}
-                                render={id => (
-                                  <LakeTextInput
-                                    placeholder={locale.taxIdentificationNumberPlaceholder}
-                                    id={id}
-                                    value={value}
-                                    valid={valid}
-                                    error={error}
-                                    onChangeText={onChange}
-                                  />
-                                )}
+                              <TaxIdentificationNumberInput
+                                accountCountry={accountCountry}
+                                isCompany={false}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChange={onChange}
                               />
                             )}
                           </Field>

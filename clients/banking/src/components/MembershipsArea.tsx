@@ -14,11 +14,10 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
+import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router, membershipsRoutes } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
@@ -48,7 +47,7 @@ type Props = {
   canAddNewMembers: boolean;
   canAddCard: boolean;
   canOrderPhysicalCards: boolean;
-  accountCountry: CountryCCA3;
+  accountCountry: AccountCountry;
   params: {
     new?: string;
     search?: string | undefined;

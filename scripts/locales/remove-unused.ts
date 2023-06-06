@@ -79,6 +79,7 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
     }
 
     const code = readFileSync(filePath, "utf-8");
+    // if key is in code, we return false to remove it from unusedKeys
     unusedKeys = unusedKeys.filter(key => !isKeyInCode(key, code));
   }
 

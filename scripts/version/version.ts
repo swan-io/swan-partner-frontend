@@ -67,7 +67,6 @@ async function bump() {
         .join(" ")}`,
     );
     await exec(`git commit -m v${nextVersion}`);
-    await exec(`git tag -a v${nextVersion} -m v${nextVersion}`);
   } catch (err) {
     console.log(err);
     return process.exit(1);

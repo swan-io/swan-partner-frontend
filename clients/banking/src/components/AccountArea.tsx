@@ -322,13 +322,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && canViewAccountDetails,
           paymentMenuIsVisible:
+            canViewAccount &&
             canInitiatePayments &&
             membershipEnabled &&
             (canInitiatePaymentsToNewBeneficiaries || canViewPaymentList),
           // In case the user doesn't have the right to manage cards
           // but has one attached to the current membership
           cardMenuIsVisible: accountMembership.allCards.totalCount > 0 || canAddCard,
-          memberMenuIsVisible: canViewMembers && canManageAccountMembership,
+          memberMenuIsVisible: canViewAccount && canViewMembers && canManageAccountMembership,
         };
       }),
     [

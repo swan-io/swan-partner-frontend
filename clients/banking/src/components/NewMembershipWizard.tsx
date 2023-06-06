@@ -275,9 +275,16 @@ export const NewMembershipWizard = ({
             },
             () => combineValidators(validateRequired, validateIndividualTaxNumber)(value),
           )
+          .with(
+            {
+              accountCountry: "DEU",
+              residencyAddressCountry: "DEU",
+            },
+            () => combineValidators(validateIndividualTaxNumber)(value),
+          )
           .otherwise(() => undefined);
       },
-      sanitize: value => value.trim(),
+      sanitize: value => value.trim().replaceAll("/", ""),
     },
   });
 

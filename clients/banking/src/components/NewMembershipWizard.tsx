@@ -293,7 +293,7 @@ export const NewMembershipWizard = ({
           )
           .otherwise(() => undefined);
       },
-      sanitize: value => value.trim().replaceAll("/", ""),
+      sanitize: value => value.trim().replace(/\//g, ""),
     },
   });
 

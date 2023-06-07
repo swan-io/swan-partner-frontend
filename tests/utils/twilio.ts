@@ -5,14 +5,17 @@ import { retry } from "./retry";
 
 const bodyContainsMessages = isMatching({ messages: P.array({ body: P.string }) });
 
-const getLastMessage = (startDate: Date): Promise<string> => {
+export const getLastMessages = (options: { DateSent?: Date } = {}): Promise<string[]> => {
   const request = async () => {
     const url = new URL(
       `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_ID}/Messages.json`,
     );
 
     url.searchParams.set("To", env.E2E_PHONE_NUMBER);
-    url.searchParams.set("DateSent>", startDate.toISOString());
+
+    if (options.DateSent) {
+      url.searchParams.set("DateSent>", options.DateSent.toISOString());
+    }
 
     const response = await fetch(url.toString(), {
       headers: {
@@ -30,23 +33,21 @@ const getLastMessage = (startDate: Date): Promise<string> => {
     }
 
     const body: unknown = await response.json();
-    const message = bodyContainsMessages(body) ? body.messages[0]?.body : undefined;
-
-    if (message == null) {
-      throw new Error(`No message in twilio ${env.E2E_PHONE_NUMBER} queue`);
-    }
-
-    return message;
+    return bodyContainsMessages(body) ? body.messages.map(message => message.body) : [];
   };
 
   return retry(request, {
-    delay: seconds(5),
     maxAttempts: 5,
+    delay: seconds(5),
   });
 };
 
-export const getLastMessageURL = async (startDate: Date): Promise<string> => {
-  const message = await getLastMessage(startDate);
+export const getLastMessageURL = async (options: { DateSent?: Date } = {}): Promise<string> => {
+  const message = (await getLastMessages(options))[0];
+
+  if (message == null) {
+    throw new Error(`No message in twilio ${env.E2E_PHONE_NUMBER} queue`);
+  }
 
   const url = message
     .replace(/\n/g, " ")

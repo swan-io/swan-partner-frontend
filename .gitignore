@@ -20,3 +20,5 @@ server/dist/
 localazy.keys.*.json
 
 locale.config.js
+
+tests/results

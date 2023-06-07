@@ -141,7 +141,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
       return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
     })
     .mapOkToResult(response => {
-      const isOk = response.response.status > 200 && response.response.status < 300;
+      const isOk = response.response.status >= 200 && response.response.status < 300;
       return isOk
         ? Result.Ok(true)
         : Result.Error(new MailjetError(JSON.stringify(response.response.data)));
@@ -208,9 +208,6 @@ start({
             type: "AccountMemberToken",
             projectId: request.params.projectId,
           })
-            .tapError(error => {
-              request.log.error(error);
-            })
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({

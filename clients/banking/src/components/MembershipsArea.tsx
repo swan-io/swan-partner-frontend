@@ -19,6 +19,7 @@ import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { projectConfiguration } from "../utils/projectId";
 import { Router, membershipsRoutes } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -178,30 +179,41 @@ export const MembershipsArea = ({
     match({
       params,
       accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-    }).with(
-      {
-        params: { resourceId: P.string, status: "Accepted" },
-        accountMembershipInvitationMode: "EMAIL",
-      },
-      ({ params: { resourceId } }) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open(
-          "POST",
-          `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
-          true,
-        );
-        xhr.addEventListener("load", () => {
-          Router.replace("AccountMembersList", {
-            ...params,
-            accountMembershipId,
-            resourceId: undefined,
-            status: undefined,
+    })
+      .with(
+        {
+          params: { resourceId: P.string, status: "Accepted" },
+          accountMembershipInvitationMode: "EMAIL",
+        },
+        ({ params: { resourceId } }) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "POST",
+            match(projectConfiguration)
+              .with(
+                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                projectId =>
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+              )
+              .otherwise(
+                () =>
+                  `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+              ),
+            true,
+          );
+          xhr.addEventListener("load", () => {
+            Router.replace("AccountMembersList", {
+              ...params,
+              accountMembershipId,
+              resourceId: undefined,
+              status: undefined,
+            });
           });
-        });
-        xhr.send(null);
-        return () => xhr.abort();
-      },
-    );
+          xhr.send(null);
+          return () => xhr.abort();
+        },
+      )
+      .otherwise(() => {});
   }, [params, accountMembershipId]);
 
   return (

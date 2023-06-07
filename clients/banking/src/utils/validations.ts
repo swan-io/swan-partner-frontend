@@ -1,4 +1,5 @@
 import { Lazy } from "@swan-io/boxed";
+import { deburr } from "@swan-io/lake/src/utils/string";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";
@@ -13,6 +14,21 @@ export const validateNullableRequired: Validator<string | undefined> = value => 
 export const validateRequired: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");
+  }
+};
+
+export const validateName: Validator<string> = value => {
+  if (!value) {
+    return;
+  }
+
+  const name = deburr(value);
+
+  // Accepts only letters, spaces and dashes
+  const isValid = name.match(/^[a-zA-Z\s-]*$/);
+
+  if (!isValid) {
+    return t("common.form.invalidName");
   }
 };
 

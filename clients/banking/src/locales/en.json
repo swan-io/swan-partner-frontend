@@ -237,6 +237,7 @@
   "common.form.invalidAmount": "Invalid amount",
   "common.form.invalidDate": "Invalid date",
   "common.form.invalidEmail": "Invalid email",
+  "common.form.invalidName": "Invalid name",
   "common.form.invalidPhoneNumber": "Invalid phone number",
   "common.form.invalidTaxIdentificationNumber": "Invalid tax identification number",
   "common.form.invalidTime": "Invalid time",

@@ -32,6 +32,7 @@ import {
   validateAddressLine,
   validateBirthdate,
   validateEmail,
+  validateName,
   validateRequired,
 } from "../utils/validations";
 
@@ -159,13 +160,13 @@ export const NewMembershipWizard = ({
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
       strategy: "onBlur",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
       sanitize: value => value.trim(),
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
       strategy: "onBlur",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
       sanitize: value => value.trim(),
     },
     birthDate: {

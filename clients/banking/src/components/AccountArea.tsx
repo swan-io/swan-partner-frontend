@@ -310,7 +310,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
           accountMembership.canManageAccountMembership && membershipEnabled;
-        const canAddCard = canManageAccountMembership && canOrderVirtualCards;
+        const canAddCard = canViewAccount && canManageAccountMembership && canOrderVirtualCards;
 
         return {
           accountMembership,

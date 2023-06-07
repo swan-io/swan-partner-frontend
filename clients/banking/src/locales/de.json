@@ -237,6 +237,7 @@
   "common.form.invalidAmount": "Dieser Betrag ist ungültig",
   "common.form.invalidDate": "Dieses Datum ist ungültig",
   "common.form.invalidEmail": "Diese E-Mail-Adresse ist ungültig",
+  "common.form.invalidName": "Ungültiger Name",
   "common.form.invalidPhoneNumber": "Diese Telefonnummer ist ungültig",
   "common.form.invalidTaxIdentificationNumber": "Diese Steuer-Identifikationsnummer ist ungültig",
   "common.form.invalidTime": "Diese Uhrzeit ist ungültig",

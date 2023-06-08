@@ -11,6 +11,24 @@ export const log = {
   error: (text: string) => console.error(`[${new Date().toISOString()}] ✕ ${text}`),
 };
 
+export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T) => {
+  const output: T = { ...target, ...source };
+
+  for (const key in output) {
+    if (
+      Object.prototype.hasOwnProperty.call(output, key) &&
+      output[key] != null &&
+      typeof output[key] === "object" &&
+      !Array.isArray(output[key])
+    ) {
+      // @ts-expect-error
+      output[key] = deepMerge(target[key], source[key]);
+    }
+  }
+
+  return output;
+};
+
 export const wait = (ms: number) =>
   new Promise<void>(resolve => {
     setTimeout(resolve, ms);

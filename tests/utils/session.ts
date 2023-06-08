@@ -1,5 +1,6 @@
 import fs from "node:fs/promises";
 import { sessionPath } from "../../playwright.config";
+import { deepMerge } from "./functions";
 
 type Session = {
   companyEmail: string;
@@ -13,6 +14,6 @@ export const getSession = async () => {
 
 export const saveSession = async (data: Partial<Session>) => {
   const currentData = await getSession().catch(() => ({}));
-  const content = JSON.stringify({ ...currentData, ...data }, null, 2);
+  const content = JSON.stringify(deepMerge(currentData, data), null, 2);
   return fs.writeFile(sessionPath, content, "utf-8");
 };

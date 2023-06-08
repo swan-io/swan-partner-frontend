@@ -1,6 +1,9 @@
 import fs from "node:fs/promises";
 import { testResultsDir } from "../../playwright.config";
 
+export const seconds = (value: number) => value * 1000;
+export const minutes = (value: number) => value * seconds(60);
+
 export const log = {
   success: (text: string) => console.log(`[${new Date().toISOString()}] ✓ ${text}`),
   info: (text: string) => console.info(`[${new Date().toISOString()}] ℹ ${text}`),
@@ -8,10 +11,23 @@ export const log = {
   error: (text: string) => console.error(`[${new Date().toISOString()}] ✕ ${text}`),
 };
 
-export const resolveAfter = (ms: number) =>
+export const wait = (ms: number) =>
   new Promise<void>(resolve => {
     setTimeout(resolve, ms);
   });
+
+export const retry = <T>(
+  getPromise: () => Promise<T>,
+  { attempts = 30, delay = seconds(2) }: { attempts?: number; delay?: number } = {},
+): Promise<T> => {
+  const safeAttempts = Math.max(attempts, 1);
+
+  return getPromise().catch((error: unknown) =>
+    safeAttempts > 1
+      ? wait(delay).then(() => retry(getPromise, { attempts: safeAttempts - 1, delay }))
+      : Promise.reject(error),
+  );
+};
 
 export const createTestResultsDir = () => fs.mkdir(testResultsDir);
 export const deleteTestResultsDir = () => fs.rm(testResultsDir, { force: true, recursive: true });

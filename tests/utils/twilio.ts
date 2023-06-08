@@ -1,8 +1,6 @@
 import { P, isMatching } from "ts-pattern";
 import { env } from "./env";
-import { assertIsDefined, log } from "./functions";
-import { retry } from "./retry";
-import { seconds } from "./time";
+import { assertIsDefined, log, retry, seconds } from "./functions";
 
 const bodyContainsMessages = isMatching({ messages: P.array({ body: P.string }) });
 
@@ -38,7 +36,7 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<str
   };
 
   return retry(request, {
-    maxAttempts: 5,
+    attempts: 5,
     delay: seconds(5),
   });
 };

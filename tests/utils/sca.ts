@@ -1,7 +1,7 @@
 import { Browser, chromium, devices, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
-import { resolveAfter } from "./functions";
+import { wait } from "./functions";
 import { clickOnButton, waitForText } from "./selectors";
 import { getLastMessageURL } from "./twilio";
 
@@ -26,7 +26,7 @@ const openPage = async (browser: Browser, type: "desktop" | "mobile", url: strin
 
     if (method === "POST") {
       // It's OK to have a huge leeway since unroute will be called before
-      await resolveAfter(20000);
+      await wait(20000);
     }
 
     await route.continue();

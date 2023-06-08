@@ -57,7 +57,7 @@ const consent = async (consentUrl: string) => {
   const startDate = new Date();
 
   const page = await openPage(browser, "desktop", consentUrl);
-  const url = await getLastMessageURL(startDate);
+  const url = await getLastMessageURL({ startDate });
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");

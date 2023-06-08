@@ -1,11 +1,12 @@
 import { P, isMatching } from "ts-pattern";
 import { env } from "./env";
-import { assertIsDefined, log, seconds } from "./functions";
+import { assertIsDefined, log } from "./functions";
 import { retry } from "./retry";
+import { seconds } from "./time";
 
 const bodyContainsMessages = isMatching({ messages: P.array({ body: P.string }) });
 
-export const getLastMessages = (options: { DateSent?: Date } = {}): Promise<string[]> => {
+export const getLastMessages = (options: { startDate?: Date } = {}): Promise<string[]> => {
   const request = async () => {
     const url = new URL(
       `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_ID}/Messages.json`,
@@ -13,8 +14,8 @@ export const getLastMessages = (options: { DateSent?: Date } = {}): Promise<stri
 
     url.searchParams.set("To", env.E2E_PHONE_NUMBER);
 
-    if (options.DateSent) {
-      url.searchParams.set("DateSent>", options.DateSent.toISOString());
+    if (options.startDate) {
+      url.searchParams.set("DateSent>", options.startDate.toISOString());
     }
 
     const response = await fetch(url.toString(), {
@@ -42,7 +43,7 @@ export const getLastMessages = (options: { DateSent?: Date } = {}): Promise<stri
   });
 };
 
-export const getLastMessageURL = async (options: { DateSent?: Date } = {}): Promise<string> => {
+export const getLastMessageURL = async (options: { startDate?: Date } = {}): Promise<string> => {
   const message = (await getLastMessages(options))[0];
 
   if (message == null) {

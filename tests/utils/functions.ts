@@ -16,9 +16,6 @@ export const resolveAfter = (ms: number) =>
 export const createTestResultsDir = () => fs.mkdir(testResultsDir);
 export const deleteTestResultsDir = () => fs.rm(testResultsDir, { force: true, recursive: true });
 
-export const seconds = (value: number) => value * 1000;
-export const minutes = (value: number) => value * seconds(60);
-
 export function assertIsDefined<T>(value: T): asserts value is NonNullable<T> {
   if (value == null) {
     throw new Error(`Expected value to be defined, but received ${JSON.stringify(value, null, 2)}`);

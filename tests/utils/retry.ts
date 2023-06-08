@@ -1,4 +1,5 @@
-import { resolveAfter, seconds } from "./functions";
+import { resolveAfter } from "./functions";
+import { seconds } from "./time";
 
 class RetryTimeoutError extends Error {
   constructor(message?: string) {

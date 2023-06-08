@@ -1,12 +1,11 @@
 projects:
-  unauthenticated:
-    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
-    documents:
-      - "clients/*/src/graphql/unauthenticated.gql"
-      - "server/src/graphql/unauthenticated.gql"
   partner:
     schema: "scripts/graphql/dist/partner-schema.gql"
     documents:
       - "clients/*/src/graphql/partner.gql"
       - "server/src/graphql/partner.gql"
-      - "server/src/graphql/partner.ts"
+  unauthenticated:
+    schema: "scripts/graphql/dist/unauthenticated-schema.gql"
+    documents:
+      - "clients/*/src/graphql/unauthenticated.gql"
+      - "server/src/graphql/unauthenticated.gql"

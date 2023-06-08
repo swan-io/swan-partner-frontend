@@ -11,6 +11,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import {
+  isEmpty,
   isNotNullish,
   isNotNullishOrEmpty,
   isNullishOrEmpty,
@@ -142,9 +143,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
           style={styles.tile}
           footer={match(transaction)
             // BankingFee should never happen, so we don't handle it
-            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => (
-              <LakeAlert anchored={true} variant="info" title={getFeesDescription(feesType)} />
-            ))
+            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => {
+              const description = getFeesDescription(feesType); // can be empty if a new fees type is added and not handled
+              if (isEmpty(description)) {
+                return null;
+              }
+
+              return <LakeAlert anchored={true} variant="info" title={description} />;
+            })
             .with(
               {
                 type: P.union("SepaCreditTransferOut", "SepaCreditTransferIn"),

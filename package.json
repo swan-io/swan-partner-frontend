@@ -25,6 +25,7 @@
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",
     "lint": "eslint 'clients/*/src/**/*.{ts,tsx}'",
+    "read-e2e-sms": "tsx scripts/twilio/getLastMessages.ts",
     "dev-e2e": "playwright test --ui",
     "test-e2e": "playwright test",
     "test": "vitest run --passWithNoTests",

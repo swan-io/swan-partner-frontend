@@ -1,7 +1,9 @@
 import { PlaywrightTestConfig } from "@playwright/test";
 import path from "pathe";
 import { env } from "./tests/utils/env";
-import { minutes, seconds } from "./tests/utils/functions";
+
+const seconds = (value: number) => value * 1000;
+const minutes = (value: number) => value * seconds(60);
 
 export const testDir = path.join(__dirname, "tests");
 export const testResultsDir = path.join(testDir, "results");

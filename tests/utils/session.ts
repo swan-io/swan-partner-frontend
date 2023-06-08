@@ -3,8 +3,12 @@ import { sessionPath } from "../../playwright.config";
 import { deepMerge } from "./functions";
 
 type Session = {
-  companyEmail: string;
-  individualEmail: string;
+  benady: {
+    email: string;
+  };
+  saison: {
+    email: string;
+  };
 };
 
 export const getSession = async () => {

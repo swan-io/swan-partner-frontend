@@ -48,8 +48,8 @@ export const createEmailAddress = async (): Promise<string> => {
 
 export const resetEmailAddresses = async () => {
   const tokens: string[] = await getSession()
-    .then(({ companyEmail, individualEmail }) =>
-      [companyEmail, individualEmail]
+    .then(({ benady, saison }) =>
+      [benady.email, saison.email]
         .map(email => emailToToken(email))
         .filter((token): token is string => token != null),
     )

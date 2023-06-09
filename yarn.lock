@@ -1344,11 +1344,6 @@
     fastify-plugin "^4.0.0"
     hashlru "^2.3.0"
 
-"@fluentui/svg-icons@1.1.198":
-  version "1.1.198"
-  resolved "https://registry.yarnpkg.com/@fluentui/svg-icons/-/svg-icons-1.1.198.tgz#9f73e6bd46db1a48b0be7cb724493191a3fb0900"
-  integrity sha512-mjbHwrosuWyFG3NWYLKXCK9FcXv4GCQYY1yELgg1a8yc3vcaslD9lvjXJM5qO7ht6q0zV9JyrCS2hA4hjTKhqw==
-
 "@formatjs/ecma402-abstract@1.16.0":
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@formatjs/ecma402-abstract/-/ecma402-abstract-1.16.0.tgz#15a0baa8401880d4010eb93440d996e896ca251c"

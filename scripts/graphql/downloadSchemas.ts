@@ -63,6 +63,7 @@ const getIntrospection = (name: string, url: string) =>
       process.exit(1);
     });
 
+// TODO: Enable download once the introspection is allowed in production
 // void getIntrospection("partner-admin", env.PARTNER_ADMIN_API_URL);
 void getIntrospection("partner", env.PARTNER_API_URL);
 void getIntrospection("unauthenticated", env.UNAUTHENTICATED_API_URL);

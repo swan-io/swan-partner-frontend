@@ -64,18 +64,14 @@ export const logBackendError = (
   const requestId = headers["x-request-id"];
   const hasMultipleErrors = graphQLErrors.length > 1;
 
-  graphQLErrors.forEach(error => {
-    if (
-      hasMultipleErrors &&
-      error.message.startsWith("Cannot return null for non-nullable field")
-    ) {
+  graphQLErrors.forEach(({ message }) => {
+    if (hasMultipleErrors && message.startsWith("Cannot return null for non-nullable field")) {
       return;
     }
 
-    if (isNotNullish(requestId)) {
-      // Mutate the error message to prepend the requestId
-      error.message = `${requestId} - ${error.message}`;
-    }
+    // Update the error message to prepend the requestId
+    const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
+    error.name = "GraphQLError";
 
     captureException(error, {
       tags: {
@@ -87,7 +83,7 @@ export const logBackendError = (
         query: printQuery(query),
         requestPolicy: context.requestPolicy,
         suspense: context.suspense,
-        variables, // eslint-disable-line @typescript-eslint/no-unsafe-assignment
+        variables,
       },
     });
   });

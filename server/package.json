@@ -15,8 +15,8 @@
     "build": "yarn clean && tsc -p tsconfig.json && shx cp -r ./src/views ./dist",
     "clean": "shx rm -rf dist",
     "prepack": "tsc --build",
-    "start": "node -r ./dist/tracing ./dist/index",
-    "start-swan": "node -r ./dist/tracing ./dist/index.swan"
+    "start": "node -r ./dist/tracing.js ./dist/index.js",
+    "start-swan": "node -r ./dist/tracing.js ./dist/index.swan.js"
   },
   "dependencies": {
     "@fastify/accepts": "4.1.0",

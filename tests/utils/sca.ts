@@ -5,7 +5,7 @@ import { wait } from "./functions";
 import { clickOnButton, waitForText } from "./selectors";
 import { getLastMessageURL } from "./twilio";
 
-const injectE2ETestKey = (page: Page) =>
+const injectTestKey = (page: Page) =>
   page.evaluate(TEST_KEY => {
     window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = TEST_KEY;
     return Promise.resolve();
@@ -33,7 +33,7 @@ const openPage = async (browser: Browser, type: "desktop" | "mobile", url: strin
   });
 
   await page.goto(url);
-  await injectE2ETestKey(page);
+  await injectTestKey(page);
 
   // The page is loaded, unleash the POST requests
   await page.unroute("**/*");
@@ -71,8 +71,4 @@ const consent = async (consentUrl: string) => {
 
 export const sca = {
   consent,
-  fillPasscode,
-  injectE2ETestKey,
-  openPage,
-  waitForConfirm,
 };

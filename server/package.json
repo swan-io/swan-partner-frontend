@@ -7,17 +7,16 @@
     "node": ">=18.0.0",
     "yarn": "^1.22.0"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "start": "node -r ./src/tracing.cjs ./src/index.js",
-    "start-swan": "node -r ./src/tracing.cjs ./src/index.swan.js",
     "build": "tsc -p tsconfig.json",
+    "clean": "tsc --clean",
     "prepack": "tsc --build",
-    "clean": "tsc --clean"
+    "start": "node -r ./src/tracing.cjs ./src/index",
+    "start-swan": "node -r ./src/tracing.cjs ./src/index.swan"
   },
   "dependencies": {
     "@fastify/accepts": "4.1.0",

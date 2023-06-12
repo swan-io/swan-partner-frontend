@@ -7,25 +7,24 @@
  */
 import { Future, Result } from "@swan-io/boxed";
 import Mailjet from "node-mailjet";
-import url from "node:url";
 import path from "pathe";
 import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
-import { exchangeToken } from "./api/oauth2.swan.js";
-import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner.js";
-import { getAccountMembershipInvitationData } from "./api/partner.swan.js";
+import { exchangeToken } from "./api/oauth2.swan";
+import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner";
+import { getAccountMembershipInvitationData } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/unauthenticated.js";
-import { InvitationConfig, start } from "./app.js";
-import { env, url as validateUrl } from "./env.js";
-import { replyWithError } from "./error.js";
-import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
+} from "./api/unauthenticated";
+import { InvitationConfig, start } from "./app";
+import { env, url as validateUrl } from "./env";
+import { replyWithError } from "./error";
+import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const keysDirectory = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -157,8 +156,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
+          key: path.join(keysDirectory, "_wildcard.swan.local-key.pem"),
+          cert: path.join(keysDirectory, "_wildcard.swan.local.pem"),
         }
       : undefined,
   sendAccountMembershipInvitation,

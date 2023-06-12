@@ -1,11 +1,10 @@
-import url from "node:url";
 import path from "pathe";
 import pc from "picocolors";
-import { start } from "./app.js";
-import { env } from "./env.js";
-import { AccountCountry } from "./graphql/partner.js";
+import { start } from "./app";
+import { env } from "./env";
+import { AccountCountry } from "./graphql/partner";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const keysDirectory = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -27,8 +26,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
+          key: path.join(keysDirectory, "_wildcard.swan.local-key.pem"),
+          cert: path.join(keysDirectory, "_wildcard.swan.local.pem"),
         }
       : undefined,
 }).then(

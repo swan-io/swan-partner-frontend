@@ -5,7 +5,7 @@
  */
 import { Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
-import { OAuth2Error, query } from "./oauth2.js";
+import { OAuth2Error, query } from "./oauth2";
 
 const additionalEnv = {
   SWAN_AUTH_URL: process.env.SWAN_AUTH_URL as string,

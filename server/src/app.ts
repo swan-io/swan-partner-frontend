@@ -296,7 +296,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    */
   if (env.NODE_ENV != "development") {
     await app.register(fastifyStatic, {
-      root: path.join(dirname, "../dist"),
+      root: path.join(__dirname, "../dist"),
       wildcard: false,
     });
   }

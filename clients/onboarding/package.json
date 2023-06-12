@@ -18,7 +18,7 @@
     "safari >= 12"
   ],
   "dependencies": {
-    "@0no-co/graphql.web": "1.0.3",
+    "@0no-co/graphql.web": "1.0.4",
     "@formatjs/intl": "2.8.0",
     "@juggle/resize-observer": "3.4.0",
     "@sentry/react": "7.54.0",

@@ -1,5 +1,4 @@
 import { Lazy } from "@swan-io/boxed";
-import { deburr } from "@swan-io/lake/src/utils/string";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";
@@ -22,10 +21,16 @@ export const validateName: Validator<string> = value => {
     return;
   }
 
-  const name = deburr(value);
+  // Rule copied from the backend
+  if (value.length > 100) {
+    return t("common.form.invalidName");
+  }
 
-  // Accepts only letters, spaces and dashes
-  const isValid = name.match(/^[a-zA-Z\s-]*$/);
+  // This regex was copied from the backend to ensure that the validation is the same
+  // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
+  const isValid = value.match(
+    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ]| |'|-|Ά|Ό|,)*$/,
+  );
 
   if (!isValid) {
     return t("common.form.invalidName");

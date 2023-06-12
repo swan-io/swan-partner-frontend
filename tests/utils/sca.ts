@@ -6,10 +6,10 @@ import { clickOnButton, waitForText } from "./selectors";
 import { getLastMessageURL } from "./twilio";
 
 const injectE2ETestKey = (page: Page) =>
-  page.evaluate(E2E_TEST_KEY => {
-    window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = E2E_TEST_KEY;
+  page.evaluate(TEST_KEY => {
+    window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = TEST_KEY;
     return Promise.resolve();
-  }, env.E2E_TEST_KEY);
+  }, env.TEST_KEY);
 
 const openPage = async (browser: Browser, type: "desktop" | "mobile", url: string) => {
   const context = await browser.newContext({
@@ -44,7 +44,7 @@ const openPage = async (browser: Browser, type: "desktop" | "mobile", url: strin
 const fillPasscode = async (page: Page) => {
   const input = page.locator("input:not([readonly])");
   await input.waitFor();
-  await input.fill(env.E2E_PASSCODE);
+  await input.fill(env.PASSCODE);
 };
 
 const waitForConfirm = async (page: Page) => {

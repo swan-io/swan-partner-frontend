@@ -6,10 +6,10 @@ const tokenToEmail = (token: string) => `${token}@email.webhook.site`;
 const emailToToken = (email: string) => email.split("@")[0];
 
 const request = <T>(input: string, init?: RequestInit) =>
-  fetch(env.WEBHOOK_API_URL + input, {
+  fetch("https://webhook.site" + input, {
     ...init,
     headers: {
-      "Api-Key": env.WEBHOOK_API_KEY,
+      "Api-Key": env.WEBHOOK_SITE_API_KEY,
       "Content-Type": "application/json",
       ...init?.headers,
     },
@@ -32,9 +32,8 @@ const createToken = (): Promise<string> =>
   }).then(({ uuid }) => uuid);
 
 const deleteToken = (token: string) =>
-  fetch(env.WEBHOOK_API_URL + `/token/${token}`, {
+  request(`/token/${token}`, {
     method: "DELETE",
-    headers: { "Api-Key": env.WEBHOOK_API_KEY },
   });
 
 export const createEmailAddress = async (): Promise<string> => {

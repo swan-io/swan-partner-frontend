@@ -10,7 +10,7 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<str
       `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_ID}/Messages.json`,
     );
 
-    url.searchParams.set("To", env.E2E_PHONE_NUMBER);
+    url.searchParams.set("To", env.PHONE_NUMBER);
 
     if (options.startDate) {
       url.searchParams.set("DateSent>", options.startDate.toISOString());
@@ -45,7 +45,7 @@ export const getLastMessageURL = async (options: { startDate?: Date } = {}): Pro
   const message = (await getLastMessages(options))[0];
 
   if (message == null) {
-    throw new Error(`No message in twilio ${env.E2E_PHONE_NUMBER} queue`);
+    throw new Error(`No message in twilio ${env.PHONE_NUMBER} queue`);
   }
 
   const url = message

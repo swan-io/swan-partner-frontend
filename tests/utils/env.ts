@@ -5,21 +5,26 @@ dotenv.config();
 
 const CI = process.env.CI === String(true);
 
+const e2eEnv = Object.fromEntries(
+  Object.entries(process.env)
+    .filter(([key]) => key.startsWith("E2E_"))
+    .map(([key, value]) => [key.replace("E2E_", ""), value]),
+);
+
 export const env = validate({
   env: {
-    ...process.env,
+    ...e2eEnv,
     CI: String(CI),
   },
   validators: {
     CI: boolean,
 
-    E2E_PHONE_NUMBER: string,
-    E2E_PASSCODE: string,
-    E2E_TEST_KEY: string,
+    PHONE_NUMBER: string,
+    PASSCODE: string,
+    TEST_KEY: string,
 
     TWILIO_ACCOUNT_ID: string,
     TWILIO_AUTH_TOKEN: string,
-    WEBHOOK_API_KEY: string,
-    WEBHOOK_API_URL: string,
+    WEBHOOK_SITE_API_KEY: string,
   },
 });

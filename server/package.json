@@ -19,11 +19,6 @@
     "prepack": "tsc --build",
     "clean": "tsc --clean"
   },
-  "devDependencies": {
-    "@types/accepts": "1.3.5",
-    "@types/mustache": "4.2.2",
-    "graphql": "16.6.0"
-  },
   "dependencies": {
     "@fastify/accepts": "4.1.0",
     "@fastify/cors": "8.3.0",
@@ -43,7 +38,6 @@
     "@opentelemetry/sdk-trace-node": "1.14.0",
     "@opentelemetry/semantic-conventions": "1.14.0",
     "@swan-io/boxed": "1.0.2",
-    "chalk": "5.2.0",
     "fast-proxy": "2.1.0",
     "fastify": "4.17.0",
     "fastify-language-parser": "3.0.0",
@@ -53,8 +47,14 @@
     "mustache": "4.2.0",
     "node-mailjet": "6.0.2",
     "pathe": "1.1.1",
+    "picocolors": "1.0.0",
     "pino-pretty": "10.0.0",
     "ts-pattern": "4.3.0",
     "valienv": "0.4.0"
+  },
+  "devDependencies": {
+    "@types/accepts": "1.3.5",
+    "@types/mustache": "4.2.2",
+    "graphql": "16.6.0"
   }
 }

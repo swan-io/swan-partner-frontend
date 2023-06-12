@@ -1,7 +1,7 @@
-import chalk from "chalk";
 import { exec as originalExec } from "child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -78,15 +78,15 @@ const DENY_LIST_REGEX = new RegExp(DENY_LIST.map(item => `\\b${item}\\b`).join("
 async function check() {
   const { licenses } = await getLicenses();
   let hasError = false;
-  console.log(`${chalk.white("---")}`);
-  console.log(`${chalk.green("Swan license check")}`);
-  console.log(`${chalk.white("---")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(`${pc.green("Swan license check")}`);
+  console.log(`${pc.white("---")}`);
   console.log("");
 
   licenses.forEach(([name, version, license]) => {
     if (DENY_LIST_REGEX.exec(license)) {
       console.error(
-        `${chalk.blue(name)}@${chalk.gray(version)} has unauthorized license ${chalk.red(license)}`,
+        `${pc.blue(name)}@${pc.gray(version)} has unauthorized license ${pc.red(license)}`,
       );
       hasError = true;
     }
@@ -94,7 +94,7 @@ async function check() {
   if (hasError) {
     process.exit(1);
   } else {
-    console.log(chalk.green("All good!"));
+    console.log(pc.green("All good!"));
   }
 }
 

@@ -1,7 +1,7 @@
-import chalk from "chalk";
 import dotenv from "dotenv";
 import { EOL } from "node:os";
 import path from "pathe";
+import pc from "picocolors";
 
 const rootPath = path.resolve(__dirname, "../..");
 
@@ -10,7 +10,7 @@ const { parsed: example } = dotenv.config({
 });
 
 if (example == null) {
-  console.log(`${chalk.red("error")} .env.example file is missing.`);
+  console.log(`${pc.red("error")} .env.example file is missing.`);
   process.exit(1);
 }
 
@@ -19,7 +19,7 @@ const { parsed: env } = dotenv.config({
 });
 
 if (env == null) {
-  console.log(`${chalk.red("error")}  .env file is missing.`);
+  console.log(`${pc.red("error")}  .env file is missing.`);
   process.exit(1);
 }
 
@@ -46,7 +46,7 @@ exampleKeys.forEach(key => {
 });
 
 if (issues.length > 0) {
-  console.log(chalk.magenta("Issues in your .env file:"));
+  console.log(pc.magenta("Issues in your .env file:"));
 
   console.log(
     issues
@@ -55,11 +55,11 @@ if (issues.length > 0) {
 
         switch (issue.kind) {
           case "extra":
-            return chalk.gray(start + issue.key);
+            return pc.gray(start + issue.key);
           case "mismatch":
-            return chalk.green(start + issue.key);
+            return pc.green(start + issue.key);
           case "missing":
-            return chalk.red(start + issue.key);
+            return pc.red(start + issue.key);
         }
       })
       .join(EOL),

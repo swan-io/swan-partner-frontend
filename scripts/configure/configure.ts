@@ -1,21 +1,21 @@
-import chalk from "chalk";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import sodium from "sodium-native";
 
 const start = async () => {
   console.log(``);
-  console.log(`${chalk.magenta("swan-partner-frontend")}`);
-  console.log(`${chalk.white("---")}`);
-  console.log(chalk.green(`Welcome!`));
+  console.log(`${pc.magenta("swan-partner-frontend")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(pc.green(`Welcome!`));
   console.log("");
 
   console.log("Let's get the necessary information to start");
   console.log("");
   console.log(
-    `First, go to ${chalk.magenta(
+    `First, go to ${pc.magenta(
       "https://dashboard.swan.io > Developers > API > OAuth 2.0 Credentials",
     )}`,
   );
@@ -24,7 +24,7 @@ const start = async () => {
   const OAUTH_CLIENT_ID = await prompts({
     type: "text",
     name: "OAUTH_CLIENT_ID",
-    message: `${chalk.gray("question")} Your Swan OAuth2 Client ID:`,
+    message: `${pc.gray("question")} Your Swan OAuth2 Client ID:`,
     validate: (value: string) => {
       if (!value.startsWith("SANDBOX_") && !value.startsWith("LIVE_")) {
         return "Your Client ID looks invalid";
@@ -37,7 +37,7 @@ const start = async () => {
   const OAUTH_CLIENT_SECRET = await prompts({
     type: "password",
     name: "OAUTH_CLIENT_SECRET",
-    message: `${chalk.gray("question")} Your Swan OAuth2 Client Secret:`,
+    message: `${pc.gray("question")} Your Swan OAuth2 Client Secret:`,
     validate: (value: string) => {
       if (value.trim() === "") {
         return "Your Client Secret looks invalid";

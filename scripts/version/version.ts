@@ -1,7 +1,7 @@
-import chalk from "chalk";
 import { exec as originalExec } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import semverGt from "semver/functions/gt.js";
 
@@ -21,26 +21,26 @@ const exec = (command: string) => {
 
 async function bump() {
   console.log(``);
-  console.log(`${chalk.magenta("swan-partner-frontend")}`);
-  console.log(`${chalk.white("---")}`);
-  console.log(chalk.green(`version bump`));
+  console.log(`${pc.magenta("swan-partner-frontend")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(pc.green(`version bump`));
   console.log("");
 
-  console.log(`${chalk.gray("i")} ${chalk.blue("info")} Current version: ${version}`);
+  console.log(`${pc.gray("i")} ${pc.blue("info")} Current version: ${version}`);
   const response = await prompts({
     type: "text",
     name: "version",
-    message: `${chalk.gray("question")} New version:`,
+    message: `${pc.gray("question")} New version:`,
   });
   let nextVersion = response.version;
 
   try {
     if (!semverGt(nextVersion, version)) {
-      console.error(`${chalk.red("ERROR")} ${version} cannot be added after ${nextVersion}`);
+      console.error(`${pc.red("ERROR")} ${version} cannot be added after ${nextVersion}`);
       return process.exit(1);
     }
   } catch (_) {
-    console.error(`${chalk.red("ERROR")} ${version} couln't be parsed`);
+    console.error(`${pc.red("ERROR")} ${version} couln't be parsed`);
     return process.exit(1);
   }
 

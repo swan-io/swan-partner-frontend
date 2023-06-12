@@ -6,10 +6,10 @@
  * invitation emails.
  */
 import { Future, Result } from "@swan-io/boxed";
-import chalk from "chalk";
 import Mailjet from "node-mailjet";
 import url from "node:url";
 import path from "pathe";
+import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan.js";
@@ -330,28 +330,28 @@ start({
     ports.forEach(port => void listenPort(port));
 
     console.log(``);
-    console.log(`${chalk.magenta("swan-partner-frontend")}`);
-    console.log(`${chalk.white("---")}`);
-    console.log(chalk.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
+    console.log(`${pc.magenta("swan-partner-frontend")}`);
+    console.log(`${pc.white("---")}`);
+    console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
     console.log(``);
-    console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
-    console.log(`${chalk.magenta("Onboarding Individual")}`);
+    console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
+    console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/individual/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.magenta("Onboarding Company")}`);
+    console.log(`${pc.magenta("Onboarding Company")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.white("---")}`);
+    console.log(`${pc.white("---")}`);
     console.log(``);
     console.log(``);
   },

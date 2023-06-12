@@ -4,8 +4,11 @@ import path from "pathe";
 import pc from "picocolors";
 import prompts from "prompts";
 import semverGt from "semver/functions/gt.js";
+import { PackageJson } from "type-fest";
 
-const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8"));
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8"),
+) as { version: string };
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -32,7 +35,7 @@ async function bump() {
     name: "version",
     message: `${pc.gray("question")} New version:`,
   });
-  let nextVersion = response.version;
+  const nextVersion = response.version as string;
 
   try {
     if (!semverGt(nextVersion, version)) {
@@ -45,13 +48,13 @@ async function bump() {
   }
 
   const info = await exec("yarn --json workspaces info");
-  const packages = JSON.parse(info);
-  const data: { location: string }[] = JSON.parse(packages.data);
+  const packages = JSON.parse(info) as { data: string };
+  const data = JSON.parse(packages.data) as { location: string }[];
 
   Object.values(data).forEach(({ location }) => {
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), location, "package.json"), "utf-8"),
-    );
+    ) as PackageJson;
     fs.writeFileSync(
       path.join(process.cwd(), location, "package.json"),
       JSON.stringify({ ...packageJson, version: nextVersion }, null, 2) + "\n",
@@ -73,4 +76,4 @@ async function bump() {
   }
 }
 
-bump();
+void bump();

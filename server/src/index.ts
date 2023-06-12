@@ -4,7 +4,7 @@ import { start } from "./app";
 import { env } from "./env";
 import { AccountCountry } from "./graphql/partner";
 
-const keysDirectory = path.join(__dirname, "../keys");
+const keysPath = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
@@ -26,8 +26,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(keysDirectory, "_wildcard.swan.local-key.pem"),
-          cert: path.join(keysDirectory, "_wildcard.swan.local.pem"),
+          key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
+          cert: path.join(keysPath, "_wildcard.swan.local.pem"),
         }
       : undefined,
 }).then(

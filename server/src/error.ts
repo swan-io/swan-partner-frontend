@@ -6,9 +6,9 @@ import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node
 import path from "pathe";
 import { match } from "ts-pattern";
 
-const viewsDirectory = path.join(__dirname, "views");
-const errorTemplate = fs.readFileSync(path.join(viewsDirectory, "error.html"), "utf-8");
-const authErrorTemplate = fs.readFileSync(path.join(viewsDirectory, "auth-error.html"), "utf-8");
+const viewsPath = path.join(__dirname, "views");
+const errorTemplate = fs.readFileSync(path.join(viewsPath, "error.html"), "utf-8");
+const authErrorTemplate = fs.readFileSync(path.join(viewsPath, "auth-error.html"), "utf-8");
 
 const getAcceptType = (accept: Accepts): "html" | "json" => {
   const type = accept.type(["html", "json"]);

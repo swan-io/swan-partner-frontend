@@ -4,7 +4,7 @@ import fs, { Stats } from "node:fs";
 import path from "pathe";
 import { env } from "../env";
 
-const distDirectory = path.join(__dirname, "../../dist");
+const distPath = path.join(__dirname, "../../dist");
 
 const yearInSeconds = 31536000;
 const yearInMilliseconds = yearInSeconds * 1000;
@@ -22,23 +22,20 @@ const handleRequest = async (
     const date = new Date();
     date.setTime(date.getTime() + yearInMilliseconds);
     void reply.header("expires", date.toUTCString());
-    return reply.sendFile(reqPath, path.join(distDirectory, appName));
+    return reply.sendFile(reqPath, path.join(distPath, appName));
   } else {
     const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
       if (err == null && stat.isFile()) {
-        return reply.sendFile(reqPath, path.join(distDirectory, appName));
+        return reply.sendFile(reqPath, path.join(distPath, appName));
       } else {
         // Prevents having old HTMLs in cache referencing assets that
         // do not longer exist in its files
         void reply.header("cache-control", `public, max-age=0`);
-        return reply.sendFile("/index.html", path.join(distDirectory, appName));
+        return reply.sendFile("/index.html", path.join(distPath, appName));
       }
     };
 
-    fs.stat(
-      path.join(distDirectory, appName, reqPath),
-      (err, stat) => void handleRequest(err, stat),
-    );
+    fs.stat(path.join(distPath, appName, reqPath), (err, stat) => void handleRequest(err, stat));
   }
 };
 

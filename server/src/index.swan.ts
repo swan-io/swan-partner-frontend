@@ -53,6 +53,9 @@ const additionalEnv = validate({
 
 const mailjet = Mailjet.apiConnect(additionalEnv.MAILJET_API_KEY, additionalEnv.MAILJET_API_SECRET);
 
+const swanLogoUrl = "https://data.swan.io/logo-swan.png";
+const swanColorHex = "#6240B5";
+
 const getMailjetInput = ({
   invitationData,
   requestLanguage,
@@ -108,12 +111,12 @@ const getMailjetInput = ({
               TemplateLanguage: true,
               Variables: {
                 applicationName: projectInfo.name,
-                logoUrl: projectInfo.logoUri,
+                logoUrl: projectInfo.logoUri ?? swanLogoUrl,
                 accountHolderName: inviterAccountMembership.account.holder.info.name,
                 accountName: inviterAccountMembership.account.name,
                 accountNumber: inviterAccountMembership.account.number,
                 ctaUrl: `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
-                ctaColor: projectInfo.accentColor,
+                ctaColor: projectInfo.accentColor ?? swanColorHex,
                 inviteeFirstName: inviteeAccountMembership.statusInfo.restrictedTo.firstName,
                 inviterEmail: inviterAccountMembership.email,
                 inviterFirstName: inviterAccountMembership.user.firstName,

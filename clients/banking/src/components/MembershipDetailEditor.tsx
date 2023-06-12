@@ -28,6 +28,7 @@ import { Router } from "../utils/routes";
 import {
   validateAddressLine,
   validateBirthdate,
+  validateName,
   validateRequired,
   validateTaxIdentificationNumber,
 } from "../utils/validations";
@@ -107,7 +108,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     firstName: {
       initialValue: match(editingAccountMembership)
@@ -124,7 +125,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
       initialValue: match(editingAccountMembership)

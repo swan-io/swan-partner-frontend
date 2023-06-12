@@ -50,9 +50,9 @@ const start = async () => {
   console.log("");
   console.log("");
   console.log(
-    `Don't forget to add ${chalk.magenta(
+    `Don't forget to add ${pc.magenta(
       "https://banking.swan.local:8080/auth/callback",
-    )} to your redirect URIs ${chalk.magenta(
+    )} to your redirect URIs ${pc.magenta(
       "https://dashboard.swan.io > Developers > API > OAuth 2.0 Credentials",
     )}`,
   );
@@ -95,16 +95,16 @@ const start = async () => {
   execSync("yarn graphql-codegen");
   console.log("");
 
-  console.log(chalk.white("---"));
+  console.log(pc.white("---"));
   console.log("");
-  console.log(chalk.green(`You're all set!`));
+  console.log(pc.green(`You're all set!`));
   console.log("");
-  console.log(chalk.white("---"));
+  console.log(pc.white("---"));
   console.log("");
   console.log("In order to start the dev server, you can run the following command:");
   console.log("");
-  console.log(chalk.white("# Start the dev server"));
-  console.log(`$ ${chalk.blue("yarn dev")}`);
+  console.log(pc.white("# Start the dev server"));
+  console.log(`$ ${pc.blue("yarn dev")}`);
   console.log("");
 };
 

@@ -50,7 +50,7 @@ export default function DocItemLayout({children}) {
           style={{textAlign: "center", padding: "40px 10px 10px"}}
           >
             🚀 
-            Any question? Help improving this project and its docs by opening a
+            Any questions? Help improve this project and the docs by opening a
             {" "}
             <a target="_blank" href="https://github.com/swan-io/swan-partner-frontend/discussions">
             GitHub discussion

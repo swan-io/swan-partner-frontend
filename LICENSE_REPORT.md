@@ -53,7 +53,7 @@ react-dom | 18.2.0 | MIT | https://github.com/facebook/react.git | https://react
 react-native-web | 0.19.4 | MIT | git://github.com/necolas/react-native-web.git | Unknown | Nicolas Gallagher
 react-ux-form | 1.3.0 | MIT | https://github.com/swan-io/react-ux-form.git | https://github.com/swan-io/react-ux-form#readme | Mathieu Acthernoene
 rifm | 0.12.1 | MIT | https://github.com/istarkov/rifm.git | Unknown | istarkov
-ts-pattern | 5.0.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
+ts-pattern | 5.0.1 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 ts-pattern | 4.3.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 urql | 4.0.4 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/ | Unknown
 uuid | 9.0.0 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown

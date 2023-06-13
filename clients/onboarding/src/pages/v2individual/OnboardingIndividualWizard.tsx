@@ -70,7 +70,8 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
 
   const emailStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, "email" | null>(field)
+      match(field)
+        .returnType<"email" | null>()
         .with("email", () => "email")
         .otherwise(() => null),
     );
@@ -78,7 +79,8 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
 
   const locationStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, LocationFieldName | null>(field)
+      match(field)
+        .returnType<LocationFieldName | null>()
         .with("residencyAddress.country", () => "country")
         .with("residencyAddress.city", () => "city")
         .with("residencyAddress.addressLine1", () => "address")
@@ -89,7 +91,8 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
 
   const detailsStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, DetailsFieldName | null>(field)
+      match(field)
+        .returnType<DetailsFieldName | null>()
         .with("employmentStatus", () => "employmentStatus")
         .with("monthlyIncome", () => "monthlyIncome")
         .with("taxIdentificationNumber", () => "taxIdentificationNumber")

@@ -30,7 +30,7 @@ import {
   SupportingDocumentsForm,
   SupportingDocumentsFormRef,
 } from "../components/SupportingDocumentsForm";
-import { AccountActivationPageDocument, AccountActivationPageQuery } from "../graphql/partner";
+import { AccountActivationPageDocument } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
@@ -343,14 +343,8 @@ export const AccountActivationPage = ({
 
   const step = useMemo<Step | undefined>(() => {
     return (
-      match<
-        {
-          identificationStatus: typeof identificationStatus;
-          account: NonNullable<AccountActivationPageQuery["accountMembership"]>["account"];
-          requireFirstTransfer: boolean;
-        },
-        Step | undefined
-      >({ identificationStatus, account, requireFirstTransfer })
+      match({ identificationStatus, account, requireFirstTransfer })
+        .returnType<Step | undefined>()
         .with({ identificationStatus: P.nullish }, () => undefined)
         // handle legacy account that didn't go through the new process
         .with(
@@ -368,9 +362,8 @@ export const AccountActivationPage = ({
         )
         .with({ identificationStatus: "ValidIdentity" }, ({ account }): Step | undefined => {
           if (isCompany) {
-            return match<typeof documentCollectionStatus, Step | undefined>(
-              documentCollectionStatus,
-            )
+            return match(documentCollectionStatus)
+              .returnType<Step | undefined>()
               .with(P.nullish, () => undefined)
               .with("WaitingForDocument", "Canceled", "Rejected", () =>
                 documentCollectMode === "EndCustomer"
@@ -697,7 +690,8 @@ export const AccountActivationPage = ({
             title={t("accountActivation.identity.title")}
             description={t("accountActivation.identity.description")}
             onPress={setContentVisible.on}
-            variant={match<Step, StepTileVariant>(step)
+            variant={match(step)
+              .returnType<StepTileVariant>()
               .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => "todo")
               .with("IdentityVerificationPending", () => "inert")
               .otherwise(() => "done")}
@@ -728,7 +722,8 @@ export const AccountActivationPage = ({
               title={t("accountActivation.documents.title")}
               description={t("accountActivation.documents.description")}
               onPress={setContentVisible.on}
-              variant={match<Step, StepTileVariant>(step)
+              variant={match(step)
+                .returnType<StepTileVariant>()
                 .with("SupportingDocumentsEmailTodo", "SupportingDocumentsFormTodo", () => "todo")
                 .with(
                   "SupportingDocumentsEmailPending",

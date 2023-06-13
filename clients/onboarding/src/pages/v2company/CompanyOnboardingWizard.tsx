@@ -155,7 +155,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const registrationStepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, RegistrationFieldName | null>(field)
+      match(field)
+        .returnType<RegistrationFieldName | null>()
         .with("email", () => "email")
         .with("legalRepresentativePersonalAddress.addressLine1", () => "address")
         .with("legalRepresentativePersonalAddress.city", () => "city")
@@ -167,7 +168,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const organisation1StepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, Organisation1FieldName | null>(field)
+      match(field)
+        .returnType<Organisation1FieldName | null>()
         .with("name", () => "name")
         .with("registrationNumber", () => "registrationNumber")
         .with("vatNumber", () => "vatNumber")
@@ -181,7 +183,8 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const organisation2StepErrors = useMemo(() => {
     return extractServerInvalidFields(onboarding.statusInfo, field =>
-      match<typeof field, Organisation2FieldName | null>(field)
+      match(field)
+        .returnType<Organisation2FieldName | null>()
         .with("businessActivity", () => "businessActivity")
         .with("businessActivityDescription", () => "businessActivityDescription")
         .with("monthlyPaymentVolume", () => "monthlyPaymentVolume")

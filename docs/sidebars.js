@@ -98,7 +98,7 @@ module.exports = {
     },
     {
       type: "category",
-      label: "Web banking",
+      label: "Web Banking",
       link: { type: "doc", id: "specs/banking/banking" },
       collapsed: false,
       items: [

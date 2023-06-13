@@ -1,6 +1,6 @@
-# Web banking
+# Web Banking
 
-Use Swan's web banking source code to **create your own banking app** for your users.
+Use Swan's Web Banking source code to **create your own banking app** for your users.
 
 You can completely customize the **navigation** as well as your **branding**.
 

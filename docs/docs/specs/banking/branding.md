@@ -1,6 +1,6 @@
 # Branding
 
-Web banking uses the branding (logo, name, and accent color) defined at the project level.
+Web Banking uses the branding (logo, name, and accent color) defined at the project level.
 Additionally, you can modify your instance of the open source code to customize fonts and more.
 
 You can retrieve the **logo**, **name**, and **accent color** with the following fragment:

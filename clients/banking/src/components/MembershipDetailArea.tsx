@@ -56,6 +56,7 @@ type Props = {
   currentUserAccountMembership: AccountMembershipFragment;
   editingAccountMembershipId: string;
   accountCountry: CountryCCA3;
+  b2BMembershipIDVerification: boolean;
   onAccountMembershipUpdate: () => void;
   canAddCard: boolean;
   canOrderPhysicalCards: boolean;
@@ -78,6 +79,7 @@ export const MembershipDetailArea = ({
   currentUserAccountMembershipId,
   currentUserAccountMembership,
   accountCountry,
+  b2BMembershipIDVerification,
   onAccountMembershipUpdate,
   canAddCard,
   canOrderPhysicalCards,
@@ -96,6 +98,9 @@ export const MembershipDetailArea = ({
   if (accountMembership == null) {
     return null;
   }
+
+  const requiresIdentityVerification =
+    b2BMembershipIDVerification && accountMembership.user?.idVerified === false;
 
   return (
     <ScrollView
@@ -269,6 +274,7 @@ export const MembershipDetailArea = ({
                         editingAccountMembershipId={editingAccountMembershipId}
                         currentUserAccountMembership={currentUserAccountMembership}
                         currentUserAccountMembershipId={currentUserAccountMembershipId}
+                        requiresIdentityVerification={requiresIdentityVerification}
                         onRefreshRequest={() => {
                           reload();
                           onRefreshRequest();

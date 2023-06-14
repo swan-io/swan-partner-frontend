@@ -811,6 +811,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                         params={params}
                                         currentUserAccountMembership={currentUserAccountMembership}
                                         canOrderPhysicalCards={canOrderPhysicalCards}
+                                        b2BMembershipIDVerification={
+                                          projectInfo.B2BMembershipIDVerification === true
+                                        }
                                       />
                                     ),
                                   )

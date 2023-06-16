@@ -2,8 +2,7 @@ import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { match, P } from "ts-pattern";
 import { GetFirstAccountMembershipDocument } from "../graphql/partner";
-import { NotFoundPage } from "../pages/NotFoundPage";
-import { t } from "../utils/i18n";
+import { AccountNotFoundPage } from "../pages/NotFoundPage";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { useQueryWithErrorBoundary } from "../utils/urql";
@@ -64,10 +63,5 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
 
   const projectName = data?.projectInfo?.name ?? "";
 
-  return (
-    <NotFoundPage
-      title={t("error.noAccount")}
-      text={t("error.checkWithProvider", { projectName })}
-    />
-  );
+  return <AccountNotFoundPage projectName={projectName} />;
 };

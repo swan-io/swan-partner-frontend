@@ -103,7 +103,7 @@ export const NotFoundPage = ({
 
     {isNotNullish(action) && (
       <>
-        <Space height={8} />
+        <Space height={24} />
 
         {action}
       </>

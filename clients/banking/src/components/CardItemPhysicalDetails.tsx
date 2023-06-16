@@ -362,6 +362,13 @@ type CardItemPhysicalActivationFormProps = {
   onSubmit: ({ identifier }: { identifier: string }) => void;
 };
 
+const validateIdentifier = (value: string) => {
+  // identifier is a 10 digits number
+  if (!/^\d{10}$/.test(value)) {
+    return t("card.physical.identifier.invalid");
+  }
+};
+
 const CardItemPhysicalActivationForm = ({
   isLoading,
   onSubmit,
@@ -369,7 +376,7 @@ const CardItemPhysicalActivationForm = ({
   const { Field, submitForm } = useForm({
     identifier: {
       initialValue: "",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateIdentifier),
     },
   });
 
@@ -384,10 +391,18 @@ const CardItemPhysicalActivationForm = ({
   return (
     <>
       <Field name="identifier">
-        {({ value, onChange }) => (
+        {({ value, valid, error, onChange }) => (
           <LakeLabel
             label={t("card.physical.identifier")}
-            render={id => <LakeTextInput id={id} value={value} onChangeText={onChange} />}
+            render={id => (
+              <LakeTextInput
+                id={id}
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+              />
+            )}
           />
         )}
       </Field>

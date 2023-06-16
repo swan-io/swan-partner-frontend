@@ -152,7 +152,6 @@ const styles = StyleSheet.create({
   },
   contentsContents: {
     flexGrow: 1,
-    flexShrink: 1,
     justifyContent: "center",
     paddingHorizontal: spacings[96],
     paddingVertical: spacings[24],
@@ -161,7 +160,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[24],
     paddingVertical: spacings[24],
     flexGrow: 1,
-    flexShrink: 1,
   },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],

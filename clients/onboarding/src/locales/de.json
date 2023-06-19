@@ -161,7 +161,7 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "Ohne Titel",
-  "taxIdentificationNumber.germanInfo": "If the tax id is not provided during the onboarding, it will be requested by email. If not provided within 90 days we'll suspend the account",
+  "taxIdentificationNumber.germanInfo": "Wenn die Steuer-ID während der Registrierung nicht angegeben wird, wird sie per E-Mail angefordert. Wenn sie nicht innerhalb von 90 Tagen bereitgestellt wird, wird das Konto gesperrt.",
   "wizard.back": "Zurück",
   "wizard.finalize": "Abschließen",
   "wizard.next": "Weiter"

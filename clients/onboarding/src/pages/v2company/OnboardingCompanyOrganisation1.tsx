@@ -1,5 +1,6 @@
 import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -298,7 +299,17 @@ export const OnboardingCompanyOrganisation1 = ({
               <StepTitle isMobile={small}>{t("company.step.organisation1.title")}</StepTitle>
               <Space height={small ? 24 : 32} />
 
-              <Tile>
+              <Tile
+                footer={
+                  country === "DEU" ? (
+                    <LakeAlert
+                      variant="info"
+                      anchored={true}
+                      title={t("taxIdentificationNumber.germanInfo")}
+                    />
+                  ) : undefined
+                }
+              >
                 <Field name="isRegistered">
                   {({ value, onChange }) => (
                     <LakeLabel

@@ -629,7 +629,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                 <ErrorBoundary
                   key={route?.name}
                   fallback={({ error }) =>
-                    isUnauthenticatedError(error) ? <></> : <ErrorView error={error} />
+                    isUnauthorizedError(error) ? <></> : <ErrorView error={error} />
                   }
                 >
                   {match(membership)

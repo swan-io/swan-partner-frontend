@@ -51,24 +51,26 @@ export const logFrontendError = (exception: unknown, extra?: Record<string, unkn
   }
 };
 
-export const logBackendError = (
-  { graphQLErrors }: CombinedError,
-  { context, query, variables }: Operation,
-) => {
-  if (!ENABLED) {
+export const logBackendError = (error: CombinedError, { context, query, variables }: Operation) => {
+  if (!ENABLED || isNotNullish(error.networkError)) {
     return;
   }
 
   const headers = getOperationContextHeaders(context);
   const existingHeaders = Object.keys(headers).filter(key => isNotNullish(headers[key]));
   const requestId = headers["x-request-id"];
-  const hasMultipleErrors = graphQLErrors.length > 1;
+
+  const graphQLErrors = error.graphQLErrors.filter(({ message }) => {
+    const lowerCased = message.toLowerCase();
+
+    return (
+      !lowerCased.includes("unauthenticated") &&
+      !lowerCased.includes("unauthorized") &&
+      !lowerCased.includes("cannot return null for non-nullable field")
+    );
+  });
 
   graphQLErrors.forEach(({ message }) => {
-    if (hasMultipleErrors && message.startsWith("Cannot return null for non-nullable field")) {
-      return;
-    }
-
     // Update the error message to prepend the requestId
     const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
     error.name = "GraphQLError";

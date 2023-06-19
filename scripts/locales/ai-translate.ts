@@ -235,7 +235,7 @@ const countTokens = (text: string) => {
  * This counts the number of tokens into a list of messages
  */
 const countInputTokens = (input: ChatCompletionRequestMessage[]): number => {
-  return input.reduce((acc, { content }) => acc + countTokens(content), 0);
+  return input.reduce((acc, { content }) => acc + countTokens(content ?? ""), 0);
 };
 
 const NB_MAX_KEYS_FOR_CONTEXT = 30;

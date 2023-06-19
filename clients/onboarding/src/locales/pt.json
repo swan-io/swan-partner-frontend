@@ -161,6 +161,7 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "(Caso contrário, teremos que fazé-lo por email mais tarde.)\"",
+  "taxIdentificationNumber.germanInfo": "Se o número de identificação fiscal não for fornecido durante a adesão, será solicitado por e-mail. Se não for fornecido dentro de 90 dias, suspenderemos a conta.",
   "wizard.back": "Anterior",
   "wizard.finalize": "Finalizar",
   "wizard.next": "Próximo"

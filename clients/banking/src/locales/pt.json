@@ -124,6 +124,7 @@
   "card.physical.cardActivation": "Ativação do cartão",
   "card.physical.cardActivation.description": "Vamos ativar seu cartão. \nInsira o número de 10 dígitos no verso do seu cartão.",
   "card.physical.identifier": "Identificador",
+  "card.physical.identifier.invalid": "Número de identificação inválido",
   "card.physical.order": "Encomenda",
   "card.physical.order.shippingAddress": "Endereço de envio",
   "card.physical.order.shippingAddress.addressLine1": "Endereço",

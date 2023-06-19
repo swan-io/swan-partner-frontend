@@ -124,6 +124,7 @@
   "card.physical.cardActivation": "Attivazione della carta",
   "card.physical.cardActivation.description": "Attiva la carta. \nHai quasi fatto! Inserisci il codice di 10 cifre riportato sul retro della carta:",
   "card.physical.identifier": "Identificatore",
+  "card.physical.identifier.invalid": "Numero identificativo non valido",
   "card.physical.order": "Ordine",
   "card.physical.order.shippingAddress": "Indirizzo di spedizione",
   "card.physical.order.shippingAddress.addressLine1": "Indirizzo",

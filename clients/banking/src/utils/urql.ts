@@ -47,9 +47,7 @@ export const isUnauthorizedError = (error: unknown) => {
     isUnauthorizedLikeString(message) ||
     graphQLErrors.some(
       ({ extensions, message }) =>
-        isUnauthorizedResponse(extensions.response) ||
-        isUnauthorizedLikeString(message) ||
-        (typeof extensions.code === "string" && isUnauthorizedLikeString(extensions.code)),
+        isUnauthorizedResponse(extensions.response) || isUnauthorizedLikeString(message),
     )
   );
 };

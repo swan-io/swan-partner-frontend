@@ -163,4 +163,4 @@ export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
       t("transaction.fees.description.processingJudicialOrAdministrativeSeizure"),
     )
     .with("UnauthorizedOverdraft", () => t("transaction.fees.description.unauthorizedOverdraft"))
-    .otherwise(() => "");
+    .otherwise(() => undefined);

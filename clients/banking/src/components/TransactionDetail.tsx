@@ -11,9 +11,9 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import {
-  isEmpty,
   isNotNullish,
   isNotNullishOrEmpty,
+  isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
@@ -145,7 +145,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             // BankingFee should never happen, so we don't handle it
             .with({ feesType: P.not("BankingFee") }, ({ feesType }) => {
               const description = getFeesDescription(feesType); // can be empty if a new fees type is added and not handled
-              if (isEmpty(description)) {
+              if (isNullish(description)) {
                 return null;
               }
 

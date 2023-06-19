@@ -20,6 +20,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -161,11 +162,12 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     setIsScrolled(event.nativeEvent.contentOffset.y > 0);
   }, []);
 
-  // call API to extend cookie TTL
+  // Call API to extend cookie TTL
   useEffect(() => {
     const intervalId = setInterval(() => {
-      void fetch("/api/ping", { method: "POST" });
+      fetch("/api/ping", { method: "POST" }).catch(noop);
     }, COOKIE_REFRESH_INTERVAL);
+
     return () => clearInterval(intervalId);
   }, []);
 

@@ -56,12 +56,6 @@ const styles = StyleSheet.create({
     backgroundColor: backgroundColor.default,
     zIndex: 1,
   },
-  itemSmall: {
-    paddingVertical: spacings[12],
-    borderBottomColor: colors.gray[100],
-    borderBottomWidth: 1,
-    paddingHorizontal: spacings[24],
-  },
 });
 
 export type Member = AccountMembershipFragment;
@@ -174,6 +168,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
                     </Tag>
                   </View>
                 );
+
                 return (
                   <Pressable
                     key={node.id}
@@ -186,15 +181,11 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
                       )
                     }
                   >
-                    {({ hovered }) =>
-                      large ? (
-                        <Tile hovered={hovered} selected={isSelected} paddingVertical={16}>
-                          {contents}
-                        </Tile>
-                      ) : (
-                        <View style={styles.itemSmall}>{contents}</View>
-                      )
-                    }
+                    {({ hovered }) => (
+                      <Tile hovered={hovered} selected={isSelected} paddingVertical={16}>
+                        {contents}
+                      </Tile>
+                    )}
                   </Pressable>
                 );
               })}

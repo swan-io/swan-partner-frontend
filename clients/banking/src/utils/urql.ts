@@ -24,18 +24,36 @@ import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
-const isResponseWithStatus = (response: unknown, status: number) => {
+const isUnauthorizedResponse = (response: unknown) => {
   const value = response as { status?: number; statusCode?: number } | undefined;
-  return value?.status === status || value?.statusCode === status;
+  return value?.status === 401 || value?.statusCode === 401;
 };
 
-export const isUnauthenticatedError = (error: unknown) =>
-  error instanceof CombinedError &&
-  (isResponseWithStatus(error.response, 401) ||
-    error.graphQLErrors.some(({ extensions }) => isResponseWithStatus(extensions.response, 401)));
+const isUnauthorizedLikeString = (value: string) => {
+  const lowerCased = value.toLowerCase();
+  return lowerCased.includes("unauthenticated") || lowerCased.includes("unauthorized");
+};
+
+export const isUnauthorizedError = (error: unknown) => {
+  if (!(error instanceof CombinedError)) {
+    return false;
+  }
+
+  const { graphQLErrors, message } = error;
+  const response = error.response as unknown;
+
+  return (
+    isUnauthorizedResponse(response) ||
+    isUnauthorizedLikeString(message) ||
+    graphQLErrors.some(
+      ({ extensions, message }) =>
+        isUnauthorizedResponse(extensions.response) || isUnauthorizedLikeString(message),
+    )
+  );
+};
 
 const onError = (error: CombinedError, operation: Operation) => {
-  if (isUnauthenticatedError(error)) {
+  if (isUnauthorizedError(error)) {
     if (isNullish(Router.getRoute(["ProjectLogin"]))) {
       window.location.replace(Router.ProjectLogin());
     }

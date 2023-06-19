@@ -14,7 +14,7 @@ import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { isUnauthenticatedError, partnerClient } from "./utils/urql";
+import { isUnauthorizedError, partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -35,7 +35,7 @@ export const App = () => {
     <ErrorBoundary
       key={route?.name}
       fallback={({ error }) =>
-        isUnauthenticatedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
+        isUnauthorizedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
       }
     >
       <ClientProvider value={partnerClient}>

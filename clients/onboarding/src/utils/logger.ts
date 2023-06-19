@@ -55,36 +55,41 @@ export const logBackendError = (
   { graphQLErrors }: CombinedError,
   { context, query, variables }: Operation,
 ) => {
-  if (!ENABLED) {
+  if (!ENABLED || graphQLErrors.length === 0) {
     return;
   }
 
   const headers = getOperationContextHeaders(context);
   const existingHeaders = Object.keys(headers).filter(key => isNotNullish(headers[key]));
   const requestId = headers["x-request-id"];
-  const hasMultipleErrors = graphQLErrors.length > 1;
 
-  graphQLErrors.forEach(({ message }) => {
-    if (hasMultipleErrors && message.startsWith("Cannot return null for non-nullable field")) {
-      return;
-    }
+  graphQLErrors
+    .filter(({ message }) => {
+      const lowerCased = message.toLowerCase();
 
-    // Update the error message to prepend the requestId
-    const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
-    error.name = "GraphQLError";
+      return (
+        !lowerCased.includes("unauthenticated") &&
+        !lowerCased.includes("unauthorized") &&
+        !lowerCased.includes("cannot return null for non-nullable field")
+      );
+    })
+    .forEach(({ message }) => {
+      // Update the error message to prepend the requestId
+      const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
+      error.name = "GraphQLError";
 
-    captureException(error, {
-      tags: {
-        scope: "backend",
-        endpoint: context.url,
-      },
-      extra: {
-        headers: existingHeaders,
-        query: printQuery(query),
-        requestPolicy: context.requestPolicy,
-        suspense: context.suspense,
-        variables,
-      },
+      captureException(error, {
+        tags: {
+          scope: "backend",
+          endpoint: context.url,
+        },
+        extra: {
+          headers: existingHeaders,
+          query: printQuery(query),
+          requestPolicy: context.requestPolicy,
+          suspense: context.suspense,
+          variables,
+        },
+      });
     });
-  });
 };

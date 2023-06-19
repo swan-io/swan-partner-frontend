@@ -55,7 +55,7 @@ export const isUnauthorizedError = (error: unknown) => {
 };
 
 const onError = (error: CombinedError, operation: Operation) => {
-  if (isNotNullish(error.networkError)) {
+  if (error.graphQLErrors.length === 0 && isNotNullish(error.networkError)) {
     return;
   }
 

@@ -52,7 +52,7 @@ export const logFrontendError = (exception: unknown, extra?: Record<string, unkn
 };
 
 export const logBackendError = (error: CombinedError, { context, query, variables }: Operation) => {
-  if (!ENABLED || isNotNullish(error.networkError)) {
+  if (!ENABLED || (error.graphQLErrors.length === 0 && isNotNullish(error.networkError))) {
     return;
   }
 

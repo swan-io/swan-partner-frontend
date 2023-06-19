@@ -49,7 +49,7 @@ import {
   historyMenuRoutes,
   paymentMenuRoutes,
 } from "../utils/routes";
-import { isUnauthenticatedError, useQueryWithErrorBoundary } from "../utils/urql";
+import { isUnauthorizedError, useQueryWithErrorBoundary } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";

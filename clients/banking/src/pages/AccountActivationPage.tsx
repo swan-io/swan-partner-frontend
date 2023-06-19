@@ -366,7 +366,7 @@ export const AccountActivationPage = ({
           { identificationStatus: P.union("InsufficientDocumentQuality", "InvalidIdentity") },
           () => "IdentityVerificationToRedo",
         )
-        .with({ identificationStatus: "ValidIdentity" }, (): Step | undefined => {
+        .with({ identificationStatus: "ValidIdentity" }, ({ account }): Step | undefined => {
           if (isCompany) {
             return match<typeof documentCollectionStatus, Step | undefined>(
               documentCollectionStatus,
@@ -392,7 +392,9 @@ export const AccountActivationPage = ({
               : "AddMoneyToYourNewAccountIbanMissing";
           }
           if (!requireFirstTransfer) {
-            return "StepNotDisplayed";
+            return match(account?.holder.verificationStatus)
+              .with("NotStarted", "Pending", () => "Done" as const)
+              .otherwise(() => "StepNotDisplayed" as const);
           }
           return "Done";
         })

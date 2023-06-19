@@ -1387,6 +1387,7 @@ query AccountActivationPage($accountMembershipId: ID!) {
       paymentAccountType
       holder {
         id
+        verificationStatus
         info {
           __typename
           name

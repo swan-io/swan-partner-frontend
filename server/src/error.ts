@@ -18,22 +18,21 @@ export const replyWithError = (
   { status, requestId }: { status: Exclude<HttpErrorCodes, string>; requestId: string },
 ) => {
   const accept = request.accepts();
-  const type = accept.type(["json", "html"]);
 
-  return match(type)
-    .with("html", () =>
-      reply
-        .type("text/html")
-        .status(status)
-        .send(errorTemplate.replaceAll("{{REQUEST_ID}}", requestId)),
-    )
-    .otherwise(() => {
+  return match(accept.type(["json"]))
+    .with("json", () => {
       const error = app.httpErrors.getHttpError(status);
 
       return reply
         .type("application/json")
         .status(status)
         .send({ ...error, requestId });
+    })
+    .otherwise(() => {
+      return reply
+        .type("text/html")
+        .status(status)
+        .send(errorTemplate.replaceAll("{{REQUEST_ID}}", requestId));
     });
 };
 
@@ -44,21 +43,20 @@ export const replyWithAuthError = (
   { status, description }: { status: Exclude<HttpErrorCodes, string>; description: string },
 ) => {
   const accept = request.accepts();
-  const type = accept.type(["json", "html"]);
 
-  return match(type)
-    .with("html", () =>
-      reply
-        .type("text/html")
-        .status(status)
-        .send(authErrorTemplate.replaceAll("{{description}}", description)),
-    )
-    .otherwise(() => {
+  return match(accept.type(["json"]))
+    .with("json", () => {
       const error = app.httpErrors.getHttpError(status);
 
       return reply
         .type("application/json")
         .status(status)
         .send({ ...error, description });
+    })
+    .otherwise(() => {
+      return reply
+        .type("text/html")
+        .status(status)
+        .send(authErrorTemplate.replaceAll("{{description}}", description));
     });
 };

@@ -48,7 +48,7 @@ const packageJson = JSON.parse(
 ) as unknown as { version: string };
 
 const COOKIE_MAX_AGE = 300; // 5 minutes
-const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
+const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 export type InvitationConfig = {
   accessToken: string;

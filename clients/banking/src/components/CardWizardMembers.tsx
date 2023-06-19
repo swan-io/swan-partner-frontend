@@ -10,26 +10,18 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import {
-  backgroundColor,
-  breakpoints,
-  colors,
-  negativeSpacings,
-  spacings,
-} from "@swan-io/lake/src/constants/design";
+import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   ScrollView,
+  StyleProp,
   StyleSheet,
   View,
+  ViewStyle,
 } from "react-native";
-import {
-  AccountMembershipFragment,
-  GetCardProductsQuery,
-  GetEligibleCardMembershipsQuery,
-} from "../graphql/partner";
+import { AccountMembershipFragment, GetEligibleCardMembershipsQuery } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
@@ -37,20 +29,6 @@ import { ErrorView } from "./ErrorView";
 const styles = StyleSheet.create({
   root: {
     ...commonStyles.fill,
-  },
-  container: {
-    ...commonStyles.fill,
-    paddingHorizontal: spacings[4],
-  },
-  containerSmall: {
-    ...commonStyles.fill,
-    marginHorizontal: negativeSpacings[24],
-    paddingHorizontal: 0,
-  },
-  contents: {
-    flexGrow: 1,
-    alignItems: "stretch",
-    justifyContent: "center",
   },
   lineContainer: {
     flexDirection: "row",
@@ -86,15 +64,13 @@ const styles = StyleSheet.create({
   },
 });
 
-type CardProduct = NonNullable<GetCardProductsQuery["projectInfo"]["cardProducts"]>[number];
-
 export type Member = AccountMembershipFragment;
 
 type Props = {
-  cardProduct: CardProduct;
-  accountId: string;
   initialMemberships?: Member[];
   account: GetEligibleCardMembershipsQuery["account"];
+  style?: StyleProp<ViewStyle>;
+  contentContainerStyle?: StyleProp<ViewStyle>;
   onSubmit: (currentMembers: Member[]) => void;
   setAfter: (cursor: string) => void;
 };
@@ -102,7 +78,10 @@ type Props = {
 export type CardWizardMembersRef = { submit: () => void };
 
 export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
-  ({ initialMemberships, account, onSubmit, setAfter }: Props, ref) => {
+  (
+    { initialMemberships, account, style, contentContainerStyle, onSubmit, setAfter }: Props,
+    ref,
+  ) => {
     const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
 
     useImperativeHandle(
@@ -151,8 +130,8 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
       <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
         {({ large }) => (
           <ScrollView
-            style={large ? styles.container : styles.containerSmall}
-            contentContainerStyle={styles.contents}
+            style={style}
+            contentContainerStyle={contentContainerStyle}
             onScroll={onScroll}
             scrollEventThrottle={16}
           >

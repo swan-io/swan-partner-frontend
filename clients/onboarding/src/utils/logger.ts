@@ -51,8 +51,11 @@ export const logFrontendError = (exception: unknown, extra?: Record<string, unkn
   }
 };
 
-export const logBackendError = (error: CombinedError, { context, query, variables }: Operation) => {
-  if (!ENABLED || (error.graphQLErrors.length === 0 && isNotNullish(error.networkError))) {
+export const logBackendError = (
+  { graphQLErrors }: CombinedError,
+  { context, query, variables }: Operation,
+) => {
+  if (!ENABLED || graphQLErrors.length === 0) {
     return;
   }
 
@@ -60,33 +63,33 @@ export const logBackendError = (error: CombinedError, { context, query, variable
   const existingHeaders = Object.keys(headers).filter(key => isNotNullish(headers[key]));
   const requestId = headers["x-request-id"];
 
-  const graphQLErrors = error.graphQLErrors.filter(({ message }) => {
-    const lowerCased = message.toLowerCase();
+  graphQLErrors
+    .filter(({ message }) => {
+      const lowerCased = message.toLowerCase();
 
-    return (
-      !lowerCased.includes("unauthenticated") &&
-      !lowerCased.includes("unauthorized") &&
-      !lowerCased.includes("cannot return null for non-nullable field")
-    );
-  });
+      return (
+        !lowerCased.includes("unauthenticated") &&
+        !lowerCased.includes("unauthorized") &&
+        !lowerCased.includes("cannot return null for non-nullable field")
+      );
+    })
+    .forEach(({ message }) => {
+      // Update the error message to prepend the requestId
+      const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
+      error.name = "GraphQLError";
 
-  graphQLErrors.forEach(({ message }) => {
-    // Update the error message to prepend the requestId
-    const error = new Error(isNotNullish(requestId) ? `${requestId} - ${message}` : message);
-    error.name = "GraphQLError";
-
-    captureException(error, {
-      tags: {
-        scope: "backend",
-        endpoint: context.url,
-      },
-      extra: {
-        headers: existingHeaders,
-        query: printQuery(query),
-        requestPolicy: context.requestPolicy,
-        suspense: context.suspense,
-        variables,
-      },
+      captureException(error, {
+        tags: {
+          scope: "backend",
+          endpoint: context.url,
+        },
+        extra: {
+          headers: existingHeaders,
+          query: printQuery(query),
+          requestPolicy: context.requestPolicy,
+          suspense: context.suspense,
+          variables,
+        },
+      });
     });
-  });
 };

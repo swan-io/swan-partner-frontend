@@ -55,10 +55,6 @@ export const isUnauthorizedError = (error: unknown) => {
 };
 
 const onError = (error: CombinedError, operation: Operation) => {
-  if (error.graphQLErrors.length === 0 && isNotNullish(error.networkError)) {
-    return;
-  }
-
   if (isUnauthorizedError(error)) {
     if (isNullish(Router.getRoute(["ProjectLogin"]))) {
       window.location.replace(Router.ProjectLogin());

@@ -1,10 +1,16 @@
 import { Heading } from "@swan-io/lake/src/components/Heading";
+import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { ReactNode } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { t } from "../utils/i18n";
+import { signout } from "../utils/signout";
 
 const styles = StyleSheet.create({
   base: {
@@ -22,15 +28,25 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: colors.gray[400],
   },
+  signout: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
 });
 
 type Props = {
   title?: string;
   text?: string;
+  action?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
-export const NotFoundPage = ({ title = t("error.pageNotFound"), text = "", style }: Props) => (
+export const NotFoundPage = ({
+  title = t("error.pageNotFound"),
+  text = "",
+  action,
+  style,
+}: Props) => (
   <View style={[styles.base, style]}>
     <Svg viewBox="0 0 96 96" style={styles.icon}>
       <G fill="none">
@@ -84,5 +100,27 @@ export const NotFoundPage = ({ title = t("error.pageNotFound"), text = "", style
         <Text style={styles.text}>{text}</Text>
       </>
     )}
+
+    {isNotNullish(action) && (
+      <>
+        <Space height={24} />
+
+        {action}
+      </>
+    )}
   </View>
+);
+
+export const AccountNotFoundPage = ({ projectName }: { projectName: string }) => (
+  <NotFoundPage
+    title={t("error.noAccount")}
+    text={t("error.checkWithProvider", { projectName })}
+    action={
+      <Pressable style={styles.signout} onPress={signout}>
+        <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
+        <Space width={8} />
+        <LakeText>{t("login.signout")}</LakeText>
+      </Pressable>
+    }
+  />
 );

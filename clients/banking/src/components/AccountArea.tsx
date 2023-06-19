@@ -19,7 +19,6 @@ import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
@@ -37,11 +36,11 @@ import logoSwan from "../assets/images/logo-swan.svg";
 import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
 import { AccountAreaDocument, IdentificationLevelsFragment } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
-import { NotFoundPage } from "../pages/NotFoundPage";
+import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
-import { logFrontendError, setSentryUser } from "../utils/logger";
+import { setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import {
   RouteName,
@@ -50,6 +49,7 @@ import {
   historyMenuRoutes,
   paymentMenuRoutes,
 } from "../utils/routes";
+import { signout } from "../utils/signout";
 import { isUnauthorizedError, useQueryWithErrorBoundary } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
@@ -453,25 +453,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const accountPickerButtonRef = useRef<View | null>(null);
   const [isAccountPickerOpen, setAccountPickerOpen] = useBoolean(false);
 
-  const signout = () => {
-    fetch(`/auth/logout`, {
-      method: "post",
-      credentials: "include",
-    })
-      .then(async response => {
-        if (response.ok) {
-          window.location.replace(Router.ProjectLogin());
-        } else {
-          const message = await response.text();
-          throw new Error(message);
-        }
-      })
-      .catch((error: Error) => {
-        showToast({ variant: "error", title: t("error.generic") });
-        logFrontendError(error);
-      });
-  };
-
   const [availableBalance, setAvailableBalance] = useState(() =>
     membership
       .map(({ accountMembership }) => accountMembership.account?.balances?.available)
@@ -677,10 +658,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 isNotEmpty(indexUrl) ? (
                                   <Redirect to={indexUrl} />
                                 ) : (
-                                  <NotFoundPage
-                                    title={t("error.noAccount")}
-                                    text={t("error.checkWithProvider", { projectName })}
-                                  />
+                                  <AccountNotFoundPage projectName={projectName} />
                                 ),
                               )
                               .with({ name: "AccountProfile" }, () =>

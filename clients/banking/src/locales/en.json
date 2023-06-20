@@ -274,7 +274,7 @@
   "error.transferReferenceInvalid": "Invalid reference number",
   "error.transferReferenceTooLong": "Reference number is too long",
   "form.optional": "(optional)",
-  "login.buttonText": "Sign in to Web Banking",
+  "login.buttonText": "Sign into Web Banking",
   "login.linkFraud": "Report fraud associated with your account.",
   "login.linkHow": "Questions? Visit our Help Center.",
   "login.needHelp": "Help",

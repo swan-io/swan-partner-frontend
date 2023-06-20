@@ -213,7 +213,10 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       { account: { country: "FRA" }, user: { identificationLevels: { PVID: false, QES: false } } },
       () => true,
     )
-    .with({ account: { country: "ESP" } }, () => true)
+    .with(
+      { account: { country: "ESP" }, user: { identificationLevels: { QES: false } } },
+      () => true,
+    )
     .with({ account: { country: "DEU" } }, () => true)
     .otherwise(() => false);
 

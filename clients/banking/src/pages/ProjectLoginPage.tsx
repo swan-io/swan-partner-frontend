@@ -99,18 +99,21 @@ const styles = StyleSheet.create({
   },
 });
 
-const HelpLink = ({ to, emoji, children }: { to: string; emoji: string; children: string }) => (
+const HelpLink = ({ to, children }: { to: string; children: string }) => (
   <Text style={styles.link}>
-    <span role="img" aria-label="emoji">
-      {emoji}
-    </span>{" "}
     <Link to={to} style={({ hovered }) => hovered && styles.underline} target="blank">
       {children}
     </Link>
   </Text>
 );
 
-const SUPPORT_ROOT_URL = `https://support.swan.io/${getFirstSupportedLanguage(["en", "fr"])}`;
+const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage([
+  "en",
+  "fr",
+  "de",
+  "es",
+  "it",
+])}`;
 
 export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
   const [projectInfos, setProjectInfos] = useState<
@@ -224,27 +227,13 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
                 <Separator space={24} />
                 <Text style={styles.helpTitle}>{t("login.needHelp")}</Text>
                 <Space height={8} />
-
-                <HelpLink
-                  emoji="🗝"
-                  to={`${SUPPORT_ROOT_URL}/articles/4516813-how-can-i-access-my-account-to-check-my-transactions-etc`}
-                >
-                  {t("login.linkHow")}
-                </HelpLink>
-
+                <HelpLink to={`${SUPPORT_ROOT_URL}-150`}>{t("login.linkHow")}</HelpLink>
                 <Space height={8} />
 
                 <HelpLink
-                  emoji="👮🏻‍♂️"
-                  to={`${SUPPORT_ROOT_URL}/articles/4516824-how-do-i-report-fraud`}
+                  to={`${SUPPORT_ROOT_URL}-150/articles/5490446960797-How-do-I-report-fraud-`}
                 >
                   {t("login.linkFraud")}
-                </HelpLink>
-
-                <Space height={8} />
-
-                <HelpLink emoji="👨🏻‍💻" to={SUPPORT_ROOT_URL}>
-                  {t("login.linkFaq")}
                 </HelpLink>
               </View>
             </View>

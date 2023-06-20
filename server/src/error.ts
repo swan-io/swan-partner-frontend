@@ -1,15 +1,22 @@
 import { HttpErrorCodes } from "@fastify/sensible/lib/httpError";
+import { Accepts } from "accepts";
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from "fastify";
 import fs from "node:fs";
 import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node:http2";
 import url from "node:url";
 import path from "pathe";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 
 const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 
 const errorTemplate = fs.readFileSync(path.join(dirname, "views", "error.html"), "utf-8");
 const authErrorTemplate = fs.readFileSync(path.join(dirname, "views", "auth-error.html"), "utf-8");
+
+const getAcceptType = (accept: Accepts) =>
+  match(accept.type(["json", "html"]))
+    .with(P.string, value => value)
+    .with(P.array(P.string), value => value[0])
+    .otherwise(() => undefined);
 
 export const replyWithError = (
   app: FastifyInstance<Http2SecureServer, Http2ServerRequest, Http2ServerResponse>,
@@ -19,7 +26,7 @@ export const replyWithError = (
 ) => {
   const accept = request.accepts();
 
-  return match(accept.type(["json"]))
+  return match(getAcceptType(accept))
     .with("json", () => {
       const error = app.httpErrors.getHttpError(status);
 
@@ -44,7 +51,7 @@ export const replyWithAuthError = (
 ) => {
   const accept = request.accepts();
 
-  return match(accept.type(["json"]))
+  return match(getAcceptType(accept))
     .with("json", () => {
       const error = app.httpErrors.getHttpError(status);
 

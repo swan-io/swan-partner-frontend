@@ -208,10 +208,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     typeof value === "boolean" ? Option.Some(value) : Option.None(),
   ).some(isValid => isValid);
 
-  const requireFirstTransfer =
-    account?.country === "FRA" &&
-    user?.identificationLevels?.PVID === false &&
-    user?.identificationLevels?.QES === false;
+  const requireFirstTransfer = match({ account, user })
+    .with(
+      { account: { country: "FRA" }, user: { identificationLevels: { PVID: false, QES: false } } },
+      () => true,
+    )
+    .with({ account: { country: "ESP" } }, () => true)
+    .with({ account: { country: "DEU" } }, () => true)
+    .otherwise(() => false);
 
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;
@@ -269,7 +273,10 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       },
       () => "none",
     )
-    .with({ isIndividual: true, hasTransactions: false }, () => "actionRequired")
+    .with(
+      { isIndividual: true, requireFirstTransfer: true, hasTransactions: false },
+      () => "actionRequired",
+    )
     .otherwise(() => "none");
 
   const [, setAccountMembershipState] = usePersistedState<unknown>(

@@ -229,6 +229,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     isIndividual,
     isLegalRepresentative: accountMembership?.legalRepresentative ?? false,
     account,
+    user,
   } as const;
 
   const activationTag = match<typeof activationTagInput, AccountActivationTag>(activationTagInput)
@@ -251,6 +252,22 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
         accountHolderType: "AccountHolderCompanyInfo",
       },
       () => "actionRequired",
+    )
+    .with(
+      {
+        isIndividual: true,
+        requireFirstTransfer: false,
+        account: { holder: { verificationStatus: P.union("NotStarted", "Pending") } },
+      },
+      () => "pending",
+    )
+    .with(
+      {
+        isIndividual: true,
+        requireFirstTransfer: false,
+        account: { holder: { verificationStatus: "Verified" } },
+      },
+      () => "none",
     )
     .with({ isIndividual: true, hasTransactions: false }, () => "actionRequired")
     .otherwise(() => "none");

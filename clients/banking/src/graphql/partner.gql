@@ -202,6 +202,7 @@ query AccountArea($accountMembershipId: ID!) {
             }
           }
         }
+        verificationStatus
       }
       transactions(first: 0) {
         totalCount
@@ -1442,6 +1443,11 @@ query AccountActivationPage($accountMembershipId: ID!) {
     user {
       id
       identificationStatus
+      identificationLevels {
+        expert
+        QES
+        PVID
+      }
       firstName
       lastName
       birthDate

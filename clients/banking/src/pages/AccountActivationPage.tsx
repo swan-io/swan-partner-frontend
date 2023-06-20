@@ -751,6 +751,7 @@ export const AccountActivationPage = ({
           )}
 
           {!isCompany &&
+            requireFirstTransfer &&
             STEP_INDEXES[step] >= STEP_INDEXES["AddMoneyToYourNewAccountViaIbanTodo"] && (
               <StepTile
                 title={t("accountActivation.addMoney.title")}

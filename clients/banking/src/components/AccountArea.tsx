@@ -234,6 +234,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     identificationStatus,
     accountHolderType: account?.holder.info.__typename,
     isIndividual,
+    requireFirstTransfer,
     isLegalRepresentative: accountMembership?.legalRepresentative ?? false,
     account,
     user,

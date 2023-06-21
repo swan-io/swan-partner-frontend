@@ -110,10 +110,19 @@ export const CardItemArea = ({
 
   const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
 
-  const cardRequiresIdentityVerification =
-    B2BMembershipIDVerification === true && card?.accountMembership.statusInfo.status !== "Enabled";
+  const membershipStatus = card?.accountMembership.statusInfo;
 
-  const bindingUserError = card?.accountMembership.statusInfo.status === "BindingUserError";
+  const cardRequiresIdentityVerification =
+    B2BMembershipIDVerification === true &&
+    membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
+    membershipStatus.idVerifiedMatchError;
+
+  const bindingUserError =
+    membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
+    (membershipStatus.birthDateMatchError ||
+      membershipStatus.firstNameMatchError ||
+      membershipStatus.lastNameMatchError ||
+      membershipStatus.phoneNumberMatchError);
 
   const identificationStatus = card?.accountMembership.user?.identificationStatus ?? undefined;
 

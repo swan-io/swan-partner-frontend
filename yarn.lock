@@ -7507,10 +7507,10 @@ uuid@^8.3.2:
   resolved "https://registry.yarnpkg.com/uuid/-/uuid-8.3.2.tgz#80d5b5ced271bb9af6c445f21a1a04c606cefbe2"
   integrity sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==
 
-valienv@0.4.0:
-  version "0.4.0"
-  resolved "https://registry.yarnpkg.com/valienv/-/valienv-0.4.0.tgz#49bfbd95b3585c904348282453f577d7b6e20d26"
-  integrity sha512-8mldxLC0bpOYKdUqjCDVWolnnHaGjhV0j7jIW7Z/RWAo6N2Suvv1MipRv31BEhM7dV0tUmhvzKY6BubNoZXsCg==
+valienv@0.5.0:
+  version "0.5.0"
+  resolved "https://registry.yarnpkg.com/valienv/-/valienv-0.5.0.tgz#35b52e7fecbefe065cd4cc61961e17effb7bfc9d"
+  integrity sha512-lkSNURdZelnLofLMa8f1+l71Z+kkL8koWvoHahdE4Ycit6P1FCU1cAzRHbteE00idASdoLg8a698VcVggeGJKg==
 
 value-or-promise@^1.0.11, value-or-promise@^1.0.12:
   version "1.0.12"

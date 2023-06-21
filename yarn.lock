@@ -1396,7 +1396,7 @@
   dependencies:
     tslib "^2.4.0"
 
-"@formatjs/intl@2.9.0", "@formatjs/intl@^2.8.0":
+"@formatjs/intl@2.9.0", "@formatjs/intl@^2.9.0":
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/@formatjs/intl/-/intl-2.9.0.tgz#e1335572af3ca8a53e136a78e866f1851a9718c2"
   integrity sha512-Ym0trUoC/VO6wQu4YHa0H1VR2tEixFRmwZgADkDLm7nD+vv1Ob+/88mUAoT0pwvirFqYKgUKEwp1tFepqyqvVA==
@@ -1409,10 +1409,10 @@
     intl-messageformat "10.5.0"
     tslib "^2.4.0"
 
-"@googlemaps/js-api-loader@1.16.0":
-  version "1.16.0"
-  resolved "https://registry.yarnpkg.com/@googlemaps/js-api-loader/-/js-api-loader-1.16.0.tgz#eddbc163b247976237b035534d9e6b3f6117ffd1"
-  integrity sha512-5KT0titYui0iu5uBsLZ09+qtyZYdckt5zu87FHYLeDYMGmhrfaQtyiBKwGjae/LzY7RlE+RcbHuxUVeaQ4lRKA==
+"@googlemaps/js-api-loader@1.16.2":
+  version "1.16.2"
+  resolved "https://registry.yarnpkg.com/@googlemaps/js-api-loader/-/js-api-loader-1.16.2.tgz#3fe748e21243f8e8322c677a5525c569ae9cdbe9"
+  integrity sha512-psGw5u0QM6humao48Hn4lrChOM2/rA43ZCm3tKK9qQsEj1/VzqkCqnvGfEOshDbBQflydfaRovbKwZMF4AyqbA==
   dependencies:
     fast-deep-equal "^3.1.3"
 
@@ -2246,46 +2246,46 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.2.0.tgz#9ed8d521974423fa82514c1911a3546c8a373860"
-  integrity sha512-1008l9Lig+79yCSYGUbet1NOCRbLstwTqIVKjwElQrkngSQ1PUZMotzQWNKExP1DpNimyiIDtcSThpzFe/zxxg==
+"@swan-io/lake@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.2.1.tgz#ebba8a2affe59fde81724a818bf49916c7168ad9"
+  integrity sha512-Q/zqnZPvZ0mz5oYlFXMsR1Etpoy7Fagp+E0tkk/j4/6Aw74ZMzBhSb/3wZKk+1PBX110qDyGAXyYIWMyKHyj/Q==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@swan-io/boxed" "^1.0.2"
     "@swan-io/chicane" "^1.4.0"
     dayjs "^1.11.8"
     polished "^4.2.2"
-    prism-react-renderer "^2.0.4"
+    prism-react-renderer "^2.0.5"
     react "^18.2.0"
     react-atomic-state "^1.2.7"
     react-dom "^18.2.0"
-    react-native-web "^0.19.4"
+    react-native-web "^0.19.5"
     react-popper "^2.3.0"
     react-ux-form "^1.3.0"
     rifm "^0.12.1"
     ts-dedent "^2.2.0"
-    ts-pattern "^4.3.0"
-    urql "^4.0.3"
+    ts-pattern "^5.0.1"
+    urql "^4.0.4"
     uuid "^9.0.0"
 
-"@swan-io/shared-business@2.2.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-2.2.0.tgz#4f321d4354461ad9aaf97b5833cd5018e03c03d2"
-  integrity sha512-OOksZUGtC1xnV9ME4jta1ZaK0OtjWN+4LCAELOiPBHodby9uqwxOHSo3/l2ylmBTMBzouBc5NFiXKriJcL0rig==
+"@swan-io/shared-business@2.2.1":
+  version "2.2.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-2.2.1.tgz#9aeb5bbfbdb9ffa2e661ceb88edb8fbef7ae4919"
+  integrity sha512-NOsCo2sFnWHsQwfuL48jrcmtS7JI+0nVWbpnACGfTP1LfLNPCslpebk234GVD0Tgwjq3JSgMVe6+qbU9dN/1Og==
   dependencies:
-    "@formatjs/intl" "^2.8.0"
-    "@googlemaps/js-api-loader" "1.16.0"
+    "@formatjs/intl" "^2.9.0"
+    "@googlemaps/js-api-loader" "1.16.2"
     "@swan-io/boxed" "^1.0.2"
     dayjs "^1.11.8"
     react "^18.2.0"
     react-atomic-state "^1.2.7"
     react-dom "^18.2.0"
     react-dropzone "^14.2.3"
-    react-native-web "^0.19.4"
+    react-native-web "^0.19.5"
     react-ux-form "^1.3.0"
     rifm "^0.12.1"
-    ts-pattern "^4.3.0"
+    ts-pattern "^5.0.1"
     uuid "^9.0.0"
 
 "@swc/core-darwin-arm64@1.3.66":
@@ -6242,7 +6242,7 @@ pretty-format@^27.0.2, pretty-format@^27.5.1:
     ansi-styles "^5.0.0"
     react-is "^17.0.1"
 
-prism-react-renderer@^2.0.4:
+prism-react-renderer@^2.0.5:
   version "2.0.5"
   resolved "https://registry.yarnpkg.com/prism-react-renderer/-/prism-react-renderer-2.0.5.tgz#14e2f06931412b42bc83ef0273a7d9c06f9bccfb"
   integrity sha512-VHTC2ZhOImeC3/mu/3TkEuRCa1K+kTCZQeCkwvWzQa01/ahU3dibyxWf3XiPLuO4k/rGjSTea1lEsfza6fMofw==
@@ -6396,7 +6396,7 @@ react-is@^17.0.1:
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-17.0.2.tgz#e691d4a8e9c789365655539ab372762b0efb54f0"
   integrity sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==
 
-react-native-web@0.19.5, react-native-web@^0.19.4:
+react-native-web@0.19.5, react-native-web@^0.19.5:
   version "0.19.5"
   resolved "https://registry.yarnpkg.com/react-native-web/-/react-native-web-0.19.5.tgz#38d391c266925e9537a5e2042627f47859115e27"
   integrity sha512-n1l3Cvvc/XIYFENP3jCzUZbkVXsUzcA1g+Uh8OV1p6G0FZjwid+0ohFeSchupnwY2+KnpdwskEgTsXrTJUIqmA==
@@ -7261,15 +7261,10 @@ ts-morph@^13.0.1:
     "@ts-morph/common" "~0.12.3"
     code-block-writer "^11.0.0"
 
-ts-pattern@5.0.1:
+ts-pattern@5.0.1, ts-pattern@^5.0.1:
   version "5.0.1"
   resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.0.1.tgz#340d91647982b90ca6c71645ae438f78518e9842"
   integrity sha512-ZyNm28Lsg34Co5DS3e9DVyjlX2Y+2exkI4jqTKyU+9/OL6Y2fKOOuL8i+7no71o74C6mVS+UFoP3ekM3iCT1HQ==
-
-ts-pattern@^4.3.0:
-  version "4.3.0"
-  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-4.3.0.tgz#7a995b39342f1b00d1507c2d2f3b90ea16e178a6"
-  integrity sha512-pefrkcd4lmIVR0LA49Imjf9DYLK8vtWhqBPA3Ya1ir8xCW0O2yjL9dsCVvI7pCodLC5q7smNpEtDR2yVulQxOg==
 
 ts-prune@0.10.3:
   version "0.10.3"
@@ -7484,7 +7479,7 @@ urlpattern-polyfill@^8.0.0:
   resolved "https://registry.yarnpkg.com/urlpattern-polyfill/-/urlpattern-polyfill-8.0.2.tgz#99f096e35eff8bf4b5a2aa7d58a1523d6ebc7ce5"
   integrity sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==
 
-urql@4.0.4, urql@^4.0.3:
+urql@4.0.4, urql@^4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/urql/-/urql-4.0.4.tgz#a9a06eb659585c48ceab012321b0e6254b699188"
   integrity sha512-C5P4BMnAsk+rbytCWglit5ijXbIKXsa9wofSGPbuMyJKsDdL+9GfipS362Nff/Caag+eYOK5W+sox8fwEILT6Q==

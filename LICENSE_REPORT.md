@@ -52,7 +52,6 @@ react-ux-form | 1.3.0 | MIT | https://github.com/swan-io/react-ux-form.git | htt
 rifm | 0.12.1 | MIT | https://github.com/istarkov/rifm.git | Unknown | istarkov
 shx | 0.3.4 | MIT | https://github.com/shelljs/shx.git | https://github.com/shelljs/shx#readme | Unknown
 ts-pattern | 5.0.1 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
-ts-pattern | 4.3.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 urql | 4.0.4 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/ | Unknown
 uuid | 9.0.0 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown

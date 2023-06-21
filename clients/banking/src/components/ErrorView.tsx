@@ -5,8 +5,8 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { CombinedError } from "urql";
 import { t } from "../utils/i18n";
+import { isCombinedError } from "../utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -45,7 +45,7 @@ export const ErrorView = ({ error, style }: Props) => (
       {t("error.generic")}
     </Heading>
 
-    {error instanceof CombinedError && isNotNullish(error.requestId) ? (
+    {isCombinedError(error) && isNotNullish(error.requestId) ? (
       <>
         <Space height={4} />
         <Text style={styles.requestIdText}>ID: {error.requestId}</Text>

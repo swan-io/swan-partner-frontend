@@ -3,6 +3,7 @@ import { captureException, init } from "@sentry/react";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CombinedError, Operation, OperationContext } from "urql";
 import { env } from "./env";
+import { isCombinedError } from "./urql";
 
 export { setUser as setSentryUser } from "@sentry/react";
 
@@ -45,7 +46,7 @@ const getOperationContextHeaders = (context: OperationContext): Record<string, s
 };
 
 export const logFrontendError = (exception: unknown, extra?: Record<string, unknown>) => {
-  if (ENABLED && !(exception instanceof CombinedError)) {
+  if (ENABLED && !isCombinedError(exception)) {
     captureException(exception, {
       extra,
       tags: { scope: "frontend" },

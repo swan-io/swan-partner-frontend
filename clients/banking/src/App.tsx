@@ -1,4 +1,4 @@
-import { ErrorBoundary } from "@sentry/react";
+import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { colors } from "@swan-io/lake/src/constants/design";
@@ -12,6 +12,7 @@ import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
+import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
 import { isUnauthorizedError, partnerClient } from "./utils/urql";
@@ -34,6 +35,7 @@ export const App = () => {
   return (
     <ErrorBoundary
       key={route?.name}
+      onError={error => logFrontendError(error)}
       fallback={({ error }) =>
         isUnauthorizedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
       }

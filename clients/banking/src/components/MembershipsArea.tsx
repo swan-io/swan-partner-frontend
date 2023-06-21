@@ -49,6 +49,7 @@ type Props = {
   canAddCard: boolean;
   canOrderPhysicalCards: boolean;
   accountCountry: AccountCountry;
+  shouldDisplayIdVerification: boolean;
   params: {
     new?: string;
     search?: string | undefined;
@@ -75,6 +76,7 @@ export const MembershipsArea = ({
   canAddCard,
   canOrderPhysicalCards,
   accountCountry,
+  shouldDisplayIdVerification,
   params,
   currentUserAccountMembership,
   onAccountMembershipUpdate,
@@ -331,6 +333,7 @@ export const MembershipsArea = ({
                   canAddCard={canAddCard}
                   canOrderPhysicalCards={canOrderPhysicalCards}
                   accountCountry={accountCountry}
+                  shouldDisplayIdVerification={shouldDisplayIdVerification}
                   onRefreshRequest={reload}
                   large={large}
                 />

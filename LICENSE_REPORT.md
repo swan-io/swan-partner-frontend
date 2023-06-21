@@ -11,28 +11,25 @@ Name | Version | License | URL | VendorUrl | VendorName
 @fastify/static | 6.10.2 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
 @fastify/view | 7.4.1 | MIT | https://github.com/fastify/point-of-view.git | https://github.com/fastify/point-of-view#readme | Tomas Della Vedova - @delvedor
 @formatjs/intl | 2.9.0 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
-@sentry/react | 7.55.2 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
+@sentry/react | 7.56.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
 @testing-library/react | 14.0.0 | MIT | https://github.com/testing-library/react-testing-library | https://github.com/testing-library/react-testing-library#readme | Kent C. Dodds
 @testing-library/user-event | 14.4.3 | MIT | https://github.com/testing-library/user-event | https://github.com/testing-library/user-event#readme | Giorgio Polvara
 @types/accepts | 1.3.5 | MIT | https://www.github.com/DefinitelyTyped/DefinitelyTyped.git | Unknown | Unknown
 @types/iban | 0.0.32 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | Unknown | Unknown
 @types/mustache | 4.2.2 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
-@types/react | 18.2.12 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
-@types/react-dom | 18.2.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
+@types/react | 18.2.13 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
+@types/react-dom | 18.2.6 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.2 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.2 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
 @urql/exchange-graphcache | 6.1.4 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | Unknown
 @vitejs/plugin-legacy | 4.0.4 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme | Evan You
 @vitejs/plugin-react-swc | 3.3.2 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
-chalk | 4.1.2 | MIT | https://github.com/chalk/chalk.git | Unknown | Unknown
-chalk | 2.4.2 | MIT | https://github.com/chalk/chalk.git | Unknown | Unknown
-chalk | 5.2.0 | MIT | https://github.com/chalk/chalk.git | Unknown | Unknown
 core-js | 3.31.0 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.8 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
 fast-proxy | 2.1.0 | MIT | git@github.com:fastify/fast-proxy.git | https://github.com/fastify/fast-proxy | Rolando Santamaria Maso
 fastify | 4.18.0 | MIT | https://github.com/fastify/fastify.git | https://www.fastify.io/ | Matteo Collina
 fastify-language-parser | 3.0.0 | MIT | https://github.com/lependu/fastify-language-parser.git | https://github.com/lependu/fastify-language-parser#readme | Akos Kovács
-get-port | 7.0.0 | MIT | https://github.com/sindresorhus/get-port.git | https://sindresorhus.com | Sindre Sorhus
+get-port | 5.1.1 | MIT | https://github.com/sindresorhus/get-port.git | sindresorhus.com | Sindre Sorhus
 graphql | 16.6.0 | MIT | https://github.com/graphql/graphql-js.git | https://github.com/graphql/graphql-js | Unknown
 graphql-request | 6.1.0 | MIT | https://github.com/jasonkuhrt/graphql-request.git | https://github.com/jasonkuhrt/graphql-request | Jason Kuhrt
 graphql-request | 5.1.0 | MIT | https://github.com/prisma/graphql-request.git | https://github.com/prisma/graphql-request | Prisma Labs Team
@@ -53,6 +50,7 @@ react-dom | 18.2.0 | MIT | https://github.com/facebook/react.git | https://react
 react-native-web | 0.19.5 | MIT | git://github.com/necolas/react-native-web.git | Unknown | Nicolas Gallagher
 react-ux-form | 1.3.0 | MIT | https://github.com/swan-io/react-ux-form.git | https://github.com/swan-io/react-ux-form#readme | Mathieu Acthernoene
 rifm | 0.12.1 | MIT | https://github.com/istarkov/rifm.git | Unknown | istarkov
+shx | 0.3.4 | MIT | https://github.com/shelljs/shx.git | https://github.com/shelljs/shx#readme | Unknown
 ts-pattern | 5.0.1 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 ts-pattern | 4.3.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 urql | 4.0.4 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/ | Unknown
@@ -63,6 +61,7 @@ vite | 4.3.9 | MIT | https://github.com/vitejs/vite.git | https://github.com/vit
 vitest | 0.32.2 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
 wonka | 6.3.2 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
+@opentelemetry/api | 1.4.1 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/api | OpenTelemetry Authors
 @opentelemetry/exporter-jaeger | 1.14.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-exporter-jaeger | OpenTelemetry Authors
 @opentelemetry/instrumentation | 0.40.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation | OpenTelemetry Authors
 @opentelemetry/instrumentation-fastify | 0.31.4 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme | OpenTelemetry Authors
@@ -73,6 +72,7 @@ wonka | 6.3.2 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @opentelemetry/sdk-trace-base | 1.14.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-base | OpenTelemetry Authors
 @opentelemetry/sdk-trace-node | 1.14.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node | OpenTelemetry Authors
 @opentelemetry/semantic-conventions | 1.14.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
+picocolors | 1.0.0 | ISC | https://github.com/alexeyraspopov/picocolors.git | Unknown | Alexey Raspopov
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 3.12.0 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

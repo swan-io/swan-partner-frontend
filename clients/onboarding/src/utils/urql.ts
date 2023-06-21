@@ -20,6 +20,9 @@ import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
 import { logBackendError } from "./logger";
 
+export const isCombinedError = (error: unknown): error is CombinedError =>
+  error instanceof CombinedError;
+
 const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
   schema: schema as NonNullable<GraphCacheConfig["schema"]>,
 

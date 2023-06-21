@@ -1,4 +1,4 @@
-import { ErrorBoundary } from "@sentry/react";
+import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
@@ -16,6 +16,7 @@ import { OnboardingCompanyWizard } from "./pages/v2company/CompanyOnboardingWiza
 import { OnboardingIndividualWizard } from "./pages/v2individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
 import { locale } from "./utils/i18n";
+import { logFrontendError } from "./utils/logger";
 import { Router } from "./utils/routes";
 import { unauthenticatedClient, useQueryWithErrorBoundary } from "./utils/urql";
 
@@ -85,7 +86,11 @@ export const App = () => {
   const route = Router.useRoute(["OnboardingArea", "PopupCallback"]);
 
   return (
-    <ErrorBoundary key={route?.name} fallback={({ error }) => <ErrorView error={error} />}>
+    <ErrorBoundary
+      key={route?.name}
+      onError={error => logFrontendError(error)}
+      fallback={({ error }) => <ErrorView error={error} />}
+    >
       <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
         <ClientProvider value={unauthenticatedClient}>
           {match(route)

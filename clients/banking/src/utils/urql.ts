@@ -24,6 +24,9 @@ import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
+export const isCombinedError = (error: unknown): error is CombinedError =>
+  error instanceof CombinedError;
+
 const isUnauthorizedResponse = (response: unknown) => {
   const value = response as { status?: number; statusCode?: number } | undefined;
   return value?.status === 401 || value?.statusCode === 401;
@@ -35,7 +38,7 @@ const isUnauthorizedLikeString = (value: string) => {
 };
 
 export const isUnauthorizedError = (error: unknown) => {
-  if (!(error instanceof CombinedError)) {
+  if (!isCombinedError(error)) {
     return false;
   }
 

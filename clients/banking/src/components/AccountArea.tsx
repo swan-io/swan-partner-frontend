@@ -1,7 +1,7 @@
-import { ErrorBoundary } from "@sentry/react";
 import { Array, Dict, Option, Result } from "@swan-io/boxed";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -40,7 +40,7 @@ import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
-import { setSentryUser } from "../utils/logger";
+import { logFrontendError, setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import {
   RouteName,
@@ -637,6 +637,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
                 <ErrorBoundary
                   key={route?.name}
+                  onError={error => logFrontendError(error)}
                   fallback={({ error }) =>
                     isUnauthorizedError(error) ? <></> : <ErrorView error={error} />
                   }

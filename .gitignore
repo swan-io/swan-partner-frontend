@@ -4,7 +4,6 @@ node_modules/
 
 clients/*/src/graphql/*.ts
 clients/*/src/graphql/introspection.json
-server/src/**/*.js
 server/src/graphql/*.ts
 
 !scripts/graphql/dist/

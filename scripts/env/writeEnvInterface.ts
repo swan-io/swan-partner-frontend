@@ -1,8 +1,7 @@
-import fs from "node:fs";
-import path from "pathe";
-
 import { Array, Option } from "@swan-io/boxed";
 import { parse } from "dotenv";
+import fs from "node:fs";
+import path from "pathe";
 
 const environmentVariables = Object.keys(
   parse(fs.readFileSync(path.join(process.cwd(), ".env"), "utf-8")),

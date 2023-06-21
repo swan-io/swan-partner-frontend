@@ -7,22 +7,16 @@
     "node": ">=18.0.0",
     "yarn": "^1.22.0"
   },
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "start": "node -r ./src/tracing.cjs ./src/index.js",
-    "start-swan": "node -r ./src/tracing.cjs ./src/index.swan.js",
-    "build": "tsc -p tsconfig.json",
+    "build": "yarn clean && tsc -p tsconfig.json && shx cp -r ./src/views ./dist",
+    "clean": "shx rm -rf dist",
     "prepack": "tsc --build",
-    "clean": "tsc --clean"
-  },
-  "devDependencies": {
-    "@types/accepts": "1.3.5",
-    "@types/mustache": "4.2.2",
-    "graphql": "16.6.0"
+    "start": "node -r ./dist/tracing.js ./dist/index.js",
+    "start-swan": "node -r ./dist/tracing.js ./dist/index.swan.js"
   },
   "dependencies": {
     "@fastify/accepts": "4.1.0",
@@ -32,6 +26,7 @@
     "@fastify/sensible": "5.2.0",
     "@fastify/static": "6.10.2",
     "@fastify/view": "7.4.1",
+    "@opentelemetry/api": "1.4.1",
     "@opentelemetry/exporter-jaeger": "1.14.0",
     "@opentelemetry/instrumentation": "0.40.0",
     "@opentelemetry/instrumentation-fastify": "0.31.3",
@@ -43,18 +38,24 @@
     "@opentelemetry/sdk-trace-node": "1.14.0",
     "@opentelemetry/semantic-conventions": "1.14.0",
     "@swan-io/boxed": "1.0.2",
-    "chalk": "5.2.0",
     "fast-proxy": "2.1.0",
     "fastify": "4.17.0",
     "fastify-language-parser": "3.0.0",
-    "get-port": "7.0.0",
+    "get-port": "5.1.1",
     "graphql-request": "5.1.0",
     "graphql-tag": "2.12.6",
     "mustache": "4.2.0",
     "node-mailjet": "6.0.2",
     "pathe": "1.1.1",
+    "picocolors": "1.0.0",
     "pino-pretty": "10.0.0",
     "ts-pattern": "4.3.0",
     "valienv": "0.4.0"
+  },
+  "devDependencies": {
+    "@types/accepts": "1.3.5",
+    "@types/mustache": "4.2.2",
+    "graphql": "16.6.0",
+    "shx": "0.3.4"
   }
 }

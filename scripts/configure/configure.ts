@@ -1,21 +1,21 @@
-import chalk from "chalk";
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import sodium from "sodium-native";
 
 const start = async () => {
   console.log(``);
-  console.log(`${chalk.magenta("swan-partner-frontend")}`);
-  console.log(`${chalk.white("---")}`);
-  console.log(chalk.green(`Welcome!`));
+  console.log(`${pc.magenta("swan-partner-frontend")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(pc.green(`Welcome!`));
   console.log("");
 
   console.log("Let's get the necessary information to start");
   console.log("");
   console.log(
-    `First, go to ${chalk.magenta(
+    `First, go to ${pc.magenta(
       "https://dashboard.swan.io > Developers > API > OAuth 2.0 Credentials",
     )}`,
   );
@@ -24,7 +24,7 @@ const start = async () => {
   const OAUTH_CLIENT_ID = await prompts({
     type: "text",
     name: "OAUTH_CLIENT_ID",
-    message: `${chalk.gray("question")} Your Swan OAuth2 Client ID:`,
+    message: `${pc.gray("question")} Your Swan OAuth2 Client ID:`,
     validate: (value: string) => {
       if (!value.startsWith("SANDBOX_") && !value.startsWith("LIVE_")) {
         return "Your Client ID looks invalid";
@@ -37,7 +37,7 @@ const start = async () => {
   const OAUTH_CLIENT_SECRET = await prompts({
     type: "password",
     name: "OAUTH_CLIENT_SECRET",
-    message: `${chalk.gray("question")} Your Swan OAuth2 Client Secret:`,
+    message: `${pc.gray("question")} Your Swan OAuth2 Client Secret:`,
     validate: (value: string) => {
       if (value.trim() === "") {
         return "Your Client Secret looks invalid";
@@ -50,9 +50,9 @@ const start = async () => {
   console.log("");
   console.log("");
   console.log(
-    `Don't forget to add ${chalk.magenta(
+    `Don't forget to add ${pc.magenta(
       "https://banking.swan.local:8080/auth/callback",
-    )} to your redirect URIs ${chalk.magenta(
+    )} to your redirect URIs ${pc.magenta(
       "https://dashboard.swan.io > Developers > API > OAuth 2.0 Credentials",
     )}`,
   );
@@ -95,16 +95,16 @@ const start = async () => {
   execSync("yarn graphql-codegen");
   console.log("");
 
-  console.log(chalk.white("---"));
+  console.log(pc.white("---"));
   console.log("");
-  console.log(chalk.green(`You're all set!`));
+  console.log(pc.green(`You're all set!`));
   console.log("");
-  console.log(chalk.white("---"));
+  console.log(pc.white("---"));
   console.log("");
   console.log("In order to start the dev server, you can run the following command:");
   console.log("");
-  console.log(chalk.white("# Start the dev server"));
-  console.log(`$ ${chalk.blue("yarn dev")}`);
+  console.log(pc.white("# Start the dev server"));
+  console.log(`$ ${pc.blue("yarn dev")}`);
   console.log("");
 };
 

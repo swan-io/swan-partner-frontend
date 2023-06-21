@@ -1,7 +1,7 @@
-import chalk from "chalk";
 import { execSync } from "child_process";
 import fs from "fs";
 import path from "pathe";
+import pc from "picocolors";
 import { build } from "vite";
 
 const { version } = JSON.parse(
@@ -11,19 +11,24 @@ const { version } = JSON.parse(
 const apps = ["onboarding", "banking"];
 
 console.log(``);
-console.log(`${chalk.magenta("swan-partner-frontend")}`);
-console.log(`${chalk.white("---")}`);
+console.log(`${pc.magenta("swan-partner-frontend")}`);
+console.log(`${pc.white("---")}`);
 
 void (async () => {
+  console.log(`${pc.magenta("server")} ${pc.gray("building")}`);
+  execSync(`cd server && yarn build`);
+  console.log(`${pc.magenta("server")} ${pc.green("done")}`);
+  console.log(``);
+
   for (const app of apps) {
-    console.log(`${chalk.magenta(app)} ${chalk.grey("building")}`);
+    console.log(`${pc.magenta(app)} ${pc.gray("building")}`);
 
     try {
       await build({
         configFile: path.resolve(process.cwd(), "clients", app, "vite.config.js"),
         logLevel: "error",
         build: {
-          outDir: path.join(process.cwd(), "server/dist", app),
+          outDir: path.join(process.cwd(), "server/dist/static", app),
           // The polyfill generates a bug on Safari, where it makes the module
           // always be invalidated due to credentials being sent (i.e. Cookies)
           polyfillModulePreload: false,
@@ -38,11 +43,7 @@ void (async () => {
       }
     }
 
-    console.log(`${chalk.magenta(app)} ${chalk.green("done")}`);
+    console.log(`${pc.magenta(app)} ${pc.green("done")}`);
     console.log(``);
   }
-
-  console.log(`${chalk.magenta("server")} ${chalk.grey("building")}`);
-  execSync(`cd server && yarn build`);
-  console.log(`${chalk.magenta("server")} ${chalk.green("done")}`);
 })();

@@ -1,11 +1,14 @@
-import chalk from "chalk";
 import { exec as originalExec } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import semverGt from "semver/functions/gt.js";
+import { PackageJson } from "type-fest";
 
-const { version } = JSON.parse(fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8"));
+const { version } = JSON.parse(
+  fs.readFileSync(path.join(__dirname, "../../package.json"), "utf8"),
+) as { version: string };
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -21,37 +24,37 @@ const exec = (command: string) => {
 
 async function bump() {
   console.log(``);
-  console.log(`${chalk.magenta("swan-partner-frontend")}`);
-  console.log(`${chalk.white("---")}`);
-  console.log(chalk.green(`version bump`));
+  console.log(`${pc.magenta("swan-partner-frontend")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(pc.green(`version bump`));
   console.log("");
 
-  console.log(`${chalk.gray("i")} ${chalk.blue("info")} Current version: ${version}`);
+  console.log(`${pc.gray("i")} ${pc.blue("info")} Current version: ${version}`);
   const response = await prompts({
     type: "text",
     name: "version",
-    message: `${chalk.gray("question")} New version:`,
+    message: `${pc.gray("question")} New version:`,
   });
-  let nextVersion = response.version;
+  const nextVersion = response.version as string;
 
   try {
     if (!semverGt(nextVersion, version)) {
-      console.error(`${chalk.red("ERROR")} ${version} cannot be added after ${nextVersion}`);
+      console.error(`${pc.red("ERROR")} ${version} cannot be added after ${nextVersion}`);
       return process.exit(1);
     }
   } catch (_) {
-    console.error(`${chalk.red("ERROR")} ${version} couln't be parsed`);
+    console.error(`${pc.red("ERROR")} ${version} couln't be parsed`);
     return process.exit(1);
   }
 
   const info = await exec("yarn --json workspaces info");
-  const packages = JSON.parse(info);
-  const data: { location: string }[] = JSON.parse(packages.data);
+  const packages = JSON.parse(info) as { data: string };
+  const data = JSON.parse(packages.data) as { location: string }[];
 
   Object.values(data).forEach(({ location }) => {
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), location, "package.json"), "utf-8"),
-    );
+    ) as PackageJson;
     fs.writeFileSync(
       path.join(process.cwd(), location, "package.json"),
       JSON.stringify({ ...packageJson, version: nextVersion }, null, 2) + "\n",
@@ -73,4 +76,4 @@ async function bump() {
   }
 }
 
-bump();
+void bump();

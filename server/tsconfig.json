@@ -2,24 +2,31 @@
   "include": ["src"],
   "exclude": ["node_modules"],
   "compilerOptions": {
-    "module": "ESNext",
-    "target": "ESNext",
+    "module": "CommonJS",
+    "target": "ES2018",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
-    "jsx": "react-jsx",
+    "outDir": "dist",
     "moduleResolution": "Node",
 
     "allowJs": false,
     "strict": true,
     "isolatedModules": true,
+    "noEmit": false,
     "resolveJsonModule": true,
     "skipLibCheck": true,
     "incremental": false,
     "esModuleInterop": true,
 
+    "declaration": false,
+    "noEmitOnError": true,
+    "pretty": true,
+    "sourceMap": true,
+
     "allowSyntheticDefaultImports": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
+
     "typeRoots": ["types", "node_modules/@types"]
   }
 }

@@ -3,14 +3,12 @@ import { Accepts } from "accepts";
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from "fastify";
 import fs from "node:fs";
 import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node:http2";
-import url from "node:url";
 import path from "pathe";
 import { match } from "ts-pattern";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
-
-const errorTemplate = fs.readFileSync(path.join(dirname, "views", "error.html"), "utf-8");
-const authErrorTemplate = fs.readFileSync(path.join(dirname, "views", "auth-error.html"), "utf-8");
+const viewsPath = path.join(__dirname, "views");
+const errorTemplate = fs.readFileSync(path.join(viewsPath, "error.html"), "utf-8");
+const authErrorTemplate = fs.readFileSync(path.join(viewsPath, "auth-error.html"), "utf-8");
 
 const getAcceptType = (accept: Accepts): "html" | "json" => {
   const type = accept.type(["html", "json"]);

@@ -1,11 +1,11 @@
 import { Option, Result } from "@swan-io/boxed";
-import chalk from "chalk";
 import cliSpinners from "cli-spinners";
 import fs from "fs/promises";
 import { ChatCompletionRequestMessage, Configuration, OpenAIApi } from "openai";
 import ora from "ora";
 import os from "os";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import tiktoken from "tiktoken-node";
 import type { Except } from "type-fest";
@@ -68,15 +68,15 @@ const appTranslationsPaths = {
 
 type AppName = keyof typeof appTranslationsPaths;
 
-const printAppName = (appName: AppName): string => chalk.magenta(appName);
+const printAppName = (appName: AppName): string => pc.magenta(appName);
 
-const printLocale = (locale: Locale): string => chalk.green(locales[locale]);
+const printLocale = (locale: Locale): string => pc.green(locales[locale]);
 
-const printNbKeys = (nbKeys: number): string => chalk.bold(nbKeys);
+const printNbKeys = (nbKeys: number): string => pc.bold(nbKeys);
 
-const printCost = (cost: number): string => chalk.yellow(`${cost.toFixed(4)}$`);
+const printCost = (cost: number): string => pc.yellow(`${cost.toFixed(4)}$`);
 
-const printDuration = (duration: number): string => chalk.cyan(`${(duration / 1000).toFixed(2)}s`);
+const printDuration = (duration: number): string => pc.cyan(`${(duration / 1000).toFixed(2)}s`);
 
 /**
  * Create a spinner with clock

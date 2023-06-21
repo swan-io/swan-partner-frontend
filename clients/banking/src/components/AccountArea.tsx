@@ -228,7 +228,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const lastName = user?.lastName ?? "";
   const phoneNumber = user?.mobilePhoneNumber ?? "";
 
-  const activationTagInput = {
+  const activationTag = match({
     documentCollectionStatus,
     hasTransactions,
     identificationStatus,
@@ -237,10 +237,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     requireFirstTransfer,
     isLegalRepresentative: accountMembership?.legalRepresentative ?? false,
     account,
-    user,
-  } as const;
-
-  const activationTag = match<typeof activationTagInput, AccountActivationTag>(activationTagInput)
+  })
+    .returnType<AccountActivationTag>()
     // if payment level limitations have been lifted, no need for activation
     .with(
       { account: { paymentLevel: "Unlimited", paymentAccountType: "PaymentService" } },

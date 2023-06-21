@@ -128,12 +128,15 @@ const convertFetchUboToInput = (
   fetchedUbo: UboFragment,
   accountCountry: AccountCountry,
 ): LocalStateUbo => {
-  const { direct, indirect, totalCapitalPercentage } = match<
-    UboFragment["info"],
-    Partial<
-      Pick<IndividualUltimateBeneficialOwnerInput, "direct" | "indirect" | "totalCapitalPercentage">
-    >
-  >(fetchedUbo.info)
+  const { direct, indirect, totalCapitalPercentage } = match(fetchedUbo.info)
+    .returnType<
+      Partial<
+        Pick<
+          IndividualUltimateBeneficialOwnerInput,
+          "direct" | "indirect" | "totalCapitalPercentage"
+        >
+      >
+    >()
     .with(
       { __typename: "IndividualUltimateBeneficialOwnerTypeHasCapital" },
       ({ direct, indirect, totalCapitalPercentage }) => ({
@@ -186,7 +189,8 @@ const formatUboMainInfo = (
   companyName: string,
   country: CountryCCA3,
 ) => {
-  const key = match<BeneficiaryFormState, TranslationKey>(ubo)
+  const key = match(ubo)
+    .returnType<TranslationKey>()
     .with({ type: P.nullish }, () => "ownersPage.other")
     .with({ type: "LegalRepresentative" }, () => "ownersPage.legalRepresentative")
     .with({ type: "Other" }, () => "ownersPage.other")

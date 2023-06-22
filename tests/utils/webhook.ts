@@ -5,7 +5,7 @@ import { getSession } from "./session";
 const tokenToEmail = (token: string) => `${token}@email.webhook.site`;
 const emailToToken = (email: string) => email.split("@")[0];
 
-const request = <T>(input: string, init?: RequestInit) =>
+const request = (input: string, init?: RequestInit) =>
   fetch("https://webhook.site" + input, {
     ...init,
     headers: {
@@ -13,23 +13,21 @@ const request = <T>(input: string, init?: RequestInit) =>
       "Content-Type": "application/json",
       ...init?.headers,
     },
-  })
-    .then(async response => {
-      if (!response.ok) {
-        log.error(`Fetch failed with code ${response.status}: ${await response.text()}`);
-        throw response;
-      }
+  }).then(async response => {
+    if (!response.ok) {
+      log.error(`Fetch failed with code ${response.status}: ${await response.text()}`);
+      throw response;
+    }
 
-      return response;
-    })
-    .then(response => {
-      return response.json() as T;
-    });
+    return response;
+  });
 
 const createToken = (): Promise<string> =>
-  request<{ uuid: string }>("/token", {
+  request("/token", {
     method: "POST",
-  }).then(({ uuid }) => uuid);
+  })
+    .then(response => response.json())
+    .then(({ uuid }: { uuid: string }) => uuid);
 
 const deleteToken = (token: string) =>
   request(`/token/${token}`, {

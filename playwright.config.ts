@@ -1,4 +1,4 @@
-import { PlaywrightTestConfig } from "@playwright/test";
+import { defineConfig } from "@playwright/test";
 import path from "pathe";
 import { env } from "./tests/utils/env";
 
@@ -14,15 +14,15 @@ const reportDir = path.join(testResultsDir, "report");
 export const sessionPath = path.join(testResultsDir, "session.json");
 export const storagePath = path.join(testResultsDir, "storage");
 
-const config: PlaywrightTestConfig = {
+export default defineConfig({
   globalSetup: path.join(testDir, "global-setup"),
   globalTeardown: path.join(testDir, "global-teardown"),
 
   forbidOnly: env.CI,
   maxFailures: 1,
+  workers: 1,
   preserveOutput: "always",
   timeout: minutes(5),
-  workers: 1,
 
   testDir,
   outputDir,
@@ -45,6 +45,4 @@ const config: PlaywrightTestConfig = {
       height: 900,
     },
   },
-};
-
-export default config;
+});

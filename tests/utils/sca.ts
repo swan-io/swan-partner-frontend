@@ -1,8 +1,9 @@
-import { Browser, chromium, devices, Page } from "@playwright/test";
+import { Browser, devices, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
-import { wait } from "./functions";
+import { assertIsDefined, wait } from "./functions";
 import { clickOnButton, waitForText } from "./selectors";
+import { getUserAuthLink, getUserTokens } from "./tokens";
 import { getLastMessageURL } from "./twilio";
 
 const injectTestKey = (page: Page) =>
@@ -52,8 +53,31 @@ const waitForConfirm = async (page: Page) => {
   await waitForText(page, "You can now close this page.");
 };
 
-const consent = async (consentUrl: string) => {
-  const browser = await chromium.launch();
+const login = async (browser: Browser) => {
+  const authLink = getUserAuthLink();
+  const startDate = new Date();
+
+  const page = await openPage(browser, "desktop", authLink);
+  const url = await getLastMessageURL({ startDate });
+  const mobile = await openPage(browser, "mobile", url);
+
+  await clickOnButton(mobile, "Confirm");
+  await fillPasscode(mobile);
+  await waitForConfirm(mobile);
+
+  await mobile.close();
+  await page.waitForURL(value => value.origin === REDIRECT_URI);
+
+  const code = new URL(page.url()).searchParams.get("code");
+  assertIsDefined(code);
+
+  const tokens = await getUserTokens(code);
+  await page.close();
+
+  return tokens;
+};
+
+const consent = async (browser: Browser, consentUrl: string) => {
   const startDate = new Date();
 
   const page = await openPage(browser, "desktop", consentUrl);
@@ -70,5 +94,6 @@ const consent = async (consentUrl: string) => {
 };
 
 export const sca = {
+  login,
   consent,
 };

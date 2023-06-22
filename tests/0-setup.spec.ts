@@ -1,21 +1,33 @@
 import { test } from "@playwright/test";
 import { CreateSandboxUserDocument } from "./graphql/partner-admin";
-import { getApiAccessToken, getApiRequester } from "./utils/api";
+import { getApiRequester } from "./utils/api";
+import { assertTypename } from "./utils/functions";
+import { sca } from "./utils/sca";
 import { saveSession } from "./utils/session";
+import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
-test("Setup", async ({ request }) => {
+test("Setup", async ({ browser, request }) => {
   const requestApi = getApiRequester(request);
 
-  const [accessToken, benadyEmail, saisonEmail] = await Promise.all([
-    getApiAccessToken(),
+  const [projectAccessToken, userTokens, benadyEmail, saisonEmail] = await Promise.all([
+    getProjectAccessToken(),
+    sca.login(browser),
     createEmailAddress(),
     createEmailAddress(),
   ]);
 
-  const [x, y] = await Promise.all([
+  await saveSession({
+    project: { accessToken: projectAccessToken },
+    user: userTokens,
+    benady: { email: benadyEmail },
+    saison: { email: saisonEmail },
+  });
+
+  const [createBenadySandboxUser, createSaisonSandboxUser] = await Promise.all([
     requestApi({
       query: CreateSandboxUserDocument,
+      as: "user",
       variables: {
         input: {
           autoConsent: true,
@@ -26,10 +38,11 @@ test("Setup", async ({ request }) => {
           nationalityCCA3: "FRA",
         },
       },
-    }),
+    }).then(response => response.createSandboxUser),
 
     requestApi({
       query: CreateSandboxUserDocument,
+      as: "user",
       variables: {
         input: {
           autoConsent: true,
@@ -40,19 +53,14 @@ test("Setup", async ({ request }) => {
           nationalityCCA3: "FRA",
         },
       },
-    }),
+    }).then(response => response.createSandboxUser),
   ]);
 
-  console.log({ x, y });
+  assertTypename(createBenadySandboxUser, "CreateSandboxUserSuccessPayload");
+  assertTypename(createSaisonSandboxUser, "CreateSandboxUserSuccessPayload");
 
   await saveSession({
-    accessToken,
-    benady: { email: benadyEmail },
-    saison: { email: saisonEmail },
+    benady: { id: createBenadySandboxUser.sandboxUser.id },
+    saison: { id: createSaisonSandboxUser.sandboxUser.id },
   });
-
-  // TODO: Create sandbox users here
-
-  // await page.goto(env.BANKING_URL);
-  // await page.pause();
 });

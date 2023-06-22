@@ -4,8 +4,13 @@ import { sessionPath } from "../../playwright.config";
 import { deepMerge } from "./functions";
 
 type Session = {
-  accessToken: string;
-
+  project: {
+    accessToken: string;
+  };
+  user: {
+    accessToken: string;
+    refreshToken: string;
+  };
   benady: {
     id: string;
     email: string;

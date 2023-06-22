@@ -3,34 +3,22 @@ import { APIRequestContext } from "@playwright/test";
 import { Kind, print } from "graphql";
 import { Exact } from "../graphql/partner-admin";
 import { env } from "./env";
-import { fetchOk, log } from "./functions";
+import { log } from "./functions";
 import { getSession, saveSession } from "./session";
+import { getProjectAccessToken, refreshUserTokens } from "./tokens";
 
 type ApiRequesterOptions<Result, Variables> = {
+  as?: "project" | "user";
   headers?: Record<string, string | undefined>;
   query: TypedDocumentNode<Result, Variables>;
 } & (Variables extends Exact<{ [key: string]: never }>
   ? { variables?: Variables }
   : { variables: Variables });
 
-export const getApiAccessToken = () => {
-  const formData = new FormData();
-
-  formData.append("grant_type", "client_credentials");
-  formData.append("client_id", env.OAUTH_CLIENT_ID);
-  formData.append("client_secret", env.OAUTH_CLIENT_SECRET);
-
-  return fetchOk(env.OAUTH_SERVER_URL + "/oauth2/token", {
-    method: "POST",
-    body: formData,
-  })
-    .then(response => response.json())
-    .then((json: { access_token: string }) => json.access_token);
-};
-
 export const getApiRequester =
   (request: APIRequestContext) =>
   async <Result, Variables>({
+    as = "project",
     headers = {},
     query,
     variables,
@@ -87,15 +75,30 @@ export const getApiRequester =
       }
     }
 
-    const { accessToken } = await getSession();
+    const { project, user } = await getSession();
+    const { accessToken } = as === "project" ? project : user;
+
+    if (accessToken == null) {
+      throw new Error("Missing accessToken");
+    }
 
     return performRequest(accessToken).catch(async (error: Error) => {
       if (error.message !== "UNAUTHORIZED") {
         return Promise.reject(error);
       }
 
-      const accessToken = await getApiAccessToken();
-      await saveSession({ accessToken });
-      return performRequest(accessToken);
+      if (as === "project") {
+        const accessToken = await getProjectAccessToken();
+        await saveSession({ project: { accessToken } });
+        return performRequest(accessToken);
+      } else {
+        const {
+          user: { refreshToken },
+        } = await getSession();
+
+        const tokens = await refreshUserTokens(refreshToken);
+        await saveSession({ user: tokens });
+        return performRequest(tokens.accessToken);
+      }
     });
   };

@@ -2,9 +2,13 @@ import { P, isMatching } from "ts-pattern";
 import { env } from "./env";
 import { assertIsDefined, fetchOk, retry, seconds } from "./functions";
 
-const bodyContainsMessages = isMatching({ messages: P.array({ body: P.string }) });
+type NonEmptyArray = [string, ...string[]];
 
-export const getLastMessages = (options: { startDate?: Date } = {}): Promise<string[]> => {
+const bodyContainsMessages = isMatching({
+  messages: P.array({ body: P.string }),
+});
+
+export const getLastMessages = (options: { startDate?: Date } = {}): Promise<NonEmptyArray> => {
   const request = async () => {
     const url = new URL(
       `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_ID}/Messages.json`,
@@ -25,7 +29,14 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<str
     });
 
     const body: unknown = await response.json();
-    return bodyContainsMessages(body) ? body.messages.map(message => message.body) : [];
+
+    if (!bodyContainsMessages(body) || body.messages[0] == null) {
+      throw new Error(`No message in twilio ${env.PHONE_NUMBER} queue`);
+    }
+
+    const [head, ...tail] = body.messages;
+    const messages: NonEmptyArray = [head.body, ...tail.map(({ body }) => body)];
+    return messages;
   };
 
   return retry(request, {
@@ -36,10 +47,6 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<str
 
 export const getLastMessageURL = async (options: { startDate?: Date } = {}): Promise<string> => {
   const message = (await getLastMessages(options))[0];
-
-  if (message == null) {
-    throw new Error(`No message in twilio ${env.PHONE_NUMBER} queue`);
-  }
 
   const url = message
     .replace(/\n/g, " ")

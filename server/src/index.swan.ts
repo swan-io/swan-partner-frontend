@@ -30,6 +30,7 @@ const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
   ESP: "Spanish",
   FRA: "French",
+  NLD: "Dutch",
 };
 
 const accountCountries = Object.keys(countryTranslations) as AccountCountry[];

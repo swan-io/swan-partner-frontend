@@ -1,27 +1,39 @@
 import dotenv from "dotenv";
-import { boolean, string, validate } from "valienv";
+import path from "pathe";
+import { Validator, boolean, string, validate } from "valienv";
 
-dotenv.config();
+dotenv.config({
+  path: path.resolve(__dirname, "../../.env.e2e"),
+});
 
-const CI = process.env.CI === String(true);
-
-const e2eEnv = Object.fromEntries(
-  Object.entries(process.env)
-    .filter(([key]) => key.startsWith("E2E_"))
-    .map(([key, value]) => [key.replace("E2E_", ""), value]),
-);
+const url: Validator<string> = (value = "") => {
+  try {
+    new URL(value);
+    return value;
+  } catch {} // eslint-disable-line no-empty
+};
 
 export const env = validate({
   env: {
-    ...e2eEnv,
-    CI: String(CI),
+    ...process.env,
+    CI: String(process.env.CI === "true"),
   },
   validators: {
     CI: boolean,
 
+    PARTNER_ADMIN_API_URL: url,
+
+    OAUTH_SERVER_URL: url,
+    OAUTH_CLIENT_ID: string,
+    OAUTH_CLIENT_SECRET: string,
+
+    BANKING_URL: url,
+    ONBOARDING_URL: url,
+
+    TEST_KEY: string,
+
     PHONE_NUMBER: string,
     PASSCODE: string,
-    TEST_KEY: string,
 
     TWILIO_ACCOUNT_ID: string,
     TWILIO_AUTH_TOKEN: string,

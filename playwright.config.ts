@@ -45,4 +45,12 @@ export default defineConfig({
       height: 900,
     },
   },
+
+  webServer: {
+    command: "yarn dev-e2e",
+    url: env.BANKING_URL,
+    reuseExistingServer: false, // TODO: use !env.CI
+    stderr: "pipe",
+    stdout: "ignore",
+  },
 });

@@ -25,9 +25,6 @@
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",
     "lint": "eslint 'clients/*/src/**/*.{ts,tsx}'",
-    "read-e2e-sms": "tsx scripts/twilio/getLastMessages.ts",
-    "dev-e2e": "playwright test --ui",
-    "test-e2e": "playwright test",
     "test": "vitest run --passWithNoTests",
     "lint-env-vars": "tsx scripts/env/lintEnvVariables.ts",
     "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",
@@ -36,7 +33,11 @@
     "ai-translate": "tsx -r dotenv/config scripts/locales/ai-translate.ts",
     "sort-locales": "tsx scripts/locales/sort.ts",
     "remove-unused-locales": "tsx scripts/locales/remove-unused.ts",
-    "bump": "tsx scripts/version/version.ts"
+    "bump": "tsx scripts/version/version.ts",
+    "dev-e2e": "tsx -r dotenv/config server/src/index.ts --dev dotenv_config_path=.env.e2e",
+    "read-e2e-sms": "tsx scripts/twilio/getLastMessages.ts",
+    "test-e2e": "playwright test",
+    "test-e2e-ui": "playwright test --ui"
   },
   "workspaces": {
     "packages": [

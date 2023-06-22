@@ -1,0 +1,12 @@
+mutation CreateSandboxUser($input: CreateSandboxUserInput!) {
+  createSandboxUser(input: $input) {
+    ... on Rejection {
+      message
+    }
+    ... on CreateSandboxUserSuccessPayload {
+      sandboxUser {
+        id
+      }
+    }
+  }
+}

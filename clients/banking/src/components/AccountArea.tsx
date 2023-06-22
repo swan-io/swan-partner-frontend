@@ -220,6 +220,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     .with({ account: { country: "DEU" } }, () => true)
     .otherwise(() => false);
 
+  const { supportingDocumentSettings } = projectInfo;
+  const documentCollectMode = supportingDocumentSettings?.collectMode;
+
   const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
   const documentCollectionStatus = documentCollection?.statusInfo.status;
 
@@ -230,6 +233,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   const activationTag = match({
     documentCollectionStatus,
+    documentCollectMode,
     hasTransactions,
     identificationStatus,
     accountHolderType: account?.holder.info.__typename,
@@ -263,7 +267,17 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       {
         isIndividual: true,
         requireFirstTransfer: false,
-        account: { holder: { verificationStatus: P.union("NotStarted", "Pending") } },
+        account: {
+          holder: { verificationStatus: P.union("NotStarted", "Pending") },
+        },
+      },
+      {
+        isIndividual: true,
+        requireFirstTransfer: false,
+        documentCollectMode: "API",
+        account: {
+          holder: { verificationStatus: P.union("Pending", "WaitingForInformation") },
+        },
       },
       () => "pending",
     )

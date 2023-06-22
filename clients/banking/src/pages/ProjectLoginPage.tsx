@@ -1,18 +1,19 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Path, Svg } from "@swan-io/lake/src/components/Svg";
+import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { colors, invariantColors, shadows } from "@swan-io/lake/src/constants/design";
-import { typography } from "@swan-io/lake/src/constants/typography";
+import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { lighten } from "polished";
 import { useCallback, useLayoutEffect, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { SwanLogo } from "../components/SwanLogo";
@@ -26,7 +27,7 @@ import { parseOperationResult, partnerClient, unauthenticatedClient } from "../u
 
 const styles = StyleSheet.create({
   base: {
-    backgroundColor: colors.gray[50],
+    backgroundColor: backgroundColor.default,
     flexGrow: 1,
   },
   contentContainer: {
@@ -41,20 +42,10 @@ const styles = StyleSheet.create({
     top: 40,
     height: 112,
   },
-  topFixedSpace: {
-    flexShrink: 0,
-    height: 112,
-  },
-  bottomVariableSpace: {
-    flexShrink: 1,
-    height: "100%",
-    maxHeight: 112,
-  },
   logo: {
     height: 20,
   },
   parternship: {
-    ...typography.bodySmall,
     marginHorizontal: "auto",
     display: "flex",
     flexDirection: "row",
@@ -64,13 +55,11 @@ const styles = StyleSheet.create({
     height: 9,
   },
   card: {
-    backgroundColor: invariantColors.white,
-    borderRadius: 4,
     margin: "auto",
     maxWidth: 360,
-    overflow: "hidden",
     width: "100%",
-    boxShadow: shadows.tile,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
   },
   gradient: {
     height: 208,
@@ -85,13 +74,7 @@ const styles = StyleSheet.create({
     padding: 32,
     flexGrow: 1,
   },
-  helpTitle: {
-    ...typography.bodyLarge,
-    fontWeight: typography.fontWeights.demi,
-  },
   link: {
-    ...typography.bodySmall,
-    color: colors.gray[400],
     wordBreak: "keep-all",
   },
   underline: {
@@ -100,11 +83,11 @@ const styles = StyleSheet.create({
 });
 
 const HelpLink = ({ to, children }: { to: string; children: string }) => (
-  <Text style={styles.link}>
+  <LakeText variant="smallRegular" style={styles.link}>
     <Link to={to} style={({ hovered }) => hovered && styles.underline} target="blank">
       {children}
     </Link>
-  </Text>
+  </LakeText>
 );
 
 const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage([
@@ -196,20 +179,24 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
 
                 <Space height={8} />
 
-                <Text style={styles.parternship}>
+                <LakeText
+                  variant="smallRegular"
+                  color={colors.gray[900]}
+                  style={styles.parternship}
+                >
                   {t("login.parternship")}{" "}
                   <SwanLogo fill={colors.gray[900]} style={styles.swanLogo} />
-                </Text>
+                </LakeText>
               </>
             ) : (
               <SwanLogo fill={colors.gray[900]} style={styles.logo} />
             )}
           </View>
 
-          <View role="none" style={styles.topFixedSpace} />
+          <Space height={96} />
 
           <WithPartnerAccentColor color={accentColor}>
-            <View role="main" style={styles.card}>
+            <Tile style={styles.card}>
               <View style={[styles.gradient, { backgroundImage }]}>
                 <Svg viewBox="0 0 90 90" style={styles.icon}>
                   <Path
@@ -225,7 +212,11 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
                 </LakeButton>
 
                 <Separator space={24} />
-                <Text style={styles.helpTitle}>{t("login.needHelp")}</Text>
+
+                <LakeText color={colors.gray[900]} variant="semibold">
+                  {t("login.needHelp")}
+                </LakeText>
+
                 <Space height={8} />
                 <HelpLink to={`${SUPPORT_ROOT_URL}-150`}>{t("login.linkHow")}</HelpLink>
                 <Space height={8} />
@@ -236,10 +227,10 @@ export const ProjectLoginPage = ({ projectId }: { projectId: string }) => {
                   {t("login.linkFraud")}
                 </HelpLink>
               </View>
-            </View>
+            </Tile>
           </WithPartnerAccentColor>
 
-          <View role="none" style={styles.bottomVariableSpace} />
+          <Space height={32} />
         </ScrollView>
       );
     })

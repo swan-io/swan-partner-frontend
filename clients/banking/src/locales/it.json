@@ -573,6 +573,7 @@
   "transactionRejectedReason.InvalidPin": "PIN non valido",
   "transactionRejectedReason.InvalidPinAttemptsExceeded": "Numero di tentativi PIN non validi superato",
   "transactionRejectedReason.InvalidSecurityNumber": "Codice di sicurezza non valido",
+  "transactionRejectedReason.InvalidTransferDate": "Data di trasferimento non valida",
   "transactionRejectedReason.MandateInvalid": "Mandato non valido",
   "transactionRejectedReason.MerchantShouldResubmitAuthorization": "L'esercente deve inviare nuovamente l'autorizzazione",
   "transactionRejectedReason.NoMandate": "Nessun mandato",

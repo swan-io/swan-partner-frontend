@@ -573,6 +573,7 @@
   "transactionRejectedReason.InvalidPin": "PIN ongeldig",
   "transactionRejectedReason.InvalidPinAttemptsExceeded": "Aantal ongeldige pincodes overschreden",
   "transactionRejectedReason.InvalidSecurityNumber": "Beveiligingsnummer ongeldig",
+  "transactionRejectedReason.InvalidTransferDate": "Ongeldige overboekingsdatum",
   "transactionRejectedReason.MandateInvalid": "Ongeldige mandaat",
   "transactionRejectedReason.MerchantShouldResubmitAuthorization": "De handelaar moet de autorisatie opnieuw indienen",
   "transactionRejectedReason.NoMandate": "Geen autorisatie",

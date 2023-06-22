@@ -573,6 +573,7 @@
   "transactionRejectedReason.InvalidPin": "Ungültige PIN",
   "transactionRejectedReason.InvalidPinAttemptsExceeded": "Anzahl ungültiger PIN-Versuche überschritten",
   "transactionRejectedReason.InvalidSecurityNumber": "Ungültige Sicherheitsnummer",
+  "transactionRejectedReason.InvalidTransferDate": "Ungültiges Überweisungsdatum",
   "transactionRejectedReason.MandateInvalid": "Ungültiger Aufrag",
   "transactionRejectedReason.MerchantShouldResubmitAuthorization": "Händler sollte Autorisierung erneut einreichen",
   "transactionRejectedReason.NoMandate": "Kein Auftrag",

@@ -1,9 +1,25 @@
-mutation CreateSandboxUser($input: CreateSandboxUserInput!) {
-  createSandboxUser(input: $input) {
-    ... on Rejection {
-      message
+mutation CreateSandboxUser($firstName: String!, $lastName: String!) {
+  createSandboxUser(
+    input: {
+      autoConsent: true
+      birthDate: "01/01/1070"
+      firstName: $firstName
+      identificationStatus: Uninitiated
+      lastName: $lastName
+      nationalityCCA3: "FRA"
     }
+  ) {
     ... on CreateSandboxUserSuccessPayload {
+      sandboxUser {
+        id
+      }
+    }
+  }
+}
+
+mutation EndorseSandboxUser($id: String!) {
+  endorseSandboxUser(input: { id: $id }) {
+    ... on EndorseSandboxUserSuccessPayload {
       sandboxUser {
         id
       }

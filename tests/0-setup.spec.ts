@@ -1,5 +1,5 @@
 import { test } from "@playwright/test";
-import { CreateSandboxUserDocument } from "./graphql/partner-admin";
+import { CreateSandboxUserDocument, EndorseSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { assertTypename } from "./utils/functions";
 import { sca } from "./utils/sca";
@@ -24,19 +24,13 @@ test("Setup", async ({ browser, request }) => {
     saison: { email: saisonEmail },
   });
 
-  const [createBenadySandboxUser, createSaisonSandboxUser] = await Promise.all([
+  const [createBenady, createSaison] = await Promise.all([
     requestApi({
       query: CreateSandboxUserDocument,
       as: "user",
       variables: {
-        input: {
-          autoConsent: true,
-          birthDate: "01/01/1970",
-          firstName: "Nicolas",
-          identificationStatus: "Uninitiated",
-          lastName: "Benady",
-          nationalityCCA3: "FRA",
-        },
+        firstName: "Nicolas",
+        lastName: "Benady",
       },
     }).then(response => response.createSandboxUser),
 
@@ -44,23 +38,25 @@ test("Setup", async ({ browser, request }) => {
       query: CreateSandboxUserDocument,
       as: "user",
       variables: {
-        input: {
-          autoConsent: true,
-          birthDate: "01/01/1970",
-          firstName: "Nicolas",
-          identificationStatus: "Uninitiated",
-          lastName: "Saison",
-          nationalityCCA3: "FRA",
-        },
+        firstName: "Nicolas",
+        lastName: "Saison",
       },
     }).then(response => response.createSandboxUser),
   ]);
 
-  assertTypename(createBenadySandboxUser, "CreateSandboxUserSuccessPayload");
-  assertTypename(createSaisonSandboxUser, "CreateSandboxUserSuccessPayload");
+  assertTypename(createBenady, "CreateSandboxUserSuccessPayload");
+  assertTypename(createSaison, "CreateSandboxUserSuccessPayload");
 
   await saveSession({
-    benady: { id: createBenadySandboxUser.sandboxUser.id },
-    saison: { id: createSaisonSandboxUser.sandboxUser.id },
+    benady: { id: createBenady.sandboxUser.id },
+    saison: { id: createSaison.sandboxUser.id },
+  });
+
+  await requestApi({
+    query: EndorseSandboxUserDocument,
+    as: "user",
+    variables: {
+      id: createBenady.sandboxUser.id,
+    },
   });
 });

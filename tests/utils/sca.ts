@@ -53,6 +53,17 @@ const waitForConfirm = async (page: Page) => {
   await waitForText(page, "You can now close this page.");
 };
 
+const waitForPostKycConfirm = async (page: Page) => {
+  await waitForText(page, "Prove your identity in the Sandbox");
+  await clickOnButton(page, "Next");
+
+  await waitForConfirm(page);
+};
+
+const waitForAnyConfirm = async (page: Page) => {
+  await Promise.race([waitForPostKycConfirm(page), waitForConfirm(page)]);
+};
+
 const login = async (browser: Browser) => {
   const authLink = getUserAuthLink();
   const startDate = new Date();
@@ -63,7 +74,7 @@ const login = async (browser: Browser) => {
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForConfirm(mobile);
+  await waitForAnyConfirm(mobile);
 
   await mobile.close();
   await page.waitForURL(value => value.origin === REDIRECT_URI);
@@ -86,7 +97,7 @@ const consent = async (browser: Browser, consentUrl: string) => {
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForConfirm(mobile);
+  await waitForAnyConfirm(mobile);
 
   await mobile.close();
   await page.waitForURL(value => value.origin === REDIRECT_URI);

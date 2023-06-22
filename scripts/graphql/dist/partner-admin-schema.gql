@@ -79,6 +79,12 @@ type Account {
   upgradedAt: DateTime
 
   """
+  COMING SOON
+  Link to the account's bank details
+  """
+  bankDetails: String
+
+  """
   A list of invoices of an account.
   The list is ordered by creation date (from newest to oldest)
   """
@@ -144,7 +150,7 @@ enum AccountCountry {
   ESP
 
   """COMING SOON"""
-  NDL
+  NLD
 }
 
 """Implements the Relay Edge interface"""
@@ -340,6 +346,7 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+  registrationNumber: String
 }
 
 """Individual account holder."""

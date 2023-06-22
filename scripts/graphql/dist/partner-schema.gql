@@ -78,6 +78,12 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
+  """
+  COMING SOON
+  Link to the account's bank details
+  """
+  bankDetails: String
+
   """A list of standing orders regarding an account."""
   standingOrders(
     """number of elements in the list (default value 50)"""
@@ -254,9 +260,10 @@ type AccountConnection implements Connection {
 enum AccountCountry {
   FRA
   DEU
+  ESP
 
   """COMING SOON"""
-  ESP
+  NLD
 }
 
 """Implements the Relay Edge interface"""
@@ -388,6 +395,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Registration number of the company (SIRET, ...)."""
   registrationNumber: String
 
+  """Registration date of the company."""
+  companyRegistrationDate: Date
+
   """Legal form of the company (SAS, SCI, SASU, ...)."""
   companyType: CompanyType
 
@@ -463,6 +473,7 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+  registrationNumber: String
 }
 
 """Individual account holder."""
@@ -602,7 +613,7 @@ type AccountMembership {
   canInitiatePayments: Boolean!
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean!
 
@@ -820,6 +831,9 @@ input AccountMembershipsFilterInput {
 
   """Can the user manage beneficiaries"""
   canManageBeneficiaries: Boolean
+
+  """Can the user view account"""
+  canViewAccount: Boolean
 
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
@@ -1375,13 +1389,20 @@ type AddingCardsToDifferentAccountsRejection implements Rejection {
 
 """Inputs to add an Internal Direct Debit Payment Mandate"""
 input AddInternalDirectDebitPaymentMandateInput {
-  """The ID of the concerned merchant profile"""
-  merchantProfileId: ID!
+  """
+  The ID of the concerned merchant profile
+  DEPRECATED: Use paymentMethodId instead
+  """
+  merchantProfileId: ID
 
   """
   Internal Direct Debit Scheme of the payment mandate, with two possible values (Standard or B2B)
+  DEPRECATED: Use paymentMethodId instead
   """
   scheme: InternalDirectDebitScheme
+
+  """The ID of the concerned merchant payment method"""
+  paymentMethodId: ID
 
   """Determines whether the payment mandate is a one-off or recurring"""
   sequence: InternalDirectDebitSequence
@@ -1467,6 +1488,33 @@ union AddOrUpdateExternalAccountBalancePayload = AddOrUpdateExternalAccountBalan
 type AddOrUpdateExternalAccountBalanceSuccessPayload {
   """The added external balance"""
   externalAccountBalance: ExternalAccountBalance!
+}
+
+"""Inputs to add a received internal direct debit mandate B2b."""
+input AddReceivedInternalDirectDebitB2bMandateInput {
+  """The associated Payment Mandate ID"""
+  paymentMandateId: ID!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+
+  """
+  Label that will be displayed along with this received direct debit mandate in the web banking
+  """
+  name: String
+}
+
+"""
+Union type return by the addReceivedInternalDirectDebitB2bMandate mutation
+"""
+union AddReceivedInternalDirectDebitB2bMandatePayload = AddReceivedInternalDirectDebitB2bMandateSuccessPayload | ForbiddenRejection | PaymentMandateMandateNotFoundRejection | AccountHolderTypeIndividualRejection
+
+"""
+Return type in case of a successful response of the addReceivedInternalDirectDebitB2bMandate mutation
+"""
+type AddReceivedInternalDirectDebitB2bMandateSuccessPayload {
+  """The received direct debit mandate is added"""
+  receivedDirectDebitMandate: ReceivedDirectDebitMandate!
 }
 
 """Inputs to add a received sepa direct debit mandate B2b."""
@@ -1612,6 +1660,36 @@ input AddressInput {
 
   """country code"""
   country: CCA3!
+}
+
+input AddSepaDirectDebitPaymentMandateInput {
+  """
+  Specifies payment ID of a SEPA Direct Debit CORE or B2B payment method. 
+  """
+  paymentMethodId: ID!
+
+  """Determines whether the payment mandate is a one-off or recurring"""
+  sequence: DirectDebitSequence!
+
+  """Unique reference of the SEPA Direct Debit Payment Mandate."""
+  reference: String
+
+  """Language that will be used to produce the mandate PDF document"""
+  language: MandateLanguage!
+
+  """Signature date of the SEPA Direct Debit Payment Mandate"""
+  signatureDate: Date!
+  debtor: SepaPaymentMandateDebtorInput!
+}
+
+"""Union type return by the addSepaDirectDebitPaymentMandate mutation"""
+union AddSepaDirectDebitPaymentMandatePayload = AddSepaDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+
+"""
+Return type in case of a successful response of the addSepaDirectDebitPaymentMandate mutation
+"""
+type AddSepaDirectDebitPaymentMandateSuccessPayload {
+  paymentMandate: SEPAPaymentDirectDebitMandate!
 }
 
 """Inputs to add a new card"""
@@ -1989,6 +2067,14 @@ type CanceledFundingSourceStatusInfo implements FundingSourceStatusInfo {
   reasonCode: CanceledFundingSourceReason!
 }
 
+"""CanceledMerchantPaymentMethodStatusInfo"""
+type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method canceled date"""
+  canceledAt: Date!
+}
+
 """CanceledMerchantPaymentProductStatusInfo"""
 type CanceledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -2364,6 +2450,9 @@ type Card {
 
   """Card product"""
   cardProduct: CardProduct!
+
+  """Issuing Country"""
+  issuingCountry: CCA3!
 
   """Periodic Spending"""
   spending: Spending
@@ -3109,6 +3198,34 @@ input Certificate {
   value: String!
 }
 
+"""CheckMerchantPaymentMethod"""
+type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """CheckMerchantPaymentProduct"""
 type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
   """
@@ -3153,6 +3270,11 @@ input CheckPaymentCollectionInput {
   Combined with CMC7 line, it allows the check traceability.
   """
   rlmcKey: String!
+}
+
+input CheckPaymentMethodInput {
+  """Determine whether the payment method must be activated or not"""
+  activate: Boolean = false
 }
 
 input CheckPaymentProductInput {
@@ -3223,9 +3345,6 @@ type CheckTransaction implements Transaction {
 
   """payment product used for this transaction"""
   paymentProduct: PaymentProduct!
-
-  """creditor information"""
-  creditor: InternalDirectDebitCreditor!
 
   """matching account for the transaction"""
   account: Account
@@ -3771,6 +3890,12 @@ input CreditTransferInput {
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
   """
   mode: CreditTransferMode
+
+  """
+  *COMING SOON*
+  if the transfer will credit a new international beneficiary
+  """
+  internationalBeneficiary: InternationalBeneficiaryInput
 }
 
 enum CreditTransferMode {
@@ -4091,6 +4216,11 @@ type DirectDebitFundingSource implements FundingSource {
   paymentMandate: PaymentDirectDebitMandate!
 }
 
+enum DirectDebitSequence {
+  OneOff
+  Recurring
+}
+
 """Input to disable an account membership"""
 input DisableAccountMembershipInput {
   """Unique identifier of the account membership to disable"""
@@ -4107,6 +4237,14 @@ type DisableAccountMembershipSuccessPayload {
 type DisabledFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
   status: FundingLimitSettingsStatus!
   reason: String!
+}
+
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method disabled date"""
+  disabledAt: Date!
 }
 
 """EnabledMerchantPaymentProductStatusInfo"""
@@ -4160,6 +4298,14 @@ type EnabledFundingSourceStatusInfo implements FundingSourceStatusInfo {
   status: FundingSourceStatus!
 
   """Date at which the funding source was enabled"""
+  enabledAt: Date!
+}
+
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type EnabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method enabled date"""
   enabledAt: Date!
 }
 
@@ -4442,15 +4588,108 @@ type FeeOutDebtor implements FeeDebtor {
 
 """Fees type"""
 enum FeesTypeEnum {
-  ProcessingJudicialOrAdministrativeSeizure
-  CirculationLetterDraftingFee
-  CashWithdrawalsOutsideSEPA
-  CardPaymentsOutsideSEPA
-  CashWithdrawalsWithinSEPA
-  DirectDebitRejection
-  ImproperUseOfAccount
-  UnauthorizedOverdraft
+  """Other banking fee"""
   BankingFee
+
+  """Card transaction in foreign currency"""
+  CardPaymentsOutsideSEPA
+
+  """Cash withdrawal in foreign currency"""
+  CashWithdrawalsOutsideSEPA
+
+  """Cash withdrawal"""
+  CashWithdrawalsWithinSEPA
+
+  """Deposit of a physical check"""
+  CheckDeposit
+
+  """Rejection or return of a physical check"""
+  CheckIncident
+
+  """Drafting circulation letter"""
+  CirculationLetterDraftingFee
+
+  """Drafting Confirmation letter"""
+  ConfirmationLetterDraftingFee
+
+  """Direct debit rejection"""
+  DirectDebitRejection
+
+  """
+  Incoming credit transfers not denominated and executed in euros on Tier 1 currencies
+  """
+  InternationalCreditTransferInGroup1
+
+  """
+  Incoming credit transfers not denominated and executed in euros on Tier 2 currencies
+  """
+  InternationalCreditTransferInGroup2
+
+  """
+  Incoming credit transfers not denominated and executed in euros on Tier 3 currencies
+  """
+  InternationalCreditTransferInGroup3
+
+  """
+  Incoming credit transfers not denominated and executed in euros on Tier 4 currencies
+  """
+  InternationalCreditTransferInGroup4
+
+  """
+  Outgoing credit transfers not denominated and executed in euros on Tier 1 currencies
+  """
+  InternationalCreditTransferOutGroup1
+
+  """
+  Outgoing credit transfers not denominated and executed in euros on Tier 2 currencies
+  """
+  InternationalCreditTransferOutGroup2
+
+  """
+  Outgoing credit transfers not denominated and executed in euros on Tier 3 currencies
+  """
+  InternationalCreditTransferOutGroup3
+
+  """
+  Outgoing credit transfers not denominated and executed in euros on Tier 4 currencies
+  """
+  InternationalCreditTransferOutGroup4
+
+  """Improper use of account"""
+  ImproperUseOfAccount
+
+  """Delivery of physical cards with an express delivery provider"""
+  PhysicalCardDeliveryExpress
+
+  """Delivery of physical cards within France"""
+  PhysicalCardDeliveryFrance
+
+  """Delivery of physical cards outside of France"""
+  PhysicalCardDeliveryIntl
+
+  """Process of printing physical cards"""
+  PhysicalCardPrinting
+
+  """Processing judicial or administrative seizure"""
+  ProcessingJudicialOrAdministrativeSeizure
+
+  """B2B SEPA Direct Debit up to 200€"""
+  SepaDirectDebitInB2bLevel1
+
+  """B2B SEPA Direct Debit more than 200€"""
+  SepaDirectDebitInB2bLevel2
+
+  """Core SEPA Direct Debit up to 200€"""
+  SepaDirectDebitInCoreLevel1
+
+  """Core SEPA Direct Debit more than 200€"""
+  SepaDirectDebitInCoreLevel2
+
+  """Return of a Core SEPA Direct Debit"""
+  SepaDirectDebitInCoreReturn
+
+  """Unauthorized overdraft"""
+  UnauthorizedOverdraft
 }
 
 """Fee Transaction"""
@@ -4991,6 +5230,22 @@ enum IdentificationLevel {
   PVID
 }
 
+"""User identification levels input payload."""
+enum IdentificationLevelInput {
+  """Identity verified by an expert (Ubble-like)"""
+  Expert
+
+  """
+  Identity verified by an expert with a Remote Identity Verification Service
+  """
+  PVID
+
+  """
+  Identity verified by an expert and a Qualified Electronic Signature has been done
+  """
+  QES
+}
+
 """Identification levels"""
 type IdentificationLevels {
   PVID: Boolean!
@@ -5267,6 +5522,7 @@ input InitiateFundingRequestInput {
   requestedExecutionAt: DateTime
 
   """
+  *SOON TO BE DEPRECATED*
   If `true` the funds should be available immediately. If `false` or `null`, the funds will be available
   after the resolution of the credit transaction.
   """
@@ -5307,6 +5563,9 @@ input InitiateMerchantPaymentCollectionInput {
 
   """Check type of payment collection"""
   check: CheckPaymentCollectionInput
+
+  """Sepa Direct Debit type of payment collection"""
+  sepaDirectDebit: SepaDirectDebitPaymentCollectionInput
 }
 
 union InitiateMerchantPaymentCollectionPayload = InitiateMerchantPaymentCollectionSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
@@ -5492,6 +5751,39 @@ type InternalCreditTransferOutDebtor implements InternalCreditTransferDebtor {
   accountNumber: AccountNumber!
 }
 
+"""InternalDirectDebitB2BMerchantPaymentMethod"""
+type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+input InternalDirectDebitB2BPaymentMethodInput {
+  """If `true`, the Payment Method will be Pending Review"""
+  activate: Boolean = false
+}
+
 """Internal Direct Debit Creditor"""
 type InternalDirectDebitCreditor {
   """unique identifier of the creditor account"""
@@ -5561,6 +5853,39 @@ enum InternalDirectDebitScheme {
 enum InternalDirectDebitSequence {
   OneOff
   Recurring
+}
+
+"""InternalDirectDebitStandardMerchantPaymentMethod"""
+type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+input InternalDirectDebitStandardPaymentMethodInput {
+  """If `true`, the Payment Method will be Pending Review"""
+  activate: Boolean = false
 }
 
 """Internal Direct Debit transaction"""
@@ -5887,6 +6212,12 @@ enum InternalReceivedDirectDebitMandateSequence {
   Recurrent
 }
 
+"""International beneficiary account"""
+input InternationalBeneficiaryInput {
+  """Currency of the international beneficiary"""
+  currency: Currency!
+}
+
 """Rejection returned on invalid argument error"""
 type InvalidArgumentRejection implements Rejection {
   message: String!
@@ -5948,6 +6279,9 @@ type InvalidSirenNumberRejection implements Rejection {
 type Invoice {
   """unique id"""
   id: ID!
+
+  """account id"""
+  accountId: ID!
 
   """name of the invoice"""
   name: String!
@@ -6062,6 +6396,9 @@ input MembershipsFilterInput {
 
   """Can the user manage beneficiaries"""
   canManageBeneficiaries: Boolean
+
+  """Can the user view account"""
+  canViewAccount: Boolean
 
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
@@ -6382,6 +6719,59 @@ enum MerchantCategoryDescription {
   WomenReadyToWearStores
 }
 
+"""Base object for the different Payment Methods available"""
+interface MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodStatus {
+  PendingReview
+  Enabled
+  Rejected
+  Disabled
+  Canceled
+  Suspended
+}
+
+"""The payment method status information"""
+interface MerchantPaymentMethodStatusInfo {
+  """Merchant Payment Method Status"""
+  status: MerchantPaymentMethodStatus!
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodType {
+  InternalDirectDebitStandard
+  InternalDirectDebitB2b
+  SepaDirectDebitCore
+  SepaDirectDebitB2b
+  Check
+}
+
 """Base object for the different Payment Products available"""
 interface MerchantPaymentProduct {
   """
@@ -6460,7 +6850,10 @@ type MerchantProfile {
   expectedMonthlyPaymentVolume: Amount!
 
   """Payment Products associated"""
-  merchantPaymentProducts: [MerchantPaymentProduct!]
+  merchantPaymentProducts: [MerchantPaymentProduct!] @deprecated(reason: "Use merchantPaymentMethods instead")
+
+  """Payment Methods associated"""
+  merchantPaymentMethods: [MerchantPaymentMethod!]
 
   """expected average basket value."""
   expectedAverageBasket: Amount!
@@ -6583,6 +6976,7 @@ type Mutation {
 
   """Add a merchant profile to a company account holder"""
   addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
+  addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
 
   """Cancel a funding source"""
   cancelFundingSource(input: CancelFundingSourceInput!): CancelFundingSourcePayload
@@ -6600,9 +6994,13 @@ type Mutation {
   The user must have an account membership for this account with the attribute `canInitiateCreditTransfer=true`.
   """
   initiateFundingRequest(input: InitiateFundingRequestInput!): InitiateFundingRequestPayload
+  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
+
+  """Request merchant payment methods for a merchant profile"""
+  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
 
   """Request merchant payment products for a merchant profile"""
-  requestMerchantPaymentProducts(input: RequestMerchantPaymentProductsInput!): RequestMerchantPaymentProductsPayload
+  requestMerchantPaymentProducts(input: RequestMerchantPaymentProductsInput!): RequestMerchantPaymentProductsPayload @deprecated(reason: "Use requestMerchantPaymentMethods instead")
 
   """
   Schedule a standing Order
@@ -6612,7 +7010,6 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   scheduleStandingOrder(input: ScheduleStandingOrderInput!): ScheduleStandingOrderPayload!
-  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
 
   """
   Cancels an UPCOMING credit transfer
@@ -6638,6 +7035,15 @@ type Mutation {
   *The user must have an account membership on the accounts that are beneficiary of the transaction with the attribute `canInitiatePayments=true`.*
   """
   refund(input: RefundInput!): RefundPayload!
+
+  """
+  Allows to add a received internal direct debit mandate B2b.
+  
+  *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request with the Swan app.*
+  
+  *The user must be able to initiate payments for this account.*
+  """
+  addReceivedInternalDirectDebitB2bMandate(input: AddReceivedInternalDirectDebitB2bMandateInput!): AddReceivedInternalDirectDebitB2bMandatePayload!
 
   """
   Allows to add a received sepa direct debit mandate B2b.
@@ -7809,7 +8215,7 @@ interface PaymentMandateDebtor {
   name: String!
 
   """Debtor e-mail"""
-  email: String!
+  email: String
 
   """Debtor country"""
   country: CCA3!
@@ -7843,6 +8249,12 @@ input PaymentMandateFiltersInput {
 
   """To filter on scheme values"""
   scheme: [PaymentMandateScheme!]
+}
+
+"""Error returned if the payment mandate was not found"""
+type PaymentMandateMandateNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
 }
 
 """
@@ -7912,6 +8324,13 @@ interface PaymentMandateStatusInfo {
 }
 
 """
+Rejection returned when a payment method is not compatible for the requested mutation
+"""
+type PaymentMethodNotCompatibleRejection implements Rejection {
+  message: String!
+}
+
+"""
 Field we can use when ordering that can be applied when listing payment
 """
 enum PaymentOrderByFieldInput {
@@ -7947,6 +8366,9 @@ enum PaymentProduct {
 
   """When the payment is a Check operation"""
   Check
+
+  """When the payment is an International Credit Transfer operation"""
+  InternationalCreditTransfer
 }
 
 """Payment status rejected"""
@@ -8059,6 +8481,11 @@ interface PendingDigitalCardStatusInfo {
 type PendingFundingSourceStatusInfo implements FundingSourceStatusInfo {
   """Funding Source Pending status"""
   status: FundingSourceStatus!
+}
+
+"""PendingMerchantPaymentMethodStatusInfo"""
+type PendingMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
 }
 
 """PendingMerchantPaymentProductStatusInfo"""
@@ -8177,18 +8604,39 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
 }
 
 input PhysicalCardCustomOptionsForGroupDeliveryInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be embossed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 input PhysicalCardCustomOptionsForPrintInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be printed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 input PhysicalCardCustomOptionsInput {
-  """Additional line to be embossed on the card."""
-  additionalEmbossedLine: String
+  """
+  Additional line to be embossed on the card. 
+  
+  This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
+  
+  Max length allowed: 26 characters.
+  Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
+  """
+  additionalPrintedLine: String
 }
 
 """Rejection returned when the Physical Card does not exist"""
@@ -8489,6 +8937,11 @@ type ProjectInfo {
   """Project status"""
   status: ProjectStatus!
 
+  """
+  Flag that determines if desktop authentication is enabled for this project
+  """
+  allowsDesktopAuthentication: Boolean!
+
   """The card products associated with this project."""
   cardProducts: [CardProduct!]
 
@@ -8589,7 +9042,7 @@ type Query {
   
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
-  users(first: Int! = 50, after: String): UserConnection!
+  users(after: String, before: String, filters: UserFilterInput, first: Int! = 50): UserConnection!
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -8652,6 +9105,27 @@ type Query {
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   transaction(id: ID!): Transaction!
+
+  """
+  A list of transactions of a project.
+  
+  *For a Project access token, this is all the transactions of the project (only available with project access token)*
+  """
+  transactions(
+    """When the list of elements needs to start after a element"""
+    after: String
+
+    """When the list of elements needs to be filtered"""
+    filters: TransactionsFiltersInput
+
+    """number of elements in the list (default value 50)"""
+    first: Int! = 50
+
+    """
+    When the list of elements needs to be sorted (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+  ): TransactionConnection!
 
   """Returns a request for funding limit settings change from its id."""
   fundingLimitSettingsChangeRequest(fundingLimitSettingsChangeRequestId: ID!): FundingLimitSettingsChangeRequest
@@ -9020,6 +9494,14 @@ type RejectedFundingSourceStatusInfo implements FundingSourceStatusInfo {
   reasonCode: RejectedFundingSourceReason!
 }
 
+"""RejectedMerchantPaymentMethodStatusInfo"""
+type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method rejected date"""
+  rejectedAt: Date!
+}
+
 """RejectedMerchantPaymentProductStatusInfo"""
 type RejectedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -9109,6 +9591,9 @@ enum RejectedReasonCode {
 
   """Rejected because of insufficient funds on the account"""
   InsufficientFunds
+
+  """Rejected because of invalid transfer date"""
+  InvalidTransferDate
 
   """Rejected by debtor because the mandate is invalid"""
   MandateInvalid
@@ -9257,6 +9742,32 @@ type ReportExchangeRate {
   targetCurrency: Currency!
   quotationDate: Date!
   contractIdentification: String
+}
+
+input RequestMerchantPaymentMethodsInput {
+  """ID of the Merchant Profile"""
+  merchantProfileId: ID!
+
+  """Input for the Internal Direct Debit Standard payment method"""
+  internalDirectDebitStandard: InternalDirectDebitStandardPaymentMethodInput
+
+  """Input for the Internal Direct Debit B2B payment method"""
+  internalDirectDebitB2B: InternalDirectDebitB2BPaymentMethodInput
+
+  """Input for the Sepa Direct Debit Core payment method"""
+  sepaDirectDebitCore: SepaDirectDebitCorePaymentMethodInput
+
+  """Input for the Sepa Direct Debit B2B payment method"""
+  sepaDirectDebitB2B: SepaDirectDebitB2BPaymentMethodInput
+
+  """Input for Check payment method"""
+  check: CheckPaymentMethodInput
+}
+
+union RequestMerchantPaymentMethodsPayload = RequestMerchantPaymentMethodsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+
+type RequestMerchantPaymentMethodsSuccessPayload {
+  merchantProfile: MerchantProfile
 }
 
 input RequestMerchantPaymentProductsInput {
@@ -9743,6 +10254,108 @@ type SEPACreditTransferTransaction implements Transaction {
   originTransaction: Transaction
 }
 
+"""SepaDirectDebitB2BMerchantPaymentMethod"""
+type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+}
+
+input SepaDirectDebitB2BPaymentMethodInput {
+  """If `true`, the Payment Method will be Enabled"""
+  activate: Boolean = false
+
+  """
+  If `true`, the transaction will be created with the Swan Creditor Identifier
+  """
+  useSwanSepaCreditorIdentifier: Boolean! = true
+
+  """
+  Your own SCI - Mandatory if the useSwanCreditorIdentifier is set to false, otherwise Swan does not take this input into account (even if not empty)
+  """
+  sepaCreditorIdentifier: String
+}
+
+"""SepaDirectDebitCoreMerchantPaymentMethod"""
+type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  productId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+}
+
+input SepaDirectDebitCorePaymentMethodInput {
+  """If `true`, the Payment Method will be Pending Review"""
+  activate: Boolean = false
+
+  """
+  If `true`, the transaction will be created with the Swan Creditor Identifier
+  """
+  useSwanSepaCreditorIdentifier: Boolean! = true
+
+  """
+  Your own SCI - Mandatory if the useSwanCreditorIdentifier is set to false, otherwise Swan does not take this input into account (even if not empty)
+  """
+  sepaCreditorIdentifier: String
+}
+
 """Sepa Direct Debit Creditor"""
 interface SEPADirectDebitCreditor {
   """full name of the creditor"""
@@ -9862,6 +10475,19 @@ type SEPADirectDebitOutDebtor implements SEPADirectDebitDebtor {
 
   """account number"""
   accountNumber: AccountNumber! @deprecated(reason: "because it is not already implemented (a default value is set).")
+}
+
+input SepaDirectDebitPaymentCollectionInput {
+  """Payment Mandate ID generated by Swan"""
+  mandateId: ID!
+
+  """
+  ID of the customer which can be used by the Swan Merchant to reconcile more easily
+  """
+  customerId: String
+
+  """Date at which the Swan merchant wishes the payment to be executed"""
+  requestedExecutionAt: Date
 }
 
 """
@@ -10050,7 +10676,7 @@ type SEPAPaymentMandateDebtor implements PaymentMandateDebtor {
   iban: IBAN!
 
   """SEPA Direct Debit Payment Mandate debtor e-mail"""
-  email: String!
+  email: String
 
   """SEPA Direct Debit Payment Mandate debtor country"""
   country: CCA3!
@@ -10059,6 +10685,15 @@ type SEPAPaymentMandateDebtor implements PaymentMandateDebtor {
   SEPA Direct Debit Payment Mandate debtor address. Mandatory for non EEA Countries
   """
   address: Address
+}
+
+input SepaPaymentMandateDebtorInput {
+  """SEPA Direct Debit Payment Mandate debtor name"""
+  name: String!
+
+  """SEPA Direct Debit Payment Mandate debtor IBAN"""
+  IBAN: String!
+  address: AddressInput!
 }
 
 enum SEPAPaymentMandateScheme {
@@ -10580,6 +11215,9 @@ input StatementFiltersInput {
 
   """To filter before an updatedAt value"""
   isBeforeUpdatedAt: DateTime
+
+  """To filter on a specific period of statement (either custom or monthly)"""
+  period: StatementPeriod
 }
 
 """Custom information for a certain type of statement"""
@@ -11135,6 +11773,14 @@ type SuspendedFundingSourceStatusInfo implements FundingSourceStatusInfo {
   suspendedAt: Date!
 }
 
+"""SuspendedMerchantPaymentMethodStatusInfo"""
+type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method suspended date"""
+  suspendedAt: Date!
+}
+
 """SuspendedMerchantPaymentProductStatusInfo"""
 type SuspendedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
   status: MerchantPaymentProductStatus!
@@ -11539,6 +12185,35 @@ enum TransactionTypeEnum {
   When a Check credited a Swan account.
   """
   CheckIn
+
+  """
+  When a Check credited a Swan account and Swan or the debtor returned the funds.
+  """
+  CheckInReturn
+
+  """
+  *COMING SOON*
+  When an International Credit Transfer credited a Swan account.
+  """
+  InternationalCreditTransferIn
+
+  """
+  *COMING SOON*
+  When an International Credit Transfer debited a Swan account.
+  """
+  InternationalCreditTransferOut
+
+  """
+  *COMING SOON*
+  When an International Credit Transfer credited a Swan account and Swan or the Swan debtor returned the funds.
+  """
+  InternationalCreditTransferInReturn
+
+  """
+  *COMING SOON*
+  When an International Credit Transfer debited a Swan account and Swan or the Swan debtor returned it.
+  """
+  InternationalCreditTransferOutReturn
 }
 
 """Quality of the account holder doing the onboarding"""
@@ -11729,7 +12404,7 @@ input UpdateAccountMembershipInput {
   canInitiatePayments: Boolean
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean
 
@@ -12072,6 +12747,11 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
+  """
+  Date on which the user joined the project. Joining the project is done after the first accepted OAuth login.
+  """
+  joinedAt: DateTime!
+
   """The list of account memberships"""
   accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
 }
@@ -12112,6 +12792,16 @@ type UserEdge implements Edge {
   node: User!
 }
 
+input UserFilterInput {
+  birthDate: Date
+  firstName: String
+  identificationLevel: IdentificationLevelInput
+  lastName: String
+  mobilePhoneNumber: String
+  nationalityCCA3: CCA3
+  preferredNotificationChannel: PreferredNotificationChannel
+}
+
 type UserNotAllowedToDisableItsOwnAccountMembershipRejection implements Rejection {
   accountMembershipId: String!
   message: String!
@@ -12132,6 +12822,18 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
 """Rejection returned when the User is not the Card Holder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
+}
+
+"""Field we can use when ordering that can be applied when listing users"""
+enum UserOrderByFieldInput {
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing users"""
+input UserOrderByInput {
+  field: UserOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -12344,4 +13046,11 @@ type WebBankingSettings {
   canOrderPhysicalCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
+}
+
+"""Rejection returned when a parameter has a wrong value"""
+type WrongValueProvidedRejection implements Rejection {
+  message: String!
+  valueProvided: String!
+  parameterName: String!
 }

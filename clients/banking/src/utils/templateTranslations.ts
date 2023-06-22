@@ -141,7 +141,7 @@ export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
     .with("TransactionTypeNotAllowed", () =>
       t("transactionRejectedReason.TransactionTypeNotAllowed"),
     )
-    .exhaustive();
+    .otherwise(() => undefined);
 
 export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
   match(fees)
@@ -163,4 +163,4 @@ export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
       t("transaction.fees.description.processingJudicialOrAdministrativeSeizure"),
     )
     .with("UnauthorizedOverdraft", () => t("transaction.fees.description.unauthorizedOverdraft"))
-    .exhaustive();
+    .otherwise(() => undefined);

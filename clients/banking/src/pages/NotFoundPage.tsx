@@ -1,11 +1,14 @@
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Heading } from "@swan-io/lake/src/components/Heading";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
@@ -28,9 +31,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: colors.gray[400],
   },
-  signout: {
-    flexDirection: "row",
-    alignItems: "center",
+  noAccountPage: {
+    flex: 1,
+    backgroundColor: backgroundColor.default,
+  },
+  tile: {
+    padding: 0,
+    maxWidth: 800,
+  },
+  noAccountContainer: {
+    padding: spacings[24],
+  },
+  noAccountContainerDesktop: {
+    padding: spacings[72],
   },
 });
 
@@ -111,16 +124,34 @@ export const NotFoundPage = ({
   </View>
 );
 
-export const AccountNotFoundPage = ({ projectName }: { projectName: string }) => (
-  <NotFoundPage
-    title={t("error.noAccount")}
-    text={t("error.checkWithProvider", { projectName })}
-    action={
-      <Pressable style={styles.signout} onPress={signout}>
-        <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
-        <Space width={8} />
-        <LakeText>{t("login.signout")}</LakeText>
-      </Pressable>
-    }
-  />
-);
+export const AccountNotFoundPage = ({ projectName }: { projectName: string }) => {
+  const { desktop } = useResponsive(breakpoints.medium);
+
+  const content = (
+    <Box
+      alignItems="center"
+      style={[styles.noAccountContainer, desktop && styles.noAccountContainerDesktop]}
+    >
+      <BorderedIcon name="building-bank-regular" size={100} padding={16} />
+      <Space height={24} />
+
+      <LakeText variant="medium" color={colors.gray[900]} align="center">
+        {t("error.noAccount")}
+      </LakeText>
+
+      <Space height={4} />
+      <LakeText align="center">{t("error.checkWithProvider", { projectName })}</LakeText>
+      <Space height={32} />
+
+      <LakeButton mode="secondary" icon="sign-out-regular" onPress={signout}>
+        {t("login.signout")}
+      </LakeButton>
+    </Box>
+  );
+
+  return (
+    <Box alignItems="center" justifyContent="center" style={styles.noAccountPage}>
+      {desktop ? <Tile style={styles.tile}>{content}</Tile> : content}
+    </Box>
+  );
+};

@@ -238,6 +238,9 @@ query AccountArea($accountMembershipId: ID!) {
       canViewPaymentList
       canManageVirtualIbans
     }
+    supportingDocumentSettings {
+      collectMode
+    }
   }
   user {
     id

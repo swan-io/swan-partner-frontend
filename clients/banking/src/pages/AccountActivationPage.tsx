@@ -385,8 +385,9 @@ export const AccountActivationPage = ({
               : "AddMoneyToYourNewAccountIbanMissing";
           }
           if (!requireFirstTransfer) {
-            return match(account?.holder.verificationStatus)
-              .with("NotStarted", "Pending", () => "Done" as const)
+            return match([account?.holder.verificationStatus, documentCollectMode])
+              .with([P.union("NotStarted", "Pending"), P._], () => "Done" as const)
+              .with([P.union("Pending", "WaitingForInformation"), "API"], () => "Done" as const)
               .otherwise(() => "StepNotDisplayed" as const);
           }
           return "Done";

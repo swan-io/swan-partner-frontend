@@ -29,6 +29,23 @@ export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, sou
   return output;
 };
 
+export const fetchOk = (input: string, init?: RequestInit) =>
+  fetch(input, init).then(async response => {
+    if (response.ok) {
+      return response;
+    }
+
+    let text = await response.text();
+    const { status } = response;
+
+    try {
+      text = JSON.stringify(JSON.parse(text), null, 2);
+    } catch {} // eslint-disable-line no-empty
+
+    log.error(`Fetch failed (${status}): ${text}`);
+    throw response;
+  });
+
 export const wait = (ms: number) =>
   new Promise<void>(resolve => {
     setTimeout(resolve, ms);

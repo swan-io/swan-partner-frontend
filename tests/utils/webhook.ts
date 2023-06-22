@@ -1,25 +1,18 @@
 import { env } from "./env";
-import { log } from "./functions";
+import { fetchOk, log } from "./functions";
 import { getSession } from "./session";
 
 const tokenToEmail = (token: string) => `${token}@email.webhook.site`;
 const emailToToken = (email: string) => email.split("@")[0];
 
 const request = (input: string, init?: RequestInit) =>
-  fetch("https://webhook.site" + input, {
+  fetchOk("https://webhook.site" + input, {
     ...init,
     headers: {
       "Api-Key": env.WEBHOOK_SITE_API_KEY,
       "Content-Type": "application/json",
       ...init?.headers,
     },
-  }).then(async response => {
-    if (!response.ok) {
-      log.error(`Fetch failed with code ${response.status}: ${await response.text()}`);
-      throw response;
-    }
-
-    return response;
   });
 
 const createToken = (): Promise<string> =>

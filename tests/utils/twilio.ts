@@ -1,6 +1,6 @@
 import { P, isMatching } from "ts-pattern";
 import { env } from "./env";
-import { assertIsDefined, log, retry, seconds } from "./functions";
+import { assertIsDefined, fetchOk, retry, seconds } from "./functions";
 
 const bodyContainsMessages = isMatching({ messages: P.array({ body: P.string }) });
 
@@ -16,20 +16,13 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<str
       url.searchParams.set("DateSent>", options.startDate.toISOString());
     }
 
-    const response = await fetch(url.toString(), {
+    const response = await fetchOk(url.toString(), {
       headers: {
         Authorization: `Basic ${Buffer.from(
           `${env.TWILIO_ACCOUNT_ID}:${env.TWILIO_AUTH_TOKEN}`,
         ).toString("base64")}`,
       },
     });
-
-    if (!response.ok) {
-      log.error(
-        `Fetch failed with code ${response.status}:${JSON.stringify(await response.json())}`,
-      );
-      throw response;
-    }
 
     const body: unknown = await response.json();
     return bodyContainsMessages(body) ? body.messages.map(message => message.body) : [];

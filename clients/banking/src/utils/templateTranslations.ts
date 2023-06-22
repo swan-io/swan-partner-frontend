@@ -163,4 +163,58 @@ export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
       t("transaction.fees.description.processingJudicialOrAdministrativeSeizure"),
     )
     .with("UnauthorizedOverdraft", () => t("transaction.fees.description.unauthorizedOverdraft"))
+    .with("ConfirmationLetterDraftingFee", () =>
+      t("transaction.fees.description.confirmationLetterDraftingFee"),
+    )
+    .with("CheckIncident", () => t("transaction.fees.description.checkIncident"))
+    .with("CheckDeposit", () => t("transaction.fees.description.checkDeposit"))
+    .with("PhysicalCardPrinting", () => t("transaction.fees.description.physicalCardPrinting"))
+    .with("PhysicalCardDeliveryFrance", () =>
+      t("transaction.fees.description.physicalCardDeliveryFrance"),
+    )
+    .with("PhysicalCardDeliveryIntl", () =>
+      t("transaction.fees.description.physicalCardDeliveryIntl"),
+    )
+    .with("PhysicalCardDeliveryExpress", () =>
+      t("transaction.fees.description.physicalCardDeliveryExpress"),
+    )
+    .with("InternationalCreditTransferInGroup1", () =>
+      t("transaction.fees.description.internationalCreditTransferInGroup1"),
+    )
+    .with("InternationalCreditTransferInGroup2", () =>
+      t("transaction.fees.description.internationalCreditTransferInGroup2"),
+    )
+    .with("InternationalCreditTransferInGroup3", () =>
+      t("transaction.fees.description.internationalCreditTransferInGroup3"),
+    )
+    .with("InternationalCreditTransferInGroup4", () =>
+      t("transaction.fees.description.internationalCreditTransferInGroup4"),
+    )
+    .with("InternationalCreditTransferOutGroup1", () =>
+      t("transaction.fees.description.internationalCreditTransferOutGroup1"),
+    )
+    .with("InternationalCreditTransferOutGroup2", () =>
+      t("transaction.fees.description.internationalCreditTransferOutGroup2"),
+    )
+    .with("InternationalCreditTransferOutGroup3", () =>
+      t("transaction.fees.description.internationalCreditTransferOutGroup3"),
+    )
+    .with("InternationalCreditTransferOutGroup4", () =>
+      t("transaction.fees.description.internationalCreditTransferOutGroup4"),
+    )
+    .with("SepaDirectDebitInB2bLevel1", () =>
+      t("transaction.fees.description.sepaDirectDebitInB2bLevel1"),
+    )
+    .with("SepaDirectDebitInB2bLevel2", () =>
+      t("transaction.fees.description.sepaDirectDebitInB2bLevel2"),
+    )
+    .with("SepaDirectDebitInCoreLevel1", () =>
+      t("transaction.fees.description.sepaDirectDebitInCoreLevel1"),
+    )
+    .with("SepaDirectDebitInCoreLevel2", () =>
+      t("transaction.fees.description.sepaDirectDebitInCoreLevel2"),
+    )
+    .with("SepaDirectDebitInCoreReturn", () =>
+      t("transaction.fees.description.sepaDirectDebitInCoreReturn"),
+    )
     .otherwise(() => undefined);

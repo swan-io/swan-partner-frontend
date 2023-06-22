@@ -573,6 +573,7 @@
   "transactionRejectedReason.InvalidPin": "Invalid PIN",
   "transactionRejectedReason.InvalidPinAttemptsExceeded": "Invalid PIN attempts exceeded",
   "transactionRejectedReason.InvalidSecurityNumber": "Invalid security number",
+  "transactionRejectedReason.InvalidTransferDate": "Invalid transfer date",
   "transactionRejectedReason.MandateInvalid": "Invalid mandate",
   "transactionRejectedReason.MerchantShouldResubmitAuthorization": "Merchant should resubmit authorization",
   "transactionRejectedReason.NoMandate": "No mandate",

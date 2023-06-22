@@ -141,6 +141,7 @@ export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
     .with("TransactionTypeNotAllowed", () =>
       t("transactionRejectedReason.TransactionTypeNotAllowed"),
     )
+    .with("InvalidTransferDate", () => t("transactionRejectedReason.InvalidTransferDate"))
     .otherwise(() => undefined);
 
 export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>

@@ -34,8 +34,8 @@
     "sort-locales": "tsx scripts/locales/sort.ts",
     "remove-unused-locales": "tsx scripts/locales/remove-unused.ts",
     "bump": "tsx scripts/version/version.ts",
-    "dev-e2e": "tsx -r dotenv/config server/src/index.ts --dev dotenv_config_path=.env.e2e",
-    "read-e2e-sms": "tsx -r dotenv/config scripts/twilio/getLastMessages.ts dotenv_config_path=.env.e2e",
+    "dev-e2e": "dotenv -e .env.e2e tsx server/src/index.ts --dev",
+    "read-e2e-sms": "dotenv -e .env.e2e tsx scripts/twilio/getLastMessages.ts",
     "test-e2e": "dotenv -e .env.e2e playwright test",
     "test-e2e-ui": "yarn test-e2e --ui"
   },

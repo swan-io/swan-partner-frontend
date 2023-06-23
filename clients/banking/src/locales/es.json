@@ -279,6 +279,7 @@
   "login.linkHow": "¿Cómo puedo acceder a mi cuenta?",
   "login.needHelp": "Ayuda",
   "login.parternship": "en colaboración con",
+  "login.sessionExpired.title": "Sesión expirada. Por favor, inicia sesión de nuevo.",
   "login.signout": "Cerrar sesión",
   "members.form.address.countryPlaceholder": "Seleccionar un país",
   "members.invitationLink": "Enlace de invitación",

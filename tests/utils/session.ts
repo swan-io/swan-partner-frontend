@@ -12,11 +12,9 @@ type Session = {
     refreshToken: string;
   };
   benady: {
-    id: string;
     email: string;
   };
   saison: {
-    id: string;
     email: string;
   };
 };

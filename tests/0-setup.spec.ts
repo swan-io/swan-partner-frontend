@@ -1,6 +1,7 @@
 import { test } from "@playwright/test";
-import { CreateSandboxUserDocument, EndorseSandboxUserDocument } from "./graphql/partner-admin";
+import { EndorseSandboxUserDocument, ResetSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
+import { env } from "./utils/env";
 import { assertTypename } from "./utils/functions";
 import { sca } from "./utils/sca";
 import { saveSession } from "./utils/session";
@@ -24,39 +25,36 @@ test("Setup", async ({ browser, request }) => {
     saison: { email: saisonEmail },
   });
 
-  const [createBenady, createSaison] = await Promise.all([
+  const [updateBenady, updateSaison] = await Promise.all([
     requestApi({
-      query: CreateSandboxUserDocument,
+      query: ResetSandboxUserDocument,
       as: "user",
       variables: {
-        firstName: "Nicolas",
+        id: env.SANDBOX_USER_BENADY_ID,
         lastName: "Benady",
+        firstName: "Nicolas",
       },
-    }).then(response => response.createSandboxUser),
+    }).then(response => response.updateSandboxUser),
 
     requestApi({
-      query: CreateSandboxUserDocument,
+      query: ResetSandboxUserDocument,
       as: "user",
       variables: {
-        firstName: "Nicolas",
+        id: env.SANDBOX_USER_SAISON_ID,
         lastName: "Saison",
+        firstName: "Nicolas",
       },
-    }).then(response => response.createSandboxUser),
+    }).then(response => response.updateSandboxUser),
   ]);
 
-  assertTypename(createBenady, "CreateSandboxUserSuccessPayload");
-  assertTypename(createSaison, "CreateSandboxUserSuccessPayload");
-
-  await saveSession({
-    benady: { id: createBenady.sandboxUser.id },
-    saison: { id: createSaison.sandboxUser.id },
-  });
+  assertTypename(updateBenady, "UpdateSandboxUserSuccessPayload");
+  assertTypename(updateSaison, "UpdateSandboxUserSuccessPayload");
 
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     variables: {
-      id: createBenady.sandboxUser.id,
+      id: env.SANDBOX_USER_BENADY_ID,
     },
   });
 });

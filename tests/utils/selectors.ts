@@ -28,6 +28,3 @@ export const clickOnText = (parent: Parent, text: string, options?: ClickOptions
 
 export const waitForText = (parent: Parent, text: string, options?: WaitForOptions) =>
   getByText(parent, text).waitFor(options);
-
-export const waitForTitle = (parent: Parent, text: string, options?: WaitForOptions) =>
-  parent.getByRole("heading", { exact: true, name: text }).waitFor(options);

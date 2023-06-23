@@ -26,18 +26,6 @@ export const clickOnButton = (parent: Parent, name: string, options?: ClickOptio
 export const clickOnText = (parent: Parent, text: string, options?: ClickOptions) =>
   getByText(parent, text).click(options);
 
-export const clickOnNavItem = (page: Page, text: string) => {
-  const selector = `text="${text}"`;
-  const nav = page.locator("nav", { has: page.locator(selector) });
-  return nav.locator(selector).click();
-};
-
-export const clickOnTile = (page: Page, text: string) => {
-  const selector = `text="${text}"`;
-  const tile = page.locator("a section", { has: page.locator(selector) });
-  return tile.locator(selector).click();
-};
-
 export const waitForText = (parent: Parent, text: string, options?: WaitForOptions) =>
   getByText(parent, text).waitFor(options);
 

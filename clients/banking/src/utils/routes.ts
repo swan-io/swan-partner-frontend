@@ -6,7 +6,7 @@ import { projectConfiguration } from "./projectId";
 const routes = {
   PopupCallback: "/swanpopupcallback",
 
-  ProjectLogin: "/login",
+  ProjectLogin: "/login?:sessionExpired",
   ProjectRootRedirect: "/?:to&:source",
 
   ...createGroup("Account", "/:accountMembershipId", {

@@ -58,7 +58,7 @@ export const isUnauthorizedError = (error: unknown) => {
 const onError = (error: CombinedError, operation: Operation) => {
   if (isUnauthorizedError(error)) {
     if (isNullish(Router.getRoute(["ProjectLogin"]))) {
-      window.location.replace(Router.ProjectLogin());
+      window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
     }
   } else {
     logBackendError(error, operation);

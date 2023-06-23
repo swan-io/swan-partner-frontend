@@ -1,4 +1,10 @@
+import dotenv from "dotenv";
+import path from "pathe";
 import { Validator, boolean, string, validate } from "valienv";
+
+dotenv.config({
+  path: path.resolve(__dirname, "../../.env.e2e"),
+});
 
 const url: Validator<string> = (value = "") => {
   try {

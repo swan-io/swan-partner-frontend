@@ -31,19 +31,11 @@ export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, sou
 
 export const fetchOk = (input: string, init?: RequestInit) =>
   fetch(input, init).then(async response => {
-    if (response.ok) {
-      return response;
+    if (!response.ok) {
+      throw new Error(`Fetch failed (${response.status}): ${await response.text()}`);
     }
 
-    let text = await response.text();
-    const { status } = response;
-
-    try {
-      text = JSON.stringify(JSON.parse(text), null, 2);
-    } catch {} // eslint-disable-line no-empty
-
-    log.error(`Fetch failed (${status}): ${text}`);
-    throw response;
+    return response;
   });
 
 export const wait = (ms: number) =>

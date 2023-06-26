@@ -48,10 +48,14 @@ export const resetEmailAddresses = async () => {
   if (tokens.length > 0) {
     await Promise.all(
       tokens.map(token =>
-        deleteToken(token).then(() => {
-          const email = `${token}@email.webhook.site`;
-          log.info(`Successfully deleted email address ${email}`);
-        }),
+        deleteToken(token)
+          .then(() => {
+            const email = `${token}@email.webhook.site`;
+            log.info(`Successfully deleted email address ${email}`);
+          })
+          .catch((error: Error) => {
+            log.error(error.message);
+          }),
       ),
     );
   }

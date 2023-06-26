@@ -16,7 +16,12 @@ import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/dat
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { PaymentProduct, TransactionStatus } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
-import { validateDate } from "../utils/validations";
+import {
+  isAfterUpdatedAtSelectable,
+  isBeforeUpdatedAtSelectable,
+  validateAfterUpdatedAt,
+  validateBeforeUpdatedAt,
+} from "../utils/validations";
 
 const isAfterUpdatedAtFilter: FilterDateDef = {
   type: "date",
@@ -27,7 +32,8 @@ const isAfterUpdatedAtFilter: FilterDateDef = {
   dateFormat: locale.dateFormat,
   dayNames: weekDayNames,
   monthNames,
-  validate: validateDate,
+  validate: validateAfterUpdatedAt,
+  isSelectable: isAfterUpdatedAtSelectable,
 };
 
 const isBeforeUpdatedAtFilter: FilterDateDef = {
@@ -39,7 +45,8 @@ const isBeforeUpdatedAtFilter: FilterDateDef = {
   dayNames: weekDayNames,
   monthNames,
   dateFormat: locale.dateFormat,
-  validate: validateDate,
+  validate: validateBeforeUpdatedAt,
+  isSelectable: isBeforeUpdatedAtSelectable,
 };
 
 const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {

@@ -1,7 +1,9 @@
 import { Lazy } from "@swan-io/boxed";
+import { DatePickerDate } from "@swan-io/lake/src/components/DatePicker";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";
+import { P, match } from "ts-pattern";
 import { locale, t } from "./i18n";
 
 export const validateNullableRequired: Validator<string | undefined> = value => {
@@ -178,4 +180,72 @@ export const validateSepaBeneficiaryNameAlphabet: Validator<string> = value => {
   if (!VALID_SEPA_BENEFICIARY_NAME_ALPHABET.get().test(value)) {
     return t("error.beneficiaryNameInvalid");
   }
+};
+
+export const isAfterUpdatedAtSelectable = (date: DatePickerDate, filters: unknown) => {
+  return match(filters)
+    .with({ isBeforeUpdatedAt: P.string }, ({ isBeforeUpdatedAt }) => {
+      const isAfterUpdatedAt = dayjs()
+        .date(date.day)
+        .month(date.month)
+        .year(date.year)
+        .endOf("day");
+      const isBeforeUpdatedAtDate = dayjs(isBeforeUpdatedAt).startOf("day");
+
+      return isAfterUpdatedAt.isBefore(isBeforeUpdatedAtDate);
+    })
+    .otherwise(() => true);
+};
+
+// value comes from input text above the datepicker
+// so the format of value is locale.dateFormat
+export const validateAfterUpdatedAt = (value: string, filters: unknown) => {
+  return (
+    validateRequired(value) ??
+    validateDate(value) ??
+    match(filters)
+      .with({ isBeforeUpdatedAt: P.string }, ({ isBeforeUpdatedAt }) => {
+        const isAfterUpdatedAt = dayjs(value, locale.dateFormat).endOf("day");
+        const isBeforeUpdatedAtDate = dayjs(isBeforeUpdatedAt).startOf("day");
+
+        if (!isAfterUpdatedAt.isBefore(isBeforeUpdatedAtDate)) {
+          return t("common.form.updatedAfterFilterAfterBeforeError");
+        }
+      })
+      .otherwise(() => undefined)
+  );
+};
+
+export const isBeforeUpdatedAtSelectable = (date: DatePickerDate, filters: unknown) => {
+  return match(filters)
+    .with({ isAfterUpdatedAt: P.string }, ({ isAfterUpdatedAt }) => {
+      const isBeforeUpdatedAt = dayjs()
+        .date(date.day)
+        .month(date.month)
+        .year(date.year)
+        .startOf("day");
+      const isAfterUpdatedAtDate = dayjs(isAfterUpdatedAt).endOf("day");
+
+      return isBeforeUpdatedAt.isAfter(isAfterUpdatedAtDate);
+    })
+    .otherwise(() => true);
+};
+
+// value comes from input text above the datepicker
+// so the format of value is locale.dateFormat
+export const validateBeforeUpdatedAt = (value: string, filters: unknown) => {
+  return (
+    validateRequired(value) ??
+    validateDate(value) ??
+    match(filters)
+      .with({ isAfterUpdatedAt: P.string }, ({ isAfterUpdatedAt }) => {
+        const isBeforeUpdatedAt = dayjs(value, locale.dateFormat).startOf("day");
+        const isAfterUpdatedAtDate = dayjs(isAfterUpdatedAt).endOf("day");
+
+        if (!isBeforeUpdatedAt.isAfter(isAfterUpdatedAtDate)) {
+          return t("common.form.updatedBeforeFilterBeforeAfterError");
+        }
+      })
+      .otherwise(() => undefined)
+  );
 };

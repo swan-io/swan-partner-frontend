@@ -1,0 +1,29 @@
+mutation ResetSandboxUser($id: ID!, $firstName: String!, $lastName: String!) {
+  updateSandboxUser(
+    input: {
+      id: $id
+      autoConsent: true
+      birthDate: "01/01/1070"
+      firstName: $firstName
+      identificationStatus: Uninitiated
+      lastName: $lastName
+      nationalityCCA3: "FRA"
+    }
+  ) {
+    ... on UpdateSandboxUserSuccessPayload {
+      sandboxUser {
+        id
+      }
+    }
+  }
+}
+
+mutation EndorseSandboxUser($id: String!) {
+  endorseSandboxUser(input: { id: $id }) {
+    ... on EndorseSandboxUserSuccessPayload {
+      sandboxUser {
+        id
+      }
+    }
+  }
+}

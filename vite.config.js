@@ -8,6 +8,7 @@ export default defineConfig({
     },
   },
   test: {
+    include: ["clients/**/*.test.(ts|tsx)"],
     setupFiles: ["scripts/tests/testSetup.ts"],
     environment: "jsdom",
     watch: false,

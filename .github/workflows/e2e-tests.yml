@@ -11,8 +11,6 @@ jobs:
     name: E2E tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    permissions:
-      contents: read # This is required for actions/checkout
     steps:
       - uses: actions/checkout@v3
 

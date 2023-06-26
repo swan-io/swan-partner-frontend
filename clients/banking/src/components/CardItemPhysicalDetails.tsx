@@ -943,8 +943,6 @@ export const CardItemPhysicalDetails = ({
                 .otherwise(() => null)}
 
               <QuickActions
-                tooltipDisabled={!bindingUserError}
-                tooltipText={t("card.tooltipConflict")}
                 actions={[
                   ...match(physicalCard)
                     .with(
@@ -962,6 +960,9 @@ export const CardItemPhysicalDetails = ({
                           icon: "lock-closed-regular" as const,
                           onPress: () => suspendCard(),
                           isLoading: cardSuspension.isLoading(),
+                          disabled: bindingUserError,
+                          tooltipDisabled: !bindingUserError,
+                          tooltipText: t("card.tooltipConflict"),
                         },
                       ],
                     )
@@ -979,6 +980,9 @@ export const CardItemPhysicalDetails = ({
                           color: colors.warning.contrast,
                           backgroundColor: colors.warning[500],
                           isLoading: cardUnsuspension.isLoading(),
+                          disabled: bindingUserError,
+                          tooltipDisabled: !bindingUserError,
+                          tooltipText: t("card.tooltipConflict"),
                         },
                       ],
                     )
@@ -1006,6 +1010,9 @@ export const CardItemPhysicalDetails = ({
                           label: t("card.physical.cancel"),
                           icon: "subtract-circle-regular" as const,
                           onPress: () => setIsPermanentlyBlockModalOpen(true),
+                          disabled: bindingUserError,
+                          tooltipDisabled: !bindingUserError,
+                          tooltipText: t("card.tooltipConflict"),
                         },
                       ],
                     )
@@ -1028,6 +1035,9 @@ export const CardItemPhysicalDetails = ({
                           icon: "key-regular" as const,
                           onPress: () => viewPinCode(),
                           isLoading: pinCardViewing.isLoading(),
+                          disabled: bindingUserError,
+                          tooltipDisabled: !bindingUserError,
+                          tooltipText: t("card.tooltipConflict"),
                         },
                       ],
                     )

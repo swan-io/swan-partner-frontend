@@ -49,7 +49,15 @@ jobs:
       - name: Install dependencies
         run: yarn install --pure-lockfile
 
-      - name: Install chromium
+      - name: Cache playwright
+        id: cache-playwright
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-browsers-$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+
+      - name: Setup playwright
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps
 
       - name: GraphQL Codegen
@@ -61,6 +69,6 @@ jobs:
       - uses: actions/upload-artifact@v3
         if: failure()
         with:
-          name: playwright-report
-          path: tests/results
-          retention-days: 30
+          name: tests-results
+          path: tests/results/
+          retention-days: 7

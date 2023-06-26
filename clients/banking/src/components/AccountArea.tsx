@@ -33,7 +33,6 @@ import {
 } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
-import { LegacyAccentColorProvider } from "../contexts/legacyAccentColor";
 import { AccountAreaDocument, IdentificationLevelsFragment } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
@@ -515,388 +514,377 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   return (
     <WithPartnerAccentColor color={accentColor}>
-      {/* TODO: Remove this provider, keep WithPartnerAccentColor */}
-      <LegacyAccentColorProvider value={accentColor}>
-        <SkipToContent />
+      <SkipToContent />
 
-        <View style={styles.background}>
-          <View style={[styles.container, desktop && styles.desktopContainer]}>
-            {desktop && (
-              <SidebarNavigationTracker
-                style={styles.sidebar}
-                contentContainerStyle={styles.sidebarContent}
-              >
-                <Box alignItems="center">
-                  <View style={styles.logo}>
-                    <AutoWidthImage
-                      ariaLabel={projectName}
-                      sourceUri={projectLogo ?? logoSwan}
-                      height={LOGO_MAX_HEIGHT}
-                      maxWidth={LOGO_MAX_WIDTH}
-                      resizeMode="contain"
-                    />
-                  </View>
-                </Box>
-
-                {env.APP_TYPE === "SANDBOX" && (
-                  <>
-                    <Space height={12} />
-
-                    <Box alignItems="center">
-                      <ProjectEnvTag projectEnv="Sandbox" />
-                    </Box>
-                  </>
-                )}
-
-                {match(membership)
-                  .with(Result.P.Ok(P.select()), ({ accountMembership }) => (
-                    <>
-                      <Space height={32} />
-
-                      <AccountPickerButton
-                        ref={accountPickerButtonRef}
-                        desktop={true}
-                        accountMembershipId={accountMembershipId}
-                        activationTag={activationTag}
-                        activationLinkActive={route?.name === "AccountActivation"}
-                        hasMultipleMemberships={hasMultipleMemberships}
-                        selectedAccountMembership={accountMembership}
-                        onPress={setAccountPickerOpen.on}
-                        availableBalance={availableBalance}
-                      />
-
-                      <Popover
-                        referenceRef={accountPickerButtonRef}
-                        matchReferenceMinWidth={true}
-                        visible={isAccountPickerOpen}
-                        onDismiss={setAccountPickerOpen.off}
-                      >
-                        <View style={styles.accountPicker}>
-                          <AccountPicker
-                            accountMembershipId={accountMembershipId}
-                            availableBalance={availableBalance}
-                            onPressItem={accountMembershipId => {
-                              // TODO: Prevent full reload by tweaking layout + Suspense
-                              window.location.assign(Router.AccountRoot({ accountMembershipId }));
-                            }}
-                          />
-                        </View>
-                      </Popover>
-
-                      <Space height={32} />
-                      <AccountNavigation menu={menu} />
-                      <Fill minHeight={48} />
-
-                      <Pressable role="button" style={styles.additionalLink} onPress={signout}>
-                        <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
-                        <Space width={12} />
-                        <LakeText variant="medium">{t("login.signout")}</LakeText>
-                      </Pressable>
-
-                      <Space height={12} />
-
-                      <ProfileButton
-                        identificationStatus={identificationStatus ?? "Uninitiated"}
-                        firstName={firstName}
-                        lastName={lastName}
-                        accountMembershipId={accountMembershipId}
-                        shouldDisplayIdVerification={
-                          !(
-                            projectInfo.B2BMembershipIDVerification === false &&
-                            accountMembership.canManageAccountMembership === false &&
-                            accountMembership.canInitiatePayments === false &&
-                            accountMembership.canManageBeneficiaries === false
-                          )
-                        }
-                      />
-                    </>
-                  ))
-                  .otherwise(() => null)}
-              </SidebarNavigationTracker>
-            )}
-
-            <ScrollView
-              ref={scrollView}
-              onScroll={onScroll}
-              scrollEventThrottle={200}
-              contentContainerStyle={
-                desktop ? styles.desktopContentContainer : styles.mobileContentContainer
-              }
+      <View style={styles.background}>
+        <View style={[styles.container, desktop && styles.desktopContainer]}>
+          {desktop && (
+            <SidebarNavigationTracker
+              style={styles.sidebar}
+              contentContainerStyle={styles.sidebarContent}
             >
-              {!desktop && (
-                <>
-                  <Box
-                    role="banner"
-                    direction="row"
-                    alignItems="center"
-                    style={styles.headerMobile}
-                  >
-                    <AutoWidthImage
-                      ariaLabel={projectName}
-                      sourceUri={projectLogo ?? logoSwan}
-                      height={32}
-                      resizeMode="contain"
-                    />
+              <Box alignItems="center">
+                <View style={styles.logo}>
+                  <AutoWidthImage
+                    ariaLabel={projectName}
+                    sourceUri={projectLogo ?? logoSwan}
+                    height={LOGO_MAX_HEIGHT}
+                    maxWidth={LOGO_MAX_WIDTH}
+                    resizeMode="contain"
+                  />
+                </View>
+              </Box>
 
-                    {env.APP_TYPE === "SANDBOX" && (
-                      <>
-                        <Space width={12} />
-                        <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
-                      </>
-                    )}
+              {env.APP_TYPE === "SANDBOX" && (
+                <>
+                  <Space height={12} />
+
+                  <Box alignItems="center">
+                    <ProjectEnvTag projectEnv="Sandbox" />
                   </Box>
                 </>
               )}
 
-              <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
-                <ErrorBoundary
-                  key={route?.name}
-                  onError={error => logFrontendError(error)}
-                  fallback={({ error }) =>
-                    isUnauthorizedError(error) ? <></> : <ErrorView error={error} />
-                  }
-                >
-                  {match(membership)
-                    .with(
-                      Result.P.Ok(P.select()),
-                      ({
-                        accountMembership,
-                        canAddCard,
-                        canManageAccountMembership,
-                        cardMenuIsVisible,
-                        isLegalRepresentative,
-                        historyMenuIsVisible,
-                        detailsMenuIsVisible,
-                        memberMenuIsVisible,
-                        paymentMenuIsVisible,
-                      }) => {
-                        const accountId = accountMembership.account?.id;
+              {match(membership)
+                .with(Result.P.Ok(P.select()), ({ accountMembership }) => (
+                  <>
+                    <Space height={32} />
 
-                        const indexUrl: string = historyMenuIsVisible
-                          ? Router.AccountTransactionsListRoot({ accountMembershipId })
-                          : detailsMenuIsVisible
-                          ? Router.AccountDetailsIban({ accountMembershipId })
-                          : paymentMenuIsVisible
-                          ? Router.AccountPaymentsRoot({ accountMembershipId })
-                          : cardMenuIsVisible
-                          ? Router.AccountCardsList({ accountMembershipId })
-                          : memberMenuIsVisible
-                          ? Router.AccountMembersList({ accountMembershipId })
-                          : "";
+                    <AccountPickerButton
+                      ref={accountPickerButtonRef}
+                      desktop={true}
+                      accountMembershipId={accountMembershipId}
+                      activationTag={activationTag}
+                      activationLinkActive={route?.name === "AccountActivation"}
+                      hasMultipleMemberships={hasMultipleMemberships}
+                      selectedAccountMembership={accountMembership}
+                      onPress={setAccountPickerOpen.on}
+                      availableBalance={availableBalance}
+                    />
 
-                        if (accountMembership.user?.id !== user?.id) {
-                          return <Redirect to={Router.ProjectRootRedirect()} />;
-                        }
+                    <Popover
+                      referenceRef={accountPickerButtonRef}
+                      matchReferenceMinWidth={true}
+                      visible={isAccountPickerOpen}
+                      onDismiss={setAccountPickerOpen.off}
+                    >
+                      <View style={styles.accountPicker}>
+                        <AccountPicker
+                          accountMembershipId={accountMembershipId}
+                          availableBalance={availableBalance}
+                          onPressItem={accountMembershipId => {
+                            // TODO: Prevent full reload by tweaking layout + Suspense
+                            window.location.assign(Router.AccountRoot({ accountMembershipId }));
+                          }}
+                        />
+                      </View>
+                    </Popover>
 
-                        const canQueryCardOnTransaction =
-                          accountMembership.statusInfo.status !== "BindingUserError" &&
-                          accountMembership.canManageAccountMembership;
+                    <Space height={32} />
+                    <AccountNavigation menu={menu} />
+                    <Fill minHeight={48} />
 
-                        return (
-                          <Suspense fallback={<LoadingView color={colors.current[500]} />}>
-                            {match(route)
-                              .with({ name: "AccountRoot" }, () =>
-                                isNotEmpty(indexUrl) ? (
-                                  <Redirect to={indexUrl} />
-                                ) : (
-                                  <AccountNotFoundPage projectName={projectName} />
-                                ),
-                              )
-                              .with({ name: "AccountProfile" }, () =>
-                                currentAccountMembership.match({
-                                  Ok: ({
-                                    email,
-                                    canManageAccountMembership,
-                                    canManageBeneficiaries,
-                                    canInitiatePayments,
-                                    recommendedIdentificationLevel,
-                                  }) => (
-                                    <ProfilePage
-                                      recommendedIdentificationLevel={
-                                        recommendedIdentificationLevel
-                                      }
-                                      additionalInfo={additionalInfo}
-                                      userStatusIsProcessing={userStatusIsProcessing}
-                                      refetchAccountAreaQuery={refetchAccountAreaQuery}
-                                      isLegalRepresentative={isLegalRepresentative}
-                                      email={email}
-                                      shouldDisplayIdVerification={
-                                        !(
-                                          projectInfo.B2BMembershipIDVerification === false &&
-                                          canManageAccountMembership === false &&
-                                          canInitiatePayments === false &&
-                                          canManageBeneficiaries === false
-                                        )
-                                      }
-                                    />
-                                  ),
-                                  Error: () => <ErrorView />,
-                                }),
-                              )
-                              .with({ name: "AccountDetailsArea" }, () =>
-                                isNullish(accountId) || !detailsMenuIsVisible ? (
-                                  <ErrorView />
-                                ) : (
-                                  <AccountDetailsArea
-                                    accountId={accountId}
-                                    accountMembershipId={accountMembershipId}
-                                    canManageAccountMembership={canManageAccountMembership}
-                                    canManageVirtualIbans={canManageVirtualIbans}
-                                    idVerified={idVerified}
-                                    projectName={projectName}
+                    <Pressable role="button" style={styles.additionalLink} onPress={signout}>
+                      <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
+                      <Space width={12} />
+                      <LakeText variant="medium">{t("login.signout")}</LakeText>
+                    </Pressable>
+
+                    <Space height={12} />
+
+                    <ProfileButton
+                      identificationStatus={identificationStatus ?? "Uninitiated"}
+                      firstName={firstName}
+                      lastName={lastName}
+                      accountMembershipId={accountMembershipId}
+                      shouldDisplayIdVerification={
+                        !(
+                          projectInfo.B2BMembershipIDVerification === false &&
+                          accountMembership.canManageAccountMembership === false &&
+                          accountMembership.canInitiatePayments === false &&
+                          accountMembership.canManageBeneficiaries === false
+                        )
+                      }
+                    />
+                  </>
+                ))
+                .otherwise(() => null)}
+            </SidebarNavigationTracker>
+          )}
+
+          <ScrollView
+            ref={scrollView}
+            onScroll={onScroll}
+            scrollEventThrottle={200}
+            contentContainerStyle={
+              desktop ? styles.desktopContentContainer : styles.mobileContentContainer
+            }
+          >
+            {!desktop && (
+              <>
+                <Box role="banner" direction="row" alignItems="center" style={styles.headerMobile}>
+                  <AutoWidthImage
+                    ariaLabel={projectName}
+                    sourceUri={projectLogo ?? logoSwan}
+                    height={32}
+                    resizeMode="contain"
+                  />
+
+                  {env.APP_TYPE === "SANDBOX" && (
+                    <>
+                      <Space width={12} />
+                      <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
+                    </>
+                  )}
+                </Box>
+              </>
+            )}
+
+            <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
+              <ErrorBoundary
+                key={route?.name}
+                onError={error => logFrontendError(error)}
+                fallback={({ error }) =>
+                  isUnauthorizedError(error) ? <></> : <ErrorView error={error} />
+                }
+              >
+                {match(membership)
+                  .with(
+                    Result.P.Ok(P.select()),
+                    ({
+                      accountMembership,
+                      canAddCard,
+                      canManageAccountMembership,
+                      cardMenuIsVisible,
+                      isLegalRepresentative,
+                      historyMenuIsVisible,
+                      detailsMenuIsVisible,
+                      memberMenuIsVisible,
+                      paymentMenuIsVisible,
+                    }) => {
+                      const accountId = accountMembership.account?.id;
+
+                      const indexUrl: string = historyMenuIsVisible
+                        ? Router.AccountTransactionsListRoot({ accountMembershipId })
+                        : detailsMenuIsVisible
+                        ? Router.AccountDetailsIban({ accountMembershipId })
+                        : paymentMenuIsVisible
+                        ? Router.AccountPaymentsRoot({ accountMembershipId })
+                        : cardMenuIsVisible
+                        ? Router.AccountCardsList({ accountMembershipId })
+                        : memberMenuIsVisible
+                        ? Router.AccountMembersList({ accountMembershipId })
+                        : "";
+
+                      if (accountMembership.user?.id !== user?.id) {
+                        return <Redirect to={Router.ProjectRootRedirect()} />;
+                      }
+
+                      const canQueryCardOnTransaction =
+                        accountMembership.statusInfo.status !== "BindingUserError" &&
+                        accountMembership.canManageAccountMembership;
+
+                      return (
+                        <Suspense fallback={<LoadingView color={colors.current[500]} />}>
+                          {match(route)
+                            .with({ name: "AccountRoot" }, () =>
+                              isNotEmpty(indexUrl) ? (
+                                <Redirect to={indexUrl} />
+                              ) : (
+                                <AccountNotFoundPage projectName={projectName} />
+                              ),
+                            )
+                            .with({ name: "AccountProfile" }, () =>
+                              currentAccountMembership.match({
+                                Ok: ({
+                                  email,
+                                  canManageAccountMembership,
+                                  canManageBeneficiaries,
+                                  canInitiatePayments,
+                                  recommendedIdentificationLevel,
+                                }) => (
+                                  <ProfilePage
+                                    accentColor={accentColor}
+                                    recommendedIdentificationLevel={recommendedIdentificationLevel}
+                                    additionalInfo={additionalInfo}
                                     userStatusIsProcessing={userStatusIsProcessing}
-                                    isIndividual={isIndividual}
+                                    refetchAccountAreaQuery={refetchAccountAreaQuery}
+                                    isLegalRepresentative={isLegalRepresentative}
+                                    email={email}
+                                    shouldDisplayIdVerification={
+                                      !(
+                                        projectInfo.B2BMembershipIDVerification === false &&
+                                        canManageAccountMembership === false &&
+                                        canInitiatePayments === false &&
+                                        canManageBeneficiaries === false
+                                      )
+                                    }
                                   />
                                 ),
-                              )
-                              .with(
-                                { name: "AccountTransactionsArea" },
-                                ({ params: { accountMembershipId } }) =>
-                                  isNullish(accountId) ? (
-                                    <ErrorView />
-                                  ) : (
-                                    <TransactionsArea
-                                      accountId={accountId}
-                                      accountMembershipId={accountMembershipId}
-                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                      onBalanceReceive={setAvailableBalance}
-                                      canViewAccountStatement={canViewAccountStatement}
-                                    />
-                                  ),
-                              )
-
-                              .with(
-                                { name: "AccountPaymentsArea" },
-                                ({ params: { consentId, standingOrder, status: consentStatus } }) =>
-                                  isNullish(accountId) ? (
-                                    <ErrorView />
-                                  ) : (
-                                    <PaymentsAreaV2
-                                      accountId={accountId}
-                                      accountMembershipId={accountMembershipId}
-                                      newStandingOrderIsVisible={
-                                        canInitiatePaymentsToNewBeneficiaries
-                                      }
-                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                      transferConsent={
-                                        consentId != null && consentStatus != null
-                                          ? Option.Some({
-                                              status: consentStatus,
-                                              isStandingOrder: isNotEmpty(standingOrder ?? ""),
-                                            })
-                                          : Option.None()
-                                      }
-                                    />
-                                  ),
-                              )
-                              .with({ name: "AccountCardsArea" }, () => (
-                                <CardsArea
-                                  accountMembershipId={accountMembershipId}
+                                Error: () => <ErrorView />,
+                              }),
+                            )
+                            .with({ name: "AccountDetailsArea" }, () =>
+                              isNullish(accountId) || !detailsMenuIsVisible ? (
+                                <ErrorView />
+                              ) : (
+                                <AccountDetailsArea
                                   accountId={accountId}
-                                  userId={userId}
-                                  refetchAccountAreaQuery={refetchAccountAreaQuery}
-                                  canAddCard={canAddCard}
-                                  accountMembership={accountMembership}
-                                  idVerified={idVerified}
-                                  userStatusIsProcessing={userStatusIsProcessing}
-                                  canManageAccountMembership={canManageAccountMembership}
-                                  canOrderPhysicalCards={canOrderPhysicalCards}
-                                />
-                              ))
-                              .with({ name: "AccountMembersArea" }, ({ params }) =>
-                                match({ accountId, accountMembership })
-                                  .with(
-                                    {
-                                      accountId: P.string,
-                                      accountMembership: { account: { country: P.string } },
-                                    },
-                                    ({
-                                      accountId,
-                                      accountMembership: currentUserAccountMembership,
-                                    }) => (
-                                      <MembershipsArea
-                                        accountMembershipId={accountMembershipId}
-                                        accountId={accountId}
-                                        canAddNewMembers={canAddNewMembers}
-                                        canAddCard={canAddCard}
-                                        onAccountMembershipUpdate={refetchAccountAreaQuery}
-                                        accountCountry={
-                                          currentUserAccountMembership.account.country
-                                        }
-                                        params={params}
-                                        currentUserAccountMembership={currentUserAccountMembership}
-                                        canOrderPhysicalCards={canOrderPhysicalCards}
-                                        shouldDisplayIdVerification={
-                                          projectInfo.B2BMembershipIDVerification !== false
-                                        }
-                                      />
-                                    ),
-                                  )
-                                  .otherwise(() => <ErrorView />),
-                              )
-                              .with({ name: "AccountActivation" }, () => (
-                                <AccountActivationPage
-                                  requireFirstTransfer={requireFirstTransfer}
-                                  accentColor={accentColor}
                                   accountMembershipId={accountMembershipId}
-                                  additionalInfo={additionalInfo}
-                                  canViewAccountDetails={canViewAccountDetails}
+                                  canManageAccountMembership={canManageAccountMembership}
+                                  canManageVirtualIbans={canManageVirtualIbans}
+                                  idVerified={idVerified}
                                   projectName={projectName}
-                                  refetchAccountAreaQuery={refetchAccountAreaQuery}
+                                  userStatusIsProcessing={userStatusIsProcessing}
+                                  isIndividual={isIndividual}
                                 />
-                              ))
-                              .otherwise(() => (
-                                <NotFoundPage
-                                  title={isEmpty(indexUrl) ? t("error.noAccount") : undefined}
-                                  text={
-                                    isEmpty(indexUrl)
-                                      ? t("error.checkWithProvider", { projectName })
-                                      : undefined
-                                  }
-                                />
-                              ))}
-                          </Suspense>
-                        );
-                      },
-                    )
-                    .otherwise(() => (
-                      <LoadingView color={colors.current[500]} />
-                    ))}
-                </ErrorBoundary>
-              </View>
-            </ScrollView>
+                              ),
+                            )
+                            .with(
+                              { name: "AccountTransactionsArea" },
+                              ({ params: { accountMembershipId } }) =>
+                                isNullish(accountId) ? (
+                                  <ErrorView />
+                                ) : (
+                                  <TransactionsArea
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                    onBalanceReceive={setAvailableBalance}
+                                    canViewAccountStatement={canViewAccountStatement}
+                                  />
+                                ),
+                            )
 
-            {!desktop &&
-              membership.match({
-                Error: () => null,
-                Ok: membership => (
-                  <NavigationTabBar
-                    identificationStatus={identificationStatus ?? "Uninitiated"}
-                    accountMembershipId={accountMembershipId}
-                    hasMultipleMemberships={hasMultipleMemberships}
-                    activationTag={activationTag}
-                    accountMembership={membership.accountMembership}
-                    shouldDisplayIdVerification={
-                      !(
-                        projectInfo.B2BMembershipIDVerification === false &&
-                        membership.canManageAccountMembership === false &&
-                        membership.canInitiatePayments === false &&
-                        membership.canManageBeneficiaries === false
-                      )
-                    }
-                    additionalInfo={additionalInfo}
-                    entries={menu}
-                    firstName={firstName}
-                    lastName={lastName}
-                    refetchAccountAreaQuery={refetchAccountAreaQuery}
-                    isScrolled={isScrolled}
-                    onScrollToTop={scrollToTop}
-                  />
-                ),
-              })}
-          </View>
+                            .with(
+                              { name: "AccountPaymentsArea" },
+                              ({ params: { consentId, standingOrder, status: consentStatus } }) =>
+                                isNullish(accountId) ? (
+                                  <ErrorView />
+                                ) : (
+                                  <PaymentsAreaV2
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                    newStandingOrderIsVisible={
+                                      canInitiatePaymentsToNewBeneficiaries
+                                    }
+                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                    transferConsent={
+                                      consentId != null && consentStatus != null
+                                        ? Option.Some({
+                                            status: consentStatus,
+                                            isStandingOrder: isNotEmpty(standingOrder ?? ""),
+                                          })
+                                        : Option.None()
+                                    }
+                                  />
+                                ),
+                            )
+                            .with({ name: "AccountCardsArea" }, () => (
+                              <CardsArea
+                                accountMembershipId={accountMembershipId}
+                                accountId={accountId}
+                                userId={userId}
+                                refetchAccountAreaQuery={refetchAccountAreaQuery}
+                                canAddCard={canAddCard}
+                                accountMembership={accountMembership}
+                                idVerified={idVerified}
+                                userStatusIsProcessing={userStatusIsProcessing}
+                                canManageAccountMembership={canManageAccountMembership}
+                                canOrderPhysicalCards={canOrderPhysicalCards}
+                              />
+                            ))
+                            .with({ name: "AccountMembersArea" }, ({ params }) =>
+                              match({ accountId, accountMembership })
+                                .with(
+                                  {
+                                    accountId: P.string,
+                                    accountMembership: { account: { country: P.string } },
+                                  },
+                                  ({
+                                    accountId,
+                                    accountMembership: currentUserAccountMembership,
+                                  }) => (
+                                    <MembershipsArea
+                                      accountMembershipId={accountMembershipId}
+                                      accountId={accountId}
+                                      canAddNewMembers={canAddNewMembers}
+                                      canAddCard={canAddCard}
+                                      onAccountMembershipUpdate={refetchAccountAreaQuery}
+                                      accountCountry={currentUserAccountMembership.account.country}
+                                      params={params}
+                                      currentUserAccountMembership={currentUserAccountMembership}
+                                      canOrderPhysicalCards={canOrderPhysicalCards}
+                                      shouldDisplayIdVerification={
+                                        projectInfo.B2BMembershipIDVerification !== false
+                                      }
+                                    />
+                                  ),
+                                )
+                                .otherwise(() => <ErrorView />),
+                            )
+                            .with({ name: "AccountActivation" }, () => (
+                              <AccountActivationPage
+                                requireFirstTransfer={requireFirstTransfer}
+                                accentColor={accentColor}
+                                accountMembershipId={accountMembershipId}
+                                additionalInfo={additionalInfo}
+                                canViewAccountDetails={canViewAccountDetails}
+                                projectName={projectName}
+                                refetchAccountAreaQuery={refetchAccountAreaQuery}
+                              />
+                            ))
+                            .otherwise(() => (
+                              <NotFoundPage
+                                title={isEmpty(indexUrl) ? t("error.noAccount") : undefined}
+                                text={
+                                  isEmpty(indexUrl)
+                                    ? t("error.checkWithProvider", { projectName })
+                                    : undefined
+                                }
+                              />
+                            ))}
+                        </Suspense>
+                      );
+                    },
+                  )
+                  .otherwise(() => (
+                    <LoadingView color={colors.current[500]} />
+                  ))}
+              </ErrorBoundary>
+            </View>
+          </ScrollView>
+
+          {!desktop &&
+            membership.match({
+              Error: () => null,
+              Ok: membership => (
+                <NavigationTabBar
+                  identificationStatus={identificationStatus ?? "Uninitiated"}
+                  accountMembershipId={accountMembershipId}
+                  hasMultipleMemberships={hasMultipleMemberships}
+                  activationTag={activationTag}
+                  accountMembership={membership.accountMembership}
+                  shouldDisplayIdVerification={
+                    !(
+                      projectInfo.B2BMembershipIDVerification === false &&
+                      membership.canManageAccountMembership === false &&
+                      membership.canInitiatePayments === false &&
+                      membership.canManageBeneficiaries === false
+                    )
+                  }
+                  additionalInfo={additionalInfo}
+                  entries={menu}
+                  firstName={firstName}
+                  lastName={lastName}
+                  refetchAccountAreaQuery={refetchAccountAreaQuery}
+                  isScrolled={isScrolled}
+                  onScrollToTop={scrollToTop}
+                />
+              ),
+            })}
         </View>
-      </LegacyAccentColorProvider>
+      </View>
     </WithPartnerAccentColor>
   );
 };

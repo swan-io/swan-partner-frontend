@@ -21,7 +21,6 @@ import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { useLegacyAccentColor } from "../contexts/legacyAccentColor";
 import { IdentificationLevel, ProfilePageDocument } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
@@ -52,6 +51,7 @@ type Props = {
   shouldDisplayIdVerification: boolean;
   email: string;
   recommendedIdentificationLevel: IdentificationLevel;
+  accentColor: string;
 };
 
 export const ProfilePage = ({
@@ -60,9 +60,9 @@ export const ProfilePage = ({
   refetchAccountAreaQuery,
   shouldDisplayIdVerification,
   email,
+  accentColor,
 }: Props) => {
   const [{ data }] = useQueryWithErrorBoundary({ query: ProfilePageDocument });
-  const accentColor = useLegacyAccentColor();
 
   const { user } = data;
   const firstName = user?.firstName ?? "";

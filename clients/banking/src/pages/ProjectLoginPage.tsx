@@ -214,24 +214,12 @@ export const ProjectLoginPage = ({
         >
           <View role="banner">
             {isNotNullish(logoUri) ? (
-              <>
-                <Image
-                  source={{ uri: logoUri }}
-                  resizeMode="contain"
-                  aria-label={name}
-                  style={[styles.defaultLogo, desktop && styles.defaultLogoDesktop]}
-                />
-
-                <Space height={8} />
-
-                <LakeText
-                  variant="smallRegular"
-                  color={colors.gray[900]}
-                  style={styles.parternship}
-                >
-                  {t("login.parternship")} <SwanLogo style={styles.swanPartnerLogo} />
-                </LakeText>
-              </>
+              <Image
+                source={{ uri: logoUri }}
+                resizeMode="contain"
+                aria-label={name}
+                style={[styles.defaultLogo, desktop && styles.defaultLogoDesktop]}
+              />
             ) : (
               <SwanLogo style={[styles.defaultLogo, desktop && styles.defaultLogoDesktop]} />
             )}
@@ -261,6 +249,12 @@ export const ProjectLoginPage = ({
               </View>
             )}
           </View>
+
+          {isNotNullish(logoUri) && (
+            <LakeText variant="smallRegular" style={styles.parternship}>
+              {t("login.parternship")} <SwanLogo style={styles.swanPartnerLogo} />
+            </LakeText>
+          )}
         </ScrollView>
       );
     })

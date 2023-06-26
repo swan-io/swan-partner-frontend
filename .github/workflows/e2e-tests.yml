@@ -2,15 +2,14 @@ name: E2E tests
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: [main]
+    branches: ["*"]
 
 jobs:
   test:
     name: E2E tests
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[e2e]') }}
     steps:
       - uses: actions/checkout@v3
 

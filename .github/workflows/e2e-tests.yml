@@ -23,30 +23,28 @@ jobs:
           sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
           sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
 
-      - uses: SpicyPizza/create-envfile@v2.0
-        with:
-          fail_on_empty: true
-          file_name: .env.e2e
-          envkey_NODE_ENV: "test"
-          envkey_LOG_LEVEL: "error"
-          envkey_PARTNER_ADMIN_API_URL: ${{ secrets.E2E_PARTNER_ADMIN_API_URL }}
-          envkey_PARTNER_API_URL: ${{ secrets.E2E_PARTNER_API_URL }}
-          envkey_UNAUTHENTICATED_API_URL: ${{ secrets.E2E_UNAUTHENTICATED_API_URL }}
-          envkey_OAUTH_SERVER_URL: ${{ secrets.E2E_OAUTH_SERVER_URL }}
-          envkey_OAUTH_CLIENT_ID: ${{ secrets.E2E_OAUTH_CLIENT_ID }}
-          envkey_OAUTH_CLIENT_SECRET: ${{ secrets.E2E_OAUTH_CLIENT_SECRET }}
-          envkey_COOKIE_KEY: ${{ secrets.E2E_COOKIE_KEY }}
-          envkey_BANKING_URL: "http://banking.swan.local:8080"
-          envkey_ONBOARDING_URL: "http://onboarding.swan.local:8080"
-          envkey_CLIENT_GOOGLE_MAPS_API_KEY: ${{ secrets.E2E_GOOGLE_MAPS_API_KEY }}
-          envkey_TEST_KEY: ${{ secrets.E2E_TEST_KEY }}
-          envkey_PHONE_NUMBER: ${{ secrets.E2E_PHONE_NUMBER }}
-          envkey_PASSCODE: ${{ secrets.E2E_PASSCODE }}
-          envkey_SANDBOX_USER_BENADY_ID: ${{ secrets.E2E_SANDBOX_USER_BENADY_ID }}
-          envkey_SANDBOX_USER_SAISON_ID: ${{ secrets.E2E_SANDBOX_USER_SAISON_ID }}
-          envkey_TWILIO_ACCOUNT_ID: ${{ secrets.E2E_TWILIO_ACCOUNT_ID }}
-          envkey_TWILIO_AUTH_TOKEN: ${{ secrets.E2E_TWILIO_AUTH_TOKEN }}
-          envkey_WEBHOOK_SITE_API_KEY: ${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}
+      - name: Write .env.e2e file
+        run: |
+          echo "NODE_ENV=test" > .env.e2e
+          echo "LOG_LEVEL=error" >> .env.e2e
+          echo "PARTNER_ADMIN_API_URL=${{ secrets.E2E_PARTNER_ADMIN_API_URL }}" >> .env.e2e
+          echo "PARTNER_API_URL=${{ secrets.E2E_PARTNER_API_URL }}" >> .env.e2e
+          echo "UNAUTHENTICATED_API_URL=${{ secrets.E2E_UNAUTHENTICATED_API_URL }}" >> .env.e2e
+          echo "OAUTH_SERVER_URL=${{ secrets.E2E_OAUTH_SERVER_URL }}" >> .env.e2e
+          echo "OAUTH_CLIENT_ID=${{ secrets.E2E_OAUTH_CLIENT_ID }}" >> .env.e2e
+          echo "OAUTH_CLIENT_SECRET=${{ secrets.E2E_OAUTH_CLIENT_SECRET }}" >> .env.e2e
+          echo "COOKIE_KEY=${{ secrets.E2E_COOKIE_KEY }}" >> .env.e2e
+          echo "BANKING_URL=http://banking.swan.local:8080" >> .env.e2e
+          echo "ONBOARDING_URL=http://onboarding.swan.local:8080" >> .env.e2e
+          echo "CLIENT_GOOGLE_MAPS_API_KEY=${{ secrets.E2E_GOOGLE_MAPS_API_KEY }}" >> .env.e2e
+          echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
+          echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e
+          echo "PASSCODE=${{ secrets.E2E_PASSCODE }}" >> .env.e2e
+          echo "SANDBOX_USER_BENADY_ID=${{ secrets.E2E_SANDBOX_USER_BENADY_ID }}" >> .env.e2e
+          echo "SANDBOX_USER_SAISON_ID=${{ secrets.E2E_SANDBOX_USER_SAISON_ID }}" >> .env.e2e
+          echo "TWILIO_ACCOUNT_ID=${{ secrets.E2E_TWILIO_ACCOUNT_ID }}" >> .env.e2e
+          echo "TWILIO_AUTH_TOKEN=${{ secrets.E2E_TWILIO_AUTH_TOKEN }}" >> .env.e2e
+          echo "WEBHOOK_SITE_API_KEY=${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}" >> .env.e2e
 
       - name: Install dependencies
         run: yarn install --pure-lockfile

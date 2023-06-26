@@ -185,7 +185,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     key: env.COOKIE_KEY,
     cookie: {
       path: "/",
-      secure: true,
+      secure: env.BANKING_URL.startsWith("https"),
       httpOnly: true,
       domain: `.${new URL(env.BANKING_URL).hostname}`,
     },

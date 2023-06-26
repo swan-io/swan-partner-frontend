@@ -654,7 +654,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                         projectId,
                       })
                         .mapOk(({ accountMembershipId }) => {
-                          void reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
+                          void reply.redirect(
+                            `${env.BANKING_URL}/projects/${projectId}/${accountMembershipId}`,
+                          );
                           return undefined;
                         })
                         .tapError(error => {

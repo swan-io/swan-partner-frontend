@@ -408,7 +408,6 @@ export const NewMembershipWizard = ({
           },
         })
           .mapOkToResult(({ addAccountMembership }) => {
-            // TODO: send email
             return match(addAccountMembership)
               .with(
                 {
@@ -440,7 +439,7 @@ export const NewMembershipWizard = ({
                 },
                 ({ accountMembership }) => {
                   sendInvitation({ editingAccountMembershipId: accountMembership.id });
-                  Result.Ok(Option.None());
+                  return Result.Ok(Option.None());
                 },
               )
               .otherwise(error => Result.Error(error));

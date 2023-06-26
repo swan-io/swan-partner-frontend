@@ -12,28 +12,33 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { PaymentProduct, TransactionStatus } from "../graphql/partner";
-import { locale, rifmDateProps, t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 import { validateDate } from "../utils/validations";
 
 const isAfterUpdatedAtFilter: FilterDateDef = {
   type: "date",
   label: t("transactionList.filter.isAfterUpdatedAt"),
+  cancelText: t("common.cancel"),
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
   dateFormat: locale.dateFormat,
-  rifmProps: rifmDateProps,
+  dayNames: weekDayNames,
+  monthNames,
   validate: validateDate,
 };
 
 const isBeforeUpdatedAtFilter: FilterDateDef = {
   type: "date",
   label: t("transactionList.filter.isBeforeUpdatedAt"),
+  cancelText: t("common.cancel"),
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
+  dayNames: weekDayNames,
+  monthNames,
   dateFormat: locale.dateFormat,
-  rifmProps: rifmDateProps,
   validate: validateDate,
 };
 

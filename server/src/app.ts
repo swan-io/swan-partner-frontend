@@ -185,7 +185,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     key: env.COOKIE_KEY,
     cookie: {
       path: "/",
-      secure: true,
+      secure: env.BANKING_URL.startsWith("https"),
       httpOnly: true,
       domain: `.${new URL(env.BANKING_URL).hostname}`,
     },
@@ -294,7 +294,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Decorates the `reply` object with a `sendFile`
    */
-  if (env.NODE_ENV !== "development") {
+  if (env.NODE_ENV === "production") {
     await app.register(fastifyStatic, {
       root: path.join(__dirname, "./static"),
       wildcard: false,
@@ -759,7 +759,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     });
   });
 
-  if (mode === "development") {
+  if (mode === "development" || mode === "test") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
     const { additionalPorts } = await startDevServer(app, httpsConfig);

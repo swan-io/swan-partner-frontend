@@ -14,6 +14,11 @@ jobs:
     permissions:
       contents: read # This is required for actions/checkout
     steps:
+      - name: Add hosts to /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
+
       - uses: actions/checkout@v3
 
       - uses: actions/setup-node@v3

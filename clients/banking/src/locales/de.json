@@ -279,6 +279,7 @@
   "login.linkHow": "Wie kann ich auf mein Konto zugreifen?",
   "login.needHelp": "Hilfe",
   "login.parternship": "in Partnerschaft mit",
+  "login.sessionExpired.title": "Sitzung abgelaufen. Bitte melde dich erneut an.",
   "login.signout": "Abmelden",
   "members.form.address.countryPlaceholder": "Wähle ein Land",
   "members.invitationLink": "Einladungslink",

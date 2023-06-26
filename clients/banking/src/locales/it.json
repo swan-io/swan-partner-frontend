@@ -279,6 +279,7 @@
   "login.linkHow": "Come posso accedere al mio conto?",
   "login.needHelp": "Assistenza",
   "login.parternship": "in collaborazione con",
+  "login.sessionExpired.title": "Sessione scaduta. Effettua nuovamente l'accesso.",
   "login.signout": "Disconnetti",
   "members.form.address.countryPlaceholder": "Seleziona un paese",
   "members.invitationLink": "Link di invito",

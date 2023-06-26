@@ -279,6 +279,7 @@
   "login.linkHow": "Questions? Visit our Help Center.",
   "login.needHelp": "Help",
   "login.parternship": "in partnership with",
+  "login.sessionExpired.title": "Session expired. Please sign in again.",
   "login.signout": "Sign out",
   "members.form.address.countryPlaceholder": "Select a country",
   "members.invitationLink": "Invitation link",

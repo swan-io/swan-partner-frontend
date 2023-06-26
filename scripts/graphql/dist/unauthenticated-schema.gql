@@ -77,6 +77,12 @@ type Account {
 
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
+
+  """
+  COMING SOON
+  Link to the account's bank details
+  """
+  bankDetails: String
 }
 
 """Account Closed status information"""
@@ -127,9 +133,10 @@ type AccountConnection implements Connection {
 enum AccountCountry {
   FRA
   DEU
+  ESP
 
   """COMING SOON"""
-  ESP
+  NLD
 }
 
 """Implements the Relay Edge interface"""
@@ -203,6 +210,9 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 
   """Registration number of the company (SIRET, ...)."""
   registrationNumber: String
+
+  """Registration date of the company."""
+  companyRegistrationDate: Date
 
   """Legal form of the company (SAS, SCI, SASU, ...)."""
   companyType: CompanyType
@@ -279,6 +289,7 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+  registrationNumber: String
 }
 
 """Individual account holder."""
@@ -410,7 +421,7 @@ type AccountMembership {
   canInitiatePayments: Boolean!
 
   """
-  `true` if this account membership can invite, update, suspend or resume beneficiaries
+  `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean!
 
@@ -625,6 +636,9 @@ input AccountMembershipsFilterInput {
 
   """Can the user manage beneficiaries"""
   canManageBeneficiaries: Boolean
+
+  """Can the user view account"""
+  canViewAccount: Boolean
 
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
@@ -1052,6 +1066,9 @@ type Card {
 
   """Card product"""
   cardProduct: CardProduct!
+
+  """Issuing Country"""
+  issuingCountry: CCA3!
 
   """Digital Cards linked to this card"""
   digitalCards(
@@ -2667,6 +2684,9 @@ input MembershipsFilterInput {
   """Can the user manage beneficiaries"""
   canManageBeneficiaries: Boolean
 
+  """Can the user view account"""
+  canViewAccount: Boolean
+
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
@@ -3604,6 +3624,11 @@ type ProjectInfo {
 
   """Project status"""
   status: ProjectStatus!
+
+  """
+  Flag that determines if desktop authentication is enabled for this project
+  """
+  allowsDesktopAuthentication: Boolean!
 
   """The card products associated with this project."""
   cardProducts: [CardProduct!]

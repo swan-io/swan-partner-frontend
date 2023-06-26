@@ -23,11 +23,11 @@ jobs:
       - name: Install dependencies
         run: yarn install --pure-lockfile
 
-      - name: Install chromium
-        run: yarn playwright install-deps chromium
-
       - name: GraphQL Codegen
         run: yarn graphql-codegen
+
+      - name: Install chromium
+        run: yarn playwright install-deps chromium
 
       - name: Run E2E tests
         run: CI=true yarn test-e2e

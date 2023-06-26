@@ -1,0 +1,33 @@
+name: E2E tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    permissions:
+      contents: read # This is required for actions/checkout
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+
+      - name: Install dependencies
+        run: yarn install --pure-lockfile
+
+      - name: Install chromium
+        run: yarn playwright install-deps chromium
+
+      - name: GraphQL Codegen
+        run: yarn graphql-codegen
+
+      - name: Run E2E tests
+        run: CI=true yarn test-e2e

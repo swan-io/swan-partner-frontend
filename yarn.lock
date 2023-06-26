@@ -1272,10 +1272,10 @@
   dependencies:
     fast-json-stringify "^5.7.0"
 
-"@fastify/reply-from@9.3.0":
-  version "9.3.0"
-  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.3.0.tgz#241ba2d24953a60f96e2383efc2b9519518e1acf"
-  integrity sha512-4L0uLSmSp3Lj1IfZ4s2D5vum6/kVtsW6ff5Y/Ug/RGB71+ZRgLDgT0d5utt/9vzV/x9nwGOPmu6x+YCv6raVXg==
+"@fastify/reply-from@9.4.0":
+  version "9.4.0"
+  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.4.0.tgz#7d648cd5221e1aa9a0ec2cd5451f32078c431dd3"
+  integrity sha512-A0rT2o2Y8Xe9+CpS/VCfpWMLyptwI7peljdtdsW3nlLwwMbDr3kxDry5aiIb43SCfI1nr3B5mMH48kerJAZ8YQ==
   dependencies:
     "@fastify/error" "^3.0.0"
     end-of-stream "^1.4.4"

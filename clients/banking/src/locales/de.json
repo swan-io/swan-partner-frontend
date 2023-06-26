@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Ungültige Uhrzeit",
   "common.form.invalidVatNumber": "Ungültige USt.-ID",
   "common.form.required": "Dies ist ein Pflichtfeld",
+  "common.form.updatedAfterFilterAfterBeforeError": "Aktualisiert nach muss vor aktualisiert vor liegen",
+  "common.form.updatedBeforeFilterBeforeAfterError": "Aktualisiert vor muss nach aktualisiert nach liegen",
   "common.list.noResults": "Keine Ergebnisse",
   "common.list.noResultsSuggestion": "Bitte änder deine Suche oder deine Filter",
   "common.new": "Neu",

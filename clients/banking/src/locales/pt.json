@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Hora inválida",
   "common.form.invalidVatNumber": "Número de IVA inválido",
   "common.form.required": "Este campo é obrigatório",
+  "common.form.updatedAfterFilterAfterBeforeError": "Atualizado após deve ser antes de atualizado antes",
+  "common.form.updatedBeforeFilterBeforeAfterError": "Atualizado antes deve ser após atualizado após",
   "common.list.noResults": "Nenhum resultado",
   "common.list.noResultsSuggestion": "Altere a sua pesquisa ou filtros",
   "common.new": "Novo",

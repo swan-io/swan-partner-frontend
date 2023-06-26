@@ -48,12 +48,18 @@ jobs:
       - name: Install dependencies
         run: yarn install --pure-lockfile
 
+      - name: Get playwright version
+        run: |
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright's Version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
       - name: Cache playwright
         id: cache-playwright
         uses: actions/cache@v3
         with:
           path: ~/.cache/ms-playwright
-          key: playwright-$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          key: playwright-${{ env.PLAYWRIGHT_VERSION }}
 
       - name: Setup playwright
         if: steps.cache-playwright.outputs.cache-hit != 'true'

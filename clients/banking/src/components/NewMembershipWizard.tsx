@@ -1,4 +1,4 @@
-import { Array, Option, Result } from "@swan-io/boxed";
+import { Array, Future, Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -27,6 +27,7 @@ import {
   AddAccountMembershipDocument,
 } from "../graphql/partner";
 import { locale, rifmDateProps, t } from "../utils/i18n";
+import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
@@ -317,6 +318,55 @@ export const NewMembershipWizard = ({
     });
   };
 
+  const sendInvitation = ({
+    editingAccountMembershipId,
+  }: {
+    editingAccountMembershipId: string;
+  }) => {
+    const request = Future.make<Result<undefined, undefined>>(resolve => {
+      const xhr = new XMLHttpRequest();
+      // TODO: oauth2
+      const query = new URLSearchParams();
+      query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      xhr.open(
+        "POST",
+        match(projectConfiguration)
+          .with(
+            Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+            projectId =>
+              `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          )
+          .otherwise(
+            () => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          ),
+        true,
+      );
+
+      xhr.withCredentials = true;
+      xhr.responseType = "json";
+      xhr.addEventListener("load", () => {
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+          resolve(Result.Ok(undefined));
+        } else {
+          resolve(Result.Error(undefined));
+        }
+      });
+      xhr.send(
+        JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembership.id,
+        }),
+      );
+      return () => {
+        xhr.abort();
+      };
+    });
+
+    request.tapError(() => {
+      showToast({ variant: "error", title: t("error.generic") });
+    });
+  };
+
   const onPressSubmit = () => {
     submitForm(values => {
       const computedValues = { ...partiallySavedValues, ...values };
@@ -358,7 +408,6 @@ export const NewMembershipWizard = ({
           },
         })
           .mapOkToResult(({ addAccountMembership }) => {
-            // TODO: send email
             return match(addAccountMembership)
               .with(
                 {
@@ -388,7 +437,10 @@ export const NewMembershipWizard = ({
                     },
                   },
                 },
-                () => Result.Ok(Option.None()),
+                ({ accountMembership }) => {
+                  sendInvitation({ editingAccountMembershipId: accountMembership.id });
+                  return Result.Ok(Option.None());
+                },
               )
               .otherwise(error => Result.Error(error));
           })

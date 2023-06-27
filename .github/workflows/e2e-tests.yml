@@ -13,15 +13,23 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Edit /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
+
+      - name: Install self-signed certificate
+        run: |
+          cd server/keys
+          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+          chmod +x mkcert-v*-linux-amd64
+          mkcert -install
+          mkcert "*.swan.local"
+
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
           cache: yarn
-
-      - name: Add hosts to /etc/hosts
-        run: |
-          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
-          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
 
       - name: Write .env.e2e file
         run: |

@@ -109,7 +109,7 @@ const LoginContent = ({ accentColor, onLogin }: LoginContentProps) => {
   return (
     <WithPartnerAccentColor color={accentColor}>
       <View style={styles.iconContainer}>
-        <BorderedIcon name="building-bank-regular" size={100} padding={16} color="partner" />
+        <BorderedIcon name="lake-building-bank" size={100} padding={8} color="partner" />
       </View>
 
       <Space height={32} />

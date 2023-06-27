@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Questa ora non è valida",
   "common.form.invalidVatNumber": "Questo numero di partita IVA non è valido",
   "common.form.required": "Questo campo è richiesto",
+  "common.form.updatedAfterFilterAfterBeforeError": "L'aggiornamento dopo deve essere antecedente all'aggiornamento prima",
+  "common.form.updatedBeforeFilterBeforeAfterError": "L'aggiornamento prima deve essere successivo all'aggiornamento dopo",
   "common.list.noResults": "Nessun risultato",
   "common.list.noResultsSuggestion": "Modifica la ricerca o i filtri",
   "common.new": "Nuovo",

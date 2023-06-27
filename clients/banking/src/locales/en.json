@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Invalid time",
   "common.form.invalidVatNumber": "Invalid VAT number",
   "common.form.required": "This field is required",
+  "common.form.updatedAfterFilterAfterBeforeError": "Updated after must be before updated before",
+  "common.form.updatedBeforeFilterBeforeAfterError": "Updated before must be after updated after",
   "common.list.noResults": "No results",
   "common.list.noResultsSuggestion": "Please change your search or filters",
   "common.new": "New",

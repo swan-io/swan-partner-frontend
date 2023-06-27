@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Esta hora no es válida",
   "common.form.invalidVatNumber": "Este número de IVA no es válido",
   "common.form.required": "Este campo es obligatorio",
+  "common.form.updatedAfterFilterAfterBeforeError": "La fecha de actualización posterior debe ser anterior a la fecha de actualización anterior",
+  "common.form.updatedBeforeFilterBeforeAfterError": "La fecha de actualización anterior debe ser posterior a la fecha de actualización posterior",
   "common.list.noResults": "No hay resultados",
   "common.list.noResultsSuggestion": "Cambia tu búsqueda o los filtros",
   "common.new": "Nuevo",

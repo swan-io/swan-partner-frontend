@@ -244,6 +244,8 @@
   "common.form.invalidTime": "Heure non valide",
   "common.form.invalidVatNumber": "Numéro de TVA non valide",
   "common.form.required": "Ce champs est requis",
+  "common.form.updatedAfterFilterAfterBeforeError": "La date de mise à jour après doit être antérieure à la date de mise à jour avant",
+  "common.form.updatedBeforeFilterBeforeAfterError": "La date de mise à jour avant doit être postérieure à la date de mise à jour après",
   "common.list.noResults": "Aucun résultat",
   "common.list.noResultsSuggestion": "Veuillez modifier votre recherche ou vos filtres",
   "common.new": "Nouveau",

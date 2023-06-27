@@ -69,8 +69,8 @@ jobs:
 
       - name: Edit /etc/hosts
         run: |
-          sudo echo "127.0.0.1 banking.swan.local" >> /etc/hosts
-          sudo echo "127.0.0.1 onboarding.swan.local" >> /etc/hosts
+          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
           cat /etc/hosts
 
       - name: Install self-signed certificate

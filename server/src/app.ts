@@ -59,6 +59,7 @@ type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
   sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
+  allowedCorsOrigins?: string[];
 };
 
 declare module "@fastify/secure-session" {
@@ -109,7 +110,12 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
+export const start = async ({
+  mode,
+  httpsConfig,
+  sendAccountMembershipInvitation,
+  allowedCorsOrigins = [],
+}: AppConfig) => {
   if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
@@ -196,7 +202,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    * when the onboarding flow completes with the OAuth2 flow
    */
   await app.register(cors, {
-    origin: [env.ONBOARDING_URL, env.BANKING_URL],
+    origin: [env.ONBOARDING_URL, env.BANKING_URL, ...allowedCorsOrigins],
     credentials: true,
   });
 

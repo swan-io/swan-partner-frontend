@@ -152,6 +152,13 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     .resultToPromise();
 };
 
+const partnerPickerUrl = new URL(env.BANKING_URL);
+const [...envHostName] = partnerPickerUrl.hostname.split(".");
+partnerPickerUrl.hostname = ["partner", ...envHostName].join(".");
+if (env.NODE_ENV === "development") {
+  partnerPickerUrl.port = "8080";
+}
+
 start({
   mode: env.NODE_ENV,
   httpsConfig:
@@ -162,6 +169,7 @@ start({
         }
       : undefined,
   sendAccountMembershipInvitation,
+  allowedCorsOrigins: [partnerPickerUrl.toString()],
 }).then(
   ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(

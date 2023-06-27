@@ -61,6 +61,9 @@ jobs:
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps
 
+      - name: Initialize playwright
+        run: yarn playwright screenshot -b chromium https://example.org /tmp/blank.png
+
       - name: GraphQL Codegen
         run: yarn graphql-codegen
 
@@ -76,8 +79,8 @@ jobs:
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           mv mkcert-v*-linux-amd64 mkcert
           chmod +x ./mkcert
-          sudo ./mkcert -install
-          sudo ./mkcert "*.swan.local"
+          ./mkcert -install
+          ./mkcert "*.swan.local"
 
       - name: Run E2E tests
         run: CI=true yarn test-e2e

@@ -76,8 +76,8 @@ jobs:
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           mv mkcert-v*-linux-amd64 mkcert
           chmod +x ./mkcert
-          ./mkcert -install
-          ./mkcert "*.swan.local"
+          sudo ./mkcert -install
+          sudo ./mkcert "*.swan.local"
 
       - name: Run E2E tests
         run: CI=true yarn test-e2e

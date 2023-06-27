@@ -155,7 +155,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
 start({
   mode: env.NODE_ENV,
   httpsConfig:
-    env.NODE_ENV === "development"
+    env.NODE_ENV !== "production"
       ? {
           key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
           cert: path.join(keysPath, "_wildcard.swan.local.pem"),

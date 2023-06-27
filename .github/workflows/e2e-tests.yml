@@ -34,8 +34,8 @@ jobs:
           echo "OAUTH_CLIENT_ID=${{ secrets.E2E_OAUTH_CLIENT_ID }}" >> .env.e2e
           echo "OAUTH_CLIENT_SECRET=${{ secrets.E2E_OAUTH_CLIENT_SECRET }}" >> .env.e2e
           echo "COOKIE_KEY=${{ secrets.E2E_COOKIE_KEY }}" >> .env.e2e
-          echo "BANKING_URL=http://banking.swan.local:8080" >> .env.e2e
-          echo "ONBOARDING_URL=http://onboarding.swan.local:8080" >> .env.e2e
+          echo "BANKING_URL=https://banking.swan.local:8080" >> .env.e2e
+          echo "ONBOARDING_URL=https://onboarding.swan.local:8080" >> .env.e2e
           echo "CLIENT_GOOGLE_MAPS_API_KEY=${{ secrets.E2E_GOOGLE_MAPS_API_KEY }}" >> .env.e2e
           echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
           echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e

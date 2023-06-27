@@ -110,7 +110,7 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
-  if (mode === "development") {
+  if (mode !== "production") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
 
@@ -759,7 +759,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     });
   });
 
-  if (mode === "development" || mode === "test") {
+  if (mode !== "production") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
     const { additionalPorts } = await startDevServer(app, httpsConfig);

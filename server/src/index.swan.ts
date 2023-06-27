@@ -169,7 +169,7 @@ start({
         }
       : undefined,
   sendAccountMembershipInvitation,
-  allowedCorsOrigins: [partnerPickerUrl.toString()],
+  allowedCorsOrigins: [partnerPickerUrl.toString().slice(0, -1)],
 }).then(
   ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(

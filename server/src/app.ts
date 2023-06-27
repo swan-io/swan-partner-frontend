@@ -45,7 +45,7 @@ const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as unknown as { version: string };
 
-const COOKIE_MAX_AGE = 300; // 5 minutes
+const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 export type InvitationConfig = {
@@ -759,7 +759,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     });
   });
 
-  if (mode === "development" || mode === "test") {
+  if (mode !== "production") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
     const { additionalPorts } = await startDevServer(app, httpsConfig);

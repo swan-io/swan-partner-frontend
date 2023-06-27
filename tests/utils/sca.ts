@@ -1,4 +1,4 @@
-import { Browser, devices, Page } from "@playwright/test";
+import { Browser, devices, Locator, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
 import { assertIsDefined, wait } from "./functions";
@@ -64,7 +64,29 @@ const waitForAnyConfirm = async (page: Page) => {
   await Promise.race([waitForPostKycConfirm(page), waitForConfirm(page)]);
 };
 
-const login = async (browser: Browser) => {
+const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
+  const [popup] = await Promise.all([button.page().waitForEvent("popup"), button.click()]);
+  await injectTestKey(popup);
+
+  const input = popup.locator('[type="tel"]');
+  await input.waitFor();
+  await input.fill(env.PHONE_NUMBER);
+
+  const startDate = new Date();
+  await clickOnButton(popup, "Next");
+
+  const url = await getLastMessageURL({ startDate });
+  const mobile = await openPage(browser, "mobile", url);
+
+  await clickOnButton(mobile, "Confirm");
+  await fillPasscode(mobile);
+  await waitForAnyConfirm(mobile);
+
+  await mobile.close();
+  await popup.waitForEvent("close");
+};
+
+const loginUsingAuthLink = async (browser: Browser) => {
   const authLink = getUserAuthLink();
   const startDate = new Date();
 
@@ -105,6 +127,7 @@ const consent = async (browser: Browser, consentUrl: string) => {
 };
 
 export const sca = {
-  login,
+  loginUsingAuthLink,
+  loginUsingButtonClick,
   consent,
 };

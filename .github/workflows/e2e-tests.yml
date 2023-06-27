@@ -23,8 +23,8 @@ jobs:
           cd server/keys
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           chmod +x mkcert-v*-linux-amd64
-          mkcert -install
-          mkcert "*.swan.local"
+          ./mkcert -install
+          ./mkcert "*.swan.local"
 
       - uses: actions/setup-node@v3
         with:

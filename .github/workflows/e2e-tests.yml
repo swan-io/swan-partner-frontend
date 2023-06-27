@@ -13,21 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Edit /etc/hosts
-        run: |
-          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
-          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
-
-      - name: Install self-signed certificate
-        run: |
-          sudo apt install libnss3-tools
-          cd server/keys
-          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-          mv mkcert-v*-linux-amd64 mkcert
-          chmod +x ./mkcert
-          ./mkcert -install
-          ./mkcert "*.swan.local"
-
       - uses: actions/setup-node@v3
         with:
           node-version: lts/*
@@ -78,6 +63,21 @@ jobs:
 
       - name: GraphQL Codegen
         run: yarn graphql-codegen
+
+      - name: Edit /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
+
+      - name: Install self-signed certificate
+        run: |
+          sudo apt install libnss3-tools
+          cd server/keys
+          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
+          mv mkcert-v*-linux-amd64 mkcert
+          chmod +x ./mkcert
+          ./mkcert -install
+          ./mkcert "*.swan.local"
 
       - name: Run E2E tests
         run: CI=true yarn test-e2e

@@ -1,4 +1,5 @@
 import { test } from "@playwright/test";
+import { storagePath } from "../playwright.config";
 import { EndorseSandboxUserDocument, ResetSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
@@ -8,7 +9,9 @@ import { saveSession } from "./utils/session";
 import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
-test("Setup", async ({ browser, request }) => {
+test("Setup", async ({ browser, page, request }) => {
+  await page.goto(env.BANKING_URL);
+
   const requestApi = getApiRequester(request);
 
   const [projectAccessToken, userTokens, benadyEmail, saisonEmail] = await Promise.all([
@@ -57,4 +60,7 @@ test("Setup", async ({ browser, request }) => {
       id: env.SANDBOX_USER_BENADY_ID,
     },
   });
+
+  await page.pause();
+  await page.context().storageState({ path: storagePath });
 });

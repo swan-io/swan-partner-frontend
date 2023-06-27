@@ -53,7 +53,7 @@ export default defineConfig({
       use: useOptions,
     },
     {
-      name: "chromium",
+      name: "desktop",
       dependencies: ["setup"],
       use: {
         ...useOptions,

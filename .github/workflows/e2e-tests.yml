@@ -20,7 +20,7 @@ jobs:
 
       - name: Write .env.e2e file
         run: |
-          echo "NODE_ENV=development" > .env.e2e
+          echo "NODE_ENV=test" > .env.e2e
           echo "LOG_LEVEL=error" >> .env.e2e
           echo "PARTNER_ADMIN_API_URL=${{ secrets.E2E_PARTNER_ADMIN_API_URL }}" >> .env.e2e
           echo "PARTNER_API_URL=${{ secrets.E2E_PARTNER_API_URL }}" >> .env.e2e

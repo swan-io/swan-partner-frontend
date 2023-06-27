@@ -20,6 +20,7 @@ jobs:
 
       - name: Install self-signed certificate
         run: |
+          sudo apt install libnss3-tools
           cd server/keys
           curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
           mv mkcert-v*-linux-amd64 mkcert

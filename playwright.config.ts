@@ -17,10 +17,10 @@ export const sessionPath = path.join(testResultsDir, "session.json");
 const useOptions: PlaywrightTestConfig["use"] = {
   ...devices["Desktop Chrome"],
   headless: env.CI,
-  trace: "on",
   locale: "en-US",
-  navigationTimeout: seconds(20),
   actionTimeout: seconds(20),
+  navigationTimeout: seconds(20),
+  trace: "on",
   viewport: {
     width: 1440,
     height: 900,

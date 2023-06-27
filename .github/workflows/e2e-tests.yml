@@ -18,6 +18,11 @@ jobs:
           node-version: lts/*
           cache: yarn
 
+      - name: Edit /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 banking.swan.localhost" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.localhost" | sudo tee -a /etc/hosts
+
       - name: Write .env.e2e file
         run: |
           echo "NODE_ENV=test" > .env.e2e
@@ -29,8 +34,8 @@ jobs:
           echo "OAUTH_CLIENT_ID=${{ secrets.E2E_OAUTH_CLIENT_ID }}" >> .env.e2e
           echo "OAUTH_CLIENT_SECRET=${{ secrets.E2E_OAUTH_CLIENT_SECRET }}" >> .env.e2e
           echo "COOKIE_KEY=${{ secrets.E2E_COOKIE_KEY }}" >> .env.e2e
-          echo "BANKING_URL=https://banking.swan.local:8080" >> .env.e2e
-          echo "ONBOARDING_URL=https://onboarding.swan.local:8080" >> .env.e2e
+          echo "BANKING_URL=http://banking.swan.localhost:8080" >> .env.e2e
+          echo "ONBOARDING_URL=http://onboarding.swan.localhost:8080" >> .env.e2e
           echo "CLIENT_GOOGLE_MAPS_API_KEY=${{ secrets.E2E_GOOGLE_MAPS_API_KEY }}" >> .env.e2e
           echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
           echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e
@@ -61,27 +66,8 @@ jobs:
         if: steps.cache-playwright.outputs.cache-hit != 'true'
         run: yarn playwright install --with-deps
 
-      - name: Initialize playwright
-        run: yarn playwright screenshot -b chromium https://example.org /tmp/blank.png
-
       - name: GraphQL Codegen
         run: yarn graphql-codegen
-
-      - name: Edit /etc/hosts
-        run: |
-          sudo echo "127.0.0.1 banking.swan.local" | sudo tee -a /etc/hosts
-          sudo echo "127.0.0.1 onboarding.swan.local" | sudo tee -a /etc/hosts
-          cat /etc/hosts
-
-      - name: Install self-signed certificate
-        run: |
-          sudo apt install libnss3-tools
-          cd server/keys
-          curl -JLO "https://dl.filippo.io/mkcert/latest?for=linux/amd64"
-          mv mkcert-v*-linux-amd64 mkcert
-          chmod +x ./mkcert
-          ./mkcert -install
-          ./mkcert "*.swan.local"
 
       - name: Run E2E tests
         run: CI=true yarn test-e2e

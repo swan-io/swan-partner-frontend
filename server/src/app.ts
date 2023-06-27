@@ -110,7 +110,7 @@ const assertIsBoundToLocalhost = (host: string) => {
 };
 
 export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
-  if (mode !== "production") {
+  if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
 

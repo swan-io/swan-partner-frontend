@@ -25,7 +25,7 @@ const onboardingCountries = accountCountries
 start({
   mode: env.NODE_ENV,
   httpsConfig:
-    env.NODE_ENV !== "production"
+    env.NODE_ENV === "development"
       ? {
           key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
           cert: path.join(keysPath, "_wildcard.swan.local.pem"),

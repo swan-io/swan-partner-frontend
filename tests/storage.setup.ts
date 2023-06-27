@@ -5,18 +5,17 @@ import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { assertTypename } from "./utils/functions";
 import { sca } from "./utils/sca";
+import { getButtonByName, waitForText } from "./utils/selectors";
 import { saveSession } from "./utils/session";
 import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
 test("Setup", async ({ browser, page, request }) => {
-  await page.goto(env.BANKING_URL);
-
   const requestApi = getApiRequester(request);
 
   const [projectAccessToken, userTokens, benadyEmail, saisonEmail] = await Promise.all([
     getProjectAccessToken(),
-    sca.login(browser),
+    sca.loginUsingAuthLink(browser),
     createEmailAddress(),
     createEmailAddress(),
   ]);
@@ -61,6 +60,9 @@ test("Setup", async ({ browser, page, request }) => {
     },
   });
 
-  await page.pause();
+  await page.goto(env.BANKING_URL);
+  await sca.loginUsingButtonClick(browser, getButtonByName(page, "Sign into Web Banking"));
+  await waitForText(page, "Sign out");
+
   await page.context().storageState({ path: storagePath });
 });

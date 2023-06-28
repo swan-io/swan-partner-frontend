@@ -209,7 +209,8 @@ export const validateAfterUpdatedAt = (value: string, filters: unknown) => {
         const isBeforeUpdatedAtDate = dayjs(isBeforeUpdatedAt).startOf("day");
 
         if (!isAfterUpdatedAt.isBefore(isBeforeUpdatedAtDate)) {
-          return t("common.form.updatedAfterFilterAfterBeforeError");
+          const updatedBefore = isBeforeUpdatedAtDate.format("LL");
+          return t("common.form.chooseDateBefore", { date: updatedBefore });
         }
       })
       .otherwise(() => undefined)
@@ -243,7 +244,8 @@ export const validateBeforeUpdatedAt = (value: string, filters: unknown) => {
         const isAfterUpdatedAtDate = dayjs(isAfterUpdatedAt).endOf("day");
 
         if (!isBeforeUpdatedAt.isAfter(isAfterUpdatedAtDate)) {
-          return t("common.form.updatedBeforeFilterBeforeAfterError");
+          const updatedAfter = isAfterUpdatedAtDate.format("LL");
+          return t("common.form.chooseDateAfter", { date: updatedAfter });
         }
       })
       .otherwise(() => undefined)

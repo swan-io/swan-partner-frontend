@@ -233,6 +233,8 @@
   "common.filters.all": "Tutti",
   "common.filters.apply": "Applica",
   "common.form.birthdateCannotBeFuture": "La data di nascita non può essere futura",
+  "common.form.chooseDateAfter": "Scegli una data successiva a {date}",
+  "common.form.chooseDateBefore": "Scegli una data precedente a {date}",
   "common.form.dateCannotBePast": "Questa data non può essere nel passato",
   "common.form.invalidAddressLine": "Questo campo ha un limite di 38 caratteri",
   "common.form.invalidAmount": "Questo importo non è valido",

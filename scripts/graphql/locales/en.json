@@ -62,7 +62,9 @@
   "rejection.NotSupportedCountryRejection": "Unsupported country",
   "rejection.OnboardingNotCompletedRejection": "Incomplete onboarding process",
   "rejection.PINNotReadyRejection": "PIN isn't ready",
+  "rejection.PaymentMandateMandateNotFoundRejection": "Couldn't find payment mandate",
   "rejection.PaymentMandateReferenceAlreadyUsedRejection": "Payment mandates require unique reference numbers",
+  "rejection.PaymentMethodNotCompatibleRejection": "Payment method isn't compatible",
   "rejection.PermissionCannotBeGrantedRejection": "Can't grant permission",
   "rejection.PhysicalCardNotFoundRejection": "Couldn't find physical card",
   "rejection.PhysicalCardWrongStatusRejection": "Unexpected physical card status",
@@ -109,5 +111,6 @@
   "rejection.UserNotAllowedToManageAccountMembershipRejection": "Can't manage account membership",
   "rejection.UserNotAllowedToSuspendItsOwnAccountMembershipRejection": "Can't suspend your own account membership",
   "rejection.UserNotCardHolderRejection": "Only a card holder can perform this action",
-  "rejection.ValidationRejection": "Validation failed"
+  "rejection.ValidationRejection": "Validation failed",
+  "rejection.WrongValueProvidedRejection": "Wrong value provided"
 }

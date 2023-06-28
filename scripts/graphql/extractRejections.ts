@@ -31,7 +31,7 @@ const visitor: ASTVisitor = {
 };
 
 fs.readdirSync(schemasPath)
-  .filter(file => file.endsWith(".gql"))
+  .filter(file => file.endsWith(".gql") && file !== "partner-admin-schema.gql")
   .map(file => parse(fs.readFileSync(path.join(schemasPath, file), "utf-8")))
   .forEach(schema => visit(schema, visitor));
 

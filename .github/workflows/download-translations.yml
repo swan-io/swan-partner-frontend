@@ -1,0 +1,42 @@
+name: Download translations
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * *" # every day at midnight
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  download-translations:
+    name: Download translations
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # This is required for actions/checkout
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Download onboarding translation keys
+        uses: localazy/download@v1
+        with:
+          read_key: ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }}
+          write_key: ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
+          groups: onboarding
+
+      - name: Download banking translation keys
+        uses: localazy/download@v1
+        with:
+          read_key: ${{ secrets.LOCALAZY_BANKING_READ_KEY }}
+          write_key: ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
+          groups: banking
+
+      - uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.CREATE_PR_TOKEN }}
+          title: Update translations
+          branch: update-translations
+          commit-message: update translations from localazy
+          body: Update translations

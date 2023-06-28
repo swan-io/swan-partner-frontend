@@ -21,6 +21,13 @@ import utc from "dayjs/plugin/utc";
 import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
 import { P, match } from "ts-pattern";
 import { CombinedError } from "urql";
+import rejectionTranslationDE from "../../../../scripts/graphql/locales/de.json";
+import rejectionTranslationEN from "../../../../scripts/graphql/locales/en.json";
+import rejectionTranslationES from "../../../../scripts/graphql/locales/es.json";
+import rejectionTranslationFR from "../../../../scripts/graphql/locales/fr.json";
+import rejectionTranslationIT from "../../../../scripts/graphql/locales/it.json";
+import rejectionTranslationNL from "../../../../scripts/graphql/locales/nl.json";
+import rejectionTranslationPT from "../../../../scripts/graphql/locales/pt.json";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
@@ -28,6 +35,14 @@ import translationFR from "../locales/fr.json";
 import translationIT from "../locales/it.json";
 import translationNL from "../locales/nl.json";
 import translationPT from "../locales/pt.json";
+
+const allTranslationEN = { ...translationEN, ...rejectionTranslationEN };
+const allTranslationDE = { ...translationDE, ...rejectionTranslationDE };
+const allTranslationES = { ...translationES, ...rejectionTranslationES };
+const allTranslationFR = { ...translationFR, ...rejectionTranslationFR };
+const allTranslationIT = { ...translationIT, ...rejectionTranslationIT };
+const allTranslationNL = { ...translationNL, ...rejectionTranslationNL };
+const allTranslationPT = { ...translationPT, ...rejectionTranslationPT };
 
 // https://day.js.org/docs/en/plugin/plugin
 dayjs.extend(utc);
@@ -38,7 +53,7 @@ dayjs.extend(localizedFormat);
 const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
 
-export type TranslationKey = keyof typeof translationEN;
+export type TranslationKey = keyof typeof allTranslationEN;
 
 const translationKeys = Object.keys(translationEN);
 const isTranslationKey = (key: string): key is TranslationKey => translationKeys.includes(key);
@@ -57,7 +72,7 @@ type Locale = {
 const locales: Record<SupportedLanguage, () => Locale> = {
   en: () => ({
     language: "en",
-    translations: translationEN,
+    translations: allTranslationEN,
     dayjsLocale: dayjsLocaleEN,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -67,7 +82,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   de: () => ({
     language: "de",
-    translations: translationDE,
+    translations: allTranslationDE,
     dayjsLocale: dayjsLocaleDE,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -77,7 +92,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   fr: () => ({
     language: "fr",
-    translations: translationFR,
+    translations: allTranslationFR,
     dayjsLocale: dayjsLocaleFR,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "JJ/MM/AAAA",
@@ -87,7 +102,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   it: () => ({
     language: "it",
-    translations: translationIT,
+    translations: allTranslationIT,
     dayjsLocale: dayjsLocaleIT,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -97,7 +112,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   nl: () => ({
     language: "nl",
-    translations: translationNL,
+    translations: allTranslationNL,
     dayjsLocale: dayjsLocaleNL,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -107,7 +122,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   es: () => ({
     language: "es",
-    translations: translationES,
+    translations: allTranslationES,
     dayjsLocale: dayjsLocaleES,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -117,7 +132,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
   }),
   pt: () => ({
     language: "pt",
-    translations: translationPT,
+    translations: allTranslationPT,
     dayjsLocale: dayjsLocalePT,
     dateFormat: "DD/MM/YYYY",
     datePlaceholder: "DD/MM/YYYY",
@@ -149,7 +164,7 @@ const intl = createIntl(
 );
 
 export const t = (key: TranslationKey, params?: Record<string, string | number>) =>
-  intl.formatMessage({ id: key, defaultMessage: translationEN[key] }, params).toString();
+  intl.formatMessage({ id: key, defaultMessage: allTranslationEN[key] }, params).toString();
 
 export const translateError = (error: unknown) => {
   const key = match(error)
@@ -186,7 +201,7 @@ export const formatNestedMessage = (
   params: Record<string, string | number | ReactElement | ((children: ReactNode) => ReactNode)>,
 ) => {
   const result = intl.formatMessage(
-    { id: key, defaultMessage: translationEN[key] },
+    { id: key, defaultMessage: allTranslationEN[key] },
     // @ts-expect-error
     params,
   );

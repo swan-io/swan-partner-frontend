@@ -64,6 +64,7 @@ const baseLocale: Locale = "en";
 const appTranslationsPaths = {
   banking: path.join(process.cwd(), "clients", "banking", "src", "locales"),
   onboarding: path.join(process.cwd(), "clients", "onboarding", "src", "locales"),
+  rejections: path.join(process.cwd(), "scripts", "graphql", "locales"),
 };
 
 type AppName = keyof typeof appTranslationsPaths;

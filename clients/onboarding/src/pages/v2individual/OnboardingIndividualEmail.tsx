@@ -194,6 +194,7 @@ export const OnboardingIndividualEmail = ({
                       <Field name="tcuAccepted">
                         {({ value, error, onChange }) => (
                           <Pressable
+                            role="checkbox"
                             aria-checked={value}
                             onPress={() => onChange(!value)}
                             style={styles.tcuCheckbox}

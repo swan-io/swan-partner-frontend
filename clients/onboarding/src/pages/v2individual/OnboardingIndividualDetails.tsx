@@ -209,7 +209,7 @@ export const OnboardingIndividualDetails = ({
 
                 {canSetTaxIdentification && (
                   <>
-                    <Space height={12} />
+                    <Space height={32} />
 
                     <Field name="taxIdentificationNumber">
                       {({ value, valid, error, onChange, onBlur }) => (

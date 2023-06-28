@@ -386,7 +386,10 @@ export const OnboardingCompanyOrganisation1 = ({
                       {({ value, valid, error, onChange }) => (
                         <LakeLabel
                           label={t("company.step.organisation1.registrationNumberLabel", {
-                            registrationNumberLegalName: getRegistrationNumberName(country),
+                            registrationNumberLegalName: getRegistrationNumberName(
+                              country,
+                              companyType,
+                            ),
                           })}
                           optionalLabel={isRegistered.value ? undefined : t("common.optional")}
                           render={id => (

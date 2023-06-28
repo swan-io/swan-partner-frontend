@@ -1,6 +1,7 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { match, P } from "ts-pattern";
 import type { CombinedError } from "urql";
+import { CompanyType } from "../graphql/unauthenticated";
 import { t } from "./i18n";
 
 export const getErrorFieldLabel = (field: string) => {
@@ -72,7 +73,7 @@ export const getUpdateOnboardingError = (
     });
 };
 
-export const getRegistrationNumberName = (country: CountryCCA3) => {
+export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
     .with("BEL", () => "Numéro d'entreprise / Vestigingseenheidsnummer")
@@ -82,7 +83,7 @@ export const getRegistrationNumberName = (country: CountryCCA3) => {
     .with("DNK", () => "CVR-nummer")
     .with("EST", () => "Kood")
     .with("FIN", () => "Y-tunnus FO-nummer")
-    .with("FRA", () => "Numéro SIREN")
+    .with("FRA", () => (companyType === "Association" ? "RNA" : "Numéro SIREN"))
     .with("DEU", () => "Nummer der Firma Registernummer")
     .with(
       "GRC",

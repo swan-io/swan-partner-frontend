@@ -161,7 +161,7 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/fr/articles/5000716-qui-sont-les-beneficiaires-effectifs-de-mon-entreprise",
   "supportingDocument.noFilename": "Sans titre",
-  "taxIdentificationNumber.germanInfo": "Si l'identifiant fiscal n'est pas fourni lors de l'intégration, il sera demandé par e-mail. Si l'identifiant n'est pas fourni dans les 90 jours, nous suspendrons le compte.",
+  "taxIdentificationNumber.germanInfo": "Votre numéro d'identification fiscale est obligatoire, mais vous pouvez le fournir ultérieurement. Veuillez nous le communiquer dans les 90 jours. Dans le cas contraire, votre compte sera suspendu.",
   "wizard.back": "Précédent",
   "wizard.finalize": "Finaliser",
   "wizard.next": "Suivant"

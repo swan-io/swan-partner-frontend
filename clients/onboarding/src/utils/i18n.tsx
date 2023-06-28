@@ -35,7 +35,6 @@ const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
 
 export type TranslationKey = keyof typeof translationEN;
-export type TranslationParams = Record<string, string | number>;
 
 type Locale = {
   language: SupportedLanguage;
@@ -133,7 +132,7 @@ const intl = createIntl(
   createIntlCache(),
 );
 
-export const t = (key: TranslationKey, params?: TranslationParams) =>
+export const t = (key: TranslationKey, params?: Record<string, string | number>) =>
   intl.formatMessage({ id: key, defaultMessage: translationEN[key] }, params).toString();
 
 export const formatNestedMessage = (

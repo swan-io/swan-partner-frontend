@@ -270,6 +270,8 @@
   "error.iban.invalidBank": "We don't recognize the bank referenced in this IBAN. Please contact us, or try a different IBAN.",
   "error.invalidTransferAmount": "Invalid transfer amount",
   "error.lastExecutionDateBeforeFirstExecutionDate": "End date cannot be before first transfer date",
+  "error.network.500": "Internal server error",
+  "error.network.503": "Service unavailable",
   "error.noAccount": "You don't have an account.",
   "error.pageNotFound": "Page not found",
   "error.transferLabelTooLong": "Transfer label is too long",

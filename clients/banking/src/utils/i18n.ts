@@ -19,6 +19,8 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
+import { P, match } from "ts-pattern";
+import { CombinedError } from "urql";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
@@ -37,9 +39,9 @@ const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
 
 export type TranslationKey = keyof typeof translationEN;
-export type TranslationParams = Record<string, string | number>;
 
-type DateTimeFormat = "LTS" | "LT" | "L" | "LL" | "LLL" | "LLLL" | "l" | "ll" | "lll" | "llll";
+const translationKeys = Object.keys(translationEN);
+const isTranslationKey = (key: string): key is TranslationKey => translationKeys.includes(key);
 
 type Locale = {
   language: SupportedLanguage;
@@ -146,8 +148,30 @@ const intl = createIntl(
   createIntlCache(),
 );
 
-export const t = (key: TranslationKey, params?: TranslationParams) =>
+export const t = (key: TranslationKey, params?: Record<string, string | number>) =>
   intl.formatMessage({ id: key, defaultMessage: translationEN[key] }, params).toString();
+
+export const translateError = (error: unknown) => {
+  const key = match(error)
+    .with(P.string, __typename => {
+      return `rejection.${__typename}`;
+    })
+    .with({ __typename: P.string }, ({ __typename }) => {
+      return `rejection.${__typename}`;
+    })
+    .with(P.instanceOf(CombinedError), ({ response }: { response?: Partial<Response> }) => {
+      const status = response?.status;
+      return typeof status === "number" ? `error.network.${status}` : "error.generic";
+    })
+    .with(P.instanceOf(Error), ({ message }) => {
+      return `rejection.${message}`;
+    })
+    .otherwise(() => "error.generic");
+
+  return t(isTranslationKey(key) ? key : "error.generic");
+};
+
+type DateTimeFormat = "LTS" | "LT" | "L" | "LL" | "LLL" | "LLLL" | "l" | "ll" | "lll" | "llll";
 
 export const formatDateTime = memoize(
   (date: Date, format: DateTimeFormat) => dayjs(date).format(format),

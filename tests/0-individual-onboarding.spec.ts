@@ -66,3 +66,38 @@ test("German individual onboarding", async ({ browser, page }) => {
 
   await page.waitForURL(value => value.origin === env.BANKING_URL);
 });
+
+test("Spanish individual onboarding", async ({ browser, page }) => {
+  const { benady } = await getSession();
+
+  await page.goto(`${env.ONBOARDING_URL}/onboarding/individual/start?accountCountry=ESP`);
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.getByLabel("What's your email?").fill(benady.email);
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.getByRole("button", { name: "Enter manually" }).click();
+
+  await page
+    .getByLabel("Type your personal home address")
+    .fill("Carrer de la Riera de Sant Miquel");
+
+  await page.getByLabel("City").fill("Barcelona");
+  await page.getByLabel("Postcode").fill("08006");
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.getByLabel("What's your current occupation?").click();
+  await page.getByRole("option", { name: "Entrepreneur" }).click();
+  await page.getByText("Between €3000 and €4500").click();
+  await page.getByLabel("Tax identification number").fill("xxxxxxxxx");
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  const startDate = new Date();
+  await page.getByRole("button", { name: "Finalize" }).click();
+  await sca.consent(browser, startDate);
+
+  await page.waitForURL(value => value.origin === env.BANKING_URL);
+});

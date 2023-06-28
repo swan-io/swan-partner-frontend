@@ -370,6 +370,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             previousStep="OnboardingRegistration"
             nextStep="OnboardingOrganisation2"
             onboardingId={params.onboardingId}
+            companyType={companyType}
             initialIsRegistered={isRegistered}
             initialName={holder.name ?? ""}
             initialRegistrationNumber={holder.registrationNumber ?? ""}

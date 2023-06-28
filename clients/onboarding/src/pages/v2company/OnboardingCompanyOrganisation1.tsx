@@ -27,6 +27,7 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
   AccountCountry,
+  CompanyType,
   GetCompanyInfoDocument,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
@@ -60,6 +61,7 @@ export type Organisation1FieldName =
 type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
+  companyType: CompanyType;
   initialIsRegistered: boolean;
   initialName: string;
   initialRegistrationNumber: string;
@@ -77,6 +79,10 @@ type Props = {
   }[];
 };
 
+const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
+  FRA: "RNA",
+};
+
 const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "“Code des sociétés”",
   DEU: "Handelsregister",
@@ -88,6 +94,7 @@ const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
 export const OnboardingCompanyOrganisation1 = ({
   previousStep,
   nextStep,
+  companyType,
   initialIsRegistered,
   initialName,
   initialRegistrationNumber,
@@ -288,7 +295,9 @@ export const OnboardingCompanyOrganisation1 = ({
     [setFieldValue],
   );
 
-  const countryRegisterName = registerNamePerCountry[country];
+  const countryRegisterName = match(companyType)
+    .with("Association", () => associationRegisterNamePerCountry[country])
+    .otherwise(() => registerNamePerCountry[country]);
 
   return (
     <>

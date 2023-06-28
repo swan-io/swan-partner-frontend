@@ -233,6 +233,8 @@
   "common.filters.all": "Alle",
   "common.filters.apply": "Toepassen",
   "common.form.birthdateCannotBeFuture": "Geboortedatum kan niet in de toekomst liggen",
+  "common.form.chooseDateAfter": "Kies een datum na {date}",
+  "common.form.chooseDateBefore": "Kies een datum voor {date}",
   "common.form.dateCannotBePast": "Deze datum kan niet in het verleden liggen",
   "common.form.invalidAddressLine": "Dit veld is beperkt tot 38 tekens",
   "common.form.invalidAmount": "Dit bedrag is ongeldig",

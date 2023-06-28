@@ -2,7 +2,7 @@ import { Browser, devices, Locator, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
 import { assertIsDefined, wait } from "./functions";
-import { clickOnButton, waitForText } from "./selectors";
+import { clickOnButton, getByText, waitForText } from "./selectors";
 import { getUserAuthLink, getUserTokens } from "./tokens";
 import { getLastMessageURL } from "./twilio";
 
@@ -49,8 +49,9 @@ const fillPasscode = async (page: Page) => {
 };
 
 const waitForConfirm = async (page: Page) => {
-  await waitForText(page, "Prove your identity in the Sandbox");
-  await clickOnButton(page, "Next");
+  if (await getByText(page, "Prove your identity in the Sandbox").isVisible()) {
+    await clickOnButton(page, "Next");
+  }
 
   await waitForText(page, "Done");
   await waitForText(page, "You can now close this page.");

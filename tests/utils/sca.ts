@@ -49,19 +49,11 @@ const fillPasscode = async (page: Page) => {
 };
 
 const waitForConfirm = async (page: Page) => {
-  await waitForText(page, "Done");
-  await waitForText(page, "You can now close this page.");
-};
-
-const waitForPostKycConfirm = async (page: Page) => {
   await waitForText(page, "Prove your identity in the Sandbox");
   await clickOnButton(page, "Next");
 
-  await waitForConfirm(page);
-};
-
-const waitForAnyConfirm = async (page: Page) => {
-  await Promise.race([waitForPostKycConfirm(page), waitForConfirm(page)]);
+  await waitForText(page, "Done");
+  await waitForText(page, "You can now close this page.");
 };
 
 const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
@@ -75,12 +67,12 @@ const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
   const startDate = new Date();
   await clickOnButton(popup, "Next");
 
-  const url = await getLastMessageURL({ startDate });
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
   await popup.waitForEvent("close");
@@ -91,12 +83,12 @@ const loginUsingAuthLink = async (browser: Browser) => {
   const startDate = new Date();
 
   const page = await openPage(browser, "desktop", authLink);
-  const url = await getLastMessageURL({ startDate });
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
   await page.waitForURL(value => value.origin === REDIRECT_URI);
@@ -110,20 +102,15 @@ const loginUsingAuthLink = async (browser: Browser) => {
   return tokens;
 };
 
-const consent = async (browser: Browser, consentUrl: string) => {
-  const startDate = new Date();
-
-  const page = await openPage(browser, "desktop", consentUrl);
-  const url = await getLastMessageURL({ startDate });
+const consent = async (browser: Browser, startDate: Date) => {
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
-  await page.waitForURL(value => value.origin === REDIRECT_URI);
-  await page.close();
 };
 
 export const sca = {

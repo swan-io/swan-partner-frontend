@@ -49,7 +49,11 @@ const fillPasscode = async (page: Page) => {
 };
 
 const waitForConfirm = async (page: Page) => {
-  if (await getByText(page, "Prove your identity in the Sandbox").isVisible()) {
+  const sandboxTitle = "Prove your identity in the Sandbox";
+  const confirmTitle = "Done";
+  await waitForText(page, new RegExp(`${sandboxTitle}|${confirmTitle}`));
+
+  if (await getByText(page, sandboxTitle).isVisible()) {
     await clickOnButton(page, "Next");
   }
 

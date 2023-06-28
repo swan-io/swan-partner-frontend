@@ -11,20 +11,20 @@ type WaitForOptions = Parameters<Locator["waitFor"]>[0];
 
 export const getButtonByName = (
   parent: Parent,
-  name: string,
+  name: string | RegExp,
   options?: Omit<GetByRoleOptions, "name">,
 ) => parent.getByRole("button", { exact: true, ...options, name });
 
-export const getByText = (parent: Parent, text: string, options?: GetByTextOptions) =>
+export const getByText = (parent: Parent, text: string | RegExp, options?: GetByTextOptions) =>
   parent.getByText(text, { exact: true, ...options });
 
 // Actions
 
-export const clickOnButton = (parent: Parent, name: string, options?: ClickOptions) =>
+export const clickOnButton = (parent: Parent, name: string | RegExp, options?: ClickOptions) =>
   getButtonByName(parent, name).click(options);
 
-export const clickOnText = (parent: Parent, text: string, options?: ClickOptions) =>
+export const clickOnText = (parent: Parent, text: string | RegExp, options?: ClickOptions) =>
   getByText(parent, text).click(options);
 
-export const waitForText = (parent: Parent, text: string, options?: WaitForOptions) =>
+export const waitForText = (parent: Parent, text: string | RegExp, options?: WaitForOptions) =>
   getByText(parent, text).waitFor(options);

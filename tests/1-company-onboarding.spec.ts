@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import path from "pathe";
 import { env } from "./utils/env";
 import { sca } from "./utils/sca";
 import { waitForText } from "./utils/selectors";
@@ -152,6 +153,113 @@ test("German company onboarding", async ({ browser, page }) => {
 
   await waitForText(page, "Nicolas Benady");
   await waitForText(page, "Directly holds 100% of the capital of Swan");
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  const startDate = new Date();
+  await page.getByRole("button", { name: "Finalize" }).click();
+  await sca.consent(browser, startDate);
+
+  await page.waitForURL(value => value.origin === env.BANKING_URL);
+});
+
+test("Spanish company onboarding", async ({ browser, page }) => {
+  const { benady } = await getSession();
+
+  await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=ESP`);
+
+  const picker = page.getByLabel("Where is your organization located?");
+  await picker.waitFor();
+  await expect(picker).toHaveText("Spain");
+
+  await page.getByText("Are you a legal representative?").waitFor();
+  await page.getByText("What type of organization is it?").waitFor();
+
+  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.getByLabel("What's your email?").fill(benady.email);
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await waitForText(page, "Are you registered?");
+
+  await page.getByLabel("Your organization", { exact: true }).fill("Swan");
+  await page.getByLabel("What’s your registration number").fill("49294492H");
+  await page.getByLabel("Tax identification number").fill("xxxxxxxxx");
+
+  await page.getByRole("button", { name: "Enter manually" }).click();
+
+  await page.getByLabel("Find your organization's address").fill("C/ de Mallorca, 401");
+  await page.getByLabel("City").fill("Barcelona");
+  await page.getByLabel("Postcode").fill("08013");
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.getByLabel("What's your business activity?").click();
+  await page.getByText("Education").click();
+
+  await page
+    .getByLabel("Description of your business, service, or product")
+    .fill("Ignore this, I'm an end-to-end test");
+
+  await page.getByLabel("Your company's expected monthly payments through this account").click();
+  await page.getByText("Between €10,000 and €50,000").click();
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await waitForText(page, "Who has ownership at your organization?");
+  await page.getByRole("button", { name: "Add" }).click();
+
+  const modal = page.locator("[aria-modal]");
+
+  await modal.getByLabel("First name").fill("Nicolas");
+  await modal.getByLabel("Last name").fill("Benady");
+  await modal.getByLabel("Birth date").fill("01/01/1970");
+
+  await modal.getByLabel("Birth country").click();
+
+  const listbox = page.getByRole("listbox");
+  await listbox.type("F");
+  await listbox.getByText("France").click();
+
+  await modal.getByLabel("Birth city").fill("Paris");
+  await modal.getByLabel("Birth postal code").fill("75001");
+
+  await modal.getByLabel("Total percentage of capital held").fill("100");
+
+  // TODO: Replace with getByRole checkbox once lake is updated
+  await page
+    .locator("[aria-checked]", { has: page.getByText("Directly", { exact: true }) })
+    .click();
+
+  await modal.getByRole("button", { name: "Next" }).click();
+
+  await modal.getByRole("button", { name: "Enter manually" }).click();
+  await modal.getByLabel("Find beneficiary address").fill("Carrer de la Riera de Sant Miquel");
+  await modal.getByLabel("City").fill("Barcelona");
+  await modal.getByLabel("Postcode").fill("08006");
+  await modal.getByLabel("Tax identification number").fill("xxxxxxxxx");
+
+  await page.getByRole("button", { name: "Save" }).click();
+
+  await waitForText(page, "Nicolas Benady");
+  await waitForText(page, "Directly holds 100% of the capital of Swan");
+
+  await page.getByRole("button", { name: "Next" }).click();
+
+  await page.pause();
+
+  const fileInputs = page.locator('input[type="file"]');
+  expect(await fileInputs.count()).toBe(2);
+
+  const uboDeclarationPath = path.relative(__dirname, "./assets/ubo_declaration.png");
+  await fileInputs.nth(0).setInputFiles(uboDeclarationPath);
+  await waitForText(page, path.basename(uboDeclarationPath));
+
+  const swornStatementPath = path.relative(__dirname, "./assets/sworn_statement.png");
+  await fileInputs.nth(1).setInputFiles(swornStatementPath);
+  await waitForText(page, path.basename(swornStatementPath));
 
   await page.getByRole("button", { name: "Next" }).click();
 

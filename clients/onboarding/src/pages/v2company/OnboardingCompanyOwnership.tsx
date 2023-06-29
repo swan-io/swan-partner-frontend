@@ -361,7 +361,7 @@ export const OnboardingCompanyOwnership = ({
   const [showConfirmNoUboModal, setShowConfirmNoUboModal] = useBoolean(false);
   const beneficiaryFormRef = useRef<BeneficiaryFormRef>();
 
-  const withAddressPart = accountCountry === "DEU";
+  const withAddressPart = accountCountry === "DEU" || accountCountry === "ESP";
 
   useEffect(() => {
     if (shakeError) {

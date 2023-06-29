@@ -31,7 +31,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "Ist deine Firma bereits im {countryRegisterName} eingetragen?",
   "company.step.organisation1.organisationLabel": "Deine Organisation",
   "company.step.organisation1.organisationPlaceholder": "Gebe den Namen deiner Organisation ein",
-  "company.step.organisation1.registrationNumberLabel": "Wie lautet deine Registrierungsnummer {registrationNumberLegalName}?",
+  "company.step.organisation1.registrationNumberLabel": "Wie lautet deine Registrierungsnummer{registrationNumberLegalName}?",
   "company.step.organisation1.registrationNumberPlaceholder": "Gebe deine Nummer ein",
   "company.step.organisation1.title": "Rechtliche Informationen",
   "company.step.organisation1.vatLabel": "Wie lautet deine USt-ID?",

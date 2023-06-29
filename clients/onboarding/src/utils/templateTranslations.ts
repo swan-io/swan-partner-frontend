@@ -77,7 +77,7 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
     .with("BEL", () => "Numéro d'entreprise / Vestigingseenheidsnummer")
-    .with("HRV", () => "Matični broj poslovnog subjekta (MBS)")
+    .with("HRV", () => "Matični broj poslovnog subjekta [MBS]")
     .with("CYP", () => "Αριθμός Μητρώου Εταιρίας Şirket kayıt numarası")
     .with("CZE", () => "Identifikační číslo")
     .with("DNK", () => "CVR-nummer")
@@ -87,7 +87,7 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("DEU", () => "Nummer der Firma Registernummer")
     .with(
       "GRC",
-      () => "τον Αριθμό Γενικού Εμπορικού Μητρώου τον Αριθμό Φορολογικού Μητρώου (Α.Φ.Μ.)",
+      () => "τον Αριθμό Γενικού Εμπορικού Μητρώου τον Αριθμό Φορολογικού Μητρώου [Α.Φ.Μ.]",
     )
     .with("HUN", () => "Cégjegyzékszáma")
     .with("IRL", () => "Company Number")
@@ -100,17 +100,17 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("MLT", () => "Registration Number")
     .with("NLD", () => "KvK-nummer")
     .with("NOR", () => "TIN")
-    .with("POL", () => "Numer w Krajowym Rejestrze Sądowym (numer KRS)")
-    .with("PRT", () => "Número de Identificação Pessoa Coletiva (NIPC)")
+    .with("POL", () => "Numer w Krajowym Rejestrze Sądowym [numer KRS]")
+    .with("PRT", () => "Número de Identificação Pessoa Coletiva [NIPC]")
     .with("ROU", () => "Număr de ordine în Registrul Comerţului")
     .with("SVK", () => "Identifikačného čísla Identification number")
     .with("SVN", () => "Matična številka")
-    .with("ESP", () => "Número de identificación fiscal (NIF)")
+    .with("ESP", () => "Número de identificación fiscal [NIF]")
     .with("SWE", () => "Registreringsnummer")
-    .otherwise(() => null);
+    .otherwise(() => "");
 
   if (name == null) {
     return "";
   }
-  return ` - ${name}`;
+  return ` (${name})`;
 };

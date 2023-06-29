@@ -31,7 +31,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "¿Tu organización está registrada en {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Tu organización",
   "company.step.organisation1.organisationPlaceholder": "Escribe el nombre de tu organización",
-  "company.step.organisation1.registrationNumberLabel": "¿Cuál es el número de registro de tu organización?",
+  "company.step.organisation1.registrationNumberLabel": "¿Cuál es el número de registro de tu organización{registrationNumberLegalName}?",
   "company.step.organisation1.registrationNumberPlaceholder": "Introduce tu número",
   "company.step.organisation1.title": "Información jurídica",
   "company.step.organisation1.vatLabel": "¿Cuál es tu número de IVA?",

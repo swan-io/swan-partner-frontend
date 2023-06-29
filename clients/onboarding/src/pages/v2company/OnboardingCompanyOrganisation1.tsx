@@ -80,7 +80,7 @@ type Props = {
 };
 
 const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
-  FRA: "RNA",
+  FRA: "RCS/JOAFE",
 };
 
 const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {

@@ -61,7 +61,7 @@ test("French company onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });
 
 test("German company onboarding", async ({ browser, page }) => {
@@ -160,7 +160,7 @@ test("German company onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });
 
 test("Spanish company onboarding", async ({ browser, page }) => {
@@ -248,16 +248,13 @@ test("Spanish company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  await page.pause();
-
   const fileInputs = page.locator('input[type="file"]');
-  expect(await fileInputs.count()).toBe(2);
 
-  const uboDeclarationPath = path.relative(__dirname, "./assets/ubo_declaration.png");
+  const uboDeclarationPath = path.resolve(__dirname, "./assets/ubo_declaration.png");
   await fileInputs.nth(0).setInputFiles(uboDeclarationPath);
   await waitForText(page, path.basename(uboDeclarationPath));
 
-  const swornStatementPath = path.relative(__dirname, "./assets/sworn_statement.png");
+  const swornStatementPath = path.resolve(__dirname, "./assets/sworn_statement.png");
   await fileInputs.nth(1).setInputFiles(swornStatementPath);
   await waitForText(page, path.basename(swornStatementPath));
 
@@ -267,5 +264,5 @@ test("Spanish company onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });

@@ -30,7 +30,7 @@ test("French individual onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });
 
 test("German individual onboarding", async ({ browser, page }) => {
@@ -64,7 +64,7 @@ test("German individual onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });
 
 test("Spanish individual onboarding", async ({ browser, page }) => {
@@ -99,5 +99,5 @@ test("Spanish individual onboarding", async ({ browser, page }) => {
   await page.getByRole("button", { name: "Finalize" }).click();
   await sca.consent(browser, startDate);
 
-  await page.waitForURL(value => value.origin === env.BANKING_URL);
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
 });

@@ -37,7 +37,7 @@ export const getLastMessages = (startDate: Date): Promise<NonEmptyArray> => {
   };
 
   return retry(request, {
-    attempts: 5,
+    attempts: 6,
     delay: seconds(5),
   });
 };

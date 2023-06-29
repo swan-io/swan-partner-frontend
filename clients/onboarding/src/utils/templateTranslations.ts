@@ -107,7 +107,7 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("SVN", () => "Matična številka")
     .with("ESP", () => "Número de identificación fiscal [NIF]")
     .with("SWE", () => "Registreringsnummer")
-    .otherwise(() => "");
+    .otherwise(() => null);
 
   if (name == null) {
     return "";

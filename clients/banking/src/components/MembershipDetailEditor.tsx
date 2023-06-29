@@ -379,6 +379,7 @@ export const MembershipDetailEditor = ({
         showToast({ variant: "error", title: t("error.generic") });
       })
       .onResolve(value => {
+        showToast({ variant: "success", title: t("membershipDetail.resendEmailSuccessToast") });
         setInvitationSending(AsyncData.Done(value));
       });
   };

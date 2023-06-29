@@ -332,6 +332,7 @@
   "membershipDetail.requiresVerificationConfirmation.confirm": "Confirm changes",
   "membershipDetail.requiresVerificationConfirmation.description": "When you grant sensitive permissions to an account member, they will need to verify their identity before being able to use the account.\n\nPlease inform your account member to log into Swan, go to the Profile page, and click \"Verify Identity\" to initiate the 5-minute process.",
   "membershipDetail.requiresVerificationConfirmation.title": "Account member identity verification required",
+  "membershipDetail.resendEmailSuccessToast": "Email sent",
   "membershipDetail.rights": "Permissions",
   "membershipDetail.suspend": "Suspend",
   "membershipDetail.unsuspend": "Unsuspend",

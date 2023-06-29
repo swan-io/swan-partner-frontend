@@ -332,6 +332,7 @@
   "membershipDetail.requiresVerificationConfirmation.confirm": "Änderungen bestätigen",
   "membershipDetail.requiresVerificationConfirmation.description": "Wenn Sie einem Kontomitglied sensible Berechtigungen gewähren, muss es seine Identität verifizieren, bevor es das Konto nutzen kann.\n\nBitte informieren Sie das Kontomitglied, dass es sich bei Swan anmelden, zur Profilseite gehen und auf \"Identität verifizieren\" klicken muss, um den 5-minütigen Prozess zu starten.",
   "membershipDetail.requiresVerificationConfirmation.title": "Identitätsverifizierung des Kontomitglieds erforderlich",
+  "membershipDetail.resendEmailSuccessToast": "E-Mail gesendet",
   "membershipDetail.rights": "Berechtigungen",
   "membershipDetail.suspend": "Suspendieren",
   "membershipDetail.unsuspend": "Suspendierung aufheben",

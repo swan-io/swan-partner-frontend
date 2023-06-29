@@ -332,7 +332,7 @@
   "membershipDetail.requiresVerificationConfirmation.confirm": "Bevestig wijzigingen",
   "membershipDetail.requiresVerificationConfirmation.description": "Wanneer u gevoelige machtigingen verleent aan een lid van een account, moet hij/zij zijn/haar identiteit verifiëren voordat hij/zij het account kan gebruiken.\n\nInformeer uw accountlid dat hij/zij moet inloggen op Swan, naar de profielpagina moet gaan en op \"Identiteit verifiëren\" moet klikken om het proces van 5 minuten te starten.",
   "membershipDetail.requiresVerificationConfirmation.title": "Verplichte verificatie van de identiteit van een accountlid",
-  "membershipDetail.resendEmailSuccessToast": "E-mail verzonden",
+  "membershipDetail.resendInvitationSuccessToast": "Uitnodiging verzonden",
   "membershipDetail.rights": "Machtigingen",
   "membershipDetail.suspend": "Opschorten",
   "membershipDetail.unsuspend": "Opschorting opheffen",

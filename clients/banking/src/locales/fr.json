@@ -332,7 +332,7 @@
   "membershipDetail.requiresVerificationConfirmation.confirm": "Confirmer les modifications",
   "membershipDetail.requiresVerificationConfirmation.description": "Lorsque vous accordez des autorisations sensibles à un membre de compte, il devra vérifier son identité avant de pouvoir utiliser le compte.\n\nVeuillez informer votre membre de compte de se connecter à Swan, d'aller sur la page Profil et de cliquer sur \"Vérifier mon identité\" pour initier le processus de 5 minutes.",
   "membershipDetail.requiresVerificationConfirmation.title": "Vérification de l'identité du membre du compte requise",
-  "membershipDetail.resendEmailSuccessToast": "Email envoyé",
+  "membershipDetail.resendInvitationSuccessToast": "Invitation envoyée",
   "membershipDetail.rights": "Autorisations",
   "membershipDetail.suspend": "Suspendre",
   "membershipDetail.unsuspend": "Réactiver",

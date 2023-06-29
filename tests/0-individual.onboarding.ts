@@ -1,6 +1,7 @@
 import { expect, test } from "@playwright/test";
 import { env } from "./utils/env";
 import { sca } from "./utils/sca";
+import { waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 test("French individual onboarding", async ({ browser, page }) => {
@@ -26,11 +27,10 @@ test("French individual onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });
 
 test("German individual onboarding", async ({ browser, page }) => {
@@ -60,11 +60,10 @@ test("German individual onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });
 
 test("Spanish individual onboarding", async ({ browser, page }) => {
@@ -95,9 +94,8 @@ test("Spanish individual onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });

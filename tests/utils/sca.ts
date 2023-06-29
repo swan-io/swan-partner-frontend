@@ -61,7 +61,7 @@ const waitForConfirm = async (page: Page) => {
   await waitForText(page, "You can now close this page.");
 };
 
-const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
+const loginWithButtonClick = async (browser: Browser, button: Locator) => {
   const [popup] = await Promise.all([button.page().waitForEvent("popup"), button.click()]);
   await injectTestKey(popup);
 
@@ -83,7 +83,7 @@ const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
   await popup.waitForEvent("close");
 };
 
-const loginUsingAuthLink = async (browser: Browser) => {
+const loginWithAuthLink = async (browser: Browser) => {
   const authLink = getUserAuthLink();
   const startDate = new Date();
 
@@ -119,7 +119,7 @@ const consent = async (browser: Browser, startDate: Date) => {
 };
 
 export const sca = {
-  loginUsingAuthLink,
-  loginUsingButtonClick,
+  loginWithAuthLink,
+  loginWithButtonClick,
   consent,
 };

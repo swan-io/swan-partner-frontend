@@ -53,8 +53,15 @@ export default defineConfig({
       use: useOptions,
     },
     {
-      name: "desktop",
+      name: "onboarding",
       dependencies: ["setup"],
+      testMatch: /.*\.onboarding\.ts/,
+      use: useOptions,
+    },
+    {
+      name: "banking",
+      dependencies: ["setup"],
+      testMatch: /.*\.banking\.ts/,
       use: {
         ...useOptions,
         storageState: storagePath,

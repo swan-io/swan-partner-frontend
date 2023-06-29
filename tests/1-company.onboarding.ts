@@ -57,11 +57,10 @@ test("French company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });
 
 test("German company onboarding", async ({ browser, page }) => {
@@ -156,11 +155,10 @@ test("German company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });
 
 test("Spanish company onboarding", async ({ browser, page }) => {
@@ -260,9 +258,8 @@ test("Spanish company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const startDate = new Date();
-  await page.getByRole("button", { name: "Finalize" }).click();
-  await sca.consent(browser, startDate);
+  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
 });

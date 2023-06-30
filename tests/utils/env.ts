@@ -17,9 +17,11 @@ export const env = validate({
   env: {
     ...process.env,
     CI: String(process.env.CI === "true"),
+    UI: String(process.env.UI === "true"),
   },
   validators: {
     CI: boolean,
+    UI: boolean,
 
     PARTNER_ADMIN_API_URL: url,
 

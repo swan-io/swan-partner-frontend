@@ -8,17 +8,14 @@ const bodyContainsMessages = isMatching({
   messages: P.array({ body: P.string }),
 });
 
-export const getLastMessages = (options: { startDate?: Date } = {}): Promise<NonEmptyArray> => {
+export const getLastMessages = (startDate: Date): Promise<NonEmptyArray> => {
   const request = async () => {
     const url = new URL(
       `https://api.twilio.com/2010-04-01/Accounts/${env.TWILIO_ACCOUNT_ID}/Messages.json`,
     );
 
     url.searchParams.set("To", env.PHONE_NUMBER);
-
-    if (options.startDate) {
-      url.searchParams.set("DateSent>", options.startDate.toISOString());
-    }
+    url.searchParams.set("DateSent>", startDate.toISOString());
 
     const response = await fetchOk(url.toString(), {
       headers: {
@@ -40,13 +37,13 @@ export const getLastMessages = (options: { startDate?: Date } = {}): Promise<Non
   };
 
   return retry(request, {
-    attempts: 5,
+    attempts: 6,
     delay: seconds(5),
   });
 };
 
-export const getLastMessageURL = async (options: { startDate?: Date } = {}): Promise<string> => {
-  const message = (await getLastMessages(options))[0];
+export const getLastMessageURL = async (startDate: Date): Promise<string> => {
+  const message = (await getLastMessages(startDate))[0];
 
   const url = message
     .replace(/\n/g, " ")

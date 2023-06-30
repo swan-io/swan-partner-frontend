@@ -190,8 +190,9 @@ export const OnboardingCompanyOrganisation2 = ({
                   {({ value, error, onChange }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.activityLabel")}
-                      render={() => (
+                      render={id => (
                         <LakeSelect
+                          id={id}
                           placeholder={t("company.step.organisation2.activityPlaceholder")}
                           value={emptyToUndefined(value)}
                           items={businessActivitiesItems}
@@ -233,8 +234,9 @@ export const OnboardingCompanyOrganisation2 = ({
                   {({ value, onChange }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.monthlyPaymentLabel")}
-                      render={() => (
+                      render={id => (
                         <LakeSelect
+                          id={id}
                           value={value}
                           items={monthlyPaymentVolumeItems}
                           onValueChange={onChange}

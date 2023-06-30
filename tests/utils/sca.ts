@@ -2,7 +2,7 @@ import { Browser, devices, Locator, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
 import { assertIsDefined, wait } from "./functions";
-import { clickOnButton, waitForText } from "./selectors";
+import { clickOnButton, getByText, waitForText } from "./selectors";
 import { getUserAuthLink, getUserTokens } from "./tokens";
 import { getLastMessageURL } from "./twilio";
 
@@ -49,22 +49,19 @@ const fillPasscode = async (page: Page) => {
 };
 
 const waitForConfirm = async (page: Page) => {
+  const sandboxTitle = "Prove your identity in the Sandbox";
+  const confirmTitle = "Done";
+  await waitForText(page, new RegExp(`${sandboxTitle}|${confirmTitle}`));
+
+  if (await getByText(page, sandboxTitle).isVisible()) {
+    await clickOnButton(page, "Next");
+  }
+
   await waitForText(page, "Done");
   await waitForText(page, "You can now close this page.");
 };
 
-const waitForPostKycConfirm = async (page: Page) => {
-  await waitForText(page, "Prove your identity in the Sandbox");
-  await clickOnButton(page, "Next");
-
-  await waitForConfirm(page);
-};
-
-const waitForAnyConfirm = async (page: Page) => {
-  await Promise.race([waitForPostKycConfirm(page), waitForConfirm(page)]);
-};
-
-const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
+const loginWithButtonClick = async (browser: Browser, button: Locator) => {
   const [popup] = await Promise.all([button.page().waitForEvent("popup"), button.click()]);
   await injectTestKey(popup);
 
@@ -75,28 +72,28 @@ const loginUsingButtonClick = async (browser: Browser, button: Locator) => {
   const startDate = new Date();
   await clickOnButton(popup, "Next");
 
-  const url = await getLastMessageURL({ startDate });
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
   await popup.waitForEvent("close");
 };
 
-const loginUsingAuthLink = async (browser: Browser) => {
+const loginWithAuthLink = async (browser: Browser) => {
   const authLink = getUserAuthLink();
   const startDate = new Date();
 
   const page = await openPage(browser, "desktop", authLink);
-  const url = await getLastMessageURL({ startDate });
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
   await page.waitForURL(value => value.origin === REDIRECT_URI);
@@ -110,24 +107,19 @@ const loginUsingAuthLink = async (browser: Browser) => {
   return tokens;
 };
 
-const consent = async (browser: Browser, consentUrl: string) => {
-  const startDate = new Date();
-
-  const page = await openPage(browser, "desktop", consentUrl);
-  const url = await getLastMessageURL({ startDate });
+const consent = async (browser: Browser, startDate: Date) => {
+  const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
 
   await clickOnButton(mobile, "Confirm");
   await fillPasscode(mobile);
-  await waitForAnyConfirm(mobile);
+  await waitForConfirm(mobile);
 
   await mobile.close();
-  await page.waitForURL(value => value.origin === REDIRECT_URI);
-  await page.close();
 };
 
 export const sca = {
-  loginUsingAuthLink,
-  loginUsingButtonClick,
+  loginWithAuthLink,
+  loginWithButtonClick,
   consent,
 };

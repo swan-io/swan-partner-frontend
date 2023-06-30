@@ -354,9 +354,10 @@ export const OnboardingCompanyOrganisation1 = ({
                   {({ value, valid, error, onChange }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.organisationLabel")}
-                      render={() =>
+                      render={id =>
                         country === "FRA" ? (
                           <LakeCompanyInput
+                            id={id}
                             value={value}
                             placeholder={t("company.step.organisation1.organisationPlaceholder")}
                             error={error}
@@ -366,6 +367,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           />
                         ) : (
                           <LakeTextInput
+                            id={id}
                             value={value}
                             placeholder={t("company.step.organisation1.organisationPlaceholder")}
                             valid={valid}

@@ -15,7 +15,7 @@ test("Setup", async ({ browser, page, request }) => {
 
   const [projectAccessToken, userTokens, benadyEmail, saisonEmail] = await Promise.all([
     getProjectAccessToken(),
-    sca.loginUsingAuthLink(browser),
+    sca.loginWithAuthLink(browser),
     createEmailAddress(),
     createEmailAddress(),
   ]);
@@ -61,7 +61,7 @@ test("Setup", async ({ browser, page, request }) => {
   });
 
   await page.goto(env.BANKING_URL);
-  await sca.loginUsingButtonClick(browser, getButtonByName(page, "Sign into Web Banking"));
+  await sca.loginWithButtonClick(browser, getButtonByName(page, "Sign into Web Banking"));
   await waitForText(page, "Sign out");
 
   await page.context().storageState({ path: storagePath });

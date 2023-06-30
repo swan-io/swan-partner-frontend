@@ -41,8 +41,9 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   return (
     <LakeLabel
       label={label}
-      render={() => (
+      render={id => (
         <CountryPicker
+          id={id}
           countries={countries}
           value={value}
           hideErrors={hideError}

@@ -1,9 +1,30 @@
-query GetAccounts {
-  accounts {
-    edges {
-      node {
+query Onboarding($onboardingId: ID!) {
+  onboarding(id: $onboardingId) {
+    account {
+      id
+      number
+      holder {
         id
       }
     }
+    statusInfo {
+      __typename
+    }
+  }
+}
+
+mutation OnboardIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
+  onboardIndividualAccountHolder(input: $input) {
+    ... on OnboardIndividualAccountHolderSuccessPayload {
+      onboarding {
+        id
+      }
+    }
+  }
+}
+
+mutation FinalizeOnboarding($onboardingId: String!) {
+  finalizeOnboarding(input: { onboardingId: $onboardingId }) {
+    __typename
   }
 }

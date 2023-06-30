@@ -10,7 +10,7 @@ import { saveSession } from "./utils/session";
 import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
-test("Setup", async ({ browser, page, request }) => {
+test("Test suite setup", async ({ browser, page, request }) => {
   const requestApi = getApiRequester(request);
 
   const [projectAccessToken, userTokens, benadyEmail, saisonEmail] = await Promise.all([

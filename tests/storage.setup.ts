@@ -31,6 +31,7 @@ test("Setup", async ({ browser, page, request }) => {
     requestApi({
       query: ResetSandboxUserDocument,
       as: "user",
+      api: "partner-admin",
       variables: {
         id: env.SANDBOX_USER_BENADY_ID,
         lastName: "Benady",
@@ -41,6 +42,7 @@ test("Setup", async ({ browser, page, request }) => {
     requestApi({
       query: ResetSandboxUserDocument,
       as: "user",
+      api: "partner-admin",
       variables: {
         id: env.SANDBOX_USER_SAISON_ID,
         lastName: "Saison",
@@ -55,6 +57,7 @@ test("Setup", async ({ browser, page, request }) => {
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
+    api: "partner-admin",
     variables: {
       id: env.SANDBOX_USER_BENADY_ID,
     },

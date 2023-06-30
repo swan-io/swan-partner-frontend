@@ -1,0 +1,9 @@
+query GetAccounts {
+  accounts {
+    edges {
+      node {
+        id
+      }
+    }
+  }
+}

@@ -4,6 +4,7 @@ projects:
     documents:
       - "./clients/*/src/graphql/partner.gql"
       - "./server/src/graphql/partner.gql"
+      - "./tests/graphql/partner.gql"
   partner-admin:
     schema: "./scripts/graphql/dist/partner-admin-schema.gql"
     documents:

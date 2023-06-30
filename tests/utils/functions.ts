@@ -14,18 +14,9 @@ export const log = {
 const isObject = (value: unknown) =>
   value != null && typeof value === "object" && !Array.isArray(value);
 
-export const deepMerge = <T extends Record<PropertyKey, unknown>>(
-  target: T,
-  ...sources: T[]
-): T => {
-  if (!sources.length) {
-    return target;
-  }
-
-  const source = sources.shift();
-
-  if (isObject(target) && isObject(source)) {
-    for (const key in source) {
+const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T): T => {
+  for (const key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
       if (isObject(source[key])) {
         if (target[key] == null) {
           Object.assign(target, { [key]: {} });
@@ -34,14 +25,12 @@ export const deepMerge = <T extends Record<PropertyKey, unknown>>(
         // @ts-expect-error
         deepMerge(target[key], source[key]);
       } else {
-        Object.assign(target, {
-          [key]: source[key],
-        });
+        Object.assign(target, { [key]: source[key] });
       }
     }
   }
 
-  return deepMerge(target, ...sources);
+  return target;
 };
 
 export const fetchOk = (input: string, init?: RequestInit) =>

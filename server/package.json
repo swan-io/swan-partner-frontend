@@ -41,7 +41,7 @@
     "fast-proxy": "2.1.0",
     "fastify": "4.19.1",
     "fastify-language-parser": "3.0.0",
-    "get-port": "5.1.1",
+    "get-port": "7.0.0",
     "graphql-request": "5.1.0",
     "graphql-tag": "2.12.6",
     "mustache": "4.2.0",

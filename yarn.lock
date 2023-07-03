@@ -1363,10 +1363,10 @@
     p-limit "^3.1.0"
     readable-stream "^4.0.0"
 
-"@fastify/view@7.4.1":
-  version "7.4.1"
-  resolved "https://registry.yarnpkg.com/@fastify/view/-/view-7.4.1.tgz#265daba48386a5d3f69dfc446af468d72e0a8757"
-  integrity sha512-ahmRmSbNVM8bIoz0BAFnY0jNigom+xbPQ9Q1ZjmNOtGVVT3nYXCxw2OMkTr9iXwrJ4Le3EtWDHlFkZ2fCQ2hJA==
+"@fastify/view@8.0.0":
+  version "8.0.0"
+  resolved "https://registry.yarnpkg.com/@fastify/view/-/view-8.0.0.tgz#ccd4fa217a36c8058a723296d09a8a6a48a004a2"
+  integrity sha512-XfAffgqRj+AtEtkZeAAkMwTtu32Ve6xWkhxWQ9JOwXm2qQM6Fj+xphxnLvqpvQ0hJAYFYGiTOpB5ZS2VI5u00Q==
   dependencies:
     fastify-plugin "^4.0.0"
     hashlru "^2.3.0"

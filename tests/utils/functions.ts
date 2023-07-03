@@ -14,7 +14,7 @@ export const log = {
 const isObject = (value: unknown) =>
   value != null && typeof value === "object" && !Array.isArray(value);
 
-const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T): T => {
+export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T): T => {
   for (const key in source) {
     if (Object.prototype.hasOwnProperty.call(source, key)) {
       if (isObject(source[key])) {

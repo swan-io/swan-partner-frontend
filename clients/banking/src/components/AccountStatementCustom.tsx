@@ -123,8 +123,8 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     id: "date",
     renderTitle: () => null,
     renderCell: ({ item: { openingDate, closingDate }, extraInfo: { large } }) => {
-      const openingDateStatement = dayjs(openingDate).format("MMM, DD YYYY");
-      const closingDateStatement = dayjs(closingDate).format("MMM, DD YYYY");
+      const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
+      const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
       return (
         <View style={large ? styles.cellContainerLarge : styles.cellContainer}>
           <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />
@@ -182,7 +182,7 @@ const NewStatementForm = ({
     startDate: {
       initialValue: "",
       validate: value => {
-        const openingDate = dayjs(value, locale.dateFormat);
+        const openingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
 
         if (openingDate.isAfter(dayjs())) {
           return t("newStatement.dateInTheFuture");
@@ -193,8 +193,11 @@ const NewStatementForm = ({
     closingDate: {
       initialValue: "",
       validate: (value, { getFieldState }) => {
-        const openingDate = dayjs(getFieldState("startDate").value, locale.dateFormat);
-        const closingDate = dayjs(value, locale.dateFormat);
+        // account statements use UTC+1
+        const openingDate = dayjs
+          .utc(getFieldState("startDate").value, locale.dateFormat)
+          .add(-1, "hour");
+        const closingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
 
         if (closingDate.isAfter(dayjs())) {
           return t("newStatement.dateInTheFuture");

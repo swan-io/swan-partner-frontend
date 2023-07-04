@@ -11,22 +11,26 @@ export const log = {
   error: (text: string) => console.error(`[${new Date().toISOString()}] ✕ ${text}`),
 };
 
-export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T) => {
-  const output: T = { ...target, ...source };
+const isObject = (value: unknown) =>
+  value != null && typeof value === "object" && !Array.isArray(value);
 
-  for (const key in output) {
-    if (
-      Object.prototype.hasOwnProperty.call(output, key) &&
-      output[key] != null &&
-      typeof output[key] === "object" &&
-      !Array.isArray(output[key])
-    ) {
-      // @ts-expect-error
-      output[key] = deepMerge(target[key], source[key]);
+export const deepMerge = <T extends Record<PropertyKey, unknown>>(target: T, source: T): T => {
+  for (const key in source) {
+    if (Object.prototype.hasOwnProperty.call(source, key)) {
+      if (isObject(source[key])) {
+        if (target[key] == null) {
+          Object.assign(target, { [key]: {} });
+        }
+
+        // @ts-expect-error
+        deepMerge(target[key], source[key]);
+      } else {
+        Object.assign(target, { [key]: source[key] });
+      }
     }
   }
 
-  return output;
+  return target;
 };
 
 export const fetchOk = (input: string, init?: RequestInit) =>

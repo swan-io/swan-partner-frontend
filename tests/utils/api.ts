@@ -8,6 +8,7 @@ import { getSession, saveSession } from "./session";
 import { getProjectAccessToken, refreshUserTokens } from "./tokens";
 
 type ApiRequesterOptions<Result, Variables> = {
+  api?: "partner" | "partner-admin";
   as?: "project" | "user";
   headers?: Record<string, string | undefined>;
   query: TypedDocumentNode<Result, Variables>;
@@ -18,6 +19,7 @@ type ApiRequesterOptions<Result, Variables> = {
 export const getApiRequester =
   (request: APIRequestContext) =>
   async <Result, Variables>({
+    api = "partner",
     as = "project",
     headers = {},
     query,
@@ -25,7 +27,7 @@ export const getApiRequester =
   }: ApiRequesterOptions<Result, Variables>): Promise<Result> => {
     const performRequest = (accessToken: string): Promise<Result> =>
       request
-        .post(env.PARTNER_ADMIN_API_URL, {
+        .post(api === "partner" ? env.PARTNER_API_URL : env.PARTNER_ADMIN_API_URL, {
           headers: {
             ...headers,
             Authorization: `Bearer ${accessToken}`,
@@ -53,6 +55,13 @@ export const getApiRequester =
           return response.data ?? Promise.reject(response);
         });
 
+    const { project, user } = await getSession();
+    const { accessToken } = as === "project" ? project : user;
+
+    if (accessToken == null) {
+      throw new Error("Missing accessToken");
+    }
+
     const definition = query.definitions[0];
 
     if (definition?.kind === Kind.OPERATION_DEFINITION) {
@@ -75,13 +84,6 @@ export const getApiRequester =
       }
     }
 
-    const { project, user } = await getSession();
-    const { accessToken } = as === "project" ? project : user;
-
-    if (accessToken == null) {
-      throw new Error("Missing accessToken");
-    }
-
     return performRequest(accessToken).catch(async (error: Error) => {
       if (error.message !== "UNAUTHORIZED") {
         return Promise.reject(error);
@@ -95,6 +97,10 @@ export const getApiRequester =
         const {
           user: { refreshToken },
         } = await getSession();
+
+        if (refreshToken == null) {
+          throw new Error("Missing refreshToken");
+        }
 
         const tokens = await refreshUserTokens(refreshToken);
         await saveSession({ user: tokens });

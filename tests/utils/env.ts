@@ -22,6 +22,7 @@ export const env = validate({
     CI: boolean,
 
     PARTNER_ADMIN_API_URL: url,
+    PARTNER_API_URL: url,
 
     OAUTH_SERVER_URL: url,
     OAUTH_CLIENT_ID: string,

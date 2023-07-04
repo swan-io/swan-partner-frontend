@@ -13,6 +13,15 @@ type Session = {
   };
   benady: {
     email: string;
+
+    account: {
+      id: string;
+      number: string;
+
+      holder: {
+        id: string;
+      };
+    };
   };
   saison: {
     email: string;
@@ -26,6 +35,7 @@ export const getSession = async () => {
 
 export const saveSession = async (data: PartialDeep<Session>) => {
   const currentData = await getSession().catch(() => ({}));
-  const content = JSON.stringify(deepMerge(currentData, data), null, 2);
+  const mergedData = deepMerge(currentData, data);
+  const content = JSON.stringify(mergedData, null, 2);
   return fs.writeFile(sessionPath, content, "utf-8");
 };

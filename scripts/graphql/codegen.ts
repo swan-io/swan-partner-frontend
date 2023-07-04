@@ -69,6 +69,9 @@ const frontendPlugins = [
   "typescript-urql-graphcache",
 ];
 
+const backendPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
+const testsPlugins = ["typescript", "typescript-operations", "typed-document-node"];
+
 const frontendConfig = {
   scalars,
   dedupeOperationSuffix: true,
@@ -77,8 +80,6 @@ const frontendConfig = {
   defaultScalarType: "unknown",
   inlineFragmentTypes: "combine",
 };
-
-const backendPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
 
 const backendConfig = {
   ...frontendConfig,
@@ -155,7 +156,15 @@ const config: CodegenConfig = {
     [file("../../tests/graphql/partner-admin.ts")]: {
       documents: file("../../tests/graphql/partner-admin.gql"),
       schema: file("./dist/partner-admin-schema.gql"),
-      plugins: ["typescript", "typescript-operations", "typed-document-node"],
+      plugins: testsPlugins,
+      config: frontendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
+    [file("../../tests/graphql/partner.ts")]: {
+      documents: file("../../tests/graphql/partner.gql"),
+      schema: file("./dist/partner-schema.gql"),
+      plugins: testsPlugins,
       config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },

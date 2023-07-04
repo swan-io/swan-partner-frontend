@@ -1449,6 +1449,12 @@ input AddMerchantProfileInput {
   merchantWebsite: String
 
   """
+  base64 encoded merchant's logo
+  COMING SOON
+  """
+  merchantLogo: String
+
+  """
   Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
   productType: ProductType!
@@ -6212,10 +6218,24 @@ enum InternalReceivedDirectDebitMandateSequence {
   Recurrent
 }
 
+input InternationalBeneficiaryDetail {
+  key: String!
+  value: String!
+}
+
 """International beneficiary account"""
 input InternationalBeneficiaryInput {
+  """Full name of the international beneficiary"""
+  accountHolderName: String
+
   """Currency of the international beneficiary"""
   currency: Currency!
+
+  """Currency specific details of the international beneficiary"""
+  details: [InternationalBeneficiaryDetail!]
+
+  """Type of the international beneficiary"""
+  type: String
 }
 
 """Rejection returned on invalid argument error"""
@@ -6837,6 +6857,9 @@ type MerchantProfile {
 
   """Url of the merchant's website"""
   merchantWebsite: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
 
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
@@ -9027,13 +9050,6 @@ type Query {
   receivedDirectDebitMandate(receivedDirectDebitMandateId: ID!): ReceivedDirectDebitMandate
 
   """
-  Returns the signed-in user and all of their data at Swan.
-  
-  *This query is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  user: User
-
-  """
   Returns the list of user that joined the project
   
   DO NOT USE.
@@ -9056,6 +9072,16 @@ type Query {
   *This query is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   consents(first: Int! = 50, after: String): ConsentConnection!
+
+  """
+  Returns a User
+  
+  For a Project access token : it requires a user id and returns the user for the given id
+  For a User access token : returns the signed-in user and all of their data at Swan
+  
+  *([Learn more on authentication](https://docs.swan.io/api/authentication))*
+  """
+  user(id: String): User
 
   """Return the capital deposit case for the provided id."""
   capitalDepositCase(id: ID!): CapitalDepositCase

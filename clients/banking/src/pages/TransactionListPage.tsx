@@ -188,7 +188,7 @@ export const TransactionListPage = ({
             >
               <LakeButton
                 onPress={() =>
-                  Router.push("AccountTransactionsListStatements", {
+                  Router.push("AccountTransactionsListStatementsRoot", {
                     accountMembershipId,
                   })
                 }

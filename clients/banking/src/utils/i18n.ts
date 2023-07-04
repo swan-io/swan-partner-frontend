@@ -186,7 +186,7 @@ export const rifmTimeProps = getRifmProps({
   maxLength: 4,
 });
 
-type Language = {
+export type Language = {
   name: string;
   native: string;
   id: SupportedLanguage;

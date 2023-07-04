@@ -440,7 +440,12 @@ query AccountsListPage($first: Int!, $after: String) {
   }
 }
 
-query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
+query AccountStatementsPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: StatementFiltersInput
+) {
   account(accountId: $accountId) {
     id
     name
@@ -451,7 +456,8 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
         name
       }
     }
-    statements(first: $first, after: $after) {
+    statements(first: $first, after: $after, filters: $filters) {
+      totalCount
       pageInfo {
         endCursor
         hasNextPage
@@ -463,7 +469,9 @@ query AccountStatementsPage($accountId: ID!, $first: Int!, $after: String) {
           id
           closingDate
           openingDate
+          createdAt
           status
+          period
           type {
             __typename
             ... on PdfStatement {
@@ -2241,5 +2249,11 @@ mutation AddAccountMembership($input: AddAccountMembershipInput!) {
         }
       }
     }
+  }
+}
+
+mutation GenerateAccountStatement($input: GenerateAccountStatementInput!) {
+  generateAccountStatement(input: $input) {
+    id
   }
 }

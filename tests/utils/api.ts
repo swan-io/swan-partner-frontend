@@ -25,6 +25,35 @@ export const getApiRequester =
     query,
     variables,
   }: ApiRequesterOptions<Result, Variables>): Promise<Result> => {
+    const { project, user } = await getSession();
+    const { accessToken } = as === "project" ? project : user;
+
+    if (accessToken == null) {
+      throw new Error("Missing accessToken");
+    }
+
+    const definition = query.definitions[0];
+    let operationName = "Operation";
+
+    if (definition?.kind === Kind.OPERATION_DEFINITION) {
+      const { name, operation } = definition;
+
+      if (name?.kind === Kind.NAME) {
+        operationName = `${name.value} ${operation}`;
+
+        if (variables != null) {
+          log.info(`${operationName} called with variables:`);
+
+          console.dir(variables, {
+            depth: null,
+            colors: true,
+          });
+        } else {
+          log.info(`${operationName} called`);
+        }
+      }
+    }
+
     const performRequest = async (accessToken: string): Promise<Result> => {
       const response = await request.post(
         api === "partner" ? env.PARTNER_API_URL : env.PARTNER_ADMIN_API_URL,
@@ -73,35 +102,6 @@ export const getApiRequester =
 
       return data;
     };
-
-    const { project, user } = await getSession();
-    const { accessToken } = as === "project" ? project : user;
-
-    if (accessToken == null) {
-      throw new Error("Missing accessToken");
-    }
-
-    const definition = query.definitions[0];
-    let operationName = "Operation";
-
-    if (definition?.kind === Kind.OPERATION_DEFINITION) {
-      const { name, operation } = definition;
-
-      if (name?.kind === Kind.NAME) {
-        operationName = `${name.value} ${operation}`;
-
-        if (variables != null) {
-          log.info(`${operationName} called with variables:`);
-
-          console.dir(variables, {
-            depth: null,
-            colors: true,
-          });
-        } else {
-          log.info(`${operationName} called`);
-        }
-      }
-    }
 
     return performRequest(accessToken).catch(async (error: Error) => {
       if (error.message !== "UNAUTHORIZED") {

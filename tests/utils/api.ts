@@ -1,7 +1,7 @@
 import { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { APIRequestContext } from "@playwright/test";
-import { Kind, print } from "graphql";
-import { Exact } from "../graphql/partner-admin";
+import { GraphQLError, Kind, print } from "graphql";
+import { Exact } from "../graphql/partner";
 import { env } from "./env";
 import { log } from "./functions";
 import { getSession, saveSession } from "./session";
@@ -25,9 +25,10 @@ export const getApiRequester =
     query,
     variables,
   }: ApiRequesterOptions<Result, Variables>): Promise<Result> => {
-    const performRequest = (accessToken: string): Promise<Result> =>
-      request
-        .post(api === "partner" ? env.PARTNER_API_URL : env.PARTNER_ADMIN_API_URL, {
+    const performRequest = async (accessToken: string): Promise<Result> => {
+      const response = await request.post(
+        api === "partner" ? env.PARTNER_API_URL : env.PARTNER_ADMIN_API_URL,
+        {
           headers: {
             ...headers,
             Authorization: `Bearer ${accessToken}`,
@@ -38,22 +39,41 @@ export const getApiRequester =
             query: print(query),
             variables,
           },
-        })
-        .then(response => {
-          const status = response.status();
+        },
+      );
 
-          if (response.ok()) {
-            return response.json();
-          }
-          if (status === 401) {
-            throw new Error("UNAUTHORIZED");
-          }
+      const status = response.status();
 
-          return Promise.reject(response);
-        })
-        .then((response: { data?: Result }) => {
-          return response.data ?? Promise.reject(response);
-        });
+      if (status === 401) {
+        throw new Error("UNAUTHORIZED");
+      }
+      if (!response.ok()) {
+        throw new Error(response.statusText());
+      }
+
+      const { data, errors = [] } = (await response.json()) as {
+        data?: Result;
+        errors?: GraphQLError[];
+      };
+
+      if (errors.length > 0) {
+        const message = errors.map(error => error.message).join("\n");
+        throw new Error(message);
+      }
+
+      if (data == null) {
+        throw new Error("No Content");
+      }
+
+      log.info(`${operationName} response:`);
+
+      console.dir(data, {
+        depth: null,
+        colors: true,
+      });
+
+      return data;
+    };
 
     const { project, user } = await getSession();
     const { accessToken } = as === "project" ? project : user;
@@ -63,23 +83,23 @@ export const getApiRequester =
     }
 
     const definition = query.definitions[0];
+    let operationName = "Operation";
 
     if (definition?.kind === Kind.OPERATION_DEFINITION) {
-      const { operation, selectionSet } = definition;
-      const selection = selectionSet.selections[0];
+      const { name, operation } = definition;
 
-      if (selection?.kind === Kind.FIELD) {
-        const { name } = selection;
+      if (name?.kind === Kind.NAME) {
+        operationName = `${name.value} ${operation}`;
 
         if (variables != null) {
-          log.info(`Calling ${name.value} ${operation} with variables:`);
+          log.info(`${operationName} called with variables:`);
 
           console.dir(variables, {
             depth: null,
             colors: true,
           });
         } else {
-          log.info(`Calling ${name.value} ${operation}`);
+          log.info(`${operationName} called`);
         }
       }
     }

@@ -51,16 +51,15 @@ export const getApiRequester =
         throw new Error(response.statusText());
       }
 
-      const { data, errors = [] } = (await response.json()) as {
+      const { data, errors } = (await response.json()) as {
         data?: Result;
         errors?: GraphQLError[];
       };
 
-      if (errors.length > 0) {
+      if (errors != null && errors.length > 0) {
         const message = errors.map(error => error.message).join("\n");
         throw new Error(message);
       }
-
       if (data == null) {
         throw new Error("No Content");
       }

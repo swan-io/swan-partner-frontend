@@ -89,6 +89,8 @@
   "accountStatements.tab.custom": "Custom",
   "accountStatements.tab.monthly": "Monthly",
   "accountStatements.title": "Account statements",
+  "accountStatements.empty.title": "No custom account statements yet",
+  "accountStatements.empty.subtitle": "Once you start generating custom statements, they'll be displayed here",
   "addressInput.placeholder": "Start typing…",
   "card.alert.informationConflict": "The details submitted by the user and the admin aren’t the same. At least one of the following is different: first name, last name, birth date, or phone number.\n\nThe admin must solve the mismatch on the Members page before the card can be used.",
   "card.alert.informationConflict.title": "Action needed: information doesn't match",

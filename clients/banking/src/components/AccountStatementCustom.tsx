@@ -478,9 +478,22 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                         }}
                         renderEmptyList={() => (
                           <FixedListViewEmpty
+                            borderedIcon={true}
                             icon="lake-inbox-empty"
                             title={t("common.list.noResults")}
-                          />
+                          >
+                            <LakeButton
+                              size="small"
+                              icon="add-circle-filled"
+                              onPress={() => {
+                                setNewWasOpened(true);
+                                setDisplayedView("new");
+                              }}
+                              color="current"
+                            >
+                              {t("common.new")}
+                            </LakeButton>
+                          </FixedListViewEmpty>
                         )}
                       />
                     </>

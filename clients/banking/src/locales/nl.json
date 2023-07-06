@@ -84,6 +84,8 @@
   "accountDetails.virtualIbans.status.suspended": "Geblokkeerd",
   "accountDetails.virtualIbans.tab": "Virtuele IBAN-nummers",
   "accountDetails.zipcodeLabel": "Postcode",
+  "accountStatements.empty.subtitle": "Zodra je begint met het genereren van aangepaste overzichten, worden ze hier weergegeven",
+  "accountStatements.empty.title": "Nog geen aangepaste rekeningoverzichten",
   "accountStatements.notReady": "Niet klaar",
   "accountStatements.subtitle": "Uw transactiegeschiedenis bijhouden. Iedereen met een lidmaatschap voor deze rekening heeft toegang tot deze pagina.",
   "accountStatements.tab.custom": "Aangepast",

@@ -84,6 +84,8 @@
   "accountDetails.virtualIbans.status.suspended": "Suspendu",
   "accountDetails.virtualIbans.tab": "IBANs virtuels",
   "accountDetails.zipcodeLabel": "Code postal",
+  "accountStatements.empty.subtitle": "Une fois que vous commencerez à générer des relevés de compte personnalisés, ils seront affichés ici",
+  "accountStatements.empty.title": "Aucun relevé de compte personnalisé pour le moment",
   "accountStatements.notReady": "Pas encore disponible",
   "accountStatements.subtitle": "Suivez l'historique de vos transactions. Tous les membres de ce compte peuvent y accéder.",
   "accountStatements.tab.custom": "Personnalisé",

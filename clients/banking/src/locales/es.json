@@ -84,6 +84,8 @@
   "accountDetails.virtualIbans.status.suspended": "Suspendido",
   "accountDetails.virtualIbans.tab": "IBAN virtuales",
   "accountDetails.zipcodeLabel": "Código postal",
+  "accountStatements.empty.subtitle": "Una vez que comiences a generar estados de cuenta personalizados, se mostrarán aquí",
+  "accountStatements.empty.title": "Aún no hay estados de cuenta personalizados",
   "accountStatements.notReady": "No disponible",
   "accountStatements.subtitle": "Mantenga un registro de su historial de transacciones. Cualquier persona que sea titular de esta cuenta tiene acceso a esta página.",
   "accountStatements.tab.custom": "Personalizado",

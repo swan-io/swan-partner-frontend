@@ -84,6 +84,8 @@
   "accountDetails.virtualIbans.status.suspended": "Suspendiert",
   "accountDetails.virtualIbans.tab": "Virtuelle IBANs",
   "accountDetails.zipcodeLabel": "PLZ",
+  "accountStatements.empty.subtitle": "Sobald du individuelle Kontoauszüge erstellst, werden sie hier angezeigt",
+  "accountStatements.empty.title": "Keine individuellen Kontoauszüge vorhanden",
   "accountStatements.notReady": "Nicht bereit",
   "accountStatements.subtitle": "Behalten Sie den Überblick über Ihren Transaktionsverlauf. Jeder mit einer Mitgliedschaft für dieses Konto hat Zugang zu dieser Seite.",
   "accountStatements.tab.custom": "Angepasst",

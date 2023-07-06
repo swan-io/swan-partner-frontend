@@ -84,6 +84,8 @@
   "accountDetails.virtualIbans.status.suspended": "Suspendido",
   "accountDetails.virtualIbans.tab": "IBANs virtuais",
   "accountDetails.zipcodeLabel": "Código postal",
+  "accountStatements.empty.subtitle": "Assim que começar a gerar extratos personalizados, eles serão exibidos aqui",
+  "accountStatements.empty.title": "Ainda não há extratos de conta personalizados",
   "accountStatements.notReady": "Não está pronto",
   "accountStatements.subtitle": "Mantenha um registo do seu histórico de transações.",
   "accountStatements.tab.custom": "Personalizado",

@@ -23,6 +23,7 @@ import { animations, colors, spacings } from "@swan-io/lake/src/constants/design
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
@@ -435,23 +436,32 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                 >
                   {displayedView === "list" ? (
                     <>
-                      <Space height={24} />
+                      {isNotNullish(account) &&
+                        isNotNullish(account.statements) &&
+                        account.statements.totalCount > 0 && (
+                          <>
+                            <Space height={24} />
 
-                      <Box direction="row" style={large ? styles.searchBarLarge : styles.searchBar}>
-                        <LakeButton
-                          size="small"
-                          icon="add-circle-filled"
-                          onPress={() => {
-                            setNewWasOpened(true);
-                            setDisplayedView("new");
-                          }}
-                          color="current"
-                        >
-                          {t("common.new")}
-                        </LakeButton>
-                      </Box>
+                            <Box
+                              direction="row"
+                              style={large ? styles.searchBarLarge : styles.searchBar}
+                            >
+                              <LakeButton
+                                size="small"
+                                icon="add-circle-filled"
+                                onPress={() => {
+                                  setNewWasOpened(true);
+                                  setDisplayedView("new");
+                                }}
+                                color="current"
+                              >
+                                {t("common.new")}
+                              </LakeButton>
+                            </Box>
 
-                      <Space height={12} />
+                            <Space height={12} />
+                          </>
+                        )}
 
                       <PlainListView
                         data={account?.statements?.edges?.map(({ node }) => node) ?? []}
@@ -480,8 +490,11 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                           <FixedListViewEmpty
                             borderedIcon={true}
                             icon="lake-inbox-empty"
-                            title={t("common.list.noResults")}
+                            title={t("accountStatements.empty.title")}
+                            subtitle={t("accountStatements.empty.subtitle")}
                           >
+                            <Space height={24} />
+
                             <LakeButton
                               size="small"
                               icon="add-circle-filled"

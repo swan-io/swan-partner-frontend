@@ -64,10 +64,17 @@ query {
 
 Always provide a method for users to **download their transaction history**.
 
-The source code provides this with button in the history tab.
 When a user clicks **Account statements**, a pop-in appears with a list of months for which downloadable account statements are available.
 
 ![Screenshot of the history tab with a callout on download account statement button](./images/history-account-statements.png)
+
+#### Monthly
+
+The monthly tab contains account statements that are automatically generated right at the end of each month in PDF format.
+
+#### Custom
+
+The custom tab lets the user generate and retreive statements with a custom time frame (maximum 3 months), in either PDF or CSV and in the language of their choice.
 
 ## Upcoming tab
 

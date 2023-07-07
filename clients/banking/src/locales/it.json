@@ -86,7 +86,7 @@
   "accountDetails.zipcodeLabel": "Codice postale",
   "accountStatements.empty.subtitle": "Una volta che inizierai a generare estratti conto personalizzati, saranno visualizzati qui",
   "accountStatements.empty.title": "Ancora nessuna estratto conto personalizzato",
-  "accountStatements.notReady": "Non pronto",
+  "accountStatements.notReady": "Non ancora disponibile",
   "accountStatements.subtitle": "Tieni traccia dello storico delle tue transazioni. Chiunque sia membro di questo conto ha accesso a questa pagina.",
   "accountStatements.tab.custom": "Personalizzato",
   "accountStatements.tab.monthly": "Mensile",

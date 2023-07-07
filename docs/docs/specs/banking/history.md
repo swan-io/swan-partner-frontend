@@ -64,8 +64,10 @@ query {
 
 Always provide a method for users to **download their transaction history**.
 
-The source code provides this with button in the history tab.
 When a user clicks **Account statements**, a pop-in appears with a list of months for which downloadable account statements are available.
+
+- **Monthly**: Account statements are generated automatically at the end of each month. They're available in PDF format only and in the account's default language.
+- **Custom**: Generate your own account statements for a custom date range (up to 3 months). You can choose PDF or CSV format and any of Swan's supported languages.
 
 ![Screenshot of the history tab with a callout on download account statement button](./images/history-account-statements.png)
 

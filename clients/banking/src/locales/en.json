@@ -84,7 +84,7 @@
   "accountDetails.virtualIbans.status.suspended": "Suspended",
   "accountDetails.virtualIbans.tab": "Virtual IBANs",
   "accountDetails.zipcodeLabel": "Zip code",
-  "accountStatements.notReady": "Not ready",
+  "accountStatements.notReady": "Not available yet",
   "accountStatements.subtitle": "Keep track of your transaction history. Anyone with a membership to this account has access to this page.",
   "accountStatements.tab.custom": "Custom",
   "accountStatements.tab.monthly": "Monthly",

@@ -8,7 +8,6 @@ import {
   SimpleTitleCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
@@ -77,19 +76,30 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     ),
   },
   {
+    title: "notReady",
+    width: 250,
+    id: "notReady",
+    renderTitle: () => null,
+    renderCell: ({ item: { status } }) => {
+      return status === "Available" ? null : (
+        <SimpleRegularTextCell
+          color={colors.gray[300]}
+          textAlign="right"
+          variant="smallMedium"
+          text={t("accountStatements.notReady")}
+        />
+      );
+    },
+  },
+  {
     title: "download",
     width: 50,
     id: "download",
     renderTitle: () => null,
-    renderCell: ({ item: { type } }) => {
-      const url = type.find(item => item?.__typename === "PdfStatement")?.url;
-      return url != null ? (
+    renderCell: ({ item: { status } }) => {
+      return status === "Available" ? (
         <Icon name="open-regular" size={16} color={colors.gray[300]} />
-      ) : (
-        <LakeText variant="regular" color={colors.gray[300]}>
-          {t("accountStatements.notReady")}
-        </LakeText>
-      );
+      ) : null;
     },
   },
 ];

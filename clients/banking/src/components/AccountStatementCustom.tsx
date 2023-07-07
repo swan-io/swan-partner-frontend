@@ -475,7 +475,11 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                           const url = item.type.find(
                             item => item?.__typename === "PdfStatement",
                           )?.url;
-                          return url != null ? <Link to={url} target="_blank" /> : <View />;
+                          return url != null && item.status === "Available" ? (
+                            <Link to={url} target="_blank" />
+                          ) : (
+                            <View />
+                          );
                         }}
                         loading={{
                           isLoading: nextData.isLoading(),

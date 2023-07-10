@@ -68,7 +68,7 @@
     "@types/prompts": "2.4.4",
     "@types/sodium-native": "2.3.5",
     "@typescript-eslint/eslint-plugin": "5.60.1",
-    "@typescript-eslint/parser": "5.60.1",
+    "@typescript-eslint/parser": "5.62.0",
     "@urql/introspection": "1.0.2",
     "adm-zip": "0.5.10",
     "chalk": "5.3.0",

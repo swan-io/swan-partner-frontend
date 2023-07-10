@@ -88,7 +88,7 @@
     "prettier": "2.8.8",
     "prettier-plugin-organize-imports": "3.2.2",
     "prompts": "2.4.2",
-    "semver": "7.5.3",
+    "semver": "7.5.4",
     "sodium-native": "^4.0.4",
     "terser": "5.18.2",
     "tiktoken-node": "0.0.6",

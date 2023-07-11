@@ -1,7 +1,7 @@
 {
   "name": "@swan-io/frontend-server",
   "description": "Swan frontend server",
-  "version": "1.0.27",
+  "version": "1.0.28",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

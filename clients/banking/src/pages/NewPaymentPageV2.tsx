@@ -1,12 +1,10 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
-import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -20,7 +18,6 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
@@ -86,7 +83,6 @@ type Props = {
 export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Props) => {
   const [transfer, initiateTransfers] = useUrqlMutation(InitiateSepaCreditTransfersDocument);
   const { data } = useUrqlQuery({ query: GetAccountDocument, variables: { accountId } }, []);
-  const [insufisantBalanceOpened, setInsufisantBalanceOpened] = useState(false);
 
   const availableBalance = data.mapOkToResult(({ account }) => {
     if (account?.balances?.available) {
@@ -97,11 +93,6 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
     }
     return Result.Error(new Error("No available balance"));
   });
-
-  const accountIban = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .flatMap(({ account }) => Option.fromUndefined(account?.IBAN ?? undefined));
 
   const { Field, FieldsListener, submitForm } = useForm({
     creditorIban: {
@@ -182,16 +173,6 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
           "transferReference",
         ])
       ) {
-        const maximumAmount = availableBalance
-          .toOption()
-          .flatMap(balance => balance.toOption())
-          .map(({ amount }) => amount)
-          .getWithDefault(0);
-        if (maximumAmount < Number(values.transferAmount)) {
-          setInsufisantBalanceOpened(true);
-          return;
-        }
-
         const requestedExecutionAt = hasDefinedKeys(values, ["scheduledDate", "scheduleTime"])
           ? encodeDateTime(values.scheduledDate, `${values.scheduleTime}:00`)
           : undefined;
@@ -542,43 +523,6 @@ export const NewPaymentPageV2 = ({ accountId, accountMembershipId, onClose }: Pr
           </>
         )}
       </ResponsiveContainer>
-
-      <LakeModal
-        visible={insufisantBalanceOpened}
-        icon="warning-regular"
-        color="warning"
-        title={t("transfer.new.insufisantBalance.title")}
-        onPressClose={() => setInsufisantBalanceOpened(false)}
-      >
-        <LakeText variant="smallRegular">
-          {t("transfer.new.insufisantBalance.description")}
-        </LakeText>
-
-        {accountIban.match({
-          Some: accountIban => (
-            <>
-              <Space height={24} />
-
-              <LakeLabel
-                label={t("transfer.new.insufisantBalance.yourIban")}
-                type="view"
-                color="gray"
-                render={() => (
-                  <LakeText color={colors.gray[900]}>{printIbanFormat(accountIban)}</LakeText>
-                )}
-                actions={
-                  <LakeCopyButton
-                    valueToCopy={printIbanFormat(accountIban)}
-                    copyText={t("copyButton.copyTooltip")}
-                    copiedText={t("copyButton.copiedTooltip")}
-                  />
-                }
-              />
-            </>
-          ),
-          None: () => null,
-        })}
-      </LakeModal>
     </>
   );
 };

@@ -744,27 +744,35 @@ export const CardItemPhysicalDetails = ({
                 )
                 .otherwise(() => null)}
 
-              {match(physicalCard.statusInfo)
-                .with({ __typename: "PhysicalCardToActivateStatusInfo" }, () => (
-                  <>
-                    <Space height={24} />
+              {match({ physicalCard, isCurrentUserCardOwner })
+                .with(
+                  {
+                    physicalCard: {
+                      statusInfo: { __typename: "PhysicalCardToActivateStatusInfo" },
+                    },
+                    isCurrentUserCardOwner: true,
+                  },
+                  () => (
+                    <>
+                      <Space height={24} />
 
-                    <LakeTooltip
-                      content={t("card.tooltipConflict")}
-                      placement="bottom"
-                      disabled={!bindingUserError}
-                    >
-                      <LakeButton
-                        color="current"
-                        onPress={() => setIsActivationModalOpen(true)}
-                        loading={physicalCardActivation.isLoading()}
-                        disabled={bindingUserError}
+                      <LakeTooltip
+                        content={t("card.tooltipConflict")}
+                        placement="bottom"
+                        disabled={!bindingUserError}
                       >
-                        {t("card.physical.activate")}
-                      </LakeButton>
-                    </LakeTooltip>
-                  </>
-                ))
+                        <LakeButton
+                          color="current"
+                          onPress={() => setIsActivationModalOpen(true)}
+                          loading={physicalCardActivation.isLoading()}
+                          disabled={bindingUserError}
+                        >
+                          {t("card.physical.activate")}
+                        </LakeButton>
+                      </LakeTooltip>
+                    </>
+                  ),
+                )
                 .otherwise(() => null)}
 
               <Space height={24} />

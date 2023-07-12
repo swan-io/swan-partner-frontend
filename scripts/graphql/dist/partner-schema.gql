@@ -193,6 +193,12 @@ type Account {
     """
     orderBy: TransactionsOrderByInput
   ): TransactionConnection
+
+  """
+  COMING SOON
+  Legal Documents linked to the account
+  """
+  legalDocuments(first: Int! = 50, after: String): LegalDocumentConnection
 }
 
 """A list of balances regarding an account."""
@@ -617,6 +623,11 @@ type AccountMembership {
   """
   canManageAccountMembership: Boolean!
 
+  """
+  `true` if this account membership can add cards to himself or to the memberships he manages
+  """
+  canAddCards: Boolean
+
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
 
@@ -823,6 +834,9 @@ input AccountMembershipOrderByInput {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
+  """Can the user add cards to himself or to the memberships he manages"""
+  canAddCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 
@@ -1112,6 +1126,11 @@ input AddAccountMembershipInput {
   `true` if this account membership can invite, update, suspend or resume account membership
   """
   canManageAccountMembership: Boolean!
+
+  """
+  `true` if this account membership can add cards to himself or to the memberships he manages
+  """
+  canAddCards: Boolean
 
   """URL the user is redirected to after consent has been given"""
   consentRedirectUrl: String!
@@ -2078,14 +2097,6 @@ type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   status: MerchantPaymentMethodStatus!
 
   """Merchant Payment Method canceled date"""
-  canceledAt: Date!
-}
-
-"""CanceledMerchantPaymentProductStatusInfo"""
-type CanceledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product canceled date"""
   canceledAt: Date!
 }
 
@@ -3216,8 +3227,14 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -3229,34 +3246,6 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   updatedAt: Date!
 
   """Rolling Reserve applied to the Merchant Payment Method"""
-  rollingReserve: RollingReserve
-}
-
-"""CheckMerchantPaymentProduct"""
-type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
   rollingReserve: RollingReserve
 }
 
@@ -3280,11 +3269,6 @@ input CheckPaymentCollectionInput {
 
 input CheckPaymentMethodInput {
   """Determine whether the payment method must be activated or not"""
-  activate: Boolean = false
-}
-
-input CheckPaymentProductInput {
-  """Determine whether the payment product must be activated or not"""
   activate: Boolean = false
 }
 
@@ -3377,6 +3361,9 @@ type CheckTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """reserved amount of the transaction computed with the rolling reserve."""
+  reservedAmount: TransactionReservedAmount
 }
 
 input CloseAccountInput {
@@ -3761,6 +3748,10 @@ type ConsentsAlreadyLinkedToMultiConsentRejection implements Rejection {
   consentIds: [String!]!
 }
 
+input ConsentsFiltersInput {
+  userId: String
+}
+
 """
 Rejection returned when all provided consents are not in created status
 """
@@ -3902,6 +3893,12 @@ input CreditTransferInput {
   if the transfer will credit a new international beneficiary
   """
   internationalBeneficiary: InternationalBeneficiaryInput
+
+  """
+  *COMING SOON*
+  International Credit Transfer related data
+  """
+  internationalCreditTransferDetails: [InternationalCreditTransferDetailInput!]
 }
 
 enum CreditTransferMode {
@@ -4253,14 +4250,6 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
-"""EnabledMerchantPaymentProductStatusInfo"""
-type DisabledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product disabled date"""
-  disabledAt: Date!
-}
-
 """
 Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
 but all implementation contains its own node property according to the paginated type.
@@ -4312,14 +4301,6 @@ type EnabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStat
   status: MerchantPaymentMethodStatus!
 
   """Merchant Payment Method enabled date"""
-  enabledAt: Date!
-}
-
-"""EnabledMerchantPaymentProductStatusInfo"""
-type EnabledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product enabled date"""
   enabledAt: Date!
 }
 
@@ -5769,8 +5750,14 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -5809,42 +5796,9 @@ interface InternalDirectDebitMandate {
   id: ID!
 }
 
-"""InternalDirectDebitMerchantPaymentProduct"""
-type InternalDirectDebitMerchantPaymentProduct implements MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
-}
-
 input InternalDirectDebitPaymentCollectionInput {
   """ID of the concerned payment mandate"""
   mandateId: ID!
-}
-
-input InternalDirectDebitPaymentProductInput {
-  """If `true`, the PaymentProduct will become Disabled"""
-  activate: Boolean = false
 }
 
 """Scheme that will be used to create the payment mandate"""
@@ -5873,8 +5827,14 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -5979,6 +5939,9 @@ type InternalDirectDebitTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """reserved amount of the transaction computed with the rolling reserve."""
+  reservedAmount: TransactionReservedAmount
 }
 
 """Rejection returned on unexpected server error"""
@@ -6238,6 +6201,91 @@ input InternationalBeneficiaryInput {
   type: String
 }
 
+input InternationalCreditTransferDetailInput {
+  key: String!
+  value: String!
+}
+
+type InternationalTransaction implements Transaction {
+  """matching account for this transaction"""
+  account: Account
+
+  """amount"""
+  amount: Amount!
+
+  """booked balance after this transaction"""
+  bookedBalanceAfter: Amount
+
+  """
+  name of the counterparty. e.g Merchant name, Creditor name, Beneficiary Name ...
+  """
+  counterparty: String!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """
+  a date that reflects the execution date of a transaction from a user viewpoint. Can be used for sorting transactions.
+  """
+  executionDate: DateTime!
+
+  """
+  an arbitrary identifier that was defined by you when you created this transaction.
+  
+  For example, you can define it in the CreditTransferInput mutation.
+  """
+  externalReference: String
+
+  """"""
+  fees: Amount
+
+  """unique identifier of the transaction"""
+  id: ID!
+
+  """label"""
+  label: String!
+
+  """origin transaction associated to this transaction"""
+  originTransaction: Transaction
+
+  """ID of the origin transaction associated to this transaction"""
+  originTransactionId: String
+
+  """payment associated to this transaction"""
+  payment: Payment
+
+  """ID of the payment associated to this transaction"""
+  paymentId: String
+
+  """
+  payment method identifier used for this transaction. e.g masked PAN or IBAN or accountNumber
+  """
+  paymentMethodIdentifier: String!
+
+  """payment product used for this transaction"""
+  paymentProduct: PaymentProduct!
+
+  """external identifier of the transaction"""
+  reference: String!
+
+  """
+  a date that reflects the time at which the user asked the transaction to be executed
+  """
+  requestedExecutionAt: DateTime
+
+  """side (Credit or Debit)"""
+  side: TransactionSide!
+
+  """status information"""
+  statusInfo: TransactionStatusInfo!
+
+  """type"""
+  type: TransactionTypeEnum!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
 """Rejection returned on invalid argument error"""
 type InvalidArgumentRejection implements Rejection {
   message: String!
@@ -6354,6 +6402,90 @@ enum InvoiceStatus {
   Voided
 }
 
+type LegalDocument {
+  """ID of the legal document"""
+  id: ID!
+
+  """Type of the legal document"""
+  type: LegalDocumentType!
+
+  """Status of the Legal Document"""
+  statusInfo: LegalDocumentStatusInfo!
+
+  """Url to download the Document"""
+  url: String!
+}
+
+type LegalDocumentConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """LegalDocumentEdge list"""
+  edges: [LegalDocumentEdge!]!
+}
+
+type LegalDocumentDisabledStatusInfo implements LegalDocumentStatusInfo {
+  """
+  LegalDocument status (always Disabled for type LegalDocumentDisabledStatusInfo)
+  """
+  status: LegalDocumentStatus!
+
+  """Enabled Date"""
+  enabledAt: Date!
+
+  """Disabled Date"""
+  disabledAt: Date!
+}
+
+type LegalDocumentEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The account membership"""
+  node: LegalDocument!
+}
+
+type LegalDocumentEnabledStatusInfo implements LegalDocumentStatusInfo {
+  """
+  LegalDocument status (always Enabled for type LegalDocumentEnabledStatusInfo)
+  """
+  status: LegalDocumentStatus!
+
+  """Enabled Date"""
+  enabledAt: Date!
+}
+
+type LegalDocumentPendingStatusInfo implements LegalDocumentStatusInfo {
+  """
+  LegalDocument status (always Pending for type LegalDocumentPendingStatusInfo)
+  """
+  status: LegalDocumentStatus!
+}
+
+enum LegalDocumentStatus {
+  """when the LegalDocument will be the next active on the account"""
+  Pending
+
+  """when the LegalDocument is currently active on the account"""
+  Enabled
+
+  """when the LegalDocument is no more active on the account"""
+  Disabled
+}
+
+interface LegalDocumentStatusInfo {
+  """LegalDocument Status"""
+  status: LegalDocumentStatus!
+}
+
+enum LegalDocumentType {
+  """Swan Terms & Conditions of Use"""
+  SwanTCU
+}
+
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
   accountMembershipId: String!
   message: String!
@@ -6397,6 +6529,11 @@ input MembershipInfoInput {
   """
   canManageAccountMembership: Boolean!
 
+  """
+  `true` if this account membership can add cards to himself or to the memberships he manages
+  """
+  canAddCards: Boolean
+
   """Residency address of the member to be added"""
   residencyAddress: ResidencyAddressInput
 
@@ -6408,6 +6545,9 @@ input MembershipInfoInput {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
+  """Can the user add cards to himself or to the memberships he manages"""
+  canAddCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 
@@ -6751,8 +6891,14 @@ interface MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -6792,56 +6938,6 @@ enum MerchantPaymentMethodType {
   Check
 }
 
-"""Base object for the different Payment Products available"""
-interface MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
-}
-
-"""The different statuses a MerchantPaymentProduct can have"""
-enum MerchantPaymentProductStatus {
-  PendingReview
-  Enabled
-  Rejected
-  Disabled
-  Canceled
-  Suspended
-}
-
-"""The payment product status information"""
-interface MerchantPaymentProductStatusInfo {
-  """Merchant Payment Product Status"""
-  status: MerchantPaymentProductStatus!
-}
-
-"""The different statuses a MerchantPaymentProduct can have"""
-enum MerchantPaymentProductType {
-  InternalDirectDebit
-  Check
-}
-
 """Merchant Profile"""
 type MerchantProfile {
   """The Merchant Profile ID"""
@@ -6871,9 +6967,6 @@ type MerchantProfile {
 
   """Expected annual activity volumes for all payment method"""
   expectedMonthlyPaymentVolume: Amount!
-
-  """Payment Products associated"""
-  merchantPaymentProducts: [MerchantPaymentProduct!] @deprecated(reason: "Use merchantPaymentMethods instead")
 
   """Payment Methods associated"""
   merchantPaymentMethods: [MerchantPaymentMethod!]
@@ -7022,8 +7115,8 @@ type Mutation {
   """Request merchant payment methods for a merchant profile"""
   requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
 
-  """Request merchant payment products for a merchant profile"""
-  requestMerchantPaymentProducts(input: RequestMerchantPaymentProductsInput!): RequestMerchantPaymentProductsPayload @deprecated(reason: "Use requestMerchantPaymentMethods instead")
+  """Request an update of a MerchantProfile"""
+  requestUpdateMerchantProfile(input: RequestUpdateMerchantProfileInput!): RequestUpdateMerchantProfilePayload
 
   """
   Schedule a standing Order
@@ -8511,11 +8604,6 @@ type PendingMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStat
   status: MerchantPaymentMethodStatus!
 }
 
-"""PendingMerchantPaymentProductStatusInfo"""
-type PendingMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-}
-
 """PendingReviewMerchantProfileStatusInfo"""
 type PendingReviewMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
@@ -9049,17 +9137,6 @@ type Query {
   """Returns a received direct debit mandate from its id."""
   receivedDirectDebitMandate(receivedDirectDebitMandateId: ID!): ReceivedDirectDebitMandate
 
-  """
-  Returns the list of user that joined the project
-  
-  DO NOT USE.
-  
-  This feature is currently in development, it probably doesn't work and we will make breaking changes without warning.
-  
-  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  users(after: String, before: String, filters: UserFilterInput, first: Int! = 50): UserConnection!
-
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
 
@@ -9067,11 +9144,14 @@ type Query {
   consent(id: ID!): Consent!
 
   """
-  The list of consents
+  Return the list of consents
   
-  *This query is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication))*
+  For a User access token : return the list of consents for the signed-in user
+  For a Project access token : return the list of consents for the project. This list can be filtered by userId
+  
+  *([Learn more on authentication](https://docs.swan.io/api/authentication))*
   """
-  consents(first: Int! = 50, after: String): ConsentConnection!
+  consents(first: Int! = 50, after: String, filters: ConsentsFiltersInput): ConsentConnection!
 
   """
   Returns a User
@@ -9082,6 +9162,14 @@ type Query {
   *([Learn more on authentication](https://docs.swan.io/api/authentication))*
   """
   user(id: String): User
+
+  """
+  Returns the list of user that joined the project
+  The search field allows to search in : id, phonNumber, firstName, allFirstNames, lastName
+  
+  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  users(after: String, before: String, filters: UserFilterInput, first: Int! = 50, search: String): UserConnection!
 
   """Return the capital deposit case for the provided id."""
   capitalDepositCase(id: ID!): CapitalDepositCase
@@ -9528,14 +9616,6 @@ type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   rejectedAt: Date!
 }
 
-"""RejectedMerchantPaymentProductStatusInfo"""
-type RejectedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product rejected date"""
-  rejectedAt: Date!
-}
-
 """RejectedMerchantProfileStatusInfo"""
 type RejectedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
@@ -9796,23 +9876,6 @@ type RequestMerchantPaymentMethodsSuccessPayload {
   merchantProfile: MerchantProfile
 }
 
-input RequestMerchantPaymentProductsInput {
-  """ID of the Merchant Profile"""
-  merchantProfileId: ID!
-
-  """Input for the Internal Direct Debit payment product"""
-  internalDirectDebit: InternalDirectDebitPaymentProductInput
-
-  """Input for Check payment product"""
-  check: CheckPaymentProductInput
-}
-
-union RequestMerchantPaymentProductsPayload = RequestMerchantPaymentProductsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
-
-type RequestMerchantPaymentProductsSuccessPayload {
-  merchantProfile: MerchantProfile
-}
-
 input RequestSupportingDocumentCollectionReviewInput {
   """Id of the supporting document collection to review."""
   supportingDocumentCollectionId: ID!
@@ -9822,6 +9885,98 @@ union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocume
 
 type RequestSupportingDocumentCollectionReviewSuccessPayload {
   supportingDocumentCollection: SupportingDocumentCollection!
+}
+
+"""Request Update Merchant Profile"""
+type RequestUpdateMerchantProfile {
+  """The Request ID"""
+  id: ID!
+
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
+  """The status of the request"""
+  status: RequestUpdateMerchantProfileStatus!
+
+  """
+  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount!
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Input to update a Merchant Profile"""
+input RequestUpdateMerchantProfileInput {
+  """ID of the MerchantProfile to update"""
+  merchantProfileId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """
+  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment methods."""
+  expectedMonthlyPaymentVolume: AmountInput!
+
+  """expected average basket value."""
+  expectedAverageBasket: AmountInput!
+
+  """
+  base64 encoded merchant's logo
+  COMING SOON
+  """
+  merchantLogo: String
+}
+
+"""Add Merchant Profile Payload"""
+union RequestUpdateMerchantProfilePayload = RequestUpdateMerchantProfileSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | InternalErrorRejection
+
+"""Request Update Merchant Profile Statuses"""
+enum RequestUpdateMerchantProfileStatus {
+  """A Request is created in the PendingReview status"""
+  PendingReview
+
+  """A Request that has already been approved"""
+  Enabled
+
+  """A Request that has already been rejected"""
+  Rejected
+}
+
+"""Add Merchant Profile Success Payload"""
+type RequestUpdateMerchantProfileSuccessPayload {
+  """Request Update Merchant Profile"""
+  requestUpdateMerchantProfile: RequestUpdateMerchantProfile!
 }
 
 input ResidencyAddressInput {
@@ -10292,8 +10447,14 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -10343,8 +10504,14 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
   """
-  productId: ID!
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -10614,6 +10781,9 @@ type SEPADirectDebitTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """reserved amount of the transaction computed with the rolling reserve."""
+  reservedAmount: TransactionReservedAmount
 }
 
 """Payment direct debit mandate for SEPA"""
@@ -11807,14 +11977,6 @@ type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSt
   suspendedAt: Date!
 }
 
-"""SuspendedMerchantPaymentProductStatusInfo"""
-type SuspendedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product suspended date"""
-  suspendedAt: Date!
-}
-
 """SuspendedMerchantProfileStatusInfo"""
 type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
@@ -11991,6 +12153,11 @@ type TransactionEdge implements Edge {
 type TransactionNotFoundRejection implements Rejection {
   transactionId: ID!
   message: String!
+}
+
+type TransactionReservedAmount {
+  releasedAt: DateTime!
+  amount: AmountValue!
 }
 
 """the criteria to filter transactions"""
@@ -12433,6 +12600,11 @@ input UpdateAccountMembershipInput {
   `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean
+
+  """
+  `true` if this account membership can add cards to himself or to the memberships he manages
+  """
+  canAddCards: Boolean
 
   """Periodic Spending limit"""
   spendingLimit: SpendingLimitInput

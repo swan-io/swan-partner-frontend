@@ -425,6 +425,11 @@ type AccountMembership {
   """
   canManageAccountMembership: Boolean!
 
+  """
+  `true` if this account membership can add cards to himself or to the memberships he manages
+  """
+  canAddCards: Boolean
+
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
 
@@ -628,6 +633,9 @@ input AccountMembershipOrderByInput {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
+  """Can the user add cards to himself or to the memberships he manages"""
+  canAddCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 
@@ -2675,6 +2683,9 @@ type MaskedCardInfo {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
+  """Can the user add cards to himself or to the memberships he manages"""
+  canAddCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 

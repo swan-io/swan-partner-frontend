@@ -192,11 +192,11 @@ const NewStatementForm = ({
     startDate: {
       initialValue: "",
       validate: (value, { getFieldState }) => {
-        const openingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
+        const openingDate = dayjs.utc(value, locale.dateFormat).subtract(1, "hour");
 
         const closingDate = dayjs
           .utc(getFieldState("closingDate").value, locale.dateFormat)
-          .add(-1, "hour");
+          .subtract(1, "hour");
 
         //check if statements are longer than 3 months
         if (dayjs(closingDate).isAfter(dayjs(openingDate).add(3, "months"))) {
@@ -215,8 +215,8 @@ const NewStatementForm = ({
         // account statements use UTC+1
         const openingDate = dayjs
           .utc(getFieldState("startDate").value, locale.dateFormat)
-          .add(-1, "hour");
-        const closingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
+          .subtract(1, "hour");
+        const closingDate = dayjs.utc(value, locale.dateFormat).subtract(1, "hour");
 
         //check if statements are longer than 3 months
         if (dayjs(closingDate).isAfter(dayjs(openingDate).add(3, "months"))) {

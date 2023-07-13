@@ -371,6 +371,7 @@
   "needHelpButton.text": "Need help",
   "newStatement.closingIsBeforeOpening": "End date can't be before start date.",
   "newStatement.dateInTheFuture": "End date can't be in the future.",
+  "newStatement.dateRangeLonger": "Date range is longer than 3 months.",
   "newStatement.endDate": "End date",
   "newStatement.format": "Format",
   "newStatement.generate": "Generate",

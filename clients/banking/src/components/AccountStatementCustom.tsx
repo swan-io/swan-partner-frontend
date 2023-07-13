@@ -191,8 +191,17 @@ const NewStatementForm = ({
   }>({
     startDate: {
       initialValue: "",
-      validate: value => {
+      validate: (value, { getFieldState }) => {
         const openingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
+
+        const closingDate = dayjs
+          .utc(getFieldState("closingDate").value, locale.dateFormat)
+          .add(-1, "hour");
+
+        //check if statements are longer than 3 months
+        if (dayjs(closingDate).isAfter(dayjs(openingDate).add(3, "months"))) {
+          return t("newStatement.dateRangeLonger");
+        }
 
         if (openingDate.isAfter(dayjs())) {
           return t("newStatement.dateInTheFuture");
@@ -208,6 +217,11 @@ const NewStatementForm = ({
           .utc(getFieldState("startDate").value, locale.dateFormat)
           .add(-1, "hour");
         const closingDate = dayjs.utc(value, locale.dateFormat).add(-1, "hour");
+
+        //check if statements are longer than 3 months
+        if (dayjs(closingDate).isAfter(dayjs(openingDate).add(3, "months"))) {
+          return t("newStatement.dateRangeLonger");
+        }
 
         if (closingDate.isAfter(dayjs())) {
           return t("newStatement.dateInTheFuture");

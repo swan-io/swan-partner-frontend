@@ -371,6 +371,7 @@
   "needHelpButton.text": "Besoin d'aide ?",
   "newStatement.closingIsBeforeOpening": "La date de fin ne doit pas être antérieure à la date de début.",
   "newStatement.dateInTheFuture": "La date de fin ne doit pas être future.",
+  "newStatement.dateRangeLonger": "La plage de dates est supérieure à 3 mois.",
   "newStatement.endDate": "Date de fin",
   "newStatement.format": "Format",
   "newStatement.generate": "Générer",

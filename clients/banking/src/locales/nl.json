@@ -371,6 +371,7 @@
   "needHelpButton.text": "Hulp nodig?",
   "newStatement.closingIsBeforeOpening": "Einddatum kan niet voor startdatum liggen.",
   "newStatement.dateInTheFuture": "De einddatum kan niet in de toekomst liggen.",
+  "newStatement.dateRangeLonger": "De geselecteerde periode is langer dan 3 maanden.",
   "newStatement.endDate": "Einddatum",
   "newStatement.format": "Formaat",
   "newStatement.generate": "Genereren",

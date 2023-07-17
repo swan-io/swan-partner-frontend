@@ -1,10 +1,13 @@
 import { Option } from "@swan-io/boxed";
-import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
+import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
+import { useMemo } from "react";
+import { match } from "ts-pattern";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
-import { NewPaymentPageV2 } from "../pages/NewPaymentPageV2";
-import { NewRecurringTransferPageV2 } from "../pages/NewRecurringTransferPageV2";
+import { NotFoundPage } from "../pages/NotFoundPage";
 import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
+import { t } from "../utils/i18n";
 import { paymentRoutesV2, Router } from "../utils/routes";
+import { TransferTypePicker } from "./TransferTypePicker";
 
 type Props = {
   accountId: string;
@@ -27,30 +30,32 @@ export const PaymentsAreaV2 = ({
     Router.replace("AccountPaymentsRoot", { accountMembershipId }),
   );
 
+  const rootLevelCrumbs = useMemo(() => {
+    return [
+      {
+        label: t("transfer.transfer"),
+        link: Router.AccountPaymentsRoot({ accountMembershipId }),
+      },
+    ];
+  }, [accountMembershipId]);
+
   return (
-    <>
-      <PaymentsPageV2
-        accountId={accountId}
-        accountMembershipId={accountMembershipId}
-        newStandingOrderIsVisible={newStandingOrderIsVisible}
-        canQueryCardOnTransaction={canQueryCardOnTransaction}
-      />
-
-      <FullViewportLayer visible={route?.name === "AccountPaymentsNew"}>
-        <NewPaymentPageV2
-          accountId={accountId}
-          accountMembershipId={accountMembershipId}
-          onClose={() => Router.replace("AccountPaymentsRoot", { accountMembershipId })}
-        />
-      </FullViewportLayer>
-
-      <FullViewportLayer visible={route?.name === "AccountPaymentsRecurringTransferNew"}>
-        <NewRecurringTransferPageV2
-          accountId={accountId}
-          accountMembershipId={accountMembershipId}
-          onClose={() => Router.replace("AccountPaymentsRoot", { accountMembershipId })}
-        />
-      </FullViewportLayer>
-    </>
+    <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
+      {match(route)
+        .with({ name: "AccountPaymentsRoot" }, () => (
+          <PaymentsPageV2
+            accountId={accountId}
+            accountMembershipId={accountMembershipId}
+            newStandingOrderIsVisible={newStandingOrderIsVisible}
+            canQueryCardOnTransaction={canQueryCardOnTransaction}
+          />
+        ))
+        .with({ name: "AccountPaymentsNew" }, () => (
+          <TransferTypePicker accountMembershipId={accountMembershipId} />
+        ))
+        .otherwise(() => (
+          <NotFoundPage />
+        ))}
+    </BreadcrumbsRoot>
   );
 };

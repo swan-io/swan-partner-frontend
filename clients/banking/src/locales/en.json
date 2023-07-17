@@ -684,6 +684,8 @@
   "transfer.new.scheduleDate.label": "Date",
   "transfer.new.scheduleTime.label": "Time",
   "transfer.new.title": "New transfer",
+  "transfer.newTransfer": "New transfer",
+  "transfer.transfer": "Transfer",
   "transfer.tabs.recurringTransfer": "Standing orders",
   "transfer.tile.recurringTransfer.button": "Schedule",
   "transfer.tile.recurringTransfer.subtitle": "Send money on a daily, weekly, or monthly basis",

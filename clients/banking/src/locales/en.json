@@ -275,7 +275,7 @@
   "error.iban.invalidBank": "We don't recognize the bank referenced in this IBAN. Please contact us, or try a different IBAN.",
   "error.invalidTransferAmount": "Invalid transfer amount",
   "error.lastExecutionDateBeforeFirstExecutionDate": "End date cannot be before first transfer date",
-  "error.missingAddressOrTaxNumberError": "Please fill the membership address and tax identification number to grant this new rights",
+  "error.missingAddressOrTaxNumberError": "Account member address and tax identification number required to add sensitive permissions.",
   "error.noAccount": "You don't have an account.",
   "error.pageNotFound": "Page not found",
   "error.transferLabelTooLong": "Transfer label is too long",

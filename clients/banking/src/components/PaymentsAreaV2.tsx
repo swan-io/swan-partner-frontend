@@ -1,5 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { useMemo } from "react";
 import { match } from "ts-pattern";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
@@ -7,6 +8,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
 import { t } from "../utils/i18n";
 import { paymentRoutesV2, Router } from "../utils/routes";
+import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
 
 type Props = {
@@ -50,8 +52,16 @@ export const PaymentsAreaV2 = ({
             canQueryCardOnTransaction={canQueryCardOnTransaction}
           />
         ))
-        .with({ name: "AccountPaymentsNew" }, () => (
-          <TransferTypePicker accountMembershipId={accountMembershipId} />
+        .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) => (
+          <>
+            <TransferTypePicker accountMembershipId={accountMembershipId} />
+            <FullViewportLayer visible={type === "transfer"}>
+              <TransferRegularWizard
+                onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+              />
+            </FullViewportLayer>
+            <FullViewportLayer visible={type === "recurring"}>recurring</FullViewportLayer>
+          </>
         ))
         .otherwise(() => (
           <NotFoundPage />

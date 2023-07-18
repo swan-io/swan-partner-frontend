@@ -46,7 +46,7 @@ const routes = {
     ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
       Area: "/*",
       Root: "/",
-      New: "/new",
+      New: "/new?:type",
       RecurringTransferNew: "/recurring-transfer/new",
 
       ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {

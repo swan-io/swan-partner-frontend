@@ -4,6 +4,7 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -20,6 +21,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     margin: "auto",
   },
+  link: {},
   header: {
     paddingTop: 24,
     paddingHorizontal: 24,
@@ -55,45 +57,63 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
       </ResponsiveContainer>
 
       <Box direction={"column"} style={styles.container}>
-        <Tile flexGrow={1} flexShrink={1}>
-          <Box direction="row" alignItems="center">
-            <Icon name="arrow-swap-regular" size={42} color={colors.current[500]} />
-            <Space width={24} />
+        <Pressable
+          onPress={() =>
+            Router.push("AccountPaymentsNew", { accountMembershipId, type: "transfer" })
+          }
+          style={styles.link}
+        >
+          {({ hovered }) => (
+            <Tile flexGrow={1} flexShrink={1} hovered={hovered}>
+              <Box direction="row" alignItems="center">
+                <Icon name="arrow-swap-regular" size={42} color={colors.current[500]} />
+                <Space width={24} />
 
-            <View>
-              <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
-                {t("transfer.tile.transfer.title")}
-              </LakeHeading>
+                <View>
+                  <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
+                    {t("transfer.tile.transfer.title")}
+                  </LakeHeading>
 
-              <LakeText variant="smallRegular">{t("transfer.tile.transfer.subtitle")}</LakeText>
-            </View>
+                  <LakeText variant="smallRegular">{t("transfer.tile.transfer.subtitle")}</LakeText>
+                </View>
 
-            <Fill minWidth={24} />
-            <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
-          </Box>
-        </Tile>
+                <Fill minWidth={24} />
+                <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
+              </Box>
+            </Tile>
+          )}
+        </Pressable>
 
         <Space width={24} height={12} />
 
-        <Tile flexGrow={1} flexShrink={1}>
-          <Box direction="row" alignItems="center">
-            <Icon name="lake-clock-arrow-swap" size={42} color={colors.current[500]} />
-            <Space width={24} />
+        <Pressable
+          onPress={() =>
+            Router.push("AccountPaymentsNew", { accountMembershipId, type: "recurring" })
+          }
+          style={styles.link}
+        >
+          {({ hovered }) => (
+            <Tile flexGrow={1} flexShrink={1} hovered={hovered}>
+              <Box direction="row" alignItems="center">
+                <Icon name="lake-clock-arrow-swap" size={42} color={colors.current[500]} />
+                <Space width={24} />
 
-            <View>
-              <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
-                {t("transfer.tile.recurringTransfer.title")}
-              </LakeHeading>
+                <View>
+                  <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
+                    {t("transfer.tile.recurringTransfer.title")}
+                  </LakeHeading>
 
-              <LakeText variant="smallRegular">
-                {t("transfer.tile.recurringTransfer.subtitle")}
-              </LakeText>
-            </View>
+                  <LakeText variant="smallRegular">
+                    {t("transfer.tile.recurringTransfer.subtitle")}
+                  </LakeText>
+                </View>
 
-            <Fill minWidth={24} />
-            <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
-          </Box>
-        </Tile>
+                <Fill minWidth={24} />
+                <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
+              </Box>
+            </Tile>
+          )}
+        </Pressable>
       </Box>
     </>
   );

@@ -108,7 +108,7 @@ export const AccountDetailsSettingsPage = ({
   const holderInfo = account?.holder.info;
   const isCompany = holderInfo?.__typename === "AccountHolderCompanyInfo";
 
-  const { Field, formStatus, submitForm, resetForm } = useForm<{
+  const { Field, formStatus, submitForm } = useForm<{
     accountName: string;
     language: AccountLanguage;
     vatNumber: string;
@@ -342,8 +342,6 @@ export const AccountDetailsSettingsPage = ({
                   })
                     .then(parseOperationResult)
                     .then(data => {
-                      resetForm({ feedbackOnly: true });
-
                       if (data.updateAccount.__typename !== "UpdateAccountSuccessPayload") {
                         return Promise.reject(data.updateAccount.__typename);
                       }

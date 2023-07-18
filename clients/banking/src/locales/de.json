@@ -275,6 +275,7 @@
   "error.iban.invalidBank": "Die Bank, auf die in dieser IBAN verwiesen wird, ist uns unbekannt. Bitte kontaktiere uns oder verwende eine andere IBAN",
   "error.invalidTransferAmount": "Ungültiger Überweisungsbetrag",
   "error.lastExecutionDateBeforeFirstExecutionDate": "Das Enddatum darf nicht vor dem ersten Überweisungsdatum liegen",
+  "error.missingAddressOrTaxNumberError": "Bitte geben Sie die Mitgliederadresse und die Steueridentifikationsnummer ein, um diese neuen Rechte zu gewähren",
   "error.noAccount": "Du hast kein Konto.",
   "error.pageNotFound": "Seite nicht gefunden",
   "error.transferLabelTooLong": "Der Überweisungstext ist zu lang",

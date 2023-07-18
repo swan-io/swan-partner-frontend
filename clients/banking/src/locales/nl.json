@@ -275,6 +275,7 @@
   "error.iban.invalidBank": "We herkennen de bank niet waarnaar verwezen wordt met deze IBAN. Neem contact op met ons, of probeer een andere IBAN.",
   "error.invalidTransferAmount": "Het bedrag van de overschrijving is ongeldig",
   "error.lastExecutionDateBeforeFirstExecutionDate": "Einddatum kan niet voor de eerste overdrachtsdatum liggen",
+  "error.missingAddressOrTaxNumberError": "Vul het adres van het lid en het belastingidentificatienummer in om deze nieuwe rechten toe te kennen",
   "error.noAccount": "Je hebt geen rekening.",
   "error.pageNotFound": "Pagina niet gevonden",
   "error.transferLabelTooLong": "Het transferlabel is te lang",

@@ -330,7 +330,7 @@
   "membershipDetail.edit.phoneNumber": "Telefoonnummer",
   "membershipDetail.edit.postalCode": "Postcode",
   "membershipDetail.edit.resendInvitation": "De uitnodiging opnieuw versturen",
-  "membershipDetail.edit.rights": "Rechten",
+  "membershipDetail.edit.rights": "Machtigingen",
   "membershipDetail.edit.showLink": "Toon uitnodigingslink",
   "membershipDetail.edit.taxIdentificationNumber": "Burgerservicenummer",
   "membershipDetail.idVerifiedMatchError.description": "Dit lid kan alleen de account en de pas bekijken totdat zijn/haar/hun identiteit bevestigd is.\n",

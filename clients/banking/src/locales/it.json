@@ -330,7 +330,7 @@
   "membershipDetail.edit.phoneNumber": "Numero di telefono",
   "membershipDetail.edit.postalCode": "CAP",
   "membershipDetail.edit.resendInvitation": "Reinvia l'invito",
-  "membershipDetail.edit.rights": "Diritti",
+  "membershipDetail.edit.rights": "Permessi",
   "membershipDetail.edit.showLink": "Mostra link di invito",
   "membershipDetail.edit.taxIdentificationNumber": "Numero di identificazione fiscale",
   "membershipDetail.idVerifiedMatchError.description": "Questo membro può solo visualizzare il conto e la carta finché non avrà terminato di verificare la propria identità.",

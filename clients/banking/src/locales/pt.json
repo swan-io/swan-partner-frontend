@@ -330,7 +330,7 @@
   "membershipDetail.edit.phoneNumber": "Número de telemóvel",
   "membershipDetail.edit.postalCode": "Código postal",
   "membershipDetail.edit.resendInvitation": "Reenviar o convite",
-  "membershipDetail.edit.rights": "Direitos",
+  "membershipDetail.edit.rights": "Permissões",
   "membershipDetail.edit.showLink": "Mostrar link de convite",
   "membershipDetail.edit.taxIdentificationNumber": "Número de Identificação Fiscal",
   "membershipDetail.idVerifiedMatchError.description": "Este membro está limitado à visualização da conta e do cartão até terminar a comprovação de identidade.",

@@ -330,7 +330,7 @@
   "membershipDetail.edit.phoneNumber": "Phone number",
   "membershipDetail.edit.postalCode": "Postal code",
   "membershipDetail.edit.resendInvitation": "Resend the invitation",
-  "membershipDetail.edit.rights": "Rights",
+  "membershipDetail.edit.rights": "Permissions",
   "membershipDetail.edit.showLink": "Show invitation link",
   "membershipDetail.edit.taxIdentificationNumber": "Tax Identification Number",
   "membershipDetail.idVerifiedMatchError.description": "This member can only view the account and card until they finish proving their identity.",

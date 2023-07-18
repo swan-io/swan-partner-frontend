@@ -330,7 +330,7 @@
   "membershipDetail.edit.phoneNumber": "Telefonnummer",
   "membershipDetail.edit.postalCode": "Postleitzahl",
   "membershipDetail.edit.resendInvitation": "Einladung erneut senden",
-  "membershipDetail.edit.rights": "Rechte",
+  "membershipDetail.edit.rights": "Berechtigungen",
   "membershipDetail.edit.showLink": "Einladungslink anzeigen",
   "membershipDetail.edit.taxIdentificationNumber": "Steuer-ID",
   "membershipDetail.idVerifiedMatchError.description": "Bis die Identitätsprüfung abgeschlossen ist, kann dieses Mitglied Konto und Karte nur einsehen.",

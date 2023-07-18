@@ -2,7 +2,6 @@ import { Option, Result } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
-import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -254,90 +253,81 @@ export const MembershipDetailRights = ({
 
   return (
     <>
-      <Space height={24} />
+      <Space height={32} />
 
-      <LakeLabel
-        label={t("membershipDetail.edit.rights")}
-        render={() => (
-          <>
-            <Space height={8} />
-
-            <Field name="canViewAccount">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canViewAccount === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canViewAccount")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canInitiatePayments">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canInitiatePayments === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canInitiatePayments")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canManageBeneficiaries">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canManageBeneficiaries === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canManageBeneficiaries")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canManageAccountMembership">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canManageAccountMembership === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canManageAccountMembership")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-          </>
+      <Field name="canViewAccount">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canViewAccount === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canViewAccount")}
+            value={value}
+            onValueChange={onChange}
+          />
         )}
-      />
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canInitiatePayments">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canInitiatePayments === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canInitiatePayments")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageBeneficiaries">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageBeneficiaries === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageBeneficiaries")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageAccountMembership">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageAccountMembership === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageAccountMembership")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
 
       <Fill minHeight={24} />
 

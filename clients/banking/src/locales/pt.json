@@ -275,6 +275,7 @@
   "error.iban.invalidBank": "Não reconhecemos o banco referido neste IBAN. Por favor, contacte-nos ou tente um IBAN diferente.",
   "error.invalidTransferAmount": "O valor da transferência é inválido",
   "error.lastExecutionDateBeforeFirstExecutionDate": "A data final não pode ser anterior à primeira data de transferência",
+  "error.missingAddressOrTaxNumberError": "Por favor, preencha o endereço do membro e o número de identificação fiscal para conceder esses novos direitos",
   "error.noAccount": "Você não tem uma conta.",
   "error.pageNotFound": "Página não encontrada",
   "error.transferLabelTooLong": "A etiqueta da transferência é demasiado longa.",

@@ -275,6 +275,7 @@
   "error.iban.invalidBank": "Nous ne reconnaissons pas la banque référencée dans cet IBAN. Veuillez nous contacter ou essayer un autre IBAN.",
   "error.invalidTransferAmount": "Montant du virement non valide\n",
   "error.lastExecutionDateBeforeFirstExecutionDate": "La date de fin ne peut pas être antérieure à la date du premier virement",
+  "error.missingAddressOrTaxNumberError": "Veuillez remplir l'adresse du membre et le numéro d'identification fiscale pour accorder ces nouveaux droits",
   "error.noAccount": "Vous n'avez pas de compte.",
   "error.pageNotFound": "Page non trouvée",
   "error.transferLabelTooLong": "Le libellé de virement est trop long",

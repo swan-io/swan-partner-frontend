@@ -2052,6 +2052,11 @@ mutation UpdateAccountMembership($input: UpdateAccountMembershipInput!) {
         consentUrl
       }
     }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
   }
 }
 

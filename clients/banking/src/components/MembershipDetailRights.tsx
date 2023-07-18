@@ -7,6 +7,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -17,6 +18,7 @@ import {
   ResumeAccountMembershipDocument,
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
+  UpdateAccountMembershipInput,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -160,8 +162,27 @@ export const MembershipDetailRights = ({
       .tapOk(consentUrl => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        type FieldName = keyof UpdateAccountMembershipInput;
+
+        showToast({
+          variant: "error",
+          title: match(error)
+            .with(
+              {
+                __typename: "ValidationRejection",
+                fields: P.when(value =>
+                  value.some(
+                    ({ path: [root] }) =>
+                      root === identity<FieldName>("residencyAddress") ||
+                      root === identity<FieldName>("taxIdentificationNumber"),
+                  ),
+                ),
+              },
+              () => t("error.missingAddressOrTaxNumberError"),
+            )
+            .otherwise(() => t("error.generic")),
+        });
       });
   };
 

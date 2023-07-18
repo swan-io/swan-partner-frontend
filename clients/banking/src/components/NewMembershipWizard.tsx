@@ -274,12 +274,10 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
-            {
-              accountCountry: "DEU",
-              residencyAddressCountry: "DEU",
-              canViewAccount: true,
-              canInitiatePayments: true,
-            },
+            P.intersection(
+              { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
             () =>
               combineValidators(
                 validateRequired,
@@ -750,6 +748,10 @@ export const NewMembershipWizard = ({
                                 valid={valid}
                                 error={error}
                                 onChange={onChange}
+                                required={
+                                  Boolean(partiallySavedValues?.canViewAccount) ||
+                                  Boolean(partiallySavedValues?.canInitiatePayments)
+                                }
                               />
                             )}
                           </Field>

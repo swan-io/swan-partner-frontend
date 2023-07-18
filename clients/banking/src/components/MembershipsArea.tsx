@@ -361,9 +361,11 @@ export const MembershipsArea = ({
               accountMembershipId={accountMembershipId}
               accountCountry={accountCountry}
               currentUserAccountMembership={currentUserAccountMembership}
-              onSuccess={() => {
-                Router.push("AccountMembersList", {
+              onSuccess={editingAccountMembershipId => {
+                Router.push("AccountMembersDetailsRoot", {
                   accountMembershipId,
+                  editingAccountMembershipId,
+                  showInvitationLink: "true",
                   ...params,
                   new: undefined,
                 });

@@ -14,7 +14,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { match } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -187,14 +186,7 @@ export const MembershipListFilter = ({
           placeholder={t("common.search")}
           initialValue={filters.search ?? ""}
           onChangeText={search => onChange({ ...filters, search })}
-          renderEnd={() =>
-            match({
-              totalCount,
-              isFetching,
-            })
-              .with({ isFetching: false }, ({ totalCount }) => <Tag>{totalCount}</Tag>)
-              .otherwise(() => undefined)
-          }
+          renderEnd={() => (!isFetching ? <Tag>{totalCount}</Tag> : undefined)}
         />
       </Box>
 

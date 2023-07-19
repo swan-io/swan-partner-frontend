@@ -27,7 +27,7 @@ export const clickOnText = (
   parent: Parent,
   text: string | RegExp,
   options?: ClickOptions,
-  exact: boolean = true,
+  exact = true,
 ) => getByText(parent, text, { exact }).click(options);
 
 export const waitForText = (

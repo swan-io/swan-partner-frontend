@@ -52,8 +52,8 @@ test("French company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  await waitForText(page, "Nicolas BENADY");
-  await waitForText(page, "Nicolas, René, Michel SAISON");
+  await waitForText(page, "NICOLAS BENADY");
+  await waitForText(page, "NICOLAS, RENE, MICHEL SAISON");
 
   await page.getByRole("button", { name: "Next" }).click();
 

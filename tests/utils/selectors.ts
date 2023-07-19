@@ -34,5 +34,5 @@ export const waitForText = (
   parent: Parent,
   text: string | RegExp,
   options?: WaitForOptions,
-  exact: boolean = true,
+  exact = true,
 ) => getByText(parent, text, { exact }).waitFor(options);

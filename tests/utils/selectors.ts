@@ -16,15 +16,23 @@ export const getButtonByName = (
 ) => parent.getByRole("button", { exact: true, ...options, name });
 
 export const getByText = (parent: Parent, text: string | RegExp, options?: GetByTextOptions) =>
-  parent.getByText(text, { exact: true, ...options });
+  parent.getByText(text, { exact: options?.exact ?? true, ...options });
 
 // Actions
 
 export const clickOnButton = (parent: Parent, name: string | RegExp, options?: ClickOptions) =>
   getButtonByName(parent, name).click(options);
 
-export const clickOnText = (parent: Parent, text: string | RegExp, options?: ClickOptions) =>
-  getByText(parent, text).click(options);
+export const clickOnText = (
+  parent: Parent,
+  text: string | RegExp,
+  options?: ClickOptions,
+  exact: boolean = true,
+) => getByText(parent, text, { exact }).click(options);
 
-export const waitForText = (parent: Parent, text: string | RegExp, options?: WaitForOptions) =>
-  getByText(parent, text).waitFor(options);
+export const waitForText = (
+  parent: Parent,
+  text: string | RegExp,
+  options?: WaitForOptions,
+  exact: boolean = true,
+) => getByText(parent, text, { exact }).waitFor(options);

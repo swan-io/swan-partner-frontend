@@ -232,6 +232,8 @@ export const MembershipsArea = ({
                 })
               }
               onRefresh={reload}
+              totalCount={memberships.length}
+              isFetching={nextData.isLoading()}
               large={large}
             >
               {canAddNewMembers ? (

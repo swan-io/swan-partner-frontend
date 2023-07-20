@@ -90,7 +90,7 @@ type Props = {
   accountMembershipId: string;
   accountCountry: AccountCountry;
   currentUserAccountMembership: AccountMembershipFragment;
-  onSuccess: () => void;
+  onSuccess: (accountMembershipId: string) => void;
   onPressCancel: () => void;
 };
 
@@ -436,7 +436,12 @@ export const NewMembershipWizard = ({
                   },
                 },
                 ({ accountMembership }) => {
-                  sendInvitation({ editingAccountMembershipId: accountMembership.id });
+                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                    .with("EMAIL", () => {
+                      sendInvitation({ editingAccountMembershipId: accountMembership.id });
+                    })
+                    .otherwise(() => {});
+                  onSuccess(accountMembership.id);
                   return Result.Ok(Option.None());
                 },
               )
@@ -445,7 +450,7 @@ export const NewMembershipWizard = ({
           .tapOk(consentUrl =>
             consentUrl.match({
               Some: consentUrl => window.location.replace(consentUrl),
-              None: () => onSuccess(),
+              None: () => {},
             }),
           )
           .tapError(() => {

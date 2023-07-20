@@ -25,6 +25,9 @@ match(projectConfiguration)
     const url = new URL(window.location.href);
     const [...envHostName] = url.hostname.split(".");
     url.hostname = ["partner", ...envHostName].join(".");
+    if (!url.pathname.startsWith("/swanpopupcallback")) {
+      url.pathname = "/";
+    }
     // local dev tweak
     if (url.port === "8082") {
       url.port = "8080";

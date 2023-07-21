@@ -34,7 +34,7 @@
     "@opentelemetry/instrumentation-pino": "0.33.4",
     "@opentelemetry/propagator-jaeger": "1.14.0",
     "@opentelemetry/resources": "1.14.0",
-    "@opentelemetry/sdk-trace-base": "1.14.0",
+    "@opentelemetry/sdk-trace-base": "1.15.0",
     "@opentelemetry/sdk-trace-node": "1.14.0",
     "@opentelemetry/semantic-conventions": "1.14.0",
     "@swan-io/boxed": "1.0.2",

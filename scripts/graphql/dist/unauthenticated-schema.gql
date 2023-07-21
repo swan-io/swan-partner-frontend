@@ -129,13 +129,25 @@ type AccountConnection implements Connection {
   edges: [AccountEdge!]!
 }
 
-"""Available Account Country: CCA3"""
+"""
+Refers to the country of the account. It will determine the country code of the local IBAN of the account.
+
+Available Account Country: CCA3
+"""
 enum AccountCountry {
+  """French account with a French IBAN, starting with FR."""
   FRA
+
+  """German account with a German IBAN, starting with DE."""
   DEU
+
+  """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """COMING SOON"""
+  """
+  Dutch account with a Dutch IBAN, starting with DU.
+  COMING SOON
+  """
   NLD
 }
 
@@ -428,7 +440,7 @@ type AccountMembership {
   """
   `true` if this account membership can add cards to himself or to the memberships he manages
   """
-  canAddCards: Boolean
+  canAddCards: Boolean!
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!

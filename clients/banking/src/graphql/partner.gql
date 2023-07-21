@@ -12,7 +12,15 @@ fragment TransactionDetails on Transaction {
     id
     createdAt
   }
-  originTransactionId
+  originTransaction {
+    id
+    type
+    executionDate
+    amount {
+      currency
+      value
+    }
+  }
   statusInfo {
     status
     __typename

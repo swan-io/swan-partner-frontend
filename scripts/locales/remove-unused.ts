@@ -1,6 +1,6 @@
 import { Result } from "@swan-io/boxed";
+import glob from "fast-glob";
 import { readFileSync, writeFileSync } from "fs";
-import { GlobSync } from "glob";
 import path from "pathe";
 import { match } from "ts-pattern";
 
@@ -69,11 +69,11 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
   const keys = Object.keys(englishTranslations);
 
   const codeSrc = path.resolve(__dirname, `../../clients/${client}/src`);
-  const glob = new GlobSync(`${codeSrc}/**/*.{ts,tsx}`);
+  const filePaths = glob.sync(`${codeSrc}/**/*.{ts,tsx}`);
 
   let unusedKeys = [...keys];
   // Check in each file contains code
-  for (const filePath of glob.found) {
+  for (const filePath of filePaths) {
     if (unusedKeys.length === 0) {
       break;
     }
@@ -90,8 +90,8 @@ const removeUnusedKeysInClient = (client: (typeof clients)[number]) => {
 
   const englishTranslationsWithoutUnusedKeys = removeKeys(englishTranslations, unusedKeys);
 
-  const localesGlob = new GlobSync(`${localePath}/*.json`);
-  const localesPaths = localesGlob.found.filter(path => !path.endsWith("en.json"));
+  const localesGlob = glob.sync(`${localePath}/*.json`);
+  const localesPaths = localesGlob.filter(path => !path.endsWith("en.json"));
 
   // Remove unused keys in other locales
   for (const localePath of localesPaths) {

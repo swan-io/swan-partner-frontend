@@ -569,62 +569,60 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {rejectedReason}
                   {transactionId}
 
-                  {originTransaction != null && (
-                    <>
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.originalTransactionId")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {originTransaction.id}
-                          </LakeText>
-                        )}
-                      />
+                  {originTransaction != null && [
+                    <LakeLabel
+                      type="viewSmall"
+                      label={t("transaction.originalTransactionId")}
+                      render={() => (
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {originTransaction.id}
+                        </LakeText>
+                      )}
+                    />,
 
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transaction.originalTransactionDate")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {dayjs(originTransaction.executionDate).format(
-                              `${locale.dateFormat} ${locale.timeFormat}`,
-                            )}
-                          </LakeText>
-                        )}
-                      />
+                    <LakeLabel
+                      type="viewSmall"
+                      label={t("transaction.originalTransactionDate")}
+                      render={() => (
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {dayjs(originTransaction.executionDate).format(
+                            `${locale.dateFormat} ${locale.timeFormat}`,
+                          )}
+                        </LakeText>
+                      )}
+                    />,
 
-                      {match(feesType)
-                        .with("CashWithdrawalsOutsideSEPA", "CardPaymentsOutsideSEPA", () => (
-                          <LakeLabel
-                            type="viewSmall"
-                            label={t("transaction.originalTransactionAmount")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {formatCurrency(
-                                  Number(originTransaction.amount.value),
-                                  originTransaction.amount.currency,
-                                )}
-                              </LakeText>
-                            )}
-                          />
-                        ))
-                        .with("DirectDebitRejection", () => (
-                          <LakeLabel
-                            type="viewSmall"
-                            label={t("transaction.rejectedAmount")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {formatCurrency(
-                                  Number(originTransaction.amount.value),
-                                  originTransaction.amount.currency,
-                                )}
-                              </LakeText>
-                            )}
-                          />
-                        ))
-                        .otherwise(() => null)}
-                    </>
-                  )}
+                    match(feesType)
+                      .with("CashWithdrawalsOutsideSEPA", "CardPaymentsOutsideSEPA", () => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.originalTransactionAmount")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {formatCurrency(
+                                Number(originTransaction.amount.value),
+                                originTransaction.amount.currency,
+                              )}
+                            </LakeText>
+                          )}
+                        />
+                      ))
+                      .with("DirectDebitRejection", () => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.rejectedAmount")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {formatCurrency(
+                                Number(originTransaction.amount.value),
+                                originTransaction.amount.currency,
+                              )}
+                            </LakeText>
+                          )}
+                        />
+                      ))
+                      .otherwise(() => null),
+                  ]}
                 </ReadOnlyFieldList>
               ),
             )

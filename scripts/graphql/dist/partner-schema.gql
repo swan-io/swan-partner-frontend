@@ -198,7 +198,7 @@ type Account {
   COMING SOON
   Legal Documents linked to the account
   """
-  legalDocuments(first: Int! = 50, after: String): LegalDocumentConnection
+  legalDocuments(first: Int! = 50, after: String, filters: LegalDocumentsFilterInput): LegalDocumentConnection
 }
 
 """A list of balances regarding an account."""
@@ -262,13 +262,25 @@ type AccountConnection implements Connection {
   edges: [AccountEdge!]!
 }
 
-"""Available Account Country: CCA3"""
+"""
+Refers to the country of the account. It will determine the country code of the local IBAN of the account.
+
+Available Account Country: CCA3
+"""
 enum AccountCountry {
+  """French account with a French IBAN, starting with FR."""
   FRA
+
+  """German account with a German IBAN, starting with DE."""
   DEU
+
+  """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """COMING SOON"""
+  """
+  Dutch account with a Dutch IBAN, starting with DU.
+  COMING SOON
+  """
   NLD
 }
 
@@ -626,7 +638,7 @@ type AccountMembership {
   """
   `true` if this account membership can add cards to himself or to the memberships he manages
   """
-  canAddCards: Boolean
+  canAddCards: Boolean!
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
@@ -1467,10 +1479,7 @@ input AddMerchantProfileInput {
   """Url of the merchant's website"""
   merchantWebsite: String
 
-  """
-  base64 encoded merchant's logo
-  COMING SOON
-  """
+  """base64 encoded merchant's logo"""
   merchantLogo: String
 
   """
@@ -1782,6 +1791,11 @@ type AddVirtualIbanEntrySuccessPayload {
 input AddVirtualIbanInput {
   """unique identifier of a given account"""
   accountId: ID!
+}
+
+type AllowedValue {
+  key: String!
+  name: String!
 }
 
 """Input to Allow SDD"""
@@ -3363,7 +3377,10 @@ type CheckTransaction implements Transaction {
   originTransaction: Transaction
 
   """reserved amount of the transaction computed with the rolling reserve."""
-  reservedAmount: TransactionReservedAmount
+  reservedAmount: Amount
+
+  """date on which reserved funds become available"""
+  reservedAmountReleasedAt: DateTime
 }
 
 input CloseAccountInput {
@@ -3887,18 +3904,6 @@ input CreditTransferInput {
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
   """
   mode: CreditTransferMode
-
-  """
-  *COMING SOON*
-  if the transfer will credit a new international beneficiary
-  """
-  internationalBeneficiary: InternationalBeneficiaryInput
-
-  """
-  *COMING SOON*
-  International Credit Transfer related data
-  """
-  internationalCreditTransferDetails: [InternationalCreditTransferDetailInput!]
 }
 
 enum CreditTransferMode {
@@ -3924,6 +3929,14 @@ scalar Currency
 
 """Date with YYYY-MM-DD format"""
 scalar Date
+
+type DateField implements Field {
+  example: String
+  key: String!
+  name: String!
+  required: Boolean!
+  validationRegex: String
+}
 
 """
 Date time (ISO 8601 with time information)
@@ -4766,6 +4779,12 @@ type FeeTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+}
+
+interface Field {
+  key: String!
+  name: String!
+  required: Boolean!
 }
 
 enum FieldValidationError {
@@ -5941,7 +5960,10 @@ type InternalDirectDebitTransaction implements Transaction {
   originTransaction: Transaction
 
   """reserved amount of the transaction computed with the rolling reserve."""
-  reservedAmount: TransactionReservedAmount
+  reservedAmount: Amount
+
+  """date on which reserved funds become available."""
+  reservedAmountReleasedAt: DateTime
 }
 
 """Rejection returned on unexpected server error"""
@@ -6181,28 +6203,58 @@ enum InternalReceivedDirectDebitMandateSequence {
   Recurrent
 }
 
-input InternationalBeneficiaryDetail {
+"""Address of an international beneficiary"""
+input InternationalAddress {
+  """Address 1"""
+  address1: String
+
+  """City"""
+  city: String
+
+  """Country"""
+  country: String
+
+  """Zip Code"""
+  zipCode: String
+
+  """State"""
+  state: String
+}
+
+"""International Beneficiary"""
+input InternationalBeneficiary {
+  """Account holder name"""
+  accountHolderName: String!
+
+  """Currency of the international beneficiary account"""
+  currency: Currency!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalBeneficiaryDetails!]!
+
+  """Scheme that Wise will use to transfer the funds"""
+  type: String!
+}
+
+"""International Beneficiary Details"""
+input InternationalBeneficiaryDetails {
+  """Key"""
   key: String!
+
+  """Value"""
   value: String!
 }
 
-"""International beneficiary account"""
-input InternationalBeneficiaryInput {
-  """Full name of the international beneficiary"""
-  accountHolderName: String
-
-  """Currency of the international beneficiary"""
-  currency: Currency!
-
-  """Currency specific details of the international beneficiary"""
-  details: [InternationalBeneficiaryDetail!]
-
-  """Type of the international beneficiary"""
-  type: String
+type InternationalBeneficiaryDynamicForms {
+  schemes: [Scheme!]!
 }
 
-input InternationalCreditTransferDetailInput {
+"""International Credit Transfer Details"""
+input InternationalCreditTransferDetails {
+  """Key"""
   key: String!
+
+  """Value"""
   value: String!
 }
 
@@ -6432,12 +6484,6 @@ type LegalDocumentDisabledStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Disabled for type LegalDocumentDisabledStatusInfo)
   """
   status: LegalDocumentStatus!
-
-  """Enabled Date"""
-  enabledAt: Date!
-
-  """Disabled Date"""
-  disabledAt: Date!
 }
 
 type LegalDocumentEdge implements Edge {
@@ -6453,9 +6499,6 @@ type LegalDocumentEnabledStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Enabled for type LegalDocumentEnabledStatusInfo)
   """
   status: LegalDocumentStatus!
-
-  """Enabled Date"""
-  enabledAt: Date!
 }
 
 type LegalDocumentPendingStatusInfo implements LegalDocumentStatusInfo {
@@ -6463,6 +6506,10 @@ type LegalDocumentPendingStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Pending for type LegalDocumentPendingStatusInfo)
   """
   status: LegalDocumentStatus!
+}
+
+input LegalDocumentsFilterInput {
+  status: LegalDocumentStatus
 }
 
 enum LegalDocumentStatus {
@@ -6971,6 +7018,9 @@ type MerchantProfile {
   """Payment Methods associated"""
   merchantPaymentMethods: [MerchantPaymentMethod!]
 
+  """Updates Requested associated"""
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!]
+
   """expected average basket value."""
   expectedAverageBasket: Amount!
 
@@ -7116,7 +7166,7 @@ type Mutation {
   requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
 
   """Request an update of a MerchantProfile"""
-  requestUpdateMerchantProfile(input: RequestUpdateMerchantProfileInput!): RequestUpdateMerchantProfilePayload
+  requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
 
   """
   Schedule a standing Order
@@ -9128,6 +9178,9 @@ type Query {
   """Returns funding source by id."""
   fundingSource(id: ID!): FundingSource
 
+  """Returns an international beneficiary dynamic forms."""
+  internationalBeneficiaryDynamicForms(amount: AmountInput!, language: String, dynamicFields: [InternationalBeneficiaryDetails!]): InternationalBeneficiaryDynamicForms
+
   """Returns a merchant profile by id."""
   merchantProfile(id: ID!): MerchantProfile
 
@@ -9308,6 +9361,14 @@ type Query {
   *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   onboardings(first: Int! = 50, before: String, after: String, filters: OnboardingFiltersInput, orderBy: OnboardingOrderByInput): OnboardingConnection!
+}
+
+type RadioField implements Field {
+  key: String!
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  allowedValues: [AllowedValue!]!
 }
 
 """Information that can be used to determine where the iban can be used"""
@@ -9876,19 +9937,8 @@ type RequestMerchantPaymentMethodsSuccessPayload {
   merchantProfile: MerchantProfile
 }
 
-input RequestSupportingDocumentCollectionReviewInput {
-  """Id of the supporting document collection to review."""
-  supportingDocumentCollectionId: ID!
-}
-
-union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocumentCollectionReviewSuccessPayload | ForbiddenRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusNotAllowedRejection | ValidationRejection
-
-type RequestSupportingDocumentCollectionReviewSuccessPayload {
-  supportingDocumentCollection: SupportingDocumentCollection!
-}
-
 """Request Update Merchant Profile"""
-type RequestUpdateMerchantProfile {
+type RequestMerchantProfileUpdate {
   """The Request ID"""
   id: ID!
 
@@ -9907,7 +9957,7 @@ type RequestUpdateMerchantProfile {
   merchantLogoUrl: String
 
   """The status of the request"""
-  status: RequestUpdateMerchantProfileStatus!
+  status: RequestMerchantProfileUpdateStatus!
 
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
@@ -9928,7 +9978,7 @@ type RequestUpdateMerchantProfile {
 }
 
 """Input to update a Merchant Profile"""
-input RequestUpdateMerchantProfileInput {
+input RequestMerchantProfileUpdateInput {
   """ID of the MerchantProfile to update"""
   merchantProfileId: ID!
 
@@ -9951,18 +10001,15 @@ input RequestUpdateMerchantProfileInput {
   """expected average basket value."""
   expectedAverageBasket: AmountInput!
 
-  """
-  base64 encoded merchant's logo
-  COMING SOON
-  """
+  """base64 encoded merchant's logo"""
   merchantLogo: String
 }
 
 """Add Merchant Profile Payload"""
-union RequestUpdateMerchantProfilePayload = RequestUpdateMerchantProfileSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | InternalErrorRejection
+union RequestMerchantProfileUpdatePayload = RequestMerchantProfileUpdateSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | InternalErrorRejection
 
-"""Request Update Merchant Profile Statuses"""
-enum RequestUpdateMerchantProfileStatus {
+"""Request Merchant Profile Update Statuses"""
+enum RequestMerchantProfileUpdateStatus {
   """A Request is created in the PendingReview status"""
   PendingReview
 
@@ -9974,9 +10021,20 @@ enum RequestUpdateMerchantProfileStatus {
 }
 
 """Add Merchant Profile Success Payload"""
-type RequestUpdateMerchantProfileSuccessPayload {
+type RequestMerchantProfileUpdateSuccessPayload {
   """Request Update Merchant Profile"""
-  requestUpdateMerchantProfile: RequestUpdateMerchantProfile!
+  requestMerchantProfileUpdate: RequestMerchantProfileUpdate!
+}
+
+input RequestSupportingDocumentCollectionReviewInput {
+  """Id of the supporting document collection to review."""
+  supportingDocumentCollectionId: ID!
+}
+
+union RequestSupportingDocumentCollectionReviewPayload = RequestSupportingDocumentCollectionReviewSuccessPayload | ForbiddenRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusNotAllowedRejection | ValidationRejection
+
+type RequestSupportingDocumentCollectionReviewSuccessPayload {
+  supportingDocumentCollection: SupportingDocumentCollection!
 }
 
 input ResidencyAddressInput {
@@ -10127,9 +10185,23 @@ type ScheduleStandingOrderSuccessPayload {
   standingOrder: StandingOrder!
 }
 
+type Scheme {
+  fields: [Field!]!
+  title: String!
+  type: String!
+}
+
 """Rejection returned when adding a B2B mandate with an Individual debtor"""
 type SchemeWrongRejection implements Rejection {
   message: String!
+}
+
+type SelectField implements Field {
+  key: String!
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  allowedValues: [AllowedValue!]!
 }
 
 """External Beneficiary type SEPA"""
@@ -10674,11 +10746,6 @@ input SepaDirectDebitPaymentCollectionInput {
   """Payment Mandate ID generated by Swan"""
   mandateId: ID!
 
-  """
-  ID of the customer which can be used by the Swan Merchant to reconcile more easily
-  """
-  customerId: String
-
   """Date at which the Swan merchant wishes the payment to be executed"""
   requestedExecutionAt: Date
 }
@@ -10783,7 +10850,10 @@ type SEPADirectDebitTransaction implements Transaction {
   originTransaction: Transaction
 
   """reserved amount of the transaction computed with the rolling reserve."""
-  reservedAmount: TransactionReservedAmount
+  reservedAmount: Amount
+
+  """date on which reserved funds become available."""
+  reservedAmountReleasedAt: DateTime
 }
 
 """Payment direct debit mandate for SEPA"""
@@ -12044,6 +12114,18 @@ input SwanAccountBeneficiaryInput {
   save: Boolean!
 }
 
+type TextField implements Field {
+  displayFormat: String
+  example: String
+  key: String!
+  maxLength: Int
+  minLength: Int
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  validationRegex: String
+}
+
 scalar TokenRequestorId
 
 """
@@ -12153,11 +12235,6 @@ type TransactionEdge implements Edge {
 type TransactionNotFoundRejection implements Rejection {
   transactionId: ID!
   message: String!
-}
-
-type TransactionReservedAmount {
-  releasedAt: DateTime!
-  amount: AmountValue!
 }
 
 """the criteria to filter transactions"""

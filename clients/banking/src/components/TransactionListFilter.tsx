@@ -14,7 +14,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import { ReactNode, useEffect, useMemo, useState } from "react";
-import { PaymentProduct, TransactionStatus } from "../graphql/partner";
+import { TransactionStatus } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import {
   isAfterUpdatedAtSelectable,
@@ -49,7 +49,9 @@ const isBeforeUpdatedAtFilter: FilterDateDef = {
   isSelectable: isBeforeUpdatedAtSelectable,
 };
 
-const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {
+type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "DirectDebit";
+
+const paymentProductFilter: FilterCheckboxDef<SimplifiedPaymentProduct> = {
   type: "checkbox",
   label: t("transactionList.filter.paymentMethod"),
   submitText: t("common.filters.apply"),
@@ -57,8 +59,8 @@ const paymentProductFilter: FilterCheckboxDef<PaymentProduct> = {
   items: [
     { value: "Card", label: t("paymentMethod.card") },
     { value: "Check", label: t("paymentMethod.check") },
-    { value: "SEPACreditTransfer", label: t("paymentMethod.transfer") },
-    { value: "SEPADirectDebit", label: t("paymentMethod.directDebit") },
+    { value: "CreditTransfer", label: t("paymentMethod.transfer") },
+    { value: "DirectDebit", label: t("paymentMethod.directDebit") },
     { value: "Fees", label: t("paymentMethod.fees") },
   ],
 };
@@ -83,8 +85,12 @@ const filtersDefinition = {
   status: statusFilter,
 };
 
-export type TransactionFiltersState = FiltersState<typeof filtersDefinition> & {
+export type TransactionFiltersState = Omit<
+  FiltersState<typeof filtersDefinition>,
+  "paymentProduct"
+> & {
   search: string | undefined;
+  paymentProduct: SimplifiedPaymentProduct[] | undefined;
 };
 
 type TransactionListFilterProps = {

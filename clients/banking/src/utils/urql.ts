@@ -1,6 +1,4 @@
 import { Option } from "@swan-io/boxed";
-import { getLocation } from "@swan-io/chicane";
-import { last } from "@swan-io/lake/src/utils/array";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CombinedError, Operation, OperationResult } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
@@ -26,21 +24,42 @@ import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
+export const isCombinedError = (error: unknown): error is CombinedError =>
+  error instanceof CombinedError;
+
+const isUnauthorizedResponse = (response: unknown) => {
+  const value = response as { status?: number; statusCode?: number } | undefined;
+  return value?.status === 401 || value?.statusCode === 401;
+};
+
+const isUnauthorizedLikeString = (value: string) => {
+  const lowerCased = value.toLowerCase();
+  return lowerCased.includes("unauthenticated") || lowerCased.includes("unauthorized");
+};
+
+export const isUnauthorizedError = (error: unknown) => {
+  if (!isCombinedError(error)) {
+    return false;
+  }
+
+  const { graphQLErrors, message } = error;
+  const response = error.response as unknown;
+
+  return (
+    isUnauthorizedResponse(response) ||
+    isUnauthorizedLikeString(message) ||
+    graphQLErrors.some(
+      ({ extensions, message }) =>
+        isUnauthorizedResponse(extensions.response) || isUnauthorizedLikeString(message),
+    )
+  );
+};
+
 const onError = (error: CombinedError, operation: Operation) => {
-  const response = error.response as Partial<Response> | undefined;
-
-  const is401 =
-    response?.status === 401 ||
-    error.graphQLErrors.some(error => error.message === "401: Unauthorized");
-
-  if (is401) {
-    const { path } = getLocation();
-
-    if (last(path) === "login") {
-      return;
+  if (isUnauthorizedError(error)) {
+    if (isNullish(Router.getRoute(["ProjectLogin"]))) {
+      window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
     }
-
-    Router.push("ProjectLogin");
   } else {
     logBackendError(error, operation);
   }

@@ -1,16 +1,16 @@
-import chalk from "chalk";
-import url from "node:url";
 import path from "pathe";
-import { start } from "./app.js";
-import { env } from "./env.js";
-import { AccountCountry } from "./graphql/partner.js";
+import pc from "picocolors";
+import { start } from "./app";
+import { env } from "./env";
+import { AccountCountry } from "./graphql/partner";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const keysPath = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
   ESP: "Spanish",
   FRA: "French",
+  NLD: "Dutch",
 };
 
 const accountCountries = Object.keys(countryTranslations) as AccountCountry[];
@@ -27,8 +27,8 @@ start({
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
+          key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
+          cert: path.join(keysPath, "_wildcard.swan.local.pem"),
         }
       : undefined,
 }).then(
@@ -49,28 +49,28 @@ start({
     ports.forEach(port => void listenPort(port));
 
     console.log(``);
-    console.log(`${chalk.magenta("swan-partner-frontend")}`);
-    console.log(`${chalk.white("---")}`);
-    console.log(chalk.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
+    console.log(`${pc.magenta("swan-partner-frontend")}`);
+    console.log(`${pc.white("---")}`);
+    console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
     console.log(``);
-    console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
-    console.log(`${chalk.magenta("Onboarding Individual")}`);
+    console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
+    console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/individual/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.magenta("Onboarding Company")}`);
+    console.log(`${pc.magenta("Onboarding Company")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.white("---")}`);
+    console.log(`${pc.white("---")}`);
     console.log(``);
     console.log(``);
   },

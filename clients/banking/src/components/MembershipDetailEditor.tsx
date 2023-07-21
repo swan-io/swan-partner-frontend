@@ -9,7 +9,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -27,6 +27,8 @@ import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
+  validateBirthdate,
+  validateName,
   validateRequired,
   validateTaxIdentificationNumber,
 } from "../utils/validations";
@@ -106,7 +108,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     firstName: {
       initialValue: match(editingAccountMembership)
@@ -123,7 +125,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
       initialValue: match(editingAccountMembership)
@@ -143,6 +145,7 @@ export const MembershipDetailEditor = ({
           dayjs(user.birthDate).format(locale.dateFormat),
         )
         .otherwise(() => ""),
+      validate: validateBirthdate,
     },
     phoneNumber: {
       initialValue: match(editingAccountMembership)
@@ -376,6 +379,10 @@ export const MembershipDetailEditor = ({
         showToast({ variant: "error", title: t("error.generic") });
       })
       .onResolve(value => {
+        showToast({
+          variant: "success",
+          title: t("membershipDetail.resendInvitationSuccessToast"),
+        });
         setInvitationSending(AsyncData.Done(value));
       });
   };
@@ -635,7 +642,7 @@ export const MembershipDetailEditor = ({
                   render={id => (
                     <CountryPicker
                       id={id}
-                      items={countries}
+                      countries={allCountries}
                       value={value}
                       onValueChange={onChange}
                       error={error}

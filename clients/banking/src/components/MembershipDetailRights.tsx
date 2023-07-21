@@ -1,12 +1,12 @@
-import { Result } from "@swan-io/boxed";
+import { Option, Result } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
-import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -17,9 +17,11 @@ import {
   ResumeAccountMembershipDocument,
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
+  UpdateAccountMembershipInput,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { ConfirmModal } from "./ConfirmModal";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 
 const styles = StyleSheet.create({
@@ -42,6 +44,7 @@ type Props = {
   accountCountry: CountryCCA3;
   currentUserAccountMembership: AccountMembershipFragment;
   currentUserAccountMembershipId: string;
+  requiresIdentityVerification: boolean;
   editingAccountMembership: AccountMembershipFragment & {
     statusInfo: {
       __typename: AllowedStatuses;
@@ -52,15 +55,24 @@ type Props = {
   large: boolean;
 };
 
+type FormValues = {
+  canViewAccount?: boolean;
+  canInitiatePayments?: boolean;
+  canManageBeneficiaries?: boolean;
+  canManageAccountMembership?: boolean;
+};
+
 export const MembershipDetailRights = ({
   editingAccountMembership,
   editingAccountMembershipId,
   currentUserAccountMembership,
   currentUserAccountMembershipId,
+  requiresIdentityVerification,
   onRefreshRequest,
   large,
 }: Props) => {
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
+  const [valuesToConfirm, setValuesToConfirm] = useState<Option<FormValues>>(Option.None());
 
   const [membershipUpdate, updateMembership] = useUrqlMutation(UpdateAccountMembershipDocument);
 
@@ -125,34 +137,68 @@ export const MembershipDetailRights = ({
   const isEditingCurrentUserAccountMembership =
     currentUserAccountMembership.id === editingAccountMembership.id;
 
+  const sendUpdate = (rights: FormValues) => {
+    updateMembership({
+      input: {
+        accountMembershipId: editingAccountMembershipId,
+        consentRedirectUrl:
+          window.location.origin +
+          Router.AccountMembersDetailsRights({
+            accountMembershipId: currentUserAccountMembershipId,
+            editingAccountMembershipId,
+          }),
+        ...rights,
+      },
+    })
+      .mapOkToResult(({ updateAccountMembership }) => {
+        return match(updateAccountMembership)
+          .with(
+            { __typename: "UpdateAccountMembershipSuccessPayload" },
+            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
+          )
+          .otherwise(error => Result.Error(error));
+      })
+      .tapOk(consentUrl => {
+        window.location.replace(consentUrl);
+      })
+      .tapError(error => {
+        type FieldName = keyof UpdateAccountMembershipInput;
+
+        showToast({
+          variant: "error",
+          title: match(error)
+            .with(
+              {
+                __typename: "ValidationRejection",
+                fields: P.when(value =>
+                  value.some(
+                    ({ path: [root] }) =>
+                      root === identity<FieldName>("residencyAddress") ||
+                      root === identity<FieldName>("taxIdentificationNumber"),
+                  ),
+                ),
+              },
+              () => t("error.missingAddressOrTaxNumberError"),
+            )
+            .otherwise(() => t("error.generic")),
+        });
+      });
+  };
+
   const onPressSave = () => {
     submitForm(rights => {
-      updateMembership({
-        input: {
-          accountMembershipId: editingAccountMembershipId,
-          consentRedirectUrl:
-            window.location.origin +
-            Router.AccountMembersDetailsRights({
-              accountMembershipId: currentUserAccountMembershipId,
-              editingAccountMembershipId,
-            }),
-          ...rights,
-        },
-      })
-        .mapOkToResult(({ updateAccountMembership }) => {
-          return match(updateAccountMembership)
-            .with(
-              { __typename: "UpdateAccountMembershipSuccessPayload" },
-              ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-            )
-            .otherwise(error => Result.Error(error));
-        })
-        .tapOk(consentUrl => {
-          window.location.replace(consentUrl);
-        })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
-        });
+      if (
+        requiresIdentityVerification &&
+        (rights.canViewAccount === true ||
+          rights.canInitiatePayments === true ||
+          rights.canManageBeneficiaries === true ||
+          rights.canManageAccountMembership === true)
+      ) {
+        setValuesToConfirm(Option.Some(rights));
+        return;
+      }
+
+      sendUpdate(rights);
     });
   };
 
@@ -207,90 +253,81 @@ export const MembershipDetailRights = ({
 
   return (
     <>
-      <Space height={24} />
+      <Space height={32} />
 
-      <LakeLabel
-        label={t("membershipDetail.edit.rights")}
-        render={() => (
-          <>
-            <Space height={8} />
-
-            <Field name="canViewAccount">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canViewAccount === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canViewAccount")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canInitiatePayments">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canInitiatePayments === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canInitiatePayments")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canManageBeneficiaries">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canManageBeneficiaries === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canManageBeneficiaries")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-
-            <Space height={12} />
-
-            <Field name="canManageAccountMembership">
-              {({ value, onChange }) => (
-                <LakeLabelledCheckbox
-                  disabled={
-                    currentUserAccountMembership.canManageAccountMembership === false ||
-                    accountMemberHasBirthDate === false ||
-                    hasEditableStatus === false ||
-                    isEditingCurrentUserAccountMembership === true ||
-                    editingAccountMembership.legalRepresentative === true
-                  }
-                  label={t("membershipDetail.edit.canManageAccountMembership")}
-                  value={value}
-                  onValueChange={onChange}
-                />
-              )}
-            </Field>
-          </>
+      <Field name="canViewAccount">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canViewAccount === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canViewAccount")}
+            value={value}
+            onValueChange={onChange}
+          />
         )}
-      />
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canInitiatePayments">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canInitiatePayments === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canInitiatePayments")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageBeneficiaries">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageBeneficiaries === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageBeneficiaries")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageAccountMembership">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageAccountMembership === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageAccountMembership")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
 
       <Fill minHeight={24} />
 
@@ -310,7 +347,7 @@ export const MembershipDetailRights = ({
               () => (
                 <LakeButton
                   color="current"
-                  loading={membershipUpdate.isLoading()}
+                  loading={membershipUpdate.isLoading() && valuesToConfirm.isNone()}
                   disabled={isEditingCurrentUserAccountMembership}
                   onPress={onPressSave}
                 >
@@ -394,6 +431,22 @@ export const MembershipDetailRights = ({
             ))}
         </LakeButtonGroup>
       </View>
+
+      <ConfirmModal
+        visible={valuesToConfirm.isSome()}
+        icon="warning-regular"
+        title={t("membershipDetail.requiresVerificationConfirmation.title")}
+        message={t("membershipDetail.requiresVerificationConfirmation.description")}
+        confirmText={t("membershipDetail.requiresVerificationConfirmation.confirm")}
+        loading={membershipUpdate.isLoading()}
+        onCancel={() => setValuesToConfirm(Option.None())}
+        onConfirm={() => {
+          if (valuesToConfirm.isSome()) {
+            sendUpdate(valuesToConfirm.value);
+            // no need to close after update because the user is redirected to consent-app
+          }
+        }}
+      />
 
       <MembershipCancelConfirmationModal
         visible={isCancelConfirmationModalOpen}

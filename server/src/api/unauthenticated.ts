@@ -1,8 +1,8 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
 import { P, match } from "ts-pattern";
-import { env } from "../env.js";
-import { AccountCountry, getSdk } from "../graphql/unauthenticated.js";
+import { env } from "../env";
+import { AccountCountry, getSdk } from "../graphql/unauthenticated";
 
 export const sdk = getSdk(new GraphQLClient(env.UNAUTHENTICATED_API_URL, { timeout: 30_000 }));
 
@@ -22,7 +22,7 @@ export const parseAccountCountry = (
   accountCountry: unknown,
 ): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
   match(accountCountry)
-    .with("FRA", "DEU", "ESP", undefined, value => Result.Ok(value))
+    .with("FRA", "DEU", "ESP", "NLD", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
 export class OnboardingRejectionError extends Error {
@@ -79,4 +79,8 @@ export const onboardIndividualAccountHolder = ({
       )
       .exhaustive(),
   );
+};
+
+export const getOnboardingOAuthClientId = ({ onboardingId }: { onboardingId: string }) => {
+  return toFuture(sdk.GetOnboardingClientOAuth({ onboardingId }));
 };

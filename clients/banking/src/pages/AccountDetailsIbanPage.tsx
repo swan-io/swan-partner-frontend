@@ -10,7 +10,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { getCountryNameByCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -230,7 +230,7 @@ export const AccountDetailsIbanPage = ({
           label={t("accountDetails.iban.countryLabel")}
           render={() => (
             <LakeText color={colors.gray[900]}>
-              {getCountryNameByCCA3(address.country ?? "") ?? UNKNOWN_VALUE}
+              {isCountryCCA3(address.country) ? getCountryName(address.country) : UNKNOWN_VALUE}
             </LakeText>
           )}
         />

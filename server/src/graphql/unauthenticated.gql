@@ -39,3 +39,11 @@ mutation OnboardCompanyAccountHolder(
     }
   }
 }
+
+query GetOnboardingClientOAuth($onboardingId: ID!) {
+  onboardingInfo(id: $onboardingId) {
+    projectInfo {
+      oAuthClientId
+    }
+  }
+}

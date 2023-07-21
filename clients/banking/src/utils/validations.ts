@@ -1,7 +1,9 @@
 import { Lazy } from "@swan-io/boxed";
+import { DatePickerDate } from "@swan-io/lake/src/components/DatePicker";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";
+import { P, match } from "ts-pattern";
 import { locale, t } from "./i18n";
 
 export const validateNullableRequired: Validator<string | undefined> = value => {
@@ -13,6 +15,27 @@ export const validateNullableRequired: Validator<string | undefined> = value => 
 export const validateRequired: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");
+  }
+};
+
+export const validateName: Validator<string> = value => {
+  if (!value) {
+    return;
+  }
+
+  // Rule copied from the backend
+  if (value.length > 100) {
+    return t("common.form.invalidName");
+  }
+
+  // This regex was copied from the backend to ensure that the validation is the same
+  // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
+  const isValid = value.match(
+    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ]| |'|-|Ά|Ό|,)*$/,
+  );
+
+  if (!isValid) {
+    return t("common.form.invalidName");
   }
 };
 
@@ -157,4 +180,74 @@ export const validateSepaBeneficiaryNameAlphabet: Validator<string> = value => {
   if (!VALID_SEPA_BENEFICIARY_NAME_ALPHABET.get().test(value)) {
     return t("error.beneficiaryNameInvalid");
   }
+};
+
+export const isAfterUpdatedAtSelectable = (date: DatePickerDate, filters: unknown) => {
+  return match(filters)
+    .with({ isBeforeUpdatedAt: P.string }, ({ isBeforeUpdatedAt }) => {
+      const isAfterUpdatedAt = dayjs()
+        .date(date.day)
+        .month(date.month)
+        .year(date.year)
+        .endOf("day");
+      const isBeforeUpdatedAtDate = dayjs(isBeforeUpdatedAt).startOf("day");
+
+      return isAfterUpdatedAt.isBefore(isBeforeUpdatedAtDate);
+    })
+    .otherwise(() => true);
+};
+
+// value comes from input text above the datepicker
+// so the format of value is locale.dateFormat
+export const validateAfterUpdatedAt = (value: string, filters: unknown) => {
+  return (
+    validateRequired(value) ??
+    validateDate(value) ??
+    match(filters)
+      .with({ isBeforeUpdatedAt: P.string }, ({ isBeforeUpdatedAt }) => {
+        const isAfterUpdatedAt = dayjs(value, locale.dateFormat).endOf("day");
+        const isBeforeUpdatedAtDate = dayjs(isBeforeUpdatedAt).startOf("day");
+
+        if (!isAfterUpdatedAt.isBefore(isBeforeUpdatedAtDate)) {
+          const updatedBefore = isBeforeUpdatedAtDate.format("LL");
+          return t("common.form.chooseDateBefore", { date: updatedBefore });
+        }
+      })
+      .otherwise(() => undefined)
+  );
+};
+
+export const isBeforeUpdatedAtSelectable = (date: DatePickerDate, filters: unknown) => {
+  return match(filters)
+    .with({ isAfterUpdatedAt: P.string }, ({ isAfterUpdatedAt }) => {
+      const isBeforeUpdatedAt = dayjs()
+        .date(date.day)
+        .month(date.month)
+        .year(date.year)
+        .startOf("day");
+      const isAfterUpdatedAtDate = dayjs(isAfterUpdatedAt).endOf("day");
+
+      return isBeforeUpdatedAt.isAfter(isAfterUpdatedAtDate);
+    })
+    .otherwise(() => true);
+};
+
+// value comes from input text above the datepicker
+// so the format of value is locale.dateFormat
+export const validateBeforeUpdatedAt = (value: string, filters: unknown) => {
+  return (
+    validateRequired(value) ??
+    validateDate(value) ??
+    match(filters)
+      .with({ isAfterUpdatedAt: P.string }, ({ isAfterUpdatedAt }) => {
+        const isBeforeUpdatedAt = dayjs(value, locale.dateFormat).startOf("day");
+        const isAfterUpdatedAtDate = dayjs(isAfterUpdatedAt).endOf("day");
+
+        if (!isBeforeUpdatedAt.isAfter(isAfterUpdatedAtDate)) {
+          const updatedAfter = isAfterUpdatedAtDate.format("LL");
+          return t("common.form.chooseDateAfter", { date: updatedAfter });
+        }
+      })
+      .otherwise(() => undefined)
+  );
 };

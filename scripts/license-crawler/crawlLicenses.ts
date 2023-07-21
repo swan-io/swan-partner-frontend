@@ -1,7 +1,8 @@
-import chalk from "chalk";
 import { exec as originalExec } from "child_process";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
+import { PackageJson } from "type-fest";
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -17,14 +18,14 @@ const exec = (command: string) => {
 
 async function getLicenses() {
   const info = await exec("yarn --json workspaces info");
-  const packages = JSON.parse(info);
-  const data: { location: string }[] = JSON.parse(packages.data);
+  const packages = JSON.parse(info) as { data: string };
+  const data = JSON.parse(packages.data) as { location: string }[];
   const directDependencies = new Set();
 
   Object.values(data).forEach(({ location }) => {
     const packageJson = JSON.parse(
       fs.readFileSync(path.join(process.cwd(), location, "package.json"), "utf-8"),
-    );
+    ) as PackageJson;
     if (packageJson.dependencies !== undefined) {
       Object.keys(packageJson.dependencies).forEach(name => directDependencies.add(name));
     }
@@ -35,10 +36,14 @@ async function getLicenses() {
 
   const licencesOutput = await exec("yarn --json licenses list");
   const licencesOutputLines = licencesOutput.trim().split("\n");
-  const licenses: {
-    head: [string, string, string, string, string, string];
-    body: [string, string, string, string, string, string][];
-  } = JSON.parse(licencesOutputLines[licencesOutputLines.length - 1] as string).data;
+  const licenses = (
+    JSON.parse(licencesOutputLines[licencesOutputLines.length - 1] as string) as {
+      data: {
+        head: [string, string, string, string, string, string];
+        body: [string, string, string, string, string, string][];
+      };
+    }
+  ).data;
   const directDependenciesLicenses = licenses.body
     .filter(([name]) => directDependencies.has(name) && !name.startsWith("@swan-io/"))
     .map(
@@ -78,15 +83,15 @@ const DENY_LIST_REGEX = new RegExp(DENY_LIST.map(item => `\\b${item}\\b`).join("
 async function check() {
   const { licenses } = await getLicenses();
   let hasError = false;
-  console.log(`${chalk.white("---")}`);
-  console.log(`${chalk.green("Swan license check")}`);
-  console.log(`${chalk.white("---")}`);
+  console.log(`${pc.white("---")}`);
+  console.log(`${pc.green("Swan license check")}`);
+  console.log(`${pc.white("---")}`);
   console.log("");
 
   licenses.forEach(([name, version, license]) => {
     if (DENY_LIST_REGEX.exec(license)) {
       console.error(
-        `${chalk.blue(name)}@${chalk.gray(version)} has unauthorized license ${chalk.red(license)}`,
+        `${pc.blue(name)}@${pc.gray(version)} has unauthorized license ${pc.red(license)}`,
       );
       hasError = true;
     }
@@ -94,7 +99,7 @@ async function check() {
   if (hasError) {
     process.exit(1);
   } else {
-    console.log(chalk.green("All good!"));
+    console.log(pc.green("All good!"));
   }
 }
 
@@ -104,8 +109,8 @@ async function main() {
   }
 
   if (process.argv.includes("--report")) {
-    report();
+    void report();
   }
 }
 
-main();
+void main();

@@ -15,9 +15,18 @@ import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotEmpty,
+  isNotNullish,
+  isNullish,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { getTermsAndConditionsPathByAccountCountryAndLocale } from "@swan-io/shared-business/src/constants/termsAndConditions";
+import {
+  validateCompanyTaxNumber,
+  validateIndividualTaxNumber,
+} from "@swan-io/shared-business/src/utils/validation";
 import { ReactNode, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -25,11 +34,9 @@ import { useMutation } from "urql";
 import {
   AccountDetailsSettingsPageDocument,
   AccountLanguage,
-  UpdateCompanyAccountDocument,
-  UpdateIndividualAccountDocument,
+  UpdateAccountDocument,
 } from "../graphql/partner";
-import { env } from "../utils/env";
-import { locale, t } from "../utils/i18n";
+import { t } from "../utils/i18n";
 import { parseOperationResult, useQueryWithErrorBoundary } from "../utils/urql";
 import {
   validateAccountNameLength,
@@ -94,16 +101,18 @@ export const AccountDetailsSettingsPage = ({
     variables: { accountId },
   });
 
-  const [, updateIndividualAccount] = useMutation(UpdateIndividualAccountDocument);
-  const [, updateCompanyAccount] = useMutation(UpdateCompanyAccountDocument);
+  const accountCountry = account?.country ?? "FRA";
+
+  const [, updateAccount] = useMutation(UpdateAccountDocument);
 
   const holderInfo = account?.holder.info;
   const isCompany = holderInfo?.__typename === "AccountHolderCompanyInfo";
 
-  const { Field, formStatus, submitForm, resetForm } = useForm<{
+  const { Field, formStatus, submitForm } = useForm<{
     accountName: string;
     language: AccountLanguage;
     vatNumber: string;
+    taxIdentificationNumber: string;
   }>({
     accountName: {
       initialValue: account?.name ?? "",
@@ -123,6 +132,13 @@ export const AccountDetailsSettingsPage = ({
           return validateVatNumber(value);
         }
       },
+    },
+    taxIdentificationNumber: {
+      initialValue: holderInfo?.taxIdentificationNumber ?? "",
+      sanitize: value => value.trim(),
+      validate: isCompany
+        ? validateCompanyTaxNumber(accountCountry)
+        : validateIndividualTaxNumber(accountCountry),
     },
   });
 
@@ -149,6 +165,10 @@ export const AccountDetailsSettingsPage = ({
   const { statusInfo } = account;
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
   const formDisabled = !canManageAccountMembership || accountClosed;
+  const shouldEditTaxIdentificationNumber =
+    account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
+
+  const tcuUrl = account.holder.onboarding?.tcuUrl;
 
   return (
     <View>
@@ -188,40 +208,73 @@ export const AccountDetailsSettingsPage = ({
         />
 
         {isCompany && (
-          <>
-            <LakeLabel
-              label={t("accountDetails.settings.vatLabel")}
-              render={id => (
-                <Field name="vatNumber">
-                  {({ error, onBlur, onChange, valid, value }) => (
-                    <LakeTextInput
-                      id={id}
-                      disabled={formDisabled}
-                      readOnly={formDisabled}
-                      error={error}
-                      onBlur={onBlur}
-                      onChangeText={onChange}
-                      value={value}
-                      valid={isNotEmpty(value) ? valid : undefined}
-                    />
-                  )}
-                </Field>
-              )}
-            />
+          <LakeLabel
+            label={t("accountDetails.settings.vatLabel")}
+            render={id => (
+              <Field name="vatNumber">
+                {({ error, onBlur, onChange, valid, value }) => (
+                  <LakeTextInput
+                    id={id}
+                    disabled={formDisabled}
+                    readOnly={formDisabled}
+                    error={error}
+                    onBlur={onBlur}
+                    onChangeText={onChange}
+                    value={value}
+                    valid={isNotEmpty(value) ? valid : undefined}
+                  />
+                )}
+              </Field>
+            )}
+          />
+        )}
 
-            <LakeLabel
-              label={t("accountDetails.settings.companyRegistrationNumber")}
-              render={id => (
-                <LakeTextInput
-                  id={id}
-                  placeholder={t("common.empty")}
-                  disabled={true}
-                  readOnly={true}
-                  value={holderInfo.registrationNumber ?? ""}
+        {shouldEditTaxIdentificationNumber && (
+          <>
+            <Field name="taxIdentificationNumber">
+              {({ error, onBlur, onChange, valid, value }) => (
+                <TaxIdentificationNumberInput
+                  value={value}
+                  error={error}
+                  valid={valid}
+                  disabled={formDisabled}
+                  onChange={onChange}
+                  onBlur={onBlur}
+                  accountCountry={accountCountry}
+                  isCompany={isCompany}
                 />
               )}
-            />
+            </Field>
+
+            <Space height={12} />
           </>
+        )}
+
+        {shouldEditTaxIdentificationNumber &&
+          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) && (
+            <>
+              <LakeAlert
+                variant="info"
+                title={t("accountDetails.settings.taxIdentificationNumberInfo")}
+              />
+
+              <Space height={20} />
+            </>
+          )}
+
+        {isCompany && (
+          <LakeLabel
+            label={t("accountDetails.settings.companyRegistrationNumber")}
+            render={id => (
+              <LakeTextInput
+                id={id}
+                placeholder={t("common.empty")}
+                disabled={true}
+                readOnly={true}
+                value={holderInfo.registrationNumber ?? ""}
+              />
+            )}
+          />
         )}
 
         <LakeLabel
@@ -257,19 +310,13 @@ export const AccountDetailsSettingsPage = ({
       <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
       <Space height={12} />
 
-      <TileGrid>
-        <Contract
-          to={getTermsAndConditionsPathByAccountCountryAndLocale({
-            accountCountry: account.country,
-            locale: locale.language,
-            rootUrl: env.SWAN_TCU_BASE_URL,
-          })}
-        >
-          {t("accountDetails.swanTermsAndConditions")}
-        </Contract>
+      {isNotNullish(tcuUrl) ? (
+        <TileGrid>
+          <Contract to={tcuUrl}>{t("accountDetails.swanTermsAndConditions")}</Contract>
 
-        {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
-      </TileGrid>
+          {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
+        </TileGrid>
+      ) : null}
 
       {!formDisabled && (
         <LakeButtonGroup>
@@ -279,60 +326,37 @@ export const AccountDetailsSettingsPage = ({
             onPress={() => {
               submitForm(values => {
                 if (hasDefinedKeys(values, ["accountName", "language"])) {
-                  const { accountName, language, vatNumber } = values;
+                  const { accountName, language, vatNumber, taxIdentificationNumber } = values;
 
-                  if (isNotNullish(vatNumber)) {
-                    return updateCompanyAccount({
-                      updateAccountInput: {
-                        accountId,
-                        name: accountName,
-                        language,
-                      },
-                      updateAccountHolderInput: {
-                        accountHolderId: account.holder.id,
-                        vatNumber,
-                      },
+                  return updateAccount({
+                    updateAccountInput: {
+                      accountId,
+                      name: accountName,
+                      language,
+                    },
+                    updateAccountHolderInput: {
+                      accountHolderId: account.holder.id,
+                      vatNumber,
+                      taxIdentificationNumber,
+                    },
+                  })
+                    .then(parseOperationResult)
+                    .then(data => {
+                      if (data.updateAccount.__typename !== "UpdateAccountSuccessPayload") {
+                        return Promise.reject(data.updateAccount.__typename);
+                      }
+
+                      if (
+                        data.updateAccountHolder.__typename !== "UpdateAccountHolderSuccessPayload"
+                      ) {
+                        return Promise.reject(data.updateAccountHolder.__typename);
+                      }
+
+                      return data;
                     })
-                      .then(parseOperationResult)
-                      .then(data => {
-                        resetForm({ feedbackOnly: true });
-
-                        if (data.updateAccount.__typename !== "UpdateAccountSuccessPayload") {
-                          return Promise.reject(data.updateAccount.__typename);
-                        }
-
-                        if (
-                          data.updateAccountHolder.__typename !==
-                          "UpdateAccountHolderSuccessPayload"
-                        ) {
-                          return Promise.reject(data.updateAccountHolder.__typename);
-                        }
-
-                        return data;
-                      })
-                      .catch(() => {
-                        showToast({ variant: "error", title: t("error.generic") });
-                      });
-                  } else {
-                    return updateIndividualAccount({
-                      input: {
-                        accountId,
-                        name: accountName,
-                        language,
-                      },
-                    })
-                      .then(parseOperationResult)
-                      .then(data => {
-                        resetForm({ feedbackOnly: true });
-
-                        return data.updateAccount.__typename !== "UpdateAccountSuccessPayload"
-                          ? Promise.reject(data.__typename)
-                          : data;
-                      })
-                      .catch(() => {
-                        showToast({ variant: "error", title: t("error.generic") });
-                      });
-                  }
+                    .catch(() => {
+                      showToast({ variant: "error", title: t("error.generic") });
+                    });
                 }
               });
             }}

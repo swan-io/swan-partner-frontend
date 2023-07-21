@@ -1,4 +1,4 @@
-import { Array, Option, Result } from "@swan-io/boxed";
+import { Array, Future, Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -12,21 +12,28 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
+import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
-import { AccountMembershipFragment, AddAccountMembershipDocument } from "../graphql/partner";
+import {
+  AccountCountry,
+  AccountMembershipFragment,
+  AddAccountMembershipDocument,
+} from "../graphql/partner";
 import { locale, rifmDateProps, t } from "../utils/i18n";
+import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
   validateBirthdate,
   validateEmail,
-  validateIndividualTaxNumber,
+  validateName,
   validateRequired,
 } from "../utils/validations";
 
@@ -81,9 +88,9 @@ const validatePhoneNumber = async (value: string) => {
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  accountCountry: CountryCCA3;
+  accountCountry: AccountCountry;
   currentUserAccountMembership: AccountMembershipFragment;
-  onSuccess: () => void;
+  onSuccess: (accountMembershipId: string) => void;
   onPressCancel: () => void;
 };
 
@@ -154,13 +161,13 @@ export const NewMembershipWizard = ({
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
       strategy: "onBlur",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
       sanitize: value => value.trim(),
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
       strategy: "onBlur",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
       sanitize: value => value.trim(),
     },
     birthDate: {
@@ -267,17 +274,26 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
+            P.intersection(
+              { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
+            () =>
+              combineValidators(
+                validateRequired,
+                validateIndividualTaxNumber(accountCountry),
+              )(value),
+          )
+          .with(
             {
               accountCountry: "DEU",
               residencyAddressCountry: "DEU",
-              canViewAccount: true,
-              canInitiatePayments: true,
             },
-            () => combineValidators(validateRequired, validateIndividualTaxNumber)(value),
+            () => validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
       },
-      sanitize: value => value.trim(),
+      sanitize: value => value.trim().replace(/\//g, ""),
     },
   });
 
@@ -297,6 +313,55 @@ export const NewMembershipWizard = ({
       if (nextStep != null) {
         setStep(nextStep);
       }
+    });
+  };
+
+  const sendInvitation = ({
+    editingAccountMembershipId,
+  }: {
+    editingAccountMembershipId: string;
+  }) => {
+    const request = Future.make<Result<undefined, undefined>>(resolve => {
+      const xhr = new XMLHttpRequest();
+      // TODO: oauth2
+      const query = new URLSearchParams();
+      query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      xhr.open(
+        "POST",
+        match(projectConfiguration)
+          .with(
+            Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+            projectId =>
+              `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          )
+          .otherwise(
+            () => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+          ),
+        true,
+      );
+
+      xhr.withCredentials = true;
+      xhr.responseType = "json";
+      xhr.addEventListener("load", () => {
+        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
+          resolve(Result.Ok(undefined));
+        } else {
+          resolve(Result.Error(undefined));
+        }
+      });
+      xhr.send(
+        JSON.stringify({
+          inviteeAccountMembershipId: editingAccountMembershipId,
+          inviterAccountMembershipId: currentUserAccountMembership.id,
+        }),
+      );
+      return () => {
+        xhr.abort();
+      };
+    });
+
+    request.tapError(() => {
+      showToast({ variant: "error", title: t("error.generic") });
     });
   };
 
@@ -341,7 +406,6 @@ export const NewMembershipWizard = ({
           },
         })
           .mapOkToResult(({ addAccountMembership }) => {
-            // TODO: send email
             return match(addAccountMembership)
               .with(
                 {
@@ -371,14 +435,22 @@ export const NewMembershipWizard = ({
                     },
                   },
                 },
-                () => Result.Ok(Option.None()),
+                ({ accountMembership }) => {
+                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                    .with("EMAIL", () => {
+                      sendInvitation({ editingAccountMembershipId: accountMembership.id });
+                    })
+                    .otherwise(() => {});
+                  onSuccess(accountMembership.id);
+                  return Result.Ok(Option.None());
+                },
               )
               .otherwise(error => Result.Error(error));
           })
           .tapOk(consentUrl =>
             consentUrl.match({
               Some: consentUrl => window.location.replace(consentUrl),
-              None: () => onSuccess(),
+              None: () => {},
             }),
           )
           .tapError(() => {
@@ -583,7 +655,7 @@ export const NewMembershipWizard = ({
                         render={id => (
                           <CountryPicker
                             id={id}
-                            items={countries}
+                            countries={allCountries}
                             value={value}
                             onValueChange={onChange}
                             error={error}
@@ -674,18 +746,17 @@ export const NewMembershipWizard = ({
                         .with({ accountCountry: "DEU", country: "DEU" }, () => (
                           <Field name="taxIdentificationNumber">
                             {({ value, valid, error, onChange }) => (
-                              <LakeLabel
-                                label={t("membershipDetail.edit.taxIdentificationNumber")}
-                                render={id => (
-                                  <LakeTextInput
-                                    placeholder={locale.taxIdentificationNumberPlaceholder}
-                                    id={id}
-                                    value={value}
-                                    valid={valid}
-                                    error={error}
-                                    onChangeText={onChange}
-                                  />
-                                )}
+                              <TaxIdentificationNumberInput
+                                accountCountry={accountCountry}
+                                isCompany={false}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChange={onChange}
+                                required={
+                                  Boolean(partiallySavedValues?.canViewAccount) ||
+                                  Boolean(partiallySavedValues?.canInitiatePayments)
+                                }
                               />
                             )}
                           </Field>

@@ -1,0 +1,80 @@
+name: E2E tests
+
+on:
+  push:
+    branches: ["*"]
+
+jobs:
+  test:
+    name: E2E tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[E2E]') }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Edit /etc/hosts
+        run: |
+          sudo echo "127.0.0.1 banking.swan.localhost" | sudo tee -a /etc/hosts
+          sudo echo "127.0.0.1 onboarding.swan.localhost" | sudo tee -a /etc/hosts
+
+      - name: Write .env.e2e file
+        run: |
+          echo "NODE_ENV=test" > .env.e2e
+          echo "LOG_LEVEL=error" >> .env.e2e
+          echo "PARTNER_ADMIN_API_URL=${{ secrets.E2E_PARTNER_ADMIN_API_URL }}" >> .env.e2e
+          echo "PARTNER_API_URL=${{ secrets.E2E_PARTNER_API_URL }}" >> .env.e2e
+          echo "UNAUTHENTICATED_API_URL=${{ secrets.E2E_UNAUTHENTICATED_API_URL }}" >> .env.e2e
+          echo "OAUTH_SERVER_URL=${{ secrets.E2E_OAUTH_SERVER_URL }}" >> .env.e2e
+          echo "OAUTH_CLIENT_ID=${{ secrets.E2E_OAUTH_CLIENT_ID }}" >> .env.e2e
+          echo "OAUTH_CLIENT_SECRET=${{ secrets.E2E_OAUTH_CLIENT_SECRET }}" >> .env.e2e
+          echo "COOKIE_KEY=${{ secrets.E2E_COOKIE_KEY }}" >> .env.e2e
+          echo "BANKING_URL=http://banking.swan.localhost:8080" >> .env.e2e
+          echo "ONBOARDING_URL=http://onboarding.swan.localhost:8080" >> .env.e2e
+          echo "CLIENT_GOOGLE_MAPS_API_KEY=${{ secrets.E2E_GOOGLE_MAPS_API_KEY }}" >> .env.e2e
+          echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
+          echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e
+          echo "PASSCODE=${{ secrets.E2E_PASSCODE }}" >> .env.e2e
+          echo "SANDBOX_USER_BENADY_ID=${{ secrets.E2E_SANDBOX_USER_BENADY_ID }}" >> .env.e2e
+          echo "SANDBOX_USER_SAISON_ID=${{ secrets.E2E_SANDBOX_USER_SAISON_ID }}" >> .env.e2e
+          echo "TWILIO_ACCOUNT_ID=${{ secrets.E2E_TWILIO_ACCOUNT_ID }}" >> .env.e2e
+          echo "TWILIO_AUTH_TOKEN=${{ secrets.E2E_TWILIO_AUTH_TOKEN }}" >> .env.e2e
+          echo "WEBHOOK_SITE_API_KEY=${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}" >> .env.e2e
+
+      - name: Install dependencies
+        run: yarn install --pure-lockfile
+
+      - name: Get playwright version
+        run: |
+          PLAYWRIGHT_VERSION=$(npm ls @playwright/test | grep @playwright | sed 's/.*@//')
+          echo "Playwright version: $PLAYWRIGHT_VERSION"
+          echo "PLAYWRIGHT_VERSION=$PLAYWRIGHT_VERSION" >> $GITHUB_ENV
+
+      - name: Cache playwright
+        id: cache-playwright
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ env.PLAYWRIGHT_VERSION }}
+
+      - name: Setup playwright
+        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        run: yarn playwright install --with-deps
+
+      - name: GraphQL Codegen
+        run: yarn graphql-codegen
+
+      - name: Run E2E tests
+        run: CI=true yarn test-e2e
+
+      - uses: actions/upload-artifact@v3
+        if: failure()
+        with:
+          name: tests-results
+          path: tests/results/
+          retention-days: 7

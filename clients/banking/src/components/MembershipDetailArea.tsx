@@ -56,11 +56,22 @@ type Props = {
   currentUserAccountMembership: AccountMembershipFragment;
   editingAccountMembershipId: string;
   accountCountry: CountryCCA3;
+  shouldDisplayIdVerification: boolean;
   onAccountMembershipUpdate: () => void;
   canAddCard: boolean;
   canOrderPhysicalCards: boolean;
   onRefreshRequest: () => void;
   large: boolean;
+  params: {
+    new?: string | undefined;
+    search?: string | undefined;
+    statuses?: string[] | undefined;
+    canInitiatePayments?: string | undefined;
+    canManageAccountMembership?: string | undefined;
+    canManageBeneficiaries?: string | undefined;
+    resourceId?: string | undefined;
+    status?: string | undefined;
+  };
 };
 
 export const MembershipDetailArea = ({
@@ -68,11 +79,13 @@ export const MembershipDetailArea = ({
   currentUserAccountMembershipId,
   currentUserAccountMembership,
   accountCountry,
+  shouldDisplayIdVerification,
   onAccountMembershipUpdate,
   canAddCard,
   canOrderPhysicalCards,
   onRefreshRequest,
   large,
+  params,
 }: Props) => {
   const route = Router.useRoute(membershipsDetailRoutes);
 
@@ -85,6 +98,9 @@ export const MembershipDetailArea = ({
   if (accountMembership == null) {
     return null;
   }
+
+  const requiresIdentityVerification =
+    shouldDisplayIdVerification && accountMembership.user?.idVerified === false;
 
   return (
     <ScrollView
@@ -206,6 +222,7 @@ export const MembershipDetailArea = ({
                     {
                       label: t("membershipDetail.details"),
                       url: Router.AccountMembersDetailsRoot({
+                        ...params,
                         accountMembershipId: currentUserAccountMembershipId,
                         editingAccountMembershipId,
                       }),
@@ -213,6 +230,7 @@ export const MembershipDetailArea = ({
                     {
                       label: t("membershipDetail.rights"),
                       url: Router.AccountMembersDetailsRights({
+                        ...params,
                         accountMembershipId: currentUserAccountMembershipId,
                         editingAccountMembershipId,
                       }),
@@ -220,6 +238,7 @@ export const MembershipDetailArea = ({
                     {
                       label: t("membershipDetail.cards"),
                       url: Router.AccountMembersDetailsCardList({
+                        ...params,
                         accountMembershipId: currentUserAccountMembershipId,
                         editingAccountMembershipId,
                       }),
@@ -255,6 +274,7 @@ export const MembershipDetailArea = ({
                         editingAccountMembershipId={editingAccountMembershipId}
                         currentUserAccountMembership={currentUserAccountMembership}
                         currentUserAccountMembershipId={currentUserAccountMembershipId}
+                        requiresIdentityVerification={requiresIdentityVerification}
                         onRefreshRequest={() => {
                           reload();
                           onRefreshRequest();

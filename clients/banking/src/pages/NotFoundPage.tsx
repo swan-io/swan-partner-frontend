@@ -1,10 +1,19 @@
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Heading } from "@swan-io/lake/src/components/Heading";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { Tile } from "@swan-io/lake/src/components/Tile";
+import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { ReactNode } from "react";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
 import { t } from "../utils/i18n";
+import { signout } from "../utils/signout";
 
 const styles = StyleSheet.create({
   base: {
@@ -22,15 +31,35 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     color: colors.gray[400],
   },
+  noAccountPage: {
+    flex: 1,
+    backgroundColor: backgroundColor.default,
+  },
+  tile: {
+    padding: 0,
+    maxWidth: 800,
+  },
+  noAccountContainer: {
+    padding: spacings[24],
+  },
+  noAccountContainerDesktop: {
+    padding: spacings[72],
+  },
 });
 
 type Props = {
   title?: string;
   text?: string;
+  action?: ReactNode;
   style?: StyleProp<ViewStyle>;
 };
 
-export const NotFoundPage = ({ title = t("error.pageNotFound"), text = "", style }: Props) => (
+export const NotFoundPage = ({
+  title = t("error.pageNotFound"),
+  text = "",
+  action,
+  style,
+}: Props) => (
   <View style={[styles.base, style]}>
     <Svg viewBox="0 0 96 96" style={styles.icon}>
       <G fill="none">
@@ -84,5 +113,45 @@ export const NotFoundPage = ({ title = t("error.pageNotFound"), text = "", style
         <Text style={styles.text}>{text}</Text>
       </>
     )}
+
+    {isNotNullish(action) && (
+      <>
+        <Space height={24} />
+
+        {action}
+      </>
+    )}
   </View>
 );
+
+export const AccountNotFoundPage = ({ projectName }: { projectName: string }) => {
+  const { desktop } = useResponsive(breakpoints.medium);
+
+  const content = (
+    <Box
+      alignItems="center"
+      style={[styles.noAccountContainer, desktop && styles.noAccountContainerDesktop]}
+    >
+      <BorderedIcon name="building-bank-regular" size={100} padding={16} />
+      <Space height={24} />
+
+      <LakeText variant="medium" color={colors.gray[900]} align="center">
+        {t("error.noAccount")}
+      </LakeText>
+
+      <Space height={4} />
+      <LakeText align="center">{t("error.checkWithProvider", { projectName })}</LakeText>
+      <Space height={32} />
+
+      <LakeButton mode="secondary" icon="sign-out-regular" onPress={signout}>
+        {t("login.signout")}
+      </LakeButton>
+    </Box>
+  );
+
+  return (
+    <Box alignItems="center" justifyContent="center" style={styles.noAccountPage}>
+      {desktop ? <Tile style={styles.tile}>{content}</Tile> : content}
+    </Box>
+  );
+};

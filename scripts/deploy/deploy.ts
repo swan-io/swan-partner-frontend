@@ -18,8 +18,10 @@ assert(process.env.DEPLOY_GIT_EMAIL);
 execSync(`git config --global user.name ${process.env.DEPLOY_GIT_USER}`);
 execSync(`git config --global user.email ${process.env.DEPLOY_GIT_EMAIL}`);
 
+execSync(`rm -fr ${tmp}/${repoName}`);
+
 execSync(
-  `cd ${tmp} && git clone --single-branch --branch OPS-1464/deploy-new-frontend-apps https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
+  `cd ${tmp} && git clone --single-branch --branch master https://projects:${process.env.DEPLOY_SWAN_TOKEN}@${process.env.DEPLOY_SWAN_REPOSITORY} ${repoName}`,
 );
 
 const file = fs.readFileSync(
@@ -46,9 +48,7 @@ fs.writeFileSync(
 );
 
 execSync(
-  `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.DEPLOY_ENVIRONMENT}-${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
+  `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
 
-execSync(
-  `cd ${tmp}/${repoName} && git pull --rebase origin OPS-1464/deploy-new-frontend-apps && git push origin OPS-1464/deploy-new-frontend-apps`,
-);
+execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);

@@ -24,7 +24,15 @@ match(projectConfiguration)
   .with(Option.P.None, () => {
     const url = new URL(window.location.href);
     const [...envHostName] = url.hostname.split(".");
-    window.location.replace(`${url.protocol}//${["partner", ...envHostName].join(".")}/`);
+    url.hostname = ["partner", ...envHostName].join(".");
+    if (!url.pathname.startsWith("/swanpopupcallback")) {
+      url.pathname = "/";
+    }
+    // local dev tweak
+    if (url.port === "8082") {
+      url.port = "8080";
+    }
+    window.location.replace(url);
   })
   .otherwise(() => {
     if (rootTag != null) {

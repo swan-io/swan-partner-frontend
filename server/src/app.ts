@@ -1,17 +1,19 @@
+import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
+import sensible from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify from "fastify";
+import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
+import { Http2SecureServer } from "node:http2";
 // @ts-expect-error
 import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
-import url from "node:url";
 import path from "pathe";
 import { P, match } from "ts-pattern";
 import {
@@ -20,32 +22,32 @@ import {
   getOAuth2StatePattern,
   getTokenFromCode,
   refreshAccessToken,
-} from "./api/oauth2.js";
+} from "./api/oauth2";
 import {
   UnsupportedAccountCountryError,
   bindAccountMembership,
   finalizeOnboarding,
   getProjectId,
   parseAccountCountry,
-} from "./api/partner.js";
-import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan.js";
+} from "./api/partner";
+import { swan__bindAccountMembership, swan__finalizeOnboarding } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
+  getOnboardingOAuthClientId,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/unauthenticated.js";
-import { HttpsConfig, startDevServer } from "./client/devServer.js";
-import { getProductionRequestHandler } from "./client/prodServer.js";
-import { env } from "./env.js";
-import { renderAuthError, renderError } from "./views/error.js";
+} from "./api/unauthenticated";
+import { HttpsConfig, startDevServer } from "./client/devServer";
+import { getProductionRequestHandler } from "./client/prodServer";
+import { env } from "./env";
+import { replyWithAuthError, replyWithError } from "./error";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
 const packageJson = JSON.parse(
-  fs.readFileSync(path.join(dirname, "../package.json"), "utf-8"),
+  fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
 ) as unknown as { version: string };
 
-const COOKIE_MAX_AGE = 300; // 5 minutes
-const OAUTH_STATE_COOKIE_MAX_AGE = 300; // 5 minutes
+const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
+const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 export type InvitationConfig = {
   accessToken: string;
@@ -58,6 +60,7 @@ type AppConfig = {
   mode: "development" | "test" | "production";
   httpsConfig?: HttpsConfig;
   sendAccountMembershipInvitation?: (config: InvitationConfig) => Promise<unknown>;
+  allowedCorsOrigins?: string[];
 };
 
 declare module "@fastify/secure-session" {
@@ -108,7 +111,12 @@ const assertIsBoundToLocalhost = (host: string) => {
   });
 };
 
-export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation }: AppConfig) => {
+export const start = async ({
+  mode,
+  httpsConfig,
+  sendAccountMembershipInvitation,
+  allowedCorsOrigins = [],
+}: AppConfig) => {
   if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
@@ -167,6 +175,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   });
 
   /**
+   * Adds some useful utilities to your Fastify instance
+   */
+  await app.register(accepts);
+  await app.register(sensible);
+
+  /**
    * Handles the session storage in `swan_session_id`
    *
    * The session can contain the auth information (`expiresAt`, `accessToken`, `refreshToken`).
@@ -178,8 +192,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     key: env.COOKIE_KEY,
     cookie: {
       path: "/",
-      secure: true,
+      secure: env.BANKING_URL.startsWith("https"),
       httpOnly: true,
+      domain: `.${new URL(env.BANKING_URL).hostname}`,
     },
   });
 
@@ -188,7 +203,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    * when the onboarding flow completes with the OAuth2 flow
    */
   await app.register(cors, {
-    origin: [env.ONBOARDING_URL, env.BANKING_URL],
+    origin: [env.ONBOARDING_URL, env.BANKING_URL, ...allowedCorsOrigins],
     credentials: true,
   });
 
@@ -218,6 +233,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       const TEN_SECONDS = 10_000;
       const refreshToken = request.session.get("refreshToken");
       const expiresAt = request.session.get("expiresAt") ?? 0;
+
       if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
         refreshAccessToken({
           refreshToken,
@@ -244,6 +260,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         const refreshToken = request.session.get("refreshToken");
         const expiresAt = request.session.get("expiresAt");
         const accessToken = request.session.get("accessToken");
+
         match({ refreshToken, expiresAt, accessToken })
           .with(
             {
@@ -286,9 +303,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   /**
    * Decorates the `reply` object with a `sendFile`
    */
-  if (env.NODE_ENV != "development") {
+  if (env.NODE_ENV === "production") {
     await app.register(fastifyStatic, {
-      root: path.join(dirname, "../dist"),
+      root: path.join(__dirname, "./static"),
       wildcard: false,
     });
   }
@@ -332,6 +349,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
+
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) =>
           onboardIndividualAccountHolder({ accountCountry, projectId }),
@@ -347,7 +365,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return renderError(reply, { status: 400, requestId: request.id as string });
+
+          return replyWithError(app, request, reply, {
+            status: 400,
+            requestId: String(request.id),
+          });
         })
         .map(() => undefined);
     },
@@ -362,6 +384,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     async (request, reply) => {
       const accountCountry = parseAccountCountry(request.query.accountCountry);
       const projectId = await getProjectId();
+
       return Future.value(Result.allFromDict({ accountCountry, projectId }))
         .flatMapOk(({ accountCountry, projectId }) =>
           onboardCompanyAccountHolder({ accountCountry, projectId }),
@@ -377,7 +400,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
               error => request.log.warn(error),
             )
             .otherwise(error => request.log.error(error));
-          return renderError(reply, { status: 400, requestId: request.id as string });
+
+          return replyWithError(app, request, reply, {
+            status: 400,
+            requestId: String(request.id),
+          });
         })
         .map(() => undefined);
     },
@@ -404,16 +431,20 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     "/api/invitation/:inviteeAccountMembershipId/send",
     async (request, reply) => {
       const accessToken = request.accessToken;
-      if (accessToken == undefined) {
+
+      if (accessToken == null) {
         return reply.status(401).send("Unauthorized");
       }
       if (sendAccountMembershipInvitation == null) {
         return reply.status(400).send("Not implemented");
       }
+
       const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
+
       if (inviterAccountMembershipId == null) {
         return reply.status(400).send("Missing inviterAccountMembershipId");
       }
+
       try {
         const result = await sendAccountMembershipInvitation({
           accessToken,
@@ -424,7 +455,11 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         return reply.send({ success: result });
       } catch (err) {
         request.log.error(err);
-        return renderError(reply, { status: 400, requestId: request.id as string });
+
+        return replyWithError(app, request, reply, {
+          status: 400,
+          requestId: String(request.id),
+        });
       }
     },
   );
@@ -444,7 +479,9 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     if (typeof redirectTo === "string" && !redirectTo.startsWith("/")) {
       return reply.status(403).send("Invalid `redirectTo` param");
     }
+
     const id = randomUUID();
+
     // If provided with an `onboardingId`, it means that the callback should end up
     // finalizing the onboarding, otherwise do a simple redirection
     const state: OAuth2State = match({ onboardingId, accountMembershipId, projectId })
@@ -480,8 +517,10 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     request.session.options({
       maxAge: OAUTH_STATE_COOKIE_MAX_AGE,
     });
+
     // store the state ID to compare it with what we receive
     request.session.set("state", state.id);
+
     return reply.redirect(
       createAuthUrl({
         scope: scope.split(" ").filter(item => item != null && item != ""),
@@ -500,9 +539,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
    * OAuth2 Redirection handler
    */
   app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
-    const state = Result.fromExecution(
-      () => JSON.parse(request.query.state ?? "{}") as unknown,
+    type Reply = FastifyReply<Http2SecureServer> | Promise<FastifyReply<Http2SecureServer>>;
+
+    const state = Result.fromExecution<unknown>(() =>
+      JSON.parse(request.query.state ?? "{}"),
     ).getWithDefault({});
+
     const stateId = request.session.get("state") ?? "UNKNOWN";
 
     return (
@@ -512,105 +554,136 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
         error: request.query.error,
         errorDescription: request.query.error_description,
       })
+        .returnType<Reply>()
         // check `state` against the session saved one, to prevent Cross Site Request Forgery attacks
         .with(
-          {
-            code: P.string,
-            state: getOAuth2StatePattern(stateId),
-          },
+          { code: P.string, state: getOAuth2StatePattern(stateId) },
           async ({ code, state }) => {
             const token = await getTokenFromCode({
               redirectUri: `${env.BANKING_URL}/auth/callback`,
               code,
             });
 
-            return token.match({
+            return token.match<Reply>({
               Ok: ({ expiresAt, accessToken, refreshToken }) => {
                 // Store the tokens
                 request.session.options({
                   maxAge: COOKIE_MAX_AGE,
                 });
+
                 request.session.set("expiresAt", expiresAt);
                 request.session.set("accessToken", accessToken);
                 request.session.set("refreshToken", refreshToken);
 
                 return match(state)
+                  .returnType<Reply>()
                   .with({ type: "Redirect" }, ({ redirectTo = "/swanpopupcallback" }) => {
-                    void reply.redirect(redirectTo);
-                    return Future.value(Result.Ok(undefined));
+                    return reply.redirect(redirectTo);
                   })
                   .with({ type: "Swan__FinalizeOnboarding" }, ({ onboardingId, projectId }) => {
-                    // Finalize the onboarding with the received user token
-                    return swan__finalizeOnboarding({ onboardingId, accessToken, projectId })
-                      .mapOk(({ redirectUrl, state, accountMembershipId }) => {
-                        const queryString = new URLSearchParams();
-                        if (redirectUrl != undefined) {
-                          const authUri = createAuthUrl({
-                            scope: [],
-                            redirectUri: redirectUrl,
-                            state: state ?? onboardingId,
-                            params: {},
-                          });
-                          queryString.append("redirectUrl", authUri);
-                        }
-                        if (accountMembershipId != undefined) {
-                          queryString.append("accountMembershipId", accountMembershipId);
-                        }
-                        queryString.append("projectId", projectId);
+                    const onboardingOAuthClientId = getOnboardingOAuthClientId({ onboardingId });
 
-                        void reply.redirect(
-                          `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
-                        );
-                        return undefined;
-                      })
-                      .tapError(error => {
-                        request.log.error(error);
-                        return renderError(reply, {
-                          status: 400,
-                          requestId: request.id as string,
+                    // Finalize the onboarding with the received user token
+                    return onboardingOAuthClientId
+                      .flatMapOk(({ onboardingInfo }) =>
+                        swan__finalizeOnboarding({ onboardingId, accessToken, projectId }).mapOk(
+                          payload => ({
+                            ...payload,
+                            oAuthClientId: onboardingInfo?.projectInfo?.oAuthClientId ?? undefined,
+                          }),
+                        ),
+                      )
+                      .toPromise()
+                      .then(result => {
+                        return result.match<Reply>({
+                          Ok: ({ redirectUrl, state, accountMembershipId, oAuthClientId }) => {
+                            const queryString = new URLSearchParams();
+
+                            if (redirectUrl != undefined) {
+                              const authUri = createAuthUrl({
+                                oAuthClientId,
+                                scope: [],
+                                redirectUri: redirectUrl,
+                                state: state ?? onboardingId,
+                                params: {},
+                              });
+
+                              queryString.append("redirectUrl", authUri);
+                            }
+
+                            if (accountMembershipId != undefined) {
+                              queryString.append("accountMembershipId", accountMembershipId);
+                            }
+
+                            queryString.append("projectId", projectId);
+
+                            return reply.redirect(
+                              `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
+                            );
+                          },
+                          Error: error => {
+                            request.log.error(error);
+
+                            return replyWithError(app, request, reply, {
+                              status: 400,
+                              requestId: String(request.id),
+                            });
+                          },
                         });
                       });
                   })
                   .with({ type: "FinalizeOnboarding" }, ({ onboardingId }) => {
                     // Finalize the onboarding with the received user token
                     return finalizeOnboarding({ onboardingId, accessToken })
-                      .mapOk(({ redirectUrl, state, accountMembershipId }) => {
-                        const queryString = new URLSearchParams();
-                        if (redirectUrl != undefined) {
-                          const authUri = createAuthUrl({
-                            scope: [],
-                            redirectUri: redirectUrl,
-                            state: state ?? onboardingId,
-                            params: {},
-                          });
-                          queryString.append("redirectUrl", authUri);
-                        }
-                        if (accountMembershipId != undefined) {
-                          queryString.append("accountMembershipId", accountMembershipId);
-                        }
+                      .toPromise()
+                      .then(result => {
+                        return result.match<Reply>({
+                          Ok: ({ redirectUrl, state, accountMembershipId }) => {
+                            const queryString = new URLSearchParams();
 
-                        void reply.redirect(
-                          `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
-                        );
-                        return undefined;
-                      })
-                      .tapError(error => {
-                        request.log.error(error);
-                        return renderError(reply, {
-                          status: 400,
-                          requestId: request.id as string,
+                            if (redirectUrl != undefined) {
+                              const authUri = createAuthUrl({
+                                scope: [],
+                                redirectUri: redirectUrl,
+                                state: state ?? onboardingId,
+                                params: {},
+                              });
+
+                              queryString.append("redirectUrl", authUri);
+                            }
+
+                            if (accountMembershipId != undefined) {
+                              queryString.append("accountMembershipId", accountMembershipId);
+                            }
+
+                            return reply.redirect(
+                              `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
+                            );
+                          },
+                          Error: error => {
+                            request.log.error(error);
+
+                            return replyWithError(app, request, reply, {
+                              status: 400,
+                              requestId: String(request.id),
+                            });
+                          },
                         });
                       });
                   })
                   .with({ type: "BindAccountMembership" }, ({ accountMembershipId }) => {
                     return bindAccountMembership({ accountMembershipId, accessToken })
-                      .mapOk(({ accountMembershipId }) => {
-                        void reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
-                        return undefined;
-                      })
-                      .tapError(error => {
-                        request.log.error(error);
-                        return reply.redirect(env.BANKING_URL);
+                      .toPromise()
+                      .then(result => {
+                        return result.match<Reply>({
+                          Ok: ({ accountMembershipId }) => {
+                            return reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
+                          },
+                          Error: error => {
+                            request.log.error(error);
+                            return reply.redirect(env.BANKING_URL);
+                          },
+                        });
                       });
                   })
                   .with(
@@ -621,43 +694,49 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
                         accessToken,
                         projectId,
                       })
-                        .mapOk(({ accountMembershipId }) => {
-                          void reply.redirect(`${env.BANKING_URL}/${accountMembershipId}`);
-                          return undefined;
-                        })
-                        .tapError(error => {
-                          request.log.error(error);
-                          return reply.redirect(env.BANKING_URL);
+                        .toPromise()
+                        .then(result => {
+                          return result.match<Reply>({
+                            Ok: ({ accountMembershipId }) => {
+                              return reply.redirect(
+                                `${env.BANKING_URL}/projects/${projectId}/${accountMembershipId}`,
+                              );
+                            },
+                            Error: error => {
+                              request.log.error(error);
+                              return reply.redirect(env.BANKING_URL);
+                            },
+                          });
                         });
                     },
                   )
                   .otherwise(error => {
                     request.log.error(error);
-                    void reply.redirect("/swanpopupcallback");
-                    return Future.value(Result.Ok(undefined));
+                    return reply.redirect("/swanpopupcallback");
                   });
               },
               Error: error => {
                 request.log.error(error);
-                void renderError(reply, { status: 400, requestId: request.id as string });
-                return Future.value(Result.Ok(undefined));
+
+                return replyWithError(app, request, reply, {
+                  status: 400,
+                  requestId: String(request.id),
+                });
               },
             });
           },
         )
         .with({ error: P.string, errorDescription: P.string }, ({ error, errorDescription }) => {
-          void renderAuthError(reply, {
+          return replyWithAuthError(app, request, reply, {
             status: 400,
             description: error === "access_denied" ? "Login failed" : errorDescription,
           });
-          return Future.value(undefined);
         })
         .otherwise(() => {
-          void renderAuthError(reply, {
+          return replyWithAuthError(app, request, reply, {
             status: 400,
             description: "Could not initiate session",
           });
-          return Future.value(undefined);
         })
     );
   });
@@ -681,7 +760,10 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
   app.get("/env.js", async (request, reply) => {
     const projectId = await getProjectId();
     const data = {
-      SWAN_ENVIRONMENT: env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX",
+      VERSION: packageJson.version,
+      SWAN_ENVIRONMENT:
+        process.env.SWAN_ENVIRONMENT ??
+        (env.OAUTH_CLIENT_ID.startsWith("LIVE_") ? "LIVE" : "SANDBOX"),
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
         .with(P.nullish, () => "LINK")
         .otherwise(() => "EMAIL"),
@@ -689,6 +771,10 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,
+      }),
+      IS_SWAN_MODE: projectId.match({
+        Ok: () => false,
+        Error: () => true,
       }),
       ...Object.fromEntries(
         Array.filterMap(Object.entries(process.env), ([key, value]) =>
@@ -711,7 +797,7 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
     });
   });
 
-  if (mode === "development") {
+  if (mode !== "production") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
     const { additionalPorts } = await startDevServer(app, httpsConfig);
@@ -724,8 +810,12 @@ export const start = async ({ mode, httpsConfig, sendAccountMembershipInvitation
 
   app.setErrorHandler((error, request, reply) => {
     request.log.error(error);
+
     // Send error response
-    return renderError(reply, { status: 500, requestId: request.id as string });
+    return replyWithError(app, request, reply, {
+      status: 500,
+      requestId: String(request.id),
+    });
   });
 
   return {

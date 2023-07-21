@@ -1,18 +1,17 @@
 import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
 import path from "pathe";
+import { searchForWorkspaceRoot } from "vite";
 import { defineConfig } from "vitest/config";
 
 const root = path.resolve(__dirname, "./src");
 
-const getAllowedPaths = () => {
+const getLakePaths = () => {
   try {
-    const localeConfig = require("../../locale.config");
-    const lakePath = localeConfig.default.lake;
-
-    return typeof lakePath === "string" ? [root, lakePath] : undefined;
+    const { lake } = require("../../locale.config");
+    return typeof lake === "string" ? [lake] : [];
   } catch {
-    // if locale-config.js is not present `server.fs.allow` will be undefined
+    return []; // locale-config.js doesn't exist
   }
 };
 
@@ -25,8 +24,12 @@ export default defineConfig({
   },
   server: {
     fs: {
-      // gives the possibility to load assets from lake repository
-      allow: getAllowedPaths(),
+      allow: [
+        // search up for workspace root
+        searchForWorkspaceRoot(process.cwd()),
+        // get assets from lake repository
+        ...getLakePaths(),
+      ],
     },
   },
   logLevel: "warn",

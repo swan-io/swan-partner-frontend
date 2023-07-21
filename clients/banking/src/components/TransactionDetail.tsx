@@ -13,6 +13,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import {
   isNotNullish,
   isNotNullishOrEmpty,
+  isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
@@ -100,17 +101,25 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     .otherwise(() => null);
 
   const rejectedReason = match(transaction.statusInfo)
-    .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => (
-      <LakeLabel
-        type="viewSmall"
-        label={t("transaction.rejectedReason")}
-        render={() => (
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {getTransactionRejectedReasonLabel(reason)}
-          </LakeText>
-        )}
-      />
-    ))
+    .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => {
+      const description = getTransactionRejectedReasonLabel(reason);
+
+      if (isNullish(description)) {
+        return null;
+      }
+
+      return (
+        <LakeLabel
+          type="viewSmall"
+          label={t("transaction.rejectedReason")}
+          render={() => (
+            <LakeText variant="regular" color={colors.gray[900]}>
+              {description}
+            </LakeText>
+          )}
+        />
+      );
+    })
     .otherwise(() => null);
 
   const truncatesTransactionId = truncateTransactionId(transaction.id);
@@ -142,10 +151,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Tile
           style={styles.tile}
           footer={match(transaction)
-            // BankingFee should never happened and is a default value, so there isn't any wording for it
-            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => (
-              <LakeAlert anchored={true} variant="info" title={getFeesDescription(feesType)} />
-            ))
+            // BankingFee should never happen, so we don't handle it
+            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => {
+              const description = getFeesDescription(feesType);
+
+              if (isNullish(description)) {
+                return null;
+              }
+
+              return <LakeAlert anchored={true} variant="info" title={description} />;
+            })
             .with(
               {
                 originTransaction: {

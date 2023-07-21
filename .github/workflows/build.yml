@@ -1,26 +1,30 @@
-name: Build & test
+name: Test & build
 
 on:
   push:
     branches:
       - "*"
 
-permissions:
-  id-token: write # This is required for requesting the JWT
-  contents: read # This is required for actions/checkout
-
 jobs:
-  test:
-    name: Build & test
+  test-and-build:
+    name: Test & build
     runs-on: ubuntu-latest
+    permissions:
+      contents: read # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-node@v3
         with:
-          node-version: 18
+          node-version: lts/*
+          cache: yarn
 
       - name: Install dependencies
-        run: yarn
+        run: yarn install --pure-lockfile
+
+      - name: Check licenses
+        run: yarn license-check
 
       - name: GraphQL Codegen
         run: yarn graphql-codegen
@@ -35,43 +39,47 @@ jobs:
         run: yarn test
 
       - name: Compile project
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: yarn build
 
-      - name: Push translation keys
-        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
-        run: yarn lokalise sync
-        env:
-          LOKALISE_API_KEY: ${{ secrets.LOKALISE_API_KEY }}
+      - name: Push onboarding translation keys
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
+        run: yarn localazy upload onboarding -r ${{ secrets.LOCALAZY_ONBOARDING_READ_KEY }} -w ${{ secrets.LOCALAZY_ONBOARDING_WRITE_KEY }}
+
+      - name: Push banking translation keys
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
+        run: yarn localazy upload banking -r ${{ secrets.LOCALAZY_BANKING_READ_KEY }} -w ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
 
       - name: Configure AWS Credentials
-        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')}}
         uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: ${{ secrets.AWS_ROLE }}
           aws-region: eu-west-1
 
       - name: Login to Docker Registry
-        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
         uses: docker/login-action@v2
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
 
       - name: Dockerize & Push to Registry
-        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')"
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]') }}
         uses: docker/build-push-action@v4
         with:
           context: .
           file: Dockerfile-swan
           push: true
           tags: |
-            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.sha }}
-            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:${{ github.ref_name }}
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.sha }}
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:master-${{ github.ref_name }}
 
       - name: Deploy
-        if: "github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)"
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) }}
         run: yarn deploy-ci
         env:
-          TAG: ${{ github.sha }}
+          TAG: master-${{ github.sha }}
           DEPLOY_SWAN_TOKEN: ${{ secrets.DEPLOY_SWAN_TOKEN }}
           DEPLOY_SWAN_REPOSITORY: ${{ secrets.DEPLOY_SWAN_REPOSITORY }}
           DEPLOY_GIT_USER: ${{ secrets.DEPLOY_GIT_USER }}

@@ -1,6 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { P, match } from "ts-pattern";
-import { env } from "../env.js";
+import { env } from "../env";
 
 export type OAuth2State =
   | { id: string; type: "Redirect"; redirectTo?: string }
@@ -110,11 +110,13 @@ export const getTokenFromCode = ({ redirectUri, code }: { redirectUri: string; c
 };
 
 export const createAuthUrl = ({
+  oAuthClientId = env.OAUTH_CLIENT_ID,
   scope: requestedScope,
   redirectUri,
   params,
   state,
 }: {
+  oAuthClientId?: string;
   scope: string[];
   redirectUri: string;
   params: Record<string, string>;
@@ -123,7 +125,7 @@ export const createAuthUrl = ({
   const queryString = new URLSearchParams();
   Object.entries(params).forEach(([key, value]) => queryString.set(key, value));
   queryString.set("response_type", "code");
-  queryString.set("client_id", env.OAUTH_CLIENT_ID);
+  queryString.set("client_id", oAuthClientId);
   queryString.set("redirect_uri", redirectUri);
   queryString.set("state", state);
   // we always add `openid` (login through Swan) and `offline` (to get a refresh_token)

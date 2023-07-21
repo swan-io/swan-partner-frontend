@@ -1,9 +1,9 @@
 import type { CodegenConfig } from "@graphql-codegen/cli";
 import type { Types } from "@graphql-codegen/plugin-helpers";
 import { Kind, visit } from "graphql";
-import { resolve } from "pathe";
+import { normalize, resolve } from "pathe";
 
-const file = (path: string) => resolve(__dirname, path);
+const file = (path: string) => normalize(resolve(__dirname, path));
 
 const addTypenames: Types.DocumentTransformFunction = ({ documents }) =>
   documents.map(({ document, ...rest }) => {
@@ -62,14 +62,17 @@ const scalars = {
   join__FieldSet: "unknown",
 };
 
-const clientPlugins = [
+const frontendPlugins = [
   "typescript",
   "typescript-operations",
   "typed-document-node",
   "typescript-urql-graphcache",
 ];
 
-const clientConfig = {
+const backendPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
+const testsPlugins = ["typescript", "typescript-operations", "typed-document-node"];
+
+const frontendConfig = {
   scalars,
   dedupeOperationSuffix: true,
   enumsAsTypes: true,
@@ -78,10 +81,8 @@ const clientConfig = {
   inlineFragmentTypes: "combine",
 };
 
-const serverPlugins = ["typescript", "typescript-operations", "typescript-graphql-request"];
-
-const serverConfig = {
-  ...clientConfig,
+const backendConfig = {
+  ...frontendConfig,
   federation: true,
 };
 
@@ -97,8 +98,8 @@ const config: CodegenConfig = {
     [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: clientPlugins,
-      config: clientConfig,
+      plugins: frontendPlugins,
+      config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
 
@@ -114,16 +115,16 @@ const config: CodegenConfig = {
     [file("../../clients/banking/src/graphql/partner.ts")]: {
       documents: file("../../clients/banking/src/graphql/partner.gql"),
       schema: file("./dist/partner-schema.gql"),
-      plugins: clientPlugins,
-      config: clientConfig,
+      plugins: frontendPlugins,
+      config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
 
     [file("../../clients/banking/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/banking/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),
-      config: clientConfig,
-      plugins: clientPlugins,
+      config: frontendConfig,
+      plugins: frontendPlugins,
       documentTransforms: [{ transform: addTypenames }],
     },
 
@@ -139,16 +140,32 @@ const config: CodegenConfig = {
     [file("../../server/src/graphql/partner.ts")]: {
       documents: file("../../server/src/graphql/partner.gql"),
       schema: file("./dist/partner-schema.gql"),
-      plugins: serverPlugins,
-      config: serverConfig,
+      plugins: backendPlugins,
+      config: backendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
 
     [file("../../server/src/graphql/unauthenticated.ts")]: {
       documents: file("../../server/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: serverPlugins,
-      config: serverConfig,
+      plugins: backendPlugins,
+      config: backendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
+    [file("../../tests/graphql/partner-admin.ts")]: {
+      documents: file("../../tests/graphql/partner-admin.gql"),
+      schema: file("./dist/partner-admin-schema.gql"),
+      plugins: testsPlugins,
+      config: frontendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
+    [file("../../tests/graphql/partner.ts")]: {
+      documents: file("../../tests/graphql/partner.gql"),
+      schema: file("./dist/partner-schema.gql"),
+      plugins: testsPlugins,
+      config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
   },

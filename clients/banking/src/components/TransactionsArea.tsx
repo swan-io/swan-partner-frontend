@@ -104,7 +104,7 @@ export const TransactionsArea = ({
           {match(route)
             .with(
               { name: "AccountTransactionsListRoot" },
-              { name: "AccountTransactionsListStatements" },
+              { name: "AccountTransactionsListStatementsArea" },
               ({
                 name,
                 params: {
@@ -134,10 +134,11 @@ export const TransactionsArea = ({
                     />
 
                     <LakeModal
+                      maxWidth={breakpoints.medium}
                       icon="arrow-download-filled"
                       title={t("accountStatements.title")}
                       visible={
-                        name === "AccountTransactionsListStatements" && canViewAccountStatement
+                        name === "AccountTransactionsListStatementsArea" && canViewAccountStatement
                       }
                       onPressClose={() =>
                         Router.push("AccountTransactionsListRoot", {
@@ -148,7 +149,11 @@ export const TransactionsArea = ({
                     >
                       {({ large }) => (
                         <View style={large ? styles.statementsLarge : styles.statements}>
-                          <AccountStatementsList accountId={accountId} large={large} />
+                          <AccountStatementsList
+                            accountId={accountId}
+                            large={large}
+                            accountMembershipId={accountMembershipId}
+                          />
                         </View>
                       )}
                     </LakeModal>

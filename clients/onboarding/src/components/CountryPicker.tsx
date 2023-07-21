@@ -2,7 +2,7 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
-import { CountryItem, CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { StyleSheet } from "react-native";
 import { DocumentationLink } from "../components/DocumentationLink";
@@ -23,7 +23,7 @@ type CountrySelectProps<T extends CountryCCA3> = {
   label: string;
   onValueChange: (country: T) => void;
   value: T;
-  items: CountryItem<T>[];
+  countries: T[];
   holderType: "individual" | "company";
   onlyIconHelp: boolean;
   hideError?: boolean;
@@ -33,7 +33,7 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   label,
   onValueChange,
   value,
-  items,
+  countries,
   holderType,
   onlyIconHelp,
   hideError,
@@ -41,9 +41,10 @@ export function OnboardingCountryPicker<T extends CountryCCA3>({
   return (
     <LakeLabel
       label={label}
-      render={() => (
+      render={id => (
         <CountryPicker
-          items={items}
+          id={id}
+          countries={countries}
           value={value}
           hideErrors={hideError}
           onValueChange={onValueChange}

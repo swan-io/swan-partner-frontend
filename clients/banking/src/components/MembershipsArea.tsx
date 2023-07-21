@@ -14,12 +14,12 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
+import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { projectConfiguration } from "../utils/projectId";
 import { Router, membershipsRoutes } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
@@ -48,7 +48,8 @@ type Props = {
   canAddNewMembers: boolean;
   canAddCard: boolean;
   canOrderPhysicalCards: boolean;
-  accountCountry: CountryCCA3;
+  accountCountry: AccountCountry;
+  shouldDisplayIdVerification: boolean;
   params: {
     new?: string;
     search?: string | undefined;
@@ -75,6 +76,7 @@ export const MembershipsArea = ({
   canAddCard,
   canOrderPhysicalCards,
   accountCountry,
+  shouldDisplayIdVerification,
   params,
   currentUserAccountMembership,
   onAccountMembershipUpdate,
@@ -179,30 +181,41 @@ export const MembershipsArea = ({
     match({
       params,
       accountMembershipInvitationMode: __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE,
-    }).with(
-      {
-        params: { resourceId: P.string, status: "Accepted" },
-        accountMembershipInvitationMode: "EMAIL",
-      },
-      ({ params: { resourceId } }) => {
-        const xhr = new XMLHttpRequest();
-        xhr.open(
-          "POST",
-          `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
-          true,
-        );
-        xhr.addEventListener("load", () => {
-          Router.replace("AccountMembersList", {
-            ...params,
-            accountMembershipId,
-            resourceId: undefined,
-            status: undefined,
+    })
+      .with(
+        {
+          params: { resourceId: P.string, status: "Accepted" },
+          accountMembershipInvitationMode: "EMAIL",
+        },
+        ({ params: { resourceId } }) => {
+          const xhr = new XMLHttpRequest();
+          xhr.open(
+            "POST",
+            match(projectConfiguration)
+              .with(
+                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                projectId =>
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+              )
+              .otherwise(
+                () =>
+                  `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+              ),
+            true,
+          );
+          xhr.addEventListener("load", () => {
+            Router.replace("AccountMembersList", {
+              ...params,
+              accountMembershipId,
+              resourceId: undefined,
+              status: undefined,
+            });
           });
-        });
-        xhr.send(null);
-        return () => xhr.abort();
-      },
-    );
+          xhr.send(null);
+          return () => xhr.abort();
+        },
+      )
+      .otherwise(() => {});
   }, [params, accountMembershipId]);
 
   return (
@@ -219,6 +232,8 @@ export const MembershipsArea = ({
                 })
               }
               onRefresh={reload}
+              totalCount={memberships.length}
+              isFetching={nextData.isLoading()}
               large={large}
             >
               {canAddNewMembers ? (
@@ -312,6 +327,7 @@ export const MembershipsArea = ({
             render={(membership, large) => (
               <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                 <MembershipDetailArea
+                  params={params}
                   currentUserAccountMembershipId={accountMembershipId}
                   currentUserAccountMembership={currentUserAccountMembership}
                   editingAccountMembershipId={membership.id}
@@ -319,6 +335,7 @@ export const MembershipsArea = ({
                   canAddCard={canAddCard}
                   canOrderPhysicalCards={canOrderPhysicalCards}
                   accountCountry={accountCountry}
+                  shouldDisplayIdVerification={shouldDisplayIdVerification}
                   onRefreshRequest={reload}
                   large={large}
                 />
@@ -346,9 +363,11 @@ export const MembershipsArea = ({
               accountMembershipId={accountMembershipId}
               accountCountry={accountCountry}
               currentUserAccountMembership={currentUserAccountMembership}
-              onSuccess={() => {
-                Router.push("AccountMembersList", {
+              onSuccess={editingAccountMembershipId => {
+                Router.push("AccountMembersDetailsRoot", {
                   accountMembershipId,
+                  editingAccountMembershipId,
+                  showInvitationLink: "true",
                   ...params,
                   new: undefined,
                 });

@@ -1,4 +1,6 @@
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -72,7 +74,7 @@ export const CardItemArea = ({
     {
       data: {
         card,
-        projectInfo: { id: projectId },
+        projectInfo: { id: projectId, B2BMembershipIDVerification },
       },
     },
     reexecuteQuery,
@@ -108,7 +110,19 @@ export const CardItemArea = ({
 
   const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
 
-  const cardRequiresIdentityVerification = card?.accountMembership.statusInfo.status !== "Enabled";
+  const membershipStatus = card?.accountMembership.statusInfo;
+
+  const cardRequiresIdentityVerification =
+    B2BMembershipIDVerification === true &&
+    membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
+    membershipStatus.idVerifiedMatchError;
+
+  const bindingUserError =
+    membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
+    (membershipStatus.birthDateMatchError ||
+      membershipStatus.firstNameMatchError ||
+      membershipStatus.lastNameMatchError ||
+      membershipStatus.phoneNumberMatchError);
 
   const identificationStatus = card?.accountMembership.user?.identificationStatus ?? undefined;
 
@@ -180,14 +194,27 @@ export const CardItemArea = ({
         otherLabel={t("common.tabs.other")}
       />
 
-      <Suspense fallback={<LoadingView color={colors.current.primary} />}>
+      <Suspense fallback={<LoadingView color={colors.current[500]} />}>
         {match(route)
           .with({ name: "AccountCardsItem" }, ({ params: { cardId } }) => (
             <ScrollView
               style={styles.container}
               contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
             >
+              {bindingUserError && B2BMembershipIDVerification === true && (
+                <>
+                  <Space height={24} />
+
+                  <LakeAlert title={t("card.alert.informationConflict.title")} variant="error">
+                    <LakeText color={colors.gray[500]} variant="regular">
+                      {t("card.alert.informationConflict")}
+                    </LakeText>
+                  </LakeAlert>
+                </>
+              )}
+
               <CardItemVirtualDetails
+                bindingUserError={bindingUserError}
                 projectId={projectId}
                 cardId={cardId}
                 accountMembershipId={accountMembershipId}
@@ -208,7 +235,20 @@ export const CardItemArea = ({
                 style={styles.container}
                 contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
               >
+                {bindingUserError && B2BMembershipIDVerification === true && (
+                  <>
+                    <Space height={24} />
+
+                    <LakeAlert title={t("card.alert.informationConflict.title")} variant="error">
+                      <LakeText color={colors.gray[500]} variant="regular">
+                        {t("card.alert.informationConflict")}
+                      </LakeText>
+                    </LakeAlert>
+                  </>
+                )}
+
                 <CardItemPhysicalDetails
+                  bindingUserError={bindingUserError}
                   projectId={projectId}
                   card={card}
                   cardId={cardId}

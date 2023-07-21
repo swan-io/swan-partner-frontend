@@ -1,7 +1,8 @@
-import { ErrorBoundary } from "@sentry/react";
+import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Suspense } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -12,9 +13,10 @@ import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
+import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
-import { partnerClient } from "./utils/urql";
+import { isUnauthorizedError, partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -34,16 +36,24 @@ export const App = () => {
   return (
     <ErrorBoundary
       key={route?.name}
-      fallback={({ error }) => <ErrorView error={error} style={styles.base} />}
+      onError={error => logFrontendError(error)}
+      fallback={({ error }) =>
+        isUnauthorizedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
+      }
     >
       <ClientProvider value={partnerClient}>
         <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
           {match(route)
             .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
-            .with({ name: "ProjectLogin" }, () =>
+            .with({ name: "ProjectLogin" }, ({ params: { sessionExpired } }) =>
               projectConfiguration.match({
                 None: () => <ErrorView />,
-                Some: ({ projectId }) => <ProjectLoginPage projectId={projectId} />,
+                Some: ({ projectId }) => (
+                  <ProjectLoginPage
+                    projectId={projectId}
+                    sessionExpired={isNotNullishOrEmpty(sessionExpired)}
+                  />
+                ),
               }),
             )
             .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route =>

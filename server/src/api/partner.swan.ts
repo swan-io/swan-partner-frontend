@@ -1,14 +1,14 @@
 import { Future, Result } from "@swan-io/boxed";
 import { match } from "ts-pattern";
-import { GetAccountMembershipInvitationDataQuery } from "../graphql/partner.js";
-import { exchangeToken } from "./oauth2.swan.js";
+import { GetAccountMembershipInvitationDataQuery } from "../graphql/partner";
+import { exchangeToken } from "./oauth2.swan";
 import {
   BindAccountMembershipRejectionError,
   FinalizeOnboardingRejectionError,
   ServerError,
   sdk,
   toFuture,
-} from "./partner.js";
+} from "./partner";
 
 export const getAccountMembershipInvitationData = ({
   accessToken,
@@ -62,9 +62,14 @@ export const swan__finalizeOnboarding = ({
         ),
     )
     .mapOk(onboarding => {
-      const redirectUrl = match(onboarding.oAuthRedirectParameters?.redirectUrl?.trim())
-        .with("", () => undefined)
-        .otherwise(value => value);
+      const oauthRedirectUrl = onboarding.oAuthRedirectParameters?.redirectUrl?.trim();
+      const legacyRedirectUrl = onboarding.redirectUrl.trim();
+      const redirectUrl =
+        oauthRedirectUrl != null && oauthRedirectUrl !== ""
+          ? oauthRedirectUrl
+          : legacyRedirectUrl != null && legacyRedirectUrl !== ""
+          ? legacyRedirectUrl
+          : undefined;
 
       return {
         accountMembershipId: onboarding.account?.legalRepresentativeMembership.id,

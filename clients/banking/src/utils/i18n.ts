@@ -1,4 +1,5 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
+import { DateFormat } from "@swan-io/lake/src/components/DatePicker";
 import { memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import {
@@ -44,7 +45,7 @@ type Locale = {
   language: SupportedLanguage;
   translations: Record<string, string>;
   dayjsLocale: ILocale;
-  dateFormat: string;
+  dateFormat: DateFormat;
   datePlaceholder: string;
   timeFormat: string;
   timePlaceholder: string;
@@ -185,7 +186,7 @@ export const rifmTimeProps = getRifmProps({
   maxLength: 4,
 });
 
-type Language = {
+export type Language = {
   name: string;
   native: string;
   id: SupportedLanguage;

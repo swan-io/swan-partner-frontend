@@ -6,32 +6,31 @@
  * invitation emails.
  */
 import { Future, Result } from "@swan-io/boxed";
-import chalk from "chalk";
-import fastifyJaeger from "fastify-jaeger";
 import Mailjet from "node-mailjet";
-import url from "node:url";
 import path from "pathe";
+import pc from "picocolors";
 import { P, match } from "ts-pattern";
 import { string, validate } from "valienv";
-import { exchangeToken } from "./api/oauth2.swan.js";
-import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner.js";
-import { getAccountMembershipInvitationData } from "./api/partner.swan.js";
+import { exchangeToken } from "./api/oauth2.swan";
+import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner";
+import { getAccountMembershipInvitationData } from "./api/partner.swan";
 import {
   OnboardingRejectionError,
   onboardCompanyAccountHolder,
   onboardIndividualAccountHolder,
-} from "./api/unauthenticated.js";
-import { InvitationConfig, start } from "./app.js";
-import { env, url as validateUrl } from "./env.js";
-import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner.js";
-import { renderError } from "./views/error.js";
+} from "./api/unauthenticated";
+import { InvitationConfig, start } from "./app";
+import { env, url as validateUrl } from "./env";
+import { replyWithError } from "./error";
+import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
 
-const dirname = path.dirname(url.fileURLToPath(import.meta.url));
+const keysPath = path.join(__dirname, "../keys");
 
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
   ESP: "Spanish",
   FRA: "French",
+  NLD: "Dutch",
 };
 
 const accountCountries = Object.keys(countryTranslations) as AccountCountry[];
@@ -49,11 +48,13 @@ const additionalEnv = validate({
     SWAN_AUTH_URL: validateUrl,
     MAILJET_API_KEY: string,
     MAILJET_API_SECRET: string,
-    TRACING_SERVICE_NAME: string,
   },
 });
 
 const mailjet = Mailjet.apiConnect(additionalEnv.MAILJET_API_KEY, additionalEnv.MAILJET_API_SECRET);
+
+const swanLogoUrl = "https://data.swan.io/logo-swan.png";
+const swanColorHex = "#6240B5";
 
 const getMailjetInput = ({
   invitationData,
@@ -110,12 +111,12 @@ const getMailjetInput = ({
               TemplateLanguage: true,
               Variables: {
                 applicationName: projectInfo.name,
-                logoUrl: projectInfo.logoUri,
+                logoUrl: projectInfo.logoUri ?? swanLogoUrl,
                 accountHolderName: inviterAccountMembership.account.holder.info.name,
                 accountName: inviterAccountMembership.account.name,
                 accountNumber: inviterAccountMembership.account.number,
                 ctaUrl: `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
-                ctaColor: projectInfo.accentColor,
+                ctaColor: projectInfo.accentColor ?? swanColorHex,
                 inviteeFirstName: inviteeAccountMembership.statusInfo.restrictedTo.firstName,
                 inviterEmail: inviterAccountMembership.email,
                 inviterFirstName: inviterAccountMembership.user.firstName,
@@ -127,6 +128,8 @@ const getMailjetInput = ({
         }),
     )
     .otherwise(() => Result.Error(new Error("Invalid invitation data")));
+
+class MailjetError extends Error {}
 
 const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => {
   return getAccountMembershipInvitationData({
@@ -140,25 +143,35 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     .flatMapOk(data => {
       return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
     })
+    .mapOkToResult(response => {
+      const isOk = response.response.status >= 200 && response.response.status < 300;
+      return isOk
+        ? Result.Ok(true)
+        : Result.Error(new MailjetError(JSON.stringify(response.response.data)));
+    })
     .resultToPromise();
 };
+
+const partnerPickerUrl = new URL(env.BANKING_URL);
+const [...envHostName] = partnerPickerUrl.hostname.split(".");
+partnerPickerUrl.hostname = ["partner", ...envHostName].join(".");
+if (env.NODE_ENV === "development") {
+  partnerPickerUrl.port = "8080";
+}
 
 start({
   mode: env.NODE_ENV,
   httpsConfig:
     env.NODE_ENV === "development"
       ? {
-          key: path.join(dirname, "../keys/_wildcard.swan.local-key.pem"),
-          cert: path.join(dirname, "../keys/_wildcard.swan.local.pem"),
+          key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
+          cert: path.join(keysPath, "_wildcard.swan.local.pem"),
         }
       : undefined,
   sendAccountMembershipInvitation,
+  allowedCorsOrigins: [partnerPickerUrl.origin],
 }).then(
-  async ({ app, ports }) => {
-    await app.register(fastifyJaeger, {
-      serviceName: additionalEnv.TRACING_SERVICE_NAME,
-    });
-
+  ({ app, ports }) => {
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
@@ -206,9 +219,6 @@ start({
             type: "AccountMemberToken",
             projectId: request.params.projectId,
           })
-            .tapError(error => {
-              request.log.error(error);
-            })
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({
@@ -267,7 +277,11 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return renderError(reply, { status: 400, requestId: request.id as string });
+
+            return replyWithError(app, request, reply, {
+              status: 400,
+              requestId: request.id as string,
+            });
           })
           .map(() => undefined);
       },
@@ -298,7 +312,11 @@ start({
                 error => request.log.warn(error),
               )
               .otherwise(error => request.log.error(error));
-            return renderError(reply, { status: 400, requestId: request.id as string });
+
+            return replyWithError(app, request, reply, {
+              status: 400,
+              requestId: request.id as string,
+            });
           })
           .map(() => undefined);
       },
@@ -320,28 +338,28 @@ start({
     ports.forEach(port => void listenPort(port));
 
     console.log(``);
-    console.log(`${chalk.magenta("swan-partner-frontend")}`);
-    console.log(`${chalk.white("---")}`);
-    console.log(chalk.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
+    console.log(`${pc.magenta("swan-partner-frontend")}`);
+    console.log(`${pc.white("---")}`);
+    console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
     console.log(``);
-    console.log(`${chalk.magenta("Banking")} -> ${env.BANKING_URL}`);
-    console.log(`${chalk.magenta("Onboarding Individual")}`);
+    console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
+    console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/individual/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.magenta("Onboarding Company")}`);
+    console.log(`${pc.magenta("Onboarding Company")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
       console.log(
-        `  ${chalk.cyan(`${name} Account`)} -> ${
+        `  ${pc.cyan(`${name} Account`)} -> ${
           env.ONBOARDING_URL
         }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
-    console.log(`${chalk.white("---")}`);
+    console.log(`${pc.white("---")}`);
     console.log(``);
     console.log(``);
   },

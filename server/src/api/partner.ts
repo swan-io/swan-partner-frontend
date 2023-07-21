@@ -1,13 +1,9 @@
 import { Future, Result } from "@swan-io/boxed";
 import { GraphQLClient } from "graphql-request";
 import { match } from "ts-pattern";
-import { env } from "../env.js";
-import { AccountCountry, getSdk } from "../graphql/partner.js";
-import {
-  OAuth2ClientCredentialsError,
-  OAuth2NetworkError,
-  getClientAccessToken,
-} from "./oauth2.js";
+import { env } from "../env";
+import { AccountCountry, getSdk } from "../graphql/partner";
+import { OAuth2ClientCredentialsError, OAuth2NetworkError, getClientAccessToken } from "./oauth2";
 
 export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));
 
@@ -43,7 +39,7 @@ export const parseAccountCountry = (
   accountCountry: unknown,
 ): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
   match(accountCountry)
-    .with("FRA", "DEU", "ESP", undefined, value => Result.Ok(value))
+    .with("FRA", "DEU", "ESP", "NLD", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
 export class FinalizeOnboardingRejectionError extends Error {
@@ -74,9 +70,14 @@ export const finalizeOnboarding = ({
         ),
     )
     .mapOk(onboarding => {
-      const redirectUrl = match(onboarding.oAuthRedirectParameters?.redirectUrl?.trim())
-        .with("", () => undefined)
-        .otherwise(value => value);
+      const oauthRedirectUrl = onboarding.oAuthRedirectParameters?.redirectUrl?.trim();
+      const legacyRedirectUrl = onboarding.redirectUrl.trim();
+      const redirectUrl =
+        oauthRedirectUrl != null && oauthRedirectUrl !== ""
+          ? oauthRedirectUrl
+          : legacyRedirectUrl != null && legacyRedirectUrl !== ""
+          ? legacyRedirectUrl
+          : undefined;
 
       return {
         accountMembershipId: onboarding.account?.legalRepresentativeMembership.id,

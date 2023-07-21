@@ -86,7 +86,7 @@
     "ora": "6.3.1",
     "pathe": "1.1.1",
     "picocolors": "1.0.0",
-    "prettier": "2.8.8",
+    "prettier": "3.0.0",
     "prettier-plugin-organize-imports": "3.2.3",
     "prompts": "2.4.2",
     "semver": "7.5.4",

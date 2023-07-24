@@ -17,11 +17,10 @@ import {
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
-import dayjs from "dayjs";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
-import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
+import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
@@ -585,9 +584,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       label={t("transaction.originalTransactionDate")}
                       render={() => (
                         <LakeText variant="regular" color={colors.gray[900]}>
-                          {dayjs(originTransaction.executionDate).format(
-                            `${locale.dateFormat} ${locale.timeFormat}`,
-                          )}
+                          {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
                         </LakeText>
                       )}
                     />,

@@ -6231,10 +6231,10 @@ node-int64@^0.4.0:
   resolved "https://registry.yarnpkg.com/node-int64/-/node-int64-0.4.0.tgz#87a9065cdb355d3182d8f94ce11188b825c68a3b"
   integrity sha512-O5lz91xSOeoXP6DulyHfllpq+Eg00MWitZIbtPfoSEvqIHdl5gfcY6hYzDWnj0qD5tz52PI08u9qUvSVeUBeHw==
 
-node-mailjet@6.0.3:
-  version "6.0.3"
-  resolved "https://registry.yarnpkg.com/node-mailjet/-/node-mailjet-6.0.3.tgz#706e238e1d5aa7fbfcbb3b339bcb894d0278ad16"
-  integrity sha512-dPOrojEtqbg2GDBM1uWV7ExjfsvgHXG65BbicJ/l4nMzHNLdHW05LsbID9wdqK1FuBzRmlzo2tBxQTMpVUBRlA==
+node-mailjet@6.0.4:
+  version "6.0.4"
+  resolved "https://registry.yarnpkg.com/node-mailjet/-/node-mailjet-6.0.4.tgz#7b5f9eb06a5a4b3737a2e556e6e91fd905716762"
+  integrity sha512-gNWfbVnsH+KxkhfDLPA8OrQ2Q25OgyKp19C7DSJYmN2zNfqTKIXzhB9BZwgxZtErmPxz2Fp1NR18WPCmrJDuwg==
   dependencies:
     axios "^0.27.2"
     json-bigint "^1.0.0"

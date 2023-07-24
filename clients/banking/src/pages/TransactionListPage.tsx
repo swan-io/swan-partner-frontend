@@ -23,7 +23,7 @@ import {
   TransactionFiltersState,
   TransactionListFilter,
 } from "../components/TransactionListFilter";
-import { Amount, TransactionListPageDocument } from "../graphql/partner";
+import { Amount, PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -86,15 +86,8 @@ export const TransactionListPage = ({
       paymentProduct: isNotNullish(params.paymentProduct)
         ? Array.filterMap(params.paymentProduct, item =>
             match(item)
-              .with(
-                "Card",
-                "Fees",
-                "Check",
-                "InternalCreditTransfer",
-                "InternalDirectDebit",
-                "SEPACreditTransfer",
-                "SEPADirectDebit",
-                value => Option.Some(value),
+              .with("CreditTransfer", "DirectDebit", "Card", "Fees", "Check", value =>
+                Option.Some(value),
               )
               .otherwise(() => Option.None()),
           )
@@ -120,6 +113,20 @@ export const TransactionListPage = ({
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
+  const paymentProduct = useMemo(() => {
+    const actualPaymentProduct: PaymentProduct[] = [];
+    filters.paymentProduct?.forEach(item => {
+      const items = match(item)
+        .returnType<PaymentProduct[]>()
+        .with("Card", "Fees", "Check", value => [value])
+        .with("CreditTransfer", () => ["SEPACreditTransfer", "InternalCreditTransfer"])
+        .with("DirectDebit", () => ["SEPADirectDebit", "InternalDirectDebit"])
+        .exhaustive();
+      actualPaymentProduct.push(...items);
+    });
+    return actualPaymentProduct.length > 0 ? actualPaymentProduct : undefined;
+  }, [filters]);
+
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
     {
       query: TransactionListPageDocument,
@@ -128,6 +135,7 @@ export const TransactionListPage = ({
         first: NUM_TO_RENDER,
         filters: {
           ...filters,
+          paymentProduct,
           status: filters.status ?? DEFAULT_STATUSES,
         },
         canQueryCardOnTransaction,

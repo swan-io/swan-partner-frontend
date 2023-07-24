@@ -121,6 +121,7 @@ export const CardItemTransactionList = ({
         first: NUM_TO_RENDER,
         filters: {
           ...filters,
+          paymentProduct: undefined,
           status: filters.status ?? DEFAULT_STATUSES,
         },
         canQueryCardOnTransaction: true,

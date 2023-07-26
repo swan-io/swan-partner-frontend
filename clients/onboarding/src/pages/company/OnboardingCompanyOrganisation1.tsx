@@ -310,7 +310,7 @@ export const OnboardingCompanyOrganisation1 = ({
 
               <Tile
                 footer={
-                  country === "DEU" ? (
+                  accountCountry === "DEU" && country === "DEU" ? (
                     <LakeAlert
                       variant="info"
                       anchored={true}

@@ -76,58 +76,56 @@ export const getTransactionLabel = (transaction: Transaction): string =>
         .with("UnauthorizedOverdraft", () => t("paymentMethod.fees.unauthorizedOverdraft"))
         .with("BankingFee", () => transaction.label)
         .with("ConfirmationLetterDraftingFee", () =>
-          t("transaction.fees.description.confirmationLetterDraftingFee"),
+          t("paymentMethod.fees.confirmationLetterDraftingFee"),
         )
-        .with("CheckIncident", () => t("transaction.fees.description.checkIncident"))
-        .with("CheckDeposit", () => t("transaction.fees.description.checkDeposit"))
-        .with("PhysicalCardPrinting", () => t("transaction.fees.description.physicalCardPrinting"))
+        .with("CheckIncident", () => t("paymentMethod.fees.checkIncident"))
+        .with("CheckDeposit", () => t("paymentMethod.fees.checkDeposit"))
+        .with("PhysicalCardPrinting", () => t("paymentMethod.fees.physicalCardPrinting"))
         .with("PhysicalCardDeliveryFrance", () =>
-          t("transaction.fees.description.physicalCardDeliveryFrance"),
+          t("paymentMethod.fees.physicalCardDeliveryFrance"),
         )
-        .with("PhysicalCardDeliveryIntl", () =>
-          t("transaction.fees.description.physicalCardDeliveryIntl"),
-        )
+        .with("PhysicalCardDeliveryIntl", () => t("paymentMethod.fees.physicalCardDeliveryIntl"))
         .with("PhysicalCardDeliveryExpress", () =>
-          t("transaction.fees.description.physicalCardDeliveryExpress"),
+          t("paymentMethod.fees.physicalCardDeliveryExpress"),
         )
         .with("InternationalCreditTransferInGroup1", () =>
-          t("transaction.fees.description.internationalCreditTransferInGroup1"),
+          t("paymentMethod.fees.internationalCreditTransferInGroup1"),
         )
         .with("InternationalCreditTransferInGroup2", () =>
-          t("transaction.fees.description.internationalCreditTransferInGroup2"),
+          t("paymentMethod.fees.internationalCreditTransferInGroup2"),
         )
         .with("InternationalCreditTransferInGroup3", () =>
-          t("transaction.fees.description.internationalCreditTransferInGroup3"),
+          t("paymentMethod.fees.internationalCreditTransferInGroup3"),
         )
         .with("InternationalCreditTransferInGroup4", () =>
-          t("transaction.fees.description.internationalCreditTransferInGroup4"),
+          t("paymentMethod.fees.internationalCreditTransferInGroup4"),
         )
         .with("InternationalCreditTransferOutGroup1", () =>
-          t("transaction.fees.description.internationalCreditTransferOutGroup1"),
+          t("paymentMethod.fees.internationalCreditTransferOutGroup1"),
         )
         .with("InternationalCreditTransferOutGroup2", () =>
-          t("transaction.fees.description.internationalCreditTransferOutGroup2"),
+          t("paymentMethod.fees.internationalCreditTransferOutGroup2"),
         )
         .with("InternationalCreditTransferOutGroup3", () =>
-          t("transaction.fees.description.internationalCreditTransferOutGroup3"),
+          t("paymentMethod.fees.internationalCreditTransferOutGroup3"),
         )
         .with("InternationalCreditTransferOutGroup4", () =>
-          t("transaction.fees.description.internationalCreditTransferOutGroup4"),
+          t("paymentMethod.fees.internationalCreditTransferOutGroup4"),
         )
         .with("SepaDirectDebitInB2bLevel1", () =>
-          t("transaction.fees.description.sepaDirectDebitInB2bLevel1"),
+          t("paymentMethod.fees.sepaDirectDebitInB2bLevel1"),
         )
         .with("SepaDirectDebitInB2bLevel2", () =>
-          t("transaction.fees.description.sepaDirectDebitInB2bLevel2"),
+          t("paymentMethod.fees.sepaDirectDebitInB2bLevel2"),
         )
         .with("SepaDirectDebitInCoreLevel1", () =>
-          t("transaction.fees.description.sepaDirectDebitInCoreLevel1"),
+          t("paymentMethod.fees.sepaDirectDebitInCoreLevel1"),
         )
         .with("SepaDirectDebitInCoreLevel2", () =>
-          t("transaction.fees.description.sepaDirectDebitInCoreLevel2"),
+          t("paymentMethod.fees.sepaDirectDebitInCoreLevel2"),
         )
         .with("SepaDirectDebitInCoreReturn", () =>
-          t("transaction.fees.description.sepaDirectDebitInCoreReturn"),
+          t("paymentMethod.fees.sepaDirectDebitInCoreReturn"),
         )
         .exhaustive();
     })

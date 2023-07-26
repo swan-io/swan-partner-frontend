@@ -162,7 +162,7 @@ export const OnboardingIndividualDetails = ({
 
               <Tile
                 footer={
-                  country === "DEU" ? (
+                  accountCountry === "DEU" && country === "DEU" ? (
                     <LakeAlert
                       variant="info"
                       anchored={true}

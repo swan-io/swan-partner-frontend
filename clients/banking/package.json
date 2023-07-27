@@ -40,7 +40,7 @@
     "react-ux-form": "1.4.0",
     "rifm": "0.12.1",
     "ts-pattern": "5.0.4",
-    "urql": "4.0.4",
+    "urql": "4.0.5",
     "wonka": "6.3.3"
   },
   "devDependencies": {

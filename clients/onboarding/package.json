@@ -36,7 +36,7 @@
     "react-native-web": "0.19.7",
     "react-ux-form": "1.4.0",
     "ts-pattern": "5.0.4",
-    "urql": "4.0.4",
+    "urql": "4.0.5",
     "uuid": "9.0.0",
     "wonka": "6.3.3"
   },

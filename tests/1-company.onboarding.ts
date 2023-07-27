@@ -2,7 +2,7 @@ import { expect, test } from "@playwright/test";
 import path from "pathe";
 import { env } from "./utils/env";
 import { sca } from "./utils/sca";
-import { waitForText } from "./utils/selectors";
+import { clickOnButton, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 test("French company onboarding", async ({ browser, page }) => {
@@ -52,8 +52,23 @@ test("French company onboarding", async ({ browser, page }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  await page.locator("section", { hasText: "nicolas benady" }).waitFor();
-  await page.locator("section", { hasText: "nicolas, rene, michel saison" }).waitFor();
+  const nicolasBenadyTile = page.locator("section", { hasText: "nicolas benady" });
+  const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rene, michel saison" });
+
+  await nicolasBenadyTile.waitFor();
+  await nicolasSaisonTile.waitFor();
+
+  const editModal = page.locator("[aria-modal]", { hasText: "Edit an owner" });
+
+  await clickOnButton(nicolasBenadyTile, "Edit");
+  await editModal.waitFor();
+  await editModal.getByLabel("Birth postal code").fill("75001");
+  await clickOnButton(editModal, "Save");
+
+  await clickOnButton(nicolasSaisonTile, "Edit");
+  await editModal.waitFor();
+  await editModal.getByLabel("Birth postal code").fill("75001");
+  await clickOnButton(editModal, "Save");
 
   await page.getByRole("button", { name: "Next" }).click();
 

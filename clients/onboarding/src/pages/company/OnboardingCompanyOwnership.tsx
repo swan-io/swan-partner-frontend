@@ -319,6 +319,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
               <Space width={24} />
 
               <LakeButton
+                ariaLabel={t("company.step.owners.editButton")}
                 size="small"
                 mode="tertiary"
                 icon="edit-regular"
@@ -329,6 +330,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
               <Space width={12} />
 
               <LakeButton
+                ariaLabel={t("company.step.owners.deleteButton")}
                 size="small"
                 mode="tertiary"
                 icon="delete-regular"

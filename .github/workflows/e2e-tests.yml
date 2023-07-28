@@ -63,7 +63,7 @@ jobs:
           key: playwright-${{ env.PLAYWRIGHT_VERSION }}
 
       - name: Setup playwright
-        if: steps.cache-playwright.outputs.cache-hit != 'true'
+        if: ${{ steps.cache-playwright.outputs.cache-hit != 'true' }}
         run: yarn playwright install --with-deps
 
       - name: GraphQL Codegen
@@ -73,14 +73,14 @@ jobs:
         run: CI=true yarn test-e2e
 
       - uses: actions/upload-artifact@v3
-        if: failure()
+        if: ${{ failure() }}
         with:
           name: tests-results
           path: tests/results/
           retention-days: 7
 
       - name: Post to the Slack channel
-        if: !cancelled()
+        if: ${{ !cancelled() }}
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C02SJSJSP8X"

@@ -80,7 +80,7 @@ jobs:
           retention-days: 7
 
       - name: Notify Slack about success
-        if: ${{ failure() }}
+        if: ${{ success() }}
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C04HS607GMD"
@@ -91,7 +91,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Status*\n✅ Success\n\n*Commit*\n[${{ github.event.head_commit.message }}](${{ github.event.pull_request.html_url || github.event.head_commit.url }})"
+                    "text": "*Status*\n✅ Success\n\n*Commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
                   },
                   "accessory": {
                     "type": "button",
@@ -122,7 +122,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Status*\n❌ Failure\n\n*Commit*\n[${{ github.event.head_commit.message }}](${{ github.event.pull_request.html_url || github.event.head_commit.url }})"
+                    "text": "*Status*\n❌ Failure\n\n*Commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
                   },
                   "accessory": {
                     "type": "button",

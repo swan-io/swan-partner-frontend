@@ -86,12 +86,13 @@ jobs:
           channel-id: "C04HS607GMD"
           payload: |
             {
+              "unfurl_links": false,
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Status*\n✅ Success\n\n*Commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+                    "text": "*status:* success ✅\n*commit:* <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
                   },
                   "accessory": {
                     "type": "button",
@@ -117,12 +118,13 @@ jobs:
           channel-id: "C04HS607GMD"
           payload: |
             {
+              "unfurl_links": false,
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*Status*\n❌ Failure\n\n*Commit*\n<${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+                    "text": "*status:* failure ❌\n*commit:* <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
                   },
                   "accessory": {
                     "type": "button",

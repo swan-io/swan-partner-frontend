@@ -86,13 +86,13 @@ jobs:
           channel-id: "C02SJSJSP8X"
           payload: |
             {
-              "text": "E2E tests status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "text": "E2E tests status: *${{ job.status }}*\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
               "blocks": [
                 {
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "E2E tests status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                    "text": "E2E tests status: *${{ job.status }}*\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
                   }
                 }
               ]

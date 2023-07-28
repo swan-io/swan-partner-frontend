@@ -80,7 +80,7 @@ jobs:
           retention-days: 7
 
       - name: Post to the Slack channel
-        # if: failure()
+        if: always()
         uses: slackapi/slack-github-action@v1
         with:
           channel-id: "C02SJSJSP8X"

@@ -78,3 +78,24 @@ jobs:
           name: tests-results
           path: tests/results/
           retention-days: 7
+
+      - name: Post to the Slack channel
+        # if: failure()
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: "C02SJSJSP8X"
+          payload: |
+            {
+              "text": "E2E tests status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "E2E tests status: ${{ job.status }}\n${{ github.event.pull_request.html_url || github.event.head_commit.url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}

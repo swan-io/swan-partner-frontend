@@ -1,15 +1,14 @@
-name: E2E tests
+name: E2E tests (release)
 
 on:
-  push:
-    branches: ["*"]
+  release:
+    types: [released]
 
 jobs:
   test:
-    name: E2E tests
+    name: E2E tests (release)
     runs-on: ubuntu-latest
     timeout-minutes: 60
-    if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[E2E]') }}
     steps:
       - uses: actions/checkout@v3
 
@@ -78,6 +77,38 @@ jobs:
           name: tests-results
           path: tests/results/
           retention-days: 7
+
+      - name: Notify Slack about success
+        if: ${{ success() }}
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: "C04HS607GMD"
+          payload: |
+            {
+              "unfurl_links": false,
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*status:* success ✅\n*commit:* <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+                  },
+                  "accessory": {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "Open on GitHub",
+                      "emoji": true
+                    },
+                    "value": "github",
+                    "url": "https://github.com/swan-io/swan-partner-frontend/actions/runs/${{ github.run_id }}",
+                    "action_id": "button-action"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.E2E_SLACK_BOT_TOKEN }}
 
       - name: Notify Slack about failure
         if: ${{ failure() }}

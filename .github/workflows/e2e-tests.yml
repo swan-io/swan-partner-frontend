@@ -79,11 +79,11 @@ jobs:
           path: tests/results/
           retention-days: 7
 
-      - name: Post to the Slack channel
-        if: ${{ !cancelled() }}
+      - name: Notify Slack about success
+        if: ${{ success() }}
         uses: slackapi/slack-github-action@v1
         with:
-          channel-id: "C02SJSJSP8X"
+          channel-id: "C04HS607GMD"
           payload: |
             {
               "blocks": [
@@ -91,7 +91,27 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "Status: *${{ success() && '✅ Success' || '❌ Failure' }}*"
+                    "text": "Status: *✅ Success*"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.E2E_SLACK_BOT_TOKEN }}
+
+      - name: Notify Slack about failure
+        if: ${{ failure() }}
+        uses: slackapi/slack-github-action@v1
+        with:
+          channel-id: "C04HS607GMD"
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "Status: *❌ Failure*"
                   },
                   "accessory": {
                     "type": "button",

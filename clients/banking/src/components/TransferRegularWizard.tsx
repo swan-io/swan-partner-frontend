@@ -3,14 +3,13 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { t } from "../utils/i18n";
-import { Beneficiary } from "./TransferWizardBeneficiary";
+import { Beneficiary, TransferWizardBeneficiary } from "./TransferWizardBeneficiary";
 
 const styles = StyleSheet.create({
   root: {
@@ -26,7 +25,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     width: "100%",
-    maxWidth: 1520,
+    maxWidth: 1336,
     marginHorizontal: "auto",
     paddingHorizontal: spacings[96],
   },
@@ -41,7 +40,7 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     marginHorizontal: "auto",
-    maxWidth: 1520,
+    maxWidth: 1172,
     paddingHorizontal: spacings[24],
     paddingVertical: spacings[24],
     width: "100%",
@@ -106,7 +105,16 @@ export const TransferRegularWizard = ({ onPressClose }: Props) => {
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
             {match(step)
               .with({ name: "Beneficiary" }, () => {
-                return <Tile />;
+                return (
+                  <>
+                    <LakeHeading level={2} variant="h3">
+                      {t("transfer.new.benefiary.title")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+                    <TransferWizardBeneficiary />
+                  </>
+                );
               })
               .otherwise(() => null)}
           </ScrollView>

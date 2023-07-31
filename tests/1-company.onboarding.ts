@@ -6,7 +6,7 @@ import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { assertIsDefined, assertTypename } from "./utils/functions";
 import { sca } from "./utils/sca";
-import { clickOnButton, waitForText } from "./utils/selectors";
+import { clickOnButton, clickOnText, waitForText } from "./utils/selectors";
 import { getSession, saveSession } from "./utils/session";
 
 const saveAccountMembership = async (
@@ -45,6 +45,12 @@ const saveAccountMembership = async (
 
   assertTypename(updateAccountHolder, "UpdateAccountHolderSuccessPayload");
 
+  const menu = page.getByRole("navigation");
+  await clickOnText(menu, "Account");
+
+  const section = page.getByRole("region");
+  const IBAN = await section.getByText(/^(FR|DE|ES)[\d\s]+$/).textContent();
+
   await saveSession({
     benady: {
       memberships: {
@@ -54,6 +60,7 @@ const saveAccountMembership = async (
             account: {
               id: account.id,
               number: account.number,
+              IBAN,
               holder: {
                 id: account.holder.id,
               },

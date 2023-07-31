@@ -7,6 +7,7 @@ type Membership = {
   id: string;
   account: {
     id: string;
+    IBAN: string;
     number: string;
     holder: {
       id: string;

@@ -27,3 +27,9 @@ mutation EndorseSandboxUser($id: String!) {
     }
   }
 }
+
+mutation UpdateAccountHolder($input: UpdateAccountHolderInput!) {
+  updateAccountHolder(input: $input) {
+    __typename
+  }
+}

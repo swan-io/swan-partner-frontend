@@ -1,8 +1,9 @@
 import { Page, expect, test } from "@playwright/test";
 import { AccountMembershipDocument } from "./graphql/partner";
+import { UpdateAccountHolderDocument } from "./graphql/partner-admin";
 import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
-import { assertIsDefined } from "./utils/functions";
+import { assertIsDefined, assertTypename } from "./utils/functions";
 import { sca } from "./utils/sca";
 import { waitForText } from "./utils/selectors";
 import { getSession, saveSession } from "./utils/session";
@@ -29,6 +30,19 @@ const saveAccountMembership = async (
 
   const { account } = accountMembership;
   assertIsDefined(account);
+
+  const { updateAccountHolder } = await requestApi({
+    query: UpdateAccountHolderDocument,
+    api: "partner-admin",
+    variables: {
+      input: {
+        accountHolderId: account.holder.id,
+        verificationStatus: "Verified",
+      },
+    },
+  });
+
+  assertTypename(updateAccountHolder, "UpdateAccountHolderSuccessPayload");
 
   await saveSession({
     benady: {

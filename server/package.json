@@ -39,7 +39,7 @@
     "@opentelemetry/semantic-conventions": "1.15.0",
     "@swan-io/boxed": "1.0.2",
     "fast-proxy": "2.2.0",
-    "fastify": "4.20.0",
+    "fastify": "4.21.0",
     "fastify-language-parser": "3.0.0",
     "get-port": "5.1.1",
     "graphql-request": "5.1.0",

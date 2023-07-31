@@ -3,6 +3,18 @@ import { PartialDeep } from "type-fest";
 import { sessionPath } from "../../playwright.config";
 import { deepMerge } from "./functions";
 
+type Membership = {
+  id: string;
+  account: {
+    id: string;
+    IBAN: string;
+    number: string;
+    holder: {
+      id: string;
+    };
+  };
+};
+
 type Session = {
   project: {
     accessToken: string;
@@ -14,12 +26,16 @@ type Session = {
   benady: {
     email: string;
 
-    account: {
-      id: string;
-      number: string;
-
-      holder: {
-        id: string;
+    memberships: {
+      individual: {
+        french: Membership;
+        german: Membership;
+        spanish: Membership;
+      };
+      company: {
+        french: Membership;
+        german: Membership;
+        spanish: Membership;
       };
     };
   };

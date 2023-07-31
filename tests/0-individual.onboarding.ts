@@ -1,10 +1,57 @@
-import { expect, test } from "@playwright/test";
+import { Page, expect, test } from "@playwright/test";
+import { AccountMembershipDocument } from "./graphql/partner";
+import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
+import { assertIsDefined } from "./utils/functions";
 import { sca } from "./utils/sca";
 import { waitForText } from "./utils/selectors";
-import { getSession } from "./utils/session";
+import { getSession, saveSession } from "./utils/session";
 
-test("French individual onboarding", async ({ browser, page }) => {
+const saveAccountMembership = async (
+  key: "french" | "german" | "spanish",
+  page: Page,
+  requestApi: ApiRequester,
+) => {
+  const accountMembershipId = page
+    .url()
+    .replace(env.BANKING_URL, "")
+    .split("/")
+    .filter(item => item !== "")[0];
+
+  assertIsDefined(accountMembershipId);
+
+  const { accountMembership } = await requestApi({
+    query: AccountMembershipDocument,
+    variables: { accountMembershipId },
+  });
+
+  assertIsDefined(accountMembership);
+
+  const { account } = accountMembership;
+  assertIsDefined(account);
+
+  await saveSession({
+    benady: {
+      memberships: {
+        individual: {
+          [key]: {
+            id: accountMembership.id,
+            account: {
+              id: account.id,
+              number: account.number,
+              holder: {
+                id: account.holder.id,
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
+test("French individual onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/individual/start?accountCountry=FRA`);
@@ -31,9 +78,12 @@ test("French individual onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("french", page, requestApi);
 });
 
-test("German individual onboarding", async ({ browser, page }) => {
+test("German individual onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/individual/start?accountCountry=DEU`);
@@ -64,9 +114,12 @@ test("German individual onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("german", page, requestApi);
 });
 
-test("Spanish individual onboarding", async ({ browser, page }) => {
+test("Spanish individual onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/individual/start?accountCountry=ESP`);
@@ -98,4 +151,6 @@ test("Spanish individual onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("spanish", page, requestApi);
 });

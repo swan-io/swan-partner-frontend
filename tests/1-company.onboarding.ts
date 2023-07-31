@@ -1,11 +1,58 @@
-import { expect, test } from "@playwright/test";
+import { Page, expect, test } from "@playwright/test";
 import path from "pathe";
+import { AccountMembershipDocument } from "./graphql/partner";
+import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
+import { assertIsDefined } from "./utils/functions";
 import { sca } from "./utils/sca";
 import { clickOnButton, waitForText } from "./utils/selectors";
-import { getSession } from "./utils/session";
+import { getSession, saveSession } from "./utils/session";
 
-test("French company onboarding", async ({ browser, page }) => {
+const saveAccountMembership = async (
+  key: "french" | "german" | "spanish",
+  page: Page,
+  requestApi: ApiRequester,
+) => {
+  const accountMembershipId = page
+    .url()
+    .replace(env.BANKING_URL, "")
+    .split("/")
+    .filter(item => item !== "")[0];
+
+  assertIsDefined(accountMembershipId);
+
+  const { accountMembership } = await requestApi({
+    query: AccountMembershipDocument,
+    variables: { accountMembershipId },
+  });
+
+  assertIsDefined(accountMembership);
+
+  const { account } = accountMembership;
+  assertIsDefined(account);
+
+  await saveSession({
+    benady: {
+      memberships: {
+        company: {
+          [key]: {
+            id: accountMembership.id,
+            account: {
+              id: account.id,
+              number: account.number,
+              holder: {
+                id: account.holder.id,
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+};
+
+test("French company onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=FRA`);
@@ -76,9 +123,12 @@ test("French company onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("french", page, requestApi);
 });
 
-test("German company onboarding", async ({ browser, page }) => {
+test("German company onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=DEU`);
@@ -147,14 +197,8 @@ test("German company onboarding", async ({ browser, page }) => {
 
   await modal.getByLabel("Birth city").fill("Paris");
   await modal.getByLabel("Birth postal code").fill("75001");
-
   await modal.getByLabel("Total percentage of capital held").fill("100");
-
-  // TODO: Replace with getByRole checkbox once lake is updated
-  await page
-    .locator("[aria-checked]", { has: page.getByText("Directly", { exact: true }) })
-    .click();
-
+  await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
   await modal.getByRole("button", { name: "Next" }).click();
 
   await modal.getByRole("button", { name: "Enter manually" }).click();
@@ -174,9 +218,12 @@ test("German company onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("german", page, requestApi);
 });
 
-test("Spanish company onboarding", async ({ browser, page }) => {
+test("Spanish company onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
   const { benady } = await getSession();
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=ESP`);
@@ -238,14 +285,8 @@ test("Spanish company onboarding", async ({ browser, page }) => {
 
   await modal.getByLabel("Birth city").fill("Paris");
   await modal.getByLabel("Birth postal code").fill("75001");
-
   await modal.getByLabel("Total percentage of capital held").fill("100");
-
-  // TODO: Replace with getByRole checkbox once lake is updated
-  await page
-    .locator("[aria-checked]", { has: page.getByText("Directly", { exact: true }) })
-    .click();
-
+  await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
   await modal.getByRole("button", { name: "Next" }).click();
 
   await modal.getByRole("button", { name: "Enter manually" }).click();
@@ -277,4 +318,6 @@ test("Spanish company onboarding", async ({ browser, page }) => {
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
+
+  await saveAccountMembership("spanish", page, requestApi);
 });

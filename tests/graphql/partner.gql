@@ -1,5 +1,6 @@
-query Onboarding($onboardingId: ID!) {
-  onboarding(id: $onboardingId) {
+query AccountMembership($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    id
     account {
       id
       number
@@ -7,24 +8,5 @@ query Onboarding($onboardingId: ID!) {
         id
       }
     }
-    statusInfo {
-      __typename
-    }
-  }
-}
-
-mutation OnboardIndividualAccountHolder($input: OnboardIndividualAccountHolderInput!) {
-  onboardIndividualAccountHolder(input: $input) {
-    ... on OnboardIndividualAccountHolderSuccessPayload {
-      onboarding {
-        id
-      }
-    }
-  }
-}
-
-mutation FinalizeOnboarding($onboardingId: String!) {
-  finalizeOnboarding(input: { onboardingId: $onboardingId }) {
-    __typename
   }
 }

@@ -16,6 +16,8 @@ type ApiRequesterOptions<Result, Variables> = {
   ? { variables?: Variables }
   : { variables: Variables });
 
+export type ApiRequester = ReturnType<typeof getApiRequester>;
+
 export const getApiRequester =
   (request: APIRequestContext) =>
   async <Result, Variables>({

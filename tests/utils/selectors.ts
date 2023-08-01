@@ -16,6 +16,12 @@ export const getButtonByName = (
   { exact = typeof name === "string", ...options }: GetByRoleOptions = {},
 ) => parent.getByRole("button", { exact, ...options, name });
 
+export const getLinkByName = (
+  parent: Parent,
+  name: string | RegExp,
+  { exact = typeof name === "string", ...options }: GetByRoleOptions = {},
+  ) => parent.getByRole("link", { exact, ...options, name });
+  
 export const getByText = (
   parent: Parent,
   text: string | RegExp,
@@ -23,6 +29,12 @@ export const getByText = (
 ) => parent.getByText(text, { exact, ...options });
 
 // Actions
+
+export const clickOnLink = (
+  parent: Parent,
+  name: string | RegExp,
+  { exact, ...options }: ClickOptions = {},
+) => getLinkByName(parent, name, { exact }).click(options);
 
 export const clickOnButton = (
   parent: Parent,

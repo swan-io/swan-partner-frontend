@@ -21,7 +21,12 @@ import { P, match } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { isToday } from "../utils/date";
 import { locale, rifmDateProps, rifmTimeProps, t } from "../utils/i18n";
-import { validateRequired, validateTime, validateTodayOrAfter } from "../utils/validations";
+import {
+  validateDateWithinNextYear,
+  validateRequired,
+  validateTime,
+  validateTodayOrAfter,
+} from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import { Beneficiary } from "./TransferWizardBeneficiary";
 
@@ -81,7 +86,11 @@ export const TransferRegularWizardSchedule = ({
     },
     scheduledDate: {
       initialValue: "",
-      validate: combineValidators(validateRequired, validateTodayOrAfter),
+      validate: combineValidators(
+        validateRequired,
+        validateTodayOrAfter,
+        validateDateWithinNextYear,
+      ),
     },
     scheduledTime: {
       initialValue: "",

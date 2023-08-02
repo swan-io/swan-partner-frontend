@@ -107,6 +107,22 @@ export const validateTodayOrAfter: Validator<string> = value => {
   }
 };
 
+export const validateDateWithinNextYear: Validator<string> = value => {
+  if (value === "") {
+    return;
+  }
+
+  const date = dayjs.utc(value, "DD/MM/YYYY");
+  if (!date.isValid()) {
+    return t("common.form.invalidDate");
+  }
+
+  const nextYear = dayjs.utc().add(1, "year");
+  if (date.isAfter(nextYear, "day")) {
+    return t("common.form.dateIsNotWithinYear");
+  }
+};
+
 export const validateTime =
   (minHours: number, minMinutes: number): Validator<string> =>
   value => {

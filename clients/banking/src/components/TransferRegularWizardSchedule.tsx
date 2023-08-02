@@ -115,7 +115,9 @@ export const TransferRegularWizardSchedule = ({
         .with({ isInstant: P.boolean }, ({ isInstant }) => {
           onSave({ isScheduled: false, isInstant });
         })
-        .otherwise(() => {});
+        .otherwise(() => {
+          onSave({ isScheduled: false, isInstant: false });
+        });
     });
   };
 

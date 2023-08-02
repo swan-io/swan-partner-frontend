@@ -185,10 +185,12 @@ const TransferRecurringWizardDetailsFixedAmount = ({
                 <LakeText variant="medium" color={colors.swan[700]}>
                   {t("transfer.new.sendFullBalance")}
                 </LakeText>
+
                 <LakeText variant="regular" color={colors.gray[500]}>
                   {t("transfer.new.sendFullBalance.description")}
                 </LakeText>
               </Box>
+
               <Space width={24} />
               <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
             </Box>
@@ -268,7 +270,6 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
 
       <Space height={8} />
       <LakeText>{t("transfer.new.recurring.targetAccountBalance.subtitle")}</LakeText>
-
       <Space height={32} />
 
       <Tile>
@@ -355,6 +356,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
                 <LakeText variant="medium" color={colors.swan[700]}>
                   {t("transfer.new.sendRegularTransfer")}
                 </LakeText>
+
                 <LakeText variant="regular" color={colors.gray[500]}>
                   {t("transfer.new.sendRegularTransfer.description")}
                 </LakeText>

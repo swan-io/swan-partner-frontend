@@ -5,9 +5,9 @@ import { useMemo } from "react";
 import { match } from "ts-pattern";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
+import { TransferPage } from "../pages/TransferPage";
 import { t } from "../utils/i18n";
-import { paymentRoutesV2, Router } from "../utils/routes";
+import { paymentRoutes, Router } from "../utils/routes";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
@@ -15,19 +15,19 @@ import { TransferTypePicker } from "./TransferTypePicker";
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  newStandingOrderIsVisible: boolean;
+  canInitiatePaymentsToNewBeneficiaries: boolean;
   canQueryCardOnTransaction: boolean;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
 };
 
-export const PaymentsAreaV2 = ({
+export const TransferArea = ({
   accountId,
   accountMembershipId,
-  newStandingOrderIsVisible,
+  canInitiatePaymentsToNewBeneficiaries,
   canQueryCardOnTransaction,
   transferConsent,
 }: Props) => {
-  const route = Router.useRoute(paymentRoutesV2);
+  const route = Router.useRoute(paymentRoutes);
 
   useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountPaymentsRoot", { accountMembershipId }),
@@ -49,35 +49,39 @@ export const PaymentsAreaV2 = ({
           { name: "AccountPaymentsRoot" },
           { name: "AccountPaymentsRecurringTransferDetailsArea" },
           () => (
-            <PaymentsPageV2
+            <TransferPage
               accountId={accountId}
               accountMembershipId={accountMembershipId}
-              newStandingOrderIsVisible={newStandingOrderIsVisible}
+              canInitiatePaymentsToNewBeneficiaries={canInitiatePaymentsToNewBeneficiaries}
               canQueryCardOnTransaction={canQueryCardOnTransaction}
             />
           ),
         )
-        .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) => (
-          <>
-            <TransferTypePicker accountMembershipId={accountMembershipId} />
+        .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
+          canInitiatePaymentsToNewBeneficiaries ? (
+            <>
+              <TransferTypePicker accountMembershipId={accountMembershipId} />
 
-            <FullViewportLayer visible={type === "transfer"}>
-              <TransferRegularWizard
-                accountId={accountId}
-                accountMembershipId={accountMembershipId}
-                onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-              />
-            </FullViewportLayer>
+              <FullViewportLayer visible={type === "transfer"}>
+                <TransferRegularWizard
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                  onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                />
+              </FullViewportLayer>
 
-            <FullViewportLayer visible={type === "recurring"}>
-              <TransferRecurringWizard
-                accountId={accountId}
-                accountMembershipId={accountMembershipId}
-                onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-              />
-            </FullViewportLayer>
-          </>
-        ))
+              <FullViewportLayer visible={type === "recurring"}>
+                <TransferRecurringWizard
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                  onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                />
+              </FullViewportLayer>
+            </>
+          ) : (
+            <NotFoundPage />
+          ),
+        )
         .otherwise(() => (
           <NotFoundPage />
         ))}

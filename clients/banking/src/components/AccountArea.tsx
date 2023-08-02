@@ -57,10 +57,10 @@ import { CardsArea } from "./CardsArea";
 import { ErrorView } from "./ErrorView";
 import { MembershipsArea } from "./MembershipsArea";
 import { NavigationTabBar, navigationTabBarHeight } from "./NavigationTabBar";
-import { PaymentsAreaV2 } from "./PaymentsAreaV2";
 import { ProfileButton } from "./ProfileButton";
 import { Redirect } from "./Redirect";
 import { TransactionsArea } from "./TransactionsArea";
+import { TransferArea } from "./TransferArea";
 
 const SIDEBAR_WIDTH = 300;
 const LOGO_MAX_HEIGHT = 40;
@@ -762,10 +762,10 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 isNullish(accountId) ? (
                                   <ErrorView />
                                 ) : (
-                                  <PaymentsAreaV2
+                                  <TransferArea
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
-                                    newStandingOrderIsVisible={
+                                    canInitiatePaymentsToNewBeneficiaries={
                                       canInitiatePaymentsToNewBeneficiaries
                                     }
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}

@@ -95,7 +95,7 @@ export const historyMenuRoutes = ["AccountTransactionsArea", "AccountActivation"
 
 export const paymentMenuRoutes = ["AccountPaymentsArea"] as const;
 
-export const paymentRoutesV2 = [
+export const paymentRoutes = [
   "AccountPaymentsRoot",
   "AccountPaymentsNew",
   "AccountPaymentsRecurringTransferDetailsArea",

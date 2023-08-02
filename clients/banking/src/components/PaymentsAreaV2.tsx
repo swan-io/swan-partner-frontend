@@ -8,6 +8,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { PaymentsPageV2 } from "../pages/PaymentsPageV2";
 import { t } from "../utils/i18n";
 import { paymentRoutesV2, Router } from "../utils/routes";
+import { TransferRecurringWizard } from "./TransferRecurringWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
 
@@ -44,23 +45,37 @@ export const PaymentsAreaV2 = ({
   return (
     <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
       {match(route)
-        .with({ name: "AccountPaymentsRoot" }, () => (
-          <PaymentsPageV2
-            accountId={accountId}
-            accountMembershipId={accountMembershipId}
-            newStandingOrderIsVisible={newStandingOrderIsVisible}
-            canQueryCardOnTransaction={canQueryCardOnTransaction}
-          />
-        ))
+        .with(
+          { name: "AccountPaymentsRoot" },
+          { name: "AccountPaymentsRecurringTransferDetailsArea" },
+          () => (
+            <PaymentsPageV2
+              accountId={accountId}
+              accountMembershipId={accountMembershipId}
+              newStandingOrderIsVisible={newStandingOrderIsVisible}
+              canQueryCardOnTransaction={canQueryCardOnTransaction}
+            />
+          ),
+        )
         .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) => (
           <>
             <TransferTypePicker accountMembershipId={accountMembershipId} />
+
             <FullViewportLayer visible={type === "transfer"}>
               <TransferRegularWizard
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
                 onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
               />
             </FullViewportLayer>
-            <FullViewportLayer visible={type === "recurring"}>recurring</FullViewportLayer>
+
+            <FullViewportLayer visible={type === "recurring"}>
+              <TransferRecurringWizard
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+              />
+            </FullViewportLayer>
           </>
         ))
         .otherwise(() => (

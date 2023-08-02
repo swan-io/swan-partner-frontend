@@ -45,12 +45,17 @@ export type TargetAccountBalanceDetails = {
   reference?: string;
 };
 
+type SharedDetails = {
+  label?: string;
+  reference?: string;
+};
+
 export type Details = FixedAmountDetails | TargetAccountBalanceDetails;
 
 type TransferRecurringWizardDetailsFixedAmountProps = {
   initialDetails?: FixedAmountDetails;
   onPressPrevious: () => void;
-  onPressSwitchMode: () => void;
+  onPressSwitchMode: (details: SharedDetails) => void;
   onSave: (details: FixedAmountDetails) => void;
 };
 
@@ -60,7 +65,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
   onPressSwitchMode,
   onSave,
 }: TransferRecurringWizardDetailsFixedAmountProps) => {
-  const { Field, submitForm } = useForm({
+  const { Field, getFieldState, submitForm } = useForm({
     amount: {
       initialValue: initialDetails?.amount.value ?? "",
       sanitize: value => value.replace(/,/g, "."),
@@ -177,7 +182,14 @@ const TransferRecurringWizardDetailsFixedAmount = ({
 
       <Space height={24} />
 
-      <Pressable onPress={onPressSwitchMode}>
+      <Pressable
+        onPress={() =>
+          onPressSwitchMode({
+            label: getFieldState("label").value,
+            reference: getFieldState("reference").value,
+          })
+        }
+      >
         {({ hovered }) => (
           <Tile selected={false} hovered={hovered}>
             <Box direction="row" alignItems="center">
@@ -216,7 +228,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
 type TransferRecurringWizardDetailsTargetAccountBalanceProps = {
   initialDetails?: TargetAccountBalanceDetails;
   onPressPrevious: () => void;
-  onPressSwitchMode: () => void;
+  onPressSwitchMode: (details: SharedDetails) => void;
   onSave: (details: TargetAccountBalanceDetails) => void;
 };
 
@@ -226,7 +238,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
   onPressSwitchMode,
   onSave,
 }: TransferRecurringWizardDetailsTargetAccountBalanceProps) => {
-  const { Field, submitForm } = useForm({
+  const { Field, getFieldState, submitForm } = useForm({
     targetAmount: {
       initialValue: initialDetails?.targetAmount.value ?? "",
       sanitize: value => value.replace(/,/g, "."),
@@ -345,7 +357,14 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
 
       <Space height={24} />
 
-      <Pressable onPress={onPressSwitchMode}>
+      <Pressable
+        onPress={() =>
+          onPressSwitchMode({
+            label: getFieldState("label").value,
+            reference: getFieldState("reference").value,
+          })
+        }
+      >
         {({ hovered }) => (
           <Tile selected={false} hovered={hovered}>
             <Box direction="row" alignItems="center">
@@ -413,7 +432,9 @@ export const TransferRecurringWizardDetails = ({
               initialDetails={initialDetails}
               onPressPrevious={onPressPrevious}
               onSave={onSave}
-              onPressSwitchMode={() => setDetails(TARGET_ACCOUNT_BALANCE_DEFAULT_VALUE)}
+              onPressSwitchMode={sharedDetails =>
+                setDetails({ ...TARGET_ACCOUNT_BALANCE_DEFAULT_VALUE, ...sharedDetails })
+              }
             />
           </>
         ))
@@ -423,7 +444,9 @@ export const TransferRecurringWizardDetails = ({
               initialDetails={initialDetails}
               onPressPrevious={onPressPrevious}
               onSave={onSave}
-              onPressSwitchMode={() => setDetails(FIXED_AMOUNT_DEFAULT_VALUE)}
+              onPressSwitchMode={sharedDetails =>
+                setDetails({ ...FIXED_AMOUNT_DEFAULT_VALUE, ...sharedDetails })
+              }
             />
           </>
         ))

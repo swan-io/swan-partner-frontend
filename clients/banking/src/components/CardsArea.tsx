@@ -179,7 +179,7 @@ export const CardsArea = ({
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
       {({ large }) => (
         <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
-          <View style={styles.container}>
+          <View style={styles.container} role="main">
             {totalDisplayableCardCount > 1 ? (
               <View style={[styles.header, large && styles.headerDesktop]}>
                 <Breadcrumbs />
@@ -225,6 +225,7 @@ export const CardsArea = ({
                       ) : null}
 
                       <CardItemArea
+                        data-testid="user-card-item"
                         accountMembershipId={accountMembershipId}
                         userId={userId}
                         cardId={cardId}

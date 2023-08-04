@@ -20,8 +20,8 @@ export const getLinkByName = (
   parent: Parent,
   name: string | RegExp,
   { exact = typeof name === "string", ...options }: GetByRoleOptions = {},
-  ) => parent.getByRole("link", { exact, ...options, name });
-  
+) => parent.getByRole("link", { exact, ...options, name });
+
 export const getByText = (
   parent: Parent,
   text: string | RegExp,

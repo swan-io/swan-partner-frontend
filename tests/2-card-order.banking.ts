@@ -1,80 +1,102 @@
 import { Page, expect, test } from "@playwright/test";
+import { randomUUID } from "node:crypto";
 import { env } from "./utils/env";
-import { clickOnLink, clickOnText, waitForText } from "./utils/selectors";
+import { clickOnButton, clickOnLink, clickOnText, getByText, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
-const create = async (
-  page: Page,
-  product: "Basic" | "Premium",
-  kind: "Virtual" | "Virtual and Physical" | "Single use",
-  name: string,
-  variant?: "One-off" | "Recurring",
-) => {
+type Options = {
+  product: "Basic" | "Premium";
+} & (
+  | { kind: "Virtual" | "Virtual and Physical" }
+  | { kind: "Single use"; variant: "One-off" | "Recurring" }
+);
+
+const create = async (page: Page, options: Options) => {
   const { benady } = await getSession();
-  const CARDS_URL = `${env.BANKING_URL}/${benady.memberships.individual.french.id}/cards`;
-  await page.goto(CARDS_URL);
+  const name = `E2E card - ${randomUUID()}`;
 
-  await page.getByRole("button", { name: "New" }).click();
+  await page.goto(`${env.BANKING_URL}/${benady.memberships.individual.french.id}/cards`);
 
-  await waitForText(page, "Which card?");
-  await clickOnText(page.locator("#full-page-layer-root"), product);
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.pause();
-  await waitForText(page, "Which format?");
-  await clickOnText(page.locator("#full-page-layer-root"), kind);
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.pause();
+  const main = page.getByRole("main");
+  await clickOnButton(main, "New");
 
-  await waitForText(page, "Pick your settings");
-  await page.getByLabel("Card name - (optional)").type(name);
+  const layer = page.locator("#full-page-layer-root");
 
-  if (kind === "Single use" && variant) {
-    await page.getByLabel("Amount").type("42");
-    await clickOnText(page.locator("#full-page-layer-root"), variant);
+  await waitForText(layer, "Which card?");
+  const products = layer.getByRole("region");
+  await clickOnText(products, options.product);
+  await clickOnButton(layer, "Next");
+
+  await waitForText(layer, "Which format?");
+  const kinds = layer.getByRole("region");
+  await clickOnText(kinds, options.kind);
+  await clickOnButton(layer, "Next");
+
+  await waitForText(layer, "Pick your settings");
+  await layer.getByLabel("Card name - (optional)").fill(name);
+
+  if (options.kind === "Single use") {
+    await layer.getByLabel("Amount").fill("42");
+    await clickOnText(layer, options.variant);
   }
 
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.pause();
-  await page.waitForLoadState();
+  await clickOnButton(layer, "Next");
+  await layer.waitFor({ state: "detached" });
 
-  await page.locator("[data-testid=user-card-item]").isVisible();
-  const count = await page.locator("[data-testid=user-card-item]").count();
-  if (count > 1) {
-    await page.locator("[data-testid=user-card-item]").first().click();
+  const title = "Full name and card format";
+  await waitForText(main, new RegExp(`${title}|Reveal card numbers`));
+
+  if (await getByText(main, title).isVisible()) {
+    const cards = main.getByTestId("user-card-item");
+    await cards.getByText(name, { exact: true }).click();
   }
-  await page.pause();
 
-  await clickOnLink(page, "Settings");
-
-  await expect(page.getByLabel("Card name")).toHaveValue(name);
+  await clickOnLink(main, "Settings");
+  await expect(main.getByLabel("Card name")).toHaveValue(name);
 };
 
 test("Card creation - basic virtual", async ({ page }) => {
-  await create(page, "Basic", "Virtual", "e2e card - basic virtual");
+  await create(page, {
+    product: "Basic",
+    kind: "Virtual",
+  });
 });
 
 test("Card creation - basic single use one-off", async ({ page }) => {
-  await create(page, "Basic", "Single use", "e2e card - basic single use one-off", "One-off");
+  await create(page, {
+    product: "Basic",
+    kind: "Single use",
+    variant: "One-off",
+  });
 });
 
 test("Card creation - basic single use recurring", async ({ page }) => {
-  await create(page, "Basic", "Single use", "e2e card - basic single use recurring", "Recurring");
+  await create(page, {
+    product: "Basic",
+    kind: "Single use",
+    variant: "Recurring",
+  });
 });
 
 test("Card creation - premium virtual", async ({ page }) => {
-  await create(page, "Premium", "Virtual", "e2e card - premium virtual");
+  await create(page, {
+    product: "Premium",
+    kind: "Virtual",
+  });
 });
 
 test("Card creation - premium single use one-off", async ({ page }) => {
-  await create(page, "Premium", "Single use", "e2e card - premium single use one-off", "One-off");
+  await create(page, {
+    product: "Premium",
+    kind: "Single use",
+    variant: "One-off",
+  });
 });
 
 test("Card creation - premium single use recurring", async ({ page }) => {
-  await create(
-    page,
-    "Premium",
-    "Single use",
-    "e2e card - premium single use recurring",
-    "Recurring",
-  );
+  await create(page, {
+    product: "Premium",
+    kind: "Single use",
+    variant: "Recurring",
+  });
 });

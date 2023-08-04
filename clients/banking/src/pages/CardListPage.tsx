@@ -237,6 +237,7 @@ export const CardListPage = ({
                     cards={cards.edges}
                     getRowLink={({ item }) => (
                       <Link
+                        data-testid="user-card-item"
                         to={Router.AccountCardsItem({
                           accountMembershipId,
                           cardId: item.id,

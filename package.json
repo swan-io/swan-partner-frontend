@@ -67,7 +67,7 @@
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.4",
     "@types/sodium-native": "2.3.5",
-    "@typescript-eslint/eslint-plugin": "6.1.0",
+    "@typescript-eslint/eslint-plugin": "6.3.0",
     "@typescript-eslint/parser": "6.1.0",
     "@urql/introspection": "1.0.2",
     "adm-zip": "0.5.10",

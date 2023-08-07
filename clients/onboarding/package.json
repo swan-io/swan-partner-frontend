@@ -21,7 +21,7 @@
     "@0no-co/graphql.web": "1.0.4",
     "@formatjs/intl": "2.9.0",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/react": "7.60.0",
+    "@sentry/react": "7.61.1",
     "@swan-io/boxed": "1.0.2",
     "@swan-io/chicane": "1.4.1",
     "@swan-io/lake": "2.7.6",

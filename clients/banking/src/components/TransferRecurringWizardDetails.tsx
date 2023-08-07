@@ -17,6 +17,7 @@ import { StyleSheet, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { formatCurrency, t } from "../utils/i18n";
+import { validateTransferReference } from "../utils/validations";
 
 const styles = StyleSheet.create({
   field: {
@@ -255,6 +256,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
+      validate: validateTransferReference,
     },
   });
 
@@ -340,6 +342,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
                         <LakeTextInput
                           id={id}
                           value={value}
+                          help={t("transfer.new.details.reference.help")}
                           error={error}
                           valid={valid}
                           onChangeText={onChange}

@@ -17,6 +17,7 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
+import { validateTransferReference } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -73,6 +74,7 @@ export const TransferRegularWizardDetails = ({
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
+      validate: validateTransferReference,
     },
   });
 
@@ -174,6 +176,7 @@ export const TransferRegularWizardDetails = ({
                                 value={value}
                                 error={error}
                                 valid={valid}
+                                help={t("transfer.new.details.reference.help")}
                                 onChangeText={onChange}
                                 onBlur={onBlur}
                               />

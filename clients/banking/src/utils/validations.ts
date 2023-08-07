@@ -39,6 +39,20 @@ export const validateName: Validator<string> = value => {
   }
 };
 
+const TRANSFER_REFERENCE_REGEX = /^[0-9a-zA-Z]+$/;
+
+export const validateTransferReference: Validator<string> = value => {
+  if (!value) {
+    return;
+  }
+  if (value.length > 35) {
+    return t("common.form.invalidTransferReference");
+  }
+  if (!TRANSFER_REFERENCE_REGEX.test(value)) {
+    return t("common.form.invalidTransferReference");
+  }
+};
+
 export const validateTaxIdentificationNumber: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");

@@ -39,6 +39,20 @@ export const validateName: Validator<string> = value => {
   }
 };
 
+const TRANSFER_REFERENCE_REGEX = /^[0-9a-zA-Z]+$/;
+
+export const validateTransferReference: Validator<string> = value => {
+  if (!value) {
+    return;
+  }
+  if (value.length > 35) {
+    return t("common.form.invalidTransferReference");
+  }
+  if (!TRANSFER_REFERENCE_REGEX.test(value)) {
+    return t("common.form.invalidTransferReference");
+  }
+};
+
 export const validateTaxIdentificationNumber: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");
@@ -104,6 +118,22 @@ export const validateTodayOrAfter: Validator<string> = value => {
   const today = dayjs.utc();
   if (date.isBefore(today, "day")) {
     return t("common.form.dateCannotBePast");
+  }
+};
+
+export const validateDateWithinNextYear: Validator<string> = value => {
+  if (value === "") {
+    return;
+  }
+
+  const date = dayjs.utc(value, "DD/MM/YYYY");
+  if (!date.isValid()) {
+    return t("common.form.invalidDate");
+  }
+
+  const nextYear = dayjs.utc().add(1, "year");
+  if (date.isAfter(nextYear, "day")) {
+    return t("common.form.dateIsNotWithinYear");
   }
 };
 

@@ -1869,6 +1869,21 @@ query getIbanValidation($iban: IBAN!) {
   }
 }
 
+query GetAvailableAccountBalance($accountMembershipId: ID!) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    account {
+      id
+      balances {
+        available {
+          value
+          currency
+        }
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {

@@ -707,7 +707,7 @@
   "transfer.new.scheduleDate.label": "Date",
   "transfer.new.scheduleTime.label": "Time",
   "transfer.new.title": "New transfer",
-  "transfer.newRecurringTransfer": "New recurring transfer",
+  "transfer.newRecurringTransfer": "New standing order",
   "transfer.newTransfer": "New transfer",
   "transfer.transfer": "Transfer",
   "transfer.tabs.recurringTransfer": "Standing orders",

@@ -27,7 +27,7 @@
     "@swan-io/lake": "2.7.6",
     "@swan-io/shared-business": "2.7.6",
     "@urql/exchange-graphcache": "6.1.4",
-    "core-js": "3.31.1",
+    "core-js": "3.32.0",
     "dayjs": "1.11.9",
     "nanoid": "4.0.2",
     "react": "18.2.0",

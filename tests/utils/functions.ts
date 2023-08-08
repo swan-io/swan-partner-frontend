@@ -1,3 +1,4 @@
+import { Dict } from "@swan-io/boxed";
 import fs from "node:fs/promises";
 import { testResultsDir } from "../../playwright.config";
 
@@ -77,3 +78,10 @@ export function assertTypename<T extends string, E extends T>(
     throw new Error(`__typename is not "${expected}":\n${JSON.stringify(input, null, 2)}`);
   }
 }
+
+export const mapKeys = <P extends string, K extends string>(prefix: P, object: Record<K, string>) =>
+  Object.fromEntries(
+    Dict.entries(object).map(([key, value]) => [`${prefix}.${key}`, value] as const),
+  ) as {
+    [K1 in K as `${P}.${K1}`]: string;
+  };

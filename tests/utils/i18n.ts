@@ -1,17 +1,10 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { Dict } from "@swan-io/boxed";
 import sharedEN from "@swan-io/shared-business/src/locales/en.json";
 import bankingEN from "../../clients/banking/src/locales/en.json";
 import onboardingEN from "../../clients/onboarding/src/locales/en.json";
+import { mapKeys } from "./functions";
 
 const LANGUAGE_FALLBACK = "en";
-
-const mapKeys = <P extends string, K extends string>(prefix: P, object: Record<K, string>) =>
-  Object.fromEntries(
-    Dict.entries(object).map(([key, value]) => [`${prefix}.${key}`, value] as const),
-  ) as {
-    [K1 in K as `${P}.${K1}`]: string;
-  };
 
 const translationEN = {
   ...mapKeys("banking", bankingEN),
@@ -26,7 +19,7 @@ const intl = createIntl(
   {
     defaultLocale: LANGUAGE_FALLBACK,
     fallbackOnEmptyString: false,
-    locale: "en",
+    locale: LANGUAGE_FALLBACK,
     messages: translationEN,
   },
   createIntlCache(),

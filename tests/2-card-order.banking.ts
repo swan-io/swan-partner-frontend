@@ -7,7 +7,7 @@ import { clickOnButton, clickOnLink, clickOnText, getByText, waitForText } from 
 import { getSession } from "./utils/session";
 
 type Options = {
-  product: "basic" | "premium";
+  product: "Basic" | "Premium";
 } & (
   | { kind: "virtual" | "virtualAndPhysical" }
   | { kind: "singleUse"; variant: "oneOff" | "recurring" }
@@ -69,14 +69,14 @@ const create = async (page: Page, options: Options) => {
 
 test("Card creation - basic virtual", async ({ page }) => {
   await create(page, {
-    product: "basic",
+    product: "Basic",
     kind: "virtual",
   });
 });
 
 test("Card creation - basic single use one-off", async ({ page }) => {
   await create(page, {
-    product: "basic",
+    product: "Basic",
     kind: "singleUse",
     variant: "oneOff",
   });
@@ -84,7 +84,7 @@ test("Card creation - basic single use one-off", async ({ page }) => {
 
 test("Card creation - basic single use recurring", async ({ page }) => {
   await create(page, {
-    product: "basic",
+    product: "Basic",
     kind: "singleUse",
     variant: "recurring",
   });
@@ -92,14 +92,14 @@ test("Card creation - basic single use recurring", async ({ page }) => {
 
 test("Card creation - premium virtual", async ({ page }) => {
   await create(page, {
-    product: "premium",
+    product: "Premium",
     kind: "virtual",
   });
 });
 
 test("Card creation - premium single use one-off", async ({ page }) => {
   await create(page, {
-    product: "premium",
+    product: "Premium",
     kind: "singleUse",
     variant: "oneOff",
   });
@@ -107,7 +107,7 @@ test("Card creation - premium single use one-off", async ({ page }) => {
 
 test("Card creation - premium single use recurring", async ({ page }) => {
   await create(page, {
-    product: "premium",
+    product: "Premium",
     kind: "singleUse",
     variant: "recurring",
   });

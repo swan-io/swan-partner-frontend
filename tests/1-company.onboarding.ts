@@ -81,7 +81,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText("France");
+  await expect(picker).toHaveText(t("shared.country.FRA"));
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -118,19 +118,19 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
-  await page.getByText("Financial and insurance operations").click();
+  await page.getByText(t("shared.businessActivity.financialAndInsuranceOperations")).click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
   await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
-  await page.getByText("More than €100,000").click();
+  await page.getByText(t("shared.monthlyPaymentVolume.moreThan100000")).click();
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   const nicolasBenadyTile = page.locator("section", { hasText: "nicolas benady" });
-  const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rene, michel saison" });
+  const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rené, michel saison" });
 
   await nicolasBenadyTile.waitFor();
   await nicolasSaisonTile.waitFor();
@@ -141,12 +141,12 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await clickOnButton(nicolasBenadyTile, t("onboarding.company.step.owners.editButton"));
   await editModal.waitFor();
-  await editModal.getByLabel("Birth postal code").fill("75001");
+  await editModal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
   await clickOnButton(editModal, t("onboarding.common.save"));
 
   await clickOnButton(nicolasSaisonTile, t("onboarding.company.step.owners.editButton"));
   await editModal.waitFor();
-  await editModal.getByLabel("Birth postal code").fill("75001");
+  await editModal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
   await clickOnButton(editModal, t("onboarding.common.save"));
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
@@ -170,7 +170,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText("Germany");
+  await expect(picker).toHaveText(t("shared.country.DEU"));
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -181,7 +181,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
   await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
-    "Germany",
+    t("shared.country.DEU"),
   );
 
   await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
@@ -212,14 +212,14 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
-  await page.getByText("Health").click();
+  await page.getByText(t("shared.businessActivity.health")).click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
   await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
-  await page.getByText("Between €10,000 and €50,000").click();
+  await page.getByText(t("shared.monthlyPaymentVolume.between10000And50000")).click();
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
@@ -228,24 +228,28 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   const modal = page.locator("[aria-modal]");
 
-  await modal.getByLabel("First name").fill("Nicolas");
-  await modal.getByLabel("Last name").fill("Benady");
-  await modal.getByLabel("Birth date").fill("01/01/1970");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.firstName")).fill("Nicolas");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.lastName")).fill("Benady");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthDate")).fill("01/01/1970");
 
-  await modal.getByLabel("Birth country").click();
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCountry")).click();
 
   const listbox = page.getByRole("listbox");
   await listbox.type("F");
-  await listbox.getByText("France").click();
+  await listbox.getByText(t("shared.country.FRA")).click();
 
-  await modal.getByLabel("Birth city").fill("Paris");
-  await modal.getByLabel("Birth postal code").fill("75001");
-  await modal.getByLabel("Total percentage of capital held").fill("100");
-  await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
+  await modal
+    .getByLabel(t("shared.beneficiaryForm.beneficiary.totalCapitalPercentage"))
+    .fill("100");
+  await modal
+    .getByRole("checkbox", { name: t("shared.beneficiaryForm.beneficiary.directly"), exact: true })
+    .click();
   await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
-  await modal.getByLabel("Find beneficiary address").fill("Pariser Platz 5");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.address")).fill("Pariser Platz 5");
   await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
   await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
   await modal
@@ -278,7 +282,7 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText("Spain");
+  await expect(picker).toHaveText(t("shared.country.ESP"));
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -311,14 +315,14 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
-  await page.getByText("Education").click();
+  await page.getByText(t("shared.businessActivity.education")).click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
   await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
-  await page.getByText("Between €10,000 and €50,000").click();
+  await page.getByText(t("shared.monthlyPaymentVolume.between10000And50000")).click();
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
@@ -327,24 +331,30 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   const modal = page.locator("[aria-modal]");
 
-  await modal.getByLabel("First name").fill("Nicolas");
-  await modal.getByLabel("Last name").fill("Benady");
-  await modal.getByLabel("Birth date").fill("01/01/1970");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.firstName")).fill("Nicolas");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.lastName")).fill("Benady");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthDate")).fill("01/01/1970");
 
-  await modal.getByLabel("Birth country").click();
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCountry")).click();
 
   const listbox = page.getByRole("listbox");
   await listbox.type("F");
-  await listbox.getByText("France").click();
+  await listbox.getByText(t("shared.country.FRA")).click();
 
-  await modal.getByLabel("Birth city").fill("Paris");
-  await modal.getByLabel("Birth postal code").fill("75001");
-  await modal.getByLabel("Total percentage of capital held").fill("100");
-  await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
+  await modal
+    .getByLabel(t("shared.beneficiaryForm.beneficiary.totalCapitalPercentage"))
+    .fill("100");
+  await modal
+    .getByRole("checkbox", { name: t("shared.beneficiaryForm.beneficiary.directly"), exact: true })
+    .click();
   await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
-  await modal.getByLabel("Find beneficiary address").fill("Carrer de la Riera de Sant Miquel");
+  await modal
+    .getByLabel(t("shared.beneficiaryForm.beneficiary.address"))
+    .fill("Carrer de la Riera de Sant Miquel");
   await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Barcelona");
   await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("08006");
   await modal

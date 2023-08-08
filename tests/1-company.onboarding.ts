@@ -120,8 +120,8 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: "Next" }).click();
 
-  const nicolasBenadyTile = page.locator("section", { hasText: "nicolas benady" });
-  const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rene, michel saison" });
+  const nicolasBenadyTile = page.locator("section", { hasText: /nicolas.*benady/gmi });
+  const nicolasSaisonTile = page.locator("section", { hasText: /nicolas.*saison/gmi });
 
   await nicolasBenadyTile.waitFor();
   await nicolasSaisonTile.waitFor();

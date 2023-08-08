@@ -5,6 +5,7 @@ import { UpdateAccountHolderDocument } from "./graphql/partner-admin";
 import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { assertIsDefined, assertTypename } from "./utils/functions";
+import { t } from "./utils/i18n";
 import { sca } from "./utils/sca";
 import { clickOnButton, clickOnText, waitForText } from "./utils/selectors";
 import { getSession, saveSession } from "./utils/session";
@@ -78,47 +79,55 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=FRA`);
 
-  const picker = page.getByLabel("Where is your organization located?");
+  const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
   await expect(picker).toHaveText("France");
 
-  await page.getByText("Are you a legal representative?").waitFor();
-  await page.getByText("What type of organization is it?").waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
 
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByLabel("What's your email?").fill(benady.email);
+  await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await waitForText(page, "Are you registered to RCS?");
-  await page.getByLabel("Your organization", { exact: true }).fill("Swan");
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
+    .fill("Swan");
   await page.getByText("853827103 - SWAN").click();
 
   await expect(page.getByLabel("What’s your registration number")).toHaveValue("853827103");
-  await expect(page.getByLabel("What’s your VAT number?")).toHaveValue("FR90853827103");
-
-  await expect(page.getByLabel("Find your organization's address")).toHaveValue(
-    "95 AV DU PRESIDENT WILSON",
+  await expect(page.getByLabel(t("onboarding.company.step.organisation1.vatLabel"))).toHaveValue(
+    "FR90853827103",
   );
 
-  await expect(page.getByLabel("City")).toHaveValue("MONTREUIL");
-  await expect(page.getByLabel("Postcode")).toHaveValue("93100");
+  await expect(
+    page.getByLabel(t("onboarding.company.step.organisation1.addressLabel")),
+  ).toHaveValue("95 AV DU PRESIDENT WILSON");
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await expect(page.getByLabel(t("onboarding.individual.step.location.cityLabel"))).toHaveValue(
+    "MONTREUIL",
+  );
+  await expect(page.getByLabel(t("onboarding.individual.step.location.postCodeLabel"))).toHaveValue(
+    "93100",
+  );
 
-  await page.getByLabel("What's your business activity?").click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
   await page.getByText("Financial and insurance operations").click();
 
   await page
-    .getByLabel("Description of your business, service, or product")
+    .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
-  await page.getByLabel("Your company's expected monthly payments through this account").click();
+  await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
   await page.getByText("More than €100,000").click();
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   const nicolasBenadyTile = page.locator("section", { hasText: "nicolas benady" });
   const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rene, michel saison" });
@@ -126,21 +135,26 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await nicolasBenadyTile.waitFor();
   await nicolasSaisonTile.waitFor();
 
-  const editModal = page.locator("[aria-modal]", { hasText: "Edit an owner" });
+  const editModal = page.locator("[aria-modal]", {
+    hasText: t("onboarding.company.step.owners.editTitle"),
+  });
 
-  await clickOnButton(nicolasBenadyTile, "Edit");
+  await clickOnButton(nicolasBenadyTile, t("onboarding.company.step.owners.editButton"));
   await editModal.waitFor();
   await editModal.getByLabel("Birth postal code").fill("75001");
-  await clickOnButton(editModal, "Save");
+  await clickOnButton(editModal, t("onboarding.common.save"));
 
-  await clickOnButton(nicolasSaisonTile, "Edit");
+  await clickOnButton(nicolasSaisonTile, t("onboarding.company.step.owners.editButton"));
   await editModal.waitFor();
   await editModal.getByLabel("Birth postal code").fill("75001");
-  await clickOnButton(editModal, "Save");
+  await clickOnButton(editModal, t("onboarding.common.save"));
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
+  await sca.loginWithButtonClick(
+    browser,
+    page.getByRole("button", { name: t("onboarding.company.step.presentation.step5") }),
+  );
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
@@ -154,55 +168,63 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=DEU`);
 
-  const picker = page.getByLabel("Where is your organization located?");
+  const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
   await expect(picker).toHaveText("Germany");
 
-  await page.getByText("Are you a legal representative?").waitFor();
-  await page.getByText("What type of organization is it?").waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
 
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByLabel("What's your email?").fill(benady.email);
+  await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
-  await expect(page.getByLabel("What country do you live in?")).toHaveText("Germany");
+  await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
+    "Germany",
+  );
 
-  await page.getByRole("button", { name: "Enter manually" }).click();
-  await page.getByLabel("Find your personal home address").fill("Pariser Platz 5");
-  await page.getByLabel("City").fill("Berlin");
-  await page.getByLabel("Postcode").fill("10117");
+  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
+  await page
+    .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
+    .fill("Pariser Platz 5");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
 
   await page.getByRole("checkbox").check();
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await waitForText(page, "Are you registered to Handelsregister?");
 
-  await page.getByLabel("Your organization", { exact: true }).fill("Swan");
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
+    .fill("Swan");
   await page.getByLabel("What’s your registration number").fill("HRA 12345");
 
-  await page.getByRole("button", { name: "Enter manually" }).click();
-  await page.getByLabel("Find your organization's address").fill("Mariendorfer Damm 342-358");
-  await page.getByLabel("City").fill("Berlin");
-  await page.getByLabel("Postcode").fill("12107");
+  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
+    .fill("Mariendorfer Damm 342-358");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("12107");
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByLabel("What's your business activity?").click();
+  await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
   await page.getByText("Health").click();
 
   await page
-    .getByLabel("Description of your business, service, or product")
+    .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
-  await page.getByLabel("Your company's expected monthly payments through this account").click();
+  await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
   await page.getByText("Between €10,000 and €50,000").click();
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Who has ownership at your organization?");
-  await page.getByRole("button", { name: "Add" }).click();
+  await waitForText(page, t("onboarding.company.step.owners.title"));
+  await page.getByRole("button", { name: t("onboarding.common.add") }).click();
 
   const modal = page.locator("[aria-modal]");
 
@@ -220,22 +242,27 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await modal.getByLabel("Birth postal code").fill("75001");
   await modal.getByLabel("Total percentage of capital held").fill("100");
   await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
-  await modal.getByRole("button", { name: "Next" }).click();
+  await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await modal.getByRole("button", { name: "Enter manually" }).click();
+  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await modal.getByLabel("Find beneficiary address").fill("Pariser Platz 5");
-  await modal.getByLabel("City").fill("Berlin");
-  await modal.getByLabel("Postcode").fill("10117");
-  await modal.getByLabel("Tax identification number").fill("00000000000");
+  await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
+  await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
+  await modal
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("00000000000");
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 
   await waitForText(page, "Nicolas Benady");
   await waitForText(page, "Directly holds 100% of the capital of Swan");
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
+  await sca.loginWithButtonClick(
+    browser,
+    page.getByRole("button", { name: t("onboarding.company.step.presentation.step5") }),
+  );
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");
@@ -249,48 +276,54 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=ESP`);
 
-  const picker = page.getByLabel("Where is your organization located?");
+  const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
   await expect(picker).toHaveText("Spain");
 
-  await page.getByText("Are you a legal representative?").waitFor();
-  await page.getByText("What type of organization is it?").waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
 
-  await page.getByRole("button", { name: "Next" }).click();
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByLabel("What's your email?").fill(benady.email);
+  await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered?");
+  await waitForText(page, t("onboarding.company.step.organisation1.isRegisteredLabel"));
 
-  await page.getByLabel("Your organization", { exact: true }).fill("Swan");
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
+    .fill("Swan");
   await page.getByLabel("What’s your registration number").fill("49294492H");
-  await page.getByLabel("Tax identification number").fill("xxxxxxxxx");
+  await page
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("xxxxxxxxx");
 
-  await page.getByRole("button", { name: "Enter manually" }).click();
+  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
 
-  await page.getByLabel("Find your organization's address").fill("C/ de Mallorca, 401");
-  await page.getByLabel("City").fill("Barcelona");
-  await page.getByLabel("Postcode").fill("08013");
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
+    .fill("C/ de Mallorca, 401");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Barcelona");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("08013");
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByLabel("What's your business activity?").click();
+  await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
   await page.getByText("Education").click();
 
   await page
-    .getByLabel("Description of your business, service, or product")
+    .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
     .fill("Ignore this, I'm an end-to-end test");
 
-  await page.getByLabel("Your company's expected monthly payments through this account").click();
+  await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
   await page.getByText("Between €10,000 and €50,000").click();
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Who has ownership at your organization?");
-  await page.getByRole("button", { name: "Add" }).click();
+  await waitForText(page, t("onboarding.company.step.owners.title"));
+  await page.getByRole("button", { name: t("onboarding.common.add") }).click();
 
   const modal = page.locator("[aria-modal]");
 
@@ -308,20 +341,22 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await modal.getByLabel("Birth postal code").fill("75001");
   await modal.getByLabel("Total percentage of capital held").fill("100");
   await modal.getByRole("checkbox", { name: "Directly", exact: true }).click();
-  await modal.getByRole("button", { name: "Next" }).click();
+  await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await modal.getByRole("button", { name: "Enter manually" }).click();
+  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await modal.getByLabel("Find beneficiary address").fill("Carrer de la Riera de Sant Miquel");
-  await modal.getByLabel("City").fill("Barcelona");
-  await modal.getByLabel("Postcode").fill("08006");
-  await modal.getByLabel("Tax identification number").fill("xxxxxxxxx");
+  await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Barcelona");
+  await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("08006");
+  await modal
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("xxxxxxxxx");
 
-  await page.getByRole("button", { name: "Save" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 
   await waitForText(page, "Nicolas Benady");
   await waitForText(page, "Directly holds 100% of the capital of Swan");
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   const fileInputs = page.locator('input[type="file"]');
 
@@ -333,9 +368,12 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await fileInputs.nth(1).setInputFiles(swornStatementPath);
   await waitForText(page, path.basename(swornStatementPath));
 
-  await page.getByRole("button", { name: "Next" }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await sca.loginWithButtonClick(browser, page.getByRole("button", { name: "Finalize" }));
+  await sca.loginWithButtonClick(
+    browser,
+    page.getByRole("button", { name: t("onboarding.company.step.presentation.step5") }),
+  );
 
   await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
   await waitForText(page, "Sign out");

@@ -119,9 +119,10 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await page.getByText("More than €100,000").click();
 
   await page.getByRole("button", { name: "Next" }).click();
-
-  const nicolasBenadyTile = page.locator("section", { hasText: "nicolas benady" });
-  const nicolasSaisonTile = page.locator("section", { hasText: "nicolas, rene, michel saison" });
+  
+  const tiles = page.locator("section");
+  const nicolasBenadyTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "benady" });
+  const nicolasSaisonTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "saison" });
 
   await nicolasBenadyTile.waitFor();
   await nicolasSaisonTile.waitFor();

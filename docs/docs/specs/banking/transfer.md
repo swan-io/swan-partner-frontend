@@ -5,15 +5,20 @@ Along with the main navigation, the **transfer page** should include the followi
 - **Send transfer** call to action
 - **Schedule recurring transfer** call to action
 - List of **active recurring transfers** with option to filter for canceled recurring transfers
-    - Recipient
-    - Short explanation
-    - Recurrence
-    - Next execution
-    - Amount
-    - Actions (notably, a **cancel** button)
-
+  - Recipient
+  - Short explanation
+  - Recurrence
+  - Next execution
+  - Amount
+  - Actions (notably, a **cancel** button)
 
 ![Screenshot of the main transfer page](./images/transfer-home.png)
+
+## Transfer types
+
+![Screenshot of the transfer type picker](./images/transfer-type.png)
+
+You can pick between **regular** and **standing order** (recurring transfer).
 
 ## New transfer
 
@@ -23,7 +28,7 @@ When sending a new transfer, the following information should be collected from 
 - Recipient IBAN
 - Reason (short explanation, reference number—whatever is needed for your use case)
 - Transfer amount
-- Schedule (*standard* by default; can also choose *instant*)
+- Schedule (_standard_ by default; can also choose _instant_)
 
 After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
 
@@ -43,9 +48,9 @@ When sending a new recurring transfer, the following information should be colle
 - Recipient name
 - Recipient IBAN
 - Reason (short explanation, reference number—whatever is needed for your use case)
-- Transfer type (*specified amount* or *full balance*) and amount
-    - For *full balance transfers*, the user indicates how much should be left in the account. Everything else is transferred.
-- Schedule (*daily*, *weekly*, or *monthly*)
+- Transfer type (_specified amount_ or _full balance_) and amount
+  - For _full balance transfers_, the user indicates how much should be left in the account. Everything else is transferred.
+- Schedule (_daily_, _weekly_, or _monthly_)
 
 After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
 

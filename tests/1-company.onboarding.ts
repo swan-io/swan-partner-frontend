@@ -128,7 +128,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await page.getByText(t("shared.monthlyPaymentVolume.moreThan100000")).click();
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
-  
+
   const tiles = page.locator("section");
   const nicolasBenadyTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "benady" });
   const nicolasSaisonTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "saison" });

@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { useMemo } from "react";
+import { View } from "react-native";
 import { match } from "ts-pattern";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -44,47 +45,49 @@ export const TransferArea = ({
 
   return (
     <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
-      {match(route)
-        .with(
-          { name: "AccountPaymentsRoot" },
-          { name: "AccountPaymentsRecurringTransferDetailsArea" },
-          () => (
-            <TransferPage
-              accountId={accountId}
-              accountMembershipId={accountMembershipId}
-              canInitiatePaymentsToNewBeneficiaries={canInitiatePaymentsToNewBeneficiaries}
-              canQueryCardOnTransaction={canQueryCardOnTransaction}
-            />
-          ),
-        )
-        .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
-          canInitiatePaymentsToNewBeneficiaries ? (
-            <>
-              <TransferTypePicker accountMembershipId={accountMembershipId} />
+      <View role="main">
+        {match(route)
+          .with(
+            { name: "AccountPaymentsRoot" },
+            { name: "AccountPaymentsRecurringTransferDetailsArea" },
+            () => (
+              <TransferPage
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                canInitiatePaymentsToNewBeneficiaries={canInitiatePaymentsToNewBeneficiaries}
+                canQueryCardOnTransaction={canQueryCardOnTransaction}
+              />
+            ),
+          )
+          .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
+            canInitiatePaymentsToNewBeneficiaries ? (
+              <>
+                <TransferTypePicker accountMembershipId={accountMembershipId} />
 
-              <FullViewportLayer visible={type === "transfer"}>
-                <TransferRegularWizard
-                  accountId={accountId}
-                  accountMembershipId={accountMembershipId}
-                  onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                />
-              </FullViewportLayer>
+                <FullViewportLayer visible={type === "transfer"}>
+                  <TransferRegularWizard
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                  />
+                </FullViewportLayer>
 
-              <FullViewportLayer visible={type === "recurring"}>
-                <TransferRecurringWizard
-                  accountId={accountId}
-                  accountMembershipId={accountMembershipId}
-                  onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                />
-              </FullViewportLayer>
-            </>
-          ) : (
+                <FullViewportLayer visible={type === "recurring"}>
+                  <TransferRecurringWizard
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                  />
+                </FullViewportLayer>
+              </>
+            ) : (
+              <NotFoundPage />
+            ),
+          )
+          .otherwise(() => (
             <NotFoundPage />
-          ),
-        )
-        .otherwise(() => (
-          <NotFoundPage />
-        ))}
+          ))}
+      </View>
     </BreadcrumbsRoot>
   );
 };

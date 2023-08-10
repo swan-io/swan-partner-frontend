@@ -2434,10 +2434,10 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.6.1.tgz#913d3a68c5cbc1124fdb18eff919432f7b6abdde"
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
-"@react-three/drei@^9.79.3":
-  version "9.79.3"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.79.3.tgz#37b74ae0adb8f8b8d3142c17ddd077248b61b627"
-  integrity sha512-aTJVOHzaS8DDlqkT9YsyRcsF2nrRPEoA8tTHY6Lr78gMHDc44HX068Ie3Kq+Tw5FabOfu2SMoFW0IVuDg94qfA==
+"@react-three/drei@^9.80.1":
+  version "9.80.1"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.80.1.tgz#6e45dff60a92643c67cde44415a6ef153377bbef"
+  integrity sha512-BlntSFEQb+Zhtj1zVfVv4ts/Co6GUBeZLPgG4SYhecKdGy1ctFaH2Tb8Z8HIl8PToUeWEDfKO4g4+/pE89YrEw==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@mediapipe/tasks-vision" "0.10.2"
@@ -2462,10 +2462,10 @@
     utility-types "^3.10.0"
     zustand "^3.5.13"
 
-"@react-three/fiber@^8.13.5":
-  version "8.13.5"
-  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.13.5.tgz#6075a18364381a03551068e28cb9b82a8ed7ae0d"
-  integrity sha512-x9QdsaB/Wm/6NGvRXQahPPWfn2dQce7Fg3C2r00NNzyDdqRKw32YavL+WEqjZOOd0nvFpzv7FtaKc+VCOTR59w==
+"@react-three/fiber@^8.13.6":
+  version "8.13.6"
+  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.13.6.tgz#6be6e9548e7c70cefa5e250550dd9b1e1698f487"
+  integrity sha512-V49lldHcbsC7PMnnf4aYrMpHPQe8R7hJYL0AEFjqwioY0nkwga9A+Jx6lCLVG02DF03xwCfJZv5cjZCChffsWg==
   dependencies:
     "@babel/runtime" "^7.17.8"
     "@types/react-reconciler" "^0.26.7"
@@ -2561,10 +2561,15 @@
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
 
-"@swan-io/boxed@1.0.2", "@swan-io/boxed@^1.0.2":
+"@swan-io/boxed@1.0.2":
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-1.0.2.tgz#77a61d4a65169e86d928d865acea60c7c543e8c8"
   integrity sha512-Mm7qV+62BUIgOL4/RvBx+hKIij07pAfDsvbuftEqTwbAZidHKta0q8b6Sddgf69vubwPM5K86cY61WMqqUfm8Q==
+
+"@swan-io/boxed@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-1.1.0.tgz#1ef2d2a93e1ab4592be34982f15a11b065c20c4d"
+  integrity sha512-oH/ef12qo+7GRy1t1yOCpPESh+gP6cQkGXTMoaDiaNAJQB9LYYEJZO7/QboMpZQ6YwcVPiHhfjgsr/Vf45Yhpw==
 
 "@swan-io/chicane@1.4.1", "@swan-io/chicane@^1.4.1":
   version "1.4.1"
@@ -2575,15 +2580,15 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@2.7.6":
-  version "2.7.6"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.7.6.tgz#c0b0cec7c918cdddb92dc29097de9ee917baf77f"
-  integrity sha512-H89/21oEZXtw9yPQktXEx73SDcYVatHWShSpipz1WJcPCBfekXW7rR2zCFhr/S17RpClvbXSo6UH+JmmXjGaGQ==
+"@swan-io/lake@2.7.10":
+  version "2.7.10"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.7.10.tgz#7f88e030e1b6a73f11cab7883338a197048774c3"
+  integrity sha512-jCyujMAlEOsozsRx2ePpavv2jusnLmp/dA7KjM4+fbG5IkiWRV6FccEC/QgkdvQz1etvC+8J/HZs7B0Q9rYx4A==
   dependencies:
     "@popperjs/core" "^2.11.8"
-    "@react-three/drei" "^9.79.3"
-    "@react-three/fiber" "^8.13.5"
-    "@swan-io/boxed" "^1.0.2"
+    "@react-three/drei" "^9.80.1"
+    "@react-three/fiber" "^8.13.6"
+    "@swan-io/boxed" "^1.1.0"
     "@swan-io/chicane" "^1.4.1"
     dayjs "^1.11.9"
     polished "^4.2.2"
@@ -2593,31 +2598,31 @@
     react-dom "^18.2.0"
     react-native-web "^0.19.7"
     react-popper "^2.3.0"
-    react-ux-form "^1.4.0"
+    react-ux-form "^1.5.0"
     rifm "^0.12.1"
-    three "^0.154.0"
+    three "^0.155.0"
     ts-dedent "^2.2.0"
-    ts-pattern "^5.0.4"
-    urql "^4.0.4"
+    ts-pattern "^5.0.5"
+    urql "^4.0.5"
     uuid "^9.0.0"
 
-"@swan-io/shared-business@2.7.6":
-  version "2.7.6"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-2.7.6.tgz#5baa4c70b3d28e025f16616ac32f9ecaf5c5c9ca"
-  integrity sha512-oq+owxi0f15AN3YsWuN6HcRb+soF+xKRmSPAn0pPUMIH4yXEDADHq2wH1nLqpZA/oGjYv/tluRe8EXtF3kSpjQ==
+"@swan-io/shared-business@2.7.10":
+  version "2.7.10"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-2.7.10.tgz#adf2bd9c0ba8c44a41a6245d30a77d935bbdc54b"
+  integrity sha512-zdUd/f4iBpkDjzf4+qfV0Y8xw5pZJMf8i9kSOToM1dB28MzW0S0tLq008l3ry7uJ/Tz4m1Vq6hBTqxHRy/RHSg==
   dependencies:
     "@formatjs/intl" "^2.9.0"
     "@googlemaps/js-api-loader" "1.16.2"
-    "@swan-io/boxed" "^1.0.2"
+    "@swan-io/boxed" "^1.1.0"
     dayjs "^1.11.9"
     react "^18.2.0"
     react-atomic-state "^1.2.7"
     react-dom "^18.2.0"
     react-dropzone "^14.2.3"
     react-native-web "^0.19.7"
-    react-ux-form "^1.4.0"
+    react-ux-form "^1.5.0"
     rifm "^0.12.1"
-    ts-pattern "^5.0.4"
+    ts-pattern "^5.0.5"
     uuid "^9.0.0"
 
 "@swc/core-darwin-arm64@1.3.70":
@@ -2996,6 +3001,14 @@
   version "4.0.11"
   resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.0.11.tgz#b4e8bf3a3ff1a2519bb3aec38c7be99d2523308d"
   integrity sha512-FFdY97vF5xnUrElcGw9erOLvtu+KGMLfwrLNDfv4IPgdp2IBsiGe+Kb7Aypfd3kH//BETewVSLm3+y2sSzjX6A==
+  dependencies:
+    "@0no-co/graphql.web" "^1.0.1"
+    wonka "^6.3.2"
+
+"@urql/core@^4.1.0":
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.1.1.tgz#b1312eb0ecbc91e315457a3ec14741321cbee1c7"
+  integrity sha512-iIoAy6BY+BUZZ7KIpnMT7C9q+ULf5ZCVxGe3/i7WZSJBrQa2h1QkIMhL+8fAKmOn9gt83jSIv5drWWnhZ9izEA==
   dependencies:
     "@0no-co/graphql.web" "^1.0.1"
     wonka "^6.3.2"
@@ -6948,10 +6961,17 @@ react-use-measure@^2.1.1:
   dependencies:
     debounce "^1.2.1"
 
-react-ux-form@1.4.0, react-ux-form@^1.4.0:
+react-ux-form@1.4.0:
   version "1.4.0"
   resolved "https://registry.yarnpkg.com/react-ux-form/-/react-ux-form-1.4.0.tgz#ae6083cc9f5a64fb8711c296bc8db32c74ed23be"
   integrity sha512-a+5v8H04FzCZ7iihVc76HT+0icoGUVrqH/gRtNV+oBHa8/tJYtRqT3qJHCH0N3g41y8cSRZr0KlTCnO91ggUdg==
+  dependencies:
+    use-sync-external-store "^1.2.0"
+
+react-ux-form@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/react-ux-form/-/react-ux-form-1.5.0.tgz#a00a2fb903fa532dd8a868228261dbe991cf0b53"
+  integrity sha512-hUOmgcFXWqHYFDuKCuyEgQSh63KujFHjAEAKpanYa5lWfhO2JKlLqORnGyRpvw5wc+xIAJ/67KKauv2pbswxww==
   dependencies:
     use-sync-external-store "^1.2.0"
 
@@ -7731,10 +7751,10 @@ three-stdlib@^2.23.9:
     potpack "^1.0.1"
     zstddec "^0.0.2"
 
-three@^0.154.0:
-  version "0.154.0"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.154.0.tgz#dbef21e10fe6015ec283acc60d0eb58733991e27"
-  integrity sha512-Uzz8C/5GesJzv8i+Y2prEMYUwodwZySPcNhuJUdsVMH2Yn4Nm8qlbQe6qRN5fOhg55XB0WiLfTPBxVHxpE60ug==
+three@^0.155.0:
+  version "0.155.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.155.0.tgz#cca9b8ad817830c8b4fdd8f0d9a12a2e413a2672"
+  integrity sha512-sNgCYmDijnIqkD/bMfk+1pHg3YzsxW7V2ChpuP6HCQ8NiZr3RufsXQr8M3SSUMjW4hG+sUk7YbyuY0DncaDTJQ==
 
 thriftrw@^3.5.0:
   version "3.11.4"
@@ -7881,10 +7901,15 @@ ts-morph@^13.0.1:
     "@ts-morph/common" "~0.12.3"
     code-block-writer "^11.0.0"
 
-ts-pattern@5.0.4, ts-pattern@^5.0.4:
+ts-pattern@5.0.4:
   version "5.0.4"
   resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.0.4.tgz#11508e1fb09c4a65b3fa85fd297941792c0ab7d1"
   integrity sha512-D5iVliqugv2C9541W2CNXFYNEZxr4TiHuLPuf49tKEdQFp/8y8fR0v1RExUvXkiWozKCwE7zv07C6EKxf0lKuQ==
+
+ts-pattern@^5.0.5:
+  version "5.0.5"
+  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.0.5.tgz#20f82d50ea56c1d9cd1aa772911f7bb545d9607d"
+  integrity sha512-tL0w8U/pgaacOmkb9fRlYzWEUDCfVjjv9dD4wHTgZ61MjhuMt46VNWTG747NqW6vRzoWIKABVhFSOJ82FvXrfA==
 
 ts-prune@0.10.3:
   version "0.10.3"
@@ -8117,12 +8142,20 @@ urlpattern-polyfill@^8.0.0:
   resolved "https://registry.yarnpkg.com/urlpattern-polyfill/-/urlpattern-polyfill-8.0.2.tgz#99f096e35eff8bf4b5a2aa7d58a1523d6ebc7ce5"
   integrity sha512-Qp95D4TPJl1kC9SKigDcqgyM2VDVO4RiJc2d4qe5GrYm+zbIQCWWKAFaJNQ4BhdFeDGwBmAxqJBwWSJDb9T3BQ==
 
-urql@4.0.4, urql@^4.0.4:
+urql@4.0.4:
   version "4.0.4"
   resolved "https://registry.yarnpkg.com/urql/-/urql-4.0.4.tgz#a9a06eb659585c48ceab012321b0e6254b699188"
   integrity sha512-C5P4BMnAsk+rbytCWglit5ijXbIKXsa9wofSGPbuMyJKsDdL+9GfipS362Nff/Caag+eYOK5W+sox8fwEILT6Q==
   dependencies:
     "@urql/core" "^4.0.0"
+    wonka "^6.3.2"
+
+urql@^4.0.5:
+  version "4.0.5"
+  resolved "https://registry.yarnpkg.com/urql/-/urql-4.0.5.tgz#354106523a523d9b0c4101bf4988c7e34c5a243c"
+  integrity sha512-VicPBQXWicSbE+0oPzU2HMyDa//76FmwyQ7LayaYQxX97nhvMLs2ZWQdUmEzQQqvmw4YFaI0wPz1Qisp+PrZIQ==
+  dependencies:
+    "@urql/core" "^4.1.0"
     wonka "^6.3.2"
 
 use-sync-external-store@^1.2.0:

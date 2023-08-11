@@ -50,6 +50,7 @@ type Locale = {
   timeFormat: string;
   timePlaceholder: string;
   taxIdentificationNumberPlaceholder: string;
+  firstWeekday: "sunday" | "monday" | "tuesday" | "wednesday" | "thursday" | "friday" | "saturday";
 };
 
 const locales: Record<SupportedLanguage, () => Locale> = {
@@ -62,6 +63,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   de: () => ({
     language: "de",
@@ -72,6 +74,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   fr: () => ({
     language: "fr",
@@ -82,6 +85,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   it: () => ({
     language: "it",
@@ -92,6 +96,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   nl: () => ({
     language: "nl",
@@ -102,6 +107,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   es: () => ({
     language: "es",
@@ -112,6 +118,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
   pt: () => ({
     language: "pt",
@@ -122,6 +129,7 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timeFormat: "HH:mm:ss",
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "sunday",
   }),
 };
 

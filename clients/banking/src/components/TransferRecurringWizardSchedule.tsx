@@ -1,19 +1,19 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { DatePicker, isDateInRange } from "@swan-io/lake/src/components/DatePicker";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
-import { Rifm } from "rifm";
 import { StandingOrderPeriod } from "../graphql/partner";
-import { locale, rifmDateProps, t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 import { validateRequired, validateTodayOrAfter } from "../utils/validations";
 
 const periodItems: RadioGroupItem<StandingOrderPeriod>[] = [
@@ -108,28 +108,24 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
 
         <Space height={24} />
 
-        <LakeLabel
-          label={t("recurringTransfer.new.firstExecutionDate.label")}
-          render={id => (
-            <Field name="firstExecutionDate">
-              {({ value, onChange, onBlur, error, valid }) => (
-                <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                  {({ value, onChange }) => (
-                    <LakeTextInput
-                      id={id}
-                      placeholder={locale.datePlaceholder}
-                      value={value}
-                      error={error}
-                      valid={value !== "" && valid}
-                      onChange={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
-                </Rifm>
+        <Field name="firstExecutionDate">
+          {({ value, onChange, error }) => (
+            <DatePicker
+              label={t("recurringTransfer.new.firstExecutionDate.label")}
+              value={value}
+              error={error}
+              format={locale.dateFormat}
+              firstWeekDay={locale.firstWeekday}
+              monthNames={monthNames}
+              weekDayNames={weekDayNames}
+              onChange={onChange}
+              isSelectable={isDateInRange(
+                dayjs.utc().toDate(),
+                dayjs.utc().add(1, "year").toDate(),
               )}
-            </Field>
+            />
           )}
-        />
+        </Field>
 
         <Space width={24} height={4} />
 
@@ -147,33 +143,31 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
 
         <Space width={24} height={24} />
 
-        <LakeLabel
-          label={t("recurringTransfer.new.lastExecutionDate.label")}
-          render={id => (
-            <FieldsListener names={["withLastExecutionDate"]}>
-              {({ withLastExecutionDate }) => (
-                <Field name="lastExecutionDate">
-                  {({ value, onChange, onBlur, error, valid }) => (
-                    <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                      {({ value, onChange }) => (
-                        <LakeTextInput
-                          id={id}
-                          placeholder={locale.datePlaceholder}
-                          value={withLastExecutionDate.value ? value : undefined}
-                          error={withLastExecutionDate.value ? error : undefined}
-                          disabled={!withLastExecutionDate.value}
-                          valid={withLastExecutionDate.value && value !== "" && valid}
-                          onChange={onChange}
-                          onBlur={onBlur}
-                        />
-                      )}
-                    </Rifm>
-                  )}
-                </Field>
-              )}
-            </FieldsListener>
-          )}
-        />
+        <FieldsListener names={["firstExecutionDate", "withLastExecutionDate"]}>
+          {({ withLastExecutionDate, firstExecutionDate }) =>
+            withLastExecutionDate.value ? (
+              <Field name="lastExecutionDate">
+                {({ value, onChange, error }) => (
+                  <DatePicker
+                    label={t("recurringTransfer.new.lastExecutionDate.label")}
+                    value={value}
+                    error={error}
+                    format={locale.dateFormat}
+                    firstWeekDay={locale.firstWeekday}
+                    monthNames={monthNames}
+                    weekDayNames={weekDayNames}
+                    onChange={onChange}
+                    isSelectable={date => {
+                      const datePickerDate = dayjs(`${date.year}-${date.month + 1}-${date.day}`);
+                      const startDate = dayjs(firstExecutionDate.value, locale.dateFormat);
+                      return datePickerDate.isAfter(startDate) || datePickerDate.isSame(startDate);
+                    }}
+                  />
+                )}
+              </Field>
+            ) : null
+          }
+        </FieldsListener>
       </Tile>
 
       <Space height={32} />

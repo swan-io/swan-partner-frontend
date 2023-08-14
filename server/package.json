@@ -31,7 +31,7 @@
     "@opentelemetry/instrumentation": "0.41.2",
     "@opentelemetry/instrumentation-fastify": "0.32.0",
     "@opentelemetry/instrumentation-http": "0.41.2",
-    "@opentelemetry/instrumentation-pino": "0.34.0",
+    "@opentelemetry/instrumentation-pino": "0.34.1",
     "@opentelemetry/propagator-jaeger": "1.15.2",
     "@opentelemetry/resources": "1.15.2",
     "@opentelemetry/sdk-trace-base": "1.15.2",

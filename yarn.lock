@@ -2168,15 +2168,14 @@
     "@opentelemetry/semantic-conventions" "1.15.2"
     semver "^7.5.1"
 
-"@opentelemetry/instrumentation-pino@0.34.0":
-  version "0.34.0"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-pino/-/instrumentation-pino-0.34.0.tgz#79988fbd5e25e982a911fa3d39ea417162ce22f2"
-  integrity sha512-UtoVJG1gVit5Bksy0ccwtmJm9a39WDW4tMEAh0Spk31burJuEKKT09CslSQ3zmkoHj91iLWi5O5A94dIUVIXsg==
+"@opentelemetry/instrumentation-pino@0.34.1":
+  version "0.34.1"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-pino/-/instrumentation-pino-0.34.1.tgz#7567d2e2298536229f5a72c6c222b79b3b6689c7"
+  integrity sha512-/FW/wxTshwwmiSE8KgVoWvfjxz5omKBdDbP0McKZk84V02lwwJk0m7+kc2cSOed5rk7iprpZolwO8a8AFVanNA==
   dependencies:
-    "@opentelemetry/instrumentation" "^0.41.0"
-    tslib "^2.3.1"
+    "@opentelemetry/instrumentation" "^0.41.2"
 
-"@opentelemetry/instrumentation@0.41.2", "@opentelemetry/instrumentation@^0.41.0":
+"@opentelemetry/instrumentation@0.41.2", "@opentelemetry/instrumentation@^0.41.0", "@opentelemetry/instrumentation@^0.41.2":
   version "0.41.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation/-/instrumentation-0.41.2.tgz#cae11fa64485dcf03dae331f35b315b64bc6189f"
   integrity sha512-rxU72E0pKNH6ae2w5+xgVYZLzc5mlxAbGzF4shxMVK8YC2QQsfN38B2GPbj0jvrKWWNUElfclQ+YTykkNg/grw==

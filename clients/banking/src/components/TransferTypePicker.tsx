@@ -84,6 +84,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
               {index > 0 ? <Space width={24} height={12} /> : null}
 
               <Pressable
+                role="button"
                 onPress={() => pushUnsafe(url)}
                 style={[styles.link, { animationDelay: `${index * 150}ms` }]}
               >

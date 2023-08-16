@@ -1,5 +1,6 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { DatePicker, isDateInRange } from "@swan-io/lake/src/components/DatePicker";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -13,6 +14,8 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
+import dayjs from "dayjs";
 import { electronicFormat } from "iban";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { combineValidators, useForm } from "react-ux-form";
@@ -20,7 +23,7 @@ import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { isToday } from "../utils/date";
-import { locale, rifmDateProps, rifmTimeProps, t } from "../utils/i18n";
+import { locale, rifmTimeProps, t } from "../utils/i18n";
 import {
   validateDateWithinNextYear,
   validateRequired,
@@ -194,29 +197,24 @@ export const TransferRegularWizardSchedule = ({
                         isScheduled.value ? (
                           <Box direction={large ? "row" : "column"}>
                             <View style={styles.field}>
-                              <LakeLabel
-                                label={t("transfer.new.scheduleDate.label")}
-                                render={id => (
-                                  <Field name="scheduledDate">
-                                    {({ value, onChange, onBlur, error, valid }) => (
-                                      <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                                        {({ value, onChange }) => (
-                                          <LakeTextInput
-                                            id={id}
-                                            readOnly={loading}
-                                            placeholder={locale.datePlaceholder}
-                                            value={value}
-                                            error={error}
-                                            valid={valid}
-                                            onChange={onChange}
-                                            onBlur={onBlur}
-                                          />
-                                        )}
-                                      </Rifm>
+                              <Field name="scheduledDate">
+                                {({ value, onChange, error }) => (
+                                  <DatePicker
+                                    label={t("transfer.new.scheduleDate.label")}
+                                    value={value}
+                                    error={error}
+                                    format={locale.dateFormat}
+                                    firstWeekDay={locale.firstWeekday}
+                                    monthNames={monthNames}
+                                    weekDayNames={weekDayNames}
+                                    onChange={onChange}
+                                    isSelectable={isDateInRange(
+                                      dayjs.utc().toDate(),
+                                      dayjs.utc().add(1, "year").toDate(),
                                     )}
-                                  </Field>
+                                  />
                                 )}
-                              />
+                              </Field>
                             </View>
 
                             <Space width={24} />

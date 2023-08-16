@@ -2,9 +2,8 @@
 
 Along with the main navigation, the **transfer page** should include the following content:
 
-- **Send transfer** call to action
-- **Schedule recurring transfer** call to action
-- List of **active recurring transfers** with option to filter for canceled recurring transfers
+- **New transfer** call to action, through which you can send a new transfer or schedule a new standing order
+- List of **active standing orders** with option to filter for canceled standing orders
   - Recipient
   - Short explanation
   - Recurrence
@@ -41,9 +40,9 @@ Learn more about [transfer modes](https://docs.swan.io/concept/payment/instant-c
 
 ![Screenshot of a portion of the new transfer form](./images/transfer-new.png)
 
-## New recurring transfer
+## New standing order
 
-When sending a new recurring transfer, the following information should be collected from the user:
+When sending a new standing order, the following information should be collected from the user:
 
 - Recipient name
 - Recipient IBAN
@@ -54,4 +53,4 @@ When sending a new recurring transfer, the following information should be colle
 
 After the user clicks **Confirm** to send their transfer, redirect them to your consent URL.
 
-![Screenshot of a portion of the new recurring transfer form](./images/transfer-new-recurring.png)
+![Screenshot of a portion of the new standing order form](./images/transfer-new-so.png)

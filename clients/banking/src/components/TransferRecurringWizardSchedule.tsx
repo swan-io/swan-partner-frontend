@@ -8,11 +8,12 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { StandingOrderPeriod } from "../graphql/partner";
+import { encodeDate } from "../utils/date";
 import { locale, t } from "../utils/i18n";
 import { validateRequired, validateTodayOrAfter } from "../utils/validations";
 
@@ -79,8 +80,10 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
       if (hasDefinedKeys(values, ["period", "firstExecutionDate"])) {
         onSave({
           period: values.period,
-          firstExecutionDate: values.firstExecutionDate,
-          lastExecutionDate: nullishOrEmptyToUndefined(values.lastExecutionDate),
+          firstExecutionDate: encodeDate(values.firstExecutionDate),
+          lastExecutionDate: isNotNullishOrEmpty(values.lastExecutionDate)
+            ? encodeDate(values.lastExecutionDate)
+            : undefined,
         });
       }
     });

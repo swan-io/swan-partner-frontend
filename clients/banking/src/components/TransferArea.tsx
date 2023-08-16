@@ -1,6 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { useMemo } from "react";
 import { View } from "react-native";
 import { match } from "ts-pattern";
@@ -45,7 +46,7 @@ export const TransferArea = ({
 
   return (
     <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
-      <View role="main">
+      <View role="main" style={commonStyles.fill}>
         {match(route)
           .with(
             { name: "AccountPaymentsRoot" },

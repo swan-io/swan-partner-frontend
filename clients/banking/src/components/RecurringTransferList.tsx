@@ -74,6 +74,13 @@ const styles = StyleSheet.create({
   rightPanelDesktop: {
     ...commonStyles.fill,
   },
+  cell: {
+    display: "flex",
+    flexGrow: 1,
+    flexDirection: "row",
+    alignItems: "center",
+    width: 1,
+  },
 });
 
 const NUM_TO_RENDER = 20;
@@ -431,14 +438,14 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary } }) => (
-      <StartAlignedCell>
+      <View style={styles.cell}>
         <BorderedIcon name="clock-regular" color="gray" size={32} padding={8} />
         <Space width={24} />
 
-        <LakeText variant="medium" color={colors.gray[900]}>
+        <LakeHeading variant="h5" level={3} style={styles.overflowingText}>
           {sepaBeneficiary.name}
-        </LakeText>
-      </StartAlignedCell>
+        </LakeHeading>
+      </View>
     ),
   },
   {

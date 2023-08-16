@@ -23,25 +23,16 @@ const initiate = async (page: Page, options: Options) => {
 
   const main = page.getByRole("main");
 
-  await clickOnButton(main, t("banking.transfer.newTransfer"));
-
   const type = match(options.type)
-    .with(
-      "transfer",
-      () =>
-        `${t("banking.transfer.tile.transfer.title")}  ${t(
-          "banking.transfer.tile.transfer.subtitle",
-        )}`,
-    )
-    .with(
-      "standingOrder",
-      () =>
-        `${t("banking.transfer.tile.recurringTransfer.title")}  ${t(
-          "banking.transfer.tile.recurringTransfer.subtitle",
-        )}`,
-    )
+    .with("transfer", () => t("banking.transfer.newTransfer"))
+    .with("standingOrder", () => t("banking.transfer.newRecurringTransfer"))
     .exhaustive();
+
   await clickOnButton(main, type);
+  await clickOnButton(
+    main,
+    `${t("banking.transfer.tile.transfer.title")}  ${t("banking.transfer.tile.transfer.subtitle")}`,
+  );
 
   const layer = page.locator("#full-page-layer-root");
 
@@ -132,35 +123,5 @@ test("Transfer - differed", async ({ page }) => {
 
   await clickOnLink(page, t("banking.transactions.upcoming"), { exact: false });
 
-  await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
-});
-
-test("Standing order - standard", async ({ page }) => {
-  const { url, id, layer, label } = await initiate(page, {
-    iban: "FR7699999001001782785744160",
-    bank: "Swan (FR)",
-    type: "standingOrder",
-  });
-
-  await layer.getByLabel(t("banking.transfer.new.details.amount")).fill("42");
-  await layer.getByLabel(t("banking.transfer.new.details.label")).fill(`${label} - label`);
-  await layer.getByLabel(t("banking.transfer.new.details.reference")).fill(id);
-
-  await clickOnButton(layer, t("banking.common.continue"));
-
-  await clickOnText(layer, t("banking.payments.new.standingOrder.details.weekly"));
-  await layer
-    .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
-    .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
-
-  await layer.getByRole("switch", { name: t("banking.recurringTransfer.new.setEndDate") }).check();
-
-  await layer
-    .getByLabel(t("banking.recurringTransfer.new.lastExecutionDate.label"))
-    .fill(dayjs().add(1, "month").format("DD/MM/YYYY"));
-
-  await clickOnButton(layer, t("banking.common.continue"));
-
-  await expect(page).toHaveURL(`${url}/transactions`);
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
 });

@@ -38,6 +38,7 @@
     "read-e2e-sms": "tsx scripts/twilio/getLastMessages.ts",
     "test-e2e": "playwright test",
     "test-e2e-ui": "playwright test --ui",
+    "match-e2e-translations": "tsx scripts/tests/matchTranslations.ts",
     "configure-hooks": "git config --local core.hooksPath .hooks"
   },
   "workspaces": {

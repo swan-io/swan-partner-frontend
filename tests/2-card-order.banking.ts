@@ -1,14 +1,16 @@
 import { Page, expect, test } from "@playwright/test";
 import { randomUUID } from "node:crypto";
+import { match } from "ts-pattern";
 import { env } from "./utils/env";
+import { t } from "./utils/i18n";
 import { clickOnButton, clickOnLink, clickOnText, getByText, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 type Options = {
   product: "Basic" | "Premium";
 } & (
-  | { kind: "Virtual" | "Virtual and Physical" }
-  | { kind: "Single use"; variant: "One-off" | "Recurring" }
+  | { kind: "virtual" | "virtualAndPhysical" }
+  | { kind: "singleUse"; variant: "oneOff" | "recurring" }
 );
 
 const create = async (page: Page, options: Options) => {
@@ -18,32 +20,42 @@ const create = async (page: Page, options: Options) => {
   await page.goto(`${env.BANKING_URL}/${benady.memberships.individual.french.id}/cards`);
 
   const main = page.getByRole("main");
-  await clickOnButton(main, "New");
+  await clickOnButton(main, t("banking.common.new"));
 
   const layer = page.locator("#full-page-layer-root");
 
-  await waitForText(layer, "Which card?");
+  await waitForText(layer, t("banking.cardWizard.header.cardProduct"));
   const products = layer.getByRole("region");
   await clickOnText(products, options.product);
-  await clickOnButton(layer, "Next");
+  await clickOnButton(layer, t("banking.common.next"));
 
-  await waitForText(layer, "Which format?");
+  await waitForText(layer, t("banking.cardWizard.header.cardFormat"));
   const kinds = layer.getByRole("region");
-  await clickOnText(kinds, options.kind);
-  await clickOnButton(layer, "Next");
+  const kind = match(options.kind)
+    .with("virtual", () => t("banking.cards.format.virtual"))
+    .with("virtualAndPhysical", () => t("banking.cards.format.virtualAndPhysical"))
+    .with("singleUse", () => t("banking.cards.format.singleUse"))
+    .exhaustive();
 
-  await waitForText(layer, "Pick your settings");
+  await clickOnText(kinds, kind);
+  await clickOnButton(layer, t("banking.common.next"));
+
+  await waitForText(layer, t("banking.cardWizard.header.cardSettings"));
   await layer.getByLabel("Card name - (optional)").fill(name);
 
-  if (options.kind === "Single use") {
-    await layer.getByLabel("Amount").fill("42");
-    await clickOnText(layer, options.variant);
+  if (options.kind === "singleUse") {
+    await layer.getByLabel(t("banking.cardSettings.amount")).fill("42");
+    const variant = match(options.variant)
+      .with("oneOff", () => t("banking.cards.periodicity.oneOff"))
+      .with("recurring", () => t("banking.cards.periodicity.recurring"))
+      .exhaustive();
+    await clickOnText(layer, variant);
   }
 
-  await clickOnButton(layer, "Next");
+  await clickOnButton(layer, t("banking.common.next"));
   await layer.waitFor({ state: "detached" });
 
-  const title = "Full name and card format";
+  const title = t("banking.cardList.fullNameAndCardType");
   await waitForText(main, new RegExp(`${title}|Reveal card numbers`));
 
   if (await getByText(main, title).isVisible()) {
@@ -51,52 +63,52 @@ const create = async (page: Page, options: Options) => {
     await cards.getByText(name, { exact: true }).click();
   }
 
-  await clickOnLink(main, "Settings");
-  await expect(main.getByLabel("Card name")).toHaveValue(name);
+  await clickOnLink(main, t("banking.accountDetails.settings.tab"));
+  await expect(main.getByLabel(t("banking.cardList.cardName"))).toHaveValue(name);
 };
 
 test("Card creation - basic virtual", async ({ page }) => {
   await create(page, {
     product: "Basic",
-    kind: "Virtual",
+    kind: "virtual",
   });
 });
 
 test("Card creation - basic single use one-off", async ({ page }) => {
   await create(page, {
     product: "Basic",
-    kind: "Single use",
-    variant: "One-off",
+    kind: "singleUse",
+    variant: "oneOff",
   });
 });
 
 test("Card creation - basic single use recurring", async ({ page }) => {
   await create(page, {
     product: "Basic",
-    kind: "Single use",
-    variant: "Recurring",
+    kind: "singleUse",
+    variant: "recurring",
   });
 });
 
 test("Card creation - premium virtual", async ({ page }) => {
   await create(page, {
     product: "Premium",
-    kind: "Virtual",
+    kind: "virtual",
   });
 });
 
 test("Card creation - premium single use one-off", async ({ page }) => {
   await create(page, {
     product: "Premium",
-    kind: "Single use",
-    variant: "One-off",
+    kind: "singleUse",
+    variant: "oneOff",
   });
 });
 
 test("Card creation - premium single use recurring", async ({ page }) => {
   await create(page, {
     product: "Premium",
-    kind: "Single use",
-    variant: "Recurring",
+    kind: "singleUse",
+    variant: "recurring",
   });
 });

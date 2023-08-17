@@ -3,7 +3,7 @@ WORKDIR /app
 ADD ./server/ ./
 RUN npm install
 
-FROM cgr.dev/chainguard/node:18
+FROM cgr.dev/chainguard/node:latest
 WORKDIR /app
 COPY --chown=node:node --from=builder /app ./
 CMD ["/usr/bin/npm", "run", "start-swan"]

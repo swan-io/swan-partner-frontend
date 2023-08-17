@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/banking",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "engines": {
     "node": ">=18.0.0",
@@ -24,8 +24,8 @@
     "@sentry/react": "7.62.0",
     "@swan-io/boxed": "1.1.0",
     "@swan-io/chicane": "1.4.1",
-    "@swan-io/lake": "2.7.10",
-    "@swan-io/shared-business": "2.7.10",
+    "@swan-io/lake": "2.7.15",
+    "@swan-io/shared-business": "2.7.15",
     "@urql/exchange-graphcache": "6.3.1",
     "core-js": "3.32.0",
     "dayjs": "1.11.9",

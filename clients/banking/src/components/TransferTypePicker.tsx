@@ -9,6 +9,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { Fragment, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
@@ -33,6 +34,9 @@ const styles = StyleSheet.create({
   headerDesktop: {
     paddingTop: 40,
     paddingHorizontal: 40,
+  },
+  fill: {
+    ...commonStyles.fill,
   },
 });
 
@@ -94,7 +98,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
                       <Icon name={icon} size={42} color={colors.current[500]} />
                       <Space width={24} />
 
-                      <View>
+                      <View style={styles.fill}>
                         <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
                           {title}
                         </LakeHeading>

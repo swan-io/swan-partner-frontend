@@ -185,6 +185,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
       <Space height={24} />
 
       <Pressable
+        role="button"
         onPress={() =>
           onPressSwitchMode({
             label: getFieldState("label").value,

@@ -151,12 +151,106 @@ test("Standing order - standard", async ({ page }) => {
   await layer
     .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
     .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.firstExecutionTime.label")).fill("12:12");
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await expect(page).toHaveURL(`${url}/payments`);
+  await expect(page.getByRole("heading", { name: `${label} - beneficiary` })).toBeAttached();
+});
+
+test("Standing order - with end date", async ({ page }) => {
+  const { url, id, layer, label } = await initiate(page, {
+    iban: "FR7699999001001782785744160",
+    bank: "Swan (FR)",
+    type: "standingOrder",
+  });
+
+  await layer.getByLabel(t("banking.transfer.new.details.amount")).fill("42");
+  await layer.getByLabel(t("banking.transfer.new.details.label")).fill(`${label} - label`);
+  await layer.getByLabel(t("banking.transfer.new.details.reference")).fill(id);
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await clickOnText(layer, t("banking.payments.new.standingOrder.details.weekly"));
+  await layer
+    .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
+    .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.firstExecutionTime.label")).fill("12:12");
 
   await layer.getByRole("switch").check();
 
   await layer
     .getByLabel(t("banking.recurringTransfer.new.lastExecutionDate.label"))
     .fill(dayjs().add(1, "month").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.lastExecutionTime.label")).fill("13:13");
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await expect(page).toHaveURL(`${url}/payments`);
+  await expect(page.getByRole("heading", { name: `${label} - beneficiary` })).toBeAttached();
+});
+
+test("Standing order - standard full balance", async ({ page }) => {
+  const { url, id, layer, label } = await initiate(page, {
+    iban: "FR7699999001001782785744160",
+    bank: "Swan (FR)",
+    type: "standingOrder",
+  });
+
+  await layer
+    .getByRole("button")
+    .filter({ hasText: t("banking.transfer.new.sendFullBalance") })
+    .click();
+
+  await layer.getByLabel(t("banking.transfer.new.details.targetAmount")).fill("42");
+  await layer.getByLabel(t("banking.transfer.new.details.label")).fill(`${label} - label`);
+  await layer.getByLabel(t("banking.transfer.new.details.reference")).fill(id);
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await clickOnText(layer, t("banking.payments.new.standingOrder.details.weekly"));
+  await layer
+    .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
+    .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.firstExecutionTime.label")).fill("12:12");
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await expect(page).toHaveURL(`${url}/payments`);
+  await expect(page.getByRole("heading", { name: `${label} - beneficiary` })).toBeAttached();
+});
+
+test("Standing order - full balance with end date", async ({ page }) => {
+  const { url, id, layer, label } = await initiate(page, {
+    iban: "FR7699999001001782785744160",
+    bank: "Swan (FR)",
+    type: "standingOrder",
+  });
+
+  await layer
+    .getByRole("button")
+    .filter({ hasText: t("banking.transfer.new.sendFullBalance") })
+    .click();
+
+  await layer.getByLabel(t("banking.transfer.new.details.targetAmount")).fill("42");
+  await layer.getByLabel(t("banking.transfer.new.details.label")).fill(`${label} - label`);
+  await layer.getByLabel(t("banking.transfer.new.details.reference")).fill(id);
+
+  await clickOnButton(layer, t("banking.common.continue"));
+
+  await clickOnText(layer, t("banking.payments.new.standingOrder.details.weekly"));
+  await layer
+    .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
+    .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.firstExecutionTime.label")).fill("12:12");
+
+  await layer.getByRole("switch").check();
+
+  await layer
+    .getByLabel(t("banking.recurringTransfer.new.lastExecutionDate.label"))
+    .fill(dayjs().add(1, "month").format("DD/MM/YYYY"));
+  await layer.getByLabel(t("banking.recurringTransfer.new.lastExecutionTime.label")).fill("13:13");
 
   await clickOnButton(layer, t("banking.common.continue"));
 

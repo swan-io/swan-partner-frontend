@@ -74,7 +74,11 @@ fragment TransactionDetails on Transaction {
       __typename
       name
       IBAN
+      ... on SEPACreditTransferInCreditor {
+        IBAN
+      }
       ... on SEPACreditTransferOutCreditor {
+        IBAN
         name
       }
     }

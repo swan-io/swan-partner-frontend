@@ -8,6 +8,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
@@ -489,9 +490,14 @@ export const TransferRecurringWizardDetailsSummary = ({ details, onPressEdit }: 
 
               <Space height={8} />
 
-              <LakeHeading level={3} variant="h4" color={colors.gray[700]}>
-                {formatCurrency(Number(targetAmount.value), targetAmount.currency)}
-              </LakeHeading>
+              <Box direction="row" alignItems="center">
+                <LakeHeading level={3} variant="h4" color={colors.gray[700]}>
+                  {formatCurrency(Number(targetAmount.value), targetAmount.currency)}
+                </LakeHeading>
+
+                <Space width={12} />
+                <Tag color="live">{t("transfer.new.recurring.targetAccountBalance.title")}</Tag>
+              </Box>
             </View>
           ))
           .exhaustive()}

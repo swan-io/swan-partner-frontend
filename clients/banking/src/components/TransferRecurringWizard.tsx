@@ -8,10 +8,12 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { ScheduleStandingOrderDocument } from "../graphql/partner";
+import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -110,8 +112,15 @@ export const TransferRecurringWizard = ({
       input: {
         accountId,
         consentRedirectUrl,
-        firstExecutionDate: schedule.firstExecutionDate,
-        lastExecutionDate: schedule.lastExecutionDate,
+        firstExecutionDate: encodeDateTime(
+          schedule.firstExecutionDate,
+          `${schedule.firstExecutionTime}:00`,
+        ),
+        lastExecutionDate:
+          isNotNullishOrEmpty(schedule.lastExecutionDate) &&
+          isNotNullishOrEmpty(schedule.lastExecutionTime)
+            ? encodeDateTime(schedule.lastExecutionDate, `${schedule.lastExecutionTime}:00`)
+            : undefined,
         period: schedule.period,
         sepaBeneficiary: {
           name: beneficiary.name,

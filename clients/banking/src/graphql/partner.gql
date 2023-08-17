@@ -73,11 +73,8 @@ fragment TransactionDetails on Transaction {
     creditor {
       __typename
       name
-      ... on SEPACreditTransferInCreditor {
-        maskedIBAN
-      }
+      IBAN
       ... on SEPACreditTransferOutCreditor {
-        maskedIBAN
         name
       }
     }

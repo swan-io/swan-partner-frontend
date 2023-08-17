@@ -21,6 +21,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
+import { printIbanFormat } from "../utils/iban";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
@@ -359,7 +360,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     .with(
                       {
                         statusInfo: { __typename: P.not("BookedTransactionStatusInfo") },
-                        creditor: { maskedIBAN: P.nullish },
+                        creditor: { IBAN: P.nullish },
                         side: "Credit",
                       },
                       () => (
@@ -397,16 +398,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     .with(
                       {
                         statusInfo: { __typename: "BookedTransactionStatusInfo" },
-                        creditor: { maskedIBAN: P.string },
+                        creditor: { IBAN: P.string },
                         side: "Credit",
                       },
-                      ({ creditor: { maskedIBAN } }) => (
+                      ({ creditor: { IBAN } }) => (
                         <LakeLabel
                           type="viewSmall"
                           label={t("transaction.creditorIban")}
                           render={() => (
                             <LakeText variant="regular" color={colors.gray[900]}>
-                              {maskedIBAN}
+                              {printIbanFormat(IBAN)}
                             </LakeText>
                           )}
                         />
@@ -417,16 +418,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         type: P.union("SepaCreditTransferOut", "SepaInstantCreditTransferOut"),
                         creditor: {
                           __typename: "SEPACreditTransferOutCreditor",
-                          maskedIBAN: P.string,
+                          IBAN: P.string,
                         },
                       },
-                      ({ creditor: { maskedIBAN } }) => (
+                      ({ creditor: { IBAN } }) => (
                         <LakeLabel
                           type="viewSmall"
                           label={t("transaction.creditorIban")}
                           render={() => (
                             <LakeText variant="regular" color={colors.gray[900]}>
-                              {maskedIBAN}
+                              {printIbanFormat(IBAN)}
                             </LakeText>
                           )}
                         />

@@ -152,7 +152,7 @@ test("Standing order - standard", async ({ page }) => {
     .getByLabel(t("banking.recurringTransfer.new.firstExecutionDate.label"))
     .fill(dayjs().add(1, "day").format("DD/MM/YYYY"));
 
-  await layer.getByRole("switch", { name: t("banking.recurringTransfer.new.setEndDate") }).check();
+  await layer.getByRole("switch").check();
 
   await layer
     .getByLabel(t("banking.recurringTransfer.new.lastExecutionDate.label"))
@@ -160,6 +160,6 @@ test("Standing order - standard", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
 
-  await expect(page).toHaveURL(`${url}/transactions`);
-  await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
+  await expect(page).toHaveURL(`${url}/payments`);
+  await expect(page.getByRole("heading", { name: `${label} - beneficiary` })).toBeAttached();
 });

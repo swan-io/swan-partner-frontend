@@ -149,6 +149,7 @@ export const ProfilePage = ({
       {({ small, large }) => (
         <ScrollView
           style={styles.container}
+          role="main"
           contentContainerStyle={[styles.content, large && styles.contentLarge]}
         >
           {large ? (

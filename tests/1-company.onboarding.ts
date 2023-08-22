@@ -1,7 +1,7 @@
 import { Page, expect, test } from "@playwright/test";
 import path from "pathe";
 import { AccountMembershipDocument } from "./graphql/partner";
-import { UpdateAccountHolderDocument } from "./graphql/partner-admin";
+import { EndorseSandboxUserDocument, UpdateAccountHolderDocument } from "./graphql/partner-admin";
 import { ApiRequester, getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { assertIsDefined, assertTypename } from "./utils/functions";
@@ -72,6 +72,19 @@ const saveAccountMembership = async (
     },
   });
 };
+
+test.beforeAll(async ({ request }) => {
+  const requestApi = getApiRequester(request);
+
+  await requestApi({
+    query: EndorseSandboxUserDocument,
+    as: "user",
+    api: "partner-admin",
+    variables: {
+      id: env.SANDBOX_USER_BENADY_ID,
+    },
+  });
+});
 
 test("French company onboarding", async ({ browser, page, request }) => {
   const requestApi = getApiRequester(request);

@@ -17,7 +17,10 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
-import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import {
+  validateCompanyTaxNumber,
+  validateIndividualTaxNumber,
+} from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect } from "react";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
@@ -110,10 +113,15 @@ export const OnboardingCompanyOrganisation1 = ({
 }: Props) => {
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
-  const canSetTaxIdentification =
-    (accountCountry === "DEU" && country === "DEU") ||
-    (accountCountry === "ESP" && country === "ESP");
-  const isTaxIdentificationRequired = accountCountry === "ESP" && country === "ESP";
+  const canSetTaxIdentification = match({ accountCountry, country })
+    .with({ accountCountry: "DEU", country: "DEU" }, () => true)
+    .with({ accountCountry: "ESP", country: "ESP" }, () => true)
+    .with({ accountCountry: "NLD" }, () => true)
+    .otherwise(() => false);
+  const isTaxIdentificationRequired = match({ accountCountry, country })
+    .with({ accountCountry: "ESP", country: "ESP" }, () => true)
+    .with({ accountCountry: "NLD" }, () => true)
+    .otherwise(() => false);
 
   const { Field, FieldsListener, submitForm, setFieldValue, listenFields, setFieldError } = useForm(
     {
@@ -143,7 +151,9 @@ export const OnboardingCompanyOrganisation1 = ({
         validate: canSetTaxIdentification
           ? combineValidators(
               isTaxIdentificationRequired && validateRequired,
-              validateCompanyTaxNumber(accountCountry),
+              match(accountCountry)
+                .with("NLD", () => validateIndividualTaxNumber(accountCountry))
+                .otherwise(() => validateCompanyTaxNumber(accountCountry)),
             )
           : undefined,
         sanitize: value => value.trim(),
@@ -441,6 +451,13 @@ export const OnboardingCompanyOrganisation1 = ({
                     <Field name="taxIdentificationNumber">
                       {({ value, valid, error, onChange, onBlur }) => (
                         <TaxIdentificationNumberInput
+                          label={
+                            accountCountry === "NLD"
+                              ? t(
+                                  "company.step.organisation1.legalRepresentativeTaxIdentificationNumber",
+                                )
+                              : undefined
+                          }
                           value={value}
                           error={error}
                           valid={valid}

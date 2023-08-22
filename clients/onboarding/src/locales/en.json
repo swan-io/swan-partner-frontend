@@ -29,6 +29,7 @@
   "company.step.organisation1.addressTitle": "Organization address",
   "company.step.organisation1.isRegisteredLabel": "Are you registered?",
   "company.step.organisation1.isRegisteredWithNameLabel": "Are you registered to {countryRegisterName}?",
+  "company.step.organisation1.legalRepresentativeTaxIdentificationNumber": "Legal Representative Tax Identification Number",
   "company.step.organisation1.organisationLabel": "Your organization",
   "company.step.organisation1.organisationPlaceholder": "Type your organization name...",
   "company.step.organisation1.registrationNumberLabel": "What’s your registration number{registrationNumberLegalName}?",

@@ -140,6 +140,7 @@ export const NewMembershipWizard = ({
   const steps: Step[] = match({ accountCountry, partiallySavedValues })
     .with(
       { accountCountry: "DEU" },
+      { accountCountry: "NLD" },
       { partiallySavedValues: { canInitiatePayments: true, canViewAccount: true } },
       () => ["Informations" as const, "Address" as const],
     )
@@ -275,7 +276,10 @@ export const NewMembershipWizard = ({
         })
           .with(
             P.intersection(
-              { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+              P.union(
+                { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+                { accountCountry: "NLD" },
+              ),
               P.union({ canViewAccount: true }, { canInitiatePayments: true }),
             ),
             () =>
@@ -743,24 +747,28 @@ export const NewMembershipWizard = ({
                   <FieldsListener names={["country"]}>
                     {({ country }) =>
                       match({ accountCountry, country: country.value })
-                        .with({ accountCountry: "DEU", country: "DEU" }, () => (
-                          <Field name="taxIdentificationNumber">
-                            {({ value, valid, error, onChange }) => (
-                              <TaxIdentificationNumberInput
-                                accountCountry={accountCountry}
-                                isCompany={false}
-                                value={value}
-                                valid={valid}
-                                error={error}
-                                onChange={onChange}
-                                required={
-                                  Boolean(partiallySavedValues?.canViewAccount) ||
-                                  Boolean(partiallySavedValues?.canInitiatePayments)
-                                }
-                              />
-                            )}
-                          </Field>
-                        ))
+                        .with(
+                          { accountCountry: "DEU", country: "DEU" },
+                          { accountCountry: "NLD" },
+                          () => (
+                            <Field name="taxIdentificationNumber">
+                              {({ value, valid, error, onChange }) => (
+                                <TaxIdentificationNumberInput
+                                  accountCountry={accountCountry}
+                                  isCompany={false}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChange={onChange}
+                                  required={
+                                    Boolean(partiallySavedValues?.canViewAccount) ||
+                                    Boolean(partiallySavedValues?.canInitiatePayments)
+                                  }
+                                />
+                              )}
+                            </Field>
+                          ),
+                        )
                         .otherwise(() => null)
                     }
                   </FieldsListener>

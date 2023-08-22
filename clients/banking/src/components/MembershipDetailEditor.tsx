@@ -189,8 +189,10 @@ export const MembershipDetailEditor = ({
       strategy: "onBlur",
       validate: (value, { getFieldState }) => {
         return match({ accountCountry, residencyAddressCountry: getFieldState("country").value })
-          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, () =>
-            validateTaxIdentificationNumber(value),
+          .with(
+            { accountCountry: "DEU", residencyAddressCountry: "DEU" },
+            { accountCountry: "NLD" },
+            () => validateTaxIdentificationNumber(value),
           )
           .otherwise(() => {});
       },
@@ -633,7 +635,7 @@ export const MembershipDetailEditor = ({
         .otherwise(() => null)}
 
       {match({ accountCountry, editingAccountMembership })
-        .with({ accountCountry: "DEU" }, () => (
+        .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => (
           <>
             <Field name="country">
               {({ value, error, onChange }) => (
@@ -722,25 +724,29 @@ export const MembershipDetailEditor = ({
             <FieldsListener names={["country"]}>
               {({ country }) =>
                 match({ accountCountry, country: country.value })
-                  .with({ accountCountry: "DEU", country: "DEU" }, () => (
-                    <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange }) => (
-                        <LakeLabel
-                          label={t("membershipDetail.edit.taxIdentificationNumber")}
-                          render={id => (
-                            <LakeTextInput
-                              placeholder={locale.taxIdentificationNumberPlaceholder}
-                              id={id}
-                              value={value}
-                              valid={valid}
-                              error={error}
-                              onChangeText={onChange}
-                            />
-                          )}
-                        />
-                      )}
-                    </Field>
-                  ))
+                  .with(
+                    { accountCountry: "DEU", country: "DEU" },
+                    { accountCountry: "NLD" },
+                    () => (
+                      <Field name="taxIdentificationNumber">
+                        {({ value, valid, error, onChange }) => (
+                          <LakeLabel
+                            label={t("membershipDetail.edit.taxIdentificationNumber")}
+                            render={id => (
+                              <LakeTextInput
+                                placeholder={locale.taxIdentificationNumberPlaceholder}
+                                id={id}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChangeText={onChange}
+                              />
+                            )}
+                          />
+                        )}
+                      </Field>
+                    ),
+                  )
                   .otherwise(() => null)
               }
             </FieldsListener>

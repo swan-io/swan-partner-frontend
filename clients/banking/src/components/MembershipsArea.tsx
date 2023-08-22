@@ -15,7 +15,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -222,94 +222,96 @@ export const MembershipsArea = ({
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
       {({ large }) => (
         <>
-          <Box style={[styles.filters, large && styles.filtersLarge]}>
-            <MembershipListFilter
-              filters={filters}
-              onChange={filters =>
-                Router.push("AccountMembersList", {
-                  accountMembershipId,
-                  ...filters,
-                })
-              }
-              onRefresh={reload}
-              totalCount={memberships.length}
-              isFetching={nextData.isLoading()}
-              large={large}
-            >
-              {canAddNewMembers ? (
-                <LakeButton
-                  size="small"
-                  icon="add-circle-filled"
-                  color="current"
-                  onPress={() =>
-                    Router.push("AccountMembersList", { accountMembershipId, new: "" })
-                  }
-                >
-                  {t("common.new")}
-                </LakeButton>
-              ) : null}
-            </MembershipListFilter>
-          </Box>
+          <View style={commonStyles.fill} role="main">
+            <Box style={[styles.filters, large && styles.filtersLarge]}>
+              <MembershipListFilter
+                filters={filters}
+                onChange={filters =>
+                  Router.push("AccountMembersList", {
+                    accountMembershipId,
+                    ...filters,
+                  })
+                }
+                onRefresh={reload}
+                totalCount={memberships.length}
+                isFetching={nextData.isLoading()}
+                large={large}
+              >
+                {canAddNewMembers ? (
+                  <LakeButton
+                    size="small"
+                    icon="add-circle-filled"
+                    color="current"
+                    onPress={() =>
+                      Router.push("AccountMembersList", { accountMembershipId, new: "" })
+                    }
+                  >
+                    {t("common.new")}
+                  </LakeButton>
+                ) : null}
+              </MembershipListFilter>
+            </Box>
 
-          {data.match({
-            NotAsked: () => null,
-            Loading: () => (
-              <PlainListViewPlaceholder
-                count={20}
-                rowVerticalSpacing={0}
-                headerHeight={large ? 48 : 0}
-                rowHeight={56}
-              />
-            ),
-            Done: result =>
-              result.match({
-                Error: error => <ErrorView error={error} />,
-                Ok: ({ account }) => (
-                  <MembershipList
-                    memberships={account?.memberships.edges.map(({ node }) => node) ?? []}
-                    accountMembershipId={accountMembershipId}
-                    onActiveRowChange={onActiveRowChange}
-                    editingAccountMembershipId={editingAccountMembershipId ?? undefined}
-                    onEndReached={() => {
-                      if (account?.memberships.pageInfo.hasNextPage === true) {
-                        setAfter(account?.memberships.pageInfo.endCursor ?? undefined);
-                      }
-                    }}
-                    loading={{
-                      isLoading: nextData.isLoading(),
-                      count: PER_PAGE,
-                    }}
-                    getRowLink={({ item }) => (
-                      <Link
-                        style={match(item.statusInfo)
-                          .with(
-                            {
-                              __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                              idVerifiedMatchError: true,
-                            },
-                            () => ({
-                              backgroundColor: colors.warning[50],
-                            }),
-                          )
-                          .with(
-                            { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
-                            () => ({
-                              backgroundColor: colors.negative[50],
-                            }),
-                          )
-                          .otherwise(() => undefined)}
-                        to={Router.AccountMembersDetailsRoot({
-                          accountMembershipId,
-                          ...params,
-                          editingAccountMembershipId: item.id,
-                        })}
-                      />
-                    )}
-                    onRefreshRequest={reload}
-                  />
-                ),
-              }),
-          })}
+            {data.match({
+              NotAsked: () => null,
+              Loading: () => (
+                <PlainListViewPlaceholder
+                  count={20}
+                  rowVerticalSpacing={0}
+                  headerHeight={large ? 48 : 0}
+                  rowHeight={56}
+                />
+              ),
+              Done: result =>
+                result.match({
+                  Error: error => <ErrorView error={error} />,
+                  Ok: ({ account }) => (
+                    <MembershipList
+                      memberships={account?.memberships.edges.map(({ node }) => node) ?? []}
+                      accountMembershipId={accountMembershipId}
+                      onActiveRowChange={onActiveRowChange}
+                      editingAccountMembershipId={editingAccountMembershipId ?? undefined}
+                      onEndReached={() => {
+                        if (account?.memberships.pageInfo.hasNextPage === true) {
+                          setAfter(account?.memberships.pageInfo.endCursor ?? undefined);
+                        }
+                      }}
+                      loading={{
+                        isLoading: nextData.isLoading(),
+                        count: PER_PAGE,
+                      }}
+                      getRowLink={({ item }) => (
+                        <Link
+                          style={match(item.statusInfo)
+                            .with(
+                              {
+                                __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                idVerifiedMatchError: true,
+                              },
+                              () => ({
+                                backgroundColor: colors.warning[50],
+                              }),
+                            )
+                            .with(
+                              { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
+                              () => ({
+                                backgroundColor: colors.negative[50],
+                              }),
+                            )
+                            .otherwise(() => undefined)}
+                          to={Router.AccountMembersDetailsRoot({
+                            accountMembershipId,
+                            ...params,
+                            editingAccountMembershipId: item.id,
+                          })}
+                        />
+                      )}
+                      onRefreshRequest={reload}
+                    />
+                  ),
+                }),
+            })}
+          </View>
 
           <ListRightPanel
             ref={panelRef}

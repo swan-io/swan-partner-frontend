@@ -11,7 +11,7 @@ import { clickOnButton, clickOnText, waitForText } from "./utils/selectors";
 import { getSession, saveSession } from "./utils/session";
 
 const saveAccountMembership = async (
-  key: "french" | "german" | "spanish",
+  key: "french" | "german" | "spanish" | "dutch",
   page: Page,
   requestApi: ApiRequester,
 ) => {
@@ -50,7 +50,7 @@ const saveAccountMembership = async (
   await clickOnText(menu, "Account");
 
   const section = page.getByRole("region");
-  const IBAN = await section.getByText(/^(FR|DE|ES)[\d\s]+$/).textContent();
+  const IBAN = await section.getByText(/^(FR|DE|ES|NL(?:\d{2}\s\w{4}\s))[\d\s]+$/).textContent();
 
   await saveSession({
     benady: {
@@ -390,4 +390,129 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await waitForText(page, "Sign out");
 
   await saveAccountMembership("spanish", page, requestApi);
+});
+
+test("Dutch company onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
+
+  await page.goto(`${env.ONBOARDING_URL}/onboarding/company/start?accountCountry=NLD`);
+
+  const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
+  await picker.waitFor();
+  await expect(picker).toHaveText(t("shared.country.NLD"));
+
+  await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
+  await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
+
+  await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
+    t("shared.country.NLD"),
+  );
+
+  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
+  await page
+    .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
+    .fill("Anna Paulownastraat 76");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await waitForText(page, "Are you registered to Handelsregister?");
+
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
+    .fill("Swan");
+  await page.getByLabel("What’s your registration number").fill("HRA 12345");
+  await page
+    .getByLabel(
+      t("onboarding.company.step.organisation1.legalRepresentativeTaxIdentificationNumber"),
+    )
+    .fill("923456788");
+
+  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
+  await page
+    .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
+    .fill("Anna Paulownastraat 76");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.getByLabel(t("onboarding.company.step.organisation2.activityLabel")).click();
+  await page.getByText(t("shared.businessActivity.health")).click();
+
+  await page
+    .getByLabel(t("onboarding.company.step.organisation2.descriptionLabel"))
+    .fill("Ignore this, I'm an end-to-end test");
+
+  await page.getByLabel(t("onboarding.company.step.organisation2.monthlyPaymentLabel")).click();
+  await page.getByText(t("shared.monthlyPaymentVolume.between10000And50000")).click();
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await waitForText(page, t("onboarding.company.step.owners.title"));
+  await page.getByRole("button", { name: t("onboarding.common.add") }).click();
+
+  const modal = page.locator("[aria-modal]");
+
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.firstName")).fill("Nicolas");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.lastName")).fill("Benady");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthDate")).fill("01/01/1970");
+
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCountry")).click();
+
+  const listbox = page.getByRole("listbox");
+  await listbox.type("F");
+  await listbox.getByText(t("shared.country.FRA")).click();
+
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
+  await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
+  await modal
+    .getByLabel(t("shared.beneficiaryForm.beneficiary.totalCapitalPercentage"))
+    .fill("100");
+  await modal
+    .getByRole("checkbox", { name: t("shared.beneficiaryForm.beneficiary.directly"), exact: true })
+    .click();
+  await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
+  await modal
+    .getByLabel(t("shared.beneficiaryForm.beneficiary.address"))
+    .fill("Anna Paulownastraat 76");
+  await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
+  await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
+  await modal
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("923456788");
+
+  await page.getByRole("button", { name: t("onboarding.common.save") }).click();
+
+  await waitForText(page, "Nicolas Benady");
+  await waitForText(page, "Directly holds 100% of the capital of Swan");
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  const fileInputs = page.locator('input[type="file"]');
+
+  const uboDeclarationPath = path.resolve(__dirname, "./assets/ubo_declaration.png");
+  await fileInputs.nth(0).setInputFiles(uboDeclarationPath);
+  await waitForText(page, path.basename(uboDeclarationPath));
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await sca.loginWithButtonClick(
+    browser,
+    page.getByRole("button", { name: t("onboarding.company.step.presentation.step5") }),
+  );
+
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
+
+  await saveAccountMembership("dutch", page, requestApi);
 });

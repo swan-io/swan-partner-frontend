@@ -61,6 +61,7 @@
   "accountDetails.settings.contractsDescription": "Zu deiner Information findest du hier Kopien deiner Verträge:",
   "accountDetails.settings.language": "Offizielle Sprache des Dokuments",
   "accountDetails.settings.languageDescription": "Wähle die Sprache, die du für offizielle Dokumente wie Kontoauszüge, Bankverbindungen usw. nutzen möchtest.",
+  "accountDetails.settings.legalRepresentativeTaxIdentificationNumber": "Steuernummer des gesetzlichen Vertreters",
   "accountDetails.settings.partnershipConditions": "{projectName} Partnerschaftsbedingungen",
   "accountDetails.settings.save": "Speichern",
   "accountDetails.settings.tab": "Einstellungen",

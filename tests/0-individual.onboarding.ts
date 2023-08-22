@@ -10,7 +10,7 @@ import { clickOnText, waitForText } from "./utils/selectors";
 import { getSession, saveSession } from "./utils/session";
 
 const saveAccountMembership = async (
-  key: "french" | "german" | "spanish",
+  key: "french" | "german" | "spanish" | "dutch",
   page: Page,
   requestApi: ApiRequester,
 ) => {
@@ -49,7 +49,7 @@ const saveAccountMembership = async (
   await clickOnText(menu, "Account");
 
   const section = page.getByRole("region");
-  const IBAN = await section.getByText(/^(FR|DE|ES)[\d\s]+$/).textContent();
+  const IBAN = await section.getByText(/^(FR|DE|ES|NL(?:\d{2}\s\w{4}\s))[\d\s]+$/).textContent();
 
   await saveSession({
     benady: {
@@ -196,4 +196,50 @@ test("Spanish individual onboarding", async ({ browser, page, request }) => {
   await waitForText(page, "Sign out");
 
   await saveAccountMembership("spanish", page, requestApi);
+});
+
+test("Dutch individual onboarding", async ({ browser, page, request }) => {
+  const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
+
+  await page.goto(`${env.ONBOARDING_URL}/onboarding/individual/start?accountCountry=NLD`);
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.waitForLoadState("networkidle");
+  await page
+    .getByLabel(t("onboarding.individual.step.location.addressLabel"))
+    .fill("Anna Paulownastraat 76");
+  await page.getByText("Anna Paulownastraat 76The Hague, Netherlands").click();
+
+  expect(
+    await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).inputValue(),
+  ).toBe("Den Haag");
+  expect(
+    await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).inputValue(),
+  ).toBe("2518 BJ");
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await page.getByLabel(t("onboarding.occupationPage.statusLabel")).click();
+  await page.getByRole("option", { name: t("onboarding.employmentStatus.entrepreneur") }).click();
+  await page.getByText(t("onboarding.monthlyIncome.between3000And4500")).click();
+  await page
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("923456788");
+
+  await page.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await sca.loginWithButtonClick(
+    browser,
+    page.getByRole("button", { name: t("onboarding.company.step.presentation.step5") }),
+  );
+
+  await expect(page).toHaveURL(new RegExp("^" + env.BANKING_URL));
+  await waitForText(page, "Sign out");
+
+  await saveAccountMembership("dutch", page, requestApi);
 });

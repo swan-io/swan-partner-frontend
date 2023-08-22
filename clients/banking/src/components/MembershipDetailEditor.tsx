@@ -9,7 +9,9 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -30,7 +32,6 @@ import {
   validateBirthdate,
   validateName,
   validateRequired,
-  validateTaxIdentificationNumber,
 } from "../utils/validations";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
@@ -188,11 +189,31 @@ export const MembershipDetailEditor = ({
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
       validate: (value, { getFieldState }) => {
-        return match({ accountCountry, residencyAddressCountry: getFieldState("country").value })
+        return match({
+          accountCountry,
+          country: getFieldState("country").value,
+          canViewAccount: editingAccountMembership.canViewAccount,
+          canInitiatePayment: editingAccountMembership.canInitiatePayments,
+        })
           .with(
-            { accountCountry: "DEU", residencyAddressCountry: "DEU" },
             { accountCountry: "NLD" },
-            () => validateTaxIdentificationNumber(value),
+            P.intersection(
+              { accountCountry: "DEU", country: "DEU" },
+              P.union(
+                {
+                  canViewAccount: true,
+                },
+                { canInitiatePayment: true },
+              ),
+            ),
+            ({ accountCountry }) =>
+              combineValidators(
+                validateRequired,
+                validateIndividualTaxNumber(accountCountry),
+              )(value),
+          )
+          .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, ({ accountCountry }) =>
+            validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => {});
       },
@@ -727,21 +748,36 @@ export const MembershipDetailEditor = ({
                   .with(
                     { accountCountry: "DEU", country: "DEU" },
                     { accountCountry: "NLD" },
-                    () => (
+                    ({ accountCountry, country }) => (
                       <Field name="taxIdentificationNumber">
                         {({ value, valid, error, onChange }) => (
-                          <LakeLabel
-                            label={t("membershipDetail.edit.taxIdentificationNumber")}
-                            render={id => (
-                              <LakeTextInput
-                                placeholder={locale.taxIdentificationNumberPlaceholder}
-                                id={id}
-                                value={value}
-                                valid={valid}
-                                error={error}
-                                onChangeText={onChange}
-                              />
-                            )}
+                          <TaxIdentificationNumberInput
+                            accountCountry={accountCountry}
+                            isCompany={false}
+                            value={value}
+                            valid={valid}
+                            error={error}
+                            onChange={onChange}
+                            required={match({
+                              accountCountry,
+                              country,
+                              canViewAccount: editingAccountMembership.canViewAccount,
+                              canInitiatePayment: editingAccountMembership.canInitiatePayments,
+                            })
+                              .with({ accountCountry: "NLD" }, () => true)
+                              .with(
+                                P.intersection(
+                                  { accountCountry: "DEU", country: "DEU" },
+                                  P.union(
+                                    {
+                                      canViewAccount: true,
+                                    },
+                                    { canInitiatePayment: true },
+                                  ),
+                                ),
+                                () => true,
+                              )
+                              .otherwise(() => false)}
                           />
                         )}
                       </Field>

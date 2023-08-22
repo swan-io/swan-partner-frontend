@@ -138,12 +138,10 @@ export const NewMembershipWizard = ({
   const [memberAddition, addMember] = useUrqlMutation(AddAccountMembershipDocument);
 
   const steps: Step[] = match({ accountCountry, partiallySavedValues })
-    .with(
-      { accountCountry: "DEU" },
-      { accountCountry: "NLD" },
-      { partiallySavedValues: { canInitiatePayments: true, canViewAccount: true } },
-      () => ["Informations" as const, "Address" as const],
-    )
+    .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => [
+      "Informations" as const,
+      "Address" as const,
+    ])
     .otherwise(() => ["Informations" as const]);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
@@ -213,13 +211,19 @@ export const NewMembershipWizard = ({
       initialValue: partiallySavedValues?.addressLine1 ?? "",
       validate: (value, { getFieldState }) => {
         return match({
+          accountCountry,
           canViewAccount: getFieldState("canViewAccount").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
-          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
-            const validate = combineValidators(validateRequired, validateAddressLine);
-            return validate(value);
-          })
+          .with(
+            { accountCountry: "NLD" },
+            { canViewAccount: true },
+            { canInitiatePayments: true },
+            () => {
+              const validate = combineValidators(validateRequired, validateAddressLine);
+              return validate(value);
+            },
+          )
           .otherwise(() => {
             return validateAddressLine(value);
           });
@@ -229,12 +233,18 @@ export const NewMembershipWizard = ({
       initialValue: partiallySavedValues?.postalCode ?? "",
       validate: (value, { getFieldState }) => {
         return match({
+          accountCountry,
           canViewAccount: getFieldState("canViewAccount").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
-          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
-            return validateRequired(value);
-          })
+          .with(
+            { accountCountry: "NLD" },
+            { canViewAccount: true },
+            { canInitiatePayments: true },
+            () => {
+              return validateRequired(value);
+            },
+          )
           .otherwise(() => undefined);
       },
     },
@@ -242,12 +252,18 @@ export const NewMembershipWizard = ({
       initialValue: partiallySavedValues?.city ?? "",
       validate: (value, { getFieldState }) => {
         return match({
+          accountCountry,
           canViewAccount: getFieldState("canViewAccount").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
-          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
-            return validateRequired(value);
-          })
+          .with(
+            { accountCountry: "NLD" },
+            { canViewAccount: true },
+            { canInitiatePayments: true },
+            () => {
+              return validateRequired(value);
+            },
+          )
           .otherwise(() => undefined);
       },
     },
@@ -255,12 +271,18 @@ export const NewMembershipWizard = ({
       initialValue: partiallySavedValues?.country ?? accountCountry ?? "FRA",
       validate: (value, { getFieldState }) => {
         return match({
+          accountCountry,
           canViewAccount: getFieldState("canViewAccount").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
-          .with({ canViewAccount: true }, { canInitiatePayments: true }, () => {
-            return validateRequired(value);
-          })
+          .with(
+            { accountCountry: "NLD" },
+            { canViewAccount: true },
+            { canInitiatePayments: true },
+            () => {
+              return validateRequired(value);
+            },
+          )
           .otherwise(() => undefined);
       },
     },
@@ -276,12 +298,10 @@ export const NewMembershipWizard = ({
         })
           .with(
             P.intersection(
-              P.union(
-                { accountCountry: "DEU", residencyAddressCountry: "DEU" },
-                { accountCountry: "NLD" },
-              ),
+              P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
               P.union({ canViewAccount: true }, { canInitiatePayments: true }),
             ),
+            { accountCountry: "NLD" },
             () =>
               combineValidators(
                 validateRequired,

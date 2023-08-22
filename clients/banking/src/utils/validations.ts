@@ -53,25 +53,6 @@ export const validateTransferReference: Validator<string> = value => {
   }
 };
 
-export const validateTaxIdentificationNumber: Validator<string> = value => {
-  if (!value) {
-    return t("common.form.required");
-  }
-  if (value.length !== 11 && value.length !== 10) {
-    return t("common.form.invalidTaxIdentificationNumber");
-  }
-};
-
-export const validateIndividualTaxNumber: Validator<string> = value => {
-  if (!value) {
-    return;
-  }
-  // accept 11 digits
-  if (!/^\d{11}$/.test(value)) {
-    return t("common.form.invalidTaxIdentificationNumber");
-  }
-};
-
 export const validateAccountNameLength: Validator<string> = value => {
   const maxLength = 256;
   if (value.length > maxLength) {

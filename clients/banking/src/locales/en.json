@@ -61,6 +61,7 @@
   "accountDetails.settings.contractsDescription": "For your convenience, here are copies of your contracts:",
   "accountDetails.settings.language": "Official document language",
   "accountDetails.settings.languageDescription": "Choose the language you want to be used for official documents such as account statements and bank details.",
+  "accountDetails.settings.legalRepresentativeTaxIdentificationNumber": "Legal Representative Tax Identification Number",
   "accountDetails.settings.partnershipConditions": "{projectName} partnership conditions",
   "accountDetails.settings.save": "Save",
   "accountDetails.settings.tab": "Settings",

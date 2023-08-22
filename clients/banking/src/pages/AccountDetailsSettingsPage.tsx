@@ -136,9 +136,12 @@ export const AccountDetailsSettingsPage = ({
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",
       sanitize: value => value.trim(),
-      validate: isCompany
-        ? validateCompanyTaxNumber(accountCountry)
-        : validateIndividualTaxNumber(accountCountry),
+      validate:
+        account?.country === "NLD"
+          ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
+          : isCompany
+          ? validateCompanyTaxNumber(accountCountry)
+          : validateIndividualTaxNumber(accountCountry),
     },
   });
 
@@ -168,6 +171,7 @@ export const AccountDetailsSettingsPage = ({
   const shouldEditTaxIdentificationNumber =
     (account.country === "DEU" && account.holder.residencyAddress.country === "DEU") ||
     account.country === "NLD";
+  const isTaxIdentificationRequired = account.country === "NLD";
 
   const tcuUrl = account.holder.onboarding?.tcuUrl;
 
@@ -235,6 +239,11 @@ export const AccountDetailsSettingsPage = ({
             <Field name="taxIdentificationNumber">
               {({ error, onBlur, onChange, valid, value }) => (
                 <TaxIdentificationNumberInput
+                  label={
+                    account.country === "NLD"
+                      ? t("accountDetails.settings.legalRepresentativeTaxIdentificationNumber")
+                      : undefined
+                  }
                   value={value}
                   error={error}
                   valid={valid}
@@ -243,6 +252,7 @@ export const AccountDetailsSettingsPage = ({
                   onBlur={onBlur}
                   accountCountry={accountCountry}
                   isCompany={isCompany}
+                  required={isTaxIdentificationRequired}
                 />
               )}
             </Field>
@@ -252,7 +262,8 @@ export const AccountDetailsSettingsPage = ({
         )}
 
         {shouldEditTaxIdentificationNumber &&
-          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) && (
+          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) &&
+          !isTaxIdentificationRequired && (
             <>
               <LakeAlert
                 variant="info"

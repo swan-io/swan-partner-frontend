@@ -166,7 +166,8 @@ export const AccountDetailsSettingsPage = ({
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
   const formDisabled = !canManageAccountMembership || accountClosed;
   const shouldEditTaxIdentificationNumber =
-    account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
+    (account.country === "DEU" && account.holder.residencyAddress.country === "DEU") ||
+    account.country === "NLD";
 
   const tcuUrl = account.holder.onboarding?.tcuUrl;
 

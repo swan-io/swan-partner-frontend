@@ -51,6 +51,7 @@ const fillPasscode = async (page: Page) => {
 const waitForConfirm = async (page: Page) => {
   const sandboxTitle = "Prove your identity in the Sandbox";
   const confirmTitle = "Done";
+
   await waitForText(page, new RegExp(`${sandboxTitle}|${confirmTitle}`));
 
   if (await getByText(page, sandboxTitle).isVisible()) {
@@ -63,24 +64,42 @@ const waitForConfirm = async (page: Page) => {
 
 const loginWithButtonClick = async (browser: Browser, button: Locator) => {
   const [popup] = await Promise.all([button.page().waitForEvent("popup"), button.click()]);
-  await injectTestKey(popup);
+  let hasPopupClosed = false;
 
-  const input = popup.locator('[type="tel"]');
-  await input.waitFor();
-  await input.fill(env.PHONE_NUMBER);
+  const run = async () => {
+    try {
+      await injectTestKey(popup);
 
-  const startDate = new Date();
-  await clickOnButton(popup, "Next");
+      const input = popup.locator('[type="tel"]');
+      await input.waitFor();
+      await input.fill(env.PHONE_NUMBER);
 
-  const url = await getLastMessageURL(startDate);
-  const mobile = await openPage(browser, "mobile", url);
+      const startDate = new Date();
+      await clickOnButton(popup, "Next");
 
-  await clickOnButton(mobile, "Confirm");
-  await fillPasscode(mobile);
-  await waitForConfirm(mobile);
+      const url = await getLastMessageURL(startDate);
+      const mobile = await openPage(browser, "mobile", url);
 
-  await mobile.close();
-  await popup.waitForEvent("close");
+      await clickOnButton(mobile, "Confirm");
+      await fillPasscode(mobile);
+      await waitForConfirm(mobile);
+
+      await mobile.close();
+    } catch (err) {
+      if (!hasPopupClosed) {
+        throw err;
+      }
+    }
+  };
+
+  return new Promise((resolve, reject) => {
+    popup.on("close", () => {
+      hasPopupClosed = true;
+      resolve(undefined);
+    });
+
+    void run().catch(reject);
+  });
 };
 
 const loginWithAuthLink = async (browser: Browser) => {

@@ -31,11 +31,13 @@ type Session = {
         french: Membership;
         german: Membership;
         spanish: Membership;
+        dutch: Membership;
       };
       company: {
         french: Membership;
         german: Membership;
         spanish: Membership;
+        dutch: Membership;
       };
     };
   };

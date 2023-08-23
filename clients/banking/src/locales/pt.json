@@ -574,6 +574,7 @@
   "transaction.fees.description.sepaDirectDebitInCoreLevel2": "Taxa para um débito direto Core SEPA recebido superior a 200€",
   "transaction.fees.description.sepaDirectDebitInCoreReturn": "Taxa pela devolução de um débito direto SEPA Core",
   "transaction.fees.description.unauthorizedOverdraft": "Taxa para descobertos bancários não autorizados",
+  "transaction.feesReason": "Motivo",
   "transaction.id": "Documento de Identificação",
   "transaction.instantTransferUnavailable": "Transferência instantânea indisponível",
   "transaction.instantTransferUnavailable.description": "Infelizmente, as transferências instantâneas não estão disponíveis neste momento. Em vez disso, enviaremos como uma transferência padrão.",

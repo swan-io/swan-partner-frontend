@@ -102,6 +102,25 @@ fragment TransactionDetails on Transaction {
     creditor {
       name
     }
+    originTransaction {
+      id
+      label
+      statusInfo {
+        status
+        ... on RejectedTransactionStatusInfo {
+          __typename
+          reason
+        }
+      }
+      type
+      updatedAt
+      executionDate
+      createdAt
+      amount {
+        currency
+        value
+      }
+    }
   }
   ... on SEPADirectDebitTransaction {
     __typename

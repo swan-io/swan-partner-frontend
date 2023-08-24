@@ -29,7 +29,6 @@
   "company.step.organisation1.addressTitle": "Adresse de l'organisation",
   "company.step.organisation1.isRegisteredLabel": "Êtes-vous immatriculé ?",
   "company.step.organisation1.isRegisteredWithNameLabel": "Êtes-vous immatriculé au {countryRegisterName} ?",
-  "company.step.organisation1.legalRepresentativeTaxIdentificationNumber": "Numéro d'identification fiscale du représentant légal",
   "company.step.organisation1.organisationLabel": "Votre organisation",
   "company.step.organisation1.organisationPlaceholder": "Saisissez le nom de votre organisation...",
   "company.step.organisation1.registrationNumberLabel": "Quel est votre numéro d'immatriculation{registrationNumberLegalName} ?",

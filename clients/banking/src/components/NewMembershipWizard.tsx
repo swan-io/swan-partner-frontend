@@ -301,7 +301,6 @@ export const NewMembershipWizard = ({
               P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
               P.union({ canViewAccount: true }, { canInitiatePayments: true }),
             ),
-            { accountCountry: "NLD" },
             () =>
               combineValidators(
                 validateRequired,
@@ -767,28 +766,24 @@ export const NewMembershipWizard = ({
                   <FieldsListener names={["country"]}>
                     {({ country }) =>
                       match({ accountCountry, country: country.value })
-                        .with(
-                          { accountCountry: "DEU", country: "DEU" },
-                          { accountCountry: "NLD" },
-                          () => (
-                            <Field name="taxIdentificationNumber">
-                              {({ value, valid, error, onChange }) => (
-                                <TaxIdentificationNumberInput
-                                  accountCountry={accountCountry}
-                                  isCompany={false}
-                                  value={value}
-                                  valid={valid}
-                                  error={error}
-                                  onChange={onChange}
-                                  required={
-                                    Boolean(partiallySavedValues?.canViewAccount) ||
-                                    Boolean(partiallySavedValues?.canInitiatePayments)
-                                  }
-                                />
-                              )}
-                            </Field>
-                          ),
-                        )
+                        .with({ accountCountry: "DEU", country: "DEU" }, () => (
+                          <Field name="taxIdentificationNumber">
+                            {({ value, valid, error, onChange }) => (
+                              <TaxIdentificationNumberInput
+                                accountCountry={accountCountry}
+                                isCompany={false}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChange={onChange}
+                                required={
+                                  Boolean(partiallySavedValues?.canViewAccount) ||
+                                  Boolean(partiallySavedValues?.canInitiatePayments)
+                                }
+                              />
+                            )}
+                          </Field>
+                        ))
                         .otherwise(() => null)
                     }
                   </FieldsListener>

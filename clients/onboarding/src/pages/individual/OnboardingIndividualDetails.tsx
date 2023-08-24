@@ -16,7 +16,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useEffect } from "react";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -30,11 +30,7 @@ import {
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
-import {
-  ServerInvalidFieldCode,
-  getValidationErrorMessage,
-  validateRequired,
-} from "../../utils/validation";
+import { ServerInvalidFieldCode, getValidationErrorMessage } from "../../utils/validation";
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },
@@ -86,10 +82,7 @@ export const OnboardingIndividualDetails = ({
 
   const canSetTaxIdentification =
     (accountCountry === "DEU" && country === "DEU") ||
-    (accountCountry === "ESP" && country === "ESP") ||
-    accountCountry === "NLD";
-
-  const isTaxIdentificationRequired = accountCountry === "NLD";
+    (accountCountry === "ESP" && country === "ESP");
 
   const { Field, submitForm, setFieldError } = useForm({
     employmentStatus: {
@@ -100,11 +93,7 @@ export const OnboardingIndividualDetails = ({
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
-      validate: canSetTaxIdentification
-        ? isTaxIdentificationRequired
-          ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-          : validateIndividualTaxNumber(accountCountry)
-        : undefined,
+      validate: canSetTaxIdentification ? validateIndividualTaxNumber(accountCountry) : undefined,
       sanitize: value => value.trim(),
     },
   });
@@ -232,7 +221,6 @@ export const OnboardingIndividualDetails = ({
                           onBlur={onBlur}
                           accountCountry={accountCountry}
                           isCompany={false}
-                          required={accountCountry === "NLD"}
                         />
                       )}
                     </Field>

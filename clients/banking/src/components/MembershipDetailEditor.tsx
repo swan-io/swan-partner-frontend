@@ -109,7 +109,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
-      validate: combineValidators(validateRequired, validateName),
+      validate: validateName,
     },
     firstName: {
       initialValue: match(editingAccountMembership)
@@ -126,7 +126,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
-      validate: combineValidators(validateRequired, validateName),
+      validate: validateName,
     },
     birthDate: {
       initialValue: match(editingAccountMembership)

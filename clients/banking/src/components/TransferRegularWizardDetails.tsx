@@ -13,7 +13,7 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
+import { hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
@@ -74,7 +74,7 @@ export const TransferRegularWizardDetails = ({
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
-      validate: validateTransferReference,
+      validate: toOptionalValidator(validateTransferReference),
     },
   });
 

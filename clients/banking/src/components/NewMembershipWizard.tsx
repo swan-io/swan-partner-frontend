@@ -160,13 +160,13 @@ export const NewMembershipWizard = ({
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
       strategy: "onBlur",
-      validate: combineValidators(validateRequired, validateName),
+      validate: validateName,
       sanitize: value => value.trim(),
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
       strategy: "onBlur",
-      validate: combineValidators(validateRequired, validateName),
+      validate: validateName,
       sanitize: value => value.trim(),
     },
     birthDate: {

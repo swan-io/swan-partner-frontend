@@ -7,7 +7,7 @@ import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
@@ -19,9 +19,14 @@ const NUM_TO_RENDER = 20;
 type Props = {
   accountId: string;
   canQueryCardOnTransaction: boolean;
+  onUpcomingTransactionCountUpdated?: (count: number | undefined) => void;
 };
 
-export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransaction }: Props) => {
+export const UpcomingTransactionListPage = ({
+  accountId,
+  canQueryCardOnTransaction,
+  onUpcomingTransactionCountUpdated,
+}: Props) => {
   const { data, nextData, setAfter } = useUrqlPaginatedQuery(
     {
       query: UpcomingTransactionListPageDocument,
@@ -42,6 +47,18 @@ export const UpcomingTransactionListPage = ({ accountId, canQueryCardOnTransacti
     .flatMap(data => Option.fromNullable(data.account?.transactions))
     .map(({ edges }) => edges.map(({ node }) => node))
     .getWithDefault([]);
+
+  const count = data
+    .toOption()
+    .flatMap(result => result.toOption())
+    .flatMap(data => Option.fromNullable(data.account?.transactions?.totalCount))
+    .toUndefined();
+
+  useEffect(() => {
+    if (count !== undefined) {
+      onUpcomingTransactionCountUpdated?.(count);
+    }
+  }, [onUpcomingTransactionCountUpdated, count]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 

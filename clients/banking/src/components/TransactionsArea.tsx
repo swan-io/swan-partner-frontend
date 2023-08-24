@@ -131,6 +131,7 @@ export const TransactionsArea = ({
                       }
                       onBalanceReceive={onBalanceReceive}
                       canQueryCardOnTransaction={canQueryCardOnTransaction}
+                      canViewAccountStatement={canViewAccountStatement}
                     />
 
                     <LakeModal

@@ -15,7 +15,7 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
+import { hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { formatCurrency, t } from "../utils/i18n";
 import { validateTransferReference } from "../utils/validations";
@@ -258,7 +258,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
     },
     reference: {
       initialValue: initialDetails?.reference ?? "",
-      validate: validateTransferReference,
+      validate: toOptionalValidator(validateTransferReference),
     },
   });
 

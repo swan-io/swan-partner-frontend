@@ -14,12 +14,12 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { StandingOrderPeriod } from "../graphql/partner";
 import { isToday } from "../utils/date";
 import { locale, rifmTimeProps, t } from "../utils/i18n";
-import { validateRequired, validateTime, validateTodayOrAfter } from "../utils/validations";
+import { validateTime, validateTodayOrAfter } from "../utils/validations";
 
 const periodItems: RadioGroupItem<StandingOrderPeriod>[] = [
   { value: "Daily", name: t("payments.new.standingOrder.details.daily") },
@@ -55,7 +55,7 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
     },
     firstExecutionDate: {
       initialValue: dayjs.utc().format(locale.dateFormat),
-      validate: combineValidators(validateRequired, validateTodayOrAfter),
+      validate: validateTodayOrAfter,
       sanitize: value => value?.trim(),
     },
     firstExecutionTime: {

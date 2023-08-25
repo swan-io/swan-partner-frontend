@@ -26,7 +26,6 @@ import { isToday } from "../utils/date";
 import { locale, rifmTimeProps, t } from "../utils/i18n";
 import {
   validateDateWithinNextYear,
-  validateRequired,
   validateTime,
   validateTodayOrAfter,
 } from "../utils/validations";
@@ -89,11 +88,7 @@ export const TransferRegularWizardSchedule = ({
     },
     scheduledDate: {
       initialValue: "",
-      validate: combineValidators(
-        validateRequired,
-        validateTodayOrAfter,
-        validateDateWithinNextYear,
-      ),
+      validate: combineValidators(validateTodayOrAfter, validateDateWithinNextYear),
     },
     scheduledTime: {
       initialValue: "",

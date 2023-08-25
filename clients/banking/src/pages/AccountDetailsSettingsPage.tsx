@@ -29,7 +29,7 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { ReactNode, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { combineValidators, hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { useMutation } from "urql";
 import {
   AccountDetailsSettingsPageDocument,
@@ -127,11 +127,7 @@ export const AccountDetailsSettingsPage = ({
     vatNumber: {
       initialValue: isCompany && isNotNullish(holderInfo.vatNumber) ? holderInfo.vatNumber : "",
       sanitize: value => value.trim(),
-      validate: value => {
-        if (isNotEmpty(value)) {
-          return validateVatNumber(value);
-        }
-      },
+      validate: toOptionalValidator(validateVatNumber),
     },
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",

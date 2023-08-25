@@ -123,7 +123,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "*status:* failure ❌\n*commit:* <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ github.event.head_commit.message }}>"
+                    "text": "*status:* failure ❌\n*commit:* <${{ github.event.pull_request.html_url || github.event.head_commit.url }}|${{ toJSON(github.event.head_commit.message) }}>"
                   },
                   "accessory": {
                     "type": "button",

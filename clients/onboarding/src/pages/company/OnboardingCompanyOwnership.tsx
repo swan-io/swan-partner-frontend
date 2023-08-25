@@ -364,7 +364,7 @@ export const OnboardingCompanyOwnership = ({
   const beneficiaryFormRef = useRef<BeneficiaryFormRef>();
 
   const withAddressPart = match(accountCountry)
-    .with("DEU", "ESP", "NLD", () => true)
+    .with("DEU", "ESP", () => true)
     .otherwise(() => false);
 
   useEffect(() => {

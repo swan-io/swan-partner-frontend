@@ -61,7 +61,6 @@
   "accountDetails.settings.contractsDescription": "Aquí tienes copias de tus contratos para tu comodidad:",
   "accountDetails.settings.language": "Idioma del documento oficial",
   "accountDetails.settings.languageDescription": "Elige un idioma para los documentos oficiales, como los extractos de cuenta o datos bancarios.",
-  "accountDetails.settings.legalRepresentativeTaxIdentificationNumber": "Número de Identificación Fiscal del Representante Legal",
   "accountDetails.settings.partnershipConditions": "Condiciones de colaboración de {projectName}",
   "accountDetails.settings.save": "Guardar",
   "accountDetails.settings.tab": "Ajustes",

@@ -29,7 +29,6 @@
   "company.step.organisation1.addressTitle": "Adresse der Organisation",
   "company.step.organisation1.isRegisteredLabel": "Bist du registriert?",
   "company.step.organisation1.isRegisteredWithNameLabel": "Ist deine Firma bereits im {countryRegisterName} eingetragen?",
-  "company.step.organisation1.legalRepresentativeTaxIdentificationNumber": "Steuernummer des gesetzlichen Vertreters",
   "company.step.organisation1.organisationLabel": "Deine Organisation",
   "company.step.organisation1.organisationPlaceholder": "Gebe den Namen deiner Organisation ein...",
   "company.step.organisation1.registrationNumberLabel": "Wie lautet deine Registrierungsnummer{registrationNumberLegalName}?",

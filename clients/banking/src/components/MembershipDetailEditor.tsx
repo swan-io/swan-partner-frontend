@@ -196,7 +196,6 @@ export const MembershipDetailEditor = ({
           canInitiatePayment: editingAccountMembership.canInitiatePayments,
         })
           .with(
-            { accountCountry: "NLD" },
             P.intersection(
               { accountCountry: "DEU", country: "DEU" },
               P.union(
@@ -212,7 +211,7 @@ export const MembershipDetailEditor = ({
                 validateIndividualTaxNumber(accountCountry),
               )(value),
           )
-          .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, ({ accountCountry }) =>
+          .with({ accountCountry: "DEU" }, ({ accountCountry }) =>
             validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => {});
@@ -747,7 +746,6 @@ export const MembershipDetailEditor = ({
                 match({ accountCountry, country: country.value })
                   .with(
                     { accountCountry: "DEU", country: "DEU" },
-                    { accountCountry: "NLD" },
                     ({ accountCountry, country }) => (
                       <Field name="taxIdentificationNumber">
                         {({ value, valid, error, onChange }) => (
@@ -764,7 +762,6 @@ export const MembershipDetailEditor = ({
                               canViewAccount: editingAccountMembership.canViewAccount,
                               canInitiatePayment: editingAccountMembership.canInitiatePayments,
                             })
-                              .with({ accountCountry: "NLD" }, () => true)
                               .with(
                                 P.intersection(
                                   { accountCountry: "DEU", country: "DEU" },

@@ -136,12 +136,9 @@ export const AccountDetailsSettingsPage = ({
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",
       sanitize: value => value.trim(),
-      validate:
-        account?.country === "NLD"
-          ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-          : isCompany
-          ? validateCompanyTaxNumber(accountCountry)
-          : validateIndividualTaxNumber(accountCountry),
+      validate: isCompany
+        ? validateCompanyTaxNumber(accountCountry)
+        : validateIndividualTaxNumber(accountCountry),
     },
   });
 
@@ -169,9 +166,7 @@ export const AccountDetailsSettingsPage = ({
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
   const formDisabled = !canManageAccountMembership || accountClosed;
   const shouldEditTaxIdentificationNumber =
-    (account.country === "DEU" && account.holder.residencyAddress.country === "DEU") ||
-    account.country === "NLD";
-  const isTaxIdentificationRequired = account.country === "NLD";
+    account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
 
   const tcuUrl = account.holder.onboarding?.tcuUrl;
 
@@ -239,11 +234,6 @@ export const AccountDetailsSettingsPage = ({
             <Field name="taxIdentificationNumber">
               {({ error, onBlur, onChange, valid, value }) => (
                 <TaxIdentificationNumberInput
-                  label={
-                    account.country === "NLD"
-                      ? t("accountDetails.settings.legalRepresentativeTaxIdentificationNumber")
-                      : undefined
-                  }
                   value={value}
                   error={error}
                   valid={valid}
@@ -252,7 +242,6 @@ export const AccountDetailsSettingsPage = ({
                   onBlur={onBlur}
                   accountCountry={accountCountry}
                   isCompany={isCompany}
-                  required={isTaxIdentificationRequired}
                 />
               )}
             </Field>
@@ -262,8 +251,7 @@ export const AccountDetailsSettingsPage = ({
         )}
 
         {shouldEditTaxIdentificationNumber &&
-          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) &&
-          !isTaxIdentificationRequired && (
+          isNullishOrEmpty(holderInfo?.taxIdentificationNumber) && (
             <>
               <LakeAlert
                 variant="info"

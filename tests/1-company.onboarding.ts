@@ -442,11 +442,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
   await page.getByLabel("What’s your registration number").fill("HRA 12345");
-  await page
-    .getByLabel(
-      t("onboarding.company.step.organisation1.legalRepresentativeTaxIdentificationNumber"),
-    )
-    .fill("923456788");
 
   await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page

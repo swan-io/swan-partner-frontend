@@ -240,9 +240,6 @@ test("Dutch individual onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.occupationPage.statusLabel")).click();
   await page.getByRole("option", { name: t("onboarding.employmentStatus.entrepreneur") }).click();
   await page.getByText(t("onboarding.monthlyIncome.between3000And4500")).click();
-  await page
-    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
-    .fill("923456788");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

@@ -495,9 +495,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
     .fill("Anna Paulownastraat 76");
   await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
   await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
-  await modal
-    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
-    .fill("923456788");
 
   await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 

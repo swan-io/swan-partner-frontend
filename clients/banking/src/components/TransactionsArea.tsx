@@ -9,6 +9,7 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { useQuery } from "urql";
@@ -59,6 +60,9 @@ export const TransactionsArea = ({
     query: GetAccountBalanceDocument,
     variables: { accountId },
   });
+  const [updatedUpcommingTransactionCount, setUpdatedUpcommingTransactionCount] = useState<
+    number | undefined
+  >(undefined);
 
   const route = Router.useRoute(accountTransactionsRoutes);
   const account = data?.account;
@@ -93,7 +97,10 @@ export const TransactionsArea = ({
               {
                 label: t("transactions.upcoming"),
                 url: Router.AccountTransactionsUpcoming({ accountMembershipId }),
-                count: data?.account?.upcomingTransactions?.totalCount ?? undefined,
+                count:
+                  updatedUpcommingTransactionCount ??
+                  data?.account?.upcomingTransactions?.totalCount ??
+                  undefined,
               },
             ]}
             otherLabel={t("common.tabs.other")}
@@ -167,6 +174,7 @@ export const TransactionsArea = ({
                 <UpcomingTransactionListPage
                   accountId={accountId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
+                  onUpcomingTransactionCountUpdated={setUpdatedUpcommingTransactionCount}
                 />
               );
             })

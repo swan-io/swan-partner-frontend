@@ -573,6 +573,7 @@
   "transaction.fees.description.sepaDirectDebitInCoreLevel2": "Vergoeding voor een inkomende Core SEPA Automatische Incasso meer dan 200€",
   "transaction.fees.description.sepaDirectDebitInCoreReturn": "Vergoeding voor de retour van een Core SEPA Automatische Incasso",
   "transaction.fees.description.unauthorizedOverdraft": "Vergoeding voor rekening-courantkredieten die niet zijn goedgekeurd",
+  "transaction.feesReason": "Reden",
   "transaction.id": "ID",
   "transaction.instantTransferUnavailable": "Onmiddellijke overdracht niet beschikbaar",
   "transaction.instantTransferUnavailable.description": "Helaas zijn onmiddellijke overdrachten op dit moment niet beschikbaar. We zullen deze in plaats daarvan als een standaard overdracht verzenden.",

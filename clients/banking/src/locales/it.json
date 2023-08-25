@@ -573,6 +573,7 @@
   "transaction.fees.description.sepaDirectDebitInCoreLevel2": "Commissione per un addebito diretto Core SEPA in entrata superiore a 200€",
   "transaction.fees.description.sepaDirectDebitInCoreReturn": "Commissione per il ritorno di un addebito diretto SEPA Core",
   "transaction.fees.description.unauthorizedOverdraft": "Commissione per gli scoperti non autorizzati",
+  "transaction.feesReason": "Motivo",
   "transaction.id": "ID",
   "transaction.instantTransferUnavailable": "Bonifico immediato non disponibile",
   "transaction.instantTransferUnavailable.description": "Purtroppo, i bonifici immediati non sono disponibili al momento. Procederemo con un bonifico standard.",

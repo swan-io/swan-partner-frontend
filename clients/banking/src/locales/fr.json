@@ -573,6 +573,7 @@
   "transaction.fees.description.sepaDirectDebitInCoreLevel2": "Frais pour un prélèvement SEPA Core entrant de plus de 200€",
   "transaction.fees.description.sepaDirectDebitInCoreReturn": "Frais pour le retour d'un prélèvement SEPA Core",
   "transaction.fees.description.unauthorizedOverdraft": "Frais pour les découverts non autorisés",
+  "transaction.feesReason": "Raison",
   "transaction.id": "ID",
   "transaction.instantTransferUnavailable": "Virement instantané non disponible",
   "transaction.instantTransferUnavailable.description": "Les virements instantanés ne sont actuellement pas disponibles. Nous enverrons ce virement de manière standard.",

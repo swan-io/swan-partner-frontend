@@ -573,6 +573,7 @@
   "transaction.fees.description.sepaDirectDebitInCoreLevel2": "Fee for an incoming Core SEPA Direct Debit more than 200€",
   "transaction.fees.description.sepaDirectDebitInCoreReturn": "Fee for the return of a Core SEPA Direct Debit",
   "transaction.fees.description.unauthorizedOverdraft": "Fee for overdrafts that are not authorized",
+  "transaction.feesReason": "Reason",
   "transaction.id": "ID",
   "transaction.instantTransferUnavailable": "Instant transfer unavailable",
   "transaction.instantTransferUnavailable.description": "Unfortunately, instant transfers are not available right now. We'll send this as a standard transfer instead.",

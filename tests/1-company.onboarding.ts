@@ -423,17 +423,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
 
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
-  await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
-    t("shared.country.NLD"),
-  );
-
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
-  await page
-    .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
-    .fill("Anna Paulownastraat 76");
-  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
-  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
-
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await waitForText(page, "Are you registered to Handelsregister?");
@@ -487,14 +476,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
   await modal
     .getByRole("checkbox", { name: t("shared.beneficiaryForm.beneficiary.directly"), exact: true })
     .click();
-  await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
-
-  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
-  await modal
-    .getByLabel(t("shared.beneficiaryForm.beneficiary.address"))
-    .fill("Anna Paulownastraat 76");
-  await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
-  await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
 
   await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 

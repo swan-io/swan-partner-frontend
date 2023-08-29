@@ -433,7 +433,9 @@ export const MembershipActionsCell = ({
                 </>
               ),
             )
-            .otherwise(() => null)}
+            .otherwise(() => (
+              <Space width={24} />
+            ))}
 
           <Icon
             name="chevron-right-filled"

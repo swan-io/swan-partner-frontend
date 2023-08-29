@@ -146,7 +146,7 @@ export const CardItemSettings = ({
         accountHolder={accountHolder}
       />
 
-      <LakeButtonGroup justifyContent="space-between">
+      <LakeButtonGroup>
         {match(card.statusInfo)
           .with(
             { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },

@@ -245,12 +245,13 @@ export const OnboardingIndividualLocation = ({
                     <Space height={12} />
 
                     <Field name="city">
-                      {({ value, valid, error, onChange }) => (
+                      {({ value, valid, error, onChange, ref }) => (
                         <LakeLabel
                           label={t("individual.step.location.cityLabel")}
                           render={id => (
                             <LakeTextInput
                               id={id}
+                              ref={ref}
                               value={value}
                               valid={valid}
                               error={error}
@@ -264,12 +265,13 @@ export const OnboardingIndividualLocation = ({
                     <Space height={12} />
 
                     <Field name="postalCode">
-                      {({ value, valid, error, onChange }) => (
+                      {({ value, valid, error, onChange, ref }) => (
                         <LakeLabel
                           label={t("individual.step.location.postCodeLabel")}
                           render={id => (
                             <LakeTextInput
                               id={id}
+                              ref={ref}
                               value={value}
                               valid={valid}
                               error={error}

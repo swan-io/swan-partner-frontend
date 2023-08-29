@@ -246,12 +246,13 @@ export const OnboardingCompanyRegistration = ({
 
               <Tile>
                 <Field name="email">
-                  {({ value, valid, onChange, error }) => (
+                  {({ value, valid, onChange, error, ref }) => (
                     <LakeLabel
                       label={t("company.step.registration.emailLabel")}
                       render={id => (
                         <LakeTextInput
                           id={id}
+                          ref={ref}
                           placeholder="example@gmail.com"
                           value={value}
                           onChangeText={onChange}

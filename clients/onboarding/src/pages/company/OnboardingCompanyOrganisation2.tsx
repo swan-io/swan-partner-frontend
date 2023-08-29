@@ -207,12 +207,13 @@ export const OnboardingCompanyOrganisation2 = ({
                 <Space height={12} />
 
                 <Field name="businessActivityDescription">
-                  {({ value, valid, error, onChange, onBlur }) => (
+                  {({ value, valid, error, onChange, onBlur, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.descriptionLabel")}
                       render={id => (
                         <LakeTextInput
                           id={id}
+                          ref={ref}
                           placeholder={t("company.step.organisation2.descriptionPlaceholder")}
                           value={value}
                           valid={valid}

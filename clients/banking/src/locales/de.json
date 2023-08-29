@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "Der Überweisungstext ist zu lang",
   "error.transferReferenceInvalid": "Ungültige Referenznummer",
   "error.transferReferenceTooLong": "Die Referenznummer ist zu lang",
-  "form.optional": "(optional)",
+  "form.optional": "optional",
   "login.buttonText": "Anmeldung zum Online-Banking",
   "login.linkFraud": "Einen Betrug im Zusammenhang mit meinem Konto melden.",
   "login.linkHow": "Fragen? Besuche unser Hilfe-Center.",

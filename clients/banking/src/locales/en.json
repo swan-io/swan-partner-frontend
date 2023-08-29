@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "Transfer label is too long",
   "error.transferReferenceInvalid": "Invalid reference number",
   "error.transferReferenceTooLong": "Reference number is too long",
-  "form.optional": "(optional)",
+  "form.optional": "optional",
   "login.buttonText": "Sign into Web Banking",
   "login.linkFraud": "Report fraud associated with your account.",
   "login.linkHow": "Questions? Visit our Help Center.",

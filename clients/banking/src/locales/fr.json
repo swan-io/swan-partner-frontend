@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "Le libellé de virement est trop long",
   "error.transferReferenceInvalid": "Numéro de référence non valide",
   "error.transferReferenceTooLong": "Le numéro de référence est trop long",
-  "form.optional": "(facultatif)",
+  "form.optional": "facultatif",
   "login.buttonText": "Se connecter au Web Banking",
   "login.linkFraud": "Signaler une fraude sur mon compte.",
   "login.linkHow": "Des questions ? Consultez notre centre d'aide.",

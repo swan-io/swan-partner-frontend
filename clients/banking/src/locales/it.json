@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "L'etichetta di bonifico è troppo lunga",
   "error.transferReferenceInvalid": "Numero di riferimento non valido",
   "error.transferReferenceTooLong": "Il numero di riferimento è troppo lungo",
-  "form.optional": "(opzionale)",
+  "form.optional": "opzionale",
   "login.buttonText": "Accedi a Web Banking",
   "login.linkFraud": "Segnalare una frode sul tuo conto.",
   "login.linkHow": "Domande? Visita il nostro Centro assistenza.",

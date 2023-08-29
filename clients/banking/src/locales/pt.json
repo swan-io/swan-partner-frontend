@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "A etiqueta da transferência é demasiado longa.",
   "error.transferReferenceInvalid": "Número de referência inválido",
   "error.transferReferenceTooLong": "O número de referência é demasiado grande",
-  "form.optional": "(opcional)",
+  "form.optional": "opcional",
   "login.buttonText": "Iniciar sessão em Internet Banking",
   "login.linkFraud": "Denunciar uma fraude na minha conta",
   "login.linkHow": "Perguntas? Visite nossa Central de Ajuda.",

@@ -285,7 +285,7 @@
   "error.transferLabelTooLong": "Het transferlabel is te lang",
   "error.transferReferenceInvalid": "Ongeldig referentienummer",
   "error.transferReferenceTooLong": "De transferreferentie is te lang",
-  "form.optional": "(optioneel)",
+  "form.optional": "optioneel",
   "login.buttonText": "Log in op internetbankieren",
   "login.linkFraud": "Fraude op mijn rekening melden",
   "login.linkHow": "Vragen? Bezoek ons Helpcentrum.",

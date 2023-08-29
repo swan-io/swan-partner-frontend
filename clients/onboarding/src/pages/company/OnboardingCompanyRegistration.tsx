@@ -104,7 +104,9 @@ export const OnboardingCompanyRegistration = ({
   const isFirstMount = useFirstMountState();
 
   const haveToAcceptTcu = accountCountry === "DEU";
-  const isAddressRequired = accountCountry === "DEU";
+  const isAddressRequired = match(accountCountry)
+    .with("DEU", "NLD", () => true)
+    .otherwise(() => false);
 
   const { Field, submitForm, setFieldValue, setFieldError, FieldsListener, listenFields } = useForm(
     {

@@ -1,5 +1,7 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -37,41 +39,23 @@ const styles = StyleSheet.create({
     backgroundColor: backgroundColor.default,
     flexGrow: 1,
   },
-  contentContainer: {
-    flexGrow: 1,
-    paddingHorizontal: spacings[16],
-    paddingVertical: spacings[16],
-    justifyContent: "center",
-  },
-  contentContainerDesktop: {
-    paddingVertical: spacings[40],
-  },
-  parternship: {
-    marginHorizontal: "auto",
-    display: "flex",
-    flexDirection: "row",
-    alignItems: "baseline",
-  },
-  swanPartnerLogo: {
-    height: 9,
-  },
-  defaultLogo: {
-    height: 18,
-    width: "initial",
-  },
-  defaultLogoDesktop: {
-    height: 24,
-  },
   content: {
-    margin: "auto",
+    flexGrow: 1,
+    marginHorizontal: "auto",
+    padding: spacings[24],
+  },
+  clientLogo: {
+    height: 25,
+    width: "100%",
+  },
+  swanLogo: {
+    height: 20,
+    paddingVertical: 5,
+    width: "100%",
   },
   tile: {
     paddingHorizontal: spacings[72],
     paddingVertical: spacings[72],
-  },
-  mobileContainer: {
-    paddingHorizontal: spacings[24],
-    paddingVertical: spacings[48],
   },
   iconContainer: {
     margin: "auto",
@@ -81,6 +65,15 @@ const styles = StyleSheet.create({
   },
   underline: {
     textDecorationLine: "underline",
+  },
+  partnership: {
+    marginHorizontal: "auto",
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "baseline",
+  },
+  swanPartnershipLogo: {
+    height: 9,
   },
 });
 
@@ -137,7 +130,7 @@ const LoginContent = ({ accentColor, onLogin }: LoginContentProps) => {
 
 export const ProjectLoginPage = ({
   projectId,
-  sessionExpired,
+  sessionExpired = false,
 }: {
   projectId: string;
   sessionExpired?: boolean;
@@ -205,54 +198,44 @@ export const ProjectLoginPage = ({
   return match(projectInfos)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ accentColor, name, logoUri }) => {
       return (
-        <ScrollView
-          style={styles.base}
-          contentContainerStyle={[
-            styles.contentContainer,
-            desktop && styles.contentContainerDesktop,
-          ]}
-        >
-          <View role="banner">
+        <ScrollView style={styles.base} contentContainerStyle={styles.content}>
+          <Box role="banner" alignItems="center">
             {isNotNullish(logoUri) ? (
               <Image
                 source={{ uri: logoUri }}
                 resizeMode="contain"
                 aria-label={name}
-                style={[styles.defaultLogo, desktop && styles.defaultLogoDesktop]}
+                style={styles.clientLogo}
               />
             ) : (
-              <SwanLogo style={[styles.defaultLogo, desktop && styles.defaultLogoDesktop]} />
+              <SwanLogo style={styles.swanLogo} />
             )}
-          </View>
+          </Box>
 
-          <View style={styles.content}>
-            {sessionExpired === true && (
-              <>
-                <Space height={24} />
-                <LakeAlert variant="warning" title={t("login.sessionExpired.title")} />
-              </>
-            )}
+          <Fill minHeight={48} />
 
-            {desktop ? (
-              <>
-                <Space height={24} />
+          {sessionExpired && (
+            <>
+              <LakeAlert variant="warning" title={t("login.sessionExpired.title")} />
+              <Space height={desktop ? 24 : 48} />
+            </>
+          )}
 
-                <Tile style={styles.tile}>
-                  <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
-                </Tile>
+          {desktop ? (
+            <Tile style={styles.tile}>
+              <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
+            </Tile>
+          ) : (
+            <View>
+              <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
+            </View>
+          )}
 
-                <Space height={24} />
-              </>
-            ) : (
-              <View style={styles.mobileContainer}>
-                <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
-              </View>
-            )}
-          </View>
+          <Fill minHeight={48} />
 
           {isNotNullish(logoUri) && (
-            <LakeText variant="smallRegular" style={styles.parternship}>
-              {t("login.parternship")} <SwanLogo style={styles.swanPartnerLogo} />
+            <LakeText variant="smallRegular" style={styles.partnership}>
+              {t("login.partnership")} <SwanLogo style={styles.swanPartnershipLogo} />
             </LakeText>
           )}
         </ScrollView>

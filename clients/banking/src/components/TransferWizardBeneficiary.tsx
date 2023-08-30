@@ -129,9 +129,10 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
           label={t("transfer.new.beneficiary.name")}
           render={id => (
             <Field name="name">
-              {({ value, onChange, onBlur, error, valid }) => (
+              {({ value, onChange, onBlur, error, valid, ref }) => (
                 <LakeTextInput
                   id={id}
+                  ref={ref}
                   value={value}
                   error={error}
                   valid={valid}
@@ -147,9 +148,10 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
           label={t("transfer.new.iban.label")}
           render={id => (
             <Field name="iban">
-              {({ value, onChange, onBlur, error, validating, valid }) => (
+              {({ value, onChange, onBlur, error, validating, valid, ref }) => (
                 <LakeTextInput
                   id={id}
+                  ref={ref}
                   placeholder={t("transfer.new.iban.placeholder")}
                   value={printIbanFormat(value)}
                   validating={validating}

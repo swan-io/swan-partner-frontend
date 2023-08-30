@@ -186,9 +186,10 @@ export const AccountDetailsSettingsPage = ({
           label={t("accountDetails.settings.accountNameLabel")}
           render={id => (
             <Field name="accountName">
-              {({ error, onBlur, onChange, valid, value }) => (
+              {({ error, onBlur, onChange, valid, value, ref }) => (
                 <LakeTextInput
                   id={id}
+                  ref={ref}
                   placeholder={t("accountDetails.settings.accountNamePlaceholder")}
                   disabled={formDisabled}
                   readOnly={formDisabled}
@@ -208,9 +209,10 @@ export const AccountDetailsSettingsPage = ({
             label={t("accountDetails.settings.vatLabel")}
             render={id => (
               <Field name="vatNumber">
-                {({ error, onBlur, onChange, valid, value }) => (
+                {({ error, onBlur, onChange, valid, value, ref }) => (
                   <LakeTextInput
                     id={id}
+                    ref={ref}
                     disabled={formDisabled}
                     readOnly={formDisabled}
                     error={error}
@@ -228,8 +230,9 @@ export const AccountDetailsSettingsPage = ({
         {shouldEditTaxIdentificationNumber && (
           <>
             <Field name="taxIdentificationNumber">
-              {({ error, onBlur, onChange, valid, value }) => (
+              {({ error, onBlur, onChange, valid, value, ref }) => (
                 <TaxIdentificationNumberInput
+                  ref={ref}
                   value={value}
                   error={error}
                   valid={valid}
@@ -277,9 +280,10 @@ export const AccountDetailsSettingsPage = ({
           label={t("accountDetails.settings.language")}
           render={id => (
             <Field name="language">
-              {({ onChange, value }) => (
+              {({ onChange, value, ref }) => (
                 <LakeSelect
                   id={id}
+                  ref={ref}
                   disabled={formDisabled}
                   readOnly={formDisabled}
                   items={countries}

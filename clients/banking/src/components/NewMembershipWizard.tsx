@@ -494,12 +494,13 @@ export const NewMembershipWizard = ({
                   <Box direction={large ? "row" : "column"} alignItems="start">
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="firstName">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.firstName")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -515,12 +516,13 @@ export const NewMembershipWizard = ({
 
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="lastName">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.lastName")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -536,12 +538,13 @@ export const NewMembershipWizard = ({
                   <Box direction={large ? "row" : "column"} alignItems="start">
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="phoneNumber">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.phoneNumber")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 placeholder="+33600000000"
                                 value={value ?? ""}
                                 valid={valid}
@@ -559,7 +562,7 @@ export const NewMembershipWizard = ({
 
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="birthDate">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <Rifm value={value} onChange={onChange} {...rifmDateProps}>
                             {({ value, onChange }) => (
                               <LakeLabel
@@ -567,6 +570,7 @@ export const NewMembershipWizard = ({
                                 render={id => (
                                   <LakeTextInput
                                     id={id}
+                                    ref={ref}
                                     placeholder={locale.datePlaceholder}
                                     value={value ?? ""}
                                     valid={valid}
@@ -583,12 +587,13 @@ export const NewMembershipWizard = ({
                   </Box>
 
                   <Field name="email">
-                    {({ value, valid, error, onChange }) => (
+                    {({ value, valid, error, onChange, ref }) => (
                       <LakeLabel
                         label={t("membershipDetail.edit.email")}
                         render={id => (
                           <LakeTextInput
                             id={id}
+                            ref={ref}
                             value={value}
                             valid={valid}
                             error={error}
@@ -672,12 +677,13 @@ export const NewMembershipWizard = ({
               return (
                 <>
                   <Field name="country">
-                    {({ value, error, onChange }) => (
+                    {({ value, error, onChange, ref }) => (
                       <LakeLabel
                         label={t("membershipDetail.edit.country")}
                         render={id => (
                           <CountryPicker
                             id={id}
+                            ref={ref}
                             countries={allCountries}
                             value={value}
                             onValueChange={onChange}
@@ -724,12 +730,13 @@ export const NewMembershipWizard = ({
                   <Box direction={large ? "row" : "column"} alignItems="start">
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="postalCode">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.postalCode")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -745,12 +752,13 @@ export const NewMembershipWizard = ({
 
                     <View style={large ? styles.fieldLarge : styles.field}>
                       <Field name="city">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.city")}
                             render={id => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 valid={valid}
                                 error={error}
@@ -768,8 +776,9 @@ export const NewMembershipWizard = ({
                       match({ accountCountry, country: country.value })
                         .with({ accountCountry: "DEU", country: "DEU" }, () => (
                           <Field name="taxIdentificationNumber">
-                            {({ value, valid, error, onChange }) => (
+                            {({ value, valid, error, onChange, ref }) => (
                               <TaxIdentificationNumberInput
+                                ref={ref}
                                 accountCountry={accountCountry}
                                 isCompany={false}
                                 value={value}

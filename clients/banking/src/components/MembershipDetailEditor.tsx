@@ -457,12 +457,13 @@ export const MembershipDetailEditor = ({
               />
 
               <Field name="email">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <LakeLabel
                     label={t("membershipDetail.edit.email")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         value={value}
                         valid={valid}
                         error={error}
@@ -516,13 +517,14 @@ export const MembershipDetailEditor = ({
           ({ statusInfo }) => (
             <>
               <Field name="email">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <LakeLabel
                     label={t("membershipDetail.edit.email")}
                     render={id => (
                       <Box direction="row">
                         <LakeTextInput
                           id={id}
+                          ref={ref}
                           value={value}
                           valid={valid}
                           error={error}
@@ -576,12 +578,13 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="lastName">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <LakeLabel
                     label={t("membershipDetail.edit.lastName")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         value={value}
                         valid={valid}
                         error={error}
@@ -593,12 +596,13 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="firstName">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <LakeLabel
                     label={t("membershipDetail.edit.firstName")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         value={value}
                         valid={valid}
                         error={error}
@@ -610,7 +614,7 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="birthDate">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <Rifm value={value ?? ""} onChange={onChange} {...rifmDateProps}>
                     {({ value, onChange }) => (
                       <LakeLabel
@@ -618,6 +622,7 @@ export const MembershipDetailEditor = ({
                         render={id => (
                           <LakeTextInput
                             id={id}
+                            ref={ref}
                             placeholder={locale.datePlaceholder}
                             value={value ?? ""}
                             valid={valid}
@@ -632,12 +637,13 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="phoneNumber">
-                {({ value, valid, error, onChange }) => (
+                {({ value, valid, error, onChange, ref }) => (
                   <LakeLabel
                     label={t("membershipDetail.edit.phoneNumber")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         placeholder="+33600000000"
                         value={value ?? ""}
                         valid={valid}
@@ -658,12 +664,13 @@ export const MembershipDetailEditor = ({
         .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => (
           <>
             <Field name="country">
-              {({ value, error, onChange }) => (
+              {({ value, error, onChange, ref }) => (
                 <LakeLabel
                   label={t("membershipDetail.edit.country")}
                   render={id => (
                     <CountryPicker
                       id={id}
+                      ref={ref}
                       countries={allCountries}
                       value={value}
                       onValueChange={onChange}
@@ -708,12 +715,13 @@ export const MembershipDetailEditor = ({
             </FieldsListener>
 
             <Field name="postalCode">
-              {({ value, valid, error, onChange }) => (
+              {({ value, valid, error, onChange, ref }) => (
                 <LakeLabel
                   label={t("membershipDetail.edit.postalCode")}
                   render={id => (
                     <LakeTextInput
                       id={id}
+                      ref={ref}
                       value={value}
                       valid={valid}
                       error={error}
@@ -725,12 +733,13 @@ export const MembershipDetailEditor = ({
             </Field>
 
             <Field name="city">
-              {({ value, valid, error, onChange }) => (
+              {({ value, valid, error, onChange, ref }) => (
                 <LakeLabel
                   label={t("membershipDetail.edit.city")}
                   render={id => (
                     <LakeTextInput
                       id={id}
+                      ref={ref}
                       value={value}
                       valid={valid}
                       error={error}
@@ -748,8 +757,9 @@ export const MembershipDetailEditor = ({
                     { accountCountry: "DEU", country: "DEU" },
                     ({ accountCountry, country }) => (
                       <Field name="taxIdentificationNumber">
-                        {({ value, valid, error, onChange }) => (
+                        {({ value, valid, error, onChange, ref }) => (
                           <TaxIdentificationNumberInput
+                            ref={ref}
                             accountCountry={accountCountry}
                             isCompany={false}
                             value={value}

@@ -80,9 +80,10 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
         label={t("cardWizard.address.country")}
         render={id => (
           <Field name="country">
-            {({ value, onChange, error }) => (
+            {({ value, onChange, error, ref }) => (
               <CountryPicker
                 id={id}
+                ref={ref}
                 error={error}
                 value={value}
                 placeholder={t("cardWizard.address.countryPlaceholder")}
@@ -126,12 +127,13 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
               </Field>
 
               <Field name="addressLine2">
-                {({ value, onChange, error }) => (
+                {({ value, onChange, error, ref }) => (
                   <LakeLabel
                     label={t("cardWizard.address.line2")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         error={error}
                         placeholder={t("cardWizard.address.line2Placeholder")}
                         value={value}
@@ -143,12 +145,13 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
               </Field>
 
               <Field name="postalCode">
-                {({ value, onChange, error }) => (
+                {({ value, onChange, error, ref }) => (
                   <LakeLabel
                     label={t("cardWizard.address.postalCode")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         error={error}
                         placeholder={t("cardWizard.address.postalCodePlaceholder")}
                         value={value}
@@ -160,12 +163,13 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
               </Field>
 
               <Field name="state">
-                {({ value, onChange, error }) => (
+                {({ value, onChange, error, ref }) => (
                   <LakeLabel
                     label={t("cardWizard.address.state")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         error={error}
                         placeholder={t("cardWizard.address.statePlaceholder")}
                         value={value}
@@ -177,12 +181,13 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
               </Field>
 
               <Field name="city">
-                {({ value, onChange, error }) => (
+                {({ value, onChange, error, ref }) => (
                   <LakeLabel
                     label={t("cardWizard.address.city")}
                     render={id => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         error={error}
                         placeholder={t("cardWizard.address.cityPlaceholder")}
                         value={value}

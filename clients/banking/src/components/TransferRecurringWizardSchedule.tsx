@@ -192,11 +192,12 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                   label={t("recurringTransfer.new.firstExecutionTime.label")}
                   render={id => (
                     <Field name="firstExecutionTime">
-                      {({ value, onChange, onBlur, error, valid }) => (
+                      {({ value, onChange, onBlur, error, valid, ref }) => (
                         <Rifm value={value} onChange={onChange} {...rifmTimeProps}>
                           {({ value, onChange }) => (
                             <LakeTextInput
                               id={id}
+                              ref={ref}
                               readOnly={loading}
                               placeholder={locale.timePlaceholder.slice(0, -3)}
                               value={value}
@@ -220,7 +221,9 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
 
         <Box direction="row" alignItems="center">
           <Field name="withLastExecutionDate">
-            {({ value, onChange }) => <Switch value={value} onValueChange={onChange} />}
+            {({ value, onChange, ref }) => (
+              <Switch ref={ref} value={value} onValueChange={onChange} />
+            )}
           </Field>
 
           <Space width={12} />
@@ -274,11 +277,12 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                         label={t("recurringTransfer.new.lastExecutionTime.label")}
                         render={id => (
                           <Field name="lastExecutionTime">
-                            {({ value, onChange, onBlur, error, valid }) => (
+                            {({ value, onChange, onBlur, error, valid, ref }) => (
                               <Rifm value={value} onChange={onChange} {...rifmTimeProps}>
                                 {({ value, onChange }) => (
                                   <LakeTextInput
                                     id={id}
+                                    ref={ref}
                                     readOnly={loading}
                                     placeholder={locale.timePlaceholder.slice(0, -3)}
                                     value={value}

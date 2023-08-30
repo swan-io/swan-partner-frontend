@@ -123,10 +123,11 @@ export const TransferRegularWizardDetails = ({
                 label={t("transfer.new.details.amount")}
                 render={id => (
                   <Field name="amount">
-                    {({ value, onChange, onBlur, error, valid }) => (
+                    {({ value, onChange, onBlur, error, valid, ref }) => (
                       <LakeTextInput
                         unit="EUR"
                         id={id}
+                        ref={ref}
                         value={value}
                         error={error}
                         valid={valid}
@@ -147,9 +148,10 @@ export const TransferRegularWizardDetails = ({
                         label={t("transfer.new.details.label")}
                         render={id => (
                           <Field name="label">
-                            {({ value, onChange, onBlur, error, valid }) => (
+                            {({ value, onChange, onBlur, error, valid, ref }) => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 error={error}
                                 valid={valid}
@@ -170,9 +172,10 @@ export const TransferRegularWizardDetails = ({
                         label={t("transfer.new.details.reference")}
                         render={id => (
                           <Field name="reference">
-                            {({ value, onChange, onBlur, error, valid }) => (
+                            {({ value, onChange, onBlur, error, valid, ref }) => (
                               <LakeTextInput
                                 id={id}
+                                ref={ref}
                                 value={value}
                                 error={error}
                                 valid={valid}

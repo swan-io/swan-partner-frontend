@@ -323,7 +323,7 @@ export const OnboardingCompanyOrganisation1 = ({
                 }
               >
                 <Field name="isRegistered">
-                  {({ value, onChange }) => (
+                  {({ value, onChange, ref }) => (
                     <LakeLabel
                       label={
                         countryRegisterName != null
@@ -339,7 +339,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           </LakeText>
 
                           <Space width={8} />
-                          <Switch value={value} onValueChange={onChange} />
+                          <Switch ref={ref} value={value} onValueChange={onChange} />
                           <Space width={8} />
 
                           <LakeText variant="smallRegular" color={colors.gray[900]}>
@@ -354,13 +354,14 @@ export const OnboardingCompanyOrganisation1 = ({
                 <Space height={24} />
 
                 <Field name="name">
-                  {({ value, valid, error, onChange }) => (
+                  {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.organisationLabel")}
                       render={id =>
                         country === "FRA" ? (
                           <LakeCompanyInput
                             id={id}
+                            ref={ref}
                             value={value}
                             placeholder={t("company.step.organisation1.organisationPlaceholder")}
                             error={error}
@@ -371,6 +372,7 @@ export const OnboardingCompanyOrganisation1 = ({
                         ) : (
                           <LakeTextInput
                             id={id}
+                            ref={ref}
                             value={value}
                             placeholder={t("company.step.organisation1.organisationPlaceholder")}
                             valid={valid}
@@ -388,7 +390,7 @@ export const OnboardingCompanyOrganisation1 = ({
                 <FieldsListener names={["isRegistered"]}>
                   {({ isRegistered }) => (
                     <Field name="registrationNumber">
-                      {({ value, valid, error, onChange }) => (
+                      {({ value, valid, error, onChange, ref }) => (
                         <LakeLabel
                           label={t("company.step.organisation1.registrationNumberLabel", {
                             registrationNumberLegalName: getRegistrationNumberName(
@@ -400,6 +402,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           render={id => (
                             <LakeTextInput
                               id={id}
+                              ref={ref}
                               placeholder={t(
                                 "company.step.organisation1.registrationNumberPlaceholder",
                               )}
@@ -419,13 +422,14 @@ export const OnboardingCompanyOrganisation1 = ({
                 <Space height={12} />
 
                 <Field name="vatNumber">
-                  {({ value, valid, error, onChange }) => (
+                  {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.vatLabel")}
                       optionalLabel={t("common.optional")}
                       render={id => (
                         <LakeTextInput
                           id={id}
+                          ref={ref}
                           placeholder={t("company.step.organisation1.vatPlaceholder")}
                           value={value}
                           valid={valid}
@@ -442,8 +446,9 @@ export const OnboardingCompanyOrganisation1 = ({
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange, onBlur }) => (
+                      {({ value, valid, error, onChange, onBlur, ref }) => (
                         <TaxIdentificationNumberInput
+                          ref={ref}
                           value={value}
                           error={error}
                           valid={valid}

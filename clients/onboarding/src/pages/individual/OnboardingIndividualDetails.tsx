@@ -212,8 +212,9 @@ export const OnboardingIndividualDetails = ({
                     <Space height={32} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, valid, error, onChange, onBlur }) => (
+                      {({ value, valid, error, onChange, onBlur, ref }) => (
                         <TaxIdentificationNumberInput
+                          ref={ref}
                           value={value}
                           error={error}
                           valid={valid}

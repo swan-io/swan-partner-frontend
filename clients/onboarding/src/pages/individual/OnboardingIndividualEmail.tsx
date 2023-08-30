@@ -166,12 +166,13 @@ export const OnboardingIndividualEmail = ({
 
               <Tile>
                 <Field name="email">
-                  {({ value, error, valid, onChange }) => (
+                  {({ value, error, valid, onChange, ref }) => (
                     <LakeLabel
                       label={t("individual.step.email.label")}
                       render={id => (
                         <LakeTextInput
                           id={id}
+                          ref={ref}
                           autoFocus={true}
                           placeholder="example@gmail.com"
                           value={value}
@@ -192,8 +193,9 @@ export const OnboardingIndividualEmail = ({
                   {haveToAcceptTcu && (
                     <>
                       <Field name="tcuAccepted">
-                        {({ value, error, onChange }) => (
+                        {({ value, error, onChange, ref }) => (
                           <Pressable
+                            ref={ref}
                             role="checkbox"
                             aria-checked={value}
                             onPress={() => onChange(!value)}

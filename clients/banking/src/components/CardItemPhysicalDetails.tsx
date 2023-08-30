@@ -170,13 +170,14 @@ const CardItemPhysicalShippingForm = ({
   return (
     <>
       <Field name="country">
-        {({ value, error, onChange }) => (
+        {({ value, error, onChange, ref }) => (
           <LakeLabel
             label={t("card.physical.order.shippingAddress.country")}
             render={id => (
               <CountryPicker
                 readOnly={isLoading}
                 id={id}
+                ref={ref}
                 error={error}
                 value={value}
                 placeholder={t("members.form.address.countryPlaceholder")}
@@ -223,13 +224,14 @@ const CardItemPhysicalShippingForm = ({
       </FieldsListener>
 
       <Field name="addressLine2">
-        {({ value, valid, error, onChange, onBlur }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("card.physical.order.shippingAddress.addressLine2")}
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
                 id={id}
+                ref={ref}
                 value={value}
                 valid={valid}
                 error={error}
@@ -242,13 +244,14 @@ const CardItemPhysicalShippingForm = ({
       </Field>
 
       <Field name="postalCode">
-        {({ value, valid, error, onChange, onBlur }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("card.physical.order.shippingAddress.postalCode")}
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
                 id={id}
+                ref={ref}
                 value={value}
                 valid={valid}
                 error={error}
@@ -261,13 +264,14 @@ const CardItemPhysicalShippingForm = ({
       </Field>
 
       <Field name="city">
-        {({ value, valid, error, onChange, onBlur }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("card.physical.order.shippingAddress.city")}
             render={id => (
               <LakeTextInput
                 readOnly={isLoading}
                 id={id}
+                ref={ref}
                 value={value}
                 valid={valid}
                 error={error}
@@ -331,13 +335,14 @@ const CardItemPhysicalPermanentlyBlockForm = ({
   return (
     <>
       <Field name="reason">
-        {({ value, error, onChange }) => (
+        {({ value, error, onChange, ref }) => (
           <LakeLabel
             label={t("card.physical.cancelConfirmation")}
             render={id => (
               <LakeSelect
                 readOnly={isLoading}
                 id={id}
+                ref={ref}
                 error={error}
                 items={cancelReasons}
                 value={value}
@@ -391,12 +396,13 @@ const CardItemPhysicalActivationForm = ({
   return (
     <>
       <Field name="identifier">
-        {({ value, valid, error, onChange }) => (
+        {({ value, valid, error, onChange, ref }) => (
           <LakeLabel
             label={t("card.physical.identifier")}
             render={id => (
               <LakeTextInput
                 id={id}
+                ref={ref}
                 value={value}
                 valid={valid}
                 error={error}

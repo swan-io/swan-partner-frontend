@@ -172,12 +172,13 @@ export const OnboardingIndividualDetails = ({
                 }
               >
                 <Field name="employmentStatus">
-                  {({ value, onChange }) => (
+                  {({ value, onChange, ref }) => (
                     <LakeLabel
                       label={t("occupationPage.statusLabel")}
                       render={id => (
                         <LakeSelect
                           id={id}
+                          ref={ref}
                           items={employmentStatuses}
                           value={value}
                           disabled={updateResult.isLoading()}

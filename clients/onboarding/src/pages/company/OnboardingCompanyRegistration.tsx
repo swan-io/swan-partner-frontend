@@ -322,8 +322,9 @@ export const OnboardingCompanyRegistration = ({
                   {haveToAcceptTcu && (
                     <>
                       <Field name="tcuAccepted">
-                        {({ value, error, onChange }) => (
+                        {({ value, error, onChange, ref }) => (
                           <Pressable
+                            ref={ref}
                             role="checkbox"
                             aria-checked={value}
                             onPress={() => onChange(!value)}

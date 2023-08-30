@@ -219,11 +219,12 @@ export const TransferRegularWizardSchedule = ({
                                 label={t("transfer.new.scheduleTime.label")}
                                 render={id => (
                                   <Field name="scheduledTime">
-                                    {({ value, onChange, onBlur, error, valid }) => (
+                                    {({ value, onChange, onBlur, error, valid, ref }) => (
                                       <Rifm value={value} onChange={onChange} {...rifmTimeProps}>
                                         {({ value, onChange }) => (
                                           <LakeTextInput
                                             id={id}
+                                            ref={ref}
                                             readOnly={loading}
                                             placeholder={locale.timePlaceholder.slice(0, -3)}
                                             value={value}

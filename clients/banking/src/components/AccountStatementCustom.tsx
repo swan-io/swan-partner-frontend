@@ -300,7 +300,7 @@ const NewStatementForm = ({
       <Box direction={large ? "row" : "column"} alignItems="start">
         <View style={large ? styles.fieldLarge : styles.field}>
           <Field name="startDate">
-            {({ value, onChange, onBlur, error }) => (
+            {({ value, onChange, onBlur, error, ref }) => (
               <LakeLabel
                 label={t("newStatement.startDate")}
                 render={id => (
@@ -308,6 +308,7 @@ const NewStatementForm = ({
                     {({ value, onChange }) => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         value={value}
                         placeholder={locale.datePlaceholder}
                         onChange={e =>
@@ -328,7 +329,7 @@ const NewStatementForm = ({
 
         <View style={large ? styles.fieldLarge : styles.field}>
           <Field name="closingDate">
-            {({ value, onChange, onBlur, error }) => (
+            {({ value, onChange, onBlur, error, ref }) => (
               <LakeLabel
                 label={t("newStatement.endDate")}
                 render={id => (
@@ -336,6 +337,7 @@ const NewStatementForm = ({
                     {({ value, onChange }) => (
                       <LakeTextInput
                         id={id}
+                        ref={ref}
                         value={value}
                         placeholder={locale.datePlaceholder}
                         onChange={e =>
@@ -355,12 +357,13 @@ const NewStatementForm = ({
 
       <Box direction="column">
         <Field name="format">
-          {({ value, onChange }) => (
+          {({ value, onChange, ref }) => (
             <LakeLabel
               label={t("newStatement.format")}
               render={id => (
                 <LakeSelect
                   id={id}
+                  ref={ref}
                   value={value}
                   items={statementTypeList.map(type => ({ name: type, value: type }))}
                   onValueChange={onChange}
@@ -371,12 +374,13 @@ const NewStatementForm = ({
         </Field>
 
         <Field name="language">
-          {({ value, onChange }) => (
+          {({ value, onChange, ref }) => (
             <LakeLabel
               label={t("newStatement.language")}
               render={id => (
                 <LakeSelect
                   id={id}
+                  ref={ref}
                   value={value}
                   items={languageOptions}
                   onValueChange={onChange}

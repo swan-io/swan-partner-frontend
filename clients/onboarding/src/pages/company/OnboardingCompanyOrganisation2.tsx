@@ -187,7 +187,7 @@ export const OnboardingCompanyOrganisation2 = ({
 
               <Tile>
                 <Field name="businessActivity">
-                  {({ value, error, onChange }) => (
+                  {({ value, error, onChange, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.activityLabel")}
                       render={id => (
@@ -198,6 +198,7 @@ export const OnboardingCompanyOrganisation2 = ({
                           items={businessActivitiesItems}
                           error={error}
                           onValueChange={onChange}
+                          ref={ref}
                         />
                       )}
                     />
@@ -232,12 +233,13 @@ export const OnboardingCompanyOrganisation2 = ({
                 <Space height={12} />
 
                 <Field name="monthlyPaymentVolume">
-                  {({ value, onChange }) => (
+                  {({ value, onChange, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation2.monthlyPaymentLabel")}
                       render={id => (
                         <LakeSelect
                           id={id}
+                          ref={ref}
                           value={value}
                           items={monthlyPaymentVolumeItems}
                           onValueChange={onChange}

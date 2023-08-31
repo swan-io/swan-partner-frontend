@@ -55,12 +55,14 @@ import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
   containerRowLarge: {
-    paddingHorizontal: spacings[48],
+    paddingHorizontal: spacings[32],
   },
   containerRow: {
-    paddingHorizontal: spacings[24],
+    paddingHorizontal: spacings[8],
   },
-  columnHeaders: { marginHorizontal: spacings[24] },
+  columnHeaders: {
+    paddingHorizontal: spacings[32],
+  },
   buttonLarge: {
     paddingHorizontal: spacings[48],
   },

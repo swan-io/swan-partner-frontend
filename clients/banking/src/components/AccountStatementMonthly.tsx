@@ -27,12 +27,14 @@ import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../gr
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  columnHeaders: { marginHorizontal: spacings[24] },
+  columnHeaders: {
+    paddingHorizontal: spacings[32],
+  },
   containerRowLarge: {
-    paddingHorizontal: spacings[48],
+    paddingHorizontal: spacings[32],
   },
   containerRow: {
-    paddingHorizontal: spacings[24],
+    paddingHorizontal: spacings[8],
   },
 });
 
@@ -92,7 +94,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   },
   {
     title: t("accountStatements.action"),
-    width: 50,
+    width: 70,
     id: "action",
     renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="center" text={title} />,
     renderCell: ({ item: { status } }) => {

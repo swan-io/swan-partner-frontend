@@ -752,6 +752,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                     onBalanceReceive={setAvailableBalance}
                                     canViewAccountStatement={canViewAccountStatement}
+                                    canViewAccount={accountMembership.canViewAccount}
                                   />
                                 ),
                             )
@@ -777,6 +778,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                           })
                                         : Option.None()
                                     }
+                                    canViewAccount={accountMembership.canViewAccount}
                                   />
                                 ),
                             )

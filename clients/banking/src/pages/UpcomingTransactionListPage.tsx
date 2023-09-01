@@ -20,12 +20,14 @@ type Props = {
   accountId: string;
   canQueryCardOnTransaction: boolean;
   onUpcomingTransactionCountUpdated?: (count: number | undefined) => void;
+  canViewAccount: boolean;
 };
 
 export const UpcomingTransactionListPage = ({
   accountId,
   canQueryCardOnTransaction,
   onUpcomingTransactionCountUpdated,
+  canViewAccount,
 }: Props) => {
   const { data, nextData, setAfter } = useUrqlPaginatedQuery(
     {
@@ -34,6 +36,7 @@ export const UpcomingTransactionListPage = ({
         accountId,
         first: NUM_TO_RENDER,
         canQueryCardOnTransaction,
+        canViewAccount,
       },
     },
     [canQueryCardOnTransaction],

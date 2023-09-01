@@ -12,7 +12,7 @@ fragment TransactionDetails on Transaction {
     id
     createdAt
   }
-  originTransaction {
+  originTransaction @include(if: $canViewAccount) {
     id
     type
     executionDate
@@ -818,6 +818,7 @@ query CardTransactionsPage(
   $cardId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
   $after: String
   $filters: TransactionsFiltersInput
 ) {
@@ -1110,6 +1111,7 @@ query StandingOrdersHistoryPage(
   $standingOrderId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
   $after: String
   $filters: PaymentFiltersInput
   $orderBy: PaymentOrderByInput
@@ -1555,6 +1557,7 @@ query TransactionListPage(
   $accountId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
   $after: String
   $filters: TransactionsFiltersInput
   $orderBy: TransactionsOrderByInput
@@ -1588,6 +1591,7 @@ query UpcomingTransactionListPage(
   $accountId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
   $after: String
 ) {
   account(accountId: $accountId) {
@@ -1830,7 +1834,11 @@ query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, 
   }
 }
 
-query GetTransactionDetails($transactionId: ID!, $canQueryCardOnTransaction: Boolean!) {
+query GetTransactionDetails(
+  $transactionId: ID!
+  $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
+) {
   transaction(id: $transactionId) {
     ...TransactionDetails
   }

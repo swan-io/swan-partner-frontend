@@ -235,6 +235,7 @@ export const CardsArea = ({
                         canManageAccountMembership={canManageAccountMembership}
                         canOrderPhysicalCards={canOrderPhysicalCards}
                         large={large}
+                        canViewAccount={accountMembership.canViewAccount}
                       />
                     </>
                   ))

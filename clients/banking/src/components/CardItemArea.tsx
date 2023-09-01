@@ -45,6 +45,7 @@ type Props = {
   userStatusIsProcessing: boolean;
   canManageAccountMembership: boolean;
   canOrderPhysicalCards: boolean;
+  canViewAccount: boolean;
   large?: boolean;
 };
 
@@ -55,6 +56,7 @@ export const CardItemArea = ({
   refetchAccountAreaQuery,
   canManageAccountMembership,
   canOrderPhysicalCards,
+  canViewAccount,
   large = true,
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
@@ -299,6 +301,7 @@ export const CardItemArea = ({
                 cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                 onRefreshAccountRequest={refetchAccountAreaQuery}
                 identificationStatus={identificationStatus}
+                canViewAccount={canViewAccount}
               />
             ),
           )

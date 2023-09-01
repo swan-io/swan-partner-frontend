@@ -26,6 +26,7 @@ type Props = {
   accountMembershipId: string;
   canInitiatePaymentsToNewBeneficiaries: boolean;
   canQueryCardOnTransaction: boolean;
+  canViewAccount: boolean;
 };
 
 export const TransferPage = ({
@@ -33,6 +34,7 @@ export const TransferPage = ({
   accountMembershipId,
   canInitiatePaymentsToNewBeneficiaries,
   canQueryCardOnTransaction,
+  canViewAccount,
 }: Props) => {
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
@@ -76,6 +78,7 @@ export const TransferPage = ({
             accountId={accountId}
             accountMembershipId={accountMembershipId}
             canQueryCardOnTransaction={canQueryCardOnTransaction}
+            canViewAccount={canViewAccount}
           />
         </>
       )}

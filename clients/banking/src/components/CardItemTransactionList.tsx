@@ -63,6 +63,8 @@ type Props = {
     search?: string | undefined;
     status?: string[] | undefined;
   };
+
+  canViewAccount: boolean;
 };
 
 const availableFilters = [
@@ -92,6 +94,7 @@ export const CardItemTransactionList = ({
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
   identificationStatus,
+  canViewAccount,
 }: Props) => {
   const filters: TransactionFiltersState = useMemo(() => {
     return {
@@ -125,6 +128,7 @@ export const CardItemTransactionList = ({
           status: filters.status ?? DEFAULT_STATUSES,
         },
         canQueryCardOnTransaction: true,
+        canViewAccount,
       },
     },
     [cardId, filters],

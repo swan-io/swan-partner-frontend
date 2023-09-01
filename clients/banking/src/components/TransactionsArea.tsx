@@ -26,6 +26,7 @@ type Props = {
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
   canViewAccountStatement: boolean;
+  canViewAccount: boolean;
   onBalanceReceive: (amount: Amount) => void;
 };
 
@@ -55,6 +56,7 @@ export const TransactionsArea = ({
   canQueryCardOnTransaction,
   canViewAccountStatement,
   onBalanceReceive,
+  canViewAccount,
 }: Props) => {
   const [{ data }] = useQuery({
     query: GetAccountBalanceDocument,
@@ -139,6 +141,7 @@ export const TransactionsArea = ({
                       onBalanceReceive={onBalanceReceive}
                       canQueryCardOnTransaction={canQueryCardOnTransaction}
                       canViewAccountStatement={canViewAccountStatement}
+                      canViewAccount={canViewAccount}
                     />
 
                     <LakeModal
@@ -175,6 +178,7 @@ export const TransactionsArea = ({
                   accountId={accountId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
                   onUpcomingTransactionCountUpdated={setUpdatedUpcommingTransactionCount}
+                  canViewAccount={canViewAccount}
                 />
               );
             })

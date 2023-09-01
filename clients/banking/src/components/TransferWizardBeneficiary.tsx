@@ -170,9 +170,9 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
       <Space height={32} />
 
       <ResponsiveContainer breakpoint={800}>
-        {({ large }) => (
+        {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="current" onPress={onPressSubmit} grow={large ? false : true}>
+            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
               {t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>

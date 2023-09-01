@@ -219,18 +219,13 @@ const TransferRecurringWizardDetailsFixedAmount = ({
       <Space height={32} />
 
       <ResponsiveContainer breakpoint={800}>
-        {({ large }) => (
+        {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton
-              color="gray"
-              mode="secondary"
-              onPress={onPressPrevious}
-              grow={large ? false : true}
-            >
+            <LakeButton color="gray" mode="secondary" onPress={onPressPrevious} grow={small}>
               {t("common.previous")}
             </LakeButton>
 
-            <LakeButton color="current" onPress={onPressSubmit} grow={large ? false : true}>
+            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
               {t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>

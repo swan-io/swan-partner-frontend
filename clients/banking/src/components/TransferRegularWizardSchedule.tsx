@@ -268,13 +268,13 @@ export const TransferRegularWizardSchedule = ({
               <Space height={32} />
 
               <ResponsiveContainer breakpoint={800}>
-                {({ large }) => (
+                {({ small }) => (
                   <LakeButtonGroup>
                     <LakeButton
                       color="gray"
                       mode="secondary"
                       onPress={onPressPrevious}
-                      grow={large ? false : true}
+                      grow={small}
                     >
                       {t("common.previous")}
                     </LakeButton>
@@ -283,7 +283,7 @@ export const TransferRegularWizardSchedule = ({
                       color="current"
                       onPress={onPressSubmit}
                       loading={loading}
-                      grow={large ? false : true}
+                      grow={small}
                     >
                       {t("common.continue")}
                     </LakeButton>

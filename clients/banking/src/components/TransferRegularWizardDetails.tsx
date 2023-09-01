@@ -200,15 +200,24 @@ export const TransferRegularWizardDetails = ({
 
       <Space height={32} />
 
-      <LakeButtonGroup>
-        <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-          {t("common.previous")}
-        </LakeButton>
+      <ResponsiveContainer breakpoint={800}>
+        {({ large }) => (
+          <LakeButtonGroup>
+            <LakeButton
+              color="gray"
+              mode="secondary"
+              onPress={onPressPrevious}
+              grow={large ? false : true}
+            >
+              {t("common.previous")}
+            </LakeButton>
 
-        <LakeButton color="current" onPress={onPressSubmit}>
-          {t("common.continue")}
-        </LakeButton>
-      </LakeButtonGroup>
+            <LakeButton color="current" onPress={onPressSubmit} grow={large ? false : true}>
+              {t("common.continue")}
+            </LakeButton>
+          </LakeButtonGroup>
+        )}
+      </ResponsiveContainer>
     </>
   );
 };

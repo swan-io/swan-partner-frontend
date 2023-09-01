@@ -19,6 +19,7 @@ type Props = {
   accountMembershipId: string;
   canInitiatePaymentsToNewBeneficiaries: boolean;
   canQueryCardOnTransaction: boolean;
+  canViewAccount: boolean;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
 };
 
@@ -28,6 +29,7 @@ export const TransferArea = ({
   canInitiatePaymentsToNewBeneficiaries,
   canQueryCardOnTransaction,
   transferConsent,
+  canViewAccount,
 }: Props) => {
   const route = Router.useRoute(paymentRoutes);
 
@@ -57,6 +59,7 @@ export const TransferArea = ({
                 accountMembershipId={accountMembershipId}
                 canInitiatePaymentsToNewBeneficiaries={canInitiatePaymentsToNewBeneficiaries}
                 canQueryCardOnTransaction={canQueryCardOnTransaction}
+                canViewAccount={canViewAccount}
               />
             ),
           )

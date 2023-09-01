@@ -48,6 +48,7 @@ type Props = {
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
   canViewAccountStatement: boolean;
+  canViewAccount: boolean;
   onBalanceReceive: (amount: Amount) => void;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
   params: {
@@ -75,6 +76,7 @@ export const TransactionListPage = ({
   params,
   canQueryCardOnTransaction,
   canViewAccountStatement,
+  canViewAccount,
 }: Props) => {
   useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountTransactionsListRoot", { accountMembershipId }),
@@ -141,6 +143,7 @@ export const TransactionListPage = ({
           status: filters.status ?? DEFAULT_STATUSES,
         },
         canQueryCardOnTransaction,
+        canViewAccount,
       },
     },
     [filters, canQueryCardOnTransaction],

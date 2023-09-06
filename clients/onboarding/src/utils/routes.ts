@@ -22,7 +22,7 @@ export const routes = {
     Documents: "/documents",
     Finalize: "/finalize",
   }),
-};
+} as const;
 
 export const individualOnboardingRoutes = [
   "OnboardingRoot",

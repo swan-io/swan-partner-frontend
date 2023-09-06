@@ -308,15 +308,19 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
 
       <Space height={32} />
 
-      <LakeButtonGroup>
-        <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-          {t("common.previous")}
-        </LakeButton>
+      <ResponsiveContainer breakpoint={800}>
+        {({ small }) => (
+          <LakeButtonGroup>
+            <LakeButton color="gray" mode="secondary" onPress={onPressPrevious} grow={small}>
+              {t("common.previous")}
+            </LakeButton>
 
-        <LakeButton color="current" onPress={onPressSubmit} loading={loading}>
-          {t("common.continue")}
-        </LakeButton>
-      </LakeButtonGroup>
+            <LakeButton color="current" onPress={onPressSubmit} loading={loading} grow={small}>
+              {t("common.continue")}
+            </LakeButton>
+          </LakeButtonGroup>
+        )}
+      </ResponsiveContainer>
     </>
   );
 };

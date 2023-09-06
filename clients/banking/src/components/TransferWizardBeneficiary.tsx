@@ -5,6 +5,7 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
@@ -168,11 +169,15 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
 
       <Space height={32} />
 
-      <LakeButtonGroup>
-        <LakeButton color="current" onPress={onPressSubmit}>
-          {t("common.continue")}
-        </LakeButton>
-      </LakeButtonGroup>
+      <ResponsiveContainer breakpoint={800}>
+        {({ small }) => (
+          <LakeButtonGroup>
+            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
+              {t("common.continue")}
+            </LakeButton>
+          </LakeButtonGroup>
+        )}
+      </ResponsiveContainer>
     </>
   );
 };

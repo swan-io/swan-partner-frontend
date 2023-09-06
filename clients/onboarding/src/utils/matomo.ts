@@ -19,7 +19,6 @@ const SITE_ID = __env.CLIENT_MATOMO_SITE_ID ?? "";
 export type TrackSessionInfo = {
   environment: EnvType | undefined;
   projectId: string;
-  // role: Role;
 };
 
 type MatomoEvent = {
@@ -37,9 +36,8 @@ type MatomoEvent = {
   search?: string;
   search_cat?: string;
   search_count?: string;
-  // dimension1?: string; // defined in matomo dashboard as "role"
-  dimension2?: string; // defined in matomo dashboard as "environment"
-  dimension3?: string; // defined in matomo dashboard as "projectId"
+  dimension1?: string; // defined in matomo dashboard as "environment"
+  dimension2?: string; // defined in matomo dashboard as "projectId"
 };
 
 const windowSize = {
@@ -101,8 +99,7 @@ const getCommonMatomoParams = (actionName: string, session: TrackSessionInfo): M
     res: `${windowSize.width}x${windowSize.height}`,
     rand: Date.now().toString(), // random number to prevent caching
     url,
-    // dimension1: session.role, // defined in matomo dashboard
-    dimension3: session.projectId, // defined in matomo dashboard
+    dimension2: session.projectId, // defined in matomo dashboard
   };
 
   if (session.environment != null) {

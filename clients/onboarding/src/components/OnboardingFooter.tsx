@@ -5,6 +5,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
+import { TrackPressable } from "./TrackPressable";
 
 const styles = StyleSheet.create({
   container: {
@@ -53,30 +54,34 @@ export const OnboardingFooter = ({
         >
           <Box style={styles.buttons} direction="row" alignItems="center">
             {onPrevious ? (
-              <LakeButton
-                color="gray"
-                mode="secondary"
-                size={large ? "large" : "small"}
-                style={styles.button}
-                onPress={onPrevious}
-              >
-                {t("wizard.back")}
-              </LakeButton>
+              <TrackPressable labelKey={t("wizard.back")}>
+                <LakeButton
+                  color="gray"
+                  mode="secondary"
+                  size={large ? "large" : "small"}
+                  style={styles.button}
+                  onPress={onPrevious}
+                >
+                  {t("wizard.back")}
+                </LakeButton>
+              </TrackPressable>
             ) : (
               <View style={styles.emptySpace} />
             )}
 
             <Space width={16} />
 
-            <LakeButton
-              loading={loading}
-              color="partner"
-              size={large ? "large" : "small"}
-              style={styles.button}
-              onPress={onNext}
-            >
-              {nextLabel}
-            </LakeButton>
+            <TrackPressable labelKey={nextLabel}>
+              <LakeButton
+                loading={loading}
+                color="partner"
+                size={large ? "large" : "small"}
+                style={styles.button}
+                onPress={onNext}
+              >
+                {nextLabel}
+              </LakeButton>
+            </TrackPressable>
           </Box>
         </Box>
       )}

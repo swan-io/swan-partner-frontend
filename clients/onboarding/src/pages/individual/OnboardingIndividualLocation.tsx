@@ -62,7 +62,7 @@ export const OnboardingIndividualLocation = ({
     initialAddressLine1 !== "" ||
       initialCity !== "" ||
       initialPostalCode !== "" ||
-      isNullish(env.GOOGLE_MAP_API_KEY),
+      isNullish(env.PLACEKIT_API_KEY),
   );
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({

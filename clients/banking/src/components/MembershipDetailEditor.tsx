@@ -8,7 +8,7 @@ import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
@@ -689,22 +689,21 @@ export const MembershipDetailEditor = ({
                       <LakeLabel
                         label={t("cardWizard.address.line1")}
                         render={id => (
-                          <GMapAddressSearchInput
-                            emptyResultText={t("common.noResults")}
-                            apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
-                            placeholder={t("addressInput.placeholder")}
-                            language={locale.language}
-                            id={id}
-                            error={error}
+                          <PlacekitAddressSearchInput
+                            apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                             country={country.value}
                             value={value}
                             onValueChange={onChange}
                             onSuggestion={suggestion => {
                               setFieldValue("addressLine1", suggestion.completeAddress);
                               setFieldValue("city", suggestion.city);
-                              setFieldValue("country", suggestion.country as CountryCCA3);
-                              setFieldValue("postalCode", suggestion.postalCode);
+                              setFieldValue("postalCode", suggestion.postalCode ?? "");
                             }}
+                            language={locale.language}
+                            placeholder={t("addressInput.placeholder")}
+                            emptyResultText={t("common.noResults")}
+                            error={error}
+                            id={id}
                           />
                         )}
                       />

@@ -21,7 +21,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {
   CountryCCA3,
   allCountries,
@@ -197,23 +197,22 @@ const CardItemPhysicalShippingForm = ({
                 <LakeLabel
                   label={t("card.physical.order.shippingAddress.addressLine1")}
                   render={id => (
-                    <GMapAddressSearchInput
-                      emptyResultText={t("common.noResults")}
-                      apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
-                      placeholder={t("addressInput.placeholder")}
-                      language={locale.language}
-                      disabled={isLoading}
-                      id={id}
-                      value={value}
-                      error={error}
-                      onValueChange={onChange}
+                    <PlacekitAddressSearchInput
+                      apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                       country={country.value}
+                      value={value}
+                      onValueChange={onChange}
                       onSuggestion={suggestion => {
                         setFieldValue("addressLine1", suggestion.completeAddress);
                         setFieldValue("city", suggestion.city);
-                        setFieldValue("country", suggestion.country as CountryCCA3);
-                        setFieldValue("postalCode", suggestion.postalCode);
+                        setFieldValue("postalCode", suggestion.postalCode ?? "");
                       }}
+                      language={locale.language}
+                      placeholder={t("addressInput.placeholder")}
+                      emptyResultText={t("common.noResults")}
+                      error={error}
+                      id={id}
+                      disabled={isLoading}
                     />
                   )}
                 />

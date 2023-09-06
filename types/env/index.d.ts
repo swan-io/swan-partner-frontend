@@ -7,5 +7,6 @@ declare const __env: {
   BANKING_URL: string;
   IS_SWAN_MODE: boolean;
   // Client
+  CLIENT_PLACEKIT_API_KEY: string;
   CLIENT_GOOGLE_MAPS_API_KEY: string;
 };

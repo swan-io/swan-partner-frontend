@@ -1,16 +1,23 @@
 import { Link } from "@swan-io/chicane";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/FixedListView";
 import {
+  CellAction,
+  CenteredCell,
+  EndAlignedCell,
+  SimpleHeaderCell,
   SimpleRegularTextCell,
   SimpleTitleCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
@@ -20,20 +27,14 @@ import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../gr
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  cellContainerLarge: {
-    paddingHorizontal: spacings[24],
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
+  columnHeaders: {
+    paddingHorizontal: spacings[32],
   },
-  cellContainer: {
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
+  containerRowLarge: {
+    paddingHorizontal: spacings[32],
+  },
+  containerRow: {
+    paddingHorizontal: spacings[8],
   },
 });
 
@@ -52,32 +53,32 @@ type Statement = GetNode<
 
 const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   {
-    title: "date",
-    width: 200,
-    id: "date",
-    renderTitle: () => null,
-    renderCell: ({ item: { openingDate }, extraInfo: { large } }) => (
-      <View style={large ? styles.cellContainerLarge : styles.cellContainer}>
-        <SimpleTitleCell text={dayjs(openingDate).format("MMMM YYYY")} />
-      </View>
+    title: t("accountStatements.period"),
+    width: 150,
+    id: "period",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item: { openingDate } }) => (
+      <SimpleTitleCell text={dayjs(openingDate).format("MMMM YYYY")} />
     ),
   },
   {
-    title: "createdAt",
+    title: t("accountStatements.generated"),
     width: "grow",
-    id: "createdAt",
-    renderTitle: () => null,
-    renderCell: ({ item: { createdAt } }) => (
-      <SimpleRegularTextCell
-        textAlign="right"
-        variant="smallMedium"
-        text={dayjs(createdAt).format("MMM, DD YYYY")}
-      />
-    ),
+    id: "generated",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item: { createdAt, status } }) => {
+      return status === "Available" ? (
+        <SimpleRegularTextCell
+          textAlign="left"
+          variant="smallMedium"
+          text={dayjs(createdAt).format("MMM, DD YYYY")}
+        />
+      ) : null;
+    },
   },
   {
     title: "notReady",
-    width: 250,
+    width: "grow",
     id: "notReady",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
@@ -92,14 +93,55 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     },
   },
   {
-    title: "download",
+    title: t("accountStatements.action"),
+    width: 70,
+    id: "action",
+    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="center" text={title} />,
+    renderCell: ({ item: { status } }) => {
+      return status === "Available" ? (
+        <CenteredCell>
+          <Icon name="open-regular" size={16} color={colors.gray[300]} />
+        </CenteredCell>
+      ) : null;
+    },
+  },
+];
+
+const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
+  {
+    title: t("accountStatements.period"),
+    width: "grow",
+    id: "period",
+    renderTitle: () => null,
+    renderCell: ({ item: { openingDate } }) => (
+      <SimpleTitleCell text={dayjs(openingDate).format("MMMM YYYY")} />
+    ),
+  },
+  {
+    title: t("accountStatements.action"),
     width: 50,
-    id: "download",
+    id: "actions",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
-        <Icon name="open-regular" size={16} color={colors.gray[300]} />
-      ) : null;
+        <EndAlignedCell>
+          <CellAction>
+            <Icon name="open-regular" size={16} color={colors.gray[300]} />
+          </CellAction>
+        </EndAlignedCell>
+      ) : (
+        <EndAlignedCell>
+          <CellAction>
+            <BorderedIcon
+              name="clock-regular"
+              padding={4}
+              size={24}
+              color="warning"
+              borderRadius={4}
+            />
+          </CellAction>
+        </EndAlignedCell>
+      );
     },
   },
 ];
@@ -138,34 +180,44 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
               <>
                 <Space height={24} />
 
-                <PlainListView
-                  data={account?.statements?.edges?.map(({ node }) => node) ?? []}
-                  keyExtractor={item => item.id}
-                  headerHeight={48}
-                  rowHeight={48}
-                  groupHeaderHeight={48}
-                  extraInfo={{ large }}
-                  columns={columns}
-                  getRowLink={({ item }) => {
-                    const url = item.type.find(item => item?.__typename === "PdfStatement")?.url;
-                    return url != null ? <Link to={url} target="_blank" /> : <View />;
-                  }}
-                  loading={{
-                    isLoading: nextData.isLoading(),
-                    count: NUM_TO_RENDER,
-                  }}
-                  onEndReached={() => {
-                    if (account?.statements?.pageInfo.hasNextPage ?? false) {
-                      setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
-                    }
-                  }}
-                  renderEmptyList={() => (
-                    <FixedListViewEmpty
-                      icon="lake-inbox-empty"
-                      title={t("common.list.noResults")}
+                <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
+                  {() => (
+                    <PlainListView
+                      headerStyle={styles.columnHeaders}
+                      rowStyle={() => (large ? styles.containerRowLarge : styles.containerRow)}
+                      breakpoint={breakpoints.tiny}
+                      data={account?.statements?.edges?.map(({ node }) => node) ?? []}
+                      keyExtractor={item => item.id}
+                      headerHeight={48}
+                      rowHeight={48}
+                      groupHeaderHeight={48}
+                      extraInfo={{ large }}
+                      columns={columns}
+                      getRowLink={({ item }) => {
+                        const url = item.type.find(
+                          item => item?.__typename === "PdfStatement",
+                        )?.url;
+                        return url != null ? <Link to={url} target="_blank" /> : <View />;
+                      }}
+                      loading={{
+                        isLoading: nextData.isLoading(),
+                        count: NUM_TO_RENDER,
+                      }}
+                      onEndReached={() => {
+                        if (account?.statements?.pageInfo.hasNextPage ?? false) {
+                          setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
+                        }
+                      }}
+                      renderEmptyList={() => (
+                        <FixedListViewEmpty
+                          icon="lake-inbox-empty"
+                          title={t("common.list.noResults")}
+                        />
+                      )}
+                      smallColumns={smallColumns}
                     />
                   )}
-                />
+                </ResponsiveContainer>
               </>
             ),
           }),

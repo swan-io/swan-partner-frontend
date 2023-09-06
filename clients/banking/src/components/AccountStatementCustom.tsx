@@ -24,13 +24,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import {
-  animations,
-  breakpoints,
-  colors,
-  radii,
-  spacings,
-} from "@swan-io/lake/src/constants/design";
+import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -212,7 +206,7 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               padding={4}
               size={24}
               color="warning"
-              borderRadius={radii[4]}
+              borderRadius={4}
             />
           </CellAction>
         </EndAlignedCell>

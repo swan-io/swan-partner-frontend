@@ -17,7 +17,7 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
@@ -137,7 +137,7 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               padding={4}
               size={24}
               color="warning"
-              borderRadius={radii[4]}
+              borderRadius={4}
             />
           </CellAction>
         </EndAlignedCell>

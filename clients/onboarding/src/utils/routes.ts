@@ -1,38 +1,28 @@
-import { Option } from "@swan-io/boxed";
+import { Dict, Option } from "@swan-io/boxed";
 import { createGroup, createRouter } from "@swan-io/chicane";
 import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
-export const Router = createRouter(
-  {
-    Onboarding: "/onboardings/:onboardingId",
-    PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
+export const routes = {
+  Onboarding: "/onboardings/:onboardingId",
+  PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
 
-    // Onboarding revamp, once completed, we should remove v2 prefix and `Onboarding` route above
-    ...createGroup("Onboarding", "/onboardings/:onboardingId", {
-      Area: "/*",
-      Root: "/",
-      Email: "/email",
-      Location: "/location",
-      Details: "/details",
-      Presentation: "/presentation",
-      Registration: "/registration",
-      Organisation1: "/organisation-1",
-      Organisation2: "/organisation-2",
-      Ownership: "/ownership",
-      Documents: "/documents",
-      Finalize: "/finalize",
-    }),
-  },
-  {
-    basePath: match(projectConfiguration)
-      .with(
-        Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-        projectId => `/projects/${projectId}`,
-      )
-      .otherwise(() => undefined),
-  },
-);
+  // Onboarding revamp, once completed, we should remove v2 prefix and `Onboarding` route above
+  ...createGroup("Onboarding", "/onboardings/:onboardingId", {
+    Area: "/*",
+    Root: "/",
+    Email: "/email",
+    Location: "/location",
+    Details: "/details",
+    Presentation: "/presentation",
+    Registration: "/registration",
+    Organisation1: "/organisation-1",
+    Organisation2: "/organisation-2",
+    Ownership: "/ownership",
+    Documents: "/documents",
+    Finalize: "/finalize",
+  }),
+};
 
 export const individualOnboardingRoutes = [
   "OnboardingRoot",
@@ -56,3 +46,16 @@ export const companyOnboardingRoutes = [
 ] as const;
 
 export type CompanyOnboardingRoute = (typeof companyOnboardingRoutes)[number];
+
+export const Router = createRouter(routes, {
+  basePath: match(projectConfiguration)
+    .with(
+      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+      projectId => `/projects/${projectId}`,
+    )
+    .otherwise(() => undefined),
+});
+
+export const finiteRoutes = Dict.entries(routes)
+  .filter(([, value]) => !value.endsWith("/*"))
+  .map(([key]) => key);

@@ -4,7 +4,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { t } from "../utils/i18n";
+import { TranslationKey, t } from "../utils/i18n";
 import { TrackPressable } from "./TrackPressable";
 
 const styles = StyleSheet.create({
@@ -34,14 +34,14 @@ const styles = StyleSheet.create({
 type Props = {
   onPrevious?: () => void;
   onNext: () => void;
-  nextLabel?: string;
+  nextLabel?: TranslationKey;
   loading?: boolean;
 };
 
 export const OnboardingFooter = ({
   onPrevious,
   onNext,
-  nextLabel = t("wizard.next"),
+  nextLabel = "wizard.next",
   loading,
 }: Props) => {
   return (
@@ -54,7 +54,7 @@ export const OnboardingFooter = ({
         >
           <Box style={styles.buttons} direction="row" alignItems="center">
             {onPrevious ? (
-              <TrackPressable labelKey={t("wizard.back")}>
+              <TrackPressable labelKey={"wizard.back"}>
                 <LakeButton
                   color="gray"
                   mode="secondary"
@@ -79,7 +79,7 @@ export const OnboardingFooter = ({
                 style={styles.button}
                 onPress={onNext}
               >
-                {nextLabel}
+                {t(nextLabel)}
               </LakeButton>
             </TrackPressable>
           </Box>

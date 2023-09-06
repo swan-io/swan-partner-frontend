@@ -15,7 +15,6 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
-import { t } from "../../utils/i18n";
 import { projectConfiguration } from "../../utils/projectId";
 import { IndividualOnboardingRoute, Router } from "../../utils/routes";
 
@@ -110,7 +109,7 @@ export const OnboardingIndividualFinalize = ({
       </OnboardingStepContent>
 
       <OnboardingFooter
-        nextLabel={t("wizard.finalize")}
+        nextLabel={"wizard.finalize"}
         onPrevious={onPressPrevious}
         onNext={onPressNext}
       />

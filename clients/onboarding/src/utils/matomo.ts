@@ -14,7 +14,7 @@ const API_URL = "https://swan.matomo.cloud/matomo.php";
 
 const API_VERSION = "1"; // according to matomo documentation, currently always set to 1
 const REC = "1"; // according to matomo documentation, must be set to 1
-const SITE_ID = __env.CLIENT_MATOMO_SITE_ID ?? "";
+const SITE_ID = __env.CLIENT_ONBOARDING_MATOMO_SITE_ID ?? "";
 
 export type TrackSessionInfo = {
   environment: EnvType | undefined;

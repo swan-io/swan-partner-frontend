@@ -235,13 +235,15 @@ export const OnboardingIndividualDetails = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

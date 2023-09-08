@@ -106,13 +106,15 @@ export const OnboardingIndividualFinalize = ({
             </Box>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        nextLabel={"wizard.finalize"}
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          nextLabel={"wizard.finalize"}
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

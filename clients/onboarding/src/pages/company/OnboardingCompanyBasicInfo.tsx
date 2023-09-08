@@ -217,9 +217,10 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter onNext={onPressNext} loading={updateResult.isLoading()} />
+        <Space height={24} />
+        <OnboardingFooter onNext={onPressNext} loading={updateResult.isLoading()} />
+      </OnboardingStepContent>
     </>
   );
 };

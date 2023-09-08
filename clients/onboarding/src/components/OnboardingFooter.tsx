@@ -8,14 +8,19 @@ import { TranslationKey, t } from "../utils/i18n";
 import { TrackPressable } from "./TrackPressable";
 
 const styles = StyleSheet.create({
-  container: {
+  topBorder: {
     borderTopWidth: 1,
     borderTopColor: colors.gray[100],
-    paddingHorizontal: 24,
+    alignSelf: "center",
+    height: 1,
+    position: "absolute",
+    top: 0,
+    width: "100vw",
+  },
+  container: {
     paddingVertical: 16,
   },
   containerDesktop: {
-    paddingHorizontal: 40,
     paddingVertical: 20,
   },
   buttons: {
@@ -47,43 +52,47 @@ export const OnboardingFooter = ({
   return (
     <ResponsiveContainer>
       {({ large }) => (
-        <Box
-          direction="row"
-          justifyContent="center"
-          style={[styles.container, large && styles.containerDesktop]}
-        >
-          <Box style={styles.buttons} direction="row" alignItems="center">
-            {onPrevious ? (
-              <TrackPressable labelKey={"wizard.back"}>
+        <>
+          <View style={styles.topBorder} />
+
+          <Box
+            direction="row"
+            justifyContent="center"
+            style={[styles.container, large && styles.containerDesktop]}
+          >
+            <Box style={styles.buttons} direction="row" alignItems="center">
+              {onPrevious ? (
+                <TrackPressable labelKey={"wizard.back"}>
+                  <LakeButton
+                    color="gray"
+                    mode="secondary"
+                    size={large ? "large" : "small"}
+                    style={styles.button}
+                    onPress={onPrevious}
+                  >
+                    {t("wizard.back")}
+                  </LakeButton>
+                </TrackPressable>
+              ) : (
+                <View style={styles.emptySpace} />
+              )}
+
+              <Space width={16} />
+
+              <TrackPressable labelKey={nextLabel}>
                 <LakeButton
-                  color="gray"
-                  mode="secondary"
+                  loading={loading}
+                  color="partner"
                   size={large ? "large" : "small"}
                   style={styles.button}
-                  onPress={onPrevious}
+                  onPress={onNext}
                 >
-                  {t("wizard.back")}
+                  {t(nextLabel)}
                 </LakeButton>
               </TrackPressable>
-            ) : (
-              <View style={styles.emptySpace} />
-            )}
-
-            <Space width={16} />
-
-            <TrackPressable labelKey={nextLabel}>
-              <LakeButton
-                loading={loading}
-                color="partner"
-                size={large ? "large" : "small"}
-                style={styles.button}
-                onPress={onNext}
-              >
-                {t(nextLabel)}
-              </LakeButton>
-            </TrackPressable>
+            </Box>
           </Box>
-        </Box>
+        </>
       )}
     </ResponsiveContainer>
   );

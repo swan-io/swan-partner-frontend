@@ -1,5 +1,3 @@
-directive @apollo_studio_metadata(buildId: String, checkId: String, launchId: String) on SCHEMA
-
 """
 Whether you call it a wallet, monetary account, payment account or bank account, the notion of account is fundamental at Swan. All payment flows necessarily go through an account.
 """
@@ -438,9 +436,10 @@ type AccountMembership {
   canManageAccountMembership: Boolean!
 
   """
-  `true` if this account membership can add cards to himself or to the memberships he manages
+  COMING SOON
+  `true` if this account membership can manage cards for himself or to the memberships he manages
   """
-  canAddCards: Boolean!
+  canManageCards: Boolean!
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
@@ -645,8 +644,11 @@ input AccountMembershipOrderByInput {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
-  """Can the user add cards to himself or to the memberships he manages"""
-  canAddCards: Boolean
+  """
+  COMING SOON
+  `true` if this account membership can manage cards for himself or to the memberships he manages
+  """
+  canManageCards: Boolean
 
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
@@ -680,6 +682,7 @@ input AccountMembershipsFilterInput {
 enum AccountMembershipsPermission {
   canInitiatePayments
   canManageAccountMembership
+  canManageCards
   canManageBeneficiaries
   canViewAccount
 }
@@ -1935,6 +1938,9 @@ enum ConsentPurpose {
   """when initiating an instant funding request"""
   InitiateInstantFundingRequest
 
+  """when initiating an international credit transfer"""
+  InitiateInternationalCreditTransfer
+
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
 }
@@ -2695,8 +2701,11 @@ type MaskedCardInfo {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
-  """Can the user add cards to himself or to the memberships he manages"""
-  canAddCards: Boolean
+  """
+  COMING SOON
+  `true` if this account membership can manage cards for himself or to the memberships he manages
+  """
+  canManageCards: Boolean
 
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
@@ -2829,7 +2838,7 @@ type Onboarding {
   accountName: String
 
   """Account Country"""
-  accountCountry: AccountCountry
+  accountCountry: AccountCountry!
 
   """Creation date"""
   createdAt: DateTime!
@@ -3604,8 +3613,15 @@ type ProjectForbiddenRejection implements Rejection {
 
 """Public information of a `Project`"""
 type ProjectInfo {
+  """The card products associated with this project."""
+  cardProducts: [CardProduct!]
+
+  """the currently active card settings"""
+  activeCardSettings: CardSettings @deprecated(reason: "Use cardProduct.cardDesigns instead")
+
   """Unique identifier of the project"""
   id: ID!
+  B2BMembershipIDVerification: Boolean
 
   """
   Your project name displayed in white label interfaces and in the terms and conditions
@@ -3652,13 +3668,6 @@ type ProjectInfo {
   Flag that determines if desktop authentication is enabled for this project
   """
   allowsDesktopAuthentication: Boolean!
-
-  """The card products associated with this project."""
-  cardProducts: [CardProduct!]
-
-  """the currently active card settings"""
-  activeCardSettings: CardSettings @deprecated(reason: "Use cardProduct.cardDesigns instead")
-  B2BMembershipIDVerification: Boolean
 }
 
 type ProjectInvalidStatusRejection implements Rejection {
@@ -3716,7 +3725,6 @@ type PublicOnboardingDisabledRejection implements Rejection {
 }
 
 type Query {
-  projectInfoById(id: ID!): ProjectInfo!
   cardInfos(input: CardInfosInput!): CardInfos
   cardPINInfos(input: CardPINInfosInput!): CardPINInfos
 
@@ -3728,6 +3736,7 @@ type Query {
   """
   companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
   onboardingInfo(id: ID!): OnboardingInfo
+  projectInfoById(id: ID!): ProjectInfo!
 }
 
 """Define a reason with a message"""
@@ -4596,6 +4605,9 @@ type User {
   """unique identifier of the user"""
   id: ID!
 
+  """The list of account memberships"""
+  accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
+
   """
   mobile phone number with the international format (Example: +33689788967)
   """
@@ -4650,9 +4662,6 @@ type User {
 
   """Last update date of the user"""
   updatedAt: DateTime!
-
-  """The list of account memberships"""
-  accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
 }
 
 """
@@ -4724,6 +4733,7 @@ enum ValidationFieldErrorCode {
   InvalidType
   TooLong
   TooShort
+  UnrecognizedKeys
 }
 
 """Rejection returned if an input contains invalid data"""

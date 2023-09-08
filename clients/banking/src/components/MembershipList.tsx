@@ -31,7 +31,7 @@ const columns: ColumnConfig<AccountMembershipFragment, ExtraInfo>[] = [
   },
   {
     id: "rights",
-    width: 190,
+    width: 220,
     title: t("membershipList.rights"),
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => <RightsCell accountMembership={item} />,

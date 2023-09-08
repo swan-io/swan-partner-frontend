@@ -123,6 +123,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
       { canInitiatePayments: true },
       { canManageBeneficiaries: true },
       { canManageAccountMembership: true },
+      { canManageCards: true },
       () => true,
     )
     .otherwise(() => false);
@@ -166,6 +167,15 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
             isAuthorized={accountMembership.canManageAccountMembership}
             authorizedMessage={t("members.permission.canManageAccountMembership")}
             notAuthorizedMessage={t("members.permission.not.canManageAccountMembership")}
+          />
+
+          <Space height={4} />
+
+          <PermissionLine
+            iconName="card-add-regular"
+            isAuthorized={accountMembership.canManageAccountMembership}
+            authorizedMessage={t("members.permission.canManageCards")}
+            notAuthorizedMessage={t("members.permission.not.canManageCards")}
           />
 
           <Space height={4} />
@@ -217,6 +227,15 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
               {accountMembership.canManageAccountMembership ? (
                 <Icon
                   name="settings-regular"
+                  size={16}
+                  color={colors.swan[500]}
+                  style={styles.rightsIcon}
+                />
+              ) : null}
+
+              {accountMembership.canManageCards ? (
+                <Icon
+                  name="card-add-regular"
                   size={16}
                   color={colors.swan[500]}
                   style={styles.rightsIcon}

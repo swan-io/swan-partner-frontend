@@ -1290,6 +1290,7 @@ fragment AccountMembership on AccountMembership {
     country
   }
   canInitiatePayments
+  canManageCards
   canManageAccountMembership
   canManageBeneficiaries
   canViewAccount

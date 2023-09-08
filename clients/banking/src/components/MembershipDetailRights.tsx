@@ -60,6 +60,7 @@ type FormValues = {
   canInitiatePayments?: boolean;
   canManageBeneficiaries?: boolean;
   canManageAccountMembership?: boolean;
+  canManageCards?: boolean;
 };
 
 export const MembershipDetailRights = ({
@@ -95,6 +96,9 @@ export const MembershipDetailRights = ({
     },
     canManageAccountMembership: {
       initialValue: editingAccountMembership.canManageAccountMembership,
+    },
+    canManageCards: {
+      initialValue: editingAccountMembership.canManageCards,
     },
   });
 
@@ -192,7 +196,8 @@ export const MembershipDetailRights = ({
         (rights.canViewAccount === true ||
           rights.canInitiatePayments === true ||
           rights.canManageBeneficiaries === true ||
-          rights.canManageAccountMembership === true)
+          rights.canManageAccountMembership === true ||
+          rights.canManageCards === true)
       ) {
         setValuesToConfirm(Option.Some(rights));
         return;
@@ -323,6 +328,25 @@ export const MembershipDetailRights = ({
               editingAccountMembership.legalRepresentative === true
             }
             label={t("membershipDetail.edit.canManageAccountMembership")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageCards">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageCards === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageCards")}
             value={value}
             onValueChange={onChange}
           />

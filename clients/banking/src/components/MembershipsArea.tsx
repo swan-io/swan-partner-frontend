@@ -57,6 +57,8 @@ type Props = {
     canInitiatePayments?: string | undefined;
     canManageAccountMembership?: string | undefined;
     canManageBeneficiaries?: string | undefined;
+    canViewAccount?: string | undefined;
+    canManageCards?: string | undefined;
     // Params added after consent
     resourceId?: string | undefined;
     status?: string | undefined;
@@ -101,6 +103,12 @@ export const MembershipsArea = ({
       canManageBeneficiaries: match(params.canManageBeneficiaries)
         .with("true", "false", value => value)
         .otherwise(() => undefined),
+      canManageCards: match(params.canManageCards)
+        .with("true", "false", value => value)
+        .otherwise(() => undefined),
+      canViewAccount: match(params.canViewAccount)
+        .with("true", "false", value => value)
+        .otherwise(() => undefined),
       search: params.search,
     } as const;
   }, [
@@ -109,6 +117,8 @@ export const MembershipsArea = ({
     params.canInitiatePayments,
     params.canManageAccountMembership,
     params.canManageBeneficiaries,
+    params.canViewAccount,
+    params.canManageCards,
   ]);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
@@ -134,6 +144,14 @@ export const MembershipsArea = ({
           .with("false", () => false)
           .otherwise(() => undefined),
         canManageBeneficiaries: match(filters.canManageBeneficiaries)
+          .with("true", () => true)
+          .with("false", () => false)
+          .otherwise(() => undefined),
+        canManageCards: match(filters.canManageCards)
+          .with("true", () => true)
+          .with("false", () => false)
+          .otherwise(() => undefined),
+        canViewAccount: match(filters.canViewAccount)
           .with("true", () => true)
           .with("false", () => false)
           .otherwise(() => undefined),

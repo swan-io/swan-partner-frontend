@@ -72,7 +72,7 @@ const routes = {
 
     ...createGroup(
       "Members",
-      "/members?:new&:statuses[]&:canInitiatePayments&:canManageAccountMembership&:canManageBeneficiaries&:search&:resourceId&:status",
+      "/members?:new&:statuses[]&:canInitiatePayments&:canManageAccountMembership&:canViewAccount&:canManageCards&:canManageBeneficiaries&:search&:resourceId&:status",
       {
         Area: "/*",
         List: "/",

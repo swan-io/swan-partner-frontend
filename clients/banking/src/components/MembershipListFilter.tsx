@@ -60,11 +60,33 @@ const canManageBeneficiariesFilter: FilterRadioDef<"true" | "false" | undefined>
   ],
 };
 
+const canViewAccountFilter: FilterRadioDef<"true" | "false" | undefined> = {
+  type: "radio",
+  label: t("membershipList.canViewAccount"),
+  items: [
+    { value: undefined, label: t("common.filters.all") },
+    { value: "true", label: t("common.true") },
+    { value: "false", label: t("common.false") },
+  ],
+};
+
+const canManageCardsFilter: FilterRadioDef<"true" | "false" | undefined> = {
+  type: "radio",
+  label: t("membershipList.canManageCards"),
+  items: [
+    { value: undefined, label: t("common.filters.all") },
+    { value: "true", label: t("common.true") },
+    { value: "false", label: t("common.false") },
+  ],
+};
+
 const filtersDefinition = {
   statuses: statusFilter,
   canInitiatePayments: canInitiatePaymentsFilter,
   canManageAccountMembership: canManageAccountMembershipFilter,
   canManageBeneficiaries: canManageBeneficiariesFilter,
+  canViewAccount: canViewAccountFilter,
+  canManageCards: canManageCardsFilter,
 };
 
 export type MembershipFilters = FiltersState<typeof filtersDefinition> & {
@@ -87,6 +109,8 @@ const defaultAvailableFilters = [
   "canInitiatePayments",
   "canManageAccountMembership",
   "canManageBeneficiaries",
+  "canViewAccount",
+  "canManageCards",
 ] as const;
 
 export const MembershipListFilter = ({
@@ -123,6 +147,14 @@ export const MembershipListFilter = ({
           {
             name: "canManageBeneficiaries",
             label: t("membershipList.canManageBeneficiaries"),
+          },
+          {
+            name: "canViewAccount",
+            label: t("membershipList.canViewAccount"),
+          },
+          {
+            name: "canManageCards",
+            label: t("membershipList.canManageCards"),
           },
         ] as const
       ).filter(item => availableSet.has(item.name)),
@@ -196,7 +228,10 @@ export const MembershipListFilter = ({
         definition={filtersDefinition}
         filters={filtersWithoutSearch}
         openedFilters={openFilters}
-        onChangeFilters={value => onChange({ ...value, search: filters.search })}
+        onChangeFilters={value => {
+          console.log("[NC] value", value);
+          return onChange({ ...value, search: filters.search });
+        }}
         onChangeOpened={setOpenFilters}
       />
     </>

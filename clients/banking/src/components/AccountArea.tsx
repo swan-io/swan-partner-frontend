@@ -20,7 +20,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isEmpty, isNotEmpty, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -345,13 +345,22 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
-        const { canInitiatePayments, canManageBeneficiaries, canViewAccount, legalRepresentative } =
-          accountMembership;
+        const {
+          canInitiatePayments,
+          canManageBeneficiaries,
+          canViewAccount,
+          legalRepresentative,
+          canManageCards,
+        } = accountMembership;
 
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
           accountMembership.canManageAccountMembership && membershipEnabled;
-        const canAddCard = canViewAccount && canManageAccountMembership && canOrderVirtualCards;
+        const canAddCard =
+          canViewAccount &&
+          // [NC] FIXME: retrocompatibility during canManageCards implementation :
+          (isNullishOrEmpty(canManageCards) ? canManageAccountMembership : canManageCards) &&
+          canOrderVirtualCards;
 
         return {
           accountMembership,

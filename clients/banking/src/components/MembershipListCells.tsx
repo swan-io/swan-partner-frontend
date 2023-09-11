@@ -172,7 +172,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
           <Space height={4} />
 
           <PermissionLine
-            iconName="card-add-regular"
+            iconName="lake-card-add"
             isAuthorized={accountMembership.canManageAccountMembership}
             authorizedMessage={t("members.permission.canManageCards")}
             notAuthorizedMessage={t("members.permission.not.canManageCards")}
@@ -235,7 +235,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
 
               {accountMembership.canManageCards ? (
                 <Icon
-                  name="card-add-regular"
+                  name="lake-card-add"
                   size={16}
                   color={colors.swan[500]}
                   style={styles.rightsIcon}

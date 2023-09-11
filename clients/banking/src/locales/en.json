@@ -355,6 +355,8 @@
   "membershipList.canInitiatePayments": "Can initiate payments",
   "membershipList.canManageAccountMembership": "Can manage memberships",
   "membershipList.canManageBeneficiaries": "Can manage beneficiaries",
+  "membershipList.canManageCards": "Can manage cards",
+  "membershipList.canViewAccount": "Can view account",
   "membershipList.email": "Email",
   "membershipList.fullName": "Full name",
   "membershipList.newMember.back": "Back",

@@ -16,5 +16,5 @@ jobs:
         uses: bloodyowl/slack-message-release-action@v1.1.5
         with:
           version: ${{ github.event.client_payload.imageTag }}
-          changelog: "TODO: get changelog"
+          changelog: "TODO: changelog"
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

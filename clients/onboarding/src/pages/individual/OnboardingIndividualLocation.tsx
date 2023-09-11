@@ -5,6 +5,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
@@ -172,7 +173,7 @@ export const OnboardingIndividualLocation = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small, large }) => (
             <>
               <StepTitle isMobile={small}>{t("individual.step.location.title")}</StepTitle>

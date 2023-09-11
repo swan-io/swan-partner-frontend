@@ -2131,12 +2131,19 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/context-async-hooks/-/context-async-hooks-1.15.2.tgz#116bd5fef231137198d5bf551e8c0521fbdfe928"
   integrity sha512-VAMHG67srGFQDG/N2ns5AyUT9vUcoKpZ/NpJ5fDQIPfJd7t3ju+aHwvDsMcrYBWuCh03U3Ky6o16+872CZchBg==
 
-"@opentelemetry/core@1.15.2", "@opentelemetry/core@^1.8.0":
+"@opentelemetry/core@1.15.2":
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.15.2.tgz#5b170bf223a2333884bbc2d29d95812cdbda7c9f"
   integrity sha512-+gBv15ta96WqkHZaPpcDHiaz0utiiHZVfm2YOYSqFGrUaJpPkMoSuLBB58YFQGi6Rsb9EHos84X6X5+9JspmLw==
   dependencies:
     "@opentelemetry/semantic-conventions" "1.15.2"
+
+"@opentelemetry/core@1.16.0", "@opentelemetry/core@^1.8.0":
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.16.0.tgz#ebfba199bb9b055bbfe0887fc84575432a84f97f"
+  integrity sha512-JMxz7kzAqmIDUDEpoRrumHk257vrA9ZGVdHLB829gu6i/ryKlnjXIzJk86pgjhmxjLMX43BY6J0nbzOhy0QGtw==
+  dependencies:
+    "@opentelemetry/semantic-conventions" "1.16.0"
 
 "@opentelemetry/exporter-jaeger@1.15.2":
   version "1.15.2"
@@ -2201,6 +2208,13 @@
   dependencies:
     "@opentelemetry/core" "1.15.2"
 
+"@opentelemetry/propagator-jaeger@1.16.0":
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/propagator-jaeger/-/propagator-jaeger-1.16.0.tgz#b9d33cc4b5fba65a27426178637a40f856bb114e"
+  integrity sha512-c7R7KzifQrTAlvEBz4xCxaLPYNtrX0u9/9scS3zQP3BPUVpCApbsmVIun0Oq+vtBUTR9eI6LE1OCTVShTBh6Pw==
+  dependencies:
+    "@opentelemetry/core" "1.16.0"
+
 "@opentelemetry/resources@1.15.2":
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/resources/-/resources-1.15.2.tgz#0c9e26cb65652a1402834a3c030cce6028d6dd9d"
@@ -2234,6 +2248,11 @@
   version "1.15.2"
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.15.2.tgz#3bafb5de3e20e841dff6cb3c66f4d6e9694c4241"
   integrity sha512-CjbOKwk2s+3xPIMcd5UNYQzsf+v94RczbdNix9/kQh38WiQkM90sUOi3if8eyHFgiBjBjhwXrA7W3ydiSQP9mw==
+
+"@opentelemetry/semantic-conventions@1.16.0":
+  version "1.16.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.16.0.tgz#40b8261802ba76174100bdc3f04761c27b817b6b"
+  integrity sha512-jpbpOY0ahD/uTF16h4/NkFatwlulCpkvecK8zVJgHRfjK/ymJAw1Cg45KXiVSJML8uiMmRBciea/+gebrD398g==
 
 "@parcel/watcher-android-arm64@2.2.0":
   version "2.2.0"

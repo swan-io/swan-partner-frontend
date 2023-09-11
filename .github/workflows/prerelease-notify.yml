@@ -1,0 +1,20 @@
+name: Prerelease notify
+
+on:
+  repository_dispatch:
+    types: [deploy_success]
+
+jobs:
+  prerelease-notify:
+    name: Prerelease notify
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - name: Notify on Slack
+        uses: bloodyowl/slack-message-release-action@v1.1.5
+        with:
+          version: ${{ github.event.client_payload.imageTag }}
+          changelog: "TODO: get changelog"
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

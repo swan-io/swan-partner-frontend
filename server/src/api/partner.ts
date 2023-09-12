@@ -3,9 +3,10 @@ import { GraphQLClient } from "graphql-request";
 import { match } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/partner";
+import { fetchWithTimeout } from "../utils/fetch";
 import { OAuth2ClientCredentialsError, OAuth2NetworkError, getClientAccessToken } from "./oauth2";
 
-export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { timeout: 30_000 }));
+export const sdk = getSdk(new GraphQLClient(env.PARTNER_API_URL, { fetch: fetchWithTimeout }));
 
 export class ServerError extends Error {
   tag = "ServerError";

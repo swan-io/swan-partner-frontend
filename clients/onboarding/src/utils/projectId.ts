@@ -12,7 +12,7 @@ export const projectConfiguration = Result.fromExecution(() => {
       ({
         mode: "SingleProject",
         projectId,
-      } as const),
+      }) as const,
   )
   .flatMapError(() => {
     const [, projects, projectId] = location.pathname.split("/");

@@ -3,8 +3,11 @@ import { GraphQLClient } from "graphql-request";
 import { P, match } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/unauthenticated";
+import { fetchWithTimeout } from "../utils/fetch";
 
-export const sdk = getSdk(new GraphQLClient(env.UNAUTHENTICATED_API_URL, { timeout: 30_000 }));
+export const sdk = getSdk(
+  new GraphQLClient(env.UNAUTHENTICATED_API_URL, { fetch: fetchWithTimeout }),
+);
 
 export class ServerError extends Error {
   tag = "ServerError";

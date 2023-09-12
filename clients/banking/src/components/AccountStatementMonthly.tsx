@@ -194,9 +194,8 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                       extraInfo={{ large }}
                       columns={columns}
                       getRowLink={({ item }) => {
-                        const url = item.type.find(
-                          item => item?.__typename === "PdfStatement",
-                        )?.url;
+                        const url = item.type.find(item => item?.__typename === "PdfStatement")
+                          ?.url;
                         return url != null ? <Link to={url} target="_blank" /> : <View />;
                       }}
                       loading={{

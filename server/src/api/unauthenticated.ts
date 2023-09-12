@@ -3,15 +3,7 @@ import { GraphQLClient } from "graphql-request";
 import { P, match } from "ts-pattern";
 import { env } from "../env";
 import { AccountCountry, getSdk } from "../graphql/unauthenticated";
-
-const fetchWithTimeout: typeof fetch = async (input, init) => {
-  const controller = new AbortController();
-  const id = setTimeout(() => controller.abort(), 30_000);
-  const response = await fetch(input, { ...init, signal: controller.signal });
-
-  clearTimeout(id);
-  return response;
-};
+import { fetchWithTimeout } from "../utils/fetch";
 
 export const sdk = getSdk(
   new GraphQLClient(env.UNAUTHENTICATED_API_URL, { fetch: fetchWithTimeout }),

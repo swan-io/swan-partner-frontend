@@ -30,7 +30,7 @@
     "@opentelemetry/exporter-jaeger": "1.16.0",
     "@opentelemetry/instrumentation": "0.42.0",
     "@opentelemetry/instrumentation-fastify": "0.32.2",
-    "@opentelemetry/instrumentation-http": "0.42.0",
+    "@opentelemetry/instrumentation-http": "0.43.0",
     "@opentelemetry/instrumentation-pino": "0.34.1",
     "@opentelemetry/propagator-jaeger": "1.16.0",
     "@opentelemetry/resources": "1.16.0",

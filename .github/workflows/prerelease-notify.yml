@@ -34,7 +34,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Notify on Slack
-        if: ${{ startsWith(github.event.client_payload.imageTag, "prod-") }}
+        if: ${{ startsWith(github.event.client_payload.imageTag, 'prod-') }}
         uses: bloodyowl/slack-message-release-action@v1.1.5
         with:
           version: ${{ steps.version.outputs.version }}

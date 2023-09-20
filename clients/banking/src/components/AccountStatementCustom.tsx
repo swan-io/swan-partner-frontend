@@ -548,11 +548,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                             extraInfo={{ large }}
                             columns={columns}
                             getRowLink={({ item }) => {
-                              const url = item.type.find(
-                                item =>
-                                  item?.__typename === "PdfStatement" ||
-                                  item?.__typename === "CsvStatement",
-                              )?.url;
+                              const url = item.type.find(item => item != null)?.url;
                               return url != null && item.status === "Available" ? (
                                 <Link to={url} target="_blank" />
                               ) : (

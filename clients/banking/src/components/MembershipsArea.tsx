@@ -369,7 +369,8 @@ export const MembershipsArea = ({
                 Router.push("AccountMembersDetailsRoot", {
                   accountMembershipId,
                   editingAccountMembershipId,
-                  showInvitationLink: "true",
+                  showInvitationLink:
+                    __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "LINK" ? "true" : undefined,
                   ...params,
                   new: undefined,
                 });

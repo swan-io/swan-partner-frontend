@@ -31,7 +31,7 @@ jobs:
         # trick for multiline variables
         run: |
           echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          echo "$(tsx scripts/changelog/getChangelog.ts)" >> $GITHUB_OUTPUT
+          echo "$(yarn -s ci-get-changelog)" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         env:
           GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}

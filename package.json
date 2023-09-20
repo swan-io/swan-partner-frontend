@@ -39,7 +39,8 @@
     "test-e2e": "playwright test",
     "test-e2e-ui": "playwright test --ui",
     "match-e2e-translations": "tsx scripts/tests/matchTranslations.ts",
-    "configure-hooks": "git config --local core.hooksPath .hooks"
+    "configure-hooks": "git config --local core.hooksPath .hooks",
+    "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts"
   },
   "workspaces": {
     "packages": [

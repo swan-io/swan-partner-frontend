@@ -46,7 +46,7 @@ jobs:
           yarn -s ci-get-changelog >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
         env:
-          GITHUB_TOKEN: $${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: $${{ github.token }}
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Get version

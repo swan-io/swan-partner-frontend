@@ -17,15 +17,27 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - name: Cache release tag
+        id: cache-release-tag
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-release-tag
+        with:
+          path: ./package.json
+          key: swan-partner-frontend-deploy-${{ steps.version.outputs.version }}
+
       - uses: actions/setup-node@v3
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         with:
           node-version: lts/*
           cache: yarn
 
       - name: Install dependencies
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         run: yarn install --pure-lockfile
 
       - name: Get changelog
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         id: changelog
         shell: bash
         # trick for multiline variables
@@ -38,6 +50,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Get version
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         id: version
         shell: bash
         run: echo "version=${RELEASE_TAG#*prod-}" >> $GITHUB_OUTPUT
@@ -45,7 +58,7 @@ jobs:
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Notify on Slack
-        if: ${{ startsWith(github.event.client_payload.imageTag, 'prod-') }}
+        if: ${{ startsWith(github.event.client_payload.imageTag, 'prod-') && steps.cache-release-tag.outputs.cache-hit != 'true' }}
         uses: bloodyowl/slack-message-release-action@v1.1.5
         with:
           version: ${{ steps.version.outputs.version }}

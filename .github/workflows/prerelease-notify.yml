@@ -39,12 +39,7 @@ jobs:
       - name: Get changelog
         if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         id: changelog
-        shell: bash
-        # trick for multiline variables
-        run: |
-          echo "changelog<<EOF" >> $GITHUB_OUTPUT
-          yarn -s ci-get-changelog >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+        run: yarn -s ci-get-changelog
         env:
           GITHUB_TOKEN: $${{ github.token }}
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
@@ -62,5 +57,5 @@ jobs:
         uses: bloodyowl/slack-message-release-action@v1.1.5
         with:
           version: ${{ steps.version.outputs.version }}
-          changelog: ${{ steps.changelog.outputs.changelog }}
+          changelog: ${{ steps.changelog.outputs.body }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

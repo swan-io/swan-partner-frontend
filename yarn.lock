@@ -2484,10 +2484,10 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@2.7.28":
-  version "2.7.28"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.7.28.tgz#15e83dc00909be67e9e6e024ffffc678d02a8fa1"
-  integrity sha512-rTx3DQsOSpKP8uKTqJUNtZy0Bk5kHcS0pFKTKXeUHgvOclbZHAgF9KDPwpeF/M4rHT/atLdfEkZN9Un/jH9JFA==
+"@swan-io/lake@2.7.33":
+  version "2.7.33"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-2.7.33.tgz#89847d73ce04c5de2e42d6dea718c3214c89fd02"
+  integrity sha512-JBJ+RnQuHwJSeOwSgtoG0lQD/ynmBS+fDdHkvG0W0fGYzFE4gOseLlfoDRv7y1pSIq84BJ4o3LY++q1pXIMcsw==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.83.9"

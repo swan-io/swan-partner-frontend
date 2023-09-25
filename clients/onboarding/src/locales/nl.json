@@ -163,7 +163,7 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "Zonder titel",
-  "taxIdentificationNumber.germanInfo": "Als het belastingidentificatienummer niet wordt verstrekt tijdens de onboarding, wordt dit per e-mail gevraagd. Als het nummer niet binnen 90 dagen wordt verstrekt, schorten we het account op.",
+  "taxIdentificationNumber.germanInfo": "Je belastingnummer is vereist, maar je kunt het later opgeven. Doe dit binnen 90 dagen, anders wordt je account geschorst.",
   "wizard.back": "Vorige",
   "wizard.finalize": "Afronden",
   "wizard.next": "Volgende"

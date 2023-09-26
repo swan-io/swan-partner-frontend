@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     search?: string | undefined;
-    statuses?: string[] | undefined;
+    status?: string | undefined;
     type?: string[] | undefined;
   };
 };
@@ -77,10 +77,10 @@ const usePageData = ({
 }) => {
   const hasAccountId = isNotNullish(accountId);
 
-  const statuses = match(filters.statuses)
-    .with(["Active"], () => ACTIVE_STATUSES)
-    .with(["Canceled"], () => CANCELED_STATUSES)
-    .otherwise(() => [...ACTIVE_STATUSES, ...CANCELED_STATUSES]);
+  const statuses = match(filters.status)
+    .with("active", () => ACTIVE_STATUSES)
+    .with("canceled", () => CANCELED_STATUSES)
+    .otherwise(() => ACTIVE_STATUSES);
 
   const withAccountQuery = useUrqlPaginatedQuery(
     {
@@ -141,13 +141,7 @@ export const CardListPage = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.search,
-      statuses: isNotNullish(params.statuses)
-        ? Array.filterMap(params.statuses, item =>
-            match(item)
-              .with("Active", "Canceled", item => Option.Some(item))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+      status: params.status ?? "active",
       type: isNotNullish(params.type)
         ? Array.filterMap(params.type, item =>
             match(item)
@@ -156,7 +150,7 @@ export const CardListPage = ({
           )
         : undefined,
     } as const;
-  }, [params.search, params.statuses, params.type]);
+  }, [params.search, params.status, params.type]);
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 

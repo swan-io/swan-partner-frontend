@@ -10,23 +10,11 @@ import {
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
-
-type SimplifiedCardStatus = "Active" | "Canceled";
-
-const statusFilter: FilterCheckboxDef<SimplifiedCardStatus> = {
-  type: "checkbox",
-  checkAllLabel: t("common.filters.all"),
-  items: [
-    { value: "Active", label: t("cardList.status.Active") },
-    { value: "Canceled", label: t("cardList.status.Canceled") },
-  ],
-  label: t("cardList.status"),
-  submitText: t("common.filters.apply"),
-};
 
 const typeFilter: FilterCheckboxDef<CardType> = {
   type: "checkbox",
@@ -41,12 +29,12 @@ const typeFilter: FilterCheckboxDef<CardType> = {
 };
 
 const filtersDefinition = {
-  statuses: statusFilter,
   type: typeFilter,
 };
 
 export type CardFilters = FiltersState<typeof filtersDefinition> & {
   search: string | undefined;
+  status: string | undefined;
 };
 
 type TransactionListFilterProps = {
@@ -58,7 +46,7 @@ type TransactionListFilterProps = {
   large?: boolean;
 };
 
-const defaultAvailableFilters = ["statuses", "type"] as const;
+const defaultAvailableFilters = ["type"] as const;
 
 export const CardListFilter = ({
   filters,
@@ -68,31 +56,28 @@ export const CardListFilter = ({
   large = true,
   available = defaultAvailableFilters,
 }: TransactionListFilterProps) => {
-  const filtersWithoutSearch = useMemo(() => {
-    const { search, ...filtersWithoutSearch } = filters;
+  const filtersWithoutSearchAndStatus = useMemo(() => {
+    const { search, status, ...filtersWithoutSearch } = filters;
     return filtersWithoutSearch;
   }, [filters]);
 
   const availableSet = useMemo(() => new Set(available), [available]);
-  const availableFilters: { name: keyof typeof filtersWithoutSearch; label: string }[] = useMemo(
-    () =>
-      (
-        [
-          {
-            name: "statuses",
-            label: t("cardList.status"),
-          },
-          {
-            name: "type",
-            label: t("cardList.type"),
-          },
-        ] as const
-      ).filter(item => availableSet.has(item.name)),
-    [availableSet],
-  );
+  const availableFilters: { name: keyof typeof filtersWithoutSearchAndStatus; label: string }[] =
+    useMemo(
+      () =>
+        (
+          [
+            {
+              name: "type",
+              label: t("cardList.type"),
+            },
+          ] as const
+        ).filter(item => availableSet.has(item.name)),
+      [availableSet],
+    );
 
   const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filtersWithoutSearch)
+    Dict.entries(filtersWithoutSearchAndStatus)
       .filter(([, value]) => isNotNullish(value))
       .map(([name]) => name),
   );
@@ -100,12 +85,12 @@ export const CardListFilter = ({
   useEffect(() => {
     setOpenFilters(openFilters => {
       const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filtersWithoutSearch)
+      const openFiltersNotYetInState = Dict.entries(filtersWithoutSearchAndStatus)
         .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
         .map(([name]) => name);
       return [...openFilters, ...openFiltersNotYetInState];
     });
-  }, [filtersWithoutSearch]);
+  }, [filtersWithoutSearchAndStatus]);
 
   return (
     <>
@@ -119,7 +104,7 @@ export const CardListFilter = ({
         ) : null}
 
         <FilterChooser
-          filters={filtersWithoutSearch}
+          filters={filtersWithoutSearchAndStatus}
           openFilters={openFilters}
           label={t("common.filters")}
           title={t("common.chooseFilter")}
@@ -144,20 +129,34 @@ export const CardListFilter = ({
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
-          placeholder={t("common.search")}
-          initialValue={filters.search ?? ""}
-          onChangeText={search => onChange({ ...filters, search })}
-        />
+        <Box direction="row" alignItems="center">
+          <Toggle
+            mode={large ? "desktop" : "mobile"}
+            value={filters.status === "active"}
+            onToggle={status => onChange({ ...filters, status: status ? "active" : "canceled" })}
+            onLabel={t("cardList.status.Active")}
+            offLabel={t("cardList.status.Canceled")}
+          />
+
+          <Space width={16} />
+
+          <LakeSearchField
+            placeholder={t("common.search")}
+            initialValue={filters.search ?? ""}
+            onChangeText={search => onChange({ ...filters, search })}
+          />
+        </Box>
       </Box>
 
       <Space height={12} />
 
       <FiltersStack
         definition={filtersDefinition}
-        filters={filtersWithoutSearch}
+        filters={filtersWithoutSearchAndStatus}
         openedFilters={openFilters}
-        onChangeFilters={value => onChange({ ...value, search: filters.search })}
+        onChangeFilters={value =>
+          onChange({ ...value, search: filters.search, status: filters.status })
+        }
         onChangeOpened={setOpenFilters}
       />
     </>

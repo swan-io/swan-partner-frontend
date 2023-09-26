@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     cardSearch?: string | undefined;
-    cardStatuses?: string[] | undefined;
+    cardStatus?: string | undefined;
     cardType?: string[] | undefined;
   };
   isCardWizardOpen: boolean;
@@ -75,13 +75,7 @@ export const AccountMembersDetailsCardList = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.cardSearch,
-      statuses: isNotNullish(params.cardStatuses)
-        ? Array.filterMap(params.cardStatuses, item =>
-            match(item)
-              .with("Active", "Canceled", item => Option.Some(item))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+      status: params.cardStatus ?? "active",
       type: isNotNullish(params.cardType)
         ? Array.filterMap(params.cardType, item =>
             match(item)
@@ -90,14 +84,14 @@ export const AccountMembersDetailsCardList = ({
           )
         : undefined,
     } as const;
-  }, [params.cardSearch, params.cardStatuses, params.cardType]);
+  }, [params.cardSearch, params.cardStatus, params.cardType]);
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
-  const statuses = match(filters.statuses)
-    .with(["Active"], () => ACTIVE_STATUSES)
-    .with(["Canceled"], () => CANCELED_STATUSES)
-    .otherwise(() => [...ACTIVE_STATUSES, ...CANCELED_STATUSES]);
+  const statuses = match(filters.status)
+    .with("active", () => ACTIVE_STATUSES)
+    .with("canceled", () => CANCELED_STATUSES)
+    .otherwise(() => ACTIVE_STATUSES);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
     {
@@ -157,7 +151,7 @@ export const AccountMembersDetailsCardList = ({
                       editingAccountMembershipId,
                       ...params,
                       cardSearch: filters.search,
-                      cardStatuses: filters.statuses,
+                      cardStatus: filters.status,
                       cardType: filters.type,
                     })
                   }

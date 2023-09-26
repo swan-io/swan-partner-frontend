@@ -80,7 +80,7 @@ const routes = {
           Area: "/*",
           Root: "/",
           Rights: "/rights",
-          CardList: "/cards/?:cardSearch&:cardStatuses[]&:cardType[]&:newCard",
+          CardList: "/cards/?:cardSearch&:cardStatus&:cardType[]&:newCard",
         }),
       },
     ),

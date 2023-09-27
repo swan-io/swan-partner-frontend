@@ -12,6 +12,7 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { AccountMembershipStatus } from "../graphql/partner";
@@ -69,6 +70,7 @@ const filtersDefinition = {
 
 export type MembershipFilters = FiltersState<typeof filtersDefinition> & {
   search: string | undefined;
+  isDisabled: "true" | "false" | undefined;
 };
 
 type TransactionListFilterProps = {
@@ -99,12 +101,15 @@ export const MembershipListFilter = ({
   large = true,
   available = defaultAvailableFilters,
 }: TransactionListFilterProps) => {
-  const filtersWithoutSearch = useMemo(() => {
-    const { search, ...filtersWithoutSearch } = filters;
-    return filtersWithoutSearch;
+  const filtersWithoutSearchAndDisabledStatus = useMemo(() => {
+    const { search, isDisabled, ...filtersWithoutSearchAndDisabledStatus } = filters;
+    return filtersWithoutSearchAndDisabledStatus;
   }, [filters]);
   const availableSet = useMemo(() => new Set(available), [available]);
-  const availableFilters: { name: keyof typeof filtersWithoutSearch; label: string }[] = useMemo(
+  const availableFilters: {
+    name: keyof typeof filtersWithoutSearchAndDisabledStatus;
+    label: string;
+  }[] = useMemo(
     () =>
       (
         [
@@ -130,7 +135,7 @@ export const MembershipListFilter = ({
   );
 
   const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filtersWithoutSearch)
+    Dict.entries(filtersWithoutSearchAndDisabledStatus)
       .filter(([, value]) => isNotNullish(value))
       .map(([name]) => name),
   );
@@ -138,12 +143,12 @@ export const MembershipListFilter = ({
   useEffect(() => {
     setOpenFilters(openFilters => {
       const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filtersWithoutSearch)
+      const openFiltersNotYetInState = Dict.entries(filtersWithoutSearchAndDisabledStatus)
         .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
         .map(([name]) => name);
       return [...openFilters, ...openFiltersNotYetInState];
     });
-  }, [filtersWithoutSearch]);
+  }, [filtersWithoutSearchAndDisabledStatus]);
 
   return (
     <>
@@ -157,7 +162,7 @@ export const MembershipListFilter = ({
         ) : null}
 
         <FilterChooser
-          filters={filtersWithoutSearch}
+          filters={filtersWithoutSearchAndDisabledStatus}
           openFilters={openFilters}
           label={t("common.filters")}
           title={t("common.chooseFilter")}
@@ -182,21 +187,37 @@ export const MembershipListFilter = ({
 
         <Fill minWidth={16} />
 
-        <LakeSearchField
-          placeholder={t("common.search")}
-          initialValue={filters.search ?? ""}
-          onChangeText={search => onChange({ ...filters, search })}
-          renderEnd={() => (!isFetching ? <Tag>{totalCount}</Tag> : undefined)}
-        />
+        <Box direction="row" alignItems="center">
+          <Toggle
+            mode={large ? "desktop" : "mobile"}
+            value={filters.isDisabled !== "true"}
+            onToggle={value =>
+              onChange({ ...filters, statuses: undefined, isDisabled: value ? "false" : "true" })
+            }
+            onLabel={t("memberships.status.active")}
+            offLabel={t("memberships.status.disabled")}
+          />
+
+          <Space width={16} />
+
+          <LakeSearchField
+            placeholder={t("common.search")}
+            initialValue={filters.search ?? ""}
+            onChangeText={search => onChange({ ...filters, search })}
+            renderEnd={() => (!isFetching ? <Tag>{totalCount}</Tag> : undefined)}
+          />
+        </Box>
       </Box>
 
       <Space height={12} />
 
       <FiltersStack
         definition={filtersDefinition}
-        filters={filtersWithoutSearch}
+        filters={filtersWithoutSearchAndDisabledStatus}
         openedFilters={openFilters}
-        onChangeFilters={value => onChange({ ...value, search: filters.search })}
+        onChangeFilters={value =>
+          onChange({ ...value, isDisabled: filters.isDisabled, search: filters.search })
+        }
         onChangeOpened={setOpenFilters}
       />
     </>

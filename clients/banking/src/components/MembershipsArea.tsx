@@ -54,6 +54,7 @@ type Props = {
     new?: string;
     search?: string | undefined;
     statuses?: string[] | undefined;
+    isDisabled?: string | undefined;
     canInitiatePayments?: string | undefined;
     canManageAccountMembership?: string | undefined;
     canManageBeneficiaries?: string | undefined;
@@ -92,6 +93,9 @@ export const MembershipsArea = ({
               .otherwise(() => Option.None()),
           )
         : undefined,
+      isDisabled: match(params.isDisabled)
+        .with("true", "false", value => value)
+        .otherwise(() => undefined),
       canInitiatePayments: match(params.canInitiatePayments)
         .with("true", "false", value => value)
         .otherwise(() => undefined),
@@ -106,6 +110,7 @@ export const MembershipsArea = ({
   }, [
     params.search,
     params.statuses,
+    params.isDisabled,
     params.canInitiatePayments,
     params.canManageAccountMembership,
     params.canManageBeneficiaries,
@@ -117,13 +122,14 @@ export const MembershipsArea = ({
       variables: {
         first: PER_PAGE,
         accountId,
-        status: match(filters.statuses)
-          .with(undefined, () => [
+        status: match([filters.statuses, filters.isDisabled])
+          .with([undefined, P.not("true")], () => [
             "BindingUserError" as const,
             "Enabled" as const,
             "InvitationSent" as const,
             "Suspended" as const,
           ])
+          .with([P.any, "true"], () => ["Disabled" as const])
           .otherwise(() => filters.statuses),
         canInitiatePayments: match(filters.canInitiatePayments)
           .with("true", () => true)

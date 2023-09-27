@@ -365,6 +365,7 @@
   "memberships.status.active": "Activo",
   "memberships.status.conflict": "Conflicto",
   "memberships.status.conflictAndLimitedAccess": "Conflicto / Acceso limitado",
+  "memberships.status.disabled": "Desactivado",
   "memberships.status.invitationSent": "Enviar invitación",
   "memberships.status.limitedAccess": "Acceso limitado",
   "memberships.status.permanentlyBlocked": "Bloqueado de forma permanente",

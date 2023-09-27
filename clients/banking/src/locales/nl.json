@@ -365,6 +365,7 @@
   "memberships.status.active": "Actief",
   "memberships.status.conflict": "Conflict",
   "memberships.status.conflictAndLimitedAccess": "Conflict / Beperkte toegang",
+  "memberships.status.disabled": "Uitgeschakeld",
   "memberships.status.invitationSent": "Uitnodiging verzonden",
   "memberships.status.limitedAccess": "Beperkte toegang",
   "memberships.status.permanentlyBlocked": "Permanent geblokkeerd",

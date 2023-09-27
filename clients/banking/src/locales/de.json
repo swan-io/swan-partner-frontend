@@ -365,6 +365,7 @@
   "memberships.status.active": "Aktiv",
   "memberships.status.conflict": "Konflikt",
   "memberships.status.conflictAndLimitedAccess": "Konflikt / Begrenzter Zugang",
+  "memberships.status.disabled": "Deaktiviert",
   "memberships.status.invitationSent": "Einladung gesendet",
   "memberships.status.limitedAccess": "Begrenzter Zugang",
   "memberships.status.permanentlyBlocked": "Dauerhaft gesperrt",

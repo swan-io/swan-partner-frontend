@@ -468,6 +468,7 @@
   "recurringTransfer.empty.title": "You haven’t scheduled any standing orders yet",
   "recurringTransfer.emptyWithFilters.subtitle": "Adjust your filters to see standing orders with different statuses.",
   "recurringTransfer.emptyWithFilters.title": "Nothing to show here",
+  "recurringTransfer.filters.status.active": "Active",
   "recurringTransfer.filters.status.canceled": "Canceled",
   "recurringTransfer.new.amount": "Transfer type and amount",
   "recurringTransfer.new.amount.label": "Amount",

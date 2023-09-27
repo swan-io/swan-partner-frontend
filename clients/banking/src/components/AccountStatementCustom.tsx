@@ -1,3 +1,4 @@
+import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -547,18 +548,11 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                             groupHeaderHeight={48}
                             extraInfo={{ large }}
                             columns={columns}
-                            getRowLink={({ item }) => {
-                              const url = item.type.find(
-                                item =>
-                                  item?.__typename === "PdfStatement" ||
-                                  item?.__typename === "CsvStatement",
-                              )?.url;
-                              return url != null && item.status === "Available" ? (
-                                <Link to={url} target="_blank" />
-                              ) : (
-                                <View />
-                              );
-                            }}
+                            getRowLink={({ item }) =>
+                              Array.findMap(item.type, item => Option.fromNullable(item?.url))
+                                .map(url => <Link to={url} target="_blank" />)
+                                .getWithDefault(<View />)
+                            }
                             loading={{
                               isLoading: nextData.isLoading(),
                               count: NUM_TO_RENDER,

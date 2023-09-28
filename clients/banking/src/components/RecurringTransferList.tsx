@@ -716,7 +716,7 @@ export const RecurringTransferList = ({
               onPress={reload}
             />
 
-            <Fill />
+            <Fill minWidth={24} />
 
             <Toggle
               mode={large ? "desktop" : "mobile"}

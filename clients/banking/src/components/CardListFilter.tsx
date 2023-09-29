@@ -34,7 +34,7 @@ const filtersDefinition = {
 
 export type CardFilters = FiltersState<typeof filtersDefinition> & {
   search: string | undefined;
-  status: "Active" | "Canceled" | undefined;
+  status: string | undefined;
 };
 
 type TransactionListFilterProps = {

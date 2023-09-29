@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     cardSearch?: string | undefined;
-    cardStatus?: "Active" | "Canceled" | undefined;
+    cardStatus?: string | undefined;
     cardType?: string[] | undefined;
   };
   isCardWizardOpen: boolean;
@@ -75,7 +75,9 @@ export const AccountMembersDetailsCardList = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.cardSearch,
-      status: params.cardStatus ?? "Active",
+      status: match(params.cardStatus)
+        .with("Active", "Canceled", item => item)
+        .otherwise(() => "Active"),
       type: isNotNullish(params.cardType)
         ? Array.filterMap(params.cardType, item =>
             match(item)

@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     search?: string | undefined;
-    status?: "Active" | "Canceled" | undefined;
+    status?: string | undefined;
     type?: string[] | undefined;
   };
 };
@@ -141,7 +141,9 @@ export const CardListPage = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.search,
-      status: params.status ?? "Active",
+      status: match(params.status)
+        .with("Active", "Canceled", item => item)
+        .otherwise(() => "Active"),
       type: isNotNullish(params.type)
         ? Array.filterMap(params.type, item =>
             match(item)

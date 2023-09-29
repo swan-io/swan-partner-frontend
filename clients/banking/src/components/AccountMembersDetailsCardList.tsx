@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     cardSearch?: string | undefined;
-    cardStatus?: string | undefined;
+    cardStatus?: "Active" | "Canceled" | undefined;
     cardType?: string[] | undefined;
   };
   isCardWizardOpen: boolean;
@@ -75,7 +75,7 @@ export const AccountMembersDetailsCardList = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.cardSearch,
-      status: params.cardStatus ?? "active",
+      status: params.cardStatus ?? "Active",
       type: isNotNullish(params.cardType)
         ? Array.filterMap(params.cardType, item =>
             match(item)
@@ -89,8 +89,8 @@ export const AccountMembersDetailsCardList = ({
   const hasFilters = Object.values(filters).some(isNotNullish);
 
   const statuses = match(filters.status)
-    .with("active", () => ACTIVE_STATUSES)
-    .with("canceled", () => CANCELED_STATUSES)
+    .with("Active", () => ACTIVE_STATUSES)
+    .with("Canceled", () => CANCELED_STATUSES)
     .otherwise(() => ACTIVE_STATUSES);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(

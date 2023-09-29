@@ -49,7 +49,7 @@ type Props = {
   totalDisplayableCardCount: number;
   params: {
     search?: string | undefined;
-    status?: string | undefined;
+    status?: "Active" | "Canceled" | undefined;
     type?: string[] | undefined;
   };
 };
@@ -78,8 +78,8 @@ const usePageData = ({
   const hasAccountId = isNotNullish(accountId);
 
   const statuses = match(filters.status)
-    .with("active", () => ACTIVE_STATUSES)
-    .with("canceled", () => CANCELED_STATUSES)
+    .with("Active", () => ACTIVE_STATUSES)
+    .with("Canceled", () => CANCELED_STATUSES)
     .otherwise(() => ACTIVE_STATUSES);
 
   const withAccountQuery = useUrqlPaginatedQuery(
@@ -141,7 +141,7 @@ export const CardListPage = ({
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.search,
-      status: params.status ?? "active",
+      status: params.status ?? "Active",
       type: isNotNullish(params.type)
         ? Array.filterMap(params.type, item =>
             match(item)

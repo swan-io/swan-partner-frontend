@@ -34,7 +34,7 @@ const filtersDefinition = {
 
 export type CardFilters = FiltersState<typeof filtersDefinition> & {
   search: string | undefined;
-  status: string | undefined;
+  status: "Active" | "Canceled" | undefined;
 };
 
 type TransactionListFilterProps = {
@@ -132,8 +132,8 @@ export const CardListFilter = ({
         <Box direction="row" alignItems="center">
           <Toggle
             mode={large ? "desktop" : "mobile"}
-            value={filters.status === "active"}
-            onToggle={status => onChange({ ...filters, status: status ? "active" : "canceled" })}
+            value={filters.status === "Active"}
+            onToggle={status => onChange({ ...filters, status: status ? "Active" : "Canceled" })}
             onLabel={t("cardList.status.Active")}
             offLabel={t("cardList.status.Canceled")}
           />

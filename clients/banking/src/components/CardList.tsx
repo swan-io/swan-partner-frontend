@@ -2,11 +2,8 @@ import { Option } from "@swan-io/boxed";
 import { LinkConfig } from "@swan-io/lake/src/components/FixedListView";
 import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { ReactElement, ReactNode, useState } from "react";
-import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
@@ -18,12 +15,6 @@ import {
   CardSummaryCell,
   FullNameAndCardTypeCell,
 } from "./CardListCells";
-
-const styles = StyleSheet.create({
-  canceledRow: {
-    backgroundColor: colors.gray[50],
-  },
-});
 
 type Props = {
   cards: { node: CardListItemFragment }[];
@@ -128,11 +119,6 @@ export const CardList = ({
         activeRowId={activeRowId}
         smallColumns={smallColumns}
         onEndReached={onEndReached}
-        rowStyle={({ statusInfo }) =>
-          match(statusInfo.status)
-            .with("Canceling", "Canceled", () => styles.canceledRow)
-            .otherwise(() => null)
-        }
         getRowLink={getRowLink}
         loading={loading}
         renderEmptyList={renderEmptyList}

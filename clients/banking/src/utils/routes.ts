@@ -58,7 +58,7 @@ const routes = {
 
     ...createGroup("Cards", "/cards?:new", {
       Area: "/*",
-      List: "/?:search&:statuses[]&:type[]",
+      List: "/?:search&:status&:type[]",
       ItemArea: "/:cardId/*",
       Item: "/:cardId",
       ItemPhysicalCard: "/:cardId/physical-card",
@@ -80,7 +80,7 @@ const routes = {
           Area: "/*",
           Root: "/",
           Rights: "/rights",
-          CardList: "/cards/?:cardSearch&:cardStatuses[]&:cardType[]&:newCard",
+          CardList: "/cards/?:cardSearch&:cardStatus&:cardType[]&:newCard",
         }),
       },
     ),

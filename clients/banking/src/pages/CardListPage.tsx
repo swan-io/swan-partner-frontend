@@ -80,7 +80,7 @@ const usePageData = ({
   const statuses = match(filters.status)
     .with("Active", () => ACTIVE_STATUSES)
     .with("Canceled", () => CANCELED_STATUSES)
-    .otherwise(() => ACTIVE_STATUSES);
+    .exhaustive();
 
   const withAccountQuery = useUrqlPaginatedQuery(
     {

@@ -469,6 +469,7 @@
   "recurringTransfer.empty.title": "Ainda não agendou qualquer ordem permanente",
   "recurringTransfer.emptyWithFilters.subtitle": "Ajuste os seus filtros para ver os pedidos de pagamento com estados diferentes.",
   "recurringTransfer.emptyWithFilters.title": "Nada para mostrar aqui",
+  "recurringTransfer.filters.status.active": "Ativo",
   "recurringTransfer.filters.status.canceled": "Cancelado",
   "recurringTransfer.new.amount": "Tipo de transferência e montante",
   "recurringTransfer.new.amount.label": "Montante",

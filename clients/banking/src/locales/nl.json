@@ -469,6 +469,7 @@
   "recurringTransfer.empty.title": "Je hebt nog geen periodieke overschrijving gepland",
   "recurringTransfer.emptyWithFilters.subtitle": "Pas je filters aan om periodieke overschrijvingen met verschillende statussen te zien.",
   "recurringTransfer.emptyWithFilters.title": "Niets te tonen hier",
+  "recurringTransfer.filters.status.active": "Actief",
   "recurringTransfer.filters.status.canceled": "Geannuleerd",
   "recurringTransfer.new.amount": "Soort en bedrag van de overschrijving",
   "recurringTransfer.new.amount.label": "Bedrag",

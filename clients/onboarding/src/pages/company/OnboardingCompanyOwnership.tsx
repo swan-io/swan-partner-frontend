@@ -580,13 +580,15 @@ export const OnboardingCompanyOwnership = ({
             )
           }
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading() && !showConfirmNoUboModal}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading() && !showConfirmNoUboModal}
+        />
+      </OnboardingStepContent>
 
       <ConfirmModal
         visible={showConfirmNoUboModal}

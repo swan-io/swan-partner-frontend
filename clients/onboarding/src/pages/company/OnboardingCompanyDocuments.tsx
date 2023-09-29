@@ -127,9 +127,10 @@ export const OnboardingCompanyDocuments = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+        <Space height={24} />
+        <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+      </OnboardingStepContent>
 
       <ConfirmModal
         visible={showConfirmModal}

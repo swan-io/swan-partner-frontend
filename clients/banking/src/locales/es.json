@@ -469,6 +469,7 @@
   "recurringTransfer.empty.title": "Aún no has programado ninguna orden permanente",
   "recurringTransfer.emptyWithFilters.subtitle": "Ajusta tus filtros para ver órdenes permanentes con estados diferentes.",
   "recurringTransfer.emptyWithFilters.title": "Ningún resultado",
+  "recurringTransfer.filters.status.active": "Activo",
   "recurringTransfer.filters.status.canceled": "Cancelada",
   "recurringTransfer.new.amount": "Tipo de transferencia y cantidad",
   "recurringTransfer.new.amount.label": "Cantidad",

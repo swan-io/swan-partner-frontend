@@ -468,6 +468,7 @@
   "recurringTransfer.empty.title": "Non ha pianificato alcun ordine permanente",
   "recurringTransfer.emptyWithFilters.subtitle": "Modifichi i filtri per visualizzare gli ordini permanenti con stati diversi.",
   "recurringTransfer.emptyWithFilters.title": "Niente da mostrare",
+  "recurringTransfer.filters.status.active": "Attivo",
   "recurringTransfer.filters.status.canceled": "Annullato",
   "recurringTransfer.new.amount": "Tipologia e importo del bonifico",
   "recurringTransfer.new.amount.label": "Importo",

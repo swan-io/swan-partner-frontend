@@ -468,6 +468,7 @@
   "recurringTransfer.empty.title": "Sie haben noch keine Daueraufträge geplant",
   "recurringTransfer.emptyWithFilters.subtitle": "Passen Sie Ihre Filter an, damit Sie Daueraufträge mit verschiedenen Status ansehen können.",
   "recurringTransfer.emptyWithFilters.title": "Hier gibt es nichts zu sehen",
+  "recurringTransfer.filters.status.active": "Aktiv",
   "recurringTransfer.filters.status.canceled": "Abgebrochen",
   "recurringTransfer.new.amount": "Überweisungsart und -betrag",
   "recurringTransfer.new.amount.label": "Betrag",

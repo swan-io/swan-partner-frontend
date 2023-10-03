@@ -473,6 +473,7 @@
   "recurringTransfer.empty.title": "Vous n'avez pas encore programmé d'ordres permanents",
   "recurringTransfer.emptyWithFilters.subtitle": "Ajustez vos filtres pour voir les ordres permanents avec différents statuts.",
   "recurringTransfer.emptyWithFilters.title": "Rien à afficher",
+  "recurringTransfer.filters.status.active": "Actif",
   "recurringTransfer.filters.status.canceled": "Annulé",
   "recurringTransfer.new.amount": "Type et montant du virement",
   "recurringTransfer.new.amount.label": "Montant",

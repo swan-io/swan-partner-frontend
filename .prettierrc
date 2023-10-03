@@ -1,5 +1,6 @@
 {
   "arrowParens": "avoid",
+  "printWidth": 100,
   "trailingComma": "all",
-  "printWidth": 100
+  "plugins": ["prettier-plugin-organize-imports"]
 }

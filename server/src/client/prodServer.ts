@@ -17,26 +17,31 @@ const handleRequest = async (
   appName: string,
   reply: FastifyReply<Http2SecureServer>,
 ) => {
-  if (reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js")) {
-    void reply.header("cache-control", `public, max-age=${yearInSeconds}, immutable`);
-    const date = new Date();
-    date.setTime(date.getTime() + yearInMilliseconds);
-    void reply.header("expires", date.toUTCString());
-    return reply.sendFile(reqPath, path.join(staticPath, appName));
-  } else {
-    const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
-      if (err == null && stat.isFile()) {
+  const isStaticAsset = reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js");
+  const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
+    if (err == null && stat.isFile()) {
+      if (isStaticAsset) {
+        // Cache for a year if the file exists
+        void reply.header("cache-control", `public, max-age=${yearInSeconds}, immutable`);
+        const date = new Date();
+        date.setTime(date.getTime() + yearInMilliseconds);
+        void reply.header("expires", date.toUTCString());
+      }
+      return reply.sendFile(reqPath, path.join(staticPath, appName));
+    } else {
+      // Prevents having old HTMLs in cache referencing assets that
+      // do not longer exist in its files
+      void reply.header("cache-control", `public, max-age=0`);
+      if (isStaticAsset) {
         return reply.sendFile(reqPath, path.join(staticPath, appName));
       } else {
-        // Prevents having old HTMLs in cache referencing assets that
-        // do not longer exist in its files
-        void reply.header("cache-control", `public, max-age=0`);
+        // Fallback to `index.html` *only* if the file isn't a static asset
         return reply.sendFile("/index.html", path.join(staticPath, appName));
       }
-    };
+    }
+  };
 
-    fs.stat(path.join(staticPath, appName, reqPath), (err, stat) => void handleRequest(err, stat));
-  }
+  fs.stat(path.join(staticPath, appName, reqPath), (err, stat) => void handleRequest(err, stat));
 };
 
 export function getProductionRequestHandler() {

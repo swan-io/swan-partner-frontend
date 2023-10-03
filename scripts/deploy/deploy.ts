@@ -48,7 +48,7 @@ fs.writeFileSync(
 );
 
 execSync(
-  `cd ${tmp}/${repoName} && git commit -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
+  `cd ${tmp}/${repoName} && git commit --allow-empty -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
 
 execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);

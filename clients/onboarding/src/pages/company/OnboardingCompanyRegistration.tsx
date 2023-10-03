@@ -10,6 +10,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -238,7 +239,7 @@ export const OnboardingCompanyRegistration = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small, large }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.registration.title")}</StepTitle>
@@ -377,13 +378,15 @@ export const OnboardingCompanyRegistration = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

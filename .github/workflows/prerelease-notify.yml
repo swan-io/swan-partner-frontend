@@ -1,0 +1,61 @@
+name: Prerelease notify
+
+on:
+  repository_dispatch:
+    types: [deploy_success]
+
+jobs:
+  prerelease-notify:
+    name: Prerelease notify
+    runs-on: ubuntu-latest
+    concurrency:
+      group: ${{ github.event.client_payload.imageTag }}
+      cancel-in-progress: true
+    permissions:
+      contents: read # This is required for actions/checkout
+      id-token: write # This is required for requesting the JWT
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Cache release tag
+        id: cache-release-tag
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-release-tag
+        with:
+          path: ./package.json
+          key: swan-partner-frontend-deploy-${{ steps.version.outputs.version }}
+
+      - uses: actions/setup-node@v3
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Install dependencies
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
+        run: yarn install --pure-lockfile
+
+      - name: Get changelog
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
+        id: changelog
+        run: yarn -s ci-get-changelog
+        env:
+          GITHUB_TOKEN: $${{ github.token }}
+          RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
+
+      - name: Get version
+        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
+        id: version
+        shell: bash
+        run: echo "version=${RELEASE_TAG#*prod-}" >> $GITHUB_OUTPUT
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
+
+      - name: Notify on Slack
+        if: ${{ startsWith(github.event.client_payload.imageTag, 'prod-') && steps.cache-release-tag.outputs.cache-hit != 'true' }}
+        uses: bloodyowl/slack-message-release-action@v1.1.5
+        with:
+          version: ${{ steps.version.outputs.version }}
+          changelog: ${{ steps.changelog.outputs.body }}
+          slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}

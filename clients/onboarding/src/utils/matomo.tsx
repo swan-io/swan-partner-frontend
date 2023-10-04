@@ -1,11 +1,11 @@
 import { Dict } from "@swan-io/boxed";
 import { Location, encodeSearch, getLocation, subscribeToLocation } from "@swan-io/chicane";
-import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { capitalize } from "@swan-io/lake/src/utils/string";
 import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from "react";
-import { atom } from "react-atomic-state";
 import { Dimensions } from "react-native";
 import { P, match } from "ts-pattern";
-import { EnvType } from "../graphql/unauthenticated";
+import { env } from "./env";
 import { Router, routes } from "./routes";
 
 const API_URL = "https://swan.matomo.cloud/matomo.php";
@@ -32,26 +32,15 @@ const finitePaths = Object.fromEntries(
 
 const finiteRouteNames = Dict.keys(finitePaths);
 
-type Session = {
-  projectEnv: EnvType | undefined;
-  projectId: string;
-};
-
-const sessionAtom = atom<Session | undefined>(undefined);
+let sessionProjectId: string | undefined = undefined;
 
 export const sendMatomoEvent = (
-  event:
-    | { type: "PageView" }
-    | { type: "Action"; category: string; name: string }
-    | { type: "Search"; category: string; count: number; filters: string },
+  event: { type: "PageView" } | { type: "Action"; category: string; name: string },
 ) => {
-  const session = sessionAtom.get();
-
-  if (isNullishOrEmpty(SITE_ID) || isNullishOrEmpty(session)) {
+  if (isNullishOrEmpty(SITE_ID) || isNullishOrEmpty(sessionProjectId)) {
     return; // only track production or development testing events
   }
 
-  const dimension2 = session.projectEnv; // defined in matomo dashboard as "environment"
   const route = Router.getRoute(finiteRouteNames);
   const windowSize = Dimensions.get("window");
 
@@ -72,8 +61,8 @@ export const sendMatomoEvent = (
         .with({ name: P.string }, ({ name }) => finitePaths[name])
         .otherwise(() => ""),
 
-    ...(dimension2 && { dimension2 }),
-    dimension3: session.projectId, // defined in matomo dashboard as "projectId"
+    dimension2: capitalize(env.SWAN_ENVIRONMENT), // defined in matomo dashboard as "environment"
+    dimension3: sessionProjectId, // defined in matomo dashboard as "projectId"
 
     ...match(event)
       .with({ type: "Action" }, event => ({
@@ -87,20 +76,15 @@ export const sendMatomoEvent = (
   navigator.sendBeacon(API_URL + encodeSearch(params));
 };
 
-export const useSessionTracking = ({
-  loaded,
-  projectEnv,
-  projectId,
-}: { loaded: boolean } & Session) => {
+export const useSessionTracking = (projectId: string | undefined) => {
   const lastPath = useRef<string>("");
 
-  const stableSession = useMemo(
-    () => (loaded ? { projectEnv, projectId } : undefined),
-    [loaded, projectEnv, projectId],
-  );
-
   useEffect(() => {
-    sessionAtom.set(stableSession);
+    if (isNullish(projectId)) {
+      return;
+    }
+
+    sessionProjectId = projectId;
 
     const onLocation = (location: Location) => {
       const nextPath = location.raw.path;
@@ -116,9 +100,9 @@ export const useSessionTracking = ({
 
     return () => {
       unsubscribe();
-      sessionAtom.reset();
+      sessionProjectId = undefined;
     };
-  }, [stableSession]);
+  }, [projectId]);
 };
 
 const TrackingCategoryContext = createContext<string>("");

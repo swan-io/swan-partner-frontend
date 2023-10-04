@@ -1,16 +1,14 @@
-import { Dict, Option } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { createGroup, createRouter } from "@swan-io/chicane";
 import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 export const routes = {
-  Onboarding: "/onboardings/:onboardingId",
   PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
 
-  // Onboarding revamp, once completed, we should remove v2 prefix and `Onboarding` route above
-  ...createGroup("Onboarding", "/onboardings/:onboardingId", {
-    Area: "/*",
+  ...createGroup("", "/onboardings/:onboardingId", {
     Root: "/",
+    Area: "/*",
     Email: "/email",
     Location: "/location",
     Details: "/details",
@@ -25,24 +23,24 @@ export const routes = {
 } as const;
 
 export const individualOnboardingRoutes = [
-  "OnboardingRoot",
-  "OnboardingEmail",
-  "OnboardingLocation",
-  "OnboardingDetails",
-  "OnboardingFinalize",
+  "Root",
+  "Email",
+  "Location",
+  "Details",
+  "Finalize",
 ] as const;
 
 export type IndividualOnboardingRoute = (typeof individualOnboardingRoutes)[number];
 
 export const companyOnboardingRoutes = [
-  "OnboardingRoot",
-  "OnboardingPresentation",
-  "OnboardingRegistration",
-  "OnboardingOrganisation1",
-  "OnboardingOrganisation2",
-  "OnboardingOwnership",
-  "OnboardingDocuments",
-  "OnboardingFinalize",
+  "Root",
+  "Presentation",
+  "Registration",
+  "Organisation1",
+  "Organisation2",
+  "Ownership",
+  "Documents",
+  "Finalize",
 ] as const;
 
 export type CompanyOnboardingRoute = (typeof companyOnboardingRoutes)[number];
@@ -55,7 +53,3 @@ export const Router = createRouter(routes, {
     )
     .otherwise(() => undefined),
 });
-
-export const finiteRoutes = Dict.entries(routes)
-  .filter(([, value]) => !value.endsWith("/*"))
-  .map(([key]) => key);

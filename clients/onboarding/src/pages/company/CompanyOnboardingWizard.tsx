@@ -31,6 +31,7 @@ import {
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
+import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
@@ -94,7 +95,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const route = Router.useRoute(companyOnboardingRoutes);
 
   const isStepperDisplayed =
-    !isNullish(route) && route.name !== "OnboardingRoot" && route.name !== "OnboardingPresentation";
+    !isNullish(route) && route.name !== "Root" && route.name !== "Presentation";
 
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
@@ -205,37 +206,37 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     const steps: WizardStep<CompanyOnboardingRoute>[] = [];
     steps.push(
       {
-        id: "OnboardingRegistration",
+        id: "Registration",
         label: t("step.title.registration"),
         errors: registrationStepErrors,
       },
       {
-        id: "OnboardingOrganisation1",
+        id: "Organisation1",
         label: t("step.title.organisationPart1"),
         errors: organisation1StepErrors,
       },
       {
-        id: "OnboardingOrganisation2",
+        id: "Organisation2",
         label: t("step.title.organisationPart2"),
         errors: organisation2StepErrors,
       },
     );
     if (hasOwnershipStep) {
       steps.push({
-        id: "OnboardingOwnership",
+        id: "Ownership",
         label: t("step.title.ownership"),
         errors: ownerStepErrors,
       });
     }
     if (hasDocumentsStep) {
       steps.push({
-        id: "OnboardingDocuments",
+        id: "Documents",
         label: t("step.title.document"),
         errors: [],
       });
     }
     steps.push({
-      id: "OnboardingFinalize",
+      id: "Finalize",
       label: t("step.title.swanApp"),
       errors: [],
     });
@@ -254,17 +255,14 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     () =>
       steps
         // Remove organisation steps except the first one
-        .filter(
-          step =>
-            step.id === "OnboardingOrganisation1" || !step.id.startsWith("OnboardingOrganisation"),
-        )
+        .filter(step => step.id === "Organisation1" || !step.id.startsWith("Organisation"))
         .map(step => {
           // Organisation steps are grouped
-          if (step.id === "OnboardingOrganisation1") {
+          if (step.id === "Organisation1") {
             return {
               label: t("step.title.organisation"),
               children: steps
-                .filter(({ id }) => id.startsWith("OnboardingOrganisation"))
+                .filter(({ id }) => id.startsWith("Organisation"))
                 .map(step => ({
                   id: step.id,
                   label: step.label,
@@ -328,107 +326,123 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
       ) : null}
 
       {match(route)
-        .with({ name: "OnboardingRoot" }, ({ params }) => (
-          <OnboardingCompanyBasicInfo
-            nextStep="OnboardingPresentation"
-            onboardingId={params.onboardingId}
-            initialValues={{
-              companyType,
-              country: companyCountry,
-              typeOfRepresentation,
-            }}
-          />
+        .with({ name: "Root" }, ({ params }) => (
+          <TrackingProvider category="Basic info">
+            <OnboardingCompanyBasicInfo
+              nextStep="Presentation"
+              onboardingId={params.onboardingId}
+              initialValues={{
+                companyType,
+                country: companyCountry,
+                typeOfRepresentation,
+              }}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingPresentation" }, ({ params }) => (
-          <CompanyFlowPresentation
-            previousStep="OnboardingRoot"
-            nextStep="OnboardingRegistration"
-            onboardingId={params.onboardingId}
-            hasOwnershipStep={hasOwnershipStep}
-            hasDocumentsStep={hasDocumentsStep}
-          />
+        .with({ name: "Presentation" }, ({ params }) => (
+          <TrackingProvider category="Presentation">
+            <CompanyFlowPresentation
+              previousStep="Root"
+              nextStep="Registration"
+              onboardingId={params.onboardingId}
+              hasOwnershipStep={hasOwnershipStep}
+              hasDocumentsStep={hasDocumentsStep}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingRegistration" }, ({ params }) => (
-          <OnboardingCompanyRegistration
-            previousStep="OnboardingPresentation"
-            nextStep="OnboardingOrganisation1"
-            onboardingId={params.onboardingId}
-            initialEmail={onboarding.email ?? ""}
-            initialAddressLine1={legalRepresentativeAddressLine1}
-            initialCity={legalRepresentativeCity}
-            initialPostalCode={legalRepresentativePostalCode}
-            initialCountry={legalRepresentativeCountry}
-            projectName={projectName}
-            accountCountry={accountCountry}
-            serverValidationErrors={finalized ? registrationStepErrors : []}
-            tcuUrl={onboarding.tcuUrl}
-            tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
-          />
+        .with({ name: "Registration" }, ({ params }) => (
+          <TrackingProvider category="Registration">
+            <OnboardingCompanyRegistration
+              previousStep="Presentation"
+              nextStep="Organisation1"
+              onboardingId={params.onboardingId}
+              initialEmail={onboarding.email ?? ""}
+              initialAddressLine1={legalRepresentativeAddressLine1}
+              initialCity={legalRepresentativeCity}
+              initialPostalCode={legalRepresentativePostalCode}
+              initialCountry={legalRepresentativeCountry}
+              projectName={projectName}
+              accountCountry={accountCountry}
+              serverValidationErrors={finalized ? registrationStepErrors : []}
+              tcuUrl={onboarding.tcuUrl}
+              tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingOrganisation1" }, ({ params }) => (
-          <OnboardingCompanyOrganisation1
-            previousStep="OnboardingRegistration"
-            nextStep="OnboardingOrganisation2"
-            onboardingId={params.onboardingId}
-            companyType={companyType}
-            initialIsRegistered={isRegistered}
-            initialName={holder.name ?? ""}
-            initialRegistrationNumber={holder.registrationNumber ?? ""}
-            initialVatNumber={holder.vatNumber ?? ""}
-            initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
-            initialAddressLine1={companyAddressLine1}
-            initialCity={companyCity}
-            initialPostalCode={companyPostalCode}
-            country={companyCountry}
-            accountCountry={accountCountry}
-            serverValidationErrors={finalized ? organisation1StepErrors : []}
-          />
+        .with({ name: "Organisation1" }, ({ params }) => (
+          <TrackingProvider category="Organisation 1">
+            <OnboardingCompanyOrganisation1
+              previousStep="Registration"
+              nextStep="Organisation2"
+              onboardingId={params.onboardingId}
+              companyType={companyType}
+              initialIsRegistered={isRegistered}
+              initialName={holder.name ?? ""}
+              initialRegistrationNumber={holder.registrationNumber ?? ""}
+              initialVatNumber={holder.vatNumber ?? ""}
+              initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
+              initialAddressLine1={companyAddressLine1}
+              initialCity={companyCity}
+              initialPostalCode={companyPostalCode}
+              country={companyCountry}
+              accountCountry={accountCountry}
+              serverValidationErrors={finalized ? organisation1StepErrors : []}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingOrganisation2" }, ({ params }) => (
-          <OnboardingCompanyOrganisation2
-            previousStep="OnboardingOrganisation1"
-            nextStep={getNextStep("OnboardingOrganisation2", steps)}
-            onboardingId={params.onboardingId}
-            initialBusinessActivity={holder.businessActivity ?? ""}
-            initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
-            initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
-            serverValidationErrors={finalized ? organisation2StepErrors : []}
-          />
+        .with({ name: "Organisation2" }, ({ params }) => (
+          <TrackingProvider category="Organisation 2">
+            <OnboardingCompanyOrganisation2
+              previousStep="Organisation1"
+              nextStep={getNextStep("Organisation2", steps)}
+              onboardingId={params.onboardingId}
+              initialBusinessActivity={holder.businessActivity ?? ""}
+              initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
+              initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
+              serverValidationErrors={finalized ? organisation2StepErrors : []}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingOwnership" }, ({ params }) => (
-          <OnboardingCompanyOwnership
-            previousStep="OnboardingOrganisation2"
-            nextStep={getNextStep("OnboardingOwnership", steps)}
-            onboardingId={params.onboardingId}
-            accountCountry={accountCountry}
-            country={companyCountry}
-            companyName={holder.name ?? ""}
-            ubos={ubos}
-          />
+        .with({ name: "Ownership" }, ({ params }) => (
+          <TrackingProvider category="Ownership">
+            <OnboardingCompanyOwnership
+              previousStep="Organisation2"
+              nextStep={getNextStep("Ownership", steps)}
+              onboardingId={params.onboardingId}
+              accountCountry={accountCountry}
+              country={companyCountry}
+              companyName={holder.name ?? ""}
+              ubos={ubos}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingDocuments" }, ({ params }) => (
-          <OnboardingCompanyDocuments
-            previousStep={getPreviousStep("OnboardingDocuments", steps)}
-            nextStep="OnboardingFinalize"
-            onboardingId={params.onboardingId}
-            documents={currentDocuments}
-            onDocumentsChange={setCurrentDocuments}
-            requiredDocumentTypes={requiredDocuments}
-            supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
-            onboardingLanguage={onboarding.language ?? "en"}
-          />
+        .with({ name: "Documents" }, ({ params }) => (
+          <TrackingProvider category="Documents">
+            <OnboardingCompanyDocuments
+              previousStep={getPreviousStep("Documents", steps)}
+              nextStep="Finalize"
+              onboardingId={params.onboardingId}
+              documents={currentDocuments}
+              onDocumentsChange={setCurrentDocuments}
+              requiredDocumentTypes={requiredDocuments}
+              supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
+              onboardingLanguage={onboarding.language ?? "en"}
+            />
+          </TrackingProvider>
         ))
-        .with({ name: "OnboardingFinalize" }, ({ params }) => (
-          <OnboardingCompanyFinalize
-            previousStep={getPreviousStep("OnboardingFinalize", steps)}
-            onboardingId={params.onboardingId}
-            legalRepresentativeRecommendedIdentificationLevel={
-              onboarding.legalRepresentativeRecommendedIdentificationLevel
-            }
-            steps={steps}
-            alreadySubmitted={finalized}
-            onSubmitWithErrors={setFinalized.on}
-          />
+        .with({ name: "Finalize" }, ({ params }) => (
+          <TrackingProvider category="Finalize">
+            <OnboardingCompanyFinalize
+              previousStep={getPreviousStep("Finalize", steps)}
+              onboardingId={params.onboardingId}
+              legalRepresentativeRecommendedIdentificationLevel={
+                onboarding.legalRepresentativeRecommendedIdentificationLevel
+              }
+              steps={steps}
+              alreadySubmitted={finalized}
+              onSubmitWithErrors={setFinalized.on}
+            />
+          </TrackingProvider>
         ))
         .with(P.nullish, () => <NotFoundPage />)
         .exhaustive()}

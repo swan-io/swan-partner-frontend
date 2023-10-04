@@ -17,6 +17,7 @@ import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndivid
 import { env } from "./utils/env";
 import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
+import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { unauthenticatedClient, useQueryWithErrorBoundary } from "./utils/urql";
 
@@ -36,6 +37,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
   const holder = onboarding?.info;
 
   useTitle((project?.name ?? "Swan") + " onboarding");
+  useSessionTracking(project?.id);
 
   if (onboarding == null) {
     return <ErrorView />;
@@ -62,18 +64,22 @@ const FlowPicker = ({ onboardingId }: Props) => {
     <WithPartnerAccentColor color={projectColor}>
       {match(holder)
         .with({ __typename: "OnboardingIndividualAccountHolderInfo" }, holder => (
-          <OnboardingIndividualWizard
-            onboarding={onboarding}
-            onboardingId={onboardingId}
-            holder={holder}
-          />
+          <TrackingProvider category="Individual">
+            <OnboardingIndividualWizard
+              onboarding={onboarding}
+              onboardingId={onboardingId}
+              holder={holder}
+            />
+          </TrackingProvider>
         ))
         .with({ __typename: "OnboardingCompanyAccountHolderInfo" }, holder => (
-          <OnboardingCompanyWizard
-            onboarding={onboarding}
-            onboardingId={onboardingId}
-            holder={holder}
-          />
+          <TrackingProvider category="Company">
+            <OnboardingCompanyWizard
+              onboarding={onboarding}
+              onboardingId={onboardingId}
+              holder={holder}
+            />
+          </TrackingProvider>
         ))
         .otherwise(() => (
           <ErrorView />
@@ -83,7 +89,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["OnboardingArea", "PopupCallback"]);
+  const route = Router.useRoute(["Area", "PopupCallback"]);
 
   return (
     <ErrorBoundary
@@ -104,7 +110,7 @@ export const App = () => {
                 />
               ),
             )
-            .with({ name: "OnboardingArea" }, ({ params: { onboardingId } }) => (
+            .with({ name: "Area" }, ({ params: { onboardingId } }) => (
               <FlowPicker onboardingId={onboardingId} />
             ))
             .with(P.nullish, () => <NotFoundPage />)

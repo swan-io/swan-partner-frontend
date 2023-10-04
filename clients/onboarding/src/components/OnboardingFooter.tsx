@@ -62,7 +62,7 @@ export const OnboardingFooter = ({
           >
             <Box style={styles.buttons} direction="row" alignItems="center">
               {onPrevious ? (
-                <TrackPressable labelKey={"wizard.back"}>
+                <TrackPressable action="Go back">
                   <LakeButton
                     color="gray"
                     mode="secondary"
@@ -79,7 +79,7 @@ export const OnboardingFooter = ({
 
               <Space width={16} />
 
-              <TrackPressable labelKey={nextLabel}>
+              <TrackPressable action="Go next">
                 <LakeButton
                   loading={loading}
                   color="partner"

@@ -109,7 +109,7 @@ export const OnboardingIndividualDetails = ({
   }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
-    Router.push("OnboardingLocation", { onboardingId });
+    Router.push("Location", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -139,7 +139,7 @@ export const OnboardingIndividualDetails = ({
             .otherwise(error => Result.Error(error)),
         )
         .tapOk(() => {
-          Router.push("OnboardingFinalize", { onboardingId });
+          Router.push("Finalize", { onboardingId });
         })
         .tapError(error => {
           const errorMessage = getUpdateOnboardingError(error);

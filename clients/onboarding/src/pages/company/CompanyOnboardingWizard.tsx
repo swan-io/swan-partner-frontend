@@ -94,7 +94,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const route = Router.useRoute(companyOnboardingRoutes);
 
   const isStepperDisplayed =
-    !isNullish(route) && route.name !== "OnboardingRoot" && route.name !== "OnboardingPresentation";
+    !isNullish(route) && route.name !== "Root" && route.name !== "Presentation";
 
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
@@ -205,37 +205,37 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     const steps: WizardStep<CompanyOnboardingRoute>[] = [];
     steps.push(
       {
-        id: "OnboardingRegistration",
+        id: "Registration",
         label: t("step.title.registration"),
         errors: registrationStepErrors,
       },
       {
-        id: "OnboardingOrganisation1",
+        id: "Organisation1",
         label: t("step.title.organisationPart1"),
         errors: organisation1StepErrors,
       },
       {
-        id: "OnboardingOrganisation2",
+        id: "Organisation2",
         label: t("step.title.organisationPart2"),
         errors: organisation2StepErrors,
       },
     );
     if (hasOwnershipStep) {
       steps.push({
-        id: "OnboardingOwnership",
+        id: "Ownership",
         label: t("step.title.ownership"),
         errors: ownerStepErrors,
       });
     }
     if (hasDocumentsStep) {
       steps.push({
-        id: "OnboardingDocuments",
+        id: "Documents",
         label: t("step.title.document"),
         errors: [],
       });
     }
     steps.push({
-      id: "OnboardingFinalize",
+      id: "Finalize",
       label: t("step.title.swanApp"),
       errors: [],
     });
@@ -254,17 +254,14 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     () =>
       steps
         // Remove organisation steps except the first one
-        .filter(
-          step =>
-            step.id === "OnboardingOrganisation1" || !step.id.startsWith("OnboardingOrganisation"),
-        )
+        .filter(step => step.id === "Organisation1" || !step.id.startsWith("Organisation"))
         .map(step => {
           // Organisation steps are grouped
-          if (step.id === "OnboardingOrganisation1") {
+          if (step.id === "Organisation1") {
             return {
               label: t("step.title.organisation"),
               children: steps
-                .filter(({ id }) => id.startsWith("OnboardingOrganisation"))
+                .filter(({ id }) => id.startsWith("Organisation"))
                 .map(step => ({
                   id: step.id,
                   label: step.label,
@@ -328,9 +325,9 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
       ) : null}
 
       {match(route)
-        .with({ name: "OnboardingRoot" }, ({ params }) => (
+        .with({ name: "Root" }, ({ params }) => (
           <OnboardingCompanyBasicInfo
-            nextStep="OnboardingPresentation"
+            nextStep="Presentation"
             onboardingId={params.onboardingId}
             initialValues={{
               companyType,
@@ -339,19 +336,19 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             }}
           />
         ))
-        .with({ name: "OnboardingPresentation" }, ({ params }) => (
+        .with({ name: "Presentation" }, ({ params }) => (
           <CompanyFlowPresentation
-            previousStep="OnboardingRoot"
-            nextStep="OnboardingRegistration"
+            previousStep="Root"
+            nextStep="Registration"
             onboardingId={params.onboardingId}
             hasOwnershipStep={hasOwnershipStep}
             hasDocumentsStep={hasDocumentsStep}
           />
         ))
-        .with({ name: "OnboardingRegistration" }, ({ params }) => (
+        .with({ name: "Registration" }, ({ params }) => (
           <OnboardingCompanyRegistration
-            previousStep="OnboardingPresentation"
-            nextStep="OnboardingOrganisation1"
+            previousStep="Presentation"
+            nextStep="Organisation1"
             onboardingId={params.onboardingId}
             initialEmail={onboarding.email ?? ""}
             initialAddressLine1={legalRepresentativeAddressLine1}
@@ -365,10 +362,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
           />
         ))
-        .with({ name: "OnboardingOrganisation1" }, ({ params }) => (
+        .with({ name: "Organisation1" }, ({ params }) => (
           <OnboardingCompanyOrganisation1
-            previousStep="OnboardingRegistration"
-            nextStep="OnboardingOrganisation2"
+            previousStep="Registration"
+            nextStep="Organisation2"
             onboardingId={params.onboardingId}
             companyType={companyType}
             initialIsRegistered={isRegistered}
@@ -384,10 +381,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             serverValidationErrors={finalized ? organisation1StepErrors : []}
           />
         ))
-        .with({ name: "OnboardingOrganisation2" }, ({ params }) => (
+        .with({ name: "Organisation2" }, ({ params }) => (
           <OnboardingCompanyOrganisation2
-            previousStep="OnboardingOrganisation1"
-            nextStep={getNextStep("OnboardingOrganisation2", steps)}
+            previousStep="Organisation1"
+            nextStep={getNextStep("Organisation2", steps)}
             onboardingId={params.onboardingId}
             initialBusinessActivity={holder.businessActivity ?? ""}
             initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
@@ -395,10 +392,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             serverValidationErrors={finalized ? organisation2StepErrors : []}
           />
         ))
-        .with({ name: "OnboardingOwnership" }, ({ params }) => (
+        .with({ name: "Ownership" }, ({ params }) => (
           <OnboardingCompanyOwnership
-            previousStep="OnboardingOrganisation2"
-            nextStep={getNextStep("OnboardingOwnership", steps)}
+            previousStep="Organisation2"
+            nextStep={getNextStep("Ownership", steps)}
             onboardingId={params.onboardingId}
             accountCountry={accountCountry}
             country={companyCountry}
@@ -406,10 +403,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             ubos={ubos}
           />
         ))
-        .with({ name: "OnboardingDocuments" }, ({ params }) => (
+        .with({ name: "Documents" }, ({ params }) => (
           <OnboardingCompanyDocuments
-            previousStep={getPreviousStep("OnboardingDocuments", steps)}
-            nextStep="OnboardingFinalize"
+            previousStep={getPreviousStep("Documents", steps)}
+            nextStep="Finalize"
             onboardingId={params.onboardingId}
             documents={currentDocuments}
             onDocumentsChange={setCurrentDocuments}
@@ -418,9 +415,9 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             onboardingLanguage={onboarding.language ?? "en"}
           />
         ))
-        .with({ name: "OnboardingFinalize" }, ({ params }) => (
+        .with({ name: "Finalize" }, ({ params }) => (
           <OnboardingCompanyFinalize
-            previousStep={getPreviousStep("OnboardingFinalize", steps)}
+            previousStep={getPreviousStep("Finalize", steps)}
             onboardingId={params.onboardingId}
             legalRepresentativeRecommendedIdentificationLevel={
               onboarding.legalRepresentativeRecommendedIdentificationLevel

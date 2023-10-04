@@ -49,7 +49,7 @@ type Props = {
 
 export const IndividualFlowPresentation = ({ onboardingId }: Props) => {
   const onPressNext = () => {
-    Router.push("OnboardingEmail", { onboardingId });
+    Router.push("Email", { onboardingId });
   };
 
   return (

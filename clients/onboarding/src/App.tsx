@@ -89,7 +89,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["OnboardingArea", "PopupCallback"]);
+  const route = Router.useRoute(["Area", "PopupCallback"]);
 
   return (
     <ErrorBoundary
@@ -110,7 +110,7 @@ export const App = () => {
                 />
               ),
             )
-            .with({ name: "OnboardingArea" }, ({ params: { onboardingId } }) => (
+            .with({ name: "Area" }, ({ params: { onboardingId } }) => (
               <FlowPicker onboardingId={onboardingId} />
             ))
             .with(P.nullish, () => <NotFoundPage />)

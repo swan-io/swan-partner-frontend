@@ -22,6 +22,7 @@ import {
   UpdateIndividualOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
+import { TrackingProvider } from "../../utils/matomo";
 import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
@@ -182,50 +183,60 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
 
       {match(route)
         .with({ name: "Root" }, ({ params }) => (
-          <IndividualFlowPresentation onboardingId={params.onboardingId} />
+          <TrackingProvider category="Presentation">
+            <IndividualFlowPresentation onboardingId={params.onboardingId} />
+          </TrackingProvider>
         ))
         .with({ name: "Email" }, ({ params }) => (
-          <OnboardingIndividualEmail
-            onboardingId={params.onboardingId}
-            initialEmail={onboarding.email ?? ""}
-            projectName={onboarding.projectInfo?.name ?? ""}
-            accountCountry={accountCountry}
-            serverValidationErrors={finalized ? emailStepErrors : []}
-            tcuUrl={onboarding.tcuUrl}
-            tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
-          />
+          <TrackingProvider category="Email">
+            <OnboardingIndividualEmail
+              onboardingId={params.onboardingId}
+              initialEmail={onboarding.email ?? ""}
+              projectName={onboarding.projectInfo?.name ?? ""}
+              accountCountry={accountCountry}
+              serverValidationErrors={finalized ? emailStepErrors : []}
+              tcuUrl={onboarding.tcuUrl}
+              tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+            />
+          </TrackingProvider>
         ))
         .with({ name: "Location" }, ({ params }) => (
-          <OnboardingIndividualLocation
-            onboardingId={params.onboardingId}
-            initialCountry={country}
-            initialAddressLine1={addressLine1}
-            initialCity={city}
-            initialPostalCode={postalCode}
-            serverValidationErrors={finalized ? locationStepErrors : []}
-          />
+          <TrackingProvider category="Location">
+            <OnboardingIndividualLocation
+              onboardingId={params.onboardingId}
+              initialCountry={country}
+              initialAddressLine1={addressLine1}
+              initialCity={city}
+              initialPostalCode={postalCode}
+              serverValidationErrors={finalized ? locationStepErrors : []}
+            />
+          </TrackingProvider>
         ))
         .with({ name: "Details" }, ({ params }) => (
-          <OnboardingIndividualDetails
-            onboardingId={params.onboardingId}
-            initialEmploymentStatus={holder.employmentStatus ?? "Employee"}
-            initialMonthlyIncome={holder.monthlyIncome ?? "Between1500And3000"}
-            initialTaxIdentificationNumber={onboarding.info.taxIdentificationNumber ?? ""}
-            country={country}
-            accountCountry={accountCountry}
-            serverValidationErrors={finalized ? detailsStepErrors : []}
-          />
+          <TrackingProvider category="Details">
+            <OnboardingIndividualDetails
+              onboardingId={params.onboardingId}
+              initialEmploymentStatus={holder.employmentStatus ?? "Employee"}
+              initialMonthlyIncome={holder.monthlyIncome ?? "Between1500And3000"}
+              initialTaxIdentificationNumber={onboarding.info.taxIdentificationNumber ?? ""}
+              country={country}
+              accountCountry={accountCountry}
+              serverValidationErrors={finalized ? detailsStepErrors : []}
+            />
+          </TrackingProvider>
         ))
         .with({ name: "Finalize" }, ({ params }) => (
-          <OnboardingIndividualFinalize
-            onboardingId={params.onboardingId}
-            legalRepresentativeRecommendedIdentificationLevel={
-              onboarding.legalRepresentativeRecommendedIdentificationLevel
-            }
-            steps={steps}
-            alreadySubmitted={finalized}
-            onSubmitWithErrors={setFinalized.on}
-          />
+          <TrackingProvider category="Finalize">
+            <OnboardingIndividualFinalize
+              onboardingId={params.onboardingId}
+              legalRepresentativeRecommendedIdentificationLevel={
+                onboarding.legalRepresentativeRecommendedIdentificationLevel
+              }
+              steps={steps}
+              alreadySubmitted={finalized}
+              onSubmitWithErrors={setFinalized.on}
+            />
+          </TrackingProvider>
         ))
         .with(P.nullish, () => <NotFoundPage />)
         .exhaustive()}

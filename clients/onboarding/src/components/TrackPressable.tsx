@@ -1,24 +1,20 @@
 import { cloneElement } from "react";
 import { GestureResponderEvent } from "react-native";
-import { trackButtonClick, useTrackSession } from "../utils/matomo";
+import { sendMatomoEvent, useTrackingCategory } from "../utils/matomo";
 
 type Props = {
-  labelKey: string;
   children: React.ReactElement<{ onPress?: (event: GestureResponderEvent) => void }>;
+  action: string;
 };
 
-export const TrackPressable = ({ labelKey, children }: Props) => {
-  const session = useTrackSession();
+export const TrackPressable = ({ children, action }: Props) => {
+  const category = useTrackingCategory();
   const { onPress } = children.props;
 
   return cloneElement(children, {
-    onPress: onPress
-      ? (event: GestureResponderEvent) => {
-          if (session) {
-            trackButtonClick(labelKey, session);
-          }
-          onPress(event);
-        }
-      : undefined,
+    onPress: (event: GestureResponderEvent) => {
+      sendMatomoEvent({ type: "Action", category, name: action });
+      onPress?.(event);
+    },
   });
 };

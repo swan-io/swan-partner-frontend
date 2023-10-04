@@ -1,4 +1,4 @@
-import { Dict, Option } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { createGroup, createRouter } from "@swan-io/chicane";
 import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
@@ -55,7 +55,3 @@ export const Router = createRouter(routes, {
     )
     .otherwise(() => undefined),
 });
-
-export const finiteRoutes = Dict.entries(routes)
-  .filter(([, value]) => !value.endsWith("/*"))
-  .map(([key]) => key);

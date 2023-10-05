@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -21,6 +20,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   BeneficiaryForm,
   BeneficiaryFormRef,
@@ -469,16 +469,9 @@ export const OnboardingCompanyOwnership = ({
       },
       language: locale.language,
     })
-      .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-        match(unauthenticatedUpdateCompanyOnboarding)
-          .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-            Result.Ok(value),
-          )
-          .otherwise(error => Result.Error(error)),
-      )
-      .tapOk(() => {
-        Router.push(nextStep, { onboardingId });
-      })
+      .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(() => Router.push(nextStep, { onboardingId }))
       .tapError(error => {
         const errorMessage = getUpdateOnboardingError(error);
         showToast({

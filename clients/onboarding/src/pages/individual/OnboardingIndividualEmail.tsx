@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -17,6 +16,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -120,17 +120,9 @@ export const OnboardingIndividualEmail = ({
         input: { onboardingId, email: values.email, language: locale.language },
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
-          match(unauthenticatedUpdateIndividualOnboarding)
-            .with(
-              { __typename: "UnauthenticatedUpdateIndividualOnboardingSuccessPayload" },
-              value => Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push("Location", { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push("Location", { onboardingId }))
         .tapError(error => {
           match(error)
             .with({ __typename: "ValidationRejection" }, error => {

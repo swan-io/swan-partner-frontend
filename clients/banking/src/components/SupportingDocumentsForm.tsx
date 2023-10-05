@@ -15,6 +15,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { UploadArea, UploadFileStatus } from "@swan-io/shared-business/src/components/UploadArea";
 import { MAX_SUPPORTING_DOCUMENT_UPLOAD_SIZE } from "@swan-io/shared-business/src/constants/uploads";
 import { Fragment, forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
@@ -33,7 +34,6 @@ import {
   getSupportingDocumentPurposeLabel,
   getSupportingDocumentStatusLabel,
 } from "../utils/templateTranslations";
-import { parseOperationResult } from "../utils/urql";
 
 const ACCEPTED_FORMATS = ["application/pdf", "image/png", "image/jpeg"];
 

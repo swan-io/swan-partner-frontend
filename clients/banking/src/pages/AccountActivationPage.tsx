@@ -19,6 +19,7 @@ import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/cons
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useMemo, useRef } from "react";
@@ -35,7 +36,6 @@ import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useQueryWithErrorBoundary } from "../utils/urql";
 
 const styles = StyleSheet.create({
   container: {

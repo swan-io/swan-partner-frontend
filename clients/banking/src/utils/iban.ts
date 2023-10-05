@@ -1,10 +1,10 @@
 import { Result } from "@swan-io/boxed";
+import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { isValid as isValidIban } from "iban";
 import { match, P } from "ts-pattern";
 import { Client } from "urql";
 import { GetIbanValidationDocument, ValidIbanInformationFragment } from "../graphql/partner";
 import { t } from "./i18n";
-import { parseOperationResult } from "./urql";
 export { isValid as isValidIban, printFormat as printIbanFormat } from "iban";
 
 export const validateIban = (iban: string) => {

@@ -21,6 +21,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
+import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -34,7 +35,6 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { printIbanFormat } from "../utils/iban";
-import { parseOperationResult } from "../utils/urql";
 
 const styles = StyleSheet.create({
   root: {

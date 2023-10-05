@@ -3,6 +3,7 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, defaultAccentColor } from "@swan-io/lake/src/constants/colors";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { Suspense } from "react";
 import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
@@ -19,7 +20,7 @@ import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
-import { unauthenticatedClient, useQueryWithErrorBoundary } from "./utils/urql";
+import { unauthenticatedClient } from "./utils/urql";
 
 type Props = {
   onboardingId: string;

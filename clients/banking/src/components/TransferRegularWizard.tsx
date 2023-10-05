@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -8,9 +7,11 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import { InitiateSepaCreditTransfersDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
@@ -123,19 +124,8 @@ export const TransferRegularWizard = ({ onPressClose, accountId, accountMembersh
         ],
       },
     })
-      .mapOkToResult(response =>
-        match(response.initiateCreditTransfers)
-          .with(
-            P.nullish,
-            { __typename: "AccountNotFoundRejection" },
-            { __typename: "ForbiddenRejection" },
-            error => Result.Error(error),
-          )
-          .with({ __typename: "InitiateCreditTransfersSuccessPayload" }, response =>
-            Result.Ok(response),
-          )
-          .exhaustive(),
-      )
+      .mapOk(data => data.initiateCreditTransfers)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(({ payment }) => {
         const status = payment.statusInfo;
         const params = { paymentId: payment.id, accountMembershipId };
@@ -162,7 +152,9 @@ export const TransferRegularWizard = ({ onPressClose, accountId, accountMembersh
           })
           .exhaustive();
       })
-      .tapError(() => showToast({ variant: "error", title: t("error.generic") }));
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
+      });
   };
 
   return (

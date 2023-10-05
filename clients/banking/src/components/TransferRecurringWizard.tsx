@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -9,6 +8,8 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -138,19 +139,8 @@ export const TransferRecurringWizard = ({
           .exhaustive(),
       },
     })
-      .mapOkToResult(response =>
-        match(response.scheduleStandingOrder)
-          .with(
-            { __typename: "InvalidArgumentRejection" },
-            { __typename: "InternalErrorRejection" },
-            { __typename: "ForbiddenRejection" },
-            error => Result.Error(error),
-          )
-          .with({ __typename: "ScheduleStandingOrderSuccessPayload" }, response =>
-            Result.Ok(response),
-          )
-          .exhaustive(),
-      )
+      .mapOk(data => data.scheduleStandingOrder)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(({ standingOrder }) => {
         match(standingOrder.statusInfo)
           .with({ __typename: "StandingOrderConsentPendingStatusInfo" }, ({ consent }) => {
@@ -174,7 +164,9 @@ export const TransferRecurringWizard = ({
           })
           .exhaustive();
       })
-      .tapError(() => showToast({ variant: "error", title: t("error.generic") }));
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
+      });
   };
 
   return (

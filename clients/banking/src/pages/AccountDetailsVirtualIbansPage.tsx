@@ -21,7 +21,8 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
-import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -180,8 +181,10 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
   const onPressCancel = () => {
     cancelVirtualIban({ virtualIbanId })
       .then(parseOperationResult)
+      .then(data => data.cancelVirtualIbanEntry)
+      .then(filterRejectionsToPromise)
       .then(onCancel)
-      .catch(() => showToast({ variant: "error", title: t("error.generic") }))
+      .catch(error => showToast({ variant: "error", title: translateError(error) }))
       .finally(setModalVisible.off);
   };
 
@@ -232,8 +235,13 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
   const onPressNew = () => {
     addVirtualIban({ accountId })
       .then(parseOperationResult)
+      .then(data => data.addVirtualIbanEntry)
+      .then(data => data ?? Promise.reject())
+      .then(filterRejectionsToPromise)
       .then(reload)
-      .catch(() => showToast({ variant: "error", title: t("error.generic") }));
+      .catch(error => {
+        showToast({ variant: "error", title: translateError(error) });
+      });
   };
 
   return (

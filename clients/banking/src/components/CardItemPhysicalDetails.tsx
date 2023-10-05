@@ -1,4 +1,3 @@
-import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -20,6 +19,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
 import {
@@ -28,6 +28,7 @@ import {
   getCountryName,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -481,39 +482,24 @@ export const CardItemPhysicalDetails = ({
         address,
       },
     })
-      .mapOkToResult(({ printPhysicalCard }) => {
-        return match(printPhysicalCard)
+      .mapOk(data => data.printPhysicalCard)
+      .mapOkToResult(filterRejectionsToResult)
+      .mapOk(data => data.physicalCard.statusInfo)
+      .tapOk(data => {
+        match(data)
           .with(
-            {
-              __typename: "PrintPhysicalCardSuccessPayload",
-              physicalCard: {
-                statusInfo: {
-                  __typename: "PhysicalCardConsentPendingStatusInfo",
-                  consent: { consentUrl: P.select() },
-                },
-              },
+            { __typename: "PhysicalCardConsentPendingStatusInfo" },
+            ({ consent: { consentUrl } }) => {
+              window.location.replace(consentUrl);
             },
-            consentUrl => Result.Ok(Option.Some(consentUrl)),
           )
-          .with(
-            {
-              __typename: "PrintPhysicalCardSuccessPayload",
-            },
-            () => Result.Ok(Option.None()),
-          )
-          .otherwise(value => Result.Error(value));
-      })
-      .tapOk(consentUrl => {
-        consentUrl.match({
-          Some: consentUrl => window.location.replace(consentUrl),
-          None: () => {
+          .otherwise(() => {
             setIsOrderModalOpen(false);
             onRefreshRequest();
-          },
-        });
+          });
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -524,37 +510,26 @@ export const CardItemPhysicalDetails = ({
         reason,
       },
     })
-      .mapOkToResult(({ cancelPhysicalCard }) => {
-        return match(cancelPhysicalCard)
-          .with(
-            {
-              __typename: "CancelPhysicalCardSuccessPayload",
-            },
-            () => Result.Ok(undefined),
-          )
-          .otherwise(value => Result.Error(value));
-      })
+      .mapOk(data => data.cancelPhysicalCard)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         setIsPermanentlyBlockModalOpen(false);
         onRefreshRequest();
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
   const suspendCard = () => {
     suspendPhysicalCard({ cardId })
-      .mapOkToResult(({ suspendPhysicalCard }) => {
-        return match(suspendPhysicalCard)
-          .with({ __typename: "SuspendPhysicalCardSuccessPayload" }, () => Result.Ok(undefined))
-          .otherwise(error => Result.Error(error));
-      })
+      .mapOk(data => data.suspendPhysicalCard)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         onRefreshRequest();
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -567,18 +542,13 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapOkToResult(({ resumePhysicalCard }) => {
-        return match(resumePhysicalCard)
-          .with({ __typename: "ResumePhysicalCardSuccessPayload" }, ({ consent: { consentUrl } }) =>
-            Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.resumePhysicalCard)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -591,19 +561,13 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapOkToResult(({ viewPhysicalCardPin }) => {
-        return match(viewPhysicalCardPin)
-          .with(
-            { __typename: "ViewPhysicalCardPinSuccessPayload" },
-            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.viewPhysicalCardPin)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -616,19 +580,13 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
       },
     })
-      .mapOkToResult(({ activatePhysicalCard }) => {
-        return match(activatePhysicalCard)
-          .with(
-            { __typename: "ActivatePhysicalCardSuccessPayload" },
-            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.activatePhysicalCard)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -640,18 +598,13 @@ export const CardItemPhysicalDetails = ({
           window.location.origin + Router.AccountCardsItem({ cardId, accountMembershipId }),
       },
     })
-      .mapOkToResult(({ viewPhysicalCardNumbers }) => {
-        return match(viewPhysicalCardNumbers)
-          .with({ __typename: "ViewPhysicalCardNumbersSuccessPayload" }, value =>
-            Result.Ok(value.consent.consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.viewPhysicalCardNumbers)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 

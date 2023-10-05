@@ -1,4 +1,5 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";
 import type { CombinedError } from "urql";
 import { CompanyType } from "../graphql/unauthenticated";
@@ -45,17 +46,17 @@ export const getUpdateOnboardingError = (
         description: t("error.fixInvalidFields"),
       };
     })
-    .with({ __typename: "InternalErrorRejection" }, () => {
+    .with({ __typename: "InternalErrorRejection" }, error => {
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     })
-    .with({ __typename: "ForbiddenRejection" }, () => {
+    .with({ __typename: "ForbiddenRejection" }, error => {
       // this should never happen because the user won't be able to load the onboarding UI
       // if they don't have the right permissions
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     })
@@ -65,9 +66,9 @@ export const getUpdateOnboardingError = (
         description: t("error.checkConnection"),
       };
     })
-    .otherwise(() => {
+    .otherwise(error => {
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     });

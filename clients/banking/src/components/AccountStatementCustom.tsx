@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -31,12 +31,13 @@ import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
-import { P, isMatching, match } from "ts-pattern";
+import { P, isMatching } from "ts-pattern";
 import {
   AccountLanguage,
   AccountStatementsPageDocument,
@@ -303,6 +304,7 @@ const NewStatementForm = ({
       if (hasDefinedKeys(values, ["startDate", "closingDate", "format", "language"])) {
         const now = dayjs();
         const closingDate = dayjs(values.closingDate, locale.dateFormat);
+
         return generateStatement({
           input: {
             accountId,
@@ -317,21 +319,19 @@ const NewStatementForm = ({
             statementType: values.format,
             language: values.language,
           },
-        }).onResolve(result =>
-          result.match({
-            Error: () => {
-              showToast({ variant: "error", title: t("error.generic") });
-            },
-            Ok: ({ generateAccountStatement: data }) => {
-              match(data)
-                .with({ __typename: "Statement" }, () => {
-                  setOpenNewStatement(false);
-                  reload();
-                })
-                .otherwise(() => showToast({ variant: "error", title: t("error.generic") }));
-            },
-          }),
-        );
+        })
+          .mapOk(data => data.generateAccountStatement)
+          .mapOkToResult(({ __typename }) =>
+            __typename === "Statement" ? Result.Ok(undefined) : Result.Error(__typename),
+          )
+          .tapOk(() => {
+            setOpenNewStatement(false);
+            reload();
+          })
+          .tapError(error => {
+            showToast({ variant: "error", title: translateError(error) });
+          })
+          .toPromise();
       }
     });
   };

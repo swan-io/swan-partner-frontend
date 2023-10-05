@@ -4,8 +4,8 @@ import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleProp, StyleSheet, Text, View, ViewStyle } from "react-native";
-import { t } from "../utils/i18n";
 import { isCombinedError } from "../utils/urql";
 
 const styles = StyleSheet.create({
@@ -42,7 +42,7 @@ export const ErrorView = ({ error, style }: Props) => (
     <Space height={20} />
 
     <Heading level={1} size={20} align="center">
-      {t("error.generic")}
+      {translateError(error)}
     </Heading>
 
     {isCombinedError(error) && isNotNullish(error.requestId) ? (

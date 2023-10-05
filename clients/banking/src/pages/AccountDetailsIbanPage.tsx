@@ -10,6 +10,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
@@ -18,7 +19,6 @@ import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import { AccountDetailsIbanPageDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { printIbanFormat } from "../utils/iban";
-import { useQueryWithErrorBoundary } from "../utils/urql";
 import { NotFoundPage } from "./NotFoundPage";
 
 const styles = StyleSheet.create({

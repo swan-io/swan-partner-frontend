@@ -16,6 +16,7 @@ import { Tile, TileRows } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
@@ -25,7 +26,6 @@ import { IdentificationLevel, ProfilePageDocument } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useQueryWithErrorBoundary } from "../utils/urql";
 
 const styles = StyleSheet.create({
   container: {

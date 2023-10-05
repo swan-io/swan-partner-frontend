@@ -15,6 +15,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -41,7 +42,7 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../utils/templateTranslations";
-import { parseOperationResult, unauthenticatedClient } from "../../utils/urql";
+import { unauthenticatedClient } from "../../utils/urql";
 import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,

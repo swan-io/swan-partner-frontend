@@ -1,20 +1,10 @@
 import { Option } from "@swan-io/boxed";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { CombinedError, Operation, OperationResult } from "@urql/core";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { CombinedError, Operation } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { relayPagination } from "@urql/exchange-graphcache/extras";
 import { P, match } from "ts-pattern";
-import { Except, SetRequired } from "type-fest";
-import {
-  AnyVariables,
-  Client,
-  UseQueryArgs,
-  UseQueryResponse,
-  UseQueryState,
-  errorExchange,
-  fetchExchange,
-  useQuery,
-} from "urql";
+import { Client, errorExchange, fetchExchange } from "urql";
 import idLessObjects from "../../../../scripts/graphql/dist/partner-idless-objects.json";
 import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/partner";
@@ -128,41 +118,3 @@ export const unauthenticatedClient = new Client({
   requestPolicy: "network-only",
   exchanges: [requestIdExchange, errorExchange({ onError }), fetchExchange],
 });
-
-export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {
-  if (isNotNullish(error)) {
-    throw error;
-  }
-
-  if (isNullish(data)) {
-    throw new CombinedError({
-      networkError: new Error("No Content"),
-    });
-  }
-
-  return data;
-};
-
-export const useQueryWithErrorBoundary = <
-  Data = unknown,
-  Variables extends AnyVariables = AnyVariables,
->(
-  options: UseQueryArgs<Variables, Data>,
-): [
-  SetRequired<Except<UseQueryState<Data, Variables>, "fetching" | "error">, "data">,
-  UseQueryResponse[1],
-] => {
-  const [{ fetching, data, error, ...rest }, reexecuteQuery] = useQuery<Data, Variables>(options);
-
-  if (isNotNullish(error)) {
-    throw error;
-  }
-
-  if (isNullish(data)) {
-    throw new CombinedError({
-      networkError: new Error("No Content"),
-    });
-  }
-
-  return [{ data, ...rest }, reexecuteQuery];
-};

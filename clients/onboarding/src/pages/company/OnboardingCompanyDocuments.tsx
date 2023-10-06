@@ -1,17 +1,16 @@
-import { Result } from "@swan-io/boxed";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   Document,
   SupportingDocument,
   SupportingDocumentPurpose,
 } from "@swan-io/shared-business/src/components/SupportingDocument";
 import { ReactNode } from "react";
-import { match } from "ts-pattern";
 import { ConfirmModal } from "../../components/ConfirmModal";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -87,14 +86,9 @@ export const OnboardingCompanyDocuments = ({
         filename: file.name,
       },
     })
-      .mapOkToResult(({ generateSupportingDocumentUploadUrl }) =>
-        match(generateSupportingDocumentUploadUrl)
-          .with(
-            { __typename: "GenerateSupportingDocumentUploadUrlSuccessPayload" },
-            ({ upload, supportingDocumentId }) => Result.Ok({ upload, id: supportingDocumentId }),
-          )
-          .otherwise(error => Result.Error(error)),
-      )
+      .mapOk(data => data.generateSupportingDocumentUploadUrl)
+      .mapOkToResult(filterRejectionsToResult)
+      .mapOk(({ upload, supportingDocumentId }) => ({ upload, id: supportingDocumentId }))
       .toPromise()
       .then(result =>
         result.match({

@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -12,6 +11,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   businessActivities,
   monthlyPaymentVolumes,
@@ -144,16 +144,9 @@ export const OnboardingCompanyOrganisation2 = ({
         },
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-          match(unauthenticatedUpdateCompanyOnboarding)
-            .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-              Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push(nextStep, { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push(nextStep, { onboardingId }))
         .tapError(error => {
           match(error)
             .with({ __typename: "ValidationRejection" }, error => {

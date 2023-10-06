@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -8,10 +7,11 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
 import { AccountMembershipFragment, UpdateAccountMembershipDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -65,18 +65,13 @@ export const MembershipConflictResolutionEditor = ({
           }),
       },
     })
-      .mapOkToResult(({ updateAccountMembership }) => {
-        return match(updateAccountMembership)
-          .with({ __typename: "UpdateAccountMembershipSuccessPayload" }, value =>
-            Result.Ok(value.consent.consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.updateAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 

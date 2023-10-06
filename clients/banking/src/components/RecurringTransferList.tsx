@@ -37,6 +37,8 @@ import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
@@ -666,18 +668,15 @@ export const RecurringTransferList = ({
   const onCancelRecurringTransfer = () => {
     if (recurringTransferToCancelId != null) {
       cancelRecurringTransfer({ id: recurringTransferToCancelId })
-        .mapOkToResult(({ cancelStandingOrder }) =>
-          match(cancelStandingOrder)
-            .with({ __typename: "CancelStandingOrderSuccessPayload" }, result => Result.Ok(result))
-            .otherwise(error => Result.Error(error)),
-        )
+        .mapOk(data => data.cancelStandingOrder)
+        .mapOkToResult(filterRejectionsToResult)
         .tapOk(() => {
           closeRightPanel();
           setRecurringTransferToCancelId(null);
           reload();
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     }
   };

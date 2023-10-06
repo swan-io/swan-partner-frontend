@@ -156,6 +156,7 @@
   "card.settings.international.description": "Allow transactions outside of your country of residence",
   "card.settings.nonMainCurrencyTransactions": "Non-euro transactions",
   "card.settings.nonMainCurrencyTransactions.description": "Allow transactions in other currencies, such as dollars or yen",
+  "card.settings.notAllowed": "You are not allowed to change your cards settings",
   "card.settings.spendingLimit": "Spending limit",
   "card.settings.unavailable": "Cards settings not availlable",
   "card.settings.withdrawal": "Withdrawal",

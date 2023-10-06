@@ -156,6 +156,7 @@
   "card.settings.international.description": "Transacties toestaan buiten het land waar je woont",
   "card.settings.nonMainCurrencyTransactions": "Niet-EUR transacties",
   "card.settings.nonMainCurrencyTransactions.description": "Transacties toestaan in andere valuta, zoals dollars of yen",
+  "card.settings.notAllowed": "Je bent niet toegestaan om de instellingen van je kaarten te wijzigen",
   "card.settings.spendingLimit": "Bestedingslimiet",
   "card.settings.unavailable": "Kaartinstellingen niet beschikbaar",
   "card.settings.withdrawal": "Opname",

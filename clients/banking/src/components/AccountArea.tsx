@@ -369,6 +369,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canInitiatePayments,
           canManageBeneficiaries,
           canAddCard,
+          canManageCards,
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && canViewAccountDetails,
           paymentMenuIsVisible:
@@ -663,6 +664,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     ({
                       accountMembership,
                       canAddCard,
+                      canManageCards,
                       canManageAccountMembership,
                       cardMenuIsVisible,
                       isLegalRepresentative,
@@ -798,6 +800,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 userId={userId}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 canAddCard={canAddCard}
+                                canManageCards={canManageCards}
                                 accountMembership={accountMembership}
                                 idVerified={idVerified}
                                 userStatusIsProcessing={userStatusIsProcessing}

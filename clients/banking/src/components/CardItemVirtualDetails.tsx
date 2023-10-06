@@ -2,20 +2,17 @@ import { Result } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { QuickActions } from "@swan-io/lake/src/components/QuickActions";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageQuery, IdentificationStatus, ViewCardNumbersDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
 import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { MaskedCard } from "./MaskedCard";
 
@@ -80,7 +77,6 @@ export const CardItemVirtualDetails = ({
   bindingUserError,
 }: Props) => {
   const [cardNumberViewing, viewCardNumbers] = useUrqlMutation(ViewCardNumbersDocument);
-  const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
 
   const onPressRevealCardNumbers = () => {
     viewCardNumbers({
@@ -278,43 +274,7 @@ export const CardItemVirtualDetails = ({
               .otherwise(() => null)}
           </>
         )}
-
-        <Space height={24} />
-
-        <QuickActions
-          actions={match({ card })
-            .with(
-              {
-                card: {
-                  statusInfo: {
-                    __typename: P.not(P.union("CardCancelingStatusInfo", "CardCanceledStatusInfo")),
-                  },
-                },
-              },
-              () => [
-                {
-                  label: t("card.physical.cancel"),
-                  icon: "subtract-circle-regular" as const,
-                  onPress: () => setIsCancelConfirmationModalVisible(true),
-                  disabled: bindingUserError,
-                  tooltipDisabled: !bindingUserError,
-                  tooltipText: t("card.tooltipConflict"),
-                },
-              ],
-            )
-            .otherwise(() => [])}
-        />
       </View>
-
-      <CardCancelConfirmationModal
-        cardId={cardId}
-        onPressClose={() => setIsCancelConfirmationModalVisible(false)}
-        visible={isCancelConfirmationModalVisible}
-        onSuccess={() => {
-          setIsCancelConfirmationModalVisible(false);
-          Router.push("AccountCardsList", { accountMembershipId });
-        }}
-      />
     </View>
   );
 };

@@ -44,6 +44,8 @@ const styles = StyleSheet.create({
 
 type Props = {
   canAddCard: boolean;
+  canManageCards: boolean;
+  canManageAccountMembership: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
@@ -66,16 +68,22 @@ const EMPTY_CARD_FRAGMENT: CardListPageDataFragment = {
 };
 // This hook is used to query Query.accountMembership.cards OR Query.cards,
 // depending on if we have access to account details (especially its id)
+// and if the membership has canManageCards right
 const usePageData = ({
+  canManageAccountMembership,
   accountMembershipId,
+  canManageCards,
   accountId,
   filters,
 }: {
+  canManageAccountMembership: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
+  canManageCards: boolean;
   filters: CardFilters;
 }) => {
-  const hasAccountId = isNotNullish(accountId);
+  const canQueryEveryCards =
+    isNotNullish(accountId) && canManageAccountMembership && canManageCards;
 
   const statuses = match(filters.status)
     .with("Active", () => ACTIVE_STATUSES)
@@ -85,7 +93,7 @@ const usePageData = ({
   const withAccountQuery = useUrqlPaginatedQuery(
     {
       query: CardListPageWithAccountDocument,
-      pause: !hasAccountId,
+      pause: !canQueryEveryCards,
       variables: {
         first: PER_PAGE,
         filters: {
@@ -102,7 +110,7 @@ const usePageData = ({
   const withoutAccountQuery = useUrqlPaginatedQuery(
     {
       query: CardListPageWithoutAccountDocument,
-      pause: hasAccountId,
+      pause: canQueryEveryCards,
       variables: {
         first: PER_PAGE,
         filters: { statuses, types: filters.type, search: filters.search },
@@ -112,7 +120,7 @@ const usePageData = ({
     [filters, accountMembershipId],
   );
 
-  return hasAccountId
+  return canQueryEveryCards
     ? {
         ...withAccountQuery,
         data: withAccountQuery.data.map(result => result.map(data => data.cards)),
@@ -136,6 +144,8 @@ export const CardListPage = ({
   accountMembershipId,
   accountId,
   totalDisplayableCardCount,
+  canManageCards,
+  canManageAccountMembership,
   params,
 }: Props) => {
   const filters: CardFilters = useMemo(() => {
@@ -157,7 +167,9 @@ export const CardListPage = ({
   const hasFilters = Object.values(filters).some(isNotNullish);
 
   const { data, nextData, setAfter, reload } = usePageData({
+    canManageAccountMembership,
     accountMembershipId,
+    canManageCards,
     accountId,
     filters,
   });

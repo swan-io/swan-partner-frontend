@@ -228,10 +228,7 @@ export const MembershipListFilter = ({
         definition={filtersDefinition}
         filters={filtersWithoutSearch}
         openedFilters={openFilters}
-        onChangeFilters={value => {
-          console.log("[NC] value", value);
-          return onChange({ ...value, search: filters.search });
-        }}
+        onChangeFilters={value => onChange({ ...value, search: filters.search })}
         onChangeOpened={setOpenFilters}
       />
     </>

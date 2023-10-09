@@ -2127,12 +2127,19 @@
   resolved "https://registry.yarnpkg.com/@opentelemetry/context-async-hooks/-/context-async-hooks-1.16.0.tgz#7ad01b2cae9bb9610b197b3c5e9ff641a3e9af3b"
   integrity sha512-gV93lVjiqtiDnE6D9QQ7OxpgURQTZqF2xVlqP5+5kbPcsRj+8WQAtpauKm2FuL/eIKVBEeDLaSJWatUKh9RONg==
 
-"@opentelemetry/core@1.16.0", "@opentelemetry/core@^1.8.0":
+"@opentelemetry/core@1.16.0":
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.16.0.tgz#ebfba199bb9b055bbfe0887fc84575432a84f97f"
   integrity sha512-JMxz7kzAqmIDUDEpoRrumHk257vrA9ZGVdHLB829gu6i/ryKlnjXIzJk86pgjhmxjLMX43BY6J0nbzOhy0QGtw==
   dependencies:
     "@opentelemetry/semantic-conventions" "1.16.0"
+
+"@opentelemetry/core@1.17.0", "@opentelemetry/core@^1.8.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/core/-/core-1.17.0.tgz#6a72425f5f953dc68b4c7c66d947c018173d30d2"
+  integrity sha512-tfnl3h+UefCgx1aeN2xtrmr6BmdWGKXypk0pflQR0urFS40aE88trnkOMc2HTJZbMrqEEl4HsaBeFhwLVXsrJg==
+  dependencies:
+    "@opentelemetry/semantic-conventions" "1.17.0"
 
 "@opentelemetry/exporter-jaeger@1.16.0":
   version "1.16.0"
@@ -2206,6 +2213,13 @@
   dependencies:
     "@opentelemetry/core" "1.16.0"
 
+"@opentelemetry/propagator-jaeger@1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/propagator-jaeger/-/propagator-jaeger-1.17.0.tgz#a89dbc34447db0b5029b719baaa111f268b52265"
+  integrity sha512-iZzu8K0QkZZ16JH9yox6hZk7/Rxc4SPeGU37pvlB9DtzfNxAEX1FMK9zvowv3ve7r2uzZNpa7JGVUwpy5ewdHQ==
+  dependencies:
+    "@opentelemetry/core" "1.17.0"
+
 "@opentelemetry/resources@1.16.0":
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/resources/-/resources-1.16.0.tgz#3ced9b1be049ea514ffa545d34924a3bea7101fe"
@@ -2239,6 +2253,11 @@
   version "1.16.0"
   resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.16.0.tgz#40b8261802ba76174100bdc3f04761c27b817b6b"
   integrity sha512-jpbpOY0ahD/uTF16h4/NkFatwlulCpkvecK8zVJgHRfjK/ymJAw1Cg45KXiVSJML8uiMmRBciea/+gebrD398g==
+
+"@opentelemetry/semantic-conventions@1.17.0":
+  version "1.17.0"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/semantic-conventions/-/semantic-conventions-1.17.0.tgz#af10baa9f05ce1e64a14065fc138b5739bfb65f6"
+  integrity sha512-+fguCd2d8d2qruk0H0DsCEy2CTK3t0Tugg7MhZ/UQMvmewbZLNnJ6heSYyzIZWG5IPfAXzoj4f4F/qpM7l4VBA==
 
 "@peculiar/asn1-schema@^2.3.6":
   version "2.3.6"

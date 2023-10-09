@@ -223,14 +223,7 @@ const PERIODS = [
 
 export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
   (
-    {
-      accountHolder,
-      cardFormat,
-      initialSettings,
-      cardProduct,
-      canManageCards = true,
-      onSubmit,
-    }: Props,
+    { accountHolder, cardFormat, initialSettings, cardProduct, canManageCards, onSubmit }: Props,
     ref,
   ) => {
     const spendingLimitMaxValue = match(accountHolder?.info.__typename)

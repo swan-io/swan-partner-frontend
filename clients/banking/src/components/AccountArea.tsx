@@ -20,7 +20,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isEmpty, isNotEmpty, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -337,7 +337,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const canAddNewMembers = Boolean(settings?.canAddNewMembers);
   const canManageVirtualIbans = Boolean(settings?.canManageVirtualIbans);
   const canOrderPhysicalCards = Boolean(settings?.canOrderPhysicalCards);
-  const canOrderVirtualCards = Boolean(settings?.canOrderVirtualCards);
   const canViewAccountDetails = Boolean(settings?.canViewAccountDetails);
   const canViewAccountStatement = Boolean(settings?.canViewAccountStatement);
   const canViewMembers = Boolean(settings?.canViewMembers);
@@ -357,11 +356,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
           accountMembership.canManageAccountMembership && membershipEnabled;
-        const canAddCard =
-          canViewAccount &&
-          // [NC] FIXME: retrocompatibility during canManageCards implementation :
-          (isNullishOrEmpty(canManageCards) ? canManageAccountMembership : canManageCards) &&
-          canOrderVirtualCards;
+        const canAddCard = canViewAccount && canManageCards;
 
         return {
           accountMembership,
@@ -386,7 +381,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       }),
     [
       canInitiatePaymentsToNewBeneficiaries,
-      canOrderVirtualCards,
       canViewAccountDetails,
       canViewMembers,
       canViewPaymentList,

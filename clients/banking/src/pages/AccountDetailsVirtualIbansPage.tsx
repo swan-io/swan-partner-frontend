@@ -194,6 +194,7 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
         icon="subtract-circle-regular"
         size="small"
         mode="tertiary"
+        ariaLabel={t("accountDetails.virtualIbans.cancelVirtualIban")}
         onPress={setModalVisible.on}
       />
 

@@ -5,6 +5,8 @@
   "common.add": "Toevoegen",
   "common.back": "Terug",
   "common.cancel": "Annuleren",
+  "common.delete": "Verwijderen",
+  "common.edit": "Bewerken",
   "common.form.invalidVatNumber": "Dit BTW-nummer is ongeldig",
   "common.learnMore": "Meer info",
   "common.next": "Volgende",

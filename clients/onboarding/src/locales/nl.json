@@ -100,6 +100,7 @@
   "error.pageNotFound": "Pagina niet gevonden",
   "error.requiredField": "Dit veld is verplicht",
   "error.tryAgain": "Probeer het opnieuw. Neem contact op met ons als de fout zich blijft voordoen.",
+  "error.unrecognizedKeys": "Onbekende sleutels",
   "individual.step.details.description": "De wet verplicht ons om onze gebruikers goed te kennen. Dit helpt ons om fraude en financiële criminaliteit te voorkomen.",
   "individual.step.details.title": "Wat is je beroep?",
   "individual.step.email.label": "Wat is je e-mailadres?",

@@ -10,10 +10,12 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -433,56 +435,33 @@ export const NewMembershipWizard = ({
             taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
           },
         })
-          .mapOkToResult(({ addAccountMembership }) => {
-            return match(addAccountMembership)
+          .mapOk(data => data.addAccountMembership)
+          .mapOkToResult(filterRejectionsToResult)
+          .mapOk(data => data.accountMembership)
+          .mapOk(data =>
+            match(data)
               .with(
-                {
-                  __typename: "AddAccountMembershipSuccessPayload",
-                  accountMembership: {
-                    statusInfo: {
-                      __typename: "AccountMembershipConsentPendingStatusInfo",
-                      consent: { consentUrl: P.string },
-                    },
-                  },
-                },
-
-                ({
-                  accountMembership: {
-                    statusInfo: {
-                      consent: { consentUrl },
-                    },
-                  },
-                }) => Result.Ok(Option.Some(consentUrl)),
+                { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+                ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
               )
-              .with(
-                {
-                  __typename: "AddAccountMembershipSuccessPayload",
-                  accountMembership: {
-                    statusInfo: {
-                      __typename: P.not("AccountMembershipConsentPendingStatusInfo"),
-                    },
-                  },
-                },
-                ({ accountMembership }) => {
-                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
-                      sendInvitation({ editingAccountMembershipId: accountMembership.id });
-                    })
-                    .otherwise(() => {});
-                  onSuccess(accountMembership.id);
-                  return Result.Ok(Option.None());
-                },
-              )
-              .otherwise(error => Result.Error(error));
-          })
+              .otherwise(data => {
+                match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                  .with("EMAIL", () => {
+                    sendInvitation({ editingAccountMembershipId: data.id });
+                  })
+                  .otherwise(() => {});
+                onSuccess(data.id);
+                return Option.None();
+              }),
+          )
           .tapOk(consentUrl =>
             consentUrl.match({
               Some: consentUrl => window.location.replace(consentUrl),
               None: () => {},
             }),
           )
-          .tapError(() => {
-            showToast({ variant: "error", title: t("error.generic") });
+          .tapError(error => {
+            showToast({ variant: "error", title: translateError(error) });
           });
       }
     });

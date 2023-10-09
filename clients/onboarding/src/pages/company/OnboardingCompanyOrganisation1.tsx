@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -15,6 +14,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult, parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -41,7 +41,7 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../utils/templateTranslations";
-import { parseOperationResult, unauthenticatedClient } from "../../utils/urql";
+import { unauthenticatedClient } from "../../utils/urql";
 import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
@@ -226,16 +226,9 @@ export const OnboardingCompanyOrganisation1 = ({
         },
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-          match(unauthenticatedUpdateCompanyOnboarding)
-            .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-              Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push(nextStep, { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push(nextStep, { onboardingId }))
         .tapError(error => {
           match(error)
             .with({ __typename: "ValidationRejection" }, error => {

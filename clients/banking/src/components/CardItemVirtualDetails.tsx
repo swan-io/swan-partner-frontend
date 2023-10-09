@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -7,6 +6,8 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageQuery, IdentificationStatus, ViewCardNumbersDocument } from "../graphql/partner";
@@ -86,18 +87,13 @@ export const CardItemVirtualDetails = ({
           window.location.origin + Router.AccountCardsItem({ cardId, accountMembershipId }),
       },
     })
-      .mapOkToResult(({ viewCardNumbers }) => {
-        return match(viewCardNumbers)
-          .with({ __typename: "ViewCardNumbersSuccessPayload" }, value =>
-            Result.Ok(value.consent.consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.viewCardNumbers)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 

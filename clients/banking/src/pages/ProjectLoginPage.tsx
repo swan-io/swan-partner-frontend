@@ -21,6 +21,7 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { useCallback, useLayoutEffect, useState } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
@@ -32,7 +33,7 @@ import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { parseOperationResult, partnerClient, unauthenticatedClient } from "../utils/urql";
+import { partnerClient, unauthenticatedClient } from "../utils/urql";
 
 const styles = StyleSheet.create({
   base: {

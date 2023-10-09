@@ -21,8 +21,14 @@ import {
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
+import {
+  filterRejectionsToPromise,
+  parseOperationResult,
+  useQueryWithErrorBoundary,
+} from "@swan-io/lake/src/utils/urql";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import {
   validateCompanyTaxNumber,
   validateIndividualTaxNumber,
@@ -37,7 +43,6 @@ import {
   UpdateAccountDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { parseOperationResult, useQueryWithErrorBoundary } from "../utils/urql";
 import {
   validateAccountNameLength,
   validateRequired,
@@ -341,21 +346,14 @@ export const AccountDetailsSettingsPage = ({
                     },
                   })
                     .then(parseOperationResult)
-                    .then(data => {
-                      if (data.updateAccount.__typename !== "UpdateAccountSuccessPayload") {
-                        return Promise.reject(data.updateAccount.__typename);
-                      }
-
-                      if (
-                        data.updateAccountHolder.__typename !== "UpdateAccountHolderSuccessPayload"
-                      ) {
-                        return Promise.reject(data.updateAccountHolder.__typename);
-                      }
-
-                      return data;
-                    })
-                    .catch(() => {
-                      showToast({ variant: "error", title: t("error.generic") });
+                    .then(({ updateAccount, updateAccountHolder }) =>
+                      Promise.all([
+                        filterRejectionsToPromise(updateAccount),
+                        filterRejectionsToPromise(updateAccountHolder),
+                      ]),
+                    )
+                    .catch(error => {
+                      showToast({ variant: "error", title: translateError(error) });
                     });
                 }
               });

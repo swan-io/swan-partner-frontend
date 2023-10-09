@@ -1,4 +1,4 @@
-import { Array, Option, Result } from "@swan-io/boxed";
+import { Array, Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -12,6 +12,8 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { Fragment, useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
@@ -128,17 +130,14 @@ export const CardItemMobilePayment = ({
 
   const onPressCancel = ({ digitalCardId }: { digitalCardId: string }) => {
     cancelDigitalCard({ digitalCardId })
-      .mapOkToResult(({ cancelDigitalCard }) => {
-        return match(cancelDigitalCard)
-          .with({ __typename: "CancelDigitalCardSuccessPayload" }, () => Result.Ok(undefined))
-          .otherwise(error => Result.Error(error));
-      })
+      .mapOk(data => data.cancelDigitalCard)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         setCancelConfirmationModalModal(Option.None());
         onRefreshRequest();
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 

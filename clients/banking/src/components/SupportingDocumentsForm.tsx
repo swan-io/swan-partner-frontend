@@ -15,8 +15,10 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { UploadArea, UploadFileStatus } from "@swan-io/shared-business/src/components/UploadArea";
 import { MAX_SUPPORTING_DOCUMENT_UPLOAD_SIZE } from "@swan-io/shared-business/src/constants/uploads";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { Fragment, forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
 import { Pressable, StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -33,7 +35,6 @@ import {
   getSupportingDocumentPurposeLabel,
   getSupportingDocumentStatusLabel,
 } from "../utils/templateTranslations";
-import { parseOperationResult } from "../utils/urql";
 
 const ACCEPTED_FORMATS = ["application/pdf", "image/png", "image/jpeg"];
 
@@ -205,14 +206,10 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
           })
             .then(parseOperationResult)
             .then(data => data.requestSupportingDocumentCollectionReview)
-            .then(data =>
-              data.__typename !== "RequestSupportingDocumentCollectionReviewSuccessPayload"
-                ? Promise.reject(new Error(data.message))
-                : data,
-            )
+            .then(filterRejectionsToPromise)
             .then(refetchCollection)
-            .catch(() => {
-              showToast({ variant: "error", title: t("error.generic") });
+            .catch(error => {
+              showToast({ variant: "error", title: translateError(error) });
             });
         } else {
           setFeedbackEnabled.on();
@@ -230,11 +227,8 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
           },
         })
           .then(parseOperationResult)
-          .then(({ generateSupportingDocumentUploadUrl: data }) =>
-            data.__typename !== "GenerateSupportingDocumentUploadUrlSuccessPayload"
-              ? Promise.reject(new Error(`Expected success payload, received ${data.__typename}`))
-              : data,
-          ),
+          .then(data => data.generateSupportingDocumentUploadUrl)
+          .then(filterRejectionsToPromise),
       [generateSupportingDocumentUploadUrl, collection.id],
     );
 
@@ -321,8 +315,8 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
 
           xhr.send(formData);
         })
-        .catch(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .catch(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     };
 

@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -6,7 +5,8 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { match } from "ts-pattern";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { CancelCardDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -28,16 +28,13 @@ export const CardCancelConfirmationModal = ({
   const onPressConfirm = () => {
     if (cardId != null) {
       cancelCard({ cardId })
-        .mapOkToResult(({ cancelCard }) => {
-          return match(cancelCard)
-            .with({ __typename: "CancelCardSuccessPayload" }, () => Result.Ok(undefined))
-            .otherwise(error => Result.Error(error));
-        })
+        .mapOk(data => data.cancelCard)
+        .mapOkToResult(filterRejectionsToResult)
         .tapOk(() => {
           onSuccess();
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     }
   };

@@ -24,6 +24,7 @@ import { insets } from "@swan-io/lake/src/constants/insets";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -176,7 +177,7 @@ export const NavigationTabBar = ({
         }
       })
       .catch((error: Error) => {
-        showToast({ variant: "error", title: t("error.generic") });
+        showToast({ variant: "error", title: translateError(error) });
         logFrontendError(error);
       });
   };

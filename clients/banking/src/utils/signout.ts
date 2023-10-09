@@ -1,5 +1,5 @@
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { t } from "./i18n";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { logFrontendError } from "./logger";
 import { Router } from "./routes";
 
@@ -17,7 +17,7 @@ export const signout = () => {
       }
     })
     .catch((error: Error) => {
-      showToast({ variant: "error", title: t("error.generic") });
+      showToast({ variant: "error", title: translateError(error) });
       logFrontendError(error);
     });
 };

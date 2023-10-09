@@ -267,6 +267,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
                   icon="edit-regular"
                   color="gray"
                   onPress={onEdit}
+                  ariaLabel={t("common.edit")}
                 />
 
                 <Space width={12} />
@@ -277,6 +278,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
                   icon="delete-regular"
                   color="negative"
                   onPress={onDelete}
+                  ariaLabel={t("common.delete")}
                 />
               </Box>
 

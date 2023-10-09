@@ -5,6 +5,8 @@
   "common.add": "Adicionar",
   "common.back": "Voltar",
   "common.cancel": "Cancelar",
+  "common.delete": "Excluir",
+  "common.edit": "Editar",
   "common.form.invalidVatNumber": "Número de IVA inválido",
   "common.learnMore": "Saiba mais",
   "common.next": "Próximo",

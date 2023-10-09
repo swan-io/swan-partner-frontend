@@ -337,7 +337,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const canAddNewMembers = Boolean(settings?.canAddNewMembers);
   const canManageVirtualIbans = Boolean(settings?.canManageVirtualIbans);
   const canOrderPhysicalCards = Boolean(settings?.canOrderPhysicalCards);
-  const canOrderVirtualCards = Boolean(settings?.canOrderVirtualCards);
   const canViewAccountDetails = Boolean(settings?.canViewAccountDetails);
   const canViewAccountStatement = Boolean(settings?.canViewAccountStatement);
   const canViewMembers = Boolean(settings?.canViewMembers);
@@ -346,13 +345,18 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
-        const { canInitiatePayments, canManageBeneficiaries, canViewAccount, legalRepresentative } =
-          accountMembership;
+        const {
+          canInitiatePayments,
+          canManageBeneficiaries,
+          canViewAccount,
+          legalRepresentative,
+          canManageCards,
+        } = accountMembership;
 
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
           accountMembership.canManageAccountMembership && membershipEnabled;
-        const canAddCard = canViewAccount && canManageAccountMembership && canOrderVirtualCards;
+        const canAddCard = canViewAccount && canManageCards;
 
         return {
           accountMembership,
@@ -361,6 +365,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canInitiatePayments,
           canManageBeneficiaries,
           canAddCard,
+          canManageCards,
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && canViewAccountDetails,
           paymentMenuIsVisible:
@@ -376,7 +381,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       }),
     [
       canInitiatePaymentsToNewBeneficiaries,
-      canOrderVirtualCards,
       canViewAccountDetails,
       canViewMembers,
       canViewPaymentList,
@@ -655,6 +659,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     ({
                       accountMembership,
                       canAddCard,
+                      canManageCards,
                       canManageAccountMembership,
                       cardMenuIsVisible,
                       isLegalRepresentative,
@@ -790,6 +795,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 userId={userId}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 canAddCard={canAddCard}
+                                canManageCards={canManageCards}
                                 accountMembership={accountMembership}
                                 idVerified={idVerified}
                                 userStatusIsProcessing={userStatusIsProcessing}

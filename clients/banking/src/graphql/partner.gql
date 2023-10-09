@@ -1290,6 +1290,7 @@ fragment AccountMembership on AccountMembership {
     country
   }
   canInitiatePayments
+  canManageCards
   canManageAccountMembership
   canManageBeneficiaries
   canViewAccount
@@ -1331,6 +1332,8 @@ query MembersPage(
   $status: [AccountMembershipStatus!]
   $canManageAccountMembership: Boolean
   $canManageBeneficiaries: Boolean
+  $canViewAccount: Boolean
+  $canManageCards: Boolean
   $canInitiatePayments: Boolean
   $search: String
 ) {
@@ -1354,6 +1357,8 @@ query MembersPage(
         canManageAccountMembership: $canManageAccountMembership
         canManageBeneficiaries: $canManageBeneficiaries
         canInitiatePayments: $canInitiatePayments
+        canViewAccount: $canViewAccount
+        canManageCards: $canManageCards
         status: $status
         search: $search
       }

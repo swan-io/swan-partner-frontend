@@ -102,6 +102,7 @@
   "error.pageNotFound": "Page not found",
   "error.requiredField": "This field is required",
   "error.tryAgain": "Please try again. If the error persists, contact us.",
+  "error.unrecognizedKeys": "Unrecognized keys",
   "individual.step.details.description": "The law requires us to know our users well. This helps us prevent fraud and financial crime.",
   "individual.step.details.title": "What's your occupation?",
   "individual.step.email.label": "What's your email?",

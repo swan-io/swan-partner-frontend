@@ -102,6 +102,7 @@
   "error.pageNotFound": "Página não encontrada",
   "error.requiredField": "Este campo é obrigatório",
   "error.tryAgain": "Por favor, tente novamente. Se o erro persistir, contacte-nos.",
+  "error.unrecognizedKeys": "Chaves não reconhecidas",
   "individual.step.details.description": "A lei exige que conheçamos bem os nossos utilizadores. Isso ajuda-nos a evitar fraudes e crimes financeiros.",
   "individual.step.details.title": "Qual é a sua ocupação?",
   "individual.step.email.label": "Qual é o seu e-mail?",

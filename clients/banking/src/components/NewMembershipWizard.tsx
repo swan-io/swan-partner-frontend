@@ -108,6 +108,7 @@ type FormState = {
   canInitiatePayments: boolean;
   canManageBeneficiaries: boolean;
   canManageAccountMembership: boolean;
+  canManageCards: boolean;
   addressLine1: string;
   postalCode: string;
   city: string;
@@ -207,6 +208,9 @@ export const NewMembershipWizard = ({
     },
     canManageAccountMembership: {
       initialValue: partiallySavedValues?.canManageAccountMembership ?? false,
+    },
+    canManageCards: {
+      initialValue: partiallySavedValues?.canManageCards ?? false,
     },
     // German account specific fields
     addressLine1: {
@@ -415,6 +419,7 @@ export const NewMembershipWizard = ({
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,
             canViewAccount: computedValues.canViewAccount,
+            canManageCards: computedValues.canManageCards,
             consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
             email: computedValues.email,
             residencyAddress,
@@ -637,6 +642,21 @@ export const NewMembershipWizard = ({
                                     !currentUserAccountMembership.canManageAccountMembership
                                   }
                                   label={t("membershipDetail.edit.canManageAccountMembership")}
+                                  value={value}
+                                  onValueChange={onChange}
+                                />
+                              )}
+                            </Field>
+                          </View>
+                        </Box>
+
+                        <Box direction={large ? "row" : "column"} alignItems="start">
+                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                            <Field name="canManageCards">
+                              {({ value, onChange }) => (
+                                <LakeLabelledCheckbox
+                                  disabled={!currentUserAccountMembership.canManageCards}
+                                  label={t("membershipDetail.edit.canManageCards")}
                                   value={value}
                                   onValueChange={onChange}
                                 />

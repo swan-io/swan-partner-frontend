@@ -102,6 +102,7 @@
   "error.pageNotFound": "No se ha encontrado la página",
   "error.requiredField": "Este campo es obligatorio",
   "error.tryAgain": "Vuelve a intentarlo. Si el error persiste, contacta con nosotros.",
+  "error.unrecognizedKeys": "Claves no reconocidas",
   "individual.step.details.description": "La ley nos obliga a conocer bien a nuestros usuarios. Esto nos ayuda a prevenir el fraude y los delitos financieros.",
   "individual.step.details.title": "¿Cuál es tu ocupación?",
   "individual.step.email.label": "¿Cuál es tu correo electrónico?",

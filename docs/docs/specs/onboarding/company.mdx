@@ -6,15 +6,15 @@ Use the company onboarding process when you're setting up Swan for an entire com
 
 When the user clicks **Next** after each step, the onboarding is updated in the API.
 This helps resume onboarding after a page reloads.
- 
+
 ## Preliminary information
 
 The first screen asks for essential information that determines the rest of the flow.
 
 1. Organization country (regardless of the type of organization).
 1. Legal status of the person completing onboarding.
-    - Only **legal representatives** and those with **power of attorney** can complete onboarding for a company.
-    - Those with power of attorney will be asked to provide documented proof later.
+   - Only **legal representatives** and those with **power of attorney** can complete onboarding for a company.
+   - Those with power of attorney will be asked to provide documented proof later.
 1. Type of organization (required documents change based on this response).
 
 ![Screenshot of screen to collect preliminary information for company onboarding](./images/company-preliminary.png)
@@ -25,7 +25,7 @@ The second screen shows a **overview of the steps** to come.
 
 - **Email**, **Fill in the form**, and **Finalize** are always required.
 - If the organization is a company, home owner association, or other, **Add an owner** is required.
-- If the required documents haven't been provided, meaning `requiredSupportingDocumentPurposes` is empty,  **Attach the documents** is required. 
+- If the required documents haven't been provided, meaning `requiredSupportingDocumentPurposes` is empty, **Attach the documents** is required.
 
 ![Screenshot of five-step flow for company onboarding](./images/company-flow.png)
 
@@ -47,7 +47,7 @@ For German accounts, you must add two fields to collect information about the le
 
 - Country of residence
 - Residence address
-:::
+  :::
 
 ## Step 2: Organization
 
@@ -69,7 +69,7 @@ The user must also provide their organization address (not pictured).
 ![Screenshot of step to collect legal information for company onboarding](./images/company-legal-info.png)
 
 :::caution 🇩🇪 Germany
-For German companies with German accounts, collect the **company tax number** as well (*Umsatzsteuer-Identifikationsnummer*; 10 or 11 characters, numbers only).
+For German companies with German accounts, collect the **company tax number** as well (_Umsatzsteuer-Identifikationsnummer_; 10 or 11 characters, numbers only).
 :::
 
 ### Company details
@@ -90,7 +90,7 @@ If the UBO information is already available, it is fetched automatically.
 Typically, a user will verify the information on this page instead of adding it themselves.
 
 :::info organization type
-The ownership step only applies if the user selected **company**, **association** (specifically *home owner association*), or **“other”** when submitting their preliminary information.
+The ownership step only applies if the user selected **company**, **association** (specifically _home owner association_), or **“other”** when submitting their preliminary information.
 :::
 
 ![Screenshot of step to collect owner information for company onboarding](./images/company-owners.png)
@@ -103,10 +103,10 @@ To **add or edit an owner**, include a modal with the following fields (all mand
 - Birth country
 - Birth city
 - Birth postal code
-- Type of control exercised (*Legal representative*, *Ownership of capital*, or *Other*)
-  - For *Ownership of capital* only, add the following:
+- Type of control exercised (_Legal representative_, _Ownership of capital_, or _Other_)
+  - For _Ownership of capital_ only, add the following:
     - Total percentage of capital held (number)
-    - *Directly* and *Indirectly* checkboxes to indicate type of ownership
+    - _Directly_ and _Indirectly_ checkboxes to indicate type of ownership
 
 ![Screenshot of modal to add an owner for company onboarding](./images/company-owner-add.png)
 
@@ -117,7 +117,7 @@ We suggest creating a second page in the modal.
 - **UBO residency country**
 - **UBO residency address**
 - If the owner’s residency country is Germany `DEU`, add:
-  - **UBO tax identification number** (*Steuer-Identifikationsnummer*)
+  - **UBO tax identification number** (_Steuer-Identifikationsnummer_)
 
 ![Screenshot of step to add an owner's address for company onboarding](./images/company-owner-add-address.png)
 :::

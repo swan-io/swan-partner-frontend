@@ -102,6 +102,7 @@
   "error.pageNotFound": "Page non trouvée",
   "error.requiredField": "Ce champ est requis",
   "error.tryAgain": "Veuillez réessayer. Si l'erreur persiste, contactez-nous.",
+  "error.unrecognizedKeys": "Clés non reconnues",
   "individual.step.details.description": "Les lois en vigueur nous imposent de bien connaître nos utilisateurs. Cela permet de lutter efficacement contre la fraude et la criminalité financière.",
   "individual.step.details.title": "Quelle est votre profession ?",
   "individual.step.email.label": "Quelle est votre adresse e-mail ?",

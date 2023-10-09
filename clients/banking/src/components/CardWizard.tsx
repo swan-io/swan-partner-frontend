@@ -615,6 +615,7 @@ export const CardWizard = ({
                       nonMainCurrencyTransactions,
                     }) => (
                       <CardWizardSettings
+                        canManageCards={accountMembership.canManageCards}
                         ref={cardWizardSettingsRef}
                         cardProduct={cardProduct}
                         cardFormat={cardFormat}

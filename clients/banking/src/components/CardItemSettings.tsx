@@ -1,5 +1,6 @@
 import { Result } from "@swan-io/boxed";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -35,6 +36,7 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   onRefreshAccountRequest: () => void;
   identificationStatus?: IdentificationStatus;
+  canManageCards: boolean;
 };
 
 export const CardItemSettings = ({
@@ -46,6 +48,7 @@ export const CardItemSettings = ({
   isCurrentUserCardOwner,
   onRefreshAccountRequest,
   identificationStatus,
+  canManageCards,
 }: Props) => {
   const [cardUpdate, updateCard] = useUrqlMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
@@ -129,6 +132,13 @@ export const CardItemSettings = ({
     </View>
   ) : (
     <>
+      {!canManageCards && (
+        <>
+          <LakeAlert title={t("card.settings.notAllowed")} variant="info" />
+          <Space height={24} />
+        </>
+      )}
+
       <CardWizardSettings
         ref={settingsRef}
         cardProduct={card.cardProduct}
@@ -143,6 +153,7 @@ export const CardItemSettings = ({
         }}
         onSubmit={onSubmit}
         accountHolder={accountHolder}
+        canManageCards={canManageCards}
       />
 
       <LakeButtonGroup>
@@ -164,9 +175,11 @@ export const CardItemSettings = ({
             <View />
           ))}
 
-        <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
-          {t("common.save")}
-        </LakeButton>
+        {canManageCards && (
+          <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
+            {t("common.save")}
+          </LakeButton>
+        )}
       </LakeButtonGroup>
 
       <CardCancelConfirmationModal

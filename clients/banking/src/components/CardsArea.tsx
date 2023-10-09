@@ -62,6 +62,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string | undefined;
   canAddCard: boolean;
+  canManageCards: boolean;
   canManageAccountMembership: boolean;
   canOrderPhysicalCards: boolean;
   idVerified: boolean;
@@ -136,6 +137,7 @@ export const CardsArea = ({
   accountMembershipId,
   accountId,
   canAddCard,
+  canManageCards,
   canManageAccountMembership,
   canOrderPhysicalCards,
   idVerified,
@@ -196,6 +198,8 @@ export const CardsArea = ({
                     ({ params: { accountMembershipId, new: _, ...params } }) => (
                       <CardListPage
                         accountMembershipId={accountMembershipId}
+                        canManageCards={canManageCards}
+                        canManageAccountMembership={canManageAccountMembership}
                         accountId={accountId}
                         canAddCard={canAddCard}
                         totalDisplayableCardCount={totalDisplayableCardCount}
@@ -236,6 +240,7 @@ export const CardsArea = ({
                         canOrderPhysicalCards={canOrderPhysicalCards}
                         large={large}
                         canViewAccount={accountMembership.canViewAccount}
+                        canManageCards={accountMembership.canManageCards}
                       />
                     </>
                   ))

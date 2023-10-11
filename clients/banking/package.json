@@ -27,7 +27,7 @@
     "@swan-io/lake": "3.0.0",
     "@swan-io/shared-business": "3.0.0",
     "@urql/exchange-graphcache": "6.3.3",
-    "core-js": "3.32.2",
+    "core-js": "3.33.0",
     "dayjs": "1.11.9",
     "iban": "0.0.14",
     "libphonenumber-js": "1.10.44",

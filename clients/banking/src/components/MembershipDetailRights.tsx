@@ -8,6 +8,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
@@ -23,7 +24,6 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { ConfirmModal } from "./ConfirmModal";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 
 const styles = StyleSheet.create({

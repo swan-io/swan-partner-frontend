@@ -1,5 +1,4 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { DatePicker, isDateInRange } from "@swan-io/lake/src/components/DatePicker";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -11,6 +10,7 @@ import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
 import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";

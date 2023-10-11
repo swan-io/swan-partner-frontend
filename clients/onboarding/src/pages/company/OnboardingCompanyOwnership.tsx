@@ -5,7 +5,6 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
@@ -28,6 +27,8 @@ import {
   BeneficiaryFormStep,
   validateUbo,
 } from "@swan-io/shared-business/src/components/BeneficiaryForm";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
   CountryCCA3,
   getCCA3forCCA2,
@@ -40,7 +41,6 @@ import { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { ConfirmModal } from "../../components/ConfirmModal";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";

@@ -1,5 +1,5 @@
 import { Lazy } from "@swan-io/boxed";
-import { DatePickerDate } from "@swan-io/lake/src/components/DatePicker";
+import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";

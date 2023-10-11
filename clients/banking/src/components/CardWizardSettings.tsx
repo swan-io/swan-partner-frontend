@@ -1,6 +1,5 @@
 import { Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ChoicePicker } from "@swan-io/lake/src/components/ChoicePicker";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -22,6 +21,7 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { emptyToUndefined, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";

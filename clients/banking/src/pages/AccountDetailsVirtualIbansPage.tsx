@@ -8,7 +8,6 @@ import {
   SimpleHeaderCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -22,6 +21,7 @@ import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
 import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";

@@ -5,13 +5,13 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import {
   Document,
   SupportingDocument,
   SupportingDocumentPurpose,
 } from "@swan-io/shared-business/src/components/SupportingDocument";
 import { ReactNode } from "react";
-import { ConfirmModal } from "../../components/ConfirmModal";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";

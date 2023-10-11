@@ -1,10 +1,10 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ChoicePicker } from "@swan-io/lake/src/components/ChoicePicker";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { CSSProperties, forwardRef, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";

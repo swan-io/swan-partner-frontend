@@ -12,7 +12,6 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { TransactionStatus } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
@@ -30,8 +29,6 @@ const isAfterUpdatedAtFilter: FilterDateDef = {
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
   dateFormat: locale.dateFormat,
-  dayNames: weekDayNames,
-  monthNames,
   validate: validateAfterUpdatedAt,
   isSelectable: isAfterUpdatedAtSelectable,
 };
@@ -42,8 +39,6 @@ const isBeforeUpdatedAtFilter: FilterDateDef = {
   cancelText: t("common.cancel"),
   submitText: t("common.filters.apply"),
   noValueText: t("common.none"),
-  dayNames: weekDayNames,
-  monthNames,
   dateFormat: locale.dateFormat,
   validate: validateBeforeUpdatedAt,
   isSelectable: isBeforeUpdatedAtSelectable,

@@ -1,4 +1,5 @@
 {
+  "": "No tienes permiso para cambiar la configuración de tus tarjetas",
   "accountActivation.addMoney.description": "Para comprobar que la cuenta te pertenece, realiza un pago de cualquier importe a esta cuenta desde otra cuenta a tu nombre.",
   "accountActivation.addMoney.illustration.text": "Se mostrará tu IBAN en unos instantes. Si no, {projectName} contactará contigo para proceder a la activación de tu cuenta.",
   "accountActivation.addMoney.illustration.title": "Tu primera transferencia",
@@ -156,7 +157,7 @@
   "card.settings.international.description": "Permitir operaciones fuera de tu país de residencia",
   "card.settings.nonMainCurrencyTransactions": "Operaciones que no sean en euros",
   "card.settings.nonMainCurrencyTransactions.description": "Permitir operaciones en otras monedas, como el dólar o el yen",
-  "card.settings.notAllowed": "No tienes permiso para cambiar la configuración de tus tarjetas",
+  "card.settings.notAllowed": "No tienes permitido cambiar la configuración de tu tarjeta",
   "card.settings.spendingLimit": "Límite de gasto",
   "card.settings.unavailable": "Ajustes de tarjeta no disponibles",
   "card.settings.withdrawal": "Retirada",

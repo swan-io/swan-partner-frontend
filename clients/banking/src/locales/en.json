@@ -721,6 +721,10 @@
   "transfer.new.sendFullBalance.description": "Choose how much to leave in your account, and transfer the rest to your beneficiary",
   "transfer.new.sendRegularTransfer": "Send a regular standing order instead",
   "transfer.new.sendRegularTransfer.description": "You will send a regular standing order",
+  
+  "transfer.new.internationalTransfer.title": "New international transfer",
+  "transfer.new.internationalTransfer.amount.title": "Enter details about your transfer",
+  
   "transfer.new.title": "New transfer",
   "transfer.newRecurringTransfer": "New standing order",
   "transfer.newTransfer": "New transfer",

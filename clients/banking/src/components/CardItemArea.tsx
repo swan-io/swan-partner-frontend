@@ -173,14 +173,11 @@ export const CardItemArea = ({
             label: t("cardDetail.transactions"),
             url: Router.AccountCardsItemTransactions({ accountMembershipId, cardId }),
           },
-          ...match({ canManageAccountMembership, card })
+          ...match(card)
             .with(
               {
-                canManageAccountMembership: true,
-                card: {
-                  statusInfo: {
-                    __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")),
-                  },
+                statusInfo: {
+                  __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")),
                 },
               },
               () => [

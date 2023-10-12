@@ -984,17 +984,23 @@ export const CardItemPhysicalDetails = ({
                       ],
                     )
                     .otherwise(() => []),
-                  ...match(physicalCard.statusInfo)
+                  ...match({ statusInfo: physicalCard.statusInfo, isCurrentUserCardOwner })
                     .with(
                       {
-                        __typename: P.union(
-                          "PhysicalCardRenewedStatusInfo",
-                          "PhysicalCardToActivateStatusInfo",
-                        ),
-                        isPINReady: true,
+                        isCurrentUserCardOwner: true,
+                        statusInfo: {
+                          __typename: P.union(
+                            "PhysicalCardRenewedStatusInfo",
+                            "PhysicalCardToActivateStatusInfo",
+                          ),
+                          isPINReady: true,
+                        },
                       },
                       {
-                        __typename: "PhysicalCardActivatedStatusInfo",
+                        isCurrentUserCardOwner: true,
+                        statusInfo: {
+                          __typename: "PhysicalCardActivatedStatusInfo",
+                        },
                       },
                       () => [
                         {

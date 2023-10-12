@@ -725,6 +725,8 @@
   "transfer.newRecurringTransfer": "New standing order",
   "transfer.newTransfer": "New transfer",
   "transfer.tabs.recurringTransfer": "Standing orders",
+  "transfer.tile.internationalTransfer.subtitle": "Send money in another currency, USD, GBP, etc",
+  "transfer.tile.internationalTransfer.title": "International transfer",
   "transfer.tile.recurringTransfer.button": "Schedule",
   "transfer.tile.recurringTransfer.subtitle": "Send money on a daily, weekly, or monthly basis",
   "transfer.tile.recurringTransfer.title": "Standing order",

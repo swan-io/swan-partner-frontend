@@ -35,7 +35,7 @@
     "@opentelemetry/propagator-jaeger": "1.16.0",
     "@opentelemetry/resources": "1.16.0",
     "@opentelemetry/sdk-trace-base": "1.16.0",
-    "@opentelemetry/sdk-trace-node": "1.16.0",
+    "@opentelemetry/sdk-trace-node": "1.17.1",
     "@opentelemetry/semantic-conventions": "1.16.0",
     "@swan-io/boxed": "1.2.0",
     "fast-proxy": "2.2.0",

@@ -220,7 +220,7 @@ export const TransferInternationalWizardAmount = ({
         {({ small }) => (
           <LakeButtonGroup>
             <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-              {t("common.previous")}
+              {t("common.cancel")}
             </LakeButton>
 
             <LakeButton color="current" onPress={() => onSave(amount)} grow={small}>

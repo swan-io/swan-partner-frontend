@@ -24,7 +24,7 @@ import { ErrorView } from "./ErrorView";
 
 export type Amount = { value: string; currency: Currency };
 
-const FIXED_AMOUNT_DEFAULT_VALUE = "0";
+const FIXED_AMOUNT_DEFAULT_VALUE = "";
 const CURRENCY_DEFAULT_VALUE = "USD";
 
 type Props = {

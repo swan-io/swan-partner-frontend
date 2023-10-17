@@ -1917,6 +1917,24 @@ query GetAvailableAccountBalance($accountMembershipId: ID!) {
   }
 }
 
+query GetInternationalCreditTransferQuote($value: AmountValue!, $currency: Currency!) {
+  internationalCreditTransferQuote(targetAmount: { value: $value, currency: $currency }) {
+    exchangeRate
+    feesAmount {
+      value
+      currency
+    }
+    targetAmount {
+      value
+      currency
+    }
+    sourceAmount {
+      value
+      currency
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {

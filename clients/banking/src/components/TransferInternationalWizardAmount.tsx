@@ -1,22 +1,31 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { useState } from "react";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
+import { useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
-import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import {
+  GetAvailableAccountBalanceDocument,
+  GetInternationalCreditTransferQuoteDocument,
+} from "../graphql/partner";
+import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
 
-export type Amount = number;
+export type Amount = { value: string; currency: Currency };
 
-const FIXED_AMOUNT_DEFAULT_VALUE = 0;
+const FIXED_AMOUNT_DEFAULT_VALUE = "0";
+const CURRENCY_DEFAULT_VALUE = "USD";
 
 type Props = {
   initialAmount?: Amount;
@@ -31,7 +40,7 @@ export const TransferInternationalWizardAmount = ({
   accountMembershipId,
   onSave,
 }: Props) => {
-  const [amount, setAmount] = useState<Amount>(initialAmount ?? FIXED_AMOUNT_DEFAULT_VALUE);
+  const [input, setInput] = useState<Amount | undefined>();
   const { data } = useUrqlQuery(
     {
       query: GetAvailableAccountBalanceDocument,
@@ -39,6 +48,45 @@ export const TransferInternationalWizardAmount = ({
     },
     [accountMembershipId],
   );
+
+  const { data: quote } = useUrqlQuery(
+    {
+      query: GetInternationalCreditTransferQuoteDocument,
+      variables: input ?? { value: "", currency: "" },
+      pause: !input || input?.value === "0" || Number.isNaN(Number(input?.value))
+      ,
+    },
+    [input],
+  );
+
+
+  const { Field, getFieldState, submitForm, listenFields } = useForm({
+    amount: {
+      initialValue: initialAmount ?? {
+        value: FIXED_AMOUNT_DEFAULT_VALUE,
+        currency: CURRENCY_DEFAULT_VALUE,
+      },
+      sanitize: ({ value, currency }) => ({ value: value.replace(/,/g, "."), currency }),
+      validate: ({ value }) => {
+        const amount = Number(value);
+
+        if (Number.isNaN(amount) || amount <= 0) {
+          return t("error.invalidTransferAmount");
+        }
+      },
+    },
+  });
+
+  useEffect(() => {
+    return listenFields(
+      ["amount"],
+      ({
+        amount: {
+          value: { currency, value },
+        },
+      }) => setInput(value && value !== "0" ? ({ currency, value } as Amount) : undefined),
+    );
+  }, [listenFields]);
 
   return (
     <View>
@@ -69,7 +117,101 @@ export const TransferInternationalWizardAmount = ({
             <ErrorView />
           ))}
 
-        <p>fields</p>
+        <Space height={24} />
+
+        <LakeLabel
+          label={t("transfer.new.internationalTransfer.amount.label")}
+          render={id => (
+            <Field name="amount">
+              {({ value, onChange, onBlur, error, valid, ref }) => (
+                <LakeTextInput
+                  id={id}
+                  ref={ref}
+                  value={value.value}
+                  error={error}
+                  valid={valid}
+                  onChangeText={v => {
+                    onChange({ currency: value.currency, value: v });
+                  }}
+                  onBlur={onBlur}
+                  units={currencies}
+                  unit={value.currency}
+                  inputMode="numeric"
+                  onUnitChange={c => {
+                    onChange({ currency: c as Currency, value: value.value });
+                  }}
+                />
+              )}
+            </Field>
+          )}
+        />
+
+        <Space height={24} />
+
+        {match(quote)
+          .with(AsyncData.P.NotAsked, () => null)
+          .with(AsyncData.P.Loading, () => (
+            <>
+              <ActivityIndicator color={colors.gray[900]} /> <Space height={12} />
+            </>
+          ))
+          .with(
+            AsyncData.P.Done(Result.P.Ok(P.select())),
+            ({ internationalCreditTransferQuote: q }) => {
+              if (isNullish(q)) {
+                return null;
+              }
+
+              return (
+                <>
+                  <LakeText color={colors.gray[700]} variant="smallRegular">
+                    {formatNestedMessage("transfer.new.internationalTransfer.amount.description", {
+                      amount: `${q.sourceAmount.value} ${q.sourceAmount.currency}`,
+                      rate: q.exchangeRate,
+                      bold: str => (
+                        <LakeText color={colors.gray[900]} variant="smallMedium">
+                          {str}
+                        </LakeText>
+                      ),
+                    })}
+                  </LakeText>
+
+                  <Space height={12} />
+
+                  <LakeText color={colors.gray[700]} variant="smallRegular">
+                    {formatNestedMessage("transfer.new.internationalTransfer.fee", {
+                      fee: `${q.feesAmount.value} ${q.feesAmount.currency}`,
+                      bold: str => (
+                        <LakeText color={colors.gray[900]} variant="smallMedium">
+                          {str}
+                        </LakeText>
+                      ),
+                    })}
+                  </LakeText>
+
+                  <Space height={12} />
+                  <Separator />
+                  <Space height={12} />
+
+                  <LakeText color={colors.gray[700]} variant="smallRegular">
+                    {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
+                      amount: `${(
+                        parseFloat(q.feesAmount.value) + parseFloat(q.sourceAmount.value)
+                      ).toFixed(2)} ${q.sourceAmount.currency}`,
+                      colored: str => (
+                        <LakeText color={colors.current[500]} variant="smallMedium">
+                          {str}
+                        </LakeText>
+                      ),
+                    })}
+                  </LakeText>
+                </>
+              );
+            },
+          )
+          .otherwise(() => (
+            <ErrorView />
+          ))}
       </Tile>
 
       <Space height={32} />

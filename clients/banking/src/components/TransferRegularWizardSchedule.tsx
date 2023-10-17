@@ -14,7 +14,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
-import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { electronicFormat } from "iban";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -200,8 +199,6 @@ export const TransferRegularWizardSchedule = ({
                                     error={error}
                                     format={locale.dateFormat}
                                     firstWeekDay={locale.firstWeekday}
-                                    monthNames={monthNames}
-                                    weekDayNames={weekDayNames}
                                     onChange={onChange}
                                     isSelectable={isDateInRange(
                                       dayjs.utc().toDate(),

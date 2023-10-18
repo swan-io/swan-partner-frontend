@@ -9,7 +9,16 @@ import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { t } from "../utils/i18n";
-import { Amount, TransferInternationalWizardAmount } from "./TransferInternationalWizardAmount";
+import {
+  Amount,
+  TransferInternationalWizardAmount,
+  TransferInternationamWizardAmountSummary,
+} from "./TransferInternationalWizardAmount";
+import {
+  Beneficiary,
+  TransferInternationalWizardBeneficiary,
+} from "./TransferInternationalWizardBeneficiary";
+import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 
 const styles = StyleSheet.create({
   root: {
@@ -52,18 +61,19 @@ const styles = StyleSheet.create({
   },
 });
 
-// [NC] FIXME
-type Beneficiary = string;
-
 type Step =
   | { name: "Amount"; amount?: Amount }
-  | { name: "Beneficiary"; amount: Amount; beneficiary?: Beneficiary };
+  | { name: "Beneficiary"; amount: Amount; beneficiary?: Beneficiary }
+  | { name: "Details"; amount: Amount; beneficiary: Beneficiary; details?: Details };
 
 type Props = {
   onPressClose: () => void;
   accountId: string;
   accountMembershipId: string;
 };
+
+// [NC] FIXME
+const onSave = console.log;
 
 export const TransferInternationalWizard = ({
   onPressClose,
@@ -117,6 +127,50 @@ export const TransferInternationalWizard = ({
                       accountMembershipId={accountMembershipId}
                       onPressPrevious={onPressClose}
                       onSave={amount => setStep({ name: "Beneficiary", amount })}
+                    />
+                  </>
+                );
+              })
+              .with({ name: "Beneficiary" }, ({ amount, beneficiary }) => {
+                return (
+                  <>
+                    <TransferInternationamWizardAmountSummary
+                      amount={amount}
+                      onPressEdit={() => setStep({ name: "Amount", amount })}
+                    />
+
+                    <Space height={24} />
+
+                    <LakeHeading level={3} variant="h3">
+                      {t("transfer.new.internationalTransfer.beneficiary.title")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+
+                    <TransferInternationalWizardBeneficiary
+                      initialBeneficiary={beneficiary}
+                      amount={amount}
+                      onPressPrevious={() => setStep({ name: "Amount", amount })}
+                      onSave={beneficiary => setStep({ name: "Details", amount, beneficiary })}
+                    />
+                  </>
+                );
+              })
+              .with({ name: "Details" }, ({ amount, beneficiary, details }) => {
+                return (
+                  <>
+                    <LakeHeading level={2} variant="h3">
+                      {t("transfer.new.internationalTransfer.details.title")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+
+                    <TransferInternationalWizardDetails
+                      initialDetails={details}
+                      onPressPrevious={onPressClose}
+                      onSave={details =>
+                        onSave({ name: "Beneficiary", amount, beneficiary, details })
+                      }
                     />
                   </>
                 );

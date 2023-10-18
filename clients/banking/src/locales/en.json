@@ -236,6 +236,7 @@
   "common.change": "Change",
   "common.chooseFilter": "Choose filters",
   "common.closeButton": "Close",
+  "common.confirm": "Confirm",
   "common.continue": "Continue",
   "common.edit": "Edit",
   "common.empty": "Empty",
@@ -724,11 +725,17 @@
   
   "transfer.new.internationalTransfer.title": "New international transfer",
   "transfer.new.internationalTransfer.amount.title": "Enter details about your transfer",
+  "transfer.new.internationalTransfer.amount.summary.title": "You're sending",
   "transfer.new.internationalTransfer.amount.label": "Beneficiary gets",
 
   "transfer.new.internationalTransfer.amount.description": "Total amount we'll convert <bold>{amount}</bold> (Exchange rate {rate})",
   "transfer.new.internationalTransfer.fee": "Transfer fee <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.amount.converted": "You send exactly <colored>{amount}</colored>",
+
+  "transfer.new.internationalTransfer.beneficiary.title": "Who are you sending money to?",
+  "transfer.new.internationalTransfer.beneficiary.name": "Beneficiary name",
+  "transfer.new.internationalTransfer.details.title": "Transfer details",
+
 
   "transfer.new.title": "New transfer",
   "transfer.newRecurringTransfer": "New standing order",

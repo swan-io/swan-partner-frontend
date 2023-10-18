@@ -1,4 +1,6 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -13,7 +15,7 @@ import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   GetAvailableAccountBalanceDocument,
@@ -53,14 +55,12 @@ export const TransferInternationalWizardAmount = ({
     {
       query: GetInternationalCreditTransferQuoteDocument,
       variables: input ?? { value: "", currency: "" },
-      pause: !input || input?.value === "0" || Number.isNaN(Number(input?.value))
-      ,
+      pause: !input || input?.value === "0" || Number.isNaN(Number(input?.value)),
     },
     [input],
   );
 
-
-  const { Field, getFieldState, submitForm, listenFields } = useForm({
+  const { Field, submitForm, listenFields } = useForm({
     amount: {
       initialValue: initialAmount ?? {
         value: FIXED_AMOUNT_DEFAULT_VALUE,
@@ -152,7 +152,8 @@ export const TransferInternationalWizardAmount = ({
           .with(AsyncData.P.NotAsked, () => null)
           .with(AsyncData.P.Loading, () => (
             <>
-              <ActivityIndicator color={colors.gray[900]} /> <Space height={12} />
+              <ActivityIndicator color={colors.gray[900]} />
+              <Space height={12} />
             </>
           ))
           .with(
@@ -166,7 +167,7 @@ export const TransferInternationalWizardAmount = ({
                 <>
                   <LakeText color={colors.gray[700]} variant="smallRegular">
                     {formatNestedMessage("transfer.new.internationalTransfer.amount.description", {
-                      amount: `${q.sourceAmount.value} ${q.sourceAmount.currency}`,
+                      amount: formatCurrency(Number(q.sourceAmount.value), q.sourceAmount.currency),
                       rate: q.exchangeRate,
                       bold: str => (
                         <LakeText color={colors.gray[900]} variant="smallMedium">
@@ -180,7 +181,7 @@ export const TransferInternationalWizardAmount = ({
 
                   <LakeText color={colors.gray[700]} variant="smallRegular">
                     {formatNestedMessage("transfer.new.internationalTransfer.fee", {
-                      fee: `${q.feesAmount.value} ${q.feesAmount.currency}`,
+                      fee: formatCurrency(Number(q.feesAmount.value), q.feesAmount.currency),
                       bold: str => (
                         <LakeText color={colors.gray[900]} variant="smallMedium">
                           {str}
@@ -195,9 +196,10 @@ export const TransferInternationalWizardAmount = ({
 
                   <LakeText color={colors.gray[700]} variant="smallRegular">
                     {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
-                      amount: `${(
-                        parseFloat(q.feesAmount.value) + parseFloat(q.sourceAmount.value)
-                      ).toFixed(2)} ${q.sourceAmount.currency}`,
+                      amount: formatCurrency(
+                        parseFloat(q.feesAmount.value) + parseFloat(q.sourceAmount.value),
+                        q.sourceAmount.currency,
+                      ),
                       colored: str => (
                         <LakeText color={colors.current[500]} variant="smallMedium">
                           {str}
@@ -223,12 +225,56 @@ export const TransferInternationalWizardAmount = ({
               {t("common.cancel")}
             </LakeButton>
 
-            <LakeButton color="current" onPress={() => onSave(amount)} grow={small}>
+            <LakeButton
+              color="current"
+              onPress={() =>
+                submitForm(values => {
+                  if (hasDefinedKeys(values, ["amount"])) {
+                    onSave({
+                      value: values.amount.value,
+                      currency: values.amount.currency as Currency,
+                    });
+                  }
+                })
+              }
+              grow={small}
+            >
               {t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>
         )}
       </ResponsiveContainer>
     </View>
+  );
+};
+
+type SummaryProps = {
+  amount: Amount;
+  onPressEdit: () => void;
+};
+
+export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }: SummaryProps) => {
+  return (
+    <Tile selected={false}>
+      <Box direction="row">
+        <View>
+          <LakeText color={colors.gray[500]} variant="regular">
+            {t("transfer.new.internationalTransfer.amount.summary.title")}
+          </LakeText>
+
+          <Space height={8} />
+
+          <LakeHeading level={4} variant="h4">
+            {formatCurrency(Number(amount.value), amount.currency)}
+          </LakeHeading>
+        </View>
+
+        <Fill />
+
+        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
+          {t("common.edit")}
+        </LakeButton>
+      </Box>
+    </Tile>
   );
 };

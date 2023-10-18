@@ -1935,6 +1935,70 @@ query GetInternationalCreditTransferQuote($value: AmountValue!, $currency: Curre
   }
 }
 
+query GetInternationalBeneficiaryDynamicForms(
+  $amountValue: AmountValue!
+  $currency: Currency!
+  $language: InternationalCreditTransferDisplayLanguage!
+  $dynamicFields: [InternationalBeneficiaryDetailsInput!]
+) {
+  internationalBeneficiaryDynamicForms(
+    amount: { value: $amountValue, currency: $currency }
+    language: $language
+    dynamicFields: $dynamicFields
+  ) {
+    schemes {
+      type
+      title
+      remainingFieldsToRefreshCount
+      fields {
+        key
+        name
+        required
+        ... on DateField {
+          example
+          validationRegex
+          key
+          name
+          required
+        }
+        ... on TextField {
+          displayFormat
+          example
+          validationRegex
+          required
+          refreshDynamicFieldsOnChange
+          name
+          minLength
+          maxLength
+          key
+        }
+        ... on SelectField {
+          __typename
+          required
+          refreshDynamicFieldsOnChange
+          name
+          key
+          allowedValues {
+            name
+            key
+          }
+        }
+        ... on RadioField {
+          __typename
+          required
+          refreshDynamicFieldsOnChange
+          name
+          key
+          allowedValues {
+            name
+            key
+          }
+        }
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {

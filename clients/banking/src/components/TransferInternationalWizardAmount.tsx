@@ -34,12 +34,14 @@ type Props = {
   onPressPrevious: () => void;
   onSave: (amount: Amount) => void;
   accountMembershipId: string;
+  accountId: string;
 };
 
 export const TransferInternationalWizardAmount = ({
   initialAmount,
   onPressPrevious,
   accountMembershipId,
+  accountId,
   onSave,
 }: Props) => {
   const [input, setInput] = useState<Amount | undefined>();
@@ -54,7 +56,7 @@ export const TransferInternationalWizardAmount = ({
   const { data: quote } = useUrqlQuery(
     {
       query: GetInternationalCreditTransferQuoteDocument,
-      variables: input ?? { value: "", currency: "" },
+      variables: { accountId, ...(input ?? { value: "", currency: "" }) },
       pause: !input || input?.value === "0" || Number.isNaN(Number(input?.value)),
     },
     [input],

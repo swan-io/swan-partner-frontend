@@ -735,7 +735,7 @@
   "transfer.new.internationalTransfer.beneficiary.title": "Who are you sending money to?",
   "transfer.new.internationalTransfer.beneficiary.name": "Beneficiary name",
   "transfer.new.internationalTransfer.details.title": "Transfer details",
-
+  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Field type not implemented",
 
   "transfer.new.title": "New transfer",
   "transfer.newRecurringTransfer": "New standing order",

@@ -124,6 +124,7 @@ export const TransferInternationalWizard = ({
 
                     <TransferInternationalWizardAmount
                       initialAmount={amount}
+                      accountId={accountId}
                       accountMembershipId={accountMembershipId}
                       onPressPrevious={onPressClose}
                       onSave={amount => setStep({ name: "Beneficiary", amount })}

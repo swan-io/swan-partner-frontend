@@ -10602,7 +10602,7 @@ type Query {
   internationalCreditTransferTransactionDetailsDynamicForm(targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, internationalBeneficiary: InternationalBeneficiaryInput!, refreshableFields: [InternationalCreditTransferDetailsInput!]): InternationalCreditTransferDynamicForm
 
   """Request an international credit transfer quote."""
-  internationalCreditTransferQuote(targetAmount: AmountInput!): InternationalCreditTransferQuote
+  internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!): InternationalCreditTransferQuote
 
   """Returns a merchant profile by id."""
   merchantProfile(id: ID!): MerchantProfile

@@ -1917,8 +1917,15 @@ query GetAvailableAccountBalance($accountMembershipId: ID!) {
   }
 }
 
-query GetInternationalCreditTransferQuote($value: AmountValue!, $currency: Currency!) {
-  internationalCreditTransferQuote(targetAmount: { value: $value, currency: $currency }) {
+query GetInternationalCreditTransferQuote(
+  $value: AmountValue!
+  $currency: Currency!
+  $accountId: ID!
+) {
+  internationalCreditTransferQuote(
+    accountId: $accountId
+    targetAmount: { value: $value, currency: $currency }
+  ) {
     exchangeRate
     feesAmount {
       value

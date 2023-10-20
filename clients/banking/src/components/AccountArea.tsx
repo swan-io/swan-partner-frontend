@@ -332,13 +332,16 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   const accountStatementsVisible = Boolean(settings?.accountStatementsVisible);
   const accountVisible = Boolean(settings?.accountVisible);
+  const transferCreationVisible = Boolean(settings?.transferCreationVisible);
+  const paymentListVisible = Boolean(settings?.paymentListVisible);
+  const virtualIbansVisible = Boolean(settings?.virtualIbansVisible);
+
   const memberCreationVisible = Boolean(settings?.memberCreationVisible);
   const memberListVisible = Boolean(settings?.memberListVisible);
-  const paymentListVisible = Boolean(settings?.paymentListVisible);
-  const transferCreationVisible = Boolean(settings?.transferCreationVisible);
-  const virtualIbansVisible = Boolean(settings?.virtualIbansVisible);
-  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
+
   const physicalCardOrderVisible = Boolean(settings?.physicalCardOrderVisible);
+  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
+  const cardOrderVisible = physicalCardOrderVisible || virtualCardOrderVisible;
 
   const membership = useMemo(
     () =>
@@ -374,11 +377,10 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
             membershipEnabled &&
             (transferCreationVisible || paymentListVisible),
 
+          // In case the user doesn't have the right to manage cards
+          // but has one attached to the current membership
           cardMenuIsVisible:
-            // In case the user doesn't have the right to manage cards
-            // but has one attached to the current membership
-            (accountMembership.allCards.totalCount > 0 || canAddCard) &&
-            (virtualCardOrderVisible || physicalCardOrderVisible),
+            accountMembership.allCards.totalCount > 0 || (canAddCard && cardOrderVisible),
 
           memberMenuIsVisible: canViewAccount && canManageAccountMembership && memberListVisible,
         };
@@ -387,9 +389,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       currentAccountMembership,
       accountVisible,
       paymentListVisible,
+      cardOrderVisible,
       memberListVisible,
-      physicalCardOrderVisible,
-      virtualCardOrderVisible,
       transferCreationVisible,
     ],
   );
@@ -804,6 +805,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 idVerified={idVerified}
                                 userStatusIsProcessing={userStatusIsProcessing}
                                 canManageAccountMembership={canManageAccountMembership}
+                                cardOrderVisible={cardOrderVisible}
                                 physicalCardOrderVisible={physicalCardOrderVisible}
                               />
                             ))

@@ -64,6 +64,7 @@ type Props = {
   canAddCard: boolean;
   canManageCards: boolean;
   canManageAccountMembership: boolean;
+  cardOrderVisible: boolean;
   physicalCardOrderVisible: boolean;
   idVerified: boolean;
   refetchAccountAreaQuery: () => void;
@@ -139,6 +140,7 @@ export const CardsArea = ({
   canAddCard,
   canManageCards,
   canManageAccountMembership,
+  cardOrderVisible,
   physicalCardOrderVisible,
   idVerified,
   refetchAccountAreaQuery,
@@ -204,12 +206,13 @@ export const CardsArea = ({
                         canAddCard={canAddCard}
                         totalDisplayableCardCount={totalDisplayableCardCount}
                         params={params}
+                        cardOrderVisible={cardOrderVisible}
                       />
                     ),
                   )
                   .with({ name: "AccountCardsItemArea" }, ({ params: { cardId } }) => (
                     <>
-                      {canAddCard && onlyCardId.isSome() ? (
+                      {canAddCard && cardOrderVisible && onlyCardId.isSome() ? (
                         <View style={[styles.addButton, large && styles.addButtonDesktop]}>
                           <LakeButton
                             size="small"

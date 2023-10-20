@@ -10,16 +10,17 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useForm } from "react-ux-form";
+import { FormConfig, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import {
   DateField,
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalCreditTransferDisplayLanguage,
   RadioField,
+  Scheme,
   SelectField,
   TextField,
 } from "../graphql/partner";
@@ -28,6 +29,8 @@ import { validateRequired } from "../utils/validations";
 import { Amount } from "./TransferInternationalWizardAmount";
 
 export type Beneficiary = { name: string };
+
+type ResultItem = { key: string; value: string };
 
 type Props = {
   initialBeneficiary?: Beneficiary;
@@ -42,21 +45,23 @@ export const TransferInternationalWizardBeneficiary = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [results, setResults] = useState([]);
+  const [results, setResults] = useState<{ [key: string]: string }>({});
+  const [routes, setRoutes] = useState([]);
+  const [route, setRoute] = useState<string | undefined>();
   const { data } = useUrqlQuery(
     {
       query: GetInternationalBeneficiaryDynamicFormsDocument,
       variables: {
-        dynamicFields: results,
         amountValue: amount.value,
         currency: amount.currency,
+        dynamicFields: Object.entries(results).map(([key, value]) => ({ key, value })),
         language: locale.language.toUpperCase() as InternationalCreditTransferDisplayLanguage,
       },
     },
     [locale.language, results],
   );
 
-  const { Field, listenFields } = useForm({
+  const { Field } = useForm({
     name: {
       initialValue: initialBeneficiary?.name,
       sanitize: () => {},
@@ -67,16 +72,25 @@ export const TransferInternationalWizardBeneficiary = ({
     },
   });
 
-  useEffect(
-    () =>
-      listenFields(["results"], ({ results: { value } }) =>
-        setResults(value.filter(({ value }) => isNotNullishOrEmpty(value))),
-      ),
-    [listenFields],
-  );
-  data.mapOkToResult(({ internationalBeneficiaryDynamicForms: { schemes } }) => {
-    console.log("[NC] a", schemes);
-  });
+  // useEffect(
+  //   () =>
+  //     listenFields(["results"], ({ results: { value } }) => {
+  //       setResults(value.filter(({ value }) => isNotNullishOrEmpty(value)));
+  //     }),
+  //   [listenFields],
+  // );
+
+  const schemes = data
+    .mapOkToResult(({ internationalBeneficiaryDynamicForms: { schemes } }) => schemes)
+    .getWithDefault([]);
+
+  useEffect(() => {
+    const r = schemes.map(({ type: value, title: name }) => ({ value, name }));
+    if (!routes.length && r.length) {
+      setRoutes(r);
+      setRoute(r[0].value);
+    }
+  }, [schemes]);
 
   return (
     <View>
@@ -107,15 +121,32 @@ export const TransferInternationalWizardBeneficiary = ({
           Done: result =>
             result.match({
               Error: () => <h1>todo: error </h1>,
-              Ok: ({ internationalBeneficiaryDynamicForms: { schemes } }) => {
-                return (
-                  <Field name="results">
-                    {({ onChange, value }) => (
-                      <BeneficiaryForm schemes={schemes} onChange={onChange} results={value} />
-                    )}
-                  </Field>
-                );
-              },
+              Ok: ({ internationalBeneficiaryDynamicForms: { schemes } }) =>
+                isNotNullishOrEmpty(route) ? (
+                  <>
+                    <RadioGroup items={routes} value={route} onValueChange={setRoute} />
+                    <Space height={32} />
+
+                    <Field name="results">
+                      {({ onChange, value }) => (
+                        <BeneficiaryForm
+                          schemes={schemes}
+                          onChange={onChange}
+                          results={value}
+                          setRoute={setRoute}
+                          routes={routes}
+                          route={route}
+                          refresh={(key, value) => {
+                            setResults({
+                              ...results,
+                              [key]: value,
+                            });
+                          }}
+                        />
+                      )}
+                    </Field>
+                  </>
+                ) : null,
             }),
         })}
       </Tile>
@@ -139,33 +170,30 @@ export const TransferInternationalWizardBeneficiary = ({
   );
 };
 
-type Result = { key: string; value: string };
 type BeneficiaryFormProps = {
-  schemes: {
-    fields: DynamicFormField[];
-    remainingFieldsToRefreshCount: number;
-    title: string;
-    type: string;
-  }[];
-  results: Result[];
-  onChange: (results: Result[]) => void;
+  schemes: Scheme[];
+  results: ResultItem[];
+  onChange: (results: ResultItem[]) => void;
+  route: string;
+  refresh: (key: string, value: string) => void;
 };
 
-const BeneficiaryForm = ({ schemes, results = [], onChange }: BeneficiaryFormProps) => {
-  const [route, setRoute] = useState<string | undefined>();
-  const routes = useMemo<{ value: string; name: string }[]>(
-    () => schemes?.map(({ type: value, title: name }) => ({ value, name })) ?? [],
-    [schemes],
-  );
-
+const BeneficiaryForm = ({
+  schemes,
+  results = [],
+  route,
+  refresh,
+  onChange,
+}: BeneficiaryFormProps) => {
   const fields = useMemo(
     () => schemes.find(({ type }) => type === route)?.fields ?? [],
     [schemes, route],
   );
 
+  console.log("[NC] results", results);
   const form = useMemo(
     () =>
-      fields.reduce((acc, current) => {
+      fields.reduce<FormConfig<any, any>>((acc, current) => {
         acc[current.key] = {
           initialValue: results.find(({ key }) => key === current.key)?.value ?? "",
           validate: current.required ? validateRequired : () => "",
@@ -175,21 +203,16 @@ const BeneficiaryForm = ({ schemes, results = [], onChange }: BeneficiaryFormPro
     [fields],
   );
 
-  useEffect(() => {
-    if (isNullishOrEmpty(route)) {
-      setRoute(routes?.[0]?.value);
-    }
-  }, [routes]);
-
-  console.log("[NC] form", form);
-
   return (
     <>
-      <RadioGroup items={routes} value={route} onValueChange={setRoute} />
-      <Space height={32} />
-
       {fields.length > 0 && isNotNullishOrEmpty(route) ? (
-        <BeneficiaryDynamicForm fields={fields} form={form} key={route} onChange={onChange} />
+        <BeneficiaryDynamicForm
+          fields={fields}
+          form={form}
+          key={route}
+          refresh={refresh}
+          onChange={onChange}
+        />
       ) : null}
     </>
   );
@@ -198,15 +221,18 @@ const BeneficiaryForm = ({ schemes, results = [], onChange }: BeneficiaryFormPro
 type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
 type BeneficiaryDynamicFormProps = {
-  form: {
-    initialValue: string;
-    validate: () => string;
-  }[];
+  form: FormConfig<any, any>;
   fields: DynamicFormField[];
-  onChange: (results: Result[]) => void;
+  refresh: (key: string, value: string) => void;
+  onChange: (results: ResultItem[]) => void;
 };
 
-const BeneficiaryDynamicForm = ({ fields, form, onChange }: BeneficiaryDynamicFormProps) => {
+const BeneficiaryDynamicForm = ({
+  fields,
+  form,
+  refresh,
+  onChange,
+}: BeneficiaryDynamicFormProps) => {
   const { Field, listenFields } = useForm(form);
 
   useEffect(
@@ -219,7 +245,7 @@ const BeneficiaryDynamicForm = ({ fields, form, onChange }: BeneficiaryDynamicFo
 
   return (
     fields.length > 0 &&
-    fields.map(field => (
+    fields.map(({ refreshDynamicFieldsOnChange: dynamic, ...field }) => (
       <LakeLabel
         key={field.key}
         label={field.name}
@@ -232,8 +258,13 @@ const BeneficiaryDynamicForm = ({ fields, form, onChange }: BeneficiaryDynamicFo
                     id={id}
                     ref={ref}
                     items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                    value={value}
-                    onValueChange={onChange}
+                    value={String(value)}
+                    onValueChange={value => {
+                      if (dynamic) {
+                        refresh(field.key, value);
+                      }
+                      onChange(value);
+                    }}
                   />
                 )}
               </Field>
@@ -244,8 +275,13 @@ const BeneficiaryDynamicForm = ({ fields, form, onChange }: BeneficiaryDynamicFo
                 {({ onChange, value }) => (
                   <RadioGroup
                     items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                    value={value}
-                    onValueChange={onChange}
+                    value={String(value)}
+                    onValueChange={value => {
+                      if (dynamic) {
+                        refresh(field.key, value);
+                      }
+                      onChange(value);
+                    }}
                   />
                 )}
               </Field>
@@ -259,7 +295,12 @@ const BeneficiaryDynamicForm = ({ fields, form, onChange }: BeneficiaryDynamicFo
                     value={String(value)}
                     error={error}
                     valid={valid}
-                    onChangeText={onChange}
+                    onChangeText={value => {
+                      if (dynamic) {
+                        refresh(field.key, value);
+                      }
+                      onChange(value);
+                    }}
                     onBlur={onBlur}
                     inputMode="text"
                   />

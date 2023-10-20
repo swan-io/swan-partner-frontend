@@ -116,7 +116,6 @@
   "PhysicalCardCanceledStatusInfo",
   "PhysicalCardCancelingStatusInfo",
   "PhysicalCardConsentPendingStatusInfo",
-  "PhysicalCardCustomOptions",
   "PhysicalCardNotFoundRejection",
   "PhysicalCardProcessingStatusInfo",
   "PhysicalCardRenewedStatusInfo",

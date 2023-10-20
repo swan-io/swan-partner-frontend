@@ -335,10 +335,10 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const memberCreationVisible = Boolean(settings?.memberCreationVisible);
   const memberListVisible = Boolean(settings?.memberListVisible);
   const paymentListVisible = Boolean(settings?.paymentListVisible);
-  const physicalCardOrderVisible = Boolean(settings?.physicalCardOrderVisible);
   const transferCreationVisible = Boolean(settings?.transferCreationVisible);
-  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
   const virtualIbansVisible = Boolean(settings?.virtualIbansVisible);
+  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
+  const physicalCardOrderVisible = Boolean(settings?.physicalCardOrderVisible);
 
   const membership = useMemo(
     () =>
@@ -364,25 +364,33 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canManageBeneficiaries,
           canAddCard,
           canManageCards,
+
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && accountVisible,
+
           paymentMenuIsVisible:
             canViewAccount &&
             canInitiatePayments &&
             membershipEnabled &&
             (transferCreationVisible || paymentListVisible),
-          // In case the user doesn't have the right to manage cards
-          // but has one attached to the current membership
-          cardMenuIsVisible: accountMembership.allCards.totalCount > 0 || canAddCard,
+
+          cardMenuIsVisible:
+            // In case the user doesn't have the right to manage cards
+            // but has one attached to the current membership
+            (accountMembership.allCards.totalCount > 0 || canAddCard) &&
+            (virtualCardOrderVisible || physicalCardOrderVisible),
+
           memberMenuIsVisible: canViewAccount && canManageAccountMembership && memberListVisible,
         };
       }),
     [
-      transferCreationVisible,
-      accountVisible,
-      memberListVisible,
-      paymentListVisible,
       currentAccountMembership,
+      accountVisible,
+      paymentListVisible,
+      memberListVisible,
+      physicalCardOrderVisible,
+      virtualCardOrderVisible,
+      transferCreationVisible,
     ],
   );
 

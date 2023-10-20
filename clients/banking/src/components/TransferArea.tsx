@@ -17,7 +17,7 @@ import { TransferTypePicker } from "./TransferTypePicker";
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canInitiatePaymentsToNewBeneficiaries: boolean;
+  transferCreationVisible: boolean;
   canQueryCardOnTransaction: boolean;
   canViewAccount: boolean;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
@@ -26,7 +26,7 @@ type Props = {
 export const TransferArea = ({
   accountId,
   accountMembershipId,
-  canInitiatePaymentsToNewBeneficiaries,
+  transferCreationVisible,
   canQueryCardOnTransaction,
   transferConsent,
   canViewAccount,
@@ -57,14 +57,14 @@ export const TransferArea = ({
               <TransferPage
                 accountId={accountId}
                 accountMembershipId={accountMembershipId}
-                canInitiatePaymentsToNewBeneficiaries={canInitiatePaymentsToNewBeneficiaries}
+                transferCreationVisible={transferCreationVisible}
                 canQueryCardOnTransaction={canQueryCardOnTransaction}
                 canViewAccount={canViewAccount}
               />
             ),
           )
           .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
-            canInitiatePaymentsToNewBeneficiaries ? (
+            transferCreationVisible ? (
               <>
                 <TransferTypePicker accountMembershipId={accountMembershipId} />
 

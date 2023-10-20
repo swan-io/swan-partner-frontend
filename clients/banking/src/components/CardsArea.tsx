@@ -64,7 +64,7 @@ type Props = {
   canAddCard: boolean;
   canManageCards: boolean;
   canManageAccountMembership: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   idVerified: boolean;
   refetchAccountAreaQuery: () => void;
   userId: string;
@@ -139,7 +139,7 @@ export const CardsArea = ({
   canAddCard,
   canManageCards,
   canManageAccountMembership,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   idVerified,
   refetchAccountAreaQuery,
   userId,
@@ -237,7 +237,7 @@ export const CardsArea = ({
                         idVerified={idVerified}
                         userStatusIsProcessing={userStatusIsProcessing}
                         canManageAccountMembership={canManageAccountMembership}
-                        canOrderPhysicalCards={canOrderPhysicalCards}
+                        physicalCardOrderVisible={physicalCardOrderVisible}
                         large={large}
                         canViewAccount={accountMembership.canViewAccount}
                         canManageCards={accountMembership.canManageCards}
@@ -251,7 +251,7 @@ export const CardsArea = ({
 
             <FullViewportLayer visible={isNotNullish(route?.params.new)}>
               <CardWizard
-                canOrderPhysicalCards={canOrderPhysicalCards}
+                physicalCardOrderVisible={physicalCardOrderVisible}
                 accountMembership={accountMembership}
                 onPressClose={() => {
                   match(route)

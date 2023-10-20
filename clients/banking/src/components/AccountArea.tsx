@@ -330,17 +330,15 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   const settings = projectInfo.webBankingSettings;
 
-  const canInitiatePaymentsToNewBeneficiaries = Boolean(
-    settings?.canInitiatePaymentsToNewBeneficiaries,
-  );
-
-  const canAddNewMembers = Boolean(settings?.canAddNewMembers);
-  const canManageVirtualIbans = Boolean(settings?.canManageVirtualIbans);
-  const canOrderPhysicalCards = Boolean(settings?.canOrderPhysicalCards);
-  const canViewAccountDetails = Boolean(settings?.canViewAccountDetails);
-  const canViewAccountStatement = Boolean(settings?.canViewAccountStatement);
-  const canViewMembers = Boolean(settings?.canViewMembers);
-  const canViewPaymentList = Boolean(settings?.canViewPaymentList);
+  const accountStatementsVisible = Boolean(settings?.accountStatementsVisible);
+  const accountVisible = Boolean(settings?.accountVisible);
+  const memberCreationVisible = Boolean(settings?.memberCreationVisible);
+  const memberListVisible = Boolean(settings?.memberListVisible);
+  const paymentListVisible = Boolean(settings?.paymentListVisible);
+  const physicalCardOrderVisible = Boolean(settings?.physicalCardOrderVisible);
+  const transferCreationVisible = Boolean(settings?.transferCreationVisible);
+  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
+  const virtualIbansVisible = Boolean(settings?.virtualIbansVisible);
 
   const membership = useMemo(
     () =>
@@ -367,23 +365,23 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canAddCard,
           canManageCards,
           historyMenuIsVisible: canViewAccount,
-          detailsMenuIsVisible: canViewAccount && canViewAccountDetails,
+          detailsMenuIsVisible: canViewAccount && accountVisible,
           paymentMenuIsVisible:
             canViewAccount &&
             canInitiatePayments &&
             membershipEnabled &&
-            (canInitiatePaymentsToNewBeneficiaries || canViewPaymentList),
+            (transferCreationVisible || paymentListVisible),
           // In case the user doesn't have the right to manage cards
           // but has one attached to the current membership
           cardMenuIsVisible: accountMembership.allCards.totalCount > 0 || canAddCard,
-          memberMenuIsVisible: canViewAccount && canViewMembers && canManageAccountMembership,
+          memberMenuIsVisible: canViewAccount && canManageAccountMembership && memberListVisible,
         };
       }),
     [
-      canInitiatePaymentsToNewBeneficiaries,
-      canViewAccountDetails,
-      canViewMembers,
-      canViewPaymentList,
+      transferCreationVisible,
+      accountVisible,
+      memberListVisible,
+      paymentListVisible,
       currentAccountMembership,
     ],
   );
@@ -738,7 +736,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountId={accountId}
                                   accountMembershipId={accountMembershipId}
                                   canManageAccountMembership={canManageAccountMembership}
-                                  canManageVirtualIbans={canManageVirtualIbans}
+                                  virtualIbansVisible={virtualIbansVisible}
                                   idVerified={idVerified}
                                   projectName={projectName}
                                   userStatusIsProcessing={userStatusIsProcessing}
@@ -757,7 +755,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     accountMembershipId={accountMembershipId}
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                     onBalanceReceive={setAvailableBalance}
-                                    canViewAccountStatement={canViewAccountStatement}
+                                    accountStatementsVisible={accountStatementsVisible}
                                     canViewAccount={accountMembership.canViewAccount}
                                   />
                                 ),
@@ -772,9 +770,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   <TransferArea
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
-                                    canInitiatePaymentsToNewBeneficiaries={
-                                      canInitiatePaymentsToNewBeneficiaries
-                                    }
+                                    transferCreationVisible={transferCreationVisible}
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                     transferConsent={
                                       consentId != null && consentStatus != null
@@ -800,7 +796,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 idVerified={idVerified}
                                 userStatusIsProcessing={userStatusIsProcessing}
                                 canManageAccountMembership={canManageAccountMembership}
-                                canOrderPhysicalCards={canOrderPhysicalCards}
+                                physicalCardOrderVisible={physicalCardOrderVisible}
                               />
                             ))
                             .with({ name: "AccountMembersArea" }, ({ params }) =>
@@ -817,13 +813,13 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     <MembershipsArea
                                       accountMembershipId={accountMembershipId}
                                       accountId={accountId}
-                                      canAddNewMembers={canAddNewMembers}
+                                      memberCreationVisible={memberCreationVisible}
                                       canAddCard={canAddCard}
                                       onAccountMembershipUpdate={refetchAccountAreaQuery}
                                       accountCountry={currentUserAccountMembership.account.country}
                                       params={params}
                                       currentUserAccountMembership={currentUserAccountMembership}
-                                      canOrderPhysicalCards={canOrderPhysicalCards}
+                                      physicalCardOrderVisible={physicalCardOrderVisible}
                                       shouldDisplayIdVerification={
                                         projectInfo.B2BMembershipIDVerification !== false
                                       }
@@ -838,7 +834,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 accentColor={accentColor}
                                 accountMembershipId={accountMembershipId}
                                 additionalInfo={additionalInfo}
-                                canViewAccountDetails={canViewAccountDetails}
+                                accountVisible={accountVisible}
                                 projectName={projectName}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                               />

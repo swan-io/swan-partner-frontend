@@ -24,7 +24,7 @@ const styles = StyleSheet.create({
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canInitiatePaymentsToNewBeneficiaries: boolean;
+  transferCreationVisible: boolean;
   canQueryCardOnTransaction: boolean;
   canViewAccount: boolean;
 };
@@ -32,7 +32,7 @@ type Props = {
 export const TransferPage = ({
   accountId,
   accountMembershipId,
-  canInitiatePaymentsToNewBeneficiaries,
+  transferCreationVisible,
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
@@ -40,7 +40,7 @@ export const TransferPage = ({
     <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
       {({ small }) => (
         <>
-          {canInitiatePaymentsToNewBeneficiaries ? (
+          {transferCreationVisible ? (
             <Box
               direction="row"
               justifyContent="end"

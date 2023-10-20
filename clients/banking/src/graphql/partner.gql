@@ -256,15 +256,15 @@ query AccountArea($accountMembershipId: ID!) {
     logoUri
     B2BMembershipIDVerification
     webBankingSettings {
-      canAddNewMembers
-      canViewMembers
-      canViewAccountDetails
-      canViewAccountStatement
-      canOrderVirtualCards
-      canOrderPhysicalCards
-      canInitiatePaymentsToNewBeneficiaries
-      canViewPaymentList
-      canManageVirtualIbans
+      accountStatementsVisible: canViewAccountStatement
+      accountVisible: canViewAccountDetails
+      memberCreationVisible: canAddNewMembers
+      memberListVisible: canViewMembers
+      paymentListVisible: canViewPaymentList
+      physicalCardOrderVisible: canOrderPhysicalCards
+      transferCreationVisible: canInitiatePaymentsToNewBeneficiaries
+      virtualCardOrderVisible: canOrderVirtualCards
+      virtualIbansVisible: canManageVirtualIbans
     }
     supportingDocumentSettings {
       collectMode

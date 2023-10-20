@@ -434,7 +434,7 @@ type Props = {
   onRefreshRequest: () => void;
   onRefreshAccountRequest: () => void;
   identificationStatus?: IdentificationStatus;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   bindingUserError: boolean;
 };
 
@@ -449,7 +449,7 @@ export const CardItemPhysicalDetails = ({
   onRefreshAccountRequest,
   identificationStatus,
   onRefreshRequest,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   bindingUserError,
 }: Props) => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
@@ -664,10 +664,10 @@ export const CardItemPhysicalDetails = ({
                 </>
               ) : null}
 
-              {match({ card, canOrderPhysicalCards })
+              {match({ card, physicalCardOrderVisible })
                 .with(
                   {
-                    canOrderPhysicalCards: true,
+                    physicalCardOrderVisible: true,
                     card: {
                       statusInfo: {
                         __typename: P.not(
@@ -1081,10 +1081,10 @@ export const CardItemPhysicalDetails = ({
                 </View>
               </View>
 
-              {match({ canOrderPhysicalCards, card })
+              {match({ physicalCardOrderVisible, card })
                 .with(
                   {
-                    canOrderPhysicalCards: true,
+                    physicalCardOrderVisible: true,
                     card: {
                       statusInfo: {
                         __typename: P.not(

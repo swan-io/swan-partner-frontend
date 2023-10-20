@@ -3361,6 +3361,9 @@ type PhysicalCard {
 
   """Masked Card Number"""
   cardMaskedNumber: String!
+
+  """Custom Options"""
+  customOptions: PhysicalCardCustomOptions!
 }
 
 """Physical Card Activated Status Information"""
@@ -3402,6 +3405,12 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
 
   """The consent required to authorize production of the physical card"""
   consent: Consent!
+}
+
+"""Custom options for physical card."""
+type PhysicalCardCustomOptions {
+  """Additional line embossed on the card."""
+  additionalPrintedLine: String
 }
 
 """Rejection returned when the Physical Card does not exist"""

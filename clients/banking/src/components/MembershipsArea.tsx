@@ -45,9 +45,9 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   accountId: string;
-  canAddNewMembers: boolean;
+  memberCreationVisible: boolean;
   canAddCard: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
   params: {
@@ -74,9 +74,9 @@ const statusList = ["BindingUserError", "Enabled", "InvitationSent", "Suspended"
 export const MembershipsArea = ({
   accountMembershipId,
   accountId,
-  canAddNewMembers,
+  memberCreationVisible,
   canAddCard,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   accountCountry,
   shouldDisplayIdVerification,
   params,
@@ -255,7 +255,7 @@ export const MembershipsArea = ({
                 isFetching={nextData.isLoading()}
                 large={large}
               >
-                {canAddNewMembers ? (
+                {memberCreationVisible ? (
                   <LakeButton
                     size="small"
                     icon="add-circle-filled"
@@ -353,7 +353,7 @@ export const MembershipsArea = ({
                   editingAccountMembershipId={membership.id}
                   onAccountMembershipUpdate={onAccountMembershipUpdate}
                   canAddCard={canAddCard}
-                  canOrderPhysicalCards={canOrderPhysicalCards}
+                  physicalCardOrderVisible={physicalCardOrderVisible}
                   accountCountry={accountCountry}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}
                   onRefreshRequest={reload}

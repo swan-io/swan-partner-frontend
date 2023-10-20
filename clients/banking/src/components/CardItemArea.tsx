@@ -44,7 +44,7 @@ type Props = {
   idVerified: boolean;
   userStatusIsProcessing: boolean;
   canManageAccountMembership: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   canViewAccount: boolean;
   canManageCards: boolean;
   large?: boolean;
@@ -56,7 +56,7 @@ export const CardItemArea = ({
   cardId,
   refetchAccountAreaQuery,
   canManageAccountMembership,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   canViewAccount,
   canManageCards,
   large = true,
@@ -101,10 +101,10 @@ export const CardItemArea = ({
     }, [card, accountMembershipId, cardId]),
   );
 
-  const shouldShowPhysicalCardTab = match({ canOrderPhysicalCards, card })
+  const shouldShowPhysicalCardTab = match({ physicalCardOrderVisible, card })
     .with(
       {
-        canOrderPhysicalCards: true,
+        physicalCardOrderVisible: true,
         card: { cardProduct: { applicableToPhysicalCards: true }, type: P.not("SingleUseVirtual") },
       },
       () => true,
@@ -260,7 +260,7 @@ export const CardItemArea = ({
                   cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                   onRefreshAccountRequest={refetchAccountAreaQuery}
                   identificationStatus={identificationStatus}
-                  canOrderPhysicalCards={canOrderPhysicalCards}
+                  physicalCardOrderVisible={physicalCardOrderVisible}
                 />
 
                 <Space height={24} />

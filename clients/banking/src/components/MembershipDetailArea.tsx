@@ -59,7 +59,7 @@ type Props = {
   shouldDisplayIdVerification: boolean;
   onAccountMembershipUpdate: () => void;
   canAddCard: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   onRefreshRequest: () => void;
   large: boolean;
   params: {
@@ -82,7 +82,7 @@ export const MembershipDetailArea = ({
   shouldDisplayIdVerification,
   onAccountMembershipUpdate,
   canAddCard,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   onRefreshRequest,
   large,
   params,
@@ -331,7 +331,7 @@ export const MembershipDetailArea = ({
                             totalDisplayableCardCount={accountMembership.allCards.totalCount}
                             params={params}
                             isCardWizardOpen={isCardWizardOpen != null}
-                            canOrderPhysicalCards={canOrderPhysicalCards}
+                            physicalCardOrderVisible={physicalCardOrderVisible}
                           />
                         </View>
                       ),

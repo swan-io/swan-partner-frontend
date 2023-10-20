@@ -33,13 +33,13 @@ type Props = {
   cardProduct: CardProduct;
   initialCardFormat?: CardFormat;
   onSubmit: (cardFormat: CardFormat) => void;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
 };
 
 export type CardWizardFormatRef = { submit: () => void };
 
 export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
-  ({ cardProduct, initialCardFormat, onSubmit, canOrderPhysicalCards }: Props, ref) => {
+  ({ cardProduct, initialCardFormat, onSubmit, physicalCardOrderVisible }: Props, ref) => {
     const [currentFormat, setCurrentCardFormat] = useState<CardFormat>(
       () => initialCardFormat ?? "Virtual",
     );
@@ -56,7 +56,7 @@ export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
 
     const items: CardFormat[] = [
       "Virtual",
-      ...(cardProduct.applicableToPhysicalCards && canOrderPhysicalCards
+      ...(cardProduct.applicableToPhysicalCards && physicalCardOrderVisible
         ? ["VirtualAndPhysical" as const]
         : []),
       "SingleUseVirtual",

@@ -38,7 +38,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canManageAccountMembership: boolean;
-  canManageVirtualIbans: boolean;
+  virtualIbansVisible: boolean;
   idVerified: boolean;
   projectName: string;
   userStatusIsProcessing: boolean;
@@ -49,7 +49,7 @@ export const AccountDetailsArea = ({
   accountId,
   accountMembershipId,
   canManageAccountMembership,
-  canManageVirtualIbans,
+  virtualIbansVisible,
   idVerified,
   projectName,
   userStatusIsProcessing,
@@ -68,7 +68,7 @@ export const AccountDetailsArea = ({
         label: t("accountDetails.iban.tab"),
         url: Router.AccountDetailsIban({ accountMembershipId }),
       },
-      ...(canManageVirtualIbans
+      ...(virtualIbansVisible
         ? [
             {
               label: t("accountDetails.virtualIbans.tab"),
@@ -90,7 +90,7 @@ export const AccountDetailsArea = ({
         url: Router.AccountDetailsSettings({ accountMembershipId }),
       },
     ],
-    [accountMembershipId, canManageVirtualIbans, isIndividual],
+    [accountMembershipId, virtualIbansVisible, isIndividual],
   );
 
   return (

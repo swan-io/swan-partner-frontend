@@ -25,7 +25,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
-  canViewAccountStatement: boolean;
+  accountStatementsVisible: boolean;
   canViewAccount: boolean;
   onBalanceReceive: (amount: Amount) => void;
 };
@@ -54,7 +54,7 @@ export const TransactionsArea = ({
   accountId,
   accountMembershipId,
   canQueryCardOnTransaction,
-  canViewAccountStatement,
+  accountStatementsVisible,
   onBalanceReceive,
   canViewAccount,
 }: Props) => {
@@ -140,7 +140,7 @@ export const TransactionsArea = ({
                       }
                       onBalanceReceive={onBalanceReceive}
                       canQueryCardOnTransaction={canQueryCardOnTransaction}
-                      canViewAccountStatement={canViewAccountStatement}
+                      accountStatementsVisible={accountStatementsVisible}
                       canViewAccount={canViewAccount}
                     />
 
@@ -149,7 +149,7 @@ export const TransactionsArea = ({
                       icon="arrow-download-filled"
                       title={t("accountStatements.title")}
                       visible={
-                        name === "AccountTransactionsListStatementsArea" && canViewAccountStatement
+                        name === "AccountTransactionsListStatementsArea" && accountStatementsVisible
                       }
                       onPressClose={() =>
                         Router.push("AccountTransactionsListRoot", {

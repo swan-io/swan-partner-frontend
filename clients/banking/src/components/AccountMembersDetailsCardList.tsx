@@ -53,7 +53,7 @@ type Props = {
     cardType?: string[] | undefined;
   };
   isCardWizardOpen: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
 };
 
 const PER_PAGE = 20;
@@ -70,7 +70,7 @@ export const AccountMembersDetailsCardList = ({
   totalDisplayableCardCount,
   params,
   isCardWizardOpen,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
 }: Props) => {
   const filters: CardFilters = useMemo(() => {
     return {
@@ -237,7 +237,7 @@ export const AccountMembersDetailsCardList = ({
 
       <FullViewportLayer visible={isCardWizardOpen}>
         <CardWizard
-          canOrderPhysicalCards={canOrderPhysicalCards}
+          physicalCardOrderVisible={physicalCardOrderVisible}
           accountMembership={currentUserAccountMembership}
           preselectedAccountMembership={editingAccountMembership}
           onPressClose={() => {

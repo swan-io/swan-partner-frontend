@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -14,7 +14,7 @@ import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/n
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useForm } from "react-ux-form";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import {
   DateField,
   GetInternationalBeneficiaryDynamicFormsDocument,
@@ -47,7 +47,6 @@ export const TransferInternationalWizardBeneficiary = ({
     {
       query: GetInternationalBeneficiaryDynamicFormsDocument,
       variables: {
-        // [NC] FIXME
         dynamicFields: results,
         amountValue: amount.value,
         currency: amount.currency,
@@ -75,6 +74,9 @@ export const TransferInternationalWizardBeneficiary = ({
       ),
     [listenFields],
   );
+  data.mapOkToResult(({ internationalBeneficiaryDynamicForms: { schemes } }) => {
+    console.log("[NC] a", schemes);
+  });
 
   return (
     <View>
@@ -99,27 +101,23 @@ export const TransferInternationalWizardBeneficiary = ({
           )}
         />
 
-        {match(data)
-          .with(AsyncData.P.NotAsked, () => null)
-          .with(
-            AsyncData.P.Done(Result.P.Ok(P.select())),
-            ({ internationalBeneficiaryDynamicForms: { schemes } }) => {
-              if (isNullishOrEmpty(schemes)) {
-                return null;
-              }
-
-              return (
-                <Field name="results">
-                  {({ onChange, value }) => (
-                    <BeneficiaryForm schemes={schemes} onChange={onChange} results={value} />
-                  )}
-                </Field>
-              );
-            },
-          )
-          .otherwise(() => (
-            <ActivityIndicator color={colors.gray[900]} />
-          ))}
+        {data.match({
+          NotAsked: () => null,
+          Loading: () => <ActivityIndicator color={colors.gray[900]} />,
+          Done: result =>
+            result.match({
+              Error: () => <h1>todo: error </h1>,
+              Ok: ({ internationalBeneficiaryDynamicForms: { schemes } }) => {
+                return (
+                  <Field name="results">
+                    {({ onChange, value }) => (
+                      <BeneficiaryForm schemes={schemes} onChange={onChange} results={value} />
+                    )}
+                  </Field>
+                );
+              },
+            }),
+        })}
       </Tile>
 
       <Space height={32} />
@@ -183,7 +181,7 @@ const BeneficiaryForm = ({ schemes, results = [], onChange }: BeneficiaryFormPro
     }
   }, [routes]);
 
-  console.log('[NC] form', form);
+  console.log("[NC] form", form);
 
   return (
     <>

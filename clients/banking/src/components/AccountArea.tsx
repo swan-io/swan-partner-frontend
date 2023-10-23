@@ -346,13 +346,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
-        const {
-          canInitiatePayments,
-          canManageBeneficiaries,
-          canViewAccount,
-          legalRepresentative,
-          canManageCards,
-        } = accountMembership;
+        const { canInitiatePayments, canManageBeneficiaries, canManageCards, canViewAccount } =
+          accountMembership;
 
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
@@ -361,7 +356,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
         return {
           accountMembership,
-          isLegalRepresentative: legalRepresentative,
           canManageAccountMembership,
           canInitiatePayments,
           canManageBeneficiaries,
@@ -669,7 +663,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       canManageCards,
                       canManageAccountMembership,
                       cardMenuIsVisible,
-                      isLegalRepresentative,
                       historyMenuIsVisible,
                       detailsMenuIsVisible,
                       memberMenuIsVisible,
@@ -722,7 +715,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     additionalInfo={additionalInfo}
                                     userStatusIsProcessing={userStatusIsProcessing}
                                     refetchAccountAreaQuery={refetchAccountAreaQuery}
-                                    isLegalRepresentative={isLegalRepresentative}
                                     email={email}
                                     shouldDisplayIdVerification={
                                       !(

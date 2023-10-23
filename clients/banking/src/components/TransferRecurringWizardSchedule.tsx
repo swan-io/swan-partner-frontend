@@ -11,7 +11,6 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
-import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -173,8 +172,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                       error={error}
                       format={locale.dateFormat}
                       firstWeekDay={locale.firstWeekday}
-                      monthNames={monthNames}
-                      weekDayNames={weekDayNames}
                       onChange={onChange}
                       isSelectable={isDateInRange(
                         dayjs.utc().toDate(),
@@ -252,8 +249,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                             error={error}
                             format={locale.dateFormat}
                             firstWeekDay={locale.firstWeekday}
-                            monthNames={monthNames}
-                            weekDayNames={weekDayNames}
                             onChange={onChange}
                             isSelectable={date => {
                               const datePickerDate = dayjs(

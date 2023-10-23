@@ -177,6 +177,7 @@ export const NewMembershipWizard = ({
       strategy: "onSuccessOrBlur",
       validate: (value, { getFieldState }) => {
         return match({
+          canManageCards: getFieldState("canManageCards").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
           canManageBeneficiaries: getFieldState("canManageBeneficiaries").value,
           canManageAccountMembership: getFieldState("canManageAccountMembership").value,
@@ -185,6 +186,7 @@ export const NewMembershipWizard = ({
             { canInitiatePayments: true },
             { canManageBeneficiaries: true },
             { canManageAccountMembership: true },
+            { canManageCards: true },
             () => {
               const validate = combineValidators(validateRequired, validateBirthdate);
               return validate(value);

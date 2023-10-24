@@ -37,6 +37,7 @@ jobs:
           echo "BANKING_URL=http://banking.swan.localhost:8080" >> .env.e2e
           echo "ONBOARDING_URL=http://onboarding.swan.localhost:8080" >> .env.e2e
           echo "CLIENT_PLACEKIT_API_KEY=${{ secrets.CLIENT_PLACEKIT_API_KEY }}" >> .env.e2e
+          echo "PAYMENT_URL=http://payment.swan.localhost:8080" >> .env.e2e
           echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
           echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e
           echo "PASSCODE=${{ secrets.E2E_PASSCODE }}" >> .env.e2e

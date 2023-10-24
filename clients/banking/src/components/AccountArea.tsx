@@ -346,13 +346,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
-        const {
-          canInitiatePayments,
-          canManageBeneficiaries,
-          canViewAccount,
-          legalRepresentative,
-          canManageCards,
-        } = accountMembership;
+        const { canInitiatePayments, canManageBeneficiaries, canManageCards, canViewAccount } =
+          accountMembership;
 
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
@@ -361,7 +356,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
         return {
           accountMembership,
-          isLegalRepresentative: legalRepresentative,
           canManageAccountMembership,
           canInitiatePayments,
           canManageBeneficiaries,
@@ -669,7 +663,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       canManageCards,
                       canManageAccountMembership,
                       cardMenuIsVisible,
-                      isLegalRepresentative,
                       historyMenuIsVisible,
                       detailsMenuIsVisible,
                       memberMenuIsVisible,
@@ -707,36 +700,26 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 <AccountNotFoundPage projectName={projectName} />
                               ),
                             )
-                            .with({ name: "AccountProfile" }, () =>
-                              currentAccountMembership.match({
-                                Ok: ({
-                                  email,
-                                  canManageAccountMembership,
-                                  canManageBeneficiaries,
-                                  canInitiatePayments,
-                                  recommendedIdentificationLevel,
-                                }) => (
-                                  <ProfilePage
-                                    accentColor={accentColor}
-                                    recommendedIdentificationLevel={recommendedIdentificationLevel}
-                                    additionalInfo={additionalInfo}
-                                    userStatusIsProcessing={userStatusIsProcessing}
-                                    refetchAccountAreaQuery={refetchAccountAreaQuery}
-                                    isLegalRepresentative={isLegalRepresentative}
-                                    email={email}
-                                    shouldDisplayIdVerification={
-                                      !(
-                                        projectInfo.B2BMembershipIDVerification === false &&
-                                        canManageAccountMembership === false &&
-                                        canInitiatePayments === false &&
-                                        canManageBeneficiaries === false
-                                      )
-                                    }
-                                  />
-                                ),
-                                Error: () => <ErrorView />,
-                              }),
-                            )
+                            .with({ name: "AccountProfile" }, () => (
+                              <ProfilePage
+                                accentColor={accentColor}
+                                recommendedIdentificationLevel={
+                                  accountMembership.recommendedIdentificationLevel
+                                }
+                                additionalInfo={additionalInfo}
+                                userStatusIsProcessing={userStatusIsProcessing}
+                                refetchAccountAreaQuery={refetchAccountAreaQuery}
+                                email={accountMembership.email}
+                                shouldDisplayIdVerification={
+                                  !(
+                                    projectInfo.B2BMembershipIDVerification === false &&
+                                    canManageAccountMembership === false &&
+                                    accountMembership.canInitiatePayments === false &&
+                                    accountMembership.canManageBeneficiaries === false
+                                  )
+                                }
+                              />
+                            ))
                             .with({ name: "AccountDetailsArea" }, () =>
                               isNullish(accountId) || !detailsMenuIsVisible ? (
                                 <ErrorView />

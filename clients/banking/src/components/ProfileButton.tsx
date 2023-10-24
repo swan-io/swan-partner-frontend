@@ -13,6 +13,7 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -30,6 +31,7 @@ const styles = StyleSheet.create({
   },
   button: {
     flexDirection: "row",
+    cursor: "pointer",
     alignItems: "center",
     borderRadius: radii[8],
     boxShadow: `0 0 0 1px ${colors.gray[100]}`,
@@ -61,11 +63,9 @@ export const ProfileButton = memo<Props>(
     accountMembershipId,
     shouldDisplayIdVerification,
   }) => {
-    const fullName = [firstName, lastName].filter(name => name !== "").join(" ");
-    const initials = [firstName, lastName]
-      .filter(name => name !== "")
-      .map(name => name[0])
-      .join("");
+    const names = [firstName, lastName].filter(isNotEmpty);
+    const fullName = names.join(" ");
+    const initials = names.map(name => name[0]).join("");
 
     return (
       <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>

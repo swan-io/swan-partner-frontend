@@ -32,7 +32,6 @@
     "iban": "0.0.14",
     "libphonenumber-js": "1.10.48",
     "nanoid": "5.0.2",
-    "polished": "4.2.2",
     "react": "18.2.0",
     "react-atomic-state": "1.2.7",
     "react-dom": "18.2.0",
@@ -44,8 +43,6 @@
     "wonka": "6.3.4"
   },
   "devDependencies": {
-    "@testing-library/react": "14.0.0",
-    "@testing-library/user-event": "14.5.1",
     "@types/iban": "0.0.34",
     "@types/react": "18.2.31",
     "@types/react-dom": "18.2.14",

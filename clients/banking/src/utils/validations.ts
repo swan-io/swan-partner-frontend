@@ -1,4 +1,3 @@
-import { Lazy } from "@swan-io/boxed";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
@@ -150,22 +149,6 @@ export const validateAddressLine: Validator<string> = value => {
   }
 };
 
-export const REFERENCE_MAX_LENGTH = 35;
-
-export const validateReference: Validator<string> = value => {
-  const hasOnlyLatinChars = /^[\w/\-?:().,’+ ]*$/.test(value);
-  const hasDoubleSlash = value.includes("//");
-  const startOrEndWithSlash = [value[0], value[value.length - 1]].includes("/");
-
-  if (value !== "" && (!hasOnlyLatinChars || hasDoubleSlash || startOrEndWithSlash)) {
-    return t("error.transferReferenceInvalid");
-  }
-
-  if (value !== "" && value.length > REFERENCE_MAX_LENGTH) {
-    return t("error.transferReferenceTooLong");
-  }
-};
-
 export const validateVatNumber: Validator<string> = value => {
   const cleaned = value.replace(/[^A-Z0-9]/gi, "");
   if (cleaned.length === 0) {
@@ -174,20 +157,6 @@ export const validateVatNumber: Validator<string> = value => {
 
   if (!isValidVatNumber(cleaned)) {
     return t("common.form.invalidVatNumber");
-  }
-};
-
-// Whitelisting the first 8 blocks of unicode (the 9th being cyrilic)
-// And then whitelisting General punctuation, mathematical notations and emojis
-// For reference : https://jrgraphix.net/r/Unicode/
-const VALID_SEPA_BENEFICIARY_NAME_ALPHABET = Lazy(
-  () =>
-    /^([\u0020-\u03FF\u2200-\u22FF\u2000-\u206F]|(\u00a9|\u00ae|[\u2000-\u3300]|\ud83c[\ud000-\udfff]|\ud83d[\ud000-\udfff]|\ud83e[\ud000-\udfff]))+$/,
-);
-
-export const validateSepaBeneficiaryNameAlphabet: Validator<string> = value => {
-  if (!VALID_SEPA_BENEFICIARY_NAME_ALPHABET.get().test(value)) {
-    return t("error.beneficiaryNameInvalid");
   }
 };
 

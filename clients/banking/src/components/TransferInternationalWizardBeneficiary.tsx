@@ -45,23 +45,22 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
-  const [results, setResults] = useState<{ [key: string]: string }>(initialBeneficiary?.results);
+  const [results, setResults] = useState<ResultItem[]>(initialBeneficiary?.results ?? []);
   const submitDynamicFormRef = useRef();
-
   const { data } = useUrqlQuery(
     {
       query: GetInternationalBeneficiaryDynamicFormsDocument,
       variables: {
         amountValue: amount.value,
         currency: amount.currency,
-        dynamicFields: Object.entries(results).map(([key, value]) => ({ key, value })),
+        dynamicFields: results.filter(({ value }) => isNotNullishOrEmpty(value)),
         language: locale.language.toUpperCase() as InternationalCreditTransferDisplayLanguage,
       },
     },
     [locale.language, results],
   );
 
-  const { Field, submitForm, FieldsListener, setFieldValue } = useForm({
+  const { Field, submitForm, FieldsListener, setFieldValue, getFieldState } = useForm({
     name: {
       initialValue: initialBeneficiary?.name,
       validate: () => undefined,
@@ -96,7 +95,8 @@ export const TransferInternationalWizardBeneficiary = ({
   );
 
   useEffect(() => {
-    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route)) {
+    const { value } = getFieldState("route");
+    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value) {
       setFieldValue("route", routes[0].value);
     }
   }, [routes]);
@@ -138,7 +138,6 @@ export const TransferInternationalWizardBeneficiary = ({
                 )}
               </Field>
             )}
-
             <FieldsListener names={["route"]}>
               {({ route }) => (
                 <Field name="results">
@@ -150,11 +149,19 @@ export const TransferInternationalWizardBeneficiary = ({
                         results={value}
                         routes={routes}
                         route={route.value}
+                        key={[route.value, JSON.stringify(updatedSchemes)].join("")}
                         submitDynamicFormRef={submitDynamicFormRef}
                         refresh={(key, value) => {
-                          setResults({
-                            ...results,
-                            [key]: value,
+                          setResults(res => {
+                            const copy = res.slice();
+                            const index = copy.findIndex(({ key: k }) => k === key);
+
+                            if (index >= 0) {
+                              copy[index] = { key, value };
+                              return copy;
+                            }
+
+                            return [...copy, { key, value }];
                           });
                         }}
                       />

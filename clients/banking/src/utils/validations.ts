@@ -1,4 +1,5 @@
 import { Lazy } from "@swan-io/boxed";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
@@ -260,3 +261,15 @@ export const validateBeforeUpdatedAt = (value: string, filters: unknown) => {
       .otherwise(() => undefined)
   );
 };
+
+export const validatePattern =
+  (regex: string, example?: string): Validator<string> =>
+  value => {
+    if (value && regex && !new RegExp(String(regex)).test(value)) {
+      return isNotNullishOrEmpty(example)
+        ? t("transfer.new.internationalTransfer.beneficiary.form.field.invalid.example", {
+            example,
+          })
+        : t("transfer.new.internationalTransfer.beneficiary.form.field.invalid");
+    }
+  };

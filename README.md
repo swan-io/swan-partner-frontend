@@ -29,6 +29,7 @@ Add the following to your `/etc/hosts` file (so that we're able to replicate the
 ```
 127.0.0.1 banking.swan.local
 127.0.0.1 onboarding.swan.local
+127.0.0.1 payment.swan.local
 ```
 
 ### 3. HTTPS

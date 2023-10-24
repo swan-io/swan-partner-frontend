@@ -44,7 +44,6 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  isLegalRepresentative: boolean;
   additionalInfo: AdditionalInfo;
   userStatusIsProcessing: boolean;
   refetchAccountAreaQuery: () => void;

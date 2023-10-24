@@ -97,8 +97,9 @@ const getPort = (url: string) => {
 
 const BANKING_PORT = getPort(env.BANKING_URL);
 const ONBOARDING_PORT = getPort(env.ONBOARDING_URL);
+const PAYMENT_PORT = getPort(env.PAYMENT_URL);
 
-const ports = new Set([BANKING_PORT, ONBOARDING_PORT]);
+const ports = new Set([BANKING_PORT, ONBOARDING_PORT, PAYMENT_PORT]);
 
 const assertIsBoundToLocalhost = (host: string) => {
   return new Promise((resolve, reject) => {
@@ -120,11 +121,13 @@ export const start = async ({
   if (mode === "development") {
     const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+    const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
 
     try {
       await Promise.all([
         assertIsBoundToLocalhost(BANKING_HOST),
         assertIsBoundToLocalhost(ONBOARDING_HOST),
+        assertIsBoundToLocalhost(PAYMENT_HOST),
       ]);
     } catch (err) {
       console.error(err);
@@ -203,7 +206,7 @@ export const start = async ({
    * when the onboarding flow completes with the OAuth2 flow
    */
   await app.register(cors, {
-    origin: [env.ONBOARDING_URL, env.BANKING_URL, ...allowedCorsOrigins],
+    origin: [env.ONBOARDING_URL, env.BANKING_URL, env.PAYMENT_URL, ...allowedCorsOrigins],
     credentials: true,
   });
 

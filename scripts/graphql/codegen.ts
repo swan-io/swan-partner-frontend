@@ -95,6 +95,23 @@ const config: CodegenConfig = {
   },
 
   generates: {
+    [file("../../clients/payment/src/graphql/unauthenticated.ts")]: {
+      documents: file("../../clients/payment/src/graphql/unauthenticated.gql"),
+      schema: file("./dist/unauthenticated-schema.gql"),
+      plugins: frontendPlugins,
+      config: frontendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
+    [file("../../clients/payment/src/graphql/introspection.json")]: {
+      schema: file("./dist/unauthenticated-schema.gql"),
+      plugins: ["introspection"],
+      config: { descriptions: false },
+      hooks: {
+        afterOneFileWrite: "yarn tsx scripts/graphql/cleanIntrospectionSchema.ts",
+      },
+    },
+
     [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),

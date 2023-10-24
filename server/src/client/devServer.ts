@@ -37,16 +37,17 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
   return { mainServerPort, liveReloadServerPort };
 }
 
-const apps = ["onboarding", "banking"] as const;
+const apps = ["onboarding", "banking", "payment"] as const;
 
 const BANKING_HOST = new URL(env.BANKING_URL).hostname;
 const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
 
 export async function startDevServer(
   app: FastifyInstance<Http2SecureServer>,
   httpsConfig?: HttpsConfig,
 ) {
-  const [onboarding, webBanking] = await Promise.all(
+  const [onboarding, webBanking, payment] = await Promise.all(
     apps.map(app => {
       return createViteDevServer(
         app,
@@ -60,7 +61,7 @@ export async function startDevServer(
     }),
   );
 
-  if (onboarding == null || webBanking == null) {
+  if (onboarding == null || webBanking == null || payment == null) {
     console.error("Failed to start dev servers");
     process.exit(1);
   }
@@ -70,6 +71,9 @@ export async function startDevServer(
   });
   const { proxy: onboardingProxy } = fastProxy({
     base: `http://localhost:${onboarding.mainServerPort}`,
+  });
+  const { proxy: paymentProxy } = fastProxy({
+    base: `http://localhost:${payment.mainServerPort}`,
   });
   const handler: RouteHandlerMethod<Http2SecureServer> = (request, reply) => {
     const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
@@ -89,11 +93,18 @@ export async function startDevServer(
           request.url,
           {},
         );
+      case PAYMENT_HOST:
+        return paymentProxy(
+          request.raw as unknown as IncomingMessage,
+          reply.raw as unknown as ServerResponse,
+          request.url,
+          {},
+        );
       default:
         return reply
           .status(404)
           .send(
-            `Unknown host: "${host}", should be either "${BANKING_HOST}" or "${ONBOARDING_HOST}"`,
+            `Unknown host: "${host}", should be either "${BANKING_HOST}", "${ONBOARDING_HOST} or "${PAYMENT_HOST}"`,
           );
     }
   };

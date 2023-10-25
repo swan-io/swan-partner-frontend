@@ -13,7 +13,7 @@ const octokit = github.getOctokit(process.env.NOTIFY_GH_TOKEN);
 // Get owner and repo from context of payload that triggered the action
 const { owner, repo } = context.repo;
 
-const tag = process.env.RELEASE_TAG?.replace("prod-", "");
+const tag = process.env.RELEASE_TAG?.replace("preprod-", "")?.replace("prod-", "");
 
 if (tag == null) {
   process.exit(1);

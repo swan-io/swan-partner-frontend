@@ -67,7 +67,7 @@ export const TransferInternationalWizardBeneficiary = ({
   const { Field, submitForm, FieldsListener, setFieldValue, getFieldState } = useForm({
     name: {
       initialValue: initialBeneficiary?.name,
-      validate: () => undefined,
+      validate: validateRequired,
     },
     route: {
       initialValue: initialBeneficiary?.route,
@@ -149,6 +149,7 @@ export const TransferInternationalWizardBeneficiary = ({
                 )}
               </Field>
             )}
+
             <FieldsListener names={["route"]}>
               {({ route }) => (
                 <Field name="results">
@@ -184,7 +185,7 @@ export const TransferInternationalWizardBeneficiary = ({
 
             <LakeButton
               color="current"
-              onPress={() => submitDynamicFormRef?.current?.(submitForm(onSave))}
+              onPress={() => submitDynamicFormRef?.current?.(() => submitForm(onSave))}
               grow={small}
             >
               {t("common.continue")}

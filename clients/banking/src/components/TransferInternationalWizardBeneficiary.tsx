@@ -29,6 +29,10 @@ import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validatePattern, validateRequired } from "../utils/validations";
 import { Amount } from "./TransferInternationalWizardAmount";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 
 type ResultItem = { key: string; value: string };
 type Results = { [key: string]: string };
@@ -369,5 +373,36 @@ const BeneficiaryDynamicForm = ({
         }
       />
     ))
+  );
+};
+
+type SummaryProps = {
+  beneficiary: Beneficiary;
+  onPressEdit: () => void;
+};
+
+export const TransferInternationamWizardBeneficiarySummary = ({ beneficiary, onPressEdit }: SummaryProps) => {
+  return (
+    <Tile selected={false}>
+      <Box direction="row">
+        <View>
+          <LakeText color={colors.gray[500]} variant="regular">
+            {t("transfer.new.internationalTransfer.beneficiary.summary.title")}
+          </LakeText>
+
+          <Space height={8} />
+
+          <LakeHeading level={4} variant="h4">
+            {beneficiary.name}
+          </LakeHeading>
+        </View>
+
+        <Fill />
+
+        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
+          {t("common.edit")}
+        </LakeButton>
+      </Box>
+    </Tile>
   );
 };

@@ -17,6 +17,7 @@ import {
 import {
   Beneficiary,
   TransferInternationalWizardBeneficiary,
+  TransferInternationamWizardBeneficiarySummary,
 } from "./TransferInternationalWizardBeneficiary";
 import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 
@@ -160,6 +161,20 @@ export const TransferInternationalWizard = ({
               .with({ name: "Details" }, ({ amount, beneficiary, details }) => {
                 return (
                   <>
+                    <TransferInternationamWizardAmountSummary
+                      amount={amount}
+                      onPressEdit={() => setStep({ name: "Amount", amount })}
+                    />
+
+                    <Space height={24} />
+
+                    <TransferInternationamWizardBeneficiarySummary
+                      beneficiary={beneficiary}
+                      onPressEdit={() => setStep({ name: "Beneficiary", amount, beneficiary })}
+                    />
+
+                    <Space height={24} />
+
                     <LakeHeading level={2} variant="h3">
                       {t("transfer.new.internationalTransfer.details.title")}
                     </LakeHeading>

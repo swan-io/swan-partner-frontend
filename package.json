@@ -1,7 +1,7 @@
 {
   "name": "@swan-io/partner-frontend",
   "description": "Swan front-end code",
-  "version": "1.3.7",
+  "version": "1.3.8",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

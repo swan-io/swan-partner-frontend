@@ -41,7 +41,7 @@ jobs:
         id: changelog
         run: yarn -s ci-get-changelog
         env:
-          GITHUB_TOKEN: $${{ github.token }}
+          GITHUB_TOKEN: $${{ secrets.NOTIFY_GH_TOKEN }}
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Get version

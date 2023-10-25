@@ -1,4 +1,4 @@
-name: Prerelease notify
+name: Release notify
 
 on:
   repository_dispatch:
@@ -21,7 +21,7 @@ jobs:
         id: cache-release-tag
         uses: actions/cache@v3
         env:
-          cache-name: cache-prerelease-tag
+          cache-name: cache-release-tag
         with:
           path: ./package.json
           key: swan-partner-frontend-deploy-${{ steps.version.outputs.version }}
@@ -48,15 +48,15 @@ jobs:
         if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
         id: version
         shell: bash
-        run: echo "version=${RELEASE_TAG#*preprod-}" >> $GITHUB_OUTPUT
+        run: echo "version=${RELEASE_TAG#*prod-}" >> $GITHUB_OUTPUT
         env:
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Notify on Slack
-        if: ${{ startsWith(github.event.client_payload.imageTag, 'preprod-') && steps.cache-prerelease-tag.outputs.cache-hit != 'true' }}
+        if: ${{ startsWith(github.event.client_payload.imageTag, 'prod-') && steps.cache-release-tag.outputs.cache-hit != 'true' }}
         uses: bloodyowl/slack-message-release-action@v1.3.0
         with:
           version: ${{ steps.version.outputs.version }}
           changelog: ${{ steps.changelog.outputs.body }}
           slack_webhook_url: ${{ secrets.SLACK_WEBHOOK_URL }}
-          environment: "preprod"
+          environment: "prod"

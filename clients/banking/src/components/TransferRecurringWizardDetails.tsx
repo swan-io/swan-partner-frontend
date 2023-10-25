@@ -33,14 +33,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export type FixedAmountDetails = {
+type FixedAmountDetails = {
   type: "FixedAmount";
   amount: PaymentCurrencyAmount;
   label?: string;
   reference?: string;
 };
 
-export type TargetAccountBalanceDetails = {
+type TargetAccountBalanceDetails = {
   type: "TargetAccountBalance";
   targetAmount: PaymentCurrencyAmount;
   label?: string;

@@ -115,11 +115,6 @@ export const accountTransactionsRoutes = [
   "AccountTransactionsUpcoming",
 ] as const;
 
-export const accountTransactionsStatementsRoutes = [
-  "AccountTransactionsListStatementsMonthly",
-  "AccountTransactionsListStatementsUpcoming",
-];
-
 export const membershipsRoutes = ["AccountMembersList", "AccountMembersDetailsArea"] as const;
 
 export const membershipsDetailRoutes = [

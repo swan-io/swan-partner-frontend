@@ -42,7 +42,6 @@ nanoid | 5.0.2 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitni
 node-mailjet | 6.0.4 | MIT | https://github.com/mailjet/mailjet-apiv3-nodejs.git | https://github.com/mailjet/mailjet-apiv3-nodejs#readme | Mailjet
 pathe | 1.1.1 | MIT | https://github.com/unjs/pathe.git | Unknown | Unknown
 pino-pretty | 10.2.3 | MIT | ssh://git@github.com/pinojs/pino-pretty.git | https://github.com/pinojs/pino-pretty#readme | James Sumners
-polished | 4.2.2 | MIT | https://github.com/styled-components/polished.git | https://polished.js.org/ | Brian Hough
 react | 18.2.0 | MIT | https://github.com/facebook/react.git | https://reactjs.org/ | Unknown
 react-atomic-state | 1.2.7 | MIT | https://github.com/zoontek/react-atomic-state.git | https://github.com/zoontek/react-atomic-state#readme | Mathieu Acthernoene
 react-dom | 18.2.0 | MIT | https://github.com/facebook/react.git | https://reactjs.org/ | Unknown

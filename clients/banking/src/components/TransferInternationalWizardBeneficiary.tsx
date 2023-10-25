@@ -9,11 +9,12 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, RefObject, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { FormConfig, useForm } from "react-ux-form";
+import { FormConfig, combineValidators, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import {
   DateField,
@@ -27,9 +28,11 @@ import {
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { Amount } from "./TransferInternationalWizardAmount";
+import { validatePattern, validateRequired } from "../utils/validations";
 
 type ResultItem = { key: string; value: string };
-export type Beneficiary = { name: string; results: ResultItem[]; route: string };
+type Results = { [key: string]: string };
+export type Beneficiary = { name: string; results: Results; route: string };
 
 type Props = {
   initialBeneficiary?: Beneficiary;
@@ -45,7 +48,14 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
-  const [results, setResults] = useState<ResultItem[]>(initialBeneficiary?.results ?? []);
+  const [results, setResults] = useState<{ [key: string]: string }>(
+    initialBeneficiary?.results ?? {},
+  );
+  
+
+  
+  console.log('[NC] initialBeneficiary', initialBeneficiary);
+
   const submitDynamicFormRef = useRef();
   const { data } = useUrqlQuery(
     {
@@ -53,7 +63,9 @@ export const TransferInternationalWizardBeneficiary = ({
       variables: {
         amountValue: amount.value,
         currency: amount.currency,
-        dynamicFields: results.filter(({ value }) => isNotNullishOrEmpty(value)),
+        dynamicFields: Object.entries(results)
+          .map(([key, value]) => ({ key, value }))
+          .filter(({ value }) => isNotNullishOrEmpty(value)),
         language: locale.language.toUpperCase() as InternationalCreditTransferDisplayLanguage,
       },
     },
@@ -92,6 +104,15 @@ export const TransferInternationalWizardBeneficiary = ({
         name: getInternationalTransferFormRouteLabel(value),
       })),
     [schemes],
+  );
+
+  const refresh = useDebounce<ResultItem>(
+    ({ key, value }) =>
+      setResults({
+        ...results,
+        [key]: value,
+      }),
+    1000,
   );
 
   useEffect(() => {
@@ -149,21 +170,9 @@ export const TransferInternationalWizardBeneficiary = ({
                         results={value}
                         routes={routes}
                         route={route.value}
-                        key={[route.value, JSON.stringify(updatedSchemes)].join("")}
+                        key={route.value}
                         submitDynamicFormRef={submitDynamicFormRef}
-                        refresh={(key, value) => {
-                          setResults(res => {
-                            const copy = res.slice();
-                            const index = copy.findIndex(({ key: k }) => k === key);
-
-                            if (index >= 0) {
-                              copy[index] = { key, value };
-                              return copy;
-                            }
-
-                            return [...copy, { key, value }];
-                          });
-                        }}
+                        refresh={refresh}
                       />
                     ) : null
                   }
@@ -202,24 +211,25 @@ type BeneficiaryFormProps = {
   results: ResultItem[];
   onChange: (results: ResultItem[]) => void;
   route: string;
-  refresh: (key: string, value: string) => void;
+  refresh: (results: ResultItem) => void;
   submitDynamicFormRef?: RefObject<unknown>;
 };
 
 const BeneficiaryForm = ({
-  schemes,
+  schemes = [],
   results = [],
   route,
   refresh,
   onChange,
   submitDynamicFormRef,
 }: BeneficiaryFormProps) => {
+  console.log('[NC] schemes', schemes);
   const fields = useMemo(
     () => schemes.find(({ type }) => type === route)?.fields ?? [],
     [schemes, route],
   );
 
-  console.log("[NC] route", route);
+  console.log("[NC] BeneficiaryForm->results", results);
 
   const form = useMemo(
     () =>
@@ -227,11 +237,10 @@ const BeneficiaryForm = ({
         (acc, { key, validationRegex: regex, required, example }) => {
           acc[key] = {
             initialValue: results.find(({ key: current }) => current === key)?.value ?? "",
-            validate: () => undefined,
-            // validate: combineValidators(
-            //   required && validateRequired,
-            //   isNotNullishOrEmpty(regex) && validatePattern(String(regex), String(example)),
-            // ),
+            validate: combineValidators(
+              required && validateRequired,
+              isNotNullishOrEmpty(regex) && validatePattern(String(regex), String(example)),
+            ),
           };
           return acc;
         },
@@ -257,7 +266,7 @@ type DynamicFormField = SelectField | TextField | DateField | RadioField;
 type BeneficiaryDynamicFormProps = {
   form: FormConfig<any, any>;
   fields: DynamicFormField[];
-  refresh: (key: string, value: string) => void;
+  refresh: (item: ResultItem) => void;
   onChange: (results: ResultItem[]) => void;
   submitDynamicFormRef?: RefObject<unknown>;
 };
@@ -306,7 +315,9 @@ const BeneficiaryDynamicForm = ({
                     value={String(value)}
                     onValueChange={value => {
                       if (dynamic) {
-                        refresh(field.key, value);
+                        console.log("[NC] thinking face", value);
+
+                        refresh({ key: field.key, value });
                       }
                       onChange(value);
                     }}
@@ -326,7 +337,7 @@ const BeneficiaryDynamicForm = ({
                     placeholder={example}
                     onChangeText={value => {
                       if (dynamic) {
-                        refresh(field.key, value);
+                        refresh({ key: field.key, value });
                       }
                       onChange(value);
                     }}
@@ -345,7 +356,7 @@ const BeneficiaryDynamicForm = ({
                       value={String(value)}
                       onValueChange={value => {
                         if (dynamic) {
-                          refresh(field.key, value);
+                          refresh({ key: field.key, value });
                         }
                         onChange(value);
                       }}
@@ -367,7 +378,7 @@ const BeneficiaryDynamicForm = ({
                     valid={valid}
                     onChangeText={value => {
                       if (dynamic) {
-                        refresh(field.key, value);
+                        refresh({ key: field.key, value });
                       }
                       onChange(value);
                     }}

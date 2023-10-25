@@ -2557,6 +2557,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
+
+  """Individual beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Define the type of the UBO"""
@@ -2609,6 +2612,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformationInput
+
+  """Individual ultimate beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -4388,6 +4394,15 @@ enum SuspendAccountReasonType {
 
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
+
+"""Individual ultimate beneficial owner title (Mr/Ms)"""
+enum TitleEnum {
+  """Identified as a man"""
+  Mr
+
+  """Identified as a woman"""
+  Ms
+}
 
 """Rejection returned if too many items are given"""
 type TooManyItemsRejection implements Rejection {

@@ -1,19 +1,19 @@
-import core from "@actions/core";
-import github from "@actions/github";
+import * as core from "@actions/core";
+import * as github from "@actions/github";
 import slackifyMarkdown from "slackify-markdown";
 
-if (process.env.GITHUB_TOKEN == null) {
+if (process.env.NOTIFY_GH_TOKEN == null) {
   process.exit(0);
 }
 
 const context = github.context;
 // Get authenticated GitHub client (Ocktokit): https://github.com/actions/toolkit/tree/master/packages/github#usage
-const octokit = github.getOctokit(process.env.GITHUB_TOKEN);
+const octokit = github.getOctokit(process.env.NOTIFY_GH_TOKEN);
 
 // Get owner and repo from context of payload that triggered the action
 const { owner, repo } = context.repo;
 
-const tag = process.env.RELEASE_TAG?.replace("prod-", "");
+const tag = process.env.RELEASE_TAG?.replace("preprod-", "")?.replace("prod-", "");
 
 if (tag == null) {
   process.exit(1);

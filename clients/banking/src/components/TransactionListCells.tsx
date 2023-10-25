@@ -182,7 +182,7 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
   );
 };
 
-export const formatTransactionType = (typename: string) => {
+const formatTransactionType = (typename: string) => {
   const unprefixed = typename.startsWith("SEPA") ? typename.slice(4) : typename;
 
   return (

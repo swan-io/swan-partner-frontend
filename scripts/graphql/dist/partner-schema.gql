@@ -4807,6 +4807,10 @@ type FeeOutDebtor implements FeeDebtor {
   accountNumber: AccountNumber!
 }
 
+type FeeSettingsNotFoundRejection implements Rejection {
+  message: String!
+}
+
 """Fees type"""
 enum FeesTypeEnum {
   """Other banking fee"""
@@ -5936,6 +5940,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
+
+  """Individual beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Define the type of the UBO"""
@@ -13552,6 +13559,14 @@ enum SwanIdentificationStatus {
   Expired
 }
 
+type SwanTCUDocumentNotFoundRejection implements Rejection {
+  message: String!
+}
+
+type SwanTCUDocumentStatusNotAllowedRejection implements Rejection {
+  message: String!
+}
+
 type TextField implements Field {
   displayFormat: String
   example: String
@@ -13562,6 +13577,15 @@ type TextField implements Field {
   refreshDynamicFieldsOnChange: Boolean!
   required: Boolean!
   validationRegex: String
+}
+
+"""Individual ultimate beneficial owner title (Mr/Ms)"""
+enum TitleEnum {
+  """Identified as a man"""
+  Mr
+
+  """Identified as a woman"""
+  Ms
 }
 
 scalar TokenRequestorId

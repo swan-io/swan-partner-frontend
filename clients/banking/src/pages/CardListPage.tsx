@@ -44,6 +44,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   canAddCard: boolean;
+  cardOrderVisible: boolean;
   canManageCards: boolean;
   canManageAccountMembership: boolean;
   accountMembershipId: string;
@@ -141,6 +142,7 @@ const usePageData = ({
 
 export const CardListPage = ({
   canAddCard,
+  cardOrderVisible,
   accountMembershipId,
   accountId,
   totalDisplayableCardCount,
@@ -194,7 +196,7 @@ export const CardListPage = ({
     </FixedListViewEmpty>
   );
 
-  if (totalDisplayableCardCount === 0 && canAddCard) {
+  if (totalDisplayableCardCount === 0 && canAddCard && cardOrderVisible) {
     return <View style={styles.empty}>{empty}</View>;
   }
 
@@ -214,7 +216,7 @@ export const CardListPage = ({
               onRefresh={reload}
               large={large}
             >
-              {canAddCard ? (
+              {canAddCard && cardOrderVisible ? (
                 <LakeButton
                   size="small"
                   icon="add-circle-filled"

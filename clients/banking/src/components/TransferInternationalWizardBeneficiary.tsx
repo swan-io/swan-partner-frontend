@@ -27,8 +27,8 @@ import {
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
-import { Amount } from "./TransferInternationalWizardAmount";
 import { validatePattern, validateRequired } from "../utils/validations";
+import { Amount } from "./TransferInternationalWizardAmount";
 
 type ResultItem = { key: string; value: string };
 type Results = { [key: string]: string };
@@ -49,12 +49,13 @@ export const TransferInternationalWizardBeneficiary = ({
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
   const [results, setResults] = useState<{ [key: string]: string }>(
-    initialBeneficiary?.results ?? {},
+    initialBeneficiary?.results?.reduce((acc, current) => {
+      acc[current.key] = current.value;
+      return acc;
+    }, {}) ?? {},
   );
-  
 
-  
-  console.log('[NC] initialBeneficiary', initialBeneficiary);
+  console.log("[NC] initialBeneficiary", initialBeneficiary);
 
   const submitDynamicFormRef = useRef();
   const { data } = useUrqlQuery(
@@ -223,7 +224,7 @@ const BeneficiaryForm = ({
   onChange,
   submitDynamicFormRef,
 }: BeneficiaryFormProps) => {
-  console.log('[NC] schemes', schemes);
+  console.log("[NC] schemes", schemes);
   const fields = useMemo(
     () => schemes.find(({ type }) => type === route)?.fields ?? [],
     [schemes, route],
@@ -315,8 +316,6 @@ const BeneficiaryDynamicForm = ({
                     value={String(value)}
                     onValueChange={value => {
                       if (dynamic) {
-                        console.log("[NC] thinking face", value);
-
                         refresh({ key: field.key, value });
                       }
                       onChange(value);

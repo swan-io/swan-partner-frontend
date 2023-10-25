@@ -48,29 +48,20 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
-  const [results, setResults] = useState<{ [key: string]: string }>(
-    initialBeneficiary?.results?.reduce((acc, current) => {
-      acc[current.key] = current.value;
-      return acc;
-    }, {}) ?? {},
-  );
-
-  console.log("[NC] initialBeneficiary", initialBeneficiary);
+  const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
   const submitDynamicFormRef = useRef();
   const { data } = useUrqlQuery(
     {
       query: GetInternationalBeneficiaryDynamicFormsDocument,
       variables: {
+        dynamicFields,
         amountValue: amount.value,
         currency: amount.currency,
-        dynamicFields: Object.entries(results)
-          .map(([key, value]) => ({ key, value }))
-          .filter(({ value }) => isNotNullishOrEmpty(value)),
         language: locale.language.toUpperCase() as InternationalCreditTransferDisplayLanguage,
       },
     },
-    [locale.language, results],
+    [locale.language, dynamicFields],
   );
 
   const { Field, submitForm, FieldsListener, setFieldValue, getFieldState } = useForm({
@@ -107,14 +98,12 @@ export const TransferInternationalWizardBeneficiary = ({
     [schemes],
   );
 
-  const refresh = useDebounce<ResultItem>(
-    ({ key, value }) =>
-      setResults({
-        ...results,
-        [key]: value,
-      }),
-    1000,
-  );
+  const refresh = useDebounce<string[]>(keys => {
+    const { value } = getFieldState("results");
+    setDynamicFields(
+      value?.filter(({ key, value }) => keys.includes(key) && isNotNullishOrEmpty(value)) ?? [],
+    );
+  }, 1000);
 
   useEffect(() => {
     const { value } = getFieldState("route");
@@ -195,7 +184,7 @@ export const TransferInternationalWizardBeneficiary = ({
 
             <LakeButton
               color="current"
-              onPress={() => submitDynamicFormRef?.current?.(() => submitForm(onSave))}
+              onPress={() => submitDynamicFormRef?.current?.(submitForm(onSave))}
               grow={small}
             >
               {t("common.continue")}
@@ -212,7 +201,7 @@ type BeneficiaryFormProps = {
   results: ResultItem[];
   onChange: (results: ResultItem[]) => void;
   route: string;
-  refresh: (results: ResultItem) => void;
+  refresh: (keys: string[]) => void;
   submitDynamicFormRef?: RefObject<unknown>;
 };
 
@@ -224,14 +213,10 @@ const BeneficiaryForm = ({
   onChange,
   submitDynamicFormRef,
 }: BeneficiaryFormProps) => {
-  console.log("[NC] schemes", schemes);
   const fields = useMemo(
     () => schemes.find(({ type }) => type === route)?.fields ?? [],
     [schemes, route],
   );
-
-  console.log("[NC] BeneficiaryForm->results", results);
-
   const form = useMemo(
     () =>
       fields.reduce<FormConfig<any, any>>(
@@ -267,7 +252,7 @@ type DynamicFormField = SelectField | TextField | DateField | RadioField;
 type BeneficiaryDynamicFormProps = {
   form: FormConfig<any, any>;
   fields: DynamicFormField[];
-  refresh: (item: ResultItem) => void;
+  refresh: (keys: string[]) => void;
   onChange: (results: ResultItem[]) => void;
   submitDynamicFormRef?: RefObject<unknown>;
 };
@@ -280,23 +265,30 @@ const BeneficiaryDynamicForm = ({
   submitDynamicFormRef,
 }: BeneficiaryDynamicFormProps) => {
   const { Field, listenFields, submitForm } = useForm(form);
+  const dynamicFields = useMemo(
+    () =>
+      fields
+        .filter(({ refreshDynamicFieldsOnChange }) => refreshDynamicFieldsOnChange)
+        .map(({ key }) => key),
+    [fields],
+  );
 
   useEffect(() => {
     submitDynamicFormRef.current = submitForm;
   }, [submitForm]);
 
-  useEffect(
-    () =>
-      listenFields(Object.keys(form), values =>
-        onChange(
-          Object.entries(values).map(([key, { value }]) => ({
-            key,
-            value: String(value),
-          })),
-        ),
+  useEffect(() => {
+    listenFields(Object.keys(form), values =>
+      onChange(
+        Object.entries(values).map(([key, { value }]) => ({
+          key,
+          value: String(value),
+        })),
       ),
-    [fields, onChange, listenFields],
-  );
+    );
+
+    listenFields(dynamicFields, () => refresh(dynamicFields));
+  }, [onChange, dynamicFields, listenFields]);
 
   return (
     fields.length > 0 &&
@@ -314,12 +306,7 @@ const BeneficiaryDynamicForm = ({
                     ref={ref}
                     items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                     value={String(value)}
-                    onValueChange={value => {
-                      if (dynamic) {
-                        refresh({ key: field.key, value });
-                      }
-                      onChange(value);
-                    }}
+                    onValueChange={onChange}
                   />
                 )}
               </Field>
@@ -334,12 +321,7 @@ const BeneficiaryDynamicForm = ({
                     error={error}
                     valid={valid}
                     placeholder={example}
-                    onChangeText={value => {
-                      if (dynamic) {
-                        refresh({ key: field.key, value });
-                      }
-                      onChange(value);
-                    }}
+                    onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
                   />
@@ -353,12 +335,7 @@ const BeneficiaryDynamicForm = ({
                     <RadioGroup
                       items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                       value={String(value)}
-                      onValueChange={value => {
-                        if (dynamic) {
-                          refresh({ key: field.key, value });
-                        }
-                        onChange(value);
-                      }}
+                      onValueChange={onChange}
                     />
 
                     <Space height={24} />
@@ -375,12 +352,7 @@ const BeneficiaryDynamicForm = ({
                     value={String(value)}
                     error={error}
                     valid={valid}
-                    onChangeText={value => {
-                      if (dynamic) {
-                        refresh({ key: field.key, value });
-                      }
-                      onChange(value);
-                    }}
+                    onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
                   />

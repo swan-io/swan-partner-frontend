@@ -310,7 +310,7 @@
   "members.permission.not.canInitiatePayments": "Kan betalingen niet initiëren",
   "members.permission.not.canManageAccountMembership": "Kan leden niet beheren",
   "members.permission.not.canManageBeneficiaries": "Kan begunstigden niet beheren",
-  "members.permission.not.canManageCards": "Kan geen kaarten beheren",
+  "members.permission.not.canManageCards": "Kan kaarten niet beheren",
   "members.permission.not.canViewAccount": "Kan rekening niet bekijken",
   "membership.cancel.blockPermanently": "Permanent blokkeren",
   "membership.cancel.description": "Dit lid heeft geen toegang meer tot dit account.",

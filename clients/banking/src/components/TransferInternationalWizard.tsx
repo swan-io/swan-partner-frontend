@@ -168,13 +168,6 @@ export const TransferInternationalWizard = ({
 
                     <Space height={24} />
 
-                    <TransferInternationamWizardBeneficiarySummary
-                      beneficiary={beneficiary}
-                      onPressEdit={() => setStep({ name: "Beneficiary", amount, beneficiary })}
-                    />
-
-                    <Space height={24} />
-
                     <LakeHeading level={2} variant="h3">
                       {t("transfer.new.internationalTransfer.details.title")}
                     </LakeHeading>

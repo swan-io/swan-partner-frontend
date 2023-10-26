@@ -5,12 +5,12 @@ on:
     types: [deploy_success]
 
 jobs:
-  prerelease-notify:
-    name: Prerelease notify
+  release-notify:
+    name: Release notify
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.event.client_payload.imageTag }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     permissions:
       contents: read # This is required for actions/checkout
       id-token: write # This is required for requesting the JWT

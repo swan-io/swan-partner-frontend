@@ -1,9 +1,11 @@
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
 import { FormConfig, combineValidators, useForm } from "react-ux-form";
@@ -122,15 +124,16 @@ const BeneficiaryDynamicForm = forwardRef(
       fields.map(({ refreshDynamicFieldsOnChange: dynamic, example, ...field }) => (
         <LakeLabel
           key={field.key}
-          label={field.name}  
+          label={field.name}
           render={id =>
             match(field)
               .with({ __typename: "SelectField" }, ({ allowedValues }) => (
                 <Field name={field.key}>
-                  {({ onChange, value, ref }) => (
+                  {({ onChange, value, ref, error }) => (
                     <LakeSelect
                       id={id}
                       ref={ref}
+                      error={error}
                       items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                       value={String(value)}
                       onValueChange={onChange}
@@ -164,9 +167,8 @@ const BeneficiaryDynamicForm = forwardRef(
                         value={String(value)}
                         onValueChange={onChange}
                       />
-                      { isNotNullishOrEmpty(error) && (error) }
-                      
-                      <Space height={24} />
+
+                      <LakeText color={colors.negative[400]}>{error ?? " "}</LakeText>
                     </>
                   )}
                 </Field>

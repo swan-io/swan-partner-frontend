@@ -12,7 +12,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, radii } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -20,16 +19,27 @@ import { P, match } from "ts-pattern";
 import {
   GetAvailableAccountBalanceDocument,
   GetInternationalCreditTransferQuoteDocument,
+  InternationalCreditTransferCurrencyExchange,
 } from "../graphql/partner";
 import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
-  placeholderRow: {
+  placeholder: {
     height: 14,
-    width: "30%",
+    width: "50px",
     backgroundColor: colors.gray[200],
     borderRadius: radii[6],
+    display: "inline-block",
+    verticalAlign: "middle",
+    animationDuration: "2000ms",
+    animationTimingFunction: "linear",
+    animationIterationCount: "infinite",
+    animationKeyframes: {
+      "50%": {
+        opacity: 0.6,
+      },
+    },
   },
 });
 
@@ -145,7 +155,7 @@ export const TransferInternationalWizardAmount = ({
                     onChange({ currency: value.currency, value: v });
                   }}
                   onBlur={onBlur}
-                  units={currencies}
+                  units={currencies as unknown as string[]}
                   unit={value.currency}
                   inputMode="numeric"
                   onUnitChange={c => {
@@ -161,15 +171,10 @@ export const TransferInternationalWizardAmount = ({
 
         {match(quote)
           .with(AsyncData.P.NotAsked, () => null)
-          .with(AsyncData.P.Loading, () => (
-            <>
-              <ActivityIndicator color={colors.gray[900]} />
-              <Space height={12} />
-            </>
+          .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
+          .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => (
+            <QuoteDetails quote={data.internationalCreditTransferQuote} />
           ))
-          .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
-            return <QuoteDetails quote={data.internationalCreditTransferQuote} refreshing={true} />;
-          })
           .otherwise(() => (
             <ErrorView />
           ))}
@@ -238,11 +243,7 @@ export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }
   );
 };
 
-const QuoteDetails = ({ quote }) => {
-  if (isNullish(quote)) {
-    return null;
-  }
-
+const QuoteDetails = ({ quote }: { quote: InternationalCreditTransferCurrencyExchange }) => {
   return (
     <>
       <LakeText color={colors.gray[700]} variant="smallRegular">
@@ -291,40 +292,36 @@ const QuoteDetails = ({ quote }) => {
   );
 };
 
-// const QuoteDetailsPlaceholder = ({ quote, refreshing }) => {
-//   if (isNullish(quote)) {
-//     return null;
-//   }
+const Placeholder = () => <View style={styles.placeholder} />;
 
-//   return (
-//     <>
-//       <LakeText color={colors.gray[700]} variant="smallRegular">
-//         {formatNestedMessage("transfer.new.internationalTransfer.amount.description", {
-//           amount: "amount",
-//           rate: "rate",
-//           bold: str => `${str}+str`,
-//         })}
-//       </LakeText>
+const QuoteDetailsPlaceholder = () => (
+  <>
+    <LakeText color={colors.gray[700]} variant="smallRegular">
+      {formatNestedMessage("transfer.new.internationalTransfer.amount.description", {
+        amount: "",
+        rate: <Placeholder />,
+        bold: () => <Placeholder />,
+      })}
+    </LakeText>
 
-//       <Space height={12} />
+    <Space height={12} />
 
-//       <LakeText color={colors.gray[700]} variant="smallRegular">
-//         {formatNestedMessage("transfer.new.internationalTransfer.fee", {
-//           fee: "fee",
-//           bold: str => `${str}+str2`,
-//         })}
-//       </LakeText>
+    <LakeText color={colors.gray[700]} variant="smallRegular">
+      {formatNestedMessage("transfer.new.internationalTransfer.fee", {
+        fee: "",
+        bold: () => <Placeholder />,
+      })}
+    </LakeText>
 
-//       <Space height={12} />
-//       <Separator />
-//       <Space height={12} />
+    <Space height={12} />
+    <Separator />
+    <Space height={12} />
 
-//       <LakeText color={colors.gray[700]} variant="smallRegular">
-//         {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
-//           amount: "amount",
-//           colored: str => `${str}+colored`,
-//         })}
-//       </LakeText>
-//     </>
-//   );
-// };
+    <LakeText color={colors.gray[700]} variant="smallRegular">
+      {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
+        amount: "",
+        colored: () => <Placeholder />,
+      })}
+    </LakeText>
+  </>
+);

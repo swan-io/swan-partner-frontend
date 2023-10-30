@@ -83,6 +83,7 @@
   "CannotActivatePhysicalCardRejection",
   "CapitalDepositCaseConnection",
   "CapitalDepositCaseEdge",
+  "CapitalDepositDocumentInfo",
   "CardCanceledStatusInfo",
   "CardCancelingStatusInfo",
   "CardConfidential",

@@ -4,15 +4,16 @@ import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
-import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
 import { FormConfig, combineValidators, useForm } from "react-ux-form";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { DateField, RadioField, Scheme, SelectField, TextField } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validatePattern, validateRequired } from "../utils/validations";
+
+type DynamicFormField = SelectField & TextField & DateField & RadioField;
 
 type ResultItem = { [key: string]: string };
 type DynamicFormBuilderProps = {
@@ -26,8 +27,8 @@ type DynamicFormBuilderProps = {
 
 export const DynamicFormBuilder = forwardRef(
   ({ schemes = [], results = [], route, refresh, onChange }: DynamicFormBuilderProps, ref) => {
-    const fields = useMemo(
-      () => schemes.find(({ type }) => type === route)?.fields ?? [],
+    const fields = useMemo<DynamicFormField[]>(
+      () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
       [schemes, route],
     );
     const form = useMemo(
@@ -60,8 +61,6 @@ export const DynamicFormBuilder = forwardRef(
     ) : null;
   },
 );
-
-type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
 type BeneficiaryDynamicFormProps = {
   form: FormConfig<any, any>;
@@ -121,83 +120,92 @@ const BeneficiaryDynamicForm = forwardRef(
 
     return (
       fields.length > 0 &&
-      fields.map(({ refreshDynamicFieldsOnChange: dynamic, example, ...field }) => (
-        <LakeLabel
-          key={field.key}
-          label={field.name}
-          render={id =>
-            match(field)
-              .with({ __typename: "SelectField" }, ({ allowedValues }) => (
-                <Field name={field.key}>
-                  {({ onChange, value, ref, error }) => (
-                    <LakeSelect
-                      id={id}
-                      ref={ref}
-                      error={error}
-                      items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                      value={String(value)}
-                      onValueChange={onChange}
-                    />
-                  )}
-                </Field>
-              ))
-              .with({ __typename: "DateField" }, () => (
-                <Field name={field.key}>
-                  {({ value, onChange, onBlur, error, valid, ref }) => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      value={String(value)}
-                      error={error}
-                      valid={valid}
-                      placeholder={example}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      inputMode="text"
-                    />
-                  )}
-                </Field>
-              ))
-              .with({ __typename: "RadioField" }, ({ allowedValues }) => (
-                <Field name={field.key}>
-                  {({ onChange, value, error }) => (
-                    <>
-                      <RadioGroup
-                        items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                        value={String(value)}
-                        onValueChange={onChange}
-                      />
+      fields.map((field: DynamicFormField) =>
+        match(field)
+          .with(
+            { __typename: P.union("SelectField", "DateField", "RadioField", "TextField") },
+            () => (
+              <LakeLabel
+                key={field.key}
+                label={field.name}
+                render={id =>
+                  match(field)
+                    .with({ __typename: "SelectField" }, ({ allowedValues }) => (
+                      <Field name={field.key}>
+                        {({ onChange, value, ref, error }) => (
+                          <LakeSelect
+                            id={id}
+                            ref={ref}
+                            error={error}
+                            items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
+                            value={String(value)}
+                            onValueChange={onChange}
+                          />
+                        )}
+                      </Field>
+                    ))
+                    .with({ __typename: "DateField" }, () => (
+                      <Field name={field.key}>
+                        {({ value, onChange, onBlur, error, valid, ref }) => (
+                          <LakeTextInput
+                            id={id}
+                            ref={ref}
+                            value={String(value)}
+                            error={error}
+                            valid={valid}
+                            placeholder={field.example}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                            inputMode="text"
+                          />
+                        )}
+                      </Field>
+                    ))
+                    .with({ __typename: "RadioField" }, ({ allowedValues }) => (
+                      <Field name={field.key}>
+                        {({ onChange, value, error }) => (
+                          <>
+                            <RadioGroup
+                              items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
+                              value={String(value)}
+                              onValueChange={onChange}
+                            />
 
-                      <LakeText color={colors.negative[400]}>{error ?? " "}</LakeText>
-                    </>
-                  )}
-                </Field>
-              ))
-              .with({ __typename: "TextField" }, () => (
-                <Field name={field.key}>
-                  {({ value, onChange, onBlur, error, valid, ref }) => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      value={String(value)}
-                      error={error}
-                      valid={valid}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                      inputMode="text"
-                    />
-                  )}
-                </Field>
-              ))
-              .otherwise(() => (
-                <LakeAlert
-                  variant="error"
-                  title={t("transfer.new.internationalTransfer.beneficiary.form.field.unknown")}
-                />
-              )) as ReactNode
-          }
-        />
-      ))
+                            <LakeText color={colors.negative[400]}>{error ?? " "}</LakeText>
+                          </>
+                        )}
+                      </Field>
+                    ))
+                    .with({ __typename: "TextField" }, () => (
+                      <Field name={field.key}>
+                        {({ value, onChange, onBlur, error, valid, ref }) => (
+                          <LakeTextInput
+                            id={id}
+                            ref={ref}
+                            value={String(value)}
+                            error={error}
+                            valid={valid}
+                            onChangeText={onChange}
+                            onBlur={onBlur}
+                            inputMode="text"
+                          />
+                        )}
+                      </Field>
+                    ))
+                    .otherwise(() => (
+                      <LakeAlert
+                        variant="error"
+                        title={t(
+                          "transfer.new.internationalTransfer.beneficiary.form.field.unknown",
+                        )}
+                      />
+                    )) as ReactNode
+                }
+              />
+            ),
+          )
+          .otherwise(() => null),
+      )
     );
   },
 );

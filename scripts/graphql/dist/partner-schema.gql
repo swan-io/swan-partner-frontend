@@ -2375,6 +2375,9 @@ type CapitalDepositDocument {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Information about the document."""
+  info: CapitalDepositDocumentInfo
 }
 
 """
@@ -2383,6 +2386,17 @@ Rejection returned if the document from a capital deposit case cannot be uploade
 type CapitalDepositDocumentCanNotBeUploaded implements Rejection {
   id: String!
   message: String!
+}
+
+type CapitalDepositDocumentInfo {
+  """Capital deposit case information."""
+  capitalDepositCase: CapitalDepositCase
+
+  """Individual shareholder information."""
+  individualShareholder: IndividualShareholder
+
+  """Company shareholder information."""
+  companyShareholder: CompanyShareholder
 }
 
 """Status of the Capital Deposit Case"""
@@ -4014,12 +4028,6 @@ input CreditTransferInput {
   an arbitrary identifier that you can define to easily identify this transaction later
   """
   externalReference: String
-
-  """
-  *DEPRECATED*
-  if the transfer will execute as instant
-  """
-  isInstant: Boolean
 
   """
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
@@ -5995,6 +6003,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformationInput
+
+  """Individual ultimate beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -6921,25 +6932,25 @@ input InternationalCreditTransferDetailsInput {
 """Language: ISO 639-1 language code"""
 enum InternationalCreditTransferDisplayLanguage {
   """British English"""
-  EN
+  en
 
   """Dutch"""
-  NL
+  nl
 
   """French"""
-  FR
+  fr
 
   """German"""
-  DE
+  de
 
   """Italian"""
-  IT
+  it
 
   """Portuguese"""
-  PT
+  pt
 
   """Spanish"""
-  ES
+  es
 }
 
 """
@@ -7510,6 +7521,9 @@ type LegalDocumentActiveStatusInfo implements LegalDocumentStatusInfo {
   """
   status: LegalDocumentStatus!
 
+  """Creation date"""
+  createdAt: DateTime!
+
   """Activation date"""
   activatedAt: DateTime
 }
@@ -7538,6 +7552,12 @@ type LegalDocumentInactiveStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Inactive for type LegalDocumentInactiveStatusInfo)
   """
   status: LegalDocumentStatus!
+
+  """Creation date"""
+  createdAt: DateTime!
+
+  """Activation date"""
+  activatedAt: DateTime
 
   """Deactivation date"""
   deactivatedAt: DateTime
@@ -7573,6 +7593,12 @@ type LegalDocumentUpcomingStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Upcoming for type LegalDocumentUpcomingStatusInfo)
   """
   status: LegalDocumentStatus!
+
+  """Creation date"""
+  createdAt: DateTime!
+
+  """Date when the LegalDocument will be activated"""
+  effectiveDate: DateTime
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -10549,7 +10575,7 @@ type Query {
   capitalDepositCases(first: Int! = 50, before: String, after: String, filters: CapitalDepositCaseFiltersInput, orderBy: CapitalDepositCaseOrderByInput): CapitalDepositCaseConnection!
 
   """Return the CapitalDepositDocument for the provided id."""
-  document(id: ID!): CapitalDepositDocument
+  capitalDepositDocument(id: ID!): CapitalDepositDocument
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder

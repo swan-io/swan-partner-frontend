@@ -17,7 +17,6 @@ import {
 import {
   Beneficiary,
   TransferInternationalWizardBeneficiary,
-  TransferInternationamWizardBeneficiarySummary,
 } from "./TransferInternationalWizardBeneficiary";
 import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 

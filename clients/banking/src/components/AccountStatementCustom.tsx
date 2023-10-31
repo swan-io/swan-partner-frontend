@@ -302,24 +302,15 @@ const NewStatementForm = ({
   const onPressSubmit = () => {
     submitForm(values => {
       if (hasDefinedKeys(values, ["startDate", "closingDate", "format", "language"])) {
-        const now = dayjs();
-        const closingDate = dayjs.utc(values.closingDate, locale.dateFormat).subtract(1, "hour");
-
         return generateStatement({
           input: {
             accountId,
             openingDate: dayjs
               .utc(values.startDate, locale.dateFormat)
-              .endOf("day")
-              .subtract(1, "hour")
-              .toISOString(),
-            closingDate: closingDate.isSame(now, "day")
-              ? closingDate
-                  .set("hour", now.hour())
-                  .set("minute", now.minute())
-                  .set("second", now.second())
-                  .toISOString()
-              : closingDate.endOf("day").toISOString(),
+              .format("YYYY-MM-DDT00:00:00.000+01:00"),
+            closingDate: dayjs
+              .utc(values.closingDate, locale.dateFormat)
+              .format("YYYY-MM-DDT23:59:59.999+01:00"),
             statementType: values.format,
             language: values.language,
           },

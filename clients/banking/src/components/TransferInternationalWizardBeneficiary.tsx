@@ -22,11 +22,10 @@ import {
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
-import { DynamicFormBuilder } from "./DynamicFormBuilder";
+import { ResultItem, TransferInternationalDynamicFormBuilder } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 
-type Results = { [key: string]: string };
-export type Beneficiary = { name: string; results: Results; route: string };
+export type Beneficiary = { name: string; results: ResultItem[]; route: string };
 
 type Props = {
   initialBeneficiary?: Beneficiary;
@@ -63,7 +62,7 @@ export const TransferInternationalWizardBeneficiary = ({
   const { Field, submitForm, FieldsListener, setFieldValue, getFieldState } = useForm<{
     name: string;
     route: string;
-    results: Results | undefined;
+    results: ResultItem[];
   }>({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
@@ -74,7 +73,7 @@ export const TransferInternationalWizardBeneficiary = ({
       validate: () => undefined,
     },
     results: {
-      initialValue: initialBeneficiary?.results,
+      initialValue: initialBeneficiary?.results ?? [],
       validate: () => undefined,
     },
   });
@@ -156,11 +155,10 @@ export const TransferInternationalWizardBeneficiary = ({
                 <Field name="results">
                   {({ onChange, value }) =>
                     isNotNullishOrEmpty(route?.value) ? (
-                      <DynamicFormBuilder
+                      <TransferInternationalDynamicFormBuilder
                         schemes={schemes}
                         onChange={onChange}
                         results={value}
-                        routes={routes}
                         route={route.value}
                         key={route.value}
                         ref={ref}
@@ -191,9 +189,6 @@ export const TransferInternationalWizardBeneficiary = ({
               color="current"
               disabled={refreshing || data.isLoading()}
               onPress={() => ref.current.submitDynamicForm(() => submitForm(onSave))}
-              // onPress={() => {
-              //   ref.current.validateDynamicForm().then(console.log);
-              // }}
               grow={small}
             >
               {t("common.continue")}

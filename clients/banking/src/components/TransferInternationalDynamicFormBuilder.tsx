@@ -15,8 +15,8 @@ import { validatePattern, validateRequired } from "../utils/validations";
 
 type DynamicFormField = SelectField & TextField & DateField & RadioField;
 
-type ResultItem = { [key: string]: string };
-type DynamicFormBuilderProps = {
+export type ResultItem = { [key: string]: string };
+type TransferInternationalDynamicFormBuilder = {
   schemes: Scheme[];
   results: ResultItem[];
   onChange: (results: ResultItem[]) => void;
@@ -25,8 +25,8 @@ type DynamicFormBuilderProps = {
   ref?: RefObject<unknown>;
 };
 
-export const DynamicFormBuilder = forwardRef(
-  ({ schemes = [], results = [], route, refresh, onChange }: DynamicFormBuilderProps, ref) => {
+export const TransferInternationalDynamicFormBuilder = forwardRef(
+  ({ schemes = [], results = [], route, refresh, onChange }: TransferInternationalDynamicFormBuilder, ref) => {
     const fields = useMemo<DynamicFormField[]>(
       () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
       [schemes, route],

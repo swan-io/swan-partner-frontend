@@ -175,6 +175,8 @@ export const TransferInternationalWizard = ({
 
                     <TransferInternationalWizardDetails
                       initialDetails={details}
+                      amount={amount}
+                      beneficiary={beneficiary}
                       onPressPrevious={() => setStep({ name: "Beneficiary", amount, beneficiary })}
                       onSave={details =>
                         onSave({ name: "Beneficiary", amount, beneficiary, details })

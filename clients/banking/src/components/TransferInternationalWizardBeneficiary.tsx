@@ -22,7 +22,11 @@ import {
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
-import { ResultItem, TransferInternationalDynamicFormBuilder } from "./TransferInternationalDynamicFormBuilder";
+import {
+  DynamicFormField,
+  ResultItem,
+  TransferInternationalDynamicFormBuilder,
+} from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 
 export type Beneficiary = { name: string; results: ResultItem[]; route: string };
@@ -41,6 +45,7 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
+  const [route, setRoute] = useState();
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
@@ -59,24 +64,25 @@ export const TransferInternationalWizardBeneficiary = ({
     [locale.language, dynamicFields],
   );
 
-  const { Field, submitForm, FieldsListener, setFieldValue, getFieldState } = useForm<{
-    name: string;
-    route: string;
-    results: ResultItem[];
-  }>({
-    name: {
-      initialValue: initialBeneficiary?.name ?? "",
-      validate: validateRequired,
-    },
-    route: {
-      initialValue: initialBeneficiary?.route ?? "",
-      validate: () => undefined,
-    },
-    results: {
-      initialValue: initialBeneficiary?.results ?? [],
-      validate: () => undefined,
-    },
-  });
+  const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldState } =
+    useForm<{
+      name: string;
+      route: string;
+      results: ResultItem[];
+    }>({
+      name: {
+        initialValue: initialBeneficiary?.name ?? "",
+        validate: validateRequired,
+      },
+      route: {
+        initialValue: initialBeneficiary?.route ?? "",
+        validate: () => undefined,
+      },
+      results: {
+        initialValue: initialBeneficiary?.results ?? [],
+        validate: () => undefined,
+      },
+    });
 
   const updatedSchemes = data
     .mapOkToResult(({ internationalBeneficiaryDynamicForms: { schemes } }) => schemes)
@@ -111,6 +117,15 @@ export const TransferInternationalWizardBeneficiary = ({
       setFieldValue("route", routes[0].value);
     }
   }, [routes]);
+
+  useEffect(() => {
+    listenFields(["route"], ({ route: { value } }) => setRoute(value));
+  }, [listenFields]);
+
+  const fields = useMemo<DynamicFormField[]>(
+    () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
+    [schemes, route],
+  );
 
   return (
     <View>
@@ -156,7 +171,7 @@ export const TransferInternationalWizardBeneficiary = ({
                   {({ onChange, value }) =>
                     isNotNullishOrEmpty(route?.value) ? (
                       <TransferInternationalDynamicFormBuilder
-                        schemes={schemes}
+                        fields={fields}
                         onChange={onChange}
                         results={value}
                         route={route.value}

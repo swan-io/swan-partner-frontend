@@ -2012,12 +2012,19 @@ query GetInternationalCreditTransferTransactionDetailsDynamicForm(
   $amountValue: AmountValue!
   $currency: Currency!
   $language: InternationalCreditTransferDisplayLanguage!
-  $details: [InternationalBeneficiaryDetailsInput!]!
+  $beneficiaryDetails: [InternationalBeneficiaryDetailsInput!]!
+  $dynamicFields: [InternationalCreditTransferDetailsInput!]
 ) {
   internationalCreditTransferTransactionDetailsDynamicForm(
-    internationalBeneficiary: { details: $details, name: $name, route: $route, currency: $currency }
+    internationalBeneficiary: {
+      details: $beneficiaryDetails
+      name: $name
+      route: $route
+      currency: $currency
+    }
     targetAmount: { value: $amountValue, currency: $currency }
     language: $language
+    refreshableFields: $dynamicFields
   ) {
     fields {
       ... on TextField {

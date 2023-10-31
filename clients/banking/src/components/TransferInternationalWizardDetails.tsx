@@ -11,6 +11,8 @@ import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useForm } from "react-ux-form";
 
+import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -24,7 +26,7 @@ import {
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
-export type Details = { results: ResultItem[] };
+export type Details = { results: ResultItem[]; externalReference: string };
 
 type Props = {
   initialDetails?: Details;
@@ -41,7 +43,7 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [schemes, setSchemes] = useState([]);
+  const [fields, setFields] = useState([]);
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
 
@@ -56,29 +58,43 @@ export const TransferInternationalWizardDetails = ({
         amountValue: amount.value,
         currency: amount.currency,
         language: locale.language as InternationalCreditTransferDisplayLanguage,
-        details: dynamicFields,
+        beneficiaryDetails: beneficiary.results,
+        dynamicFields,
       },
     },
     [locale.language, dynamicFields],
   );
 
+  console.log("[NC] data", data);
+
   const { Field, submitForm, getFieldState } = useForm<{
     results: ResultItem[];
+    externalReference: string;
   }>({
     results: {
       initialValue: initialDetails?.results ?? [],
       validate: () => undefined,
     },
+    externalReference: {
+      initialValue: initialDetails?.externalReference ?? "",
+      validate: () => undefined,
+    },
   });
 
-  console.log("[NC] data", data);
-  const updatedForm = data.mapOkToResult(form => form).getWithDefault([]);
+  const updatedForm = data
+    .mapOkToResult(
+      ({ internationalCreditTransferTransactionDetailsDynamicForm }) =>
+        internationalCreditTransferTransactionDetailsDynamicForm,
+    )
+    .getWithDefault([]);
 
   useEffect(() => {
     if (!data.isLoading()) {
-      setSchemes(updatedForm);
+      setFields(updatedForm?.fields ?? []);
     }
   }, [updatedForm]);
+
+  console.log("[NC] updatedForm", updatedForm);
 
   const refresh = useDebounce<string[]>(keys => {
     const { value } = getFieldState("results");
@@ -91,10 +107,10 @@ export const TransferInternationalWizardDetails = ({
   return (
     <View>
       <Tile>
-        {/* <LakeLabel
-          label={t("transfer.new.internationalTransfer.beneficiary.name")}
+        <LakeLabel
+          label={t("transfer.new.internationalTransfer.details.form.field.externalReference")}
           render={id => (
-            <Field name="name">
+            <Field name="externalReference">
               {({ value, onChange, onBlur, error, valid, ref }) => (
                 <LakeTextInput
                   id={id}
@@ -109,7 +125,7 @@ export const TransferInternationalWizardDetails = ({
               )}
             </Field>
           )}
-        /> */}
+        />
 
         {data.isLoading() ? (
           <ActivityIndicator color={colors.gray[900]} />
@@ -118,11 +134,10 @@ export const TransferInternationalWizardDetails = ({
             <Field name="results">
               {({ onChange, value }) => (
                 <TransferInternationalDynamicFormBuilder
-                  schemes={schemes}
+                  fields={fields}
                   onChange={onChange}
                   results={value}
-                  route={route.value}
-                  key={route.value}
+                  key={fields.map(({ key }) => key).join(":")}
                   ref={ref}
                   refresh={fields => {
                     setRefreshing.on();
@@ -147,8 +162,7 @@ export const TransferInternationalWizardDetails = ({
             <LakeButton
               color="current"
               disabled={refreshing || data.isLoading()}
-              // onPress={() => ref.current.submitDynamicForm(() => submitForm(onSave))}
-              onPress={() => console.log("submit")}
+              onPress={() => ref.current.submitDynamicForm(() => submitForm(onSave))}
               grow={small}
             >
               {t("common.continue")}

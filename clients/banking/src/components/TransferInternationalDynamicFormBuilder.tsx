@@ -9,28 +9,24 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
 import { FormConfig, combineValidators, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
-import { DateField, RadioField, Scheme, SelectField, TextField } from "../graphql/partner";
+import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validatePattern, validateRequired } from "../utils/validations";
 
-type DynamicFormField = SelectField & TextField & DateField & RadioField;
+export type DynamicFormField = SelectField & TextField & DateField & RadioField;
 
 export type ResultItem = { [key: string]: string };
 type TransferInternationalDynamicFormBuilder = {
-  schemes: Scheme[];
   results: ResultItem[];
   onChange: (results: ResultItem[]) => void;
-  route: string;
   refresh: (keys: string[]) => void;
   ref?: RefObject<unknown>;
+  fields: DynamicFormField[];
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef(
-  ({ schemes = [], results = [], route, refresh, onChange }: TransferInternationalDynamicFormBuilder, ref) => {
-    const fields = useMemo<DynamicFormField[]>(
-      () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
-      [schemes, route],
-    );
+  ({ results = [], refresh, onChange, fields }: TransferInternationalDynamicFormBuilder, ref) => {
+   
     const form = useMemo(
       () =>
         fields.reduce<FormConfig<any, any>>(
@@ -49,7 +45,7 @@ export const TransferInternationalDynamicFormBuilder = forwardRef(
       [fields],
     );
 
-    return fields.length > 0 && isNotNullishOrEmpty(route) ? (
+    return fields.length > 0 ? (
       <BeneficiaryDynamicForm
         fields={fields}
         form={form}

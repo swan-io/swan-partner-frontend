@@ -741,9 +741,8 @@
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiary:",
 
   "transfer.new.internationalTransfer.details.title": "Transfer details",
-  "transfer.new.internationalTransfer.details.form.field.label": "Custom label",
-  "transfer.new.internationalTransfer.details.form.field.reference": "Reference",
-  "transfer.new.internationalTransfer.details.form.field.reference.help": "0-9 and a-z only; max 35 characters",
+  "transfer.new.internationalTransfer.details.form.field.externalReference": "External reference",
+  "transfer.new.internationalTransfer.details.form.field.externalReference.help": "0-9 and a-z only; max 35 characters",
 
   "transfer.new.internationalTransfer.route.aba": "I have my beneficiary's account number and ACH routing number",
   "transfer.new.internationalTransfer.route.argentina": "I have my beneficiary's alias CBU (single banking code)",

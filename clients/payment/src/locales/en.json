@@ -1,6 +1,7 @@
 {
   "button.pay": "Pay",
   "common.cancel": "Cancel",
+  "error.pageNotFound": "Page not found",
   "paymentLink.addressLine1": "Address line 1",
   "paymentLink.addressLine2": "Address line 2 (optional)",
   "paymentLink.city": "City",

@@ -1,0 +1,14 @@
+{
+  "button.pay": "Pay",
+  "common.cancel": "Cancel",
+  "paymentLink.addressLine1": "Address line 1",
+  "paymentLink.addressLine2": "Address line 2 (optional)",
+  "paymentLink.city": "City",
+  "paymentLink.country": "Country",
+  "paymentLink.firstName": "First name",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.lastName": "Last name",
+  "paymentLink.paymentMethod": "Payment method",
+  "paymentLink.postcode": "Postcode",
+  "paymentLink.state": "State"
+}

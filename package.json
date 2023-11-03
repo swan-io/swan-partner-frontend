@@ -33,7 +33,7 @@
     "ai-translate": "tsx -r dotenv/config scripts/locales/aiTranslate.ts",
     "sort-locales": "tsx scripts/locales/sort.ts",
     "remove-unused-locales": "tsx scripts/locales/removeUnused.ts",
-    "bump": "tsx scripts/version/version.ts",
+    "release": "tsx scripts/release/createPullRequest.ts",
     "dev-e2e": "tsx -r dotenv/config server/src/index.ts --dev dotenv_config_path=.env.e2e",
     "read-e2e-sms": "tsx scripts/twilio/getLastMessages.ts",
     "test-e2e": "playwright test",

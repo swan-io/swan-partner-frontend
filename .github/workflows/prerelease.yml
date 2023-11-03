@@ -1,13 +1,18 @@
 name: Prerelease
 
 on:
-  release:
-    types: [prereleased]
+  pull_request:
+    types: [closed]
 
 jobs:
-  test-and-build:
+  prerelease:
     name: Prerelease
     runs-on: ubuntu-latest
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'prerelease-v') }}
+    env:
+      CHANGELOG: ${{ github.event.pull_request.body }}
+      GH_TOKEN: ${{ github.token }}
+      REF_BRANCH: ${{ github.event.pull_request.head.ref }}
     permissions:
       contents: read # This is required for actions/checkout
       id-token: write # This is required for requesting the JWT
@@ -77,3 +82,10 @@ jobs:
           DEPLOY_GIT_EMAIL: ${{ secrets.DEPLOY_GIT_EMAIL }}
           DEPLOY_ENVIRONMENT: preprod
           DEPLOY_APP_NAME: partner-frontend
+
+      - name: Get version
+        id: version
+        run: echo version="$REF_BRANCH" | sed -e 's/prerelease-//g' >> $GITHUB_OUTPUT
+
+      - name: Create GitHub prerelease
+        run: gh release create ${{ steps.version.outputs.version }} --title ${{ steps.version.outputs.version }} --notes "$CHANGELOG" --prerelease

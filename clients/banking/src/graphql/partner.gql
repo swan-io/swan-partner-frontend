@@ -2476,3 +2476,38 @@ mutation GenerateAccountStatement($input: GenerateAccountStatementInput!) {
     id
   }
 }
+
+mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCreditTransferInput!) {
+  initiateInternationalCreditTransfer(input: $input) {
+    __typename
+    ... on ValidationRejection {
+      message
+    }
+    ... on InternalErrorRejection {
+      message
+    }
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on AccountNotFoundRejection {
+      message
+    }
+    ... on InitiateInternationalCreditTransferResponseSuccessPayload {
+      payment {
+        id
+        statusInfo {
+          __typename
+          ... on PaymentRejected {
+            reason
+          }
+          ... on PaymentConsentPending {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+  }
+}

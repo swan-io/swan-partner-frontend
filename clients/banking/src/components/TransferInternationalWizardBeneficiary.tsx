@@ -17,6 +17,7 @@ import { useForm } from "react-ux-form";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
+  InternationalBeneficiaryDetailsInput,
   InternationalCreditTransferDisplayLanguage,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
@@ -45,7 +46,7 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState([]);
-  const [route, setRoute] = useState();
+  const [route, setRoute] = useState<string | undefined>();
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
@@ -68,7 +69,7 @@ export const TransferInternationalWizardBeneficiary = ({
     useForm<{
       name: string;
       route: string;
-      results: ResultItem[];
+      results: InternationalBeneficiaryDetailsInput[];
     }>({
       name: {
         initialValue: initialBeneficiary?.name ?? "",
@@ -113,8 +114,12 @@ export const TransferInternationalWizardBeneficiary = ({
 
   useEffect(() => {
     const { value } = getFieldState("route");
+    if (value && isNullishOrEmpty(route)) {
+      setRoute(value);
+    }
     if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value) {
       setFieldValue("route", routes[0].value);
+      setRoute(routes[0].value);
     }
   }, [routes]);
 

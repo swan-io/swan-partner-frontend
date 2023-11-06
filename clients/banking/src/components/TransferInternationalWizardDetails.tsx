@@ -32,14 +32,16 @@ type Props = {
   initialDetails?: Details;
   amount: Amount;
   beneficiary: Beneficiary;
+  loading: boolean;
   onPressPrevious: () => void;
-  onSave: (details: Beneficiary) => void;
+  onSave: (details: Details) => void;
 };
 
 export const TransferInternationalWizardDetails = ({
   initialDetails,
   amount,
   beneficiary,
+  loading,
   onPressPrevious,
   onSave,
 }: Props) => {
@@ -90,11 +92,12 @@ export const TransferInternationalWizardDetails = ({
 
   useEffect(() => {
     if (!data.isLoading()) {
-      setFields(updatedForm?.fields ?? []);
+      setFields(updatedForm?.fields);
     }
   }, [updatedForm]);
 
   console.log("[NC] updatedForm", updatedForm);
+  console.log("[NC] fields", fields);
 
   const refresh = useDebounce<string[]>(keys => {
     const { value } = getFieldState("results");
@@ -127,7 +130,7 @@ export const TransferInternationalWizardDetails = ({
           )}
         />
 
-        {data.isLoading() ? (
+        {data.isLoading() && !fields.length ? (
           <ActivityIndicator color={colors.gray[900]} />
         ) : (
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
@@ -137,7 +140,7 @@ export const TransferInternationalWizardDetails = ({
                   fields={fields}
                   onChange={onChange}
                   results={value}
-                  key={fields.map(({ key }) => key).join(":")}
+                  key={fields?.map(({ key }) => key).join(":")}
                   ref={ref}
                   refresh={fields => {
                     setRefreshing.on();
@@ -161,8 +164,12 @@ export const TransferInternationalWizardDetails = ({
 
             <LakeButton
               color="current"
-              disabled={refreshing || data.isLoading()}
-              onPress={() => ref.current.submitDynamicForm(() => submitForm(onSave))}
+              disabled={refreshing || data.isLoading() || loading}
+              onPress={() =>
+                !fields?.length
+                  ? submitForm(onSave)
+                  : ref.current.submitDynamicForm(() => submitForm(onSave))
+              }
               grow={small}
             >
               {t("common.continue")}

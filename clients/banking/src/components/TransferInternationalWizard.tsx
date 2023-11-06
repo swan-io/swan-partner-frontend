@@ -5,10 +5,16 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
+import { InitiateInternationalCreditTransferDocument, InternationalBeneficiaryDetailsInput, InternationalCreditTransferDetailsInput, InternationalCreditTransferRouteInput } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import {
   Amount,
   TransferInternationalWizardAmount,
@@ -71,16 +77,70 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
 };
-
-// [NC] FIXME
-const onSave = console.log;
-
 export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
 }: Props) => {
+  const [transfer, initiateTransfers] = useUrqlMutation(
+    InitiateInternationalCreditTransferDocument,
+  );
   const [step, setStep] = useState<Step>({ name: "Amount" });
+
+  const initiateTransfer = ({
+    amount,
+    beneficiary,
+    details,
+  }: {
+    amount: Amount;
+    beneficiary: Beneficiary;
+    details: Details;
+  }) => {
+    initiateTransfers({
+      input: {
+        accountId,
+        targetAmount: amount,
+        externalReference: details.externalReference,
+        internationalBeneficiary: {
+          name: beneficiary.name,
+          currency: amount.currency,
+          route: beneficiary.route as InternationalCreditTransferRouteInput,
+          details: beneficiary.results as InternationalBeneficiaryDetailsInput[],
+        },
+        internationalCreditTransferDetails: details.results as InternationalCreditTransferDetailsInput[],
+        consentRedirectUrl:
+          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+      },
+    })
+      .mapOk(data => data.initiateInternationalCreditTransfer)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ payment }) => {
+        return match(payment.statusInfo)
+          .with({ __typename: "PaymentInitiated" }, () => {
+            showToast({
+              variant: "success",
+              title: t("transfer.consent.success.title"),
+              description: t("transfer.consent.success.description"),
+              autoClose: false,
+            });
+            Router.replace("AccountTransactionsListRoot", { paymentId: payment.id, accountMembershipId });
+          })
+          .with({ __typename: "PaymentRejected" }, () =>
+            showToast({
+              variant: "error",
+              title: t("transfer.consent.error.rejected.title"),
+              description: t("transfer.consent.error.rejected.description"),
+            }),
+          )
+          .with({ __typename: "PaymentConsentPending" }, ({ consent }) => {
+            window.location.assign(consent.consentUrl);
+          })
+          .exhaustive();
+      })
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
+      });
+  };
 
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
@@ -178,9 +238,10 @@ export const TransferInternationalWizard = ({
                       amount={amount}
                       beneficiary={beneficiary}
                       onPressPrevious={() => setStep({ name: "Beneficiary", amount, beneficiary })}
-                      onSave={details =>
-                        onSave({ name: "Beneficiary", amount, beneficiary, details })
-                      }
+                      loading={transfer.isLoading()}
+                      onSave={details => {
+                        initiateTransfer({ amount, beneficiary, details });
+                      }}
                     />
                   </>
                 );

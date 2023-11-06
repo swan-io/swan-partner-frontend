@@ -25,7 +25,7 @@ type TransferInternationalDynamicFormBuilder = {
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef(
-  ({ results = [], refresh, onChange, fields }: TransferInternationalDynamicFormBuilder, ref) => {
+  ({ results = [], refresh, onChange, fields = [] }: TransferInternationalDynamicFormBuilder, ref) => {
    
     const form = useMemo(
       () =>

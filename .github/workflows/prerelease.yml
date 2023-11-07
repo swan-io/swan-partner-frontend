@@ -8,7 +8,7 @@ jobs:
   prerelease:
     name: Prerelease
     runs-on: ubuntu-latest
-    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'prerelease-v') }}
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release-v') }}
     env:
       CHANGELOG: ${{ github.event.pull_request.body }}
       GH_TOKEN: ${{ github.token }}
@@ -85,7 +85,7 @@ jobs:
 
       - name: Get version
         id: version
-        run: echo version="$REF_BRANCH" | sed -e 's/prerelease-//g' >> $GITHUB_OUTPUT
+        run: echo version="$REF_BRANCH" | sed -e 's/release-//g' >> $GITHUB_OUTPUT
 
       - name: Create GitHub prerelease
         run: gh release create ${{ steps.version.outputs.version }} --title ${{ steps.version.outputs.version }} --notes "$CHANGELOG" --prerelease

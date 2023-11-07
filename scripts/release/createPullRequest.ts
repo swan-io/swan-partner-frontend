@@ -7,26 +7,23 @@ import prompts from "prompts";
 import semver from "semver";
 import { PackageJson } from "type-fest";
 
-type ChildProcess = {
-  stdout: string;
-  stderr: string;
-};
-
 const REPOSITORY_URL = "https://github.com/swan-io/swan-partner-frontend";
 
 const logError = (...error: string[]) =>
   console.error(`${chalk.red("ERROR")} ${error.join("\n")}` + "\n");
 
-const toOut = (stdout: string, stderr: string) =>
-  (stdout === '""' ? "" : stdout.trim()) || (stderr === '""' ? "" : stderr.trim());
-
 const promisifiedExec = util.promisify(childProcess.exec);
 
-const exec = (cmd: string): Promise<{ cmd: string; ok: boolean; out: string }> =>
-  promisifiedExec(cmd).then(
-    ({ stdout, stderr }: ChildProcess) => ({ cmd, ok: true, out: toOut(stdout, stderr) }),
-    ({ stdout, stderr }: ChildProcess) => ({ cmd, ok: false, out: toOut(stdout, stderr) }),
-  );
+const exec = (cmd: string): Promise<string> =>
+  promisifiedExec(cmd)
+    .then(({ stdout, stderr }) => ({
+      stdout: stdout === '""' ? "" : stdout.trim(),
+      stderr: stderr === '""' ? "" : stderr.trim(),
+    }))
+    .then(({ stdout, stderr }) => stdout || stderr);
+
+const isOk = (promise: Promise<unknown>) => promise.then(() => true).catch(() => false);
+const isKo = (promise: Promise<unknown>) => promise.then(() => false).catch(() => true);
 
 const rootDir = path.resolve(__dirname, "../..");
 const pkgPath = path.join(rootDir, "package.json");
@@ -38,64 +35,59 @@ if (currentVersion == null) {
   process.exit(1);
 }
 
-const { prerelease } = currentVersion;
-const isCurrentVersionPrerelease = prerelease.length > 0;
-
-if (isCurrentVersionPrerelease) {
-  const isValidPrerelease =
-    prerelease.length === 2 && prerelease[0] === "rc" && typeof prerelease[1] === "number";
-
-  if (!isValidPrerelease) {
-    logError(`Invalid current package version: ${currentVersion.raw}`);
-    process.exit(1);
-  }
-}
-
-const isProgramMissing = (program: string) => exec(`which ${program}`).then(_ => !_.ok);
+const isProgramMissing = (program: string) => isKo(exec(`which ${program}`));
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-repo
-const isNotGitRepo = () => exec("git rev-parse --git-dir").then(_ => !_.ok);
+const isNotGitRepo = () => isKo(exec("git rev-parse --git-dir"));
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-current-branch
-const getGitBranch = () => exec("git rev-parse --abbrev-ref HEAD").then(_ => _.out);
+const getGitBranch = () => exec("git rev-parse --abbrev-ref HEAD");
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-is-clean
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-show-skipped
 const isGitRepoDirty = () =>
   Promise.all([
-    exec("git diff-index --cached --quiet --ignore-submodules --exit-code HEAD --").then(_ => _.ok),
-    exec("! git diff --no-ext-diff --ignore-submodules --quiet --exit-code").then(_ => _.ok),
-    exec("nbr=$(git ls-files --other --exclude-standard | wc -l); [ $nbr -gt 0 ]").then(_ => _.ok),
-    exec('nbr=$(git ls-files -v | grep "^S" | cut -c3- | wc -l); test $nbr -eq 0').then(_ => _.ok),
+    isOk(exec("git diff-index --cached --quiet --ignore-submodules --exit-code HEAD --")),
+    isOk(exec("! git diff --no-ext-diff --ignore-submodules --quiet --exit-code")),
+    isOk(exec("nbr=$(git ls-files --other --exclude-standard | wc -l); [ $nbr -gt 0 ]")),
+    isOk(exec('nbr=$(git ls-files -v | grep "^S" | cut -c3- | wc -l); test $nbr -eq 0')),
   ]).then(([isIndexClean, hasUnstagedChanges, hasUntrackedFiles, isSkipped]) => {
     const isWorktreeClean = !hasUnstagedChanges && !hasUntrackedFiles;
     return !isIndexClean || !isWorktreeClean || !isSkipped;
   });
 
-const fetchGitRemote = (remote: string) => exec(`git fetch ${remote} --prune`);
+const fetchGitRemote = (remote: string) =>
+  exec(`git fetch ${remote} --tags --prune --prune-tags --force`);
 
 const getLastGitCommitHash = (branch: string) =>
-  exec(`git log -n 1 ${branch} --pretty=format:"%H"`).then(_ => _.out);
+  exec(`git log -n 1 ${branch} --pretty=format:"%H"`);
 
 const updateGhPagerConfig = () => exec('gh config set pager "less -F -X"');
 
 const resetGitBranch = (branch: string, remote: string) =>
   exec(`git switch -C ${branch} ${remote}/${branch}`);
 
-const getGhChangelog = (branch: string) =>
-  exec(`gh pr list --state merged --base ${branch} --json title,author,url`);
+const getGitChangelogEntries = (from: string | undefined, to: string) =>
+  exec(`git log ${from != null ? `${from}..${to}` : ""} --pretty="format:%s (%h)"`)
+    .then(_ => _.split("\n"))
+    .then(entries =>
+      entries
+        .filter(entry => !entry.startsWith("[release]"))
+        .map(entry => "- " + entry.trim().replace(/["]/g, "*"))
+        .toReversed(),
+    );
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-local-branch-exists
 const hasGitLocalBranch = (branch: string) =>
-  exec(`git show-ref --heads --quiet --verify -- "refs/heads/${branch}"`).then(_ => _.ok);
+  isOk(exec(`git show-ref --heads --quiet --verify -- "refs/heads/${branch}"`));
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-remote-branch-exists
 const hasGitRemoteBranch = (branch: string, remote: string) =>
-  exec(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`).then(_ => _.ok);
+  isOk(exec(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`));
 
 const getWorkspacePackages = () =>
   exec("yarn --json workspaces info")
-    .then(_ => JSON.parse(_.out) as { data: string })
+    .then(_ => JSON.parse(_) as { data: string })
     .then(_ => JSON.parse(_.data) as Record<string, { location: string }>);
 
 const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);
@@ -137,45 +129,17 @@ void (async () => {
 
   await fetchGitRemote("origin");
 
-  const [latestLocalCommitHash, latestRemoteCommitHash] = await Promise.all([
-    getLastGitCommitHash("main"),
-    getLastGitCommitHash("origin/main"),
-  ]);
-
-  if (latestLocalCommitHash !== latestRemoteCommitHash) {
+  if ((await getLastGitCommitHash("main")) !== (await getLastGitCommitHash("origin/main"))) {
     logError("main is not in sync with origin/main");
     process.exit(1);
   }
 
+  await resetGitBranch("main", "origin");
+
   console.log(`🚀 Let's release ${pkg.name} (currently at ${currentVersion.raw})`);
 
-  await updateGhPagerConfig();
-  await resetGitBranch("main", "branch");
-
-  const changelog = await getGhChangelog("main");
-
-  if (!changelog.ok) {
-    logError("Can't generate GitHub changelog");
-    process.exit(1);
-  }
-
-  const changelogEntries = (
-    JSON.parse(changelog.out) as {
-      title: string;
-      url: string;
-      author: { is_bot: boolean; login: string };
-    }[]
-  )
-    .filter(
-      pr =>
-        !pr.author.is_bot &&
-        !pr.title.startsWith("[release]") &&
-        !pr.title.startsWith("[prerelease]"),
-    )
-    .map(
-      // Sanitize the PR titles to replace quoted content with italic content
-      pr => `- ${pr.title.replace(/["'`]/g, "*")} by @${pr.author.login} in ${pr.url}`,
-    );
+  const currentVersionTag = `v${currentVersion.raw}`;
+  const changelogEntries = await getGitChangelogEntries(currentVersionTag, "main");
 
   if (changelogEntries.length > 0) {
     console.log("\n" + chalk.bold("What's Changed"));
@@ -185,27 +149,16 @@ void (async () => {
   const patch = semver.inc(currentVersion, "patch");
   const minor = semver.inc(currentVersion, "minor");
   const major = semver.inc(currentVersion, "major");
-  const prepatch = semver.inc(currentVersion, "prepatch", "rc");
-  const preminor = semver.inc(currentVersion, "preminor", "rc");
-  const premajor = semver.inc(currentVersion, "premajor", "rc");
-  const prerelease = semver.inc(currentVersion, "prerelease", "rc");
 
   const response = await prompts({
     type: "select",
     name: "value",
     message: "Select increment (next version)",
-    initial: 3, // default is prepatch
+    initial: 0, // default is patch
     choices: [
       { title: `patch (${patch})`, value: patch },
       { title: `minor (${minor})`, value: minor },
       { title: `major (${major})`, value: major },
-      ...(isCurrentVersionPrerelease
-        ? [{ title: `prerelease (${prerelease})`, value: prerelease }]
-        : [
-            { title: `prepatch (${prepatch})`, value: prepatch },
-            { title: `preminor (${preminor})`, value: preminor },
-            { title: `premajor (${premajor})`, value: premajor },
-          ]),
     ],
   });
 
@@ -215,9 +168,8 @@ void (async () => {
     process.exit(1); // user cancelled
   }
 
-  const releaseType = nextVersion.prerelease.length > 0 ? "prerelease" : "release";
-  const releaseBranch = `${releaseType}-v${nextVersion.raw}`;
-  const releaseTitle = `[${releaseType}] v${nextVersion.raw}`;
+  const releaseTag = `v${nextVersion.raw}`;
+  const releaseBranch = `release-${releaseTag}`;
 
   if (await hasGitLocalBranch(releaseBranch)) {
     logError(`${releaseBranch} branch already exists`);
@@ -243,24 +195,19 @@ void (async () => {
 
   await gitCheckoutNewBranch(releaseBranch);
   await gitAddAll();
-  await gitCommit(releaseTitle);
+  await gitCommit(releaseTag);
   await gitPush(releaseBranch, "origin");
 
-  const releaseNotes =
-    (changelogEntries.length > 0
-      ? "## What's Changed" + "\n\n" + changelogEntries.join("\n") + "\n\n"
-      : "") +
-    `**Full Changelog**: ${REPOSITORY_URL}/compare/v${currentVersion.raw}...v${nextVersion.raw}`;
+  const releaseNotes = [
+    ...(changelogEntries.length > 0 ? ["## What's Changed", changelogEntries.join("\n")] : []),
+    `**Full Changelog**: ${REPOSITORY_URL}/compare/${currentVersionTag}...${releaseTag}`,
+  ].join("\n\n");
 
-  const url = await createGhPullRequest(releaseTitle, releaseNotes);
-
-  if (!url.ok) {
-    logError("Unable to create pull request");
-    process.exit(1);
-  }
+  await updateGhPagerConfig();
+  const url = await createGhPullRequest(releaseTag, releaseNotes);
 
   console.log("\n" + chalk.bold("✨ Pull request created:"));
-  console.log(url.out + "\n");
+  console.log(url + "\n");
 
   await gitCheckout("main");
   await gitDeleteLocalBranch(releaseBranch);

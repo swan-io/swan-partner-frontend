@@ -8,6 +8,7 @@ import path from "pathe";
 import pc from "picocolors";
 import prompts from "prompts";
 import tiktoken from "tiktoken-node";
+import { P, match } from "ts-pattern";
 import type { Except } from "type-fest";
 
 /**
@@ -231,7 +232,19 @@ const countTokens = (text: string): number => {
  * This counts the number of tokens into a list of messages
  */
 const countInputTokens = (input: OpenAI.Chat.ChatCompletionMessageParam[]): number => {
-  return input.reduce((acc, { content }) => acc + countTokens(content ?? ""), 0);
+  return input.reduce(
+    (acc, { content }) =>
+      acc +
+      countTokens(
+        match(content)
+          .with(P.string, text => text)
+          .with(P.array(P._), array =>
+            array.reduce((acc, item) => acc + (item.type === "text" ? " " + item.text : ""), ""),
+          )
+          .otherwise(() => ""),
+      ),
+    0,
+  );
 };
 
 const NB_MAX_KEYS_FOR_CONTEXT = 30;

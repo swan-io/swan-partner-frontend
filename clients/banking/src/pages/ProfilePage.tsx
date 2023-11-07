@@ -381,7 +381,7 @@ export const ProfilePage = ({
               <LakeButtonGroup paddingBottom={0}>
                 <LakeButton
                   href="https://support.swan.io"
-                  hrefAttrs={{ target: "_blank" }}
+                  hrefAttrs={{ target: "blank" }}
                   mode="secondary"
                   color="gray"
                   icon="open-regular"

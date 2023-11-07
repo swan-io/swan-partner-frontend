@@ -2,7 +2,7 @@ import { Heading } from "@swan-io/lake/src/components/Heading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { StyleSheet, View } from "react-native";
-import { t } from "../../utils/i18n";
+import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   base: {

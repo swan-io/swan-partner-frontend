@@ -64,7 +64,7 @@
     "@graphql-codegen/typescript": "4.0.1",
     "@graphql-codegen/typescript-graphql-request": "6.0.1",
     "@graphql-codegen/typescript-operations": "4.0.1",
-    "@graphql-codegen/typescript-urql-graphcache": "2.4.4",
+    "@graphql-codegen/typescript-urql-graphcache": "3.0.0",
     "@localazy/cli": "1.7.5",
     "@playwright/test": "1.39.0",
     "@sentry/cli": "2.21.2",

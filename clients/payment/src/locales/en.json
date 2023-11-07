@@ -11,5 +11,7 @@
   "paymentLink.lastName": "Last name",
   "paymentLink.paymentMethod": "Payment method",
   "paymentLink.postcode": "Postcode",
-  "paymentLink.state": "State"
+  "paymentLink.poweredBySwan": "Powered by",
+  "paymentLink.state": "State",
+  "paymentLink.termsAndConditions": "By validating this step, you electronically sign the debit mandate and you authorise {merchantName} to send instructions to Swan to debit your account and you authorise Swan to debit your account in accordance with the instructions received. Any request for a refund will be dealt with in accordance with your bank's general terms and conditions."
 }

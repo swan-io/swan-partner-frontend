@@ -8,12 +8,12 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, RefObject, forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
 import { FormConfig, combineValidators, useForm } from "react-ux-form";
-import { P, match } from "ts-pattern";
+import { P, isMatching, match } from "ts-pattern";
 import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validatePattern, validateRequired } from "../utils/validations";
 
-export type DynamicFormField = SelectField & TextField & DateField & RadioField;
+export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
 export type ResultItem = { [key: string]: string };
 type TransferInternationalDynamicFormBuilder = {
@@ -25,23 +25,31 @@ type TransferInternationalDynamicFormBuilder = {
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef(
-  ({ results = [], refresh, onChange, fields = [] }: TransferInternationalDynamicFormBuilder, ref) => {
-   
+  (
+    { results = [], refresh, onChange, fields = [] }: TransferInternationalDynamicFormBuilder,
+    ref,
+  ) => {
     const form = useMemo(
       () =>
-        fields.reduce<FormConfig<any, any>>(
-          (acc, { key, validationRegex: regex, required, example }) => {
-            acc[key] = {
-              initialValue: results.find(({ key: current }) => current === key)?.value ?? "",
-              validate: combineValidators(
-                required && validateRequired,
-                isNotNullishOrEmpty(regex) && validatePattern(String(regex), String(example)),
-              ),
-            };
-            return acc;
-          },
-          {},
-        ),
+        fields.reduce<FormConfig<Record<string, string>>>((acc, field) => {
+          const initialValue =
+            results.find(({ key: current }) => current === field.key)?.value ?? "";
+
+          acc[field.key] = {
+            initialValue,
+            validate: combineValidators(
+              field.required && validateRequired,
+
+              match(field)
+                .with({ validationRegex: P.string }, ({ validationRegex, example }) =>
+                  validatePattern(validationRegex, example ?? undefined),
+                )
+                .otherwise(() => false),
+            ),
+          };
+
+          return acc;
+        }, {}),
       [fields],
     );
 
@@ -59,12 +67,14 @@ export const TransferInternationalDynamicFormBuilder = forwardRef(
 );
 
 type BeneficiaryDynamicFormProps = {
-  form: FormConfig<any, any>;
+  form: FormConfig<Record<string, string>>;
   fields: DynamicFormField[];
   refresh: (keys: string[]) => void;
   onChange: (results: ResultItem[]) => void;
   ref?: RefObject<unknown>;
 };
+
+const shouldRefreshDynamicFieldsOnChange = isMatching({ refreshDynamicFieldsOnChange: true });
 
 const BeneficiaryDynamicForm = forwardRef(
   ({ fields, form, refresh, onChange }: BeneficiaryDynamicFormProps, ref) => {
@@ -75,12 +85,9 @@ const BeneficiaryDynamicForm = forwardRef(
       validateField,
       getFieldState,
     } = useForm(form);
-    
+
     const dynamicFields = useMemo(
-      () =>
-        fields
-          .filter(({ refreshDynamicFieldsOnChange }) => refreshDynamicFieldsOnChange)
-          .map(({ key }) => key),
+      () => fields.filter(field => shouldRefreshDynamicFieldsOnChange(field)).map(({ key }) => key),
       [fields],
     );
 
@@ -127,30 +134,30 @@ const BeneficiaryDynamicForm = forwardRef(
                 label={field.name}
                 render={id =>
                   match(field)
-                    .with({ __typename: "SelectField" }, ({ allowedValues }) => (
-                      <Field name={field.key}>
+                    .with({ __typename: "SelectField" }, ({ key, allowedValues }) => (
+                      <Field name={key}>
                         {({ onChange, value, ref, error }) => (
                           <LakeSelect
                             id={id}
                             ref={ref}
                             error={error}
                             items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                            value={String(value)}
+                            value={value}
                             onValueChange={onChange}
                           />
                         )}
                       </Field>
                     ))
-                    .with({ __typename: "DateField" }, () => (
-                      <Field name={field.key}>
+                    .with({ __typename: "DateField" }, ({ key, example }) => (
+                      <Field name={key}>
                         {({ value, onChange, onBlur, error, valid, ref }) => (
                           <LakeTextInput
                             id={id}
                             ref={ref}
-                            value={String(value)}
+                            value={value}
                             error={error}
                             valid={valid}
-                            placeholder={field.example}
+                            placeholder={example ?? undefined}
                             onChangeText={onChange}
                             onBlur={onBlur}
                             inputMode="text"
@@ -158,13 +165,13 @@ const BeneficiaryDynamicForm = forwardRef(
                         )}
                       </Field>
                     ))
-                    .with({ __typename: "RadioField" }, ({ allowedValues }) => (
-                      <Field name={field.key}>
+                    .with({ __typename: "RadioField" }, ({ key, allowedValues }) => (
+                      <Field name={key}>
                         {({ onChange, value, error }) => (
                           <>
                             <RadioGroup
                               items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
-                              value={String(value)}
+                              value={value}
                               onValueChange={onChange}
                             />
 
@@ -173,13 +180,13 @@ const BeneficiaryDynamicForm = forwardRef(
                         )}
                       </Field>
                     ))
-                    .with({ __typename: "TextField" }, () => (
-                      <Field name={field.key}>
+                    .with({ __typename: "TextField" }, ({ key }) => (
+                      <Field name={key}>
                         {({ value, onChange, onBlur, error, valid, ref }) => (
                           <LakeTextInput
                             id={id}
                             ref={ref}
-                            value={String(value)}
+                            value={value}
                             error={error}
                             valid={valid}
                             onChangeText={onChange}

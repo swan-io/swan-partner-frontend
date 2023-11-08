@@ -1,3 +1,4 @@
+import { Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -7,12 +8,18 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { InitiateInternationalCreditTransferDocument, InternationalBeneficiaryDetailsInput, InternationalCreditTransferDetailsInput, InternationalCreditTransferRouteInput } from "../graphql/partner";
+import {
+  InitiateInternationalCreditTransferDocument,
+  InternationalBeneficiaryDetailsInput,
+  InternationalCreditTransferDetailsInput,
+  InternationalCreditTransferRouteInput,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -107,12 +114,14 @@ export const TransferInternationalWizard = ({
           route: beneficiary.route as InternationalCreditTransferRouteInput,
           details: beneficiary.results as InternationalBeneficiaryDetailsInput[],
         },
-        internationalCreditTransferDetails: details.results as InternationalCreditTransferDetailsInput[],
+        internationalCreditTransferDetails:
+          details.results as InternationalCreditTransferDetailsInput[],
         consentRedirectUrl:
           window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
       },
     })
       .mapOk(data => data.initiateInternationalCreditTransfer)
+      .mapOkToResult(data => (isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined)))
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(({ payment }) => {
         return match(payment.statusInfo)
@@ -123,7 +132,10 @@ export const TransferInternationalWizard = ({
               description: t("transfer.consent.success.description"),
               autoClose: false,
             });
-            Router.replace("AccountTransactionsListRoot", { paymentId: payment.id, accountMembershipId });
+
+            Router.replace("AccountTransactionsListRoot", {
+              accountMembershipId,
+            });
           })
           .with({ __typename: "PaymentRejected" }, () =>
             showToast({

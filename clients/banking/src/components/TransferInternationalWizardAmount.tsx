@@ -19,7 +19,7 @@ import { P, match } from "ts-pattern";
 import {
   GetAvailableAccountBalanceDocument,
   GetInternationalCreditTransferQuoteDocument,
-  InternationalCreditTransferCurrencyExchange,
+  GetInternationalCreditTransferQuoteQuery,
 } from "../graphql/partner";
 import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
@@ -172,9 +172,12 @@ export const TransferInternationalWizardAmount = ({
         {match(quote)
           .with(AsyncData.P.NotAsked, () => null)
           .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
-          .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => (
-            <QuoteDetails quote={data.internationalCreditTransferQuote} />
-          ))
+          .with(
+            AsyncData.P.Done(
+              Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
+            ),
+            quote => <QuoteDetails quote={quote} />,
+          )
           .otherwise(() => (
             <ErrorView />
           ))}
@@ -243,7 +246,11 @@ export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }
   );
 };
 
-const QuoteDetails = ({ quote }: { quote: InternationalCreditTransferCurrencyExchange }) => {
+const QuoteDetails = ({
+  quote,
+}: {
+  quote: NonNullable<GetInternationalCreditTransferQuoteQuery["internationalCreditTransferQuote"]>;
+}) => {
   return (
     <>
       <LakeText color={colors.gray[700]} variant="smallRegular">

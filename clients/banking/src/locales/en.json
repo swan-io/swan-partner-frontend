@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Bank Statement (less than 3 months old)",
   "supportingDocuments.CompanyRegistration.description": "Official document proving the legal existence of a company and providing information about its legal personality.\n(less than 3 months old)",
   "supportingDocuments.CompanyRegistration.title": "Proof of company registration (less than 3 months old)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Minutes of the general assembly",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "General assembly minutes",
   "supportingDocuments.Other.description": "Other",
   "supportingDocuments.Other.title": "Other",
   "supportingDocuments.PowerOfAttorney.description": "A signed and dated document authorizing an individual to represent or act on behalf of a company's legal representative.",

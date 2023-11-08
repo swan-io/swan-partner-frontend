@@ -42,6 +42,7 @@
   "accountDetails.billing.status": "Status",
   "accountDetails.billing.tab": "Billing",
   "accountDetails.iban.addressLabel": "Address",
+  "accountDetails.iban.bankDetails": "Bank details",
   "accountDetails.iban.bicLabel": "BIC",
   "accountDetails.iban.bicUnavailableTooltip": "Your BIC will be available after you complete account activation",
   "accountDetails.iban.cityLabel": "City",

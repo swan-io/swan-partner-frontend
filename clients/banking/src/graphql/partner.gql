@@ -290,6 +290,7 @@ query AccountDetailsIbanPage($accountId: ID!) {
     id
     IBAN
     BIC
+    bankDetails
     name
     statusInfo {
       status

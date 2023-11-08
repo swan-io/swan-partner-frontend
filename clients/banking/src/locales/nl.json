@@ -42,6 +42,7 @@
   "accountDetails.billing.status": "Status",
   "accountDetails.billing.tab": "Facturatie",
   "accountDetails.iban.addressLabel": "Adres",
+  "accountDetails.iban.bankDetails": "Bankgegevens",
   "accountDetails.iban.bicLabel": "BIC",
   "accountDetails.iban.bicUnavailableTooltip": "Je BIC is beschikbaar na de activatie van je account",
   "accountDetails.iban.cityLabel": "Stad",

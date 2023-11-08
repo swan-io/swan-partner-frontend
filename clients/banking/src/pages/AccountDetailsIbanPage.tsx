@@ -1,6 +1,8 @@
+import { AsyncData, Result } from "@swan-io/boxed";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -9,20 +11,33 @@ import { Link } from "@swan-io/lake/src/components/Link";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { ScrollView, StyleSheet } from "react-native";
+import { P, match } from "ts-pattern";
+import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import { AccountDetailsIbanPageDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { printIbanFormat } from "../utils/iban";
+import { isUnauthorizedError } from "../utils/urql";
 import { NotFoundPage } from "./NotFoundPage";
 
 const styles = StyleSheet.create({
+  content: {
+    flexShrink: 1,
+    flexGrow: 1,
+    paddingHorizontal: spacings[24],
+    paddingTop: spacings[32],
+  },
+  contentDesktop: {
+    paddingHorizontal: spacings[40],
+    paddingTop: spacings[40],
+  },
   italic: {
     fontStyle: "italic",
   },
@@ -48,6 +63,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   idVerified: boolean;
+  largeBreakpoint: boolean;
   userStatusIsProcessing: boolean;
 };
 
@@ -56,200 +72,223 @@ export const AccountDetailsIbanPage = ({
   // idVerified,
   // userStatusIsProcessing,
   accountId,
+  largeBreakpoint,
 }: Props) => {
-  const [
-    {
-      data: { account },
-    },
-  ] = useQueryWithErrorBoundary({
-    query: AccountDetailsIbanPageDocument,
-    variables: { accountId },
-  });
-
-  if (!account) {
-    return <NotFoundPage />;
-  }
-
-  const { BIC, IBAN, bankDetails, holder, statusInfo } = account;
-  const { residencyAddress: address, verificationStatus } = holder;
-  const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
+  const { data } = useUrqlQuery(
+    { query: AccountDetailsIbanPageDocument, variables: { accountId } },
+    [],
+  );
 
   return (
-    <View>
-      {isNotNullishOrEmpty(bankDetails) && (
-        <LakeButtonGroup paddingBottom={32}>
-          <LakeButton
-            color="current"
-            icon="arrow-download-filled"
-            size="small"
-            href={bankDetails}
-            hrefAttrs={{ target: "blank" }}
-          >
-            {t("accountDetails.iban.bankDetails")}
-          </LakeButton>
-        </LakeButtonGroup>
-      )}
-
-      <LakeHeading level={2} variant="h4">
-        {t("accountDetails.title.details")}
-      </LakeHeading>
-
-      <Space height={12} />
-
-      {accountClosed && (
-        <>
-          <LakeAlert variant="warning" title={t("accountDetails.alert.accountClosed")} />
-          <Space height={20} />
-        </>
-      )}
-
-      <Tile
-        paddingVertical={24}
-        footer={
-          isNullishOrEmpty(IBAN) &&
-          !accountClosed &&
-          match(verificationStatus)
-            .with("NotStarted", () => (
-              <LakeAlert
-                variant="warning"
-                anchored={true}
-                title={t("accountDetails.iban.verificationNotStartedTitle")}
-                // callToAction={
-                //   <LakeButton
-                //     mode="tertiary"
-                //     size="small"
-                //     icon="arrow-right-filled"
-                //     color="warning"
-                //     onPress={() => {
-                //       Router.push("AccountActivation", { accountMembershipId });
-                //     }}
-                //   >
-                //     Go to
-                //   </LakeButton>
-                // }
-              >
-                {t("accountDetails.iban.verificationNotStartedText")}
-              </LakeAlert>
-            ))
-            .with("Pending", () => (
-              <LakeAlert
-                variant="info"
-                anchored={true}
-                title={t("accountDetails.iban.verificationPendingTitle")}
-              >
-                {t("accountDetails.iban.verificationPendingText")}
-              </LakeAlert>
-            ))
-            .otherwise(() => null)
-        }
-      >
-        {!accountClosed && (
+    <ScrollView contentContainerStyle={[styles.content, largeBreakpoint && styles.contentDesktop]}>
+      {match(data)
+        .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
           <>
-            {isNotNullishOrEmpty(IBAN) ? (
-              <IBANCopyLine IBAN={IBAN} />
-            ) : (
-              <LakeLabel
-                label={t("accountDetails.iban.ibanLabel")}
-                render={() => UNAVAILABLE_VALUE}
-                actions={
-                  <LakeTooltip
-                    content={t("accountDetails.iban.ibanUnavailableTooltip")}
-                    placement="top"
-                    togglableOnFocus={true}
-                    hideArrow={true}
-                  >
-                    <Icon name="error-circle-regular" size={20} tabIndex={0} />
-                  </LakeTooltip>
-                }
-              />
-            )}
-
-            <Separator space={12} />
+            <TilePlaceholder />
+            <Space height={32} />
+            <TilePlaceholder />
           </>
-        )}
+        ))
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error =>
+          isUnauthorizedError(error) ? <></> : <ErrorView error={error} />,
+        )
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account }) => {
+          if (!account) {
+            return <NotFoundPage />;
+          }
 
-        {isNotNullishOrEmpty(IBAN) ? (
-          <LakeCopyTextLine label={t("accountDetails.iban.bicLabel")} text={BIC} />
-        ) : (
-          <LakeLabel
-            label={t("accountDetails.iban.bicLabel")}
-            render={() => UNAVAILABLE_VALUE}
-            actions={
-              <LakeTooltip
-                content={t("accountDetails.iban.bicUnavailableTooltip")}
-                placement="top"
-                togglableOnFocus={true}
-                hideArrow={true}
+          const { BIC, IBAN, bankDetails, holder, statusInfo } = account;
+          const { residencyAddress: address, verificationStatus } = holder;
+          const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
+
+          return (
+            <>
+              {isNotNullishOrEmpty(bankDetails) && (
+                <Box alignItems="start">
+                  <LakeButton
+                    color="current"
+                    icon="arrow-download-filled"
+                    size="small"
+                    href={bankDetails}
+                    hrefAttrs={{ target: "blank" }}
+                  >
+                    {t("accountDetails.iban.bankDetails")}
+                  </LakeButton>
+
+                  <Space height={32} />
+                </Box>
+              )}
+
+              <LakeHeading level={2} variant="h4">
+                {t("accountDetails.title.details")}
+              </LakeHeading>
+
+              <Space height={12} />
+
+              {accountClosed && (
+                <>
+                  <LakeAlert variant="warning" title={t("accountDetails.alert.accountClosed")} />
+                  <Space height={20} />
+                </>
+              )}
+
+              <Tile
+                paddingVertical={24}
+                footer={
+                  isNullishOrEmpty(IBAN) &&
+                  !accountClosed &&
+                  match(verificationStatus)
+                    .with("NotStarted", () => (
+                      <LakeAlert
+                        variant="warning"
+                        anchored={true}
+                        title={t("accountDetails.iban.verificationNotStartedTitle")}
+                        // callToAction={
+                        //   <LakeButton
+                        //     mode="tertiary"
+                        //     size="small"
+                        //     icon="arrow-right-filled"
+                        //     color="warning"
+                        //     onPress={() => {
+                        //       Router.push("AccountActivation", { accountMembershipId });
+                        //     }}
+                        //   >
+                        //     Go to
+                        //   </LakeButton>
+                        // }
+                      >
+                        {t("accountDetails.iban.verificationNotStartedText")}
+                      </LakeAlert>
+                    ))
+                    .with("Pending", () => (
+                      <LakeAlert
+                        variant="info"
+                        anchored={true}
+                        title={t("accountDetails.iban.verificationPendingTitle")}
+                      >
+                        {t("accountDetails.iban.verificationPendingText")}
+                      </LakeAlert>
+                    ))
+                    .otherwise(() => null)
+                }
               >
-                <Icon name="error-circle-regular" size={20} tabIndex={0} />
-              </LakeTooltip>
-            }
-          />
-        )}
+                {!accountClosed && (
+                  <>
+                    {isNotNullishOrEmpty(IBAN) ? (
+                      <IBANCopyLine IBAN={IBAN} />
+                    ) : (
+                      <LakeLabel
+                        label={t("accountDetails.iban.ibanLabel")}
+                        render={() => UNAVAILABLE_VALUE}
+                        actions={
+                          <LakeTooltip
+                            content={t("accountDetails.iban.ibanUnavailableTooltip")}
+                            placement="top"
+                            togglableOnFocus={true}
+                            hideArrow={true}
+                          >
+                            <Icon name="error-circle-regular" size={20} tabIndex={0} />
+                          </LakeTooltip>
+                        }
+                      />
+                    )}
 
-        <Separator space={12} />
+                    <Separator space={12} />
+                  </>
+                )}
 
-        <LakeLabel
-          label={t("accountDetails.iban.holderLabel")}
-          render={() => <LakeText color={colors.gray[900]}>{holder.info.name}</LakeText>}
-        />
-      </Tile>
+                {isNotNullishOrEmpty(IBAN) ? (
+                  <LakeCopyTextLine label={t("accountDetails.iban.bicLabel")} text={BIC} />
+                ) : (
+                  <LakeLabel
+                    label={t("accountDetails.iban.bicLabel")}
+                    render={() => UNAVAILABLE_VALUE}
+                    actions={
+                      <LakeTooltip
+                        content={t("accountDetails.iban.bicUnavailableTooltip")}
+                        placement="top"
+                        togglableOnFocus={true}
+                        hideArrow={true}
+                      >
+                        <Icon name="error-circle-regular" size={20} tabIndex={0} />
+                      </LakeTooltip>
+                    }
+                  />
+                )}
 
-      <Space height={32} />
+                <Separator space={12} />
 
-      <LakeHeading level={2} variant="h4">
-        {t("accountDetails.title.address")}
-      </LakeHeading>
+                <LakeLabel
+                  label={t("accountDetails.iban.holderLabel")}
+                  render={() => <LakeText color={colors.gray[900]}>{holder.info.name}</LakeText>}
+                />
+              </Tile>
 
-      <Space height={12} />
+              <Space height={32} />
 
-      <Tile paddingVertical={24}>
-        <LakeText>
-          {formatNestedMessage("accountDetails.updateEmailMention", {
-            emailAddress: (
-              <Link to="mailto:support@swan.io" style={styles.partnerColor}>
-                support@swan.io
-              </Link>
-            ),
-          })}
-        </LakeText>
+              <LakeHeading level={2} variant="h4">
+                {t("accountDetails.title.address")}
+              </LakeHeading>
 
-        <Space height={12} />
+              <Space height={12} />
 
-        <LakeLabel
-          label={t("accountDetails.iban.addressLabel")}
-          render={() => (
-            <LakeText color={colors.gray[900]}>
-              {joinNonEmpty([address.addressLine1, address.addressLine2], "\r\n")}
-            </LakeText>
-          )}
-        />
+              <Tile paddingVertical={24}>
+                <LakeText>
+                  {formatNestedMessage("accountDetails.updateEmailMention", {
+                    emailAddress: (
+                      <Link to="mailto:support@swan.io" style={styles.partnerColor}>
+                        support@swan.io
+                      </Link>
+                    ),
+                  })}
+                </LakeText>
 
-        <Separator space={12} />
+                <Space height={12} />
 
-        <LakeLabel
-          label={t("accountDetails.iban.cityLabel")}
-          render={() => <LakeText color={colors.gray[900]}>{address.city ?? ""}</LakeText>}
-        />
+                <LakeLabel
+                  label={t("accountDetails.iban.addressLabel")}
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>
+                      {joinNonEmpty([address.addressLine1, address.addressLine2], "\r\n")}
+                    </LakeText>
+                  )}
+                />
 
-        <Separator space={12} />
+                <Separator space={12} />
 
-        <LakeLabel
-          label={t("accountDetails.zipcodeLabel")}
-          render={() => <LakeText color={colors.gray[900]}>{address.postalCode ?? ""}</LakeText>}
-        />
+                <LakeLabel
+                  label={t("accountDetails.iban.cityLabel")}
+                  render={() => <LakeText color={colors.gray[900]}>{address.city ?? ""}</LakeText>}
+                />
 
-        <Separator space={12} />
+                <Separator space={12} />
 
-        <LakeLabel
-          label={t("accountDetails.iban.countryLabel")}
-          render={() => (
-            <LakeText color={colors.gray[900]}>
-              {isCountryCCA3(address.country) ? getCountryName(address.country) : UNKNOWN_VALUE}
-            </LakeText>
-          )}
-        />
-      </Tile>
-    </View>
+                <LakeLabel
+                  label={t("accountDetails.zipcodeLabel")}
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>{address.postalCode ?? ""}</LakeText>
+                  )}
+                />
+
+                <Separator space={12} />
+
+                <LakeLabel
+                  label={t("accountDetails.iban.countryLabel")}
+                  render={() => (
+                    <LakeText color={colors.gray[900]}>
+                      {isCountryCCA3(address.country)
+                        ? getCountryName(address.country)
+                        : UNKNOWN_VALUE}
+                    </LakeText>
+                  )}
+                />
+              </Tile>
+            </>
+          );
+        })
+        .exhaustive()}
+
+      <Space height={24} />
+    </ScrollView>
   );
 };

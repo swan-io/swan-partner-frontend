@@ -76,10 +76,7 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """
-  COMING SOON
-  Link to the account's bank details
-  """
+  """Link to the account's bank details"""
   bankDetails: String
 }
 
@@ -142,10 +139,7 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """
-  Dutch account with a Dutch IBAN, starting with DU.
-  COMING SOON
-  """
+  """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
 }
 
@@ -192,10 +186,7 @@ type AccountHolder {
   """List of supporting document collection for an account holder"""
   supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
 
-  """
-  *COMING SOON*
-  List of funding limit settings change request for an account holder
-  """
+  """List of funding limit settings change request for an account holder"""
   fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
@@ -406,7 +397,7 @@ An account membership represents the rights of a user for a given account.
 *Each account is administered by an account membership having the capacity of legal representative. He has the possibility of delegating rights on this account to other users.*
 """
 type AccountMembership {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   id: ID!
 
   """email"""
@@ -437,7 +428,6 @@ type AccountMembership {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean!
@@ -646,7 +636,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -2709,7 +2698,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -3037,7 +3025,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
 }
 
 type OnboardingInfo {
-  """unique identifier of an onboarding"""
+  """Unique identifier of an onboarding"""
   id: String!
 
   """Account name"""

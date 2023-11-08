@@ -1,5 +1,6 @@
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -69,12 +70,26 @@ export const AccountDetailsIbanPage = ({
     return <NotFoundPage />;
   }
 
-  const { BIC, IBAN, holder, statusInfo } = account;
+  const { BIC, IBAN, bankDetails, holder, statusInfo } = account;
   const { residencyAddress: address, verificationStatus } = holder;
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
 
   return (
     <View>
+      {isNotNullishOrEmpty(bankDetails) && (
+        <LakeButtonGroup paddingBottom={32}>
+          <LakeButton
+            color="current"
+            icon="arrow-download-filled"
+            size="small"
+            href={bankDetails}
+            hrefAttrs={{ target: "blank" }}
+          >
+            {t("accountDetails.iban.bankDetails")}
+          </LakeButton>
+        </LakeButtonGroup>
+      )}
+
       <LakeHeading level={2} variant="h4">
         {t("accountDetails.title.details")}
       </LakeHeading>

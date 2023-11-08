@@ -14,9 +14,9 @@ export const initSentry = () => {
     init({
       release: env.VERSION,
       dsn: "https://632023ecffdc437984c7a53bbb3aa7a6@o427297.ingest.sentry.io/5454043",
-      environment: env.BANKING_URL.includes("preprod")
+      environment: env.PAYMENT_URL.includes("preprod")
         ? "preprod"
-        : env.BANKING_URL.includes("master")
+        : env.PAYMENT_URL.includes("master")
         ? "master"
         : "prod",
       normalizeDepth: 5,

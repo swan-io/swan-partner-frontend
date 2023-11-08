@@ -192,6 +192,7 @@ export const PaymentForm = () => {
       {/* Just for tests */}
       <SwanLogo
         color={colors.swan[500]}
+        // eslint-disable-next-line react-native/no-inline-styles
         style={{
           alignSelf: "center",
           width: "144px",

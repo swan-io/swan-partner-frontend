@@ -117,11 +117,11 @@ declare module "react-native" {
     role?: WebRole;
   }
 
-  type HrefAttrs = {
-    download?: boolean;
+  interface HrefAttrs {
+    download?: boolean | string;
     rel?: string;
     target?: "blank" | "parent" | "self" | "top";
-  };
+  }
 
   export interface TextProps extends WebAccessibilityProps {
     role?: WebRole;

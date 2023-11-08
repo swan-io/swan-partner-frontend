@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/banking",
-  "version": "1.3.8",
+  "version": "1.3.13",
   "private": true,
   "engines": {
     "node": ">=18.0.0",
@@ -19,19 +19,19 @@
   ],
   "dependencies": {
     "@0no-co/graphql.web": "1.0.4",
-    "@formatjs/intl": "2.9.5",
+    "@formatjs/intl": "2.9.6",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/react": "7.74.1",
+    "@sentry/react": "7.77.0",
     "@swan-io/boxed": "1.2.0",
     "@swan-io/chicane": "1.4.1",
-    "@swan-io/lake": "3.3.0",
-    "@swan-io/shared-business": "3.3.0",
+    "@swan-io/lake": "3.3.3",
+    "@swan-io/shared-business": "3.3.3",
     "@urql/exchange-graphcache": "6.3.3",
-    "core-js": "3.33.1",
+    "core-js": "3.33.2",
     "dayjs": "1.11.10",
     "iban": "0.0.14",
-    "libphonenumber-js": "1.10.48",
-    "nanoid": "5.0.2",
+    "libphonenumber-js": "1.10.49",
+    "nanoid": "5.0.3",
     "react": "18.2.0",
     "react-atomic-state": "1.2.7",
     "react-dom": "18.2.0",
@@ -43,14 +43,14 @@
     "wonka": "6.3.4"
   },
   "devDependencies": {
-    "@types/iban": "0.0.34",
-    "@types/react": "18.2.31",
+    "@types/iban": "0.0.35",
+    "@types/react": "18.2.36",
     "@types/react-dom": "18.2.14",
     "@types/react-native": "0.72.5",
     "@vitejs/plugin-legacy": "4.1.1",
-    "@vitejs/plugin-react-swc": "3.4.0",
+    "@vitejs/plugin-react-swc": "3.4.1",
     "jsdom": "22.1.0",
-    "type-fest": "4.5.0",
+    "type-fest": "4.6.0",
     "vite": "4.5.0",
     "vitest": "0.34.6"
   }

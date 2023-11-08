@@ -5,17 +5,24 @@ on:
     types: [deploy_success]
 
 jobs:
-  prerelease-notify:
-    name: Prerelease notify
+  release-notify:
+    name: Release notify
     runs-on: ubuntu-latest
     concurrency:
       group: ${{ github.event.client_payload.imageTag }}
-      cancel-in-progress: true
+      cancel-in-progress: false
     permissions:
       contents: read # This is required for actions/checkout
       id-token: write # This is required for requesting the JWT
     steps:
       - uses: actions/checkout@v3
+
+      - name: Read version
+        id: version
+        shell: bash
+        run: echo "version=${RELEASE_TAG#*prod-}" >> $GITHUB_OUTPUT
+        env:
+          RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Cache release tag
         id: cache-release-tag
@@ -42,14 +49,6 @@ jobs:
         run: yarn -s ci-get-changelog
         env:
           GITHUB_TOKEN: $${{ secrets.NOTIFY_GH_TOKEN }}
-          RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
-
-      - name: Get version
-        if: ${{ steps.cache-release-tag.outputs.cache-hit != 'true' }}
-        id: version
-        shell: bash
-        run: echo "version=${RELEASE_TAG#*prod-}" >> $GITHUB_OUTPUT
-        env:
           RELEASE_TAG: ${{ github.event.client_payload.imageTag }}
 
       - name: Notify on Slack

@@ -1,4 +1,5 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
+import { Dict } from "@swan-io/boxed";
 import { memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { DateFormat } from "@swan-io/shared-business/src/components/DatePicker";
@@ -36,8 +37,12 @@ dayjs.extend(localizedFormat);
 const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
 
-export type TranslationKey = keyof typeof translationEN;
+const translationKeys = Dict.keys(translationEN);
+export type TranslationKey = (typeof translationKeys)[number];
 export type TranslationParams = Record<string, string | number>;
+
+export const isTranslationKey = (value: unknown): value is TranslationKey =>
+  typeof value === "string" && translationKeys.includes(value as TranslationKey);
 
 type DateTimeFormat = "LTS" | "LT" | "L" | "LL" | "LLL" | "LLLL" | "l" | "ll" | "lll" | "llll";
 

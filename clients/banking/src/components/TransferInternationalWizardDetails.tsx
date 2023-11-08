@@ -7,16 +7,20 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useForm } from "react-ux-form";
 
+import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { P, match } from "ts-pattern";
 import {
+  Field,
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
   InternationalCreditTransferDisplayLanguage,
+  InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import {
@@ -45,7 +49,7 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [fields, setFields] = useState([]);
+  const [fields, setFields] = useState<Field[]>([]);
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
 
@@ -56,7 +60,7 @@ export const TransferInternationalWizardDetails = ({
       query: GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
       variables: {
         name: beneficiary.name,
-        route: beneficiary.route,
+        route: beneficiary.route as InternationalCreditTransferRouteInput,
         amountValue: amount.value,
         currency: amount.currency,
         language: locale.language as InternationalCreditTransferDisplayLanguage,
@@ -83,26 +87,31 @@ export const TransferInternationalWizardDetails = ({
     },
   });
 
-  const updatedForm = data
-    .mapOkToResult(
-      ({ internationalCreditTransferTransactionDetailsDynamicForm }) =>
-        internationalCreditTransferTransactionDetailsDynamicForm,
-    )
-    .getWithDefault([]);
+  const updatedForm = useMemo(
+    () =>
+      match(data)
+        .with(
+          AsyncData.P.Done(Result.P.Ok(P.select())),
+          ({ internationalCreditTransferTransactionDetailsDynamicForm }) =>
+            internationalCreditTransferTransactionDetailsDynamicForm?.fields,
+        )
+        .otherwise(() => []),
+    [data],
+  );
 
   useEffect(() => {
     if (!data.isLoading()) {
-      setFields(updatedForm?.fields);
+      setFields(updatedForm);
     }
   }, [updatedForm]);
-
-  console.log("[NC] updatedForm", updatedForm);
-  console.log("[NC] fields", fields);
 
   const refresh = useDebounce<string[]>(keys => {
     const { value } = getFieldState("results");
     setDynamicFields(
-      value?.filter(({ key, value }) => keys.includes(key) && isNotNullishOrEmpty(value)) ?? [],
+      value?.filter(
+        ({ key, value }) =>
+          isNotNullishOrEmpty(key) && keys.includes(key) && isNotNullishOrEmpty(value),
+      ) ?? [],
     );
     setRefreshing.off();
   }, 1000);

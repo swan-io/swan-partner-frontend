@@ -4114,6 +4114,9 @@ enum SupportingDocumentPurposeEnum {
   """Proof of company registration"""
   CompanyRegistration
 
+  """Minutes Of The General Assembly"""
+  GeneralAssemblyMinutes
+
   """Other"""
   Other
 
@@ -4319,6 +4322,9 @@ enum SupportingDocumentType {
 
   """Sworn statement"""
   SwornStatement
+
+  """Meeting's minutes"""
+  MeetingMinutes
 }
 
 """Supporting document with Uploaded status"""

@@ -14,11 +14,13 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useForm } from "react-ux-form";
 
+import { AsyncData, Result } from "@swan-io/boxed";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
-  InternationalBeneficiaryDetailsInput,
   InternationalCreditTransferDisplayLanguage,
+  Scheme,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
@@ -45,7 +47,7 @@ export const TransferInternationalWizardBeneficiary = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [schemes, setSchemes] = useState([]);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [route, setRoute] = useState<string | undefined>();
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
@@ -69,7 +71,7 @@ export const TransferInternationalWizardBeneficiary = ({
     useForm<{
       name: string;
       route: string;
-      results: InternationalBeneficiaryDetailsInput[];
+      results: ResultItem[];
     }>({
       name: {
         initialValue: initialBeneficiary?.name ?? "",
@@ -85,9 +87,17 @@ export const TransferInternationalWizardBeneficiary = ({
       },
     });
 
-  const updatedSchemes = data
-    .mapOkToResult(({ internationalBeneficiaryDynamicForms: { schemes } }) => schemes)
-    .getWithDefault([]);
+  const updatedSchemes = useMemo(
+    () =>
+      match(data)
+        .with(
+          AsyncData.P.Done(Result.P.Ok(P.select())),
+          ({ internationalBeneficiaryDynamicForms }) =>
+            internationalBeneficiaryDynamicForms?.schemes,
+        )
+        .otherwise(() => []),
+    [data],
+  );
 
   useEffect(() => {
     if (!data.isLoading()) {
@@ -117,7 +127,7 @@ export const TransferInternationalWizardBeneficiary = ({
     if (value && isNullishOrEmpty(route)) {
       setRoute(value);
     }
-    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value) {
+    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value && routes[0]) {
       setFieldValue("route", routes[0].value);
       setRoute(routes[0].value);
     }

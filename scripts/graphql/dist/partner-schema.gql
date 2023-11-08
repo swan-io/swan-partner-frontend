@@ -150,6 +150,21 @@ type Account {
     filters: AccountReceivedDirectDebitMandateFiltersInput
   ): ReceivedDirectDebitMandateConnection
 
+  """List of merchant profiles created on the account"""
+  merchantProfiles(
+    """number of elements in the list (default value 50)"""
+    first: Int! = 50
+
+    """When the list of elements needs to start after a element"""
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: MerchantProfileOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: MerchantProfileFiltersInput
+  ): MerchantProfileConnection
+
   """A list of standing orders regarding an account."""
   standingOrders(
     """number of elements in the list (default value 50)"""
@@ -182,21 +197,6 @@ type Account {
     """When the list of elements needs to be filtered"""
     filters: FundingSourceFiltersInput
   ): FundingSourceConnection
-
-  """List of merchant profiles created on the account"""
-  merchantProfiles(
-    """number of elements in the list (default value 50)"""
-    first: Int! = 50
-
-    """When the list of elements needs to start after a element"""
-    after: String
-
-    """When the list of elements needs to be ordered"""
-    orderBy: MerchantProfileOrderByInput
-
-    """When the list of elements needs to be filtered"""
-    filters: MerchantProfileFiltersInput
-  ): MerchantProfileConnection
 }
 
 """A list of balances regarding an account."""
@@ -1699,7 +1699,7 @@ input AddressInput {
 
 input AddSepaDirectDebitPaymentMandateInput {
   """
-  Specifies payment ID of a SEPA Direct Debit CORE or B2B payment method. 
+  Specifies payment ID of a SEPA Direct Debit CORE or B2B payment method.
   """
   paymentMethodId: ID!
 
@@ -2376,8 +2376,11 @@ type CapitalDepositDocument {
   """Updated date"""
   updatedAt: DateTime!
 
-  """Information about the document."""
-  info: CapitalDepositDocumentInfo
+  """Information about capital deposit case."""
+  relatedCapitalDepositCase: CapitalDepositCase
+
+  """Information about shareholder."""
+  relatedShareholder: Shareholder
 }
 
 """
@@ -2386,17 +2389,6 @@ Rejection returned if the document from a capital deposit case cannot be uploade
 type CapitalDepositDocumentCanNotBeUploaded implements Rejection {
   id: String!
   message: String!
-}
-
-type CapitalDepositDocumentInfo {
-  """Capital deposit case information."""
-  capitalDepositCase: CapitalDepositCase
-
-  """Individual shareholder information."""
-  individualShareholder: IndividualShareholder
-
-  """Company shareholder information."""
-  companyShareholder: CompanyShareholder
 }
 
 """Status of the Capital Deposit Case"""
@@ -3954,20 +3946,20 @@ input CreateMerchantPaymentLinkInput {
   label: String
 
   """
-  The language used for the payment page. 
+  The language used for the payment page.
   Default is the browser's language, or English if not available.
   """
   language: Language
 
   """
-  We will use the information specified here to prefill the payment link fields 
-  depending on the payment method the end user chooses. 
+  We will use the information specified here to prefill the payment link fields
+  depending on the payment method the end user chooses.
   Keep in mind that your end customer will be able to edit these fields.
   """
   customer: CustomerInput
 
   """
-  List of payment methods enabled for this payment link. 
+  List of payment methods enabled for this payment link.
   If the array is empty, Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   If you want to make payment possible via SEPA Direct Debit, the list should be populated either by a SEPA Direct Debit CORE or B2B.
   """
@@ -4068,7 +4060,7 @@ type Customer {
 
 input CustomerInput {
   """
-  A customer ID present in a third-party system. 
+  A customer ID present in a third-party system.
   Alows to link a customer to a payment link and by extension, to a merchant payment.
   """
   externalCustomerId: String
@@ -8002,6 +7994,9 @@ type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
 
+  """ID of the related project"""
+  projectId: ID!
+
   """The URL at which the customer can complete the payment."""
   url: String!
 
@@ -8009,7 +8004,7 @@ type MerchantPaymentLink {
   statusInfo: MerchantPaymentLinkStatusInfo!
 
   """The Merchant Profile to link this Payment Link to"""
-  merchantProfileId: ID!
+  merchantProfile: MerchantProfile!
 
   """Amount to be paid to sucessfully complete the payment."""
   amount: Amount!
@@ -8075,6 +8070,9 @@ type MerchantPaymentLink {
   If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   """
   paymentMethods: [MerchantPaymentMethod!]!
+
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfileId: ID!
 }
 
 enum MerchantPaymentLinkStatus {
@@ -8684,6 +8682,23 @@ type Mutation {
   """
   updateReceivedSepaDirectDebitB2bMandate(input: UpdateReceivedSepaDirectDebitB2bMandateInput!): UpdateReceivedSepaDirectDebitB2bMandatePayload!
 
+  """Allows to add an internal direct debit payment mandate."""
+  addInternalDirectDebitPaymentMandate(input: AddInternalDirectDebitPaymentMandateInput!): AddInternalDirectDebitPaymentMandatePayload!
+
+  """Add a merchant profile to a company account holder"""
+  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
+  addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
+
+  """Create a unique URL for a merchant to collect payment from a customer"""
+  createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
+  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
+
+  """Request merchant payment methods for a merchant profile"""
+  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
+
+  """Request an update of a MerchantProfile"""
+  requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
+
   """
   Cancels an UPCOMING credit transfer
   
@@ -8718,13 +8733,6 @@ type Mutation {
   """
   addDirectDebitFundingSource(input: AddDirectDebitFundingSourceInput!): AddDirectDebitFundingSourcePayload
 
-  """Allows to add an internal direct debit payment mandate."""
-  addInternalDirectDebitPaymentMandate(input: AddInternalDirectDebitPaymentMandateInput!): AddInternalDirectDebitPaymentMandatePayload!
-
-  """Add a merchant profile to a company account holder"""
-  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
-  addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
-
   """Cancel a funding source"""
   cancelFundingSource(input: CancelFundingSourceInput!): CancelFundingSourcePayload
 
@@ -8734,9 +8742,6 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
-
-  """Create a unique URL for a merchant to collect payment from a customer"""
-  createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
 
   """
   Initiate a funding request.
@@ -8750,13 +8755,6 @@ type Mutation {
   Create an international transfer
   """
   initiateInternationalCreditTransfer(input: InitiateInternationalCreditTransferInput!): InitiateInternationalCreditTransferResponsePayload
-  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
-
-  """Request merchant payment methods for a merchant profile"""
-  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
-
-  """Request an update of a MerchantProfile"""
-  requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
 
   """
   Schedule a standing Order
@@ -9678,7 +9676,7 @@ input PaymentMandateOrderByInput {
 }
 
 """
-Rejection returned if the payment mandate reference is already used for the same creditor
+Rejection returned when a payment mandate reference is already for a creditor
 """
 type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
   message: String!
@@ -10625,6 +10623,9 @@ type Query {
   """Returns a received direct debit mandate from its id."""
   receivedDirectDebitMandate(receivedDirectDebitMandateId: ID!): ReceivedDirectDebitMandate
 
+  """Returns a merchant profile by id."""
+  merchantProfile(id: ID!): MerchantProfile
+
   """Returns funding source by id."""
   fundingSource(id: ID!): FundingSource
 
@@ -10636,9 +10637,6 @@ type Query {
 
   """Request an international credit transfer quote."""
   internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!): InternationalCreditTransferQuote
-
-  """Returns a merchant profile by id."""
-  merchantProfile(id: ID!): MerchantProfile
 
   """Returns standing order from its id."""
   standingOrder(standingOrderId: ID!): StandingOrder
@@ -13143,6 +13141,9 @@ enum SupportingDocumentPurposeEnum {
   """Proof of company registration"""
   CompanyRegistration
 
+  """Minutes Of The General Assembly"""
+  GeneralAssemblyMinutes
+
   """Other"""
   Other
 
@@ -13348,6 +13349,9 @@ enum SupportingDocumentType {
 
   """Sworn statement"""
   SwornStatement
+
+  """Meeting's minutes"""
+  MeetingMinutes
 }
 
 """Supporting document with Uploaded status"""

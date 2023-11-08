@@ -49,7 +49,7 @@ export const TransferInternationalDynamicFormBuilder = forwardRef(
       <BeneficiaryDynamicForm
         fields={fields}
         form={form}
-        key={fields.map(item => item.key).join(":")}
+        key={fields.map(item => item.key).join()}
         refresh={refresh}
         onChange={onChange}
         ref={ref}
@@ -75,6 +75,7 @@ const BeneficiaryDynamicForm = forwardRef(
       validateField,
       getFieldState,
     } = useForm(form);
+    
     const dynamicFields = useMemo(
       () =>
         fields

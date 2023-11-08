@@ -42,6 +42,7 @@
   "accountDetails.billing.status": "Stato",
   "accountDetails.billing.tab": "Fatturazione",
   "accountDetails.iban.addressLabel": "Indirizzo",
+  "accountDetails.iban.bankDetails": "Dettagli bancari",
   "accountDetails.iban.bicLabel": "BIC",
   "accountDetails.iban.bicUnavailableTooltip": "Il suo BIC sarà disponibile dopo aver completato l'attivazione del conto.",
   "accountDetails.iban.cityLabel": "Città",

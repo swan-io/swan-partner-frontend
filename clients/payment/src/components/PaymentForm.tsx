@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
@@ -13,7 +13,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
@@ -49,10 +49,10 @@ const styles = StyleSheet.create({
   bottomText: {
     textAlign: "center",
   },
-  languagesSelect: {
+  buttonItem: { width: "50%" },
+  buttonItemDesktop: { width: "15%" },
+  selectLanguage: {
     alignItems: "flex-end",
-    backgroundColor: "red",
-    width: "1OOpx",
   },
 });
 
@@ -60,7 +60,7 @@ type ItemId = (typeof items)[number]["id"];
 const merchantName = "Test";
 
 type FormState = {
-  paymentMethod: string;
+  paymentMethod: ItemId;
   iban: string;
   country: CountryCCA3;
   firstName: string;
@@ -75,11 +75,9 @@ type FormState = {
 export const PaymentForm = () => {
   const { desktop } = useResponsive();
 
-  const [selected, setSelected] = useState<ItemId>(items[0].id);
-
   const { Field, submitForm } = useForm<FormState>({
     paymentMethod: {
-      initialValue: selected,
+      initialValue: items[0].id,
       validate: validateRequired,
     },
     iban: {
@@ -161,44 +159,50 @@ export const PaymentForm = () => {
       }}
       contentContainerStyle={styles.container}
     >
-      <LakeButtonGroup>
-        <LakeButton icon="dismiss-regular" mode="tertiary" grow={true} onPress={() => {}}>
-          {t("common.cancel")}
-        </LakeButton>
+      <Box direction="row" alignItems="center" justifyContent="spaceBetween">
+        <Box style={desktop ? styles.buttonItemDesktop : styles.buttonItem}>
+          <LakeButton
+            ariaLabel={t("common.cancel")}
+            icon="dismiss-regular"
+            mode="tertiary"
+            grow={true}
+            onPress={() => {}}
+          >
+            {t("common.cancel")}
+          </LakeButton>
+        </Box>
 
-        <LakeSelect
-          value={locale.language}
-          items={languageOptions}
-          hideErrors={true}
-          mode="borderless"
-          style={styles.languagesSelect}
-          onValueChange={locale => {
-            setPreferredLanguage(locale);
-          }}
-        />
-      </LakeButtonGroup>
+        <Box
+          style={[desktop ? styles.buttonItemDesktop : styles.buttonItem, styles.selectLanguage]}
+        >
+          <LakeSelect
+            value={locale.language}
+            items={languageOptions}
+            hideErrors={true}
+            mode="borderless"
+            onValueChange={locale => {
+              setPreferredLanguage(locale);
+            }}
+          />
+        </Box>
+      </Box>
 
       <Space height={24} />
 
+      {/* Just for tests */}
       <SwanLogo
         color={colors.swan[500]}
         style={{
           alignSelf: "center",
           width: "144px",
-          // height: "50px",
         }}
       />
 
       <Space height={24} />
-      <LakeText align="center">Shoes</LakeText>
+      <LakeText align="center">Merchant item</LakeText>
       <Space height={12} />
 
-      <LakeHeading
-        variant="h1"
-        level={2}
-        align="center"
-        // style={transaction.side ? styles.debitAmount : null}
-      >
+      <LakeHeading variant="h1" level={2} align="center">
         {formatCurrency(Number(10), "EUR")}
       </LakeHeading>
 
@@ -211,7 +215,6 @@ export const PaymentForm = () => {
             label={t("paymentLink.paymentMethod")}
             render={() => (
               <SegmentedControl
-                // value={value}
                 mode="desktop"
                 selected={value}
                 items={items}

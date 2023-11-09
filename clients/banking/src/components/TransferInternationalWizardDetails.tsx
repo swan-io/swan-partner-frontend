@@ -7,7 +7,7 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
@@ -15,6 +15,7 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -24,6 +25,7 @@ import {
 import { locale, t } from "../utils/i18n";
 import {
   DynamicFormApi,
+  DynamicFormField,
   ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
@@ -52,6 +54,7 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
+  const [fields, setFields] = useState<DynamicFormField[]>([]);
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
 
@@ -89,17 +92,17 @@ export const TransferInternationalWizardDetails = ({
     },
   });
 
-  const fields = useMemo(() => {
-    return match(data)
+  useEffect(() => {
+    match(data)
       .with(
         AsyncData.P.Done(
           Result.P.Ok({
             internationalCreditTransferTransactionDetailsDynamicForm: P.select(P.not(P.nullish)),
           }),
         ),
-        ({ fields }) => fields,
+        ({ fields }) => setFields(fields),
       )
-      .otherwise(() => []);
+      .otherwise(noop);
   }, [data]);
 
   const refresh = useDebounce<string[]>(keys => {

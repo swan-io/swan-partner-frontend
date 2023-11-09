@@ -16,10 +16,12 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
+  Scheme,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
@@ -51,6 +53,7 @@ export const TransferInternationalWizardBeneficiary = ({
   onPressPrevious,
   onSave,
 }: Props) => {
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [route, setRoute] = useState<string | undefined>();
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
@@ -90,15 +93,15 @@ export const TransferInternationalWizardBeneficiary = ({
       },
     });
 
-  const schemes = useMemo(() => {
-    return match(data)
+  useEffect(() => {
+    match(data)
       .with(
         AsyncData.P.Done(
           Result.P.Ok({ internationalBeneficiaryDynamicForms: P.select(P.not(P.nullish)) }),
         ),
-        ({ schemes }) => schemes,
+        ({ schemes }) => setSchemes(schemes),
       )
-      .otherwise(() => []);
+      .otherwise(noop);
   }, [data]);
 
   const routes = useMemo(() => {

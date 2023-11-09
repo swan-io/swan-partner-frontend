@@ -14,7 +14,7 @@ jobs:
       GH_TOKEN: ${{ github.token }}
       REF_BRANCH: ${{ github.event.pull_request.head.ref }}
     permissions:
-      contents: read # This is required for actions/checkout
+      contents: write # This is required for checkout and gh release
       id-token: write # This is required for requesting the JWT
     steps:
       - uses: actions/checkout@v3

@@ -20,7 +20,6 @@ import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
-  InternationalCreditTransferDetailsInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
@@ -28,6 +27,7 @@ import { validateRequired } from "../utils/validations";
 import {
   DynamicFormApi,
   DynamicFormField,
+  ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
@@ -74,7 +74,7 @@ export const TransferInternationalWizardBeneficiary = ({
     useForm<{
       name: string;
       route: string;
-      results: InternationalCreditTransferDetailsInput[];
+      results: ResultItem[];
     }>({
       name: {
         initialValue: initialBeneficiary?.name ?? "",

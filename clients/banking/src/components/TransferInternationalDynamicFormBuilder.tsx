@@ -11,6 +11,7 @@ import { Form, FormConfig, combineValidators, useForm } from "react-ux-form";
 import { P, isMatching, match } from "ts-pattern";
 import {
   DateField,
+  InternationalBeneficiaryDetailsInput,
   InternationalCreditTransferDetailsInput,
   RadioField,
   SelectField,
@@ -25,6 +26,10 @@ const isDynamicField = isMatching({
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
+export type ResultItem =
+  | InternationalBeneficiaryDetailsInput
+  | InternationalCreditTransferDetailsInput;
+
 type DynamicForm = Form<Record<string, string>>;
 
 export type DynamicFormApi = {
@@ -33,9 +38,9 @@ export type DynamicFormApi = {
 
 type TransferInternationalDynamicFormBuilderProps = {
   fields: DynamicFormField[];
-  results: InternationalCreditTransferDetailsInput[];
+  results: ResultItem[];
   refresh: (keys: string[]) => void;
-  onChange: (results: InternationalCreditTransferDetailsInput[]) => void;
+  onChange: (results: ResultItem[]) => void;
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef<
@@ -83,7 +88,7 @@ type BeneficiaryDynamicFormProps = {
   fields: DynamicFormField[];
   form: FormConfig<Record<string, string>>;
   refresh: (keys: string[]) => void;
-  onChange: (results: InternationalCreditTransferDetailsInput[]) => void;
+  onChange: (results: ResultItem[]) => void;
 };
 
 const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicFormProps>(

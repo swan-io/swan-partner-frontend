@@ -18,20 +18,20 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
-  InternationalCreditTransferDetailsInput,
   InternationalCreditTransferDisplayLanguage,
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import {
   DynamicFormApi,
+  ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
 export type Details = {
-  results: InternationalCreditTransferDetailsInput[];
+  results: ResultItem[];
   externalReference: string;
 };
 
@@ -76,7 +76,7 @@ export const TransferInternationalWizardDetails = ({
   console.log("[NC] data", data);
 
   const { Field, submitForm, getFieldState } = useForm<{
-    results: InternationalCreditTransferDetailsInput[];
+    results: ResultItem[];
     externalReference: string;
   }>({
     results: {

@@ -5,15 +5,18 @@ import { CombinedError, Operation, OperationContext } from "urql";
 import { env } from "./env";
 import { isCombinedError } from "./urql";
 
-const FORCE_DEV_LOGGING = false;
+// const FORCE_DEV_LOGGING = false;
 
-const ENABLED = env.IS_SWAN_MODE && (process.env.NODE_ENV === "production" || FORCE_DEV_LOGGING);
+// TODO: Enable Sentry when going in production
+// const ENABLED = env.IS_SWAN_MODE && (process.env.NODE_ENV === "production" || FORCE_DEV_LOGGING);
+
+const ENABLED = false;
 
 export const initSentry = () => {
   if (ENABLED) {
     init({
       release: env.VERSION,
-      dsn: "https://632023ecffdc437984c7a53bbb3aa7a6@o427297.ingest.sentry.io/5454043",
+      dsn: "TODO",
       environment: env.PAYMENT_URL.includes("preprod")
         ? "preprod"
         : env.PAYMENT_URL.includes("master")

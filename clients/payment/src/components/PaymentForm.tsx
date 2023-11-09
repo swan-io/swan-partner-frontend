@@ -229,11 +229,18 @@ export const PaymentForm = () => {
       <Space height={24} />
 
       <Field name="iban">
-        {({ value, valid, error, onChange }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("paymentLink.iban")}
             render={() => (
-              <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onBlur={onBlur}
+                onChangeText={onChange}
+                ref={ref}
+              />
             )}
           />
         )}
@@ -246,11 +253,11 @@ export const PaymentForm = () => {
             render={id => (
               <CountryPicker
                 id={id}
-                ref={ref}
                 countries={allCountries}
                 value={value}
                 onValueChange={onChange}
                 error={error}
+                ref={ref}
               />
             )}
           />
@@ -259,11 +266,18 @@ export const PaymentForm = () => {
 
       <Box direction={desktop ? "row" : "column"}>
         <Field name="firstName">
-          {({ value, valid, error, onChange }) => (
+          {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
               label={t("paymentLink.firstName")}
               render={() => (
-                <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+                <LakeTextInput
+                  value={value}
+                  valid={valid}
+                  error={error}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  ref={ref}
+                />
               )}
               style={styles.label}
             />
@@ -273,12 +287,19 @@ export const PaymentForm = () => {
         <Space width={24} />
 
         <Field name="lastName">
-          {({ value, valid, error, onChange }) => (
+          {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
               style={styles.label}
               label={t("paymentLink.lastName")}
               render={() => (
-                <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+                <LakeTextInput
+                  value={value}
+                  valid={valid}
+                  error={error}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  ref={ref}
+                />
               )}
             />
           )}
@@ -286,33 +307,54 @@ export const PaymentForm = () => {
       </Box>
 
       <Field name="addressLine1">
-        {({ value, valid, error, onChange }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("paymentLink.addressLine1")}
             render={() => (
-              <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              />
             )}
           />
         )}
       </Field>
 
       <Field name="addressLine2">
-        {({ value, valid, error, onChange }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("paymentLink.addressLine2")}
             render={() => (
-              <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              />
             )}
           />
         )}
       </Field>
 
       <Field name="city">
-        {({ value, valid, error, onChange }) => (
+        {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("paymentLink.city")}
             render={() => (
-              <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              />
             )}
           />
         )}
@@ -320,11 +362,18 @@ export const PaymentForm = () => {
 
       <Box direction={desktop ? "row" : "column"}>
         <Field name="postalCode">
-          {({ value, valid, error, onChange }) => (
+          {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
               label={t("paymentLink.postcode")}
               render={() => (
-                <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+                <LakeTextInput
+                  value={value}
+                  valid={valid}
+                  error={error}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  ref={ref}
+                />
               )}
               style={styles.label}
             />
@@ -334,12 +383,19 @@ export const PaymentForm = () => {
         <Space width={24} />
 
         <Field name="state">
-          {({ value, valid, error, onChange }) => (
+          {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
               style={styles.label}
               label={t("paymentLink.state")}
               render={() => (
-                <LakeTextInput value={value} valid={valid} error={error} onChangeText={onChange} />
+                <LakeTextInput
+                  value={value}
+                  valid={valid}
+                  error={error}
+                  onChangeText={onChange}
+                  onBlur={onBlur}
+                  ref={ref}
+                />
               )}
             />
           )}

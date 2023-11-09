@@ -16,8 +16,6 @@ import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import {
   InitiateInternationalCreditTransferDocument,
-  InternationalBeneficiaryDetailsInput,
-  InternationalCreditTransferDetailsInput,
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -89,10 +87,11 @@ export const TransferInternationalWizard = ({
   accountId,
   accountMembershipId,
 }: Props) => {
+  const [step, setStep] = useState<Step>({ name: "Amount" });
+
   const [transfer, initiateTransfers] = useUrqlMutation(
     InitiateInternationalCreditTransferDocument,
   );
-  const [step, setStep] = useState<Step>({ name: "Amount" });
 
   const initiateTransfer = ({
     amount,
@@ -112,10 +111,9 @@ export const TransferInternationalWizard = ({
           name: beneficiary.name,
           currency: amount.currency,
           route: beneficiary.route as InternationalCreditTransferRouteInput,
-          details: beneficiary.results as InternationalBeneficiaryDetailsInput[],
+          details: beneficiary.results,
         },
-        internationalCreditTransferDetails:
-          details.results as InternationalCreditTransferDetailsInput[],
+        internationalCreditTransferDetails: details.results,
         consentRedirectUrl:
           window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
       },

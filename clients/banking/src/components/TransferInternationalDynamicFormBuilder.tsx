@@ -99,6 +99,7 @@ const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicForm
 
     useEffect(() => {
       const keys = Object.keys(form);
+
       listenFields(keys, values => {
         onChange(
           Object.entries(values).map(([key, { value }]) => ({
@@ -113,6 +114,7 @@ const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicForm
     useEffect(() => {
       fields.map(async ({ key }) => {
         const { value } = getFieldState(key);
+
         if (isNotNullishOrEmpty(value)) {
           await validateField(key);
         }

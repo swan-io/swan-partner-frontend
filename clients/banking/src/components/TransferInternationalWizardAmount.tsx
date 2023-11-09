@@ -144,22 +144,22 @@ export const TransferInternationalWizardAmount = ({
           label={t("transfer.new.internationalTransfer.amount.label")}
           render={id => (
             <Field name="amount">
-              {({ value, onChange, onBlur, error, valid, ref }) => (
+              {({ value: { value, currency }, onChange, onBlur, error, valid, ref }) => (
                 <LakeTextInput
                   id={id}
                   ref={ref}
-                  value={value.value}
+                  value={value}
                   error={error}
                   valid={valid}
-                  onChangeText={v => {
-                    onChange({ currency: value.currency, value: v });
+                  onChangeText={nextValue => {
+                    onChange({ currency, value: nextValue });
                   }}
                   onBlur={onBlur}
                   units={currencies as unknown as string[]}
-                  unit={value.currency}
+                  unit={currency}
                   inputMode="numeric"
-                  onUnitChange={c => {
-                    onChange({ currency: c as Currency, value: value.value });
+                  onUnitChange={nextCurrency => {
+                    onChange({ currency: nextCurrency as Currency, value });
                   }}
                 />
               )}

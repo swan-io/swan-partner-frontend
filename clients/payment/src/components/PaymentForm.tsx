@@ -12,13 +12,12 @@ import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/d
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
-import { validateIban } from "../../../banking/src/utils/iban";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const items = [{ id: "sdd", name: "SEPA Direct Debit" }] as const;
 
@@ -78,30 +77,30 @@ export const PaymentForm = () => {
   const { Field, submitForm } = useForm<FormState>({
     paymentMethod: {
       initialValue: items[0].id,
-      validate: validateRequired,
+      // validate: validateRequired,
     },
     iban: {
       initialValue: "",
-      validate: combineValidators(validateRequired, validateIban),
+      // validate: combineValidators(validateRequired, validateIban),
       sanitize: value => value.trim(),
     },
     country: {
       initialValue: "FRA",
-      validate: validateRequired,
+      // validate: validateRequired,
     },
     firstName: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
     lastName: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
     addressLine1: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
     addressLine2: {
@@ -110,17 +109,17 @@ export const PaymentForm = () => {
     },
     city: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
     postalCode: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
     state: {
       initialValue: "",
-      validate: validateRequired,
+      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
   });
@@ -140,6 +139,7 @@ export const PaymentForm = () => {
           "state",
         ])
       ) {
+        Router.push("Success");
         console.log(values);
       }
     });

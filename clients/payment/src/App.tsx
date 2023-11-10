@@ -7,12 +7,13 @@ import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { PaymentForm } from "./components/PaymentForm";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { SuccessPage } from "./pages/SuccessPage";
 import { logFrontendError } from "./utils/logger";
 import { Router } from "./utils/routes";
 import { unauthenticatedClient } from "./utils/urql";
 
 export const App = () => {
-  const route = Router.useRoute(["PaymentLink"]);
+  const route = Router.useRoute(["Success", "PaymentLink"]);
 
   return (
     <ErrorBoundary
@@ -24,6 +25,7 @@ export const App = () => {
         <ClientProvider value={unauthenticatedClient}>
           {match(route)
             .with({ name: "PaymentLink" }, () => <PaymentForm />)
+            .with({ name: "Success" }, () => <SuccessPage />)
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}
         </ClientProvider>

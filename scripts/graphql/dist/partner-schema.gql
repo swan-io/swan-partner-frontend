@@ -76,16 +76,10 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """
-  COMING SOON
-  Link to the account's bank details
-  """
+  """Link to the account's bank details"""
   bankDetails: String
 
-  """
-  COMING SOON
-  Legal Documents linked to the account
-  """
+  """Legal Documents linked to the account"""
   legalDocuments(first: Int! = 50, after: String, filters: LegalDocumentsFilterInput): LegalDocumentConnection
 
   """A list of balances regarding an account."""
@@ -275,10 +269,7 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """
-  Dutch account with a Dutch IBAN, starting with DU.
-  COMING SOON
-  """
+  """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
 }
 
@@ -359,10 +350,7 @@ type AccountHolder {
   """List of supporting document collection for an account holder"""
   supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
 
-  """
-  *COMING SOON*
-  List of funding limit settings change request for an account holder
-  """
+  """List of funding limit settings change request for an account holder"""
   fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
@@ -604,7 +592,7 @@ An account membership represents the rights of a user for a given account.
 *Each account is administered by an account membership having the capacity of legal representative. He has the possibility of delegating rights on this account to other users.*
 """
 type AccountMembership {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   id: ID!
 
   """email"""
@@ -635,7 +623,6 @@ type AccountMembership {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean!
@@ -847,7 +834,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -1128,13 +1114,13 @@ type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInf
 
 """Inputs to add a new account membership"""
 input AddAccountMembershipInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 
-  """email"""
+  """Email address"""
   email: String!
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: RestrictedToInput!
 
   """
@@ -1154,7 +1140,6 @@ input AddAccountMembershipInput {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -1173,10 +1158,10 @@ union AddAccountMembershipPayload = AddAccountMembershipSuccessPayload | BadAcco
 
 """Inputs to add a new account membership"""
 input AddAccountMembershipsInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 
-  """memberships to add to the account"""
+  """Memberships to add to the account"""
   memberships: [MembershipInfoInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1195,7 +1180,7 @@ type AddAccountMembershipSuccessPayload {
 
 """Inputs to add a new card"""
 input AddCardInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -1224,10 +1209,10 @@ input AddCardInput {
   """`true` to show the card confidential information in the same request"""
   viewCardNumber: Boolean
 
-  """The if of the card product to use to create the new card."""
+  """The id of the card product to use to create the new card."""
   cardProductId: ID
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput
 }
 
@@ -1235,7 +1220,7 @@ union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedReject
 
 """Input to add a new cards"""
 input AddCardsInput {
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [CardConfigInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1259,10 +1244,10 @@ type AddCardSuccessPayload {
 
 """Input to add a new cards"""
 input AddCardsWithGroupDeliveryInput {
-  """address to deliver the printed physical cards"""
+  """Address to deliver the printed physical cards"""
   groupDeliveryAddress: CompleteAddressWithContactInput!
 
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [CardConfigWithGroupDeliveryInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1337,7 +1322,7 @@ type AddDirectDebitFundingSourceSuccessPayload {
 }
 
 input AddExternalAccountBalanceInput {
-  """unique identifier of a given external account"""
+  """Unique identifier of a given external account"""
   externalAccountId: ID!
 
   """Amount of the balance"""
@@ -1505,7 +1490,7 @@ type AddMerchantProfileSuccessPayload {
 }
 
 input AddOrUpdateExternalAccountBalanceInput {
-  """unique identifier of a given external account"""
+  """Unique identifier of a given external account"""
   externalAccountId: ID!
 
   """Amount of the balance"""
@@ -1734,10 +1719,10 @@ type AddSepaDirectDebitPaymentMandateSuccessPayload {
 
 """Inputs to add a new card"""
 input AddSingleUseVirtualCardInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
   """URL the user is redirected to after consent has been given"""
@@ -1749,7 +1734,7 @@ input AddSingleUseVirtualCardInput {
   """`true` to show the card confidential information in the same request"""
   viewCardNumber: Boolean
 
-  """The if of the card product to use to create the new card."""
+  """The id of the card product to use to create the new card."""
   cardProductId: ID
 }
 
@@ -1757,7 +1742,7 @@ union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayl
 
 """Input to add a new single-use virtual cards"""
 input AddSingleUseVirtualCardsInput {
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [SingleUseVirtualCardConfigInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1775,15 +1760,15 @@ type AddSingleUseVirtualCardsSuccessPayload {
 }
 
 type AddSingleUseVirtualCardSuccessForProjectOwnerPayload {
-  """the new card added"""
+  """The new card added"""
   card: Card!
 
-  """card condidential"""
+  """Card confidential"""
   confidential: CardConfidential!
 }
 
 type AddSingleUseVirtualCardSuccessForUserPayload {
-  """the new card added"""
+  """The new card added"""
   card: Card!
 }
 
@@ -1795,7 +1780,7 @@ type AddVirtualIbanEntrySuccessPayload {
 
 """Input to Add a Virtual IBAN"""
 input AddVirtualIbanInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 }
 
@@ -1806,7 +1791,7 @@ type AllowedValue {
 
 """Input to Allow SDD"""
 input AllowSddInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 }
 
@@ -2055,7 +2040,7 @@ input CancelCardInput {
 union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelCardSuccessPayload {
-  """the card canceled"""
+  """The canceled card """
   card: Card!
 }
 
@@ -2081,7 +2066,7 @@ input CancelDigitalCardInput {
 union CancelDigitalCardPayload = CancelDigitalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | DigitalCardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelDigitalCardSuccessPayload {
-  """the digital card canceled"""
+  """The canceled digital card"""
   digitalCard: DigitalCard!
 }
 
@@ -2117,7 +2102,7 @@ Describes an identification level for the process associated to this identificat
 """
 type CanceledIdentificationLevelStatusInfo {
   """Always set to `Cancelled`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 type CanceledMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
@@ -2171,7 +2156,7 @@ input CancelPhysicalCardInput {
   """Unique identifier of a card"""
   cardId: ID!
 
-  """reason why the physical card is canceled"""
+  """Reason why the physical card is canceled"""
   reason: CancelPhysicalCardReason!
 }
 
@@ -2196,7 +2181,7 @@ enum CancelPhysicalCardReason {
 }
 
 type CancelPhysicalCardSuccessPayload {
-  """The physicalCard canceled"""
+  """The canceled physical card """
   physicalCard: PhysicalCard!
 }
 
@@ -2614,18 +2599,18 @@ type CardCanNotBeDigitalizedRejection implements Rejection {
 }
 
 type CardConfidential {
-  """card number"""
+  """Card number"""
   pan: String!
 
-  """card verification value"""
+  """Card verification value"""
   cvv: String!
 
-  """expiration date"""
+  """Expiration date"""
   expiryDate: String!
 }
 
 input CardConfigInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -2648,17 +2633,15 @@ input CardConfigInput {
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
-  """
-  if used a physical card will be printed and sent to the inputed address
-  """
+  """If used a physical card will be printed and sent to the given address"""
   physicalCard: PhysicalCardConfigInput
 }
 
 input CardConfigWithGroupDeliveryInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -2681,7 +2664,7 @@ input CardConfigWithGroupDeliveryInput {
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
   """`true` when you wish for print an associated physical card"""
@@ -4546,7 +4529,7 @@ Describes an identification level for the process associated to this identificat
 """
 type ExpiredIdentificationLevelStatusInfo {
   """Always set to `Expired`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 
   """When this identification level expired"""
   expiredAt: Date!
@@ -5509,11 +5492,6 @@ type Identification {
   documents: [IdentificationDocument!]
 
   """
-  The available electronic signatures related to the identification (currently for QES only)
-  """
-  signatures: [Signature!]
-
-  """
   The identity document type used for the current identification (passport, id card ...)
   """
   identityDocumentType: IdentityDocumentType
@@ -5584,10 +5562,10 @@ input IdentificationFiltersInput {
   statuses: [SwanIdentificationStatus!]
 
   """To filter on level values"""
-  levels: [SwanIdentificationLevel!]
+  levels: [IdentificationLevel!]
 
   """To filter on process values"""
-  processes: [SwanIdentificationProcess!]
+  processes: [IdentificationProcess!]
 }
 
 """The various reasons that can lead to an invalid identification level"""
@@ -5716,41 +5694,6 @@ type IdentificationLevels {
   expert: Boolean!
 }
 
-"""Valid statuses for level identifications"""
-enum IdentificationLevelStatus {
-  """
-  This identification level is not supported for the process associated to this identification
-  """
-  NotSupported
-
-  """This identification level has not yet been started"""
-  NotStarted
-
-  """This identification level has been started"""
-  Started
-
-  """
-  This identification level is pending and requires an operation not related to the end-user to progress
-  """
-  Pending
-
-  """
-  This identification level is valid and identification documents can be accessed
-  """
-  Valid
-
-  """This identification level is invalid"""
-  Invalid
-
-  """The process of this identification level was canceled by the end-user"""
-  Canceled
-
-  """
-  This identification level is considered expired and no documents can be accessed
-  """
-  Expired
-}
-
 """
 The status and results associated to the available identification processes
 """
@@ -5774,6 +5717,22 @@ Union representing all the possible statuses: not supported, not started, pendin
 Each variant contains its relevant data, for example invalid contains a `reason` field, expired contains an `expiredAt` field, valid contains a `documents` field
 """
 union IdentificationLevelStatusInfo = NotSupportedIdentificationLevelStatusInfo | NotStartedIdentificationLevelStatusInfo | StartedIdentificationLevelStatusInfo | PendingIdentificationLevelStatusInfo | ValidIdentificationLevelStatusInfo | InvalidIdentificationLevelStatusInfo | CanceledIdentificationLevelStatusInfo | ExpiredIdentificationLevelStatusInfo
+
+"""Process of the identification"""
+enum IdentificationProcess {
+  """Identity verified by an expert"""
+  Expert
+
+  """
+  Identity verified by an expert and a Qualified Electronic Signature has been done
+  """
+  QES
+
+  """
+  Identity verified by an expert with a Remote Identity Verification Service
+  """
+  PVID
+}
 
 """Union representing the process that was used for this identification"""
 union IdentificationProcessInfo = IdentificationExpertProcessInfo | IdentificationExpertWithQESProcessInfo | IdentificationPVIDProcessInfo
@@ -7398,7 +7357,7 @@ Describes an invalid identification level for the process associated to this ide
 """
 type InvalidIdentificationLevelStatusInfo {
   """Always set to `Invalid`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 
   """The reasons why this identification level is invalid"""
   reasons: [IdentificationInvalidReason!]
@@ -7560,13 +7519,13 @@ input LegalDocumentsFilterInput {
 }
 
 enum LegalDocumentStatus {
-  """when the LegalDocument will be the next active on the account"""
+  """When the LegalDocument will be the next active on the account"""
   Upcoming
 
-  """when the LegalDocument is currently active on the account"""
+  """When the LegalDocument is currently active on the account"""
   Active
 
-  """when the LegalDocument is no more active on the account"""
+  """When the LegalDocument is no more active on the account"""
   Inactive
 }
 
@@ -7614,10 +7573,10 @@ enum MandateLanguage {
 }
 
 input MembershipInfoInput {
-  """email"""
+  """Email address"""
   email: String!
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: RestrictedToInput!
 
   """
@@ -7637,7 +7596,6 @@ input MembershipInfoInput {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -7654,7 +7612,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -8381,7 +8338,6 @@ type Mutation {
   addExternalAccount(input: AddExternalAccountInput!): AddExternalAccountPayload!
 
   """
-  *COMING SOON*
   Add a new request for funding limit settings change.
   
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -8396,7 +8352,7 @@ type Mutation {
   """
   addOrUpdateExternalAccountBalance(input: AddOrUpdateExternalAccountBalanceInput!): AddOrUpdateExternalAccountBalancePayload!
 
-  """add a new Single Use Virtual Card to an account membership."""
+  """Add a new Single Use Virtual Card to an account membership."""
   addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
 
   """
@@ -8430,7 +8386,7 @@ type Mutation {
   """Cancel a Digital Card"""
   cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
 
-  """Cancel a Physical Card."""
+  """Cancel a physical card."""
   cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
 
   """Cancels a Virtual IBAN."""
@@ -8786,7 +8742,7 @@ Describes an identification level that hasn't started for the process of the cur
 """
 type NotStartedIdentificationLevelStatusInfo {
   """Always set to `NotStarted`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """
@@ -8801,7 +8757,7 @@ Describes an identification level that's not supported for the process of the cu
 """
 type NotSupportedIdentificationLevelStatusInfo {
   """Always set to `NotSupported`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """Extra parameters provided by partner"""
@@ -9198,7 +9154,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
 }
 
 type OnboardingInfo {
-  """unique identifier of an onboarding"""
+  """Unique identifier of an onboarding"""
   id: String!
 
   """Account name"""
@@ -9816,7 +9772,7 @@ type PdfStatement implements StatementInfo {
 
 """Pending Consent when the account membership will be updated"""
 type PendingConsentAccountMembershipUpdate {
-  """new account membership version waiting for consent"""
+  """New account membership version waiting for consent"""
   accountMembershipId: AccountMembership!
 
   """The consent required to update the account membership"""
@@ -9892,7 +9848,7 @@ Describes an identification level that is pending for the process of the current
 """
 type PendingIdentificationLevelStatusInfo {
   """Always set to `Pending`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """PendingMerchantPaymentMethodStatusInfo"""
@@ -9995,7 +9951,7 @@ type PhysicalCardCancelingStatusInfo implements PhysicalCardStatusInfo {
 }
 
 input PhysicalCardConfigInput {
-  """address to deliver the physical card"""
+  """Address to deliver the physical card"""
   deliveryAddress: CompleteAddressInput!
 
   """Custom options to use for physical cards."""
@@ -10195,7 +10151,7 @@ input PrintPhysicalCardInput {
   """Unique identifier of a card"""
   cardId: ID!
 
-  """address to deliver the physical card"""
+  """Address to deliver the physical card"""
   address: CompleteAddressInput!
 
   """`true` if the user must choose their PIN Code"""
@@ -11454,7 +11410,7 @@ type RestrictedToUserRejection implements Rejection {
 }
 
 input ResumeAccountMembershipInput {
-  """unique identifier of a given account membership to resume"""
+  """Unique identifier of a given account membership to resume"""
   accountMembershipId: ID!
 
   """URL the user is redirected to after consent has been given"""
@@ -12625,13 +12581,13 @@ enum SimulationCardType {
 }
 
 input SingleUseVirtualCardConfigInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 }
 
@@ -12815,7 +12771,7 @@ Describes an identification level that has started for the process of the curren
 """
 type StartedIdentificationLevelStatusInfo {
   """Always set to `Started`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """
@@ -13528,39 +13484,7 @@ input SwanAccountBeneficiaryInput {
   save: Boolean!
 }
 
-"""Used when filtering to filter on the identification level"""
-enum SwanIdentificationLevel {
-  """Identity verified by an expert"""
-  Expert
-
-  """
-  Identity verified by an expert and a Qualified Electronic Signature has been done
-  """
-  QES
-
-  """
-  Identity verified by an expert with a Remote Identity Verification Service
-  """
-  PVID
-}
-
-"""Used when filtering to filter on the identification process"""
-enum SwanIdentificationProcess {
-  """Identity verified by an expert"""
-  Expert
-
-  """
-  Identity verified by an expert and a Qualified Electronic Signature has been done
-  """
-  QES
-
-  """
-  Identity verified by an expert with a Remote Identity Verification Service
-  """
-  PVID
-}
-
-"""Used when filtering to filter on the status of the identifications"""
+"""Status values of an identification"""
 enum SwanIdentificationStatus {
   """
   When the identification process is currently being treated by a manual or automatic process
@@ -13573,6 +13497,14 @@ enum SwanIdentificationStatus {
   """When the identification is invalid"""
   Invalid
 
+  """
+  When the user canceled the identification process or the identification service was unavailable
+  """
+  Canceled
+
+  """When the identification is no longer valid"""
+  Expired
+
   """When the identification does not support an identification level"""
   NotSupported
 
@@ -13581,12 +13513,6 @@ enum SwanIdentificationStatus {
 
   """When the identification has been started"""
   Started
-
-  """When the identification has been canceled"""
-  Canceled
-
-  """When the identification has expired"""
-  Expired
 }
 
 type SwanTCUDocumentNotFoundRejection implements Rejection {
@@ -14350,25 +14276,25 @@ type UpdateAccountHolderSuccessPayload {
 
 """Inputs to update an account"""
 input UpdateAccountInput {
-  """unique identifier of an account"""
+  """Unique identifier of an account"""
   accountId: ID!
 
-  """name"""
+  """Name"""
   name: String
 
-  """language"""
+  """Language"""
   language: AccountLanguage
 }
 
 """Inputs to update an account membership"""
 input UpdateAccountMembershipInput {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   accountMembershipId: ID!
 
-  """email"""
+  """Email address"""
   email: String
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: UpdatedRestrictedToInput
 
   """
@@ -14388,7 +14314,6 @@ input UpdateAccountMembershipInput {
   canManageAccountMembership: Boolean
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -14420,7 +14345,7 @@ type UpdateAccountSuccessPayload {
 
 """Input to Update Card"""
 input UpdateCardInput {
-  """unique identifier of the card to update"""
+  """Unique identifier of the card to update"""
   cardId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -14896,7 +14821,7 @@ Describes a valid identification level for the process associated to this identi
 """
 type ValidIdentificationLevelStatusInfo {
   """Always set to `Valid`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """Verification Flow."""

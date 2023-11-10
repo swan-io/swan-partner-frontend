@@ -12,27 +12,33 @@ import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
-  InternationalCreditTransferDisplayLanguage,
+  InternationalBeneficiaryDetailsInput,
   Scheme,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
 import {
+  DynamicFormApi,
   DynamicFormField,
   ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 
-export type Beneficiary = { name: string; results: ResultItem[]; route: string };
+export type Beneficiary = {
+  name: string;
+  route: string;
+  results: InternationalBeneficiaryDetailsInput[];
+};
 
 type Props = {
   initialBeneficiary?: Beneficiary;
@@ -52,7 +58,7 @@ export const TransferInternationalWizardBeneficiary = ({
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
-  const ref = useRef();
+  const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
   const { data } = useUrqlQuery(
     {
@@ -61,7 +67,7 @@ export const TransferInternationalWizardBeneficiary = ({
         dynamicFields,
         amountValue: amount.value,
         currency: amount.currency,
-        language: locale.language as InternationalCreditTransferDisplayLanguage,
+        language: locale.language,
       },
     },
     [locale.language, dynamicFields],
@@ -87,38 +93,31 @@ export const TransferInternationalWizardBeneficiary = ({
       },
     });
 
-  const updatedSchemes = useMemo(
-    () =>
-      match(data)
-        .with(
-          AsyncData.P.Done(Result.P.Ok(P.select())),
-          ({ internationalBeneficiaryDynamicForms }) =>
-            internationalBeneficiaryDynamicForms?.schemes,
-        )
-        .otherwise(() => []),
-    [data],
-  );
-
   useEffect(() => {
-    if (!data.isLoading()) {
-      setSchemes(updatedSchemes);
-    }
-  }, [updatedSchemes]);
+    match(data)
+      .with(
+        AsyncData.P.Done(
+          Result.P.Ok({ internationalBeneficiaryDynamicForms: P.select(P.not(P.nullish)) }),
+        ),
+        ({ schemes }) => setSchemes(schemes),
+      )
+      .otherwise(noop);
+  }, [data]);
 
-  const routes = useMemo(
-    () =>
-      schemes.map(({ type: value }) => ({
-        value,
-        name: getInternationalTransferFormRouteLabel(value),
-      })),
-    [schemes],
-  );
+  const routes = useMemo(() => {
+    return schemes.map(({ type: value }) => ({
+      value,
+      name: getInternationalTransferFormRouteLabel(value),
+    }));
+  }, [schemes]);
 
   const refresh = useDebounce<string[]>(keys => {
     const { value } = getFieldState("results");
+
     setDynamicFields(
       value?.filter(({ key, value }) => keys.includes(key) && isNotNullishOrEmpty(value)) ?? [],
     );
+
     setRefreshing.off();
   }, 1000);
 
@@ -151,8 +150,8 @@ export const TransferInternationalWizardBeneficiary = ({
             <Field name="name">
               {({ value, onChange, onBlur, error, valid, ref }) => (
                 <LakeTextInput
-                  id={id}
                   ref={ref}
+                  id={id}
                   value={value}
                   error={error}
                   valid={valid}
@@ -186,12 +185,11 @@ export const TransferInternationalWizardBeneficiary = ({
                   {({ onChange, value }) =>
                     isNotNullishOrEmpty(route?.value) ? (
                       <TransferInternationalDynamicFormBuilder
+                        ref={dynamicFormApiRef}
                         fields={fields}
                         onChange={onChange}
                         results={value}
-                        route={route.value}
                         key={route.value}
-                        ref={ref}
                         refresh={fields => {
                           setRefreshing.on();
                           refresh(fields);
@@ -218,8 +216,16 @@ export const TransferInternationalWizardBeneficiary = ({
             <LakeButton
               color="current"
               disabled={refreshing || data.isLoading()}
-              onPress={() => ref.current.submitDynamicForm(() => submitForm(onSave))}
               grow={small}
+              onPress={() => {
+                dynamicFormApiRef.current?.submitDynamicForm(() =>
+                  submitForm(values => {
+                    if (hasDefinedKeys(values, ["name", "route", "results"])) {
+                      onSave(values);
+                    }
+                  }),
+                );
+              }}
             >
               {t("common.continue")}
             </LakeButton>

@@ -19,7 +19,7 @@ import { P, match } from "ts-pattern";
 import {
   GetAvailableAccountBalanceDocument,
   GetInternationalCreditTransferQuoteDocument,
-  InternationalCreditTransferCurrencyExchange,
+  GetInternationalCreditTransferQuoteQuery,
 } from "../graphql/partner";
 import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
@@ -144,22 +144,22 @@ export const TransferInternationalWizardAmount = ({
           label={t("transfer.new.internationalTransfer.amount.label")}
           render={id => (
             <Field name="amount">
-              {({ value, onChange, onBlur, error, valid, ref }) => (
+              {({ value: { value, currency }, onChange, onBlur, error, valid, ref }) => (
                 <LakeTextInput
                   id={id}
                   ref={ref}
-                  value={value.value}
+                  value={value}
                   error={error}
                   valid={valid}
-                  onChangeText={v => {
-                    onChange({ currency: value.currency, value: v });
+                  onChangeText={nextValue => {
+                    onChange({ currency, value: nextValue });
                   }}
                   onBlur={onBlur}
                   units={currencies as unknown as string[]}
-                  unit={value.currency}
+                  unit={currency}
                   inputMode="numeric"
-                  onUnitChange={c => {
-                    onChange({ currency: c as Currency, value: value.value });
+                  onUnitChange={nextCurrency => {
+                    onChange({ currency: nextCurrency as Currency, value });
                   }}
                 />
               )}
@@ -172,9 +172,12 @@ export const TransferInternationalWizardAmount = ({
         {match(quote)
           .with(AsyncData.P.NotAsked, () => null)
           .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
-          .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => (
-            <QuoteDetails quote={data.internationalCreditTransferQuote} />
-          ))
+          .with(
+            AsyncData.P.Done(
+              Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
+            ),
+            quote => <QuoteDetails quote={quote} />,
+          )
           .otherwise(() => (
             <ErrorView />
           ))}
@@ -243,7 +246,11 @@ export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }
   );
 };
 
-const QuoteDetails = ({ quote }: { quote: InternationalCreditTransferCurrencyExchange }) => {
+const QuoteDetails = ({
+  quote,
+}: {
+  quote: NonNullable<GetInternationalCreditTransferQuoteQuery["internationalCreditTransferQuote"]>;
+}) => {
   return (
     <>
       <LakeText color={colors.gray[700]} variant="smallRegular">

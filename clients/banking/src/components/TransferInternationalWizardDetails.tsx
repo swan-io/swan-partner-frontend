@@ -7,30 +7,35 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { useForm } from "react-ux-form";
+import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
-  Field,
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
   InternationalCreditTransferDisplayLanguage,
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import {
+  DynamicFormApi,
+  DynamicFormField,
   ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
-export type Details = { results: ResultItem[]; externalReference: string };
+export type Details = {
+  results: ResultItem[];
+  externalReference: string;
+};
 
 type Props = {
   initialDetails?: Details;
@@ -49,11 +54,11 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [fields, setFields] = useState<Field[]>([]);
+  const [fields, setFields] = useState<DynamicFormField[]>([]);
   const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
 
-  const ref = useRef();
+  const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
   const { data } = useUrqlQuery(
     {
@@ -64,8 +69,8 @@ export const TransferInternationalWizardDetails = ({
         amountValue: amount.value,
         currency: amount.currency,
         language: locale.language as InternationalCreditTransferDisplayLanguage,
-        beneficiaryDetails: beneficiary.results,
         dynamicFields,
+        beneficiaryDetails: beneficiary.results,
       },
     },
     [locale.language, dynamicFields],
@@ -87,32 +92,29 @@ export const TransferInternationalWizardDetails = ({
     },
   });
 
-  const updatedForm = useMemo(
-    () =>
-      match(data)
-        .with(
-          AsyncData.P.Done(Result.P.Ok(P.select())),
-          ({ internationalCreditTransferTransactionDetailsDynamicForm }) =>
-            internationalCreditTransferTransactionDetailsDynamicForm?.fields,
-        )
-        .otherwise(() => []),
-    [data],
-  );
-
   useEffect(() => {
-    if (!data.isLoading()) {
-      setFields(updatedForm);
-    }
-  }, [updatedForm]);
+    match(data)
+      .with(
+        AsyncData.P.Done(
+          Result.P.Ok({
+            internationalCreditTransferTransactionDetailsDynamicForm: P.select(P.not(P.nullish)),
+          }),
+        ),
+        ({ fields }) => setFields(fields),
+      )
+      .otherwise(noop);
+  }, [data]);
 
   const refresh = useDebounce<string[]>(keys => {
     const { value } = getFieldState("results");
+
     setDynamicFields(
       value?.filter(
         ({ key, value }) =>
           isNotNullishOrEmpty(key) && keys.includes(key) && isNotNullishOrEmpty(value),
       ) ?? [],
     );
+
     setRefreshing.off();
   }, 1000);
 
@@ -146,11 +148,11 @@ export const TransferInternationalWizardDetails = ({
             <Field name="results">
               {({ onChange, value }) => (
                 <TransferInternationalDynamicFormBuilder
+                  ref={dynamicFormApiRef}
                   fields={fields}
                   onChange={onChange}
                   results={value}
                   key={fields?.map(({ key }) => key).join(":")}
-                  ref={ref}
                   refresh={fields => {
                     setRefreshing.on();
                     refresh(fields);
@@ -174,12 +176,19 @@ export const TransferInternationalWizardDetails = ({
             <LakeButton
               color="current"
               disabled={refreshing || data.isLoading() || loading}
-              onPress={() =>
-                !fields?.length
-                  ? submitForm(onSave)
-                  : ref.current.submitDynamicForm(() => submitForm(onSave))
-              }
               grow={small}
+              onPress={() => {
+                const runCallback = () =>
+                  submitForm(values => {
+                    if (hasDefinedKeys(values, ["externalReference", "results"])) {
+                      onSave(values);
+                    }
+                  });
+
+                fields.length === 0
+                  ? runCallback()
+                  : dynamicFormApiRef.current?.submitDynamicForm(runCallback);
+              }}
             >
               {t("common.continue")}
             </LakeButton>

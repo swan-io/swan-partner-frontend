@@ -6,6 +6,7 @@ import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { PaymentForm } from "./components/PaymentForm";
+import { ErrorPage } from "./pages/ErrorPage";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { SuccessPage } from "./pages/SuccessPage";
 import { logFrontendError } from "./utils/logger";
@@ -13,7 +14,7 @@ import { Router } from "./utils/routes";
 import { unauthenticatedClient } from "./utils/urql";
 
 export const App = () => {
-  const route = Router.useRoute(["Success", "PaymentLink"]);
+  const route = Router.useRoute(["Success", "PaymentLink", "Error"]);
 
   return (
     <ErrorBoundary
@@ -26,6 +27,7 @@ export const App = () => {
           {match(route)
             .with({ name: "PaymentLink" }, () => <PaymentForm />)
             .with({ name: "Success" }, () => <SuccessPage />)
+            .with({ name: "Error" }, () => <ErrorPage />)
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}
         </ClientProvider>

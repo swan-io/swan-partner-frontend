@@ -1,36 +1,69 @@
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { StyleSheet } from "react-native";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
+  container: {
+    flexGrow: 1,
+    paddingVertical: spacings[40],
+  },
+  containerItems: {
+    width: "100%",
+  },
+  containerButtonsDesktop: {
+    width: "auto",
+  },
+  containerButtons: { width: "100%", paddingHorizontal: spacings[24] },
   swanLogo: {
     display: "inline-flex",
     height: 9,
     width: 45 * (9 / 10),
   },
+  title: {
+    paddingBottom: spacings[4],
+  },
+  subtitle: {
+    lineHeight: 24,
+  },
 });
 
 export const SuccessPage = () => {
+  const { desktop } = useResponsive();
+
   return (
-    <Box direction="column" alignItems="center" justifyContent="spaceBetween">
+    <Box
+      direction="column"
+      alignItems="center"
+      justifyContent="spaceBetween"
+      style={styles.container}
+    >
       <SwanLogo />
 
-      <Box direction="column" alignItems="center">
-        <BorderedIcon name={"checkmark-filled"} color="positive" />
+      <Box direction="column" alignItems="center" style={styles.containerItems}>
+        <BorderedIcon name={"checkmark-filled"} color="positive" size={70} />
+        <Space height={24} />
 
-        <LakeText variant="semibold" color={colors.gray[900]}>
-          {t("paymentLink.success.title")}
+        <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>
+          {t("paymentLink.success.title", { firstName: "toto" })}
         </LakeText>
 
-        <LakeText color={colors.gray[500]}>{t("paymentLink.success.subtitle")}</LakeText>
+        <LakeText align="center" color={colors.gray[500]} style={styles.subtitle}>
+          {t("paymentLink.success.subtitle")}
+        </LakeText>
 
-        <LakeButtonGroup>
+        <Space height={32} />
+
+        <Box
+          direction={desktop ? "row" : "column"}
+          style={desktop ? styles.containerButtonsDesktop : styles.containerButtons}
+        >
           <LakeButton
             ariaLabel={t("paymentLink.button.returnToWebsite")}
             icon="dismiss-regular"
@@ -41,7 +74,10 @@ export const SuccessPage = () => {
             {t("paymentLink.button.returnToWebsite")}
           </LakeButton>
 
+          {desktop ? <Space width={16} /> : <Space height={12} />}
+
           <LakeButton
+            color="current"
             ariaLabel={t("paymentLink.button.downloadMandate")}
             icon="arrow-down-regular"
             mode="primary"
@@ -50,7 +86,7 @@ export const SuccessPage = () => {
           >
             {t("paymentLink.button.downloadMandate")}
           </LakeButton>
-        </LakeButtonGroup>
+        </Box>
       </Box>
 
       <Box direction="row" alignItems="baseline">

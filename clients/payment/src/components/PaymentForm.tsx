@@ -45,9 +45,6 @@ const styles = StyleSheet.create({
     height: 9,
     width: 45 * (9 / 10),
   },
-  bottomText: {
-    textAlign: "center",
-  },
   buttonItem: { width: "50%" },
   buttonItemDesktop: { width: "15%" },
   selectLanguage: {
@@ -139,7 +136,7 @@ export const PaymentForm = () => {
           "state",
         ])
       ) {
-        Router.push("Success");
+        Router.replace("Success");
         console.log(values);
       }
     });
@@ -410,7 +407,7 @@ export const PaymentForm = () => {
 
       <Space height={32} />
 
-      <LakeText color={colors.gray[700]} style={styles.bottomText}>
+      <LakeText color={colors.gray[700]} align="center">
         {t("paymentLink.termsAndConditions", { merchantName })}
       </LakeText>
 

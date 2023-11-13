@@ -14,7 +14,6 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
@@ -55,7 +54,6 @@ export const TransferInternationalWizardDetails = ({
   onSave,
 }: Props) => {
   const [fields, setFields] = useState<DynamicFormField[]>([]);
-  const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
@@ -76,9 +74,7 @@ export const TransferInternationalWizardDetails = ({
     [locale.language, dynamicFields],
   );
 
-  console.log("[NC] data", data);
-
-  const { Field, submitForm, getFieldState } = useForm<{
+  const { Field, submitForm, getFieldState, listenFields } = useForm<{
     results: ResultItem[];
     externalReference: string;
   }>({
@@ -105,18 +101,15 @@ export const TransferInternationalWizardDetails = ({
       .otherwise(noop);
   }, [data]);
 
-  const refresh = useDebounce<string[]>(keys => {
+  const refresh = useDebounce<void>(() => {
     const { value } = getFieldState("results");
 
-    setDynamicFields(
-      value?.filter(
-        ({ key, value }) =>
-          isNotNullishOrEmpty(key) && keys.includes(key) && isNotNullishOrEmpty(value),
-      ) ?? [],
-    );
-
-    setRefreshing.off();
+    setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
   }, 1000);
+
+  useEffect(() => {
+    listenFields(["results"], () => refresh());
+  }, [listenFields, fields]);
 
   return (
     <View>
@@ -153,10 +146,6 @@ export const TransferInternationalWizardDetails = ({
                   onChange={onChange}
                   results={value}
                   key={fields?.map(({ key }) => key).join(":")}
-                  refresh={fields => {
-                    setRefreshing.on();
-                    refresh(fields);
-                  }}
                 />
               )}
             </Field>
@@ -175,7 +164,7 @@ export const TransferInternationalWizardDetails = ({
 
             <LakeButton
               color="current"
-              disabled={refreshing || data.isLoading() || loading}
+              disabled={data.isLoading() || loading}
               grow={small}
               onPress={() => {
                 const runCallback = () =>

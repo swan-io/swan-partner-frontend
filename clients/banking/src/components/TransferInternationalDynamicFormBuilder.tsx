@@ -4,11 +4,12 @@ import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
 import { Form, FormConfig, combineValidators, useForm } from "react-ux-form";
-import { P, isMatching, match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
   DateField,
   InternationalBeneficiaryDetailsInput,
@@ -19,10 +20,6 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validatePattern, validateRequired } from "../utils/validations";
-
-const isDynamicField = isMatching({
-  refreshDynamicFieldsOnChange: true,
-});
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
@@ -39,14 +36,13 @@ export type DynamicFormApi = {
 type TransferInternationalDynamicFormBuilderProps = {
   fields: DynamicFormField[];
   results: ResultItem[];
-  refresh: (keys: string[]) => void;
   onChange: (results: ResultItem[]) => void;
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef<
   DynamicFormApi,
   TransferInternationalDynamicFormBuilderProps
->(({ results = [], refresh, onChange, fields = [] }, forwardedRef) => {
+>(({ results = [], onChange, fields = [] }, forwardedRef) => {
   const form = useMemo(
     () =>
       fields.reduce<FormConfig<Record<string, string>>>((acc, field) => {
@@ -54,6 +50,7 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
 
         acc[field.key] = {
           initialValue,
+          debounceInterval: 0,
           validate: combineValidators(
             field.required && validateRequired,
 
@@ -72,33 +69,26 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
 
   return (
     fields.length > 0 && (
-      <BeneficiaryDynamicForm
+      <DynamicForm
         ref={forwardedRef}
         fields={fields}
         form={form}
         key={fields.map(item => item.key).join()}
-        refresh={refresh}
         onChange={onChange}
       />
     )
   );
 });
 
-type BeneficiaryDynamicFormProps = {
+type DynamicFormProps = {
   fields: DynamicFormField[];
   form: FormConfig<Record<string, string>>;
-  refresh: (keys: string[]) => void;
   onChange: (results: ResultItem[]) => void;
 };
 
-const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicFormProps>(
-  ({ fields, form, refresh, onChange }, forwardedRef) => {
+const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
+  ({ fields, form, onChange }, forwardedRef) => {
     const { Field, listenFields, submitForm, validateField, getFieldState } = useForm(form);
-
-    const dynamicFields = useMemo(
-      () => fields.filter(field => isDynamicField(field)).map(({ key }) => key),
-      [fields],
-    );
 
     useImperativeHandle(forwardedRef, () => ({ submitDynamicForm: submitForm }), [submitForm]);
 
@@ -112,9 +102,8 @@ const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicForm
             value: String(value),
           })),
         );
-        refresh(keys);
       });
-    }, [onChange, dynamicFields, listenFields]);
+    }, [onChange, listenFields]);
 
     useEffect(() => {
       fields.map(async ({ key }) => {
@@ -159,7 +148,7 @@ const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicForm
                     value={value}
                     error={error}
                     valid={valid}
-                    placeholder={example ?? undefined}
+                    placeholder={example?.toUpperCase() ?? undefined}
                     onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
@@ -171,6 +160,8 @@ const BeneficiaryDynamicForm = forwardRef<DynamicFormApi, BeneficiaryDynamicForm
               <Field name={key}>
                 {({ onChange, value, error }) => (
                   <>
+                    <Space height={4} />
+
                     <RadioGroup
                       items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                       value={value}

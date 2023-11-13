@@ -15,7 +15,6 @@ import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
@@ -55,7 +54,6 @@ export const TransferInternationalWizardBeneficiary = ({
 }: Props) => {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [route, setRoute] = useState<string | undefined>();
-  const [refreshing, setRefreshing] = useBoolean(false);
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
@@ -111,18 +109,20 @@ export const TransferInternationalWizardBeneficiary = ({
     }));
   }, [schemes]);
 
-  const refresh = useDebounce<string[]>(keys => {
+  const fields = useMemo<DynamicFormField[]>(
+    () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
+    [schemes, route],
+  );
+
+  const refresh = useDebounce<void>(() => {
     const { value } = getFieldState("results");
 
-    setDynamicFields(
-      value?.filter(({ key, value }) => keys.includes(key) && isNotNullishOrEmpty(value)) ?? [],
-    );
-
-    setRefreshing.off();
+    setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
   }, 1000);
 
   useEffect(() => {
     const { value } = getFieldState("route");
+
     if (value && isNullishOrEmpty(route)) {
       setRoute(value);
     }
@@ -134,12 +134,8 @@ export const TransferInternationalWizardBeneficiary = ({
 
   useEffect(() => {
     listenFields(["route"], ({ route: { value } }) => setRoute(value));
+    listenFields(["results"], () => refresh());
   }, [listenFields]);
-
-  const fields = useMemo<DynamicFormField[]>(
-    () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
-    [schemes, route],
-  );
 
   return (
     <View>
@@ -168,16 +164,28 @@ export const TransferInternationalWizardBeneficiary = ({
           <ActivityIndicator color={colors.gray[900]} />
         ) : (
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
-            {routes.length > 1 && (
-              <Field name="route">
-                {({ onChange, value }) => (
-                  <>
-                    <RadioGroup items={routes} value={value} onValueChange={onChange} />
-                    <Space height={32} />
-                  </>
-                )}
-              </Field>
-            )}
+            <LakeLabel
+              label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
+              style={
+                routes.length < 2 && {
+                  display: "none",
+                }
+              }
+              render={() => (
+                <>
+                  <Space height={8} />
+
+                  <Field name="route">
+                    {({ onChange, value }) => (
+                      <>
+                        <RadioGroup items={routes} value={value} onValueChange={onChange} />
+                        <Space height={32} />
+                      </>
+                    )}
+                  </Field>
+                </>
+              )}
+            />
 
             <FieldsListener names={["route"]}>
               {({ route }) => (
@@ -190,10 +198,6 @@ export const TransferInternationalWizardBeneficiary = ({
                         onChange={onChange}
                         results={value}
                         key={route.value}
-                        refresh={fields => {
-                          setRefreshing.on();
-                          refresh(fields);
-                        }}
                       />
                     ) : null
                   }
@@ -215,7 +219,7 @@ export const TransferInternationalWizardBeneficiary = ({
 
             <LakeButton
               color="current"
-              disabled={refreshing || data.isLoading()}
+              disabled={data.isLoading()}
               grow={small}
               onPress={() => {
                 dynamicFormApiRef.current?.submitDynamicForm(() =>

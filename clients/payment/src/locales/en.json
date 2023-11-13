@@ -1,7 +1,10 @@
 {
   "button.pay": "Pay",
   "common.cancel": "Cancel",
+  "common.noResults": "No results",
   "error.pageNotFound": "Page not found",
+  "paymentLink.addressInput.button": "Enter manually",
+  "paymentLink.addressInput.placeholder": "Start typing…",
   "paymentLink.addressLine1": "Address line 1",
   "paymentLink.addressLine2": "Address line 2 (optional)",
   "paymentLink.button.downloadMandate": "Download mandate",

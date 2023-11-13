@@ -1,5 +1,6 @@
 import { createRouter } from "@swan-io/chicane";
 
 export const Router = createRouter({
-  PaymentLink: "payment/",
+  PaymentLink: "/payment",
+  Success: "/payment/success",
 });

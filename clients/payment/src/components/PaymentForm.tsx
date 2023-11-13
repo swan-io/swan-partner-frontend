@@ -12,10 +12,12 @@ import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/d
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
+import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
+import { validateIban } from "../../../banking/src/utils/iban";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -68,36 +70,45 @@ type FormState = {
   state: string;
 };
 
+const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
+
 export const PaymentForm = () => {
   const { desktop } = useResponsive();
 
   const { Field, submitForm } = useForm<FormState>({
     paymentMethod: {
       initialValue: items[0].id,
-      // validate: validateRequired,
+      validate: validateRequired,
     },
     iban: {
       initialValue: "",
-      // validate: combineValidators(validateRequired, validateIban),
       sanitize: value => value.trim(),
+      validate: combineValidators(validateRequired, validateIban),
     },
     country: {
       initialValue: "FRA",
-      // validate: validateRequired,
+      validate: validateRequired,
     },
     firstName: {
       initialValue: "",
-      // validate: validateRequired,
       sanitize: value => value.trim(),
+      validate: validateRequired,
     },
     lastName: {
       initialValue: "",
-      // validate: validateRequired,
       sanitize: value => value.trim(),
+      validate: validateRequired,
     },
     addressLine1: {
       initialValue: "",
-      // validate: validateRequired,
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
       sanitize: value => value.trim(),
     },
     addressLine2: {
@@ -106,17 +117,30 @@ export const PaymentForm = () => {
     },
     city: {
       initialValue: "",
-      // validate: validateRequired,
       sanitize: value => value.trim(),
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
     },
     postalCode: {
       initialValue: "",
-      // validate: validateRequired,
       sanitize: value => value.trim(),
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
     },
     state: {
       initialValue: "",
-      // validate: validateRequired,
       sanitize: value => value.trim(),
     },
   });

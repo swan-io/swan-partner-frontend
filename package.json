@@ -84,7 +84,7 @@
     "fast-glob": "3.3.2",
     "graphql": "16.8.1",
     "lint-staged": "15.0.2",
-    "openai": "4.16.1",
+    "openai": "4.17.5",
     "ora": "7.0.1",
     "pathe": "1.1.1",
     "picocolors": "1.0.0",

@@ -45,8 +45,9 @@ const routes = {
 
     ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
       Area: "/*",
-      Root: "/",
+      Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]",
       New: "/new?:type",
+      RecurringTransferList: "/recurring-transfer/list",
       RecurringTransferNew: "/recurring-transfer/new",
 
       ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
@@ -98,6 +99,7 @@ export const paymentMenuRoutes = ["AccountPaymentsArea"] as const;
 export const paymentRoutes = [
   "AccountPaymentsRoot",
   "AccountPaymentsNew",
+  "AccountPaymentsRecurringTransferList",
   "AccountPaymentsRecurringTransferDetailsArea",
 ] as const;
 

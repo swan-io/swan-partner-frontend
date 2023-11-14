@@ -22,6 +22,7 @@ import {
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
+import { isCombinedError } from "../utils/urql";
 import {
   DynamicFormApi,
   DynamicFormField,
@@ -41,7 +42,7 @@ type Props = {
   amount: Amount;
   beneficiary: Beneficiary;
   loading: boolean;
-  onPressPrevious: () => void;
+  onPressPrevious: (errors?: string[]) => void;
   onSave: (details: Details) => void;
 };
 
@@ -98,6 +99,16 @@ export const TransferInternationalWizardDetails = ({
         ),
         ({ fields }) => setFields(fields),
       )
+      .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
+        if (isCombinedError(error)) {
+          const message = error.graphQLErrors.find(
+            ({ extensions: { code } }) => code === "BeneficiaryValidationError",
+          )?.message;
+          if (isNotNullishOrEmpty(message)) {
+            onPressPrevious(message.split("., ").map(m => (m.endsWith(".") ? m : `${m}.`)));
+          }
+        }
+      })
       .otherwise(noop);
   }, [data]);
 
@@ -158,7 +169,7 @@ export const TransferInternationalWizardDetails = ({
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
+            <LakeButton color="gray" mode="secondary" onPress={() => onPressPrevious()}>
               {t("common.previous")}
             </LakeButton>
 

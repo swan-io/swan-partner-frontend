@@ -15,6 +15,7 @@ import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
@@ -42,6 +43,7 @@ export type Beneficiary = {
 type Props = {
   initialBeneficiary?: Beneficiary;
   amount: Amount;
+  errors?: string[];
   onPressPrevious: () => void;
   onSave: (details: Beneficiary) => void;
 };
@@ -49,6 +51,7 @@ type Props = {
 export const TransferInternationalWizardBeneficiary = ({
   initialBeneficiary,
   amount,
+  errors,
   onPressPrevious,
   onSave,
 }: Props) => {
@@ -140,6 +143,13 @@ export const TransferInternationalWizardBeneficiary = ({
   return (
     <View>
       <Tile>
+        {errors?.map(message => (
+          <>
+            <LakeAlert variant="error" title={message} />
+            <Space height={12} />
+          </>
+        ))}
+
         <LakeLabel
           label={t("transfer.new.internationalTransfer.beneficiary.name")}
           render={id => (

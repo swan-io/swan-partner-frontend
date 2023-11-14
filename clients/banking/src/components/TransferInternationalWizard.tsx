@@ -74,7 +74,7 @@ const styles = StyleSheet.create({
 
 type Step =
   | { name: "Amount"; amount?: Amount }
-  | { name: "Beneficiary"; amount: Amount; beneficiary?: Beneficiary }
+  | { name: "Beneficiary"; amount: Amount; beneficiary?: Beneficiary; errors?: string[] }
   | { name: "Details"; amount: Amount; beneficiary: Beneficiary; details?: Details };
 
 type Props = {
@@ -202,7 +202,7 @@ export const TransferInternationalWizard = ({
                   </>
                 );
               })
-              .with({ name: "Beneficiary" }, ({ amount, beneficiary }) => {
+              .with({ name: "Beneficiary" }, ({ amount, beneficiary, errors }) => {
                 return (
                   <>
                     <TransferInternationamWizardAmountSummary
@@ -221,6 +221,7 @@ export const TransferInternationalWizard = ({
                     <TransferInternationalWizardBeneficiary
                       initialBeneficiary={beneficiary}
                       amount={amount}
+                      errors={errors}
                       onPressPrevious={() => setStep({ name: "Amount", amount })}
                       onSave={beneficiary => setStep({ name: "Details", amount, beneficiary })}
                     />
@@ -247,7 +248,9 @@ export const TransferInternationalWizard = ({
                       initialDetails={details}
                       amount={amount}
                       beneficiary={beneficiary}
-                      onPressPrevious={() => setStep({ name: "Beneficiary", amount, beneficiary })}
+                      onPressPrevious={errors =>
+                        setStep({ name: "Beneficiary", amount, beneficiary, errors })
+                      }
                       loading={transfer.isLoading()}
                       onSave={details => {
                         initiateTransfer({ amount, beneficiary, details });

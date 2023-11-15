@@ -154,7 +154,14 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const [currentDocuments, setCurrentDocuments] = useState(documents);
 
-  const hasOwnershipStep = ["Company", "HomeOwnerAssociation", "Other"].includes(companyType);
+  const hasOwnershipStep =
+    ["Company", "HomeOwnerAssociation", "Other"].includes(companyType) ||
+    match(onboarding.info)
+      .with(
+        { __typename: "OnboardingCompanyAccountHolderInfo" },
+        info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
+      )
+      .otherwise(() => false);
   const hasDocumentsStep = requiredDocuments.length > 0;
 
   const [finalized, setFinalized] = useBoolean(false);

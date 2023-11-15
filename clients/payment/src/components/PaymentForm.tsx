@@ -20,8 +20,9 @@ import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { validateIban } from "../../../banking/src/utils/iban";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { SepaLogo } from "./SepaLogo";
 
-const items = [{ id: "sdd", name: "SEPA Direct Debit" }] as const;
+const items = [{ id: "sdd", name: "Direct Debit", icon: <SepaLogo height={15} /> }] as const;
 
 const styles = StyleSheet.create({
   container: {
@@ -47,7 +48,7 @@ const styles = StyleSheet.create({
     height: 9,
     width: 45 * (9 / 10),
   },
-  buttonItem: { width: "50%" },
+  buttonItem: { width: "40%", paddingHorizontal: 0 },
   buttonItemDesktop: { width: "15%" },
   selectLanguage: {
     alignItems: "flex-end",
@@ -221,7 +222,11 @@ export const PaymentForm = () => {
       />
 
       <Space height={24} />
-      <LakeText align="center">Merchant item</LakeText>
+
+      <LakeText variant="medium" align="center" color={colors.gray[700]}>
+        Merchant item
+      </LakeText>
+
       <Space height={12} />
 
       <LakeHeading variant="h1" level={2} align="center">
@@ -385,7 +390,7 @@ export const PaymentForm = () => {
         <Field name="postalCode">
           {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
-              label={t("paymentLink.postcode")}
+              label={t("paymentLink.postalCode")}
               render={() => (
                 <LakeTextInput
                   value={value}
@@ -431,7 +436,7 @@ export const PaymentForm = () => {
 
       <Space height={32} />
 
-      <LakeText color={colors.gray[700]} align="center">
+      <LakeText color={colors.gray[700]} align="center" variant="smallRegular">
         {t("paymentLink.termsAndConditions", { merchantName })}
       </LakeText>
 

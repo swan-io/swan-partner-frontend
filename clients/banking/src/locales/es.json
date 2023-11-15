@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Extracto bancario (< 3 meses de antigüedad)",
   "supportingDocuments.CompanyRegistration.description": "Un documento oficial que acredite la existencia legal de una empresa y brinde información sobre su personalidad jurídica.\n(< 3 meses de antigüedad)",
   "supportingDocuments.CompanyRegistration.title": "Prueba de registro de la empresa (< 3 meses de antigüedad)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Acta de la última asamblea general de la asociación.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Acta de la asamblea general",
   "supportingDocuments.Other.description": "Otro",
   "supportingDocuments.Other.title": "Otro",
   "supportingDocuments.PowerOfAttorney.description": "Documento firmado y fechado que autoriza a una persona a representar o actuar en nombre del representante legal de una empresa.",

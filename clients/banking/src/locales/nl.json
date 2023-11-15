@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Bankafschrift (niet ouder dan 3 maanden)",
   "supportingDocuments.CompanyRegistration.description": "Officieel document dat het juridische bestaan van een bedrijf bewijst en informatie geeft over haar rechtspersoonlijkheid.\n(niet ouder dan 3 maanden)",
   "supportingDocuments.CompanyRegistration.title": "Bewijs van bedrijfsregistratie (niet ouder dan 3 maanden)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Notulen van de laatste algemene vergadering van de vereniging.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Notulen algemene vergadering",
   "supportingDocuments.Other.description": "Andere",
   "supportingDocuments.Other.title": "Andere",
   "supportingDocuments.PowerOfAttorney.description": "Een ondertekend en gedateerd document dat een persoon machtigt om de wettelijke vertegenwoordiger van een bedrijf te vertegenwoordigen of op te treden namens deze.",

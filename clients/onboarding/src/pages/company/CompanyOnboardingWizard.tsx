@@ -15,6 +15,7 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   Document,
   SupportingDocumentPurpose,
+  uploadableDocumentTypes,
 } from "@swan-io/shared-business/src/components/SupportingDocument";
 import {
   companyFallbackCountry,
@@ -28,6 +29,7 @@ import { OnboardingHeader } from "../../components/OnboardingHeader";
 import {
   CompanyAccountHolderFragment,
   GetOnboardingQuery,
+  SupportingDocumentPurposeEnum,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { locale, t } from "../../utils/i18n";
@@ -91,6 +93,8 @@ const getPreviousStep = (
     .getWithDefault(currentStep);
 };
 
+const uploadableDocuments: SupportingDocumentPurposeEnum[] = uploadableDocumentTypes;
+
 export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Props) => {
   const route = Router.useRoute(companyOnboardingRoutes);
 
@@ -130,8 +134,9 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const isRegistered = holder.isRegistered ?? true;
 
   const requiredDocuments =
-    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
-    [];
+    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes
+      .map(d => d.name)
+      .filter(name => uploadableDocuments.includes(name)) ?? [];
 
   const documents: Document[] =
     onboarding?.supportingDocumentCollection.supportingDocuments.filter(isNotNullish).map(doc => ({

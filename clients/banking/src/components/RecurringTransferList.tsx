@@ -482,7 +482,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
-    width: 200,
+    width: 250,
     renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
@@ -504,7 +504,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "amount",
     title: t("recurringTransfer.table.amount"),
-    width: 200,
+    width: 150,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell

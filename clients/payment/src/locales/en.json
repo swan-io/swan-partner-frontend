@@ -12,7 +12,7 @@
   "paymentLink.iban": "IBAN",
   "paymentLink.lastName": "Last name",
   "paymentLink.paymentMethod": "Payment method",
-  "paymentLink.postcode": "Postcode",
+  "paymentLink.postalCode": "Postal code",
   "paymentLink.poweredBySwan": "Powered by",
   "paymentLink.state": "State",
   "paymentLink.success.title": "Thanks, {firstName}!",

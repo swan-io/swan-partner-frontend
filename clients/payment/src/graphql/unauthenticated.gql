@@ -1,3 +1,46 @@
-query Noop {
-  __typename
+query GetMerchantPaymentLink {
+  merchantPaymentLink(id: "711bf573-d067-4755-a63d-7e1cad94bc9f") {
+    id
+    projectId
+    url
+    statusInfo {
+      status
+    }
+    merchantProfile {
+      merchantLogoUrl
+      merchantName
+      merchantPaymentMethods {
+        type
+      }
+      merchantWebsite
+    }
+    amount {
+      currency
+      value
+    }
+    redirectUrl
+    cancelRedirectUrl
+    sequence
+    billingAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      postalCode
+      state
+    }
+    requestedExecutionAt
+    externalReference
+    reference
+    language
+    label
+    customer {
+      externalCustomerId
+      iban
+      name
+    }
+    paymentMethods {
+      type
+    }
+  }
 }

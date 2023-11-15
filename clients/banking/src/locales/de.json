@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Kontoauszug (weniger als 3 Monate alt)",
   "supportingDocuments.CompanyRegistration.description": "Offizielles Dokument, das die rechtliche Existenz eines Unternehmens nachweist und Informationen über seine Rechtspersönlichkeit enthält.\n(weniger als 3 Monate alt)",
   "supportingDocuments.CompanyRegistration.title": "Nachweis der Unternehmensregistrierung (weniger als 3 Monate alt)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Protokoll der letzten Generalversammlung des Vereins.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Protokoll der Generalversammlung",
   "supportingDocuments.Other.description": "Sonstiges",
   "supportingDocuments.Other.title": "Sonstiges",
   "supportingDocuments.PowerOfAttorney.description": "Ein unterschriebenes und datiertes Dokument, das eine Person ermächtigt, den gesetzlichen Vertreter eines Unternehmens zu vertreten oder in dessen Namen zu handeln.",

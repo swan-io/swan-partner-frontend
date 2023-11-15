@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Extrato bancário (com menos de 3 meses)",
   "supportingDocuments.CompanyRegistration.description": "Documento oficial que comprova a existência legal de uma empresa e fornece informações sobre sua personalidade jurídica.\n(menos de 3 meses)",
   "supportingDocuments.CompanyRegistration.title": "Prova de registo da empresa (com menos de 3 meses)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Ata da última assembleia geral da associação.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Ata da assembleia geral",
   "supportingDocuments.Other.description": "Outros",
   "supportingDocuments.Other.title": "Outros",
   "supportingDocuments.PowerOfAttorney.description": "Um documento assinado e datado autorizando uma pessoa a representar ou agir em nome do representante legal de uma empresa.",

@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Estratto conto bancario (inferiore ai 3 mesi)",
   "supportingDocuments.CompanyRegistration.description": "Documento ufficiale che attesta l'esistenza legale di una società e che fornisce informazioni sull'entità legale\n(inferiore ai 3 mesi)",
   "supportingDocuments.CompanyRegistration.title": "Prova dell'iscrizione della società (inferiore ai 3 mesi)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Verbali dell'ultima assemblea generale dell'associazione.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Verbali dell'assemblea generale",
   "supportingDocuments.Other.description": "Altro",
   "supportingDocuments.Other.title": "Altro",
   "supportingDocuments.PowerOfAttorney.description": "Un documento firmato e datato che autorizzi una persona fisica a rappresentare o ad agire per conto del legale rappresentante di una società.",

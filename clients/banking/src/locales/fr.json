@@ -516,6 +516,8 @@
   "supportingDocuments.Banking.title": "Relevé bancaire datant de moins de 3 mois",
   "supportingDocuments.CompanyRegistration.description": "Document officiel prouvant l'existence légale d'une entreprise et fournissant des informations sur son statut juridique.\n(moins de 3 mois)",
   "supportingDocuments.CompanyRegistration.title": "Preuve de l'enregistrement de l'entreprise (datant de moins de 3 mois)",
+  "supportingDocuments.GeneralAssemblyMinutes.description": "Compte-rendu de la dernière assemblée générale de l'association.",
+  "supportingDocuments.GeneralAssemblyMinutes.title": "Compte-rendu de l'assemblée générale",
   "supportingDocuments.Other.description": "Autre",
   "supportingDocuments.Other.title": "Autre",
   "supportingDocuments.PowerOfAttorney.description": "Un document signé et daté autorisant une personne à représenter ou à agir au nom du représentant légal d'une entreprise.",

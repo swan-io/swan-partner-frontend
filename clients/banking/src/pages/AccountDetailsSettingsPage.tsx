@@ -151,6 +151,7 @@ const UpdateAccountForm = ({
       fr: { name: "Français", cca3: "FRA" },
       it: { name: "Italiano", cca3: "ITA" },
       nl: { name: "Nederlands", cca3: "NLD" },
+      pt: { name: "Português", cca3: "PRT" },
     };
 
     return Dict.entries(map).map(([value, { name }]) => ({

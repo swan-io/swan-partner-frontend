@@ -157,7 +157,7 @@
   "card.settings.international.description": "Permitir operaciones fuera de tu país de residencia",
   "card.settings.nonMainCurrencyTransactions": "Operaciones que no sean en euros",
   "card.settings.nonMainCurrencyTransactions.description": "Permitir operaciones en otras monedas, como el dólar o el yen",
-  "card.settings.notAllowed": "No tienes permitido cambiar la configuración de tu tarjeta",
+  "card.settings.notAllowed": "Para cambiar la configuración de la tarjeta, debes tener permiso para gestionar las tarjetas. Si necesitas cambiar la configuración de tu tarjeta, por favor, consulta a tu administrador.",
   "card.settings.spendingLimit": "Límite de gasto",
   "card.settings.unavailable": "Ajustes de tarjeta no disponibles",
   "card.settings.withdrawal": "Retirada",

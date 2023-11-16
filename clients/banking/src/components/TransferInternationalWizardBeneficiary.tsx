@@ -17,6 +17,7 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
@@ -33,6 +34,12 @@ import {
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
+
+const styles = StyleSheet.create({
+  hidden: {
+    display: "none",
+  },
+});
 
 export type Beneficiary = {
   name: string;
@@ -176,11 +183,7 @@ export const TransferInternationalWizardBeneficiary = ({
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
             <LakeLabel
               label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
-              style={
-                routes.length < 2 && {
-                  display: "none",
-                }
-              }
+              style={routes.length < 2 && styles.hidden}
               render={() => (
                 <>
                   <Space height={8} />

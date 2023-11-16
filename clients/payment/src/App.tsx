@@ -5,8 +5,8 @@ import { Suspense } from "react";
 import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
-import { PaymentForm } from "./components/PaymentForm";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { PaymentPage } from "./pages/PaymentPage";
 import { SuccessPage } from "./pages/SuccessPage";
 import { logFrontendError } from "./utils/logger";
 import { Router } from "./utils/routes";
@@ -24,7 +24,7 @@ export const App = () => {
       <Suspense fallback={<LoadingView color={colors.gray[100]} />}>
         <ClientProvider value={unauthenticatedClient}>
           {match(route)
-            .with({ name: "PaymentLink" }, () => <PaymentForm />)
+            .with({ name: "PaymentLink" }, () => <PaymentPage />)
             .with({ name: "Success" }, () => <SuccessPage />)
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}

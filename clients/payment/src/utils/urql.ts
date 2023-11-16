@@ -12,7 +12,7 @@ const onError = (error: CombinedError, operation: Operation) => {
 };
 
 export const unauthenticatedClient = new Client({
-  url: `${env.PAYMENT_URL}/api/unauthenticated`,
+  url: `${env.CLIENT_PAYMENT_URL}/api/unauthenticated`,
   requestPolicy: "network-only",
   suspense: true,
   exchanges: [suspenseDedupExchange, requestIdExchange, errorExchange({ onError }), fetchExchange],

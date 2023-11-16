@@ -10,19 +10,28 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { useMemo } from "react";
+import { CSSProperties, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { validateIban } from "../../../banking/src/utils/iban";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { SepaLogo } from "./SepaLogo";
 
 const items = [{ id: "sdd", name: "Direct Debit", icon: <SepaLogo height={15} /> }] as const;
+
+const IMAGE_STYLE: CSSProperties = {
+  top: 0,
+  left: 0,
+  alignSelf: "center",
+  maxWidth: "200px",
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -62,8 +71,7 @@ type FormState = {
   paymentMethod: ItemId;
   iban: string;
   country: CountryCCA3;
-  firstName: string;
-  lastName: string;
+  name: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -71,9 +79,13 @@ type FormState = {
   state: string;
 };
 
+type Props = {
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+};
+
 const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
 
-export const PaymentForm = () => {
+export const PaymentForm = ({ paymentLink }: Props) => {
   const { desktop } = useResponsive();
 
   const { Field, submitForm } = useForm<FormState>({
@@ -82,7 +94,7 @@ export const PaymentForm = () => {
       validate: validateRequired,
     },
     iban: {
-      initialValue: "",
+      initialValue: paymentLink?.customer?.iban ?? "",
       sanitize: value => value.trim(),
       validate: combineValidators(validateRequired, validateIban),
     },
@@ -90,18 +102,13 @@ export const PaymentForm = () => {
       initialValue: "FRA",
       validate: validateRequired,
     },
-    firstName: {
-      initialValue: "",
-      sanitize: value => value.trim(),
-      validate: validateRequired,
-    },
-    lastName: {
-      initialValue: "",
+    name: {
+      initialValue: paymentLink.customer?.name ?? "",
       sanitize: value => value.trim(),
       validate: validateRequired,
     },
     addressLine1: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.addressLine1 ?? "",
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
         if (sepaNonEeaCountries.includes(country)) {
@@ -113,11 +120,11 @@ export const PaymentForm = () => {
       sanitize: value => value.trim(),
     },
     addressLine2: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.addressLine2 ?? "",
       sanitize: value => value.trim(),
     },
     city: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.city ?? "",
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
@@ -129,7 +136,7 @@ export const PaymentForm = () => {
       },
     },
     postalCode: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.postalCode ?? "",
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
@@ -141,7 +148,7 @@ export const PaymentForm = () => {
       },
     },
     state: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.state ?? "",
       sanitize: value => value.trim(),
     },
   });
@@ -153,8 +160,7 @@ export const PaymentForm = () => {
           "paymentMethod",
           "iban",
           "country",
-          "firstName",
-          "lastName",
+          "name",
           "addressLine1",
           "city",
           "postalCode",
@@ -162,7 +168,6 @@ export const PaymentForm = () => {
         ])
       ) {
         Router.replace("Success");
-        console.log(values);
       }
     });
   };
@@ -188,7 +193,9 @@ export const PaymentForm = () => {
             icon="dismiss-regular"
             mode="tertiary"
             grow={true}
-            onPress={() => {}}
+            onPress={() => {
+              window.location.replace(paymentLink.cancelRedirectUrl);
+            }}
           >
             {t("common.cancel")}
           </LakeButton>
@@ -211,26 +218,24 @@ export const PaymentForm = () => {
 
       <Space height={24} />
 
-      {/* Just for tests */}
-      <SwanLogo
-        color={colors.swan[500]}
-        // eslint-disable-next-line react-native/no-inline-styles
-        style={{
-          alignSelf: "center",
-          width: "144px",
-        }}
-      />
+      {isNotNullish(paymentLink.merchantProfile.merchantLogoUrl) ? (
+        <img src={paymentLink.merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
+      ) : (
+        <LakeHeading variant="h3" level={3}>
+          {paymentLink.merchantProfile.merchantName}
+        </LakeHeading>
+      )}
 
       <Space height={24} />
 
       <LakeText variant="medium" align="center" color={colors.gray[700]}>
-        Merchant item
+        {paymentLink?.label}
       </LakeText>
 
       <Space height={12} />
 
       <LakeHeading variant="h1" level={2} align="center">
-        {formatCurrency(Number(10), "EUR")}
+        {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
       </LakeHeading>
 
       <Space height={32} />
@@ -290,47 +295,24 @@ export const PaymentForm = () => {
         )}
       </Field>
 
-      <Box direction={desktop ? "row" : "column"}>
-        <Field name="firstName">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              label={t("paymentLink.firstName")}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-              style={styles.label}
-            />
-          )}
-        </Field>
-
-        <Space width={24} />
-
-        <Field name="lastName">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              style={styles.label}
-              label={t("paymentLink.lastName")}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-            />
-          )}
-        </Field>
-      </Box>
+      <Field name="name">
+        {({ value, valid, error, onChange, onBlur, ref }) => (
+          <LakeLabel
+            label={t("paymentLink.name")}
+            render={() => (
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              />
+            )}
+            style={styles.label}
+          />
+        )}
+      </Field>
 
       <Field name="addressLine1">
         {({ value, valid, error, onChange, onBlur, ref }) => (

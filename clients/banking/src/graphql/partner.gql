@@ -8,6 +8,7 @@ fragment TransactionDetails on Transaction {
   label
   counterparty
   reference
+  externalReference
   payment {
     id
     createdAt
@@ -66,6 +67,7 @@ fragment TransactionDetails on Transaction {
       }
     }
     currencyExchange {
+      __typename
       exchangeRate
     }
   }
@@ -156,6 +158,19 @@ fragment TransactionDetails on Transaction {
             name
           }
         }
+      }
+    }
+  }
+  ... on InternationalCreditTransferTransaction {
+    internationalCurrencyExchange: currencyExchange {
+      __typename
+      sourceAmount {
+        currency
+        value
+      }
+      targetAmount {
+        currency
+        value
       }
     }
   }

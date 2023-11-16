@@ -126,7 +126,7 @@ export const TransferInternationalWizardDetails = ({
     <View>
       <Tile>
         <LakeLabel
-          label={t("transfer.new.internationalTransfer.details.form.field.externalReference")}
+          label={t("transfer.new.internationalTransfer.details.form.field.customLabel")}
           render={id => (
             <Field name="externalReference">
               {({ value, onChange, onBlur, error, valid, ref }) => (

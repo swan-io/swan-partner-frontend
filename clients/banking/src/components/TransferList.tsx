@@ -62,6 +62,7 @@ const DEFAULT_STATUSES = [
 const DEFAULT_PRODUCTS = [
   "SEPACreditTransfer" as const,
   "InternalCreditTransfer" as const,
+  "InternationalCreditTransfer" as const,
   "SEPADirectDebit" as const,
   "InternalDirectDebit" as const,
 ];
@@ -111,7 +112,11 @@ export const TransferList = ({
     filters.paymentProduct?.forEach(item => {
       const items = match(item)
         .returnType<PaymentProduct[]>()
-        .with("CreditTransfer", () => ["SEPACreditTransfer", "InternalCreditTransfer"])
+        .with("CreditTransfer", () => [
+          "SEPACreditTransfer",
+          "InternalCreditTransfer",
+          "InternationalCreditTransfer",
+        ])
         .with("DirectDebit", () => ["SEPADirectDebit", "InternalDirectDebit"])
         .otherwise(() => []);
       actualPaymentProduct.push(...items);
@@ -189,6 +194,7 @@ export const TransferList = ({
                 Ok: data => (
                   <TransactionList
                     withStickyTabs={true}
+                    withGrouping={false}
                     transactions={data.account?.transactions?.edges ?? []}
                     getRowLink={({ item }) => (
                       <Pressable onPress={() => setActiveTransactionId(item.id)} />
@@ -210,16 +216,14 @@ export const TransferList = ({
                         <FixedListViewEmpty
                           icon="lake-transfer"
                           borderedIcon={true}
-                          //   [NC] TODO
-                          title={t("transansactionList.noResults")}
+                          title={t("transfer.list.noResults")}
                           subtitle={t("common.list.noResultsSuggestion")}
                         />
                       ) : (
                         <FixedListViewEmpty
-                          icon="lake-transfer"
                           borderedIcon={true}
-                          //   [NC] TODO
-                          title={t("transansactionList.noResults")}
+                          icon="lake-transfer"
+                          title={t("transfer.list.noResults")}
                         />
                       )
                     }

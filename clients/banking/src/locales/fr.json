@@ -712,8 +712,6 @@
   "transfer.new.internationalTransfer.beneficiary.route.intro": "J'ai les informations suivantes sur le bénéficiaire :",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Bénéficiaire :",
   "transfer.new.internationalTransfer.beneficiary.title": "À qui envoyez-vous de l'argent ?",
-  "transfer.new.internationalTransfer.details.form.field.externalReference": "Référence externe",
-  "transfer.new.internationalTransfer.details.form.field.externalReference.help": "Uniquement 0-9 et a-z ; maximum 35 caractères",
   "transfer.new.internationalTransfer.details.title": "Détails du virement",
   "transfer.new.internationalTransfer.fee": "Frais de transfert <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.aba": "Numéro de compte et numéro de routage ACH",

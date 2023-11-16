@@ -712,8 +712,6 @@
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Ich habe die Kontonummer des Begünstigten:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Begünstigter:",
   "transfer.new.internationalTransfer.beneficiary.title": "An wen senden Sie Geld?",
-  "transfer.new.internationalTransfer.details.form.field.externalReference": "Externe Referenz",
-  "transfer.new.internationalTransfer.details.form.field.externalReference.help": "Nur 0-9 und a-z; maximal 35 Zeichen",
   "transfer.new.internationalTransfer.details.title": "Überweisungsdetails",
   "transfer.new.internationalTransfer.fee": "Überweisungsgebühr <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.aba": "Kontonummer und ACH-Routing-Nummer",

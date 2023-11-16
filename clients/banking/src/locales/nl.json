@@ -712,8 +712,6 @@
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Ik heb de volgende gegevens van de begunstigde:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Begunstigde:",
   "transfer.new.internationalTransfer.beneficiary.title": "Naar wie stuur je geld?",
-  "transfer.new.internationalTransfer.details.form.field.externalReference": "Externe referentie",
-  "transfer.new.internationalTransfer.details.form.field.externalReference.help": "Alleen 0-9 en a-z; maximaal 35 tekens",
   "transfer.new.internationalTransfer.details.title": "Overschrijvingsgegevens",
   "transfer.new.internationalTransfer.fee": "Overboekingskosten: <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.aba": "Rekeningnummer en ACH-routingnummer",

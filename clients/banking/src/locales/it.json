@@ -712,8 +712,6 @@
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Ho il seguente:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiario:",
   "transfer.new.internationalTransfer.beneficiary.title": "A chi stai inviando denaro?",
-  "transfer.new.internationalTransfer.details.form.field.externalReference": "Riferimento esterno",
-  "transfer.new.internationalTransfer.details.form.field.externalReference.help": "Solo 0-9 e a-z; massimo 35 caratteri",
   "transfer.new.internationalTransfer.details.title": "Dettagli bonifico",
   "transfer.new.internationalTransfer.fee": "Commissione di trasferimento <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.aba": "Numero di conto e numero di routing ACH",

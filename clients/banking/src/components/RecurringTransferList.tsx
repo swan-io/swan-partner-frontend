@@ -39,7 +39,6 @@ import { GetNode } from "@swan-io/lake/src/utils/types";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import dayjs from "dayjs";
 import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -50,7 +49,7 @@ import {
   StandingOrdersHistoryPageDocument,
   TransactionDetailsFragment,
 } from "../graphql/partner";
-import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
+import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { RightPanelTransactionList } from "./RightPanelTransactionList";
@@ -483,7 +482,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
-    width: 200,
+    width: 250,
     renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
@@ -496,9 +495,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
           <SimpleRegularTextCell
             textAlign="right"
             text={
-              nextExecutionDate != null
-                ? dayjs(nextExecutionDate).format(`${locale.dateFormat} ${locale.timeFormat}`)
-                : "-"
+              nextExecutionDate != null ? formatDateTime(new Date(nextExecutionDate), "LLL") : "-"
             }
           />
         ))
@@ -507,7 +504,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "amount",
     title: t("recurringTransfer.table.amount"),
-    width: 200,
+    width: 150,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell

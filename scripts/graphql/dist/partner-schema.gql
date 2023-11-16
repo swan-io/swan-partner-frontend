@@ -2260,7 +2260,7 @@ type CapitalDepositCase {
 Implements the Relay Connection interface, used to paginate list of elements ([Learn More](https://docs.swan.io/api/pagination))
 """
 type CapitalDepositCaseConnection implements Connection {
-  """Total number of element in the list"""
+  """Total number of elements in the list"""
   totalCount: Int!
 
   """Information about the current, the previous and the next page"""
@@ -2315,7 +2315,7 @@ enum CapitalDepositCaseStatus {
   Initiated
 
   """
-  A new capital deposit case is created and Swan is waiting for the required information to be provided and each shareholder to wire its share of share capital.
+  A new capital deposit case is created and Swan is waiting for the required information to be provided and each shareholder to wire their share of share capital.
   """
   WaitingForRequirements
 
@@ -2418,7 +2418,7 @@ enum CapitalDepositDocumentType {
   CompanyLeaseAgreement
 
   """
-  Created by the Notary, it certify the capital of the company to have been deposited with the appropriate share for each shareholder.
+  Created by the Notary, it certifies the capital of the company to have been deposited with the appropriate share for each shareholder.
   """
   CapitalShareDepositCertificate
 
@@ -2797,6 +2797,33 @@ input CardFiltersInput {
   accountId: String
 }
 
+type CardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """
 Rejection returned if the card was not found or if the user does not have the rights to know that the account exists
 """
@@ -2816,6 +2843,12 @@ enum CardOrderByFieldInput {
 input CardOrderByInput {
   field: CardOrderByFieldInput
   direction: OrderByDirection
+}
+
+"""input for Card payment method"""
+input CardPaymentMethodInput {
+  """If true, the Payment Method will be in Pending Review"""
+  activate: Boolean = false
 }
 
 """when the card is in the process of being ready to use"""
@@ -3450,7 +3483,7 @@ type CompanyInfo {
   legalRepresentativePersonalAddress: AddressInformation
 }
 
-"""Company shareholder infos."""
+"""Company shareholder info."""
 type CompanyShareholder {
   """Whether the shareholder is an individual or a company."""
   type: ShareholderType!
@@ -5849,7 +5882,7 @@ type InAppProvisioningData {
   oaepHashingAlgorithm: String
 }
 
-"""Individual shareholder infos."""
+"""Individual shareholder info."""
 type IndividualShareholder {
   """Whether the shareholder is an individual or a company."""
   type: ShareholderType!
@@ -7981,7 +8014,7 @@ type MerchantPaymentLink {
   sequence: PaymentLinkSequenceType!
 
   """billing address informations"""
-  billingAddress: Address!
+  billingAddress: Address
 
   """
     A date that reflects the time at which the user asked the transaction to be executed.
@@ -8062,12 +8095,6 @@ interface MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -8113,6 +8140,7 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitCore
   SepaDirectDebitB2b
   Check
+  Card
 }
 
 """Merchant Profile"""
@@ -8563,7 +8591,7 @@ type Mutation {
   """
   Create a capital deposit case.
   
-  This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
   createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
 
@@ -12522,7 +12550,7 @@ union ShareholderInfo = IndividualShareholder | CompanyShareholder
 
 """Status of the shareholder during the process with Swan."""
 enum ShareholderStatus {
-  """Waiting for the shareholder to finalize its onboarding."""
+  """Waiting for the shareholder to finalize their onboarding."""
   PendingOnboarding
 
   """Waiting for Swan compliance team to verify the shareholder."""

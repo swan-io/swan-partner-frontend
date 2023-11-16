@@ -778,6 +778,16 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
+type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expires.
+  The payment link expires 24 hours after it was created.
+  """
+  expiresAt: DateTime!
+}
+
 """
 Rejection returned if the attempting to add cards to different accounts.
 """
@@ -1004,6 +1014,28 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
+}
+
+type CanceledMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """The date at which the customer canceled the payment."""
+  canceledAt: DateTime!
+}
+
+"""CanceledMerchantPaymentMethodStatusInfo"""
+type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method canceled date"""
+  canceledAt: Date!
+}
+
+"""CanceledMerchantProfileStatusInfo"""
+type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  canceledAt: Date!
+  enabledAt: Date
 }
 
 """Rejection returned when the Physical Card cannot be activated"""
@@ -1572,6 +1604,40 @@ input Certificate {
   value: String!
 }
 
+"""CheckMerchantPaymentMethod"""
+type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
+  """
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """
 Define a reason with a message and a specific type for closing account action
 """
@@ -1774,6 +1840,13 @@ interface CompleteDigitalCardStatusInfo {
   status: CompleteDigitalCardStatus!
 }
 
+type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """The time when the customer completed the payment."""
+  completedAt: DateTime!
+}
+
 """
 Relay Connection type, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
 """
@@ -1968,6 +2041,16 @@ enum ConsentStatus {
 """currency code alpha 3 (ISO 4217)"""
 scalar Currency
 
+type Customer {
+  """
+  A customer id present in a third-party system.
+  Alows to link a customer to a payment link and by extension, to a Merchant Payment.
+  """
+  externalCustomerId: String
+  name: String
+  iban: String
+}
+
 """Date with YYYY-MM-DD format"""
 scalar Date
 
@@ -1976,6 +2059,18 @@ Date time (ISO 8601 with time information)
 ex: 2021-04-12T16:28:22.867Z
 """
 scalar DateTime
+
+"""Rejection returned when the Debtor is closed"""
+type DebtorAccountClosedRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when the Debtor does not belong to the same project as the creditor
+"""
+type DebtorAccountNotAllowedRejection implements Rejection {
+  message: String!
+}
 
 """Device"""
 type Device {
@@ -2168,6 +2263,14 @@ enum DigitalizationType {
   Unknown
 }
 
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method disabled date"""
+  disabledAt: Date!
+}
+
 """
 Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
 but all implementation contains its own node property according to the paginated type.
@@ -2200,9 +2303,33 @@ type EnabledCardDesignNotFoundRejection implements Rejection {
   message: String!
 }
 
+"""EnabledMerchantPaymentMethodStatusInfo"""
+type EnabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method enabled date"""
+  enabledAt: Date!
+}
+
+"""EnabledMerchantProfileStatusInfo"""
+type EnabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  enabledAt: Date!
+}
+
 enum EnvType {
   Live
   Sandbox
+}
+
+type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expired.
+  The payment link expires 24 hours after it was created.
+  """
+  expiredAt: DateTime!
 }
 
 type ExternalAccountAlreadyExistsRejection implements Rejection {
@@ -2645,6 +2772,74 @@ type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBen
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 }
 
+"""InternalDirectDebitB2BMerchantPaymentMethod"""
+type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
+  """
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+"""InternalDirectDebitStandardMerchantPaymentMethod"""
+type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
+  """
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """Rejection returned on unexpected server error"""
 type InternalErrorRejection implements Rejection {
   message: String!
@@ -2728,6 +2923,243 @@ input MembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+}
+
+type MerchantPaymentLink {
+  """Merchant payment link's unique ID."""
+  id: String!
+
+  """ID of the related project"""
+  projectId: ID!
+
+  """The URL at which the customer can complete the payment."""
+  url: String!
+
+  """The merchant payment link status."""
+  statusInfo: MerchantPaymentLinkStatusInfo!
+
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfile: MerchantProfile!
+
+  """Amount to be paid to sucessfully complete the payment."""
+  amount: Amount!
+
+  """
+  Merchant Website URL to redirect the user to when the payment is completed.
+  """
+  redirectUrl: String!
+
+  """URL to redirect the user to if they cancel their payment"""
+  cancelRedirectUrl: String!
+
+  """
+  Controls if the payment mandate created from this payment link is for one-time use or can be reused
+  This is applicable for card and SEPA Direct Debit payment methods only.
+  """
+  sequence: PaymentLinkSequenceType!
+
+  """billing address informations"""
+  billingAddress: Address!
+
+  """
+    A date that reflects the time at which the user asked the transaction to be executed.
+  For card transactions, request execution must occur within 7 days after authorization or the authorization may expire.
+  For SEPA Direct Debit transactions, request execution must occur up to 1 year in the future.
+  
+  Default value means that the execution will be as soon as possible
+  """
+  requestedExecutionAt: DateTime
+
+  """
+  Any string that you want to be attached to this payment link.
+  Usually something to help you reference the link in an external system.
+  """
+  externalReference: String
+
+  """
+  Optional field intended to provide a way for you to include a reference number or code.
+  The customer will most likely see this value on their bank statement, though we can't know as every banking platform is different.
+  """
+  reference: String
+
+  """
+  The language used for the payment page.
+  Default is the browser's language, or English if not available.
+  """
+  language: String
+
+  """
+  Label of the concerned payment collection, which will be displayed on Swan bank statement	and on the Swan merchant payment page.
+  """
+  label: String
+
+  """
+   We will use the information specified here to prefill the payment link fields
+  depending on the payment method the end user chooses.
+  Keep in mind that your end customer will be able to edit these fields.
+  """
+  customer: Customer
+
+  """
+  List of payment methods IDs enabled for this payment link.
+  If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
+  """
+  paymentMethods: [MerchantPaymentMethod!]!
+}
+
+enum MerchantPaymentLinkStatus {
+  """Customers can still use the merchant payment link to pay."""
+  Active
+
+  """The merchant payment link is expired."""
+  Expired
+
+  """The customer completed the payment."""
+  Completed
+
+  """The customer cancel the payment."""
+  Canceled
+}
+
+interface MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+}
+
+"""Base object for the different Payment Methods available"""
+interface MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
+"""Rejection returned when the Merchant Payment Method is not active"""
+type MerchantPaymentMethodNotActiveRejection implements Rejection {
+  paymentMethodIds: [String!]
+  message: String!
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodStatus {
+  PendingReview
+  Enabled
+  Rejected
+  Disabled
+  Canceled
+  Suspended
+}
+
+"""The payment method status information"""
+interface MerchantPaymentMethodStatusInfo {
+  """Merchant Payment Method Status"""
+  status: MerchantPaymentMethodStatus!
+}
+
+"""The different statuses a MerchantPaymentMethod can have"""
+enum MerchantPaymentMethodType {
+  InternalDirectDebitStandard
+  InternalDirectDebitB2b
+  SepaDirectDebitCore
+  SepaDirectDebitB2b
+  Check
+}
+
+"""Merchant Profile"""
+type MerchantProfile {
+  """The Merchant Profile ID"""
+  id: ID!
+
+  """The Account ID this Merchant Profile is linked to"""
+  accountId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
+  """The status of the merchant profile"""
+  statusInfo: MerchantProfileStatusInfo!
+
+  """
+  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount!
+
+  """Payment Methods associated"""
+  merchantPaymentMethods: [MerchantPaymentMethod!]
+
+  """Updates Requested associated"""
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!]
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Merchant Profile Statuses"""
+enum MerchantProfileStatus {
+  """A Merchant Profile is created in the PendingReview status"""
+  PendingReview
+
+  """Enabled"""
+  Enabled
+
+  """Rejected"""
+  Rejected
+
+  """Canceled"""
+  Canceled
+
+  """Suspended"""
+  Suspended
+}
+
+"""Merchant Profile Status Information"""
+interface MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+}
+
+"""
+Rejection returned when the Merchant Profile is not in the expected status
+"""
+type MerchantProfileWrongStatusRejection implements Rejection {
+  message: String!
+  currentStatus: MerchantProfileStatus!
+  expectedStatus: MerchantProfileStatus!
 }
 
 """Rejection returned when mandatory fields are missing from the call."""
@@ -3267,6 +3699,25 @@ enum PaymentLevel {
   Unlimited
 }
 
+enum PaymentLinkSequenceType {
+  OneOff
+  Recurring
+}
+
+"""
+Rejection returned when a payment mandate reference is already for a creditor
+"""
+type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when a payment method is not compatible for the requested mutation
+"""
+type PaymentMethodNotCompatibleRejection implements Rejection {
+  message: String!
+}
+
 """Pending Digital Card used for ApplePay or GooglePay"""
 type PendingDigitalCard implements DigitalCard {
   """Unique identifier of a digital card"""
@@ -3323,6 +3774,16 @@ enum PendingDigitalCardStatus {
 interface PendingDigitalCardStatusInfo {
   """Status of the digital card."""
   status: PendingDigitalCardStatus!
+}
+
+"""PendingMerchantPaymentMethodStatusInfo"""
+type PendingMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+}
+
+"""PendingReviewMerchantProfileStatusInfo"""
+type PendingReviewMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
 }
 
 type PermissionCannotBeGrantedRejection implements Rejection {
@@ -3538,6 +3999,16 @@ type PreProvisioningSUVCardSettings {
   preProvisioningSUVCardsAvailablePercentage: Float!
 }
 
+"""
+Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+"""
+enum ProductType {
+  Goods
+  Services
+  VirtualGoods
+  GiftsAndDonations
+}
+
 type ProjectCardDesigns {
   """Unique identifier of a project"""
   id: ID!
@@ -3741,6 +4212,9 @@ type Query {
   companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
   onboardingInfo(id: ID!): OnboardingInfo
   projectInfoById(id: ID!): ProjectInfo!
+
+  """Return a merchant payment link by id"""
+  merchantPaymentLink(id: ID!): MerchantPaymentLink
 }
 
 """Define a reason with a message"""
@@ -3753,8 +4227,74 @@ input ReasonInput {
   message: String
 }
 
+"""RejectedMerchantPaymentMethodStatusInfo"""
+type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method rejected date"""
+  rejectedAt: Date!
+}
+
+"""RejectedMerchantProfileStatusInfo"""
+type RejectedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  rejectedAt: Date!
+}
+
 interface Rejection {
   message: String!
+}
+
+"""Request Update Merchant Profile"""
+type RequestMerchantProfileUpdate {
+  """The Request ID"""
+  id: ID!
+
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
+
+  """
+  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount!
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Request Merchant Profile Update Statuses"""
+enum RequestMerchantProfileUpdateStatus {
+  """A Request is created in the PendingReview status"""
+  PendingReview
+
+  """A Request that has already been approved"""
+  Enabled
+
+  """A Request that has already been rejected"""
+  Rejected
 }
 
 input ResidencyAddressInput {
@@ -3800,6 +4340,23 @@ type RestrictedToUserRejection implements Rejection {
 }
 
 """
+Percentage over a number of business days, that is applied to all funds collected to compute a Reserved amount
+This amount cannot be used over the corresponding business days
+"""
+type RollingReserve {
+  """Percentage of the funding amount to be reserved"""
+  percentage: Int!
+
+  """Number of business days the computed amount is reserved"""
+  rollingDays: Int!
+}
+
+"""Rejection returned when adding a B2B mandate with an Individual debtor"""
+type SchemeWrongRejection implements Rejection {
+  message: String!
+}
+
+"""
 SEPA Creditor Identifier
 format :
     1 – 2: ISO Country Code
@@ -3810,6 +4367,90 @@ example:
     FR11ABC123456
 """
 scalar SepaCreditorIdentifier
+
+"""SepaDirectDebitB2BMerchantPaymentMethod"""
+type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
+  """
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+}
+
+"""SepaDirectDebitCoreMerchantPaymentMethod"""
+type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  DEPRECATED use the methodId field instead.
+  """
+  productId: ID! @deprecated(reason: "Use methodId instead")
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+}
 
 """
 SEPA Identifier
@@ -4388,6 +5029,20 @@ enum SuspendAccountReasonType {
 
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
+
+"""SuspendedMerchantPaymentMethodStatusInfo"""
+type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
+  status: MerchantPaymentMethodStatus!
+
+  """Merchant Payment Method suspended date"""
+  suspendedAt: Date!
+}
+
+"""SuspendedMerchantProfileStatusInfo"""
+type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  suspendedAt: Date!
+}
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
 enum TitleEnum {

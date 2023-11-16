@@ -21,7 +21,11 @@ import { TransactionList } from "../components/TransactionList";
 import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { TransactionFiltersState, TransactionListFilter } from "./TransactionListFilter";
+import {
+  TransactionFiltersState,
+  TransactionListFilter,
+  defaultFiltersDefinition,
+} from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -174,6 +178,15 @@ export const TransferList = ({
               }
               onRefresh={reload}
               large={large}
+              filtersDefinition={{
+                ...defaultFiltersDefinition,
+                paymentProduct: {
+                  ...defaultFiltersDefinition.paymentProduct,
+                  items: defaultFiltersDefinition.paymentProduct.items.filter(({ value }) =>
+                    ["CreditTransfer", "DirectDebit"].includes(value),
+                  ),
+                },
+              }}
             ></TransactionListFilter>
           </Box>
 

@@ -168,7 +168,6 @@ export const PaymentForm = ({ paymentLink }: Props) => {
         ])
       ) {
         Router.replace("Success");
-        console.log(values);
       }
     });
   };

@@ -24,8 +24,6 @@ import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { SepaLogo } from "./SepaLogo";
 
-const items = [{ id: "sdd", name: "Direct Debit", icon: <SepaLogo height={15} /> }] as const;
-
 const IMAGE_STYLE: CSSProperties = {
   top: 0,
   left: 0,
@@ -64,11 +62,8 @@ const styles = StyleSheet.create({
   },
 });
 
-type ItemId = (typeof items)[number]["id"];
-const merchantName = "Test";
-
 type FormState = {
-  paymentMethod: ItemId;
+  paymentMethod: "SepaDirectDebitCore";
   iban: string;
   country: CountryCCA3;
   name: string;
@@ -90,8 +85,7 @@ export const PaymentForm = ({ paymentLink }: Props) => {
 
   const { Field, submitForm } = useForm<FormState>({
     paymentMethod: {
-      initialValue: items[0].id,
-      validate: validateRequired,
+      initialValue: "SepaDirectDebitCore",
     },
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",
@@ -179,6 +173,8 @@ export const PaymentForm = ({ paymentLink }: Props) => {
     }));
   }, []);
 
+  const merchantName = paymentLink.merchantProfile.merchantName;
+
   return (
     <ScrollView
       style={{
@@ -249,7 +245,13 @@ export const PaymentForm = ({ paymentLink }: Props) => {
               <SegmentedControl
                 mode="desktop"
                 selected={value}
-                items={items}
+                items={[
+                  {
+                    id: "SepaDirectDebitCore",
+                    name: "Direct Debit",
+                    icon: <SepaLogo height={15} />,
+                  },
+                ]}
                 onValueChange={onChange}
               />
             )}

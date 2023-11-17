@@ -103,7 +103,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
           })),
         );
       });
-    }, [onChange, listenFields]);
+    }, [form, onChange, listenFields]);
 
     useEffect(() => {
       fields.map(async ({ key }) => {
@@ -113,7 +113,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
           await validateField(key);
         }
       });
-    }, [form]);
+    }, [form, fields, getFieldState, validateField]);
 
     if (fields.length === 0) {
       return null;

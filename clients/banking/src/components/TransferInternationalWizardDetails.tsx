@@ -110,7 +110,7 @@ export const TransferInternationalWizardDetails = ({
         }
       })
       .otherwise(noop);
-  }, [data]);
+  }, [data, onPressPrevious]);
 
   const refresh = useDebounce<void>(() => {
     const { value } = getFieldState("results");
@@ -120,7 +120,7 @@ export const TransferInternationalWizardDetails = ({
 
   useEffect(() => {
     listenFields(["results"], () => refresh());
-  }, [listenFields, fields]);
+  }, [fields, listenFields, refresh]);
 
   return (
     <View>

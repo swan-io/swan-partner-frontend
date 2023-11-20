@@ -20,6 +20,7 @@ export const PaymentPage = () => {
   const { data } = useUrqlQuery(
     {
       query: GetMerchantPaymentLinkDocument,
+      variables: { paymentLinkId: "test" },
     },
     [],
   );

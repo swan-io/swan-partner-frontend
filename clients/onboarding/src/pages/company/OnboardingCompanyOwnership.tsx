@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -6,7 +5,6 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
@@ -21,6 +19,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   BeneficiaryForm,
   BeneficiaryFormRef,
@@ -28,6 +27,8 @@ import {
   BeneficiaryFormStep,
   validateUbo,
 } from "@swan-io/shared-business/src/components/BeneficiaryForm";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
   CountryCCA3,
   getCCA3forCCA2,
@@ -40,7 +41,6 @@ import { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { ConfirmModal } from "../../components/ConfirmModal";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -267,6 +267,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
                   icon="edit-regular"
                   color="gray"
                   onPress={onEdit}
+                  ariaLabel={t("common.edit")}
                 />
 
                 <Space width={12} />
@@ -277,6 +278,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
                   icon="delete-regular"
                   color="negative"
                   onPress={onDelete}
+                  ariaLabel={t("common.delete")}
                 />
               </Box>
 
@@ -469,16 +471,9 @@ export const OnboardingCompanyOwnership = ({
       },
       language: locale.language,
     })
-      .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-        match(unauthenticatedUpdateCompanyOnboarding)
-          .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-            Result.Ok(value),
-          )
-          .otherwise(error => Result.Error(error)),
-      )
-      .tapOk(() => {
-        Router.push(nextStep, { onboardingId });
-      })
+      .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(() => Router.push(nextStep, { onboardingId }))
       .tapError(error => {
         const errorMessage = getUpdateOnboardingError(error);
         showToast({
@@ -580,13 +575,15 @@ export const OnboardingCompanyOwnership = ({
             )
           }
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading() && !showConfirmNoUboModal}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading() && !showConfirmNoUboModal}
+        />
+      </OnboardingStepContent>
 
       <ConfirmModal
         visible={showConfirmNoUboModal}

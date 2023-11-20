@@ -44,12 +44,15 @@ const styles = StyleSheet.create({
 
 type Props = {
   canAddCard: boolean;
+  cardOrderVisible: boolean;
+  canManageCards: boolean;
+  canManageAccountMembership: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
   params: {
     search?: string | undefined;
-    statuses?: string[] | undefined;
+    status?: string | undefined;
     type?: string[] | undefined;
   };
 };
@@ -66,26 +69,32 @@ const EMPTY_CARD_FRAGMENT: CardListPageDataFragment = {
 };
 // This hook is used to query Query.accountMembership.cards OR Query.cards,
 // depending on if we have access to account details (especially its id)
+// and if the membership has canManageCards right
 const usePageData = ({
+  canManageAccountMembership,
   accountMembershipId,
+  canManageCards,
   accountId,
   filters,
 }: {
+  canManageAccountMembership: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
+  canManageCards: boolean;
   filters: CardFilters;
 }) => {
-  const hasAccountId = isNotNullish(accountId);
+  const canQueryEveryCards =
+    isNotNullish(accountId) && canManageAccountMembership && canManageCards;
 
-  const statuses = match(filters.statuses)
-    .with(["Active"], () => ACTIVE_STATUSES)
-    .with(["Canceled"], () => CANCELED_STATUSES)
-    .otherwise(() => [...ACTIVE_STATUSES, ...CANCELED_STATUSES]);
+  const statuses = match(filters.status)
+    .with("Active", () => ACTIVE_STATUSES)
+    .with("Canceled", () => CANCELED_STATUSES)
+    .exhaustive();
 
   const withAccountQuery = useUrqlPaginatedQuery(
     {
       query: CardListPageWithAccountDocument,
-      pause: !hasAccountId,
+      pause: !canQueryEveryCards,
       variables: {
         first: PER_PAGE,
         filters: {
@@ -102,7 +111,7 @@ const usePageData = ({
   const withoutAccountQuery = useUrqlPaginatedQuery(
     {
       query: CardListPageWithoutAccountDocument,
-      pause: hasAccountId,
+      pause: canQueryEveryCards,
       variables: {
         first: PER_PAGE,
         filters: { statuses, types: filters.type, search: filters.search },
@@ -112,7 +121,7 @@ const usePageData = ({
     [filters, accountMembershipId],
   );
 
-  return hasAccountId
+  return canQueryEveryCards
     ? {
         ...withAccountQuery,
         data: withAccountQuery.data.map(result => result.map(data => data.cards)),
@@ -133,21 +142,20 @@ const usePageData = ({
 
 export const CardListPage = ({
   canAddCard,
+  cardOrderVisible,
   accountMembershipId,
   accountId,
   totalDisplayableCardCount,
+  canManageCards,
+  canManageAccountMembership,
   params,
 }: Props) => {
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.search,
-      statuses: isNotNullish(params.statuses)
-        ? Array.filterMap(params.statuses, item =>
-            match(item)
-              .with("Active", "Canceled", item => Option.Some(item))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+      status: match(params.status)
+        .with("Active", "Canceled", item => item)
+        .otherwise(() => "Active"),
       type: isNotNullish(params.type)
         ? Array.filterMap(params.type, item =>
             match(item)
@@ -156,12 +164,14 @@ export const CardListPage = ({
           )
         : undefined,
     } as const;
-  }, [params.search, params.statuses, params.type]);
+  }, [params.search, params.status, params.type]);
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
   const { data, nextData, setAfter, reload } = usePageData({
+    canManageAccountMembership,
     accountMembershipId,
+    canManageCards,
     accountId,
     filters,
   });
@@ -186,7 +196,7 @@ export const CardListPage = ({
     </FixedListViewEmpty>
   );
 
-  if (totalDisplayableCardCount === 0 && canAddCard) {
+  if (totalDisplayableCardCount === 0 && canAddCard && cardOrderVisible) {
     return <View style={styles.empty}>{empty}</View>;
   }
 
@@ -206,7 +216,7 @@ export const CardListPage = ({
               onRefresh={reload}
               large={large}
             >
-              {canAddCard ? (
+              {canAddCard && cardOrderVisible ? (
                 <LakeButton
                   size="small"
                   icon="add-circle-filled"

@@ -1,5 +1,4 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { DatePicker, isDateInRange } from "@swan-io/lake/src/components/DatePicker";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -11,7 +10,7 @@ import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { monthNames, weekDayNames } from "@swan-io/shared-business/src/utils/date";
+import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -173,8 +172,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                       error={error}
                       format={locale.dateFormat}
                       firstWeekDay={locale.firstWeekday}
-                      monthNames={monthNames}
-                      weekDayNames={weekDayNames}
                       onChange={onChange}
                       isSelectable={isDateInRange(
                         dayjs.utc().toDate(),
@@ -252,8 +249,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                             error={error}
                             format={locale.dateFormat}
                             firstWeekDay={locale.firstWeekday}
-                            monthNames={monthNames}
-                            weekDayNames={weekDayNames}
                             onChange={onChange}
                             isSelectable={date => {
                               const datePickerDate = dayjs(
@@ -308,15 +303,19 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
 
       <Space height={32} />
 
-      <LakeButtonGroup>
-        <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-          {t("common.previous")}
-        </LakeButton>
+      <ResponsiveContainer breakpoint={800}>
+        {({ small }) => (
+          <LakeButtonGroup>
+            <LakeButton color="gray" mode="secondary" onPress={onPressPrevious} grow={small}>
+              {t("common.previous")}
+            </LakeButton>
 
-        <LakeButton color="current" onPress={onPressSubmit} loading={loading}>
-          {t("common.continue")}
-        </LakeButton>
-      </LakeButtonGroup>
+            <LakeButton color="current" onPress={onPressSubmit} loading={loading} grow={small}>
+              {t("common.continue")}
+            </LakeButton>
+          </LakeButtonGroup>
+        )}
+      </ResponsiveContainer>
     </>
   );
 };

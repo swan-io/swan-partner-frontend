@@ -15,7 +15,6 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
-import { t } from "../../utils/i18n";
 import { projectConfiguration } from "../../utils/projectId";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
@@ -109,13 +108,13 @@ export const OnboardingCompanyFinalize = ({
             </Box>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        nextLabel={t("wizard.finalize")}
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-      />
+        <OnboardingFooter
+          nextLabel="wizard.finalize"
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

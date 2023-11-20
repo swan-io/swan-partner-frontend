@@ -1,10 +1,10 @@
-import { Result } from "@swan-io/boxed";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
@@ -12,6 +12,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
@@ -100,7 +101,7 @@ export const OnboardingIndividualLocation = ({
   }, [serverValidationErrors, isFirstMount, setFieldError, setManualMode]);
 
   const onPressPrevious = () => {
-    Router.push("OnboardingEmail", { onboardingId });
+    Router.push("Email", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -130,17 +131,9 @@ export const OnboardingIndividualLocation = ({
           },
           language: locale.language,
         })
-          .mapOkToResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
-            match(unauthenticatedUpdateIndividualOnboarding)
-              .with(
-                { __typename: "UnauthenticatedUpdateIndividualOnboardingSuccessPayload" },
-                value => Result.Ok(value),
-              )
-              .otherwise(error => Result.Error(error)),
-          )
-          .tapOk(() => {
-            Router.push("OnboardingDetails", { onboardingId });
-          })
+          .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push("Details", { onboardingId }))
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
@@ -168,12 +161,11 @@ export const OnboardingIndividualLocation = ({
       }
     });
   };
-  console.log(__env);
 
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small, large }) => (
             <>
               <StepTitle isMobile={small}>{t("individual.step.location.title")}</StepTitle>
@@ -287,13 +279,15 @@ export const OnboardingIndividualLocation = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

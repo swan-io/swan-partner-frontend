@@ -1,18 +1,5 @@
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { cacheExchange } from "@urql/exchange-graphcache";
-import { Except, SetRequired } from "type-fest";
-import {
-  AnyVariables,
-  Client,
-  CombinedError,
-  OperationResult,
-  UseQueryArgs,
-  UseQueryResponse,
-  UseQueryState,
-  errorExchange,
-  fetchExchange,
-  useQuery,
-} from "urql";
+import { Client, CombinedError, errorExchange, fetchExchange } from "urql";
 import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
@@ -48,41 +35,3 @@ export const unauthenticatedClient = new Client({
     fetchExchange,
   ],
 });
-
-export const parseOperationResult = <T>({ error, data }: OperationResult<T>): T => {
-  if (isNotNullish(error)) {
-    throw error;
-  }
-
-  if (isNullish(data)) {
-    throw new CombinedError({
-      networkError: new Error("No Content"),
-    });
-  }
-
-  return data;
-};
-
-export const useQueryWithErrorBoundary = <
-  Data = unknown,
-  Variables extends AnyVariables = AnyVariables,
->(
-  options: UseQueryArgs<Variables, Data>,
-): [
-  SetRequired<Except<UseQueryState<Data, Variables>, "fetching" | "error">, "data">,
-  UseQueryResponse[1],
-] => {
-  const [{ fetching, data, error, ...rest }, reexecuteQuery] = useQuery<Data, Variables>(options);
-
-  if (isNotNullish(error)) {
-    throw error;
-  }
-
-  if (isNullish(data)) {
-    throw new CombinedError({
-      networkError: new Error("No Content"),
-    });
-  }
-
-  return [{ data, ...rest }, reexecuteQuery];
-};

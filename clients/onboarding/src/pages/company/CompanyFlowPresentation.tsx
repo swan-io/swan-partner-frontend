@@ -112,9 +112,9 @@ export const CompanyFlowPresentation = ({
             </Box>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+        <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
+      </OnboardingStepContent>
     </>
   );
 };

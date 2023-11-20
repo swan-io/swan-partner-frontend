@@ -256,15 +256,15 @@ query AccountArea($accountMembershipId: ID!) {
     logoUri
     B2BMembershipIDVerification
     webBankingSettings {
-      canAddNewMembers
-      canViewMembers
-      canViewAccountDetails
-      canViewAccountStatement
-      canOrderVirtualCards
-      canOrderPhysicalCards
-      canInitiatePaymentsToNewBeneficiaries
-      canViewPaymentList
-      canManageVirtualIbans
+      accountStatementsVisible: canViewAccountStatement
+      accountVisible: canViewAccountDetails
+      memberCreationVisible: canAddNewMembers
+      memberListVisible: canViewMembers
+      paymentListVisible: canViewPaymentList
+      physicalCardOrderVisible: canOrderPhysicalCards
+      transferCreationVisible: canInitiatePaymentsToNewBeneficiaries
+      virtualCardOrderVisible: canOrderVirtualCards
+      virtualIbansVisible: canManageVirtualIbans
     }
     supportingDocumentSettings {
       collectMode
@@ -290,6 +290,7 @@ query AccountDetailsIbanPage($accountId: ID!) {
     id
     IBAN
     BIC
+    bankDetails
     name
     statusInfo {
       status
@@ -1290,6 +1291,7 @@ fragment AccountMembership on AccountMembership {
     country
   }
   canInitiatePayments
+  canManageCards
   canManageAccountMembership
   canManageBeneficiaries
   canViewAccount
@@ -1331,6 +1333,8 @@ query MembersPage(
   $status: [AccountMembershipStatus!]
   $canManageAccountMembership: Boolean
   $canManageBeneficiaries: Boolean
+  $canViewAccount: Boolean
+  $canManageCards: Boolean
   $canInitiatePayments: Boolean
   $search: String
 ) {
@@ -1354,6 +1358,8 @@ query MembersPage(
         canManageAccountMembership: $canManageAccountMembership
         canManageBeneficiaries: $canManageBeneficiaries
         canInitiatePayments: $canInitiatePayments
+        canViewAccount: $canViewAccount
+        canManageCards: $canManageCards
         status: $status
         search: $search
       }

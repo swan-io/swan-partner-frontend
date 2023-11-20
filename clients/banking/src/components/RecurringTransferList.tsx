@@ -1,8 +1,8 @@
 import { AsyncData, Dict, Result } from "@swan-io/boxed";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
-import { FilterBooleanDef, FiltersStack, FiltersState } from "@swan-io/lake/src/components/Filters";
+import { Fill } from "@swan-io/lake/src/components/Fill";
+import { FilterBooleanDef, FiltersState } from "@swan-io/lake/src/components/Filters";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -17,7 +17,6 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel, ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
@@ -28,6 +27,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
@@ -36,8 +36,10 @@ import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
-import dayjs from "dayjs";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useCallback, useMemo, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -47,7 +49,7 @@ import {
   StandingOrdersHistoryPageDocument,
   TransactionDetailsFragment,
 } from "../graphql/partner";
-import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
+import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { RightPanelTransactionList } from "./RightPanelTransactionList";
@@ -480,7 +482,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
-    width: 200,
+    width: 250,
     renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
@@ -493,9 +495,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
           <SimpleRegularTextCell
             textAlign="right"
             text={
-              nextExecutionDate != null
-                ? dayjs(nextExecutionDate).format(`${locale.dateFormat} ${locale.timeFormat}`)
-                : "-"
+              nextExecutionDate != null ? formatDateTime(new Date(nextExecutionDate), "LLL") : "-"
             }
           />
         ))
@@ -504,7 +504,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "amount",
     title: t("recurringTransfer.table.amount"),
-    width: 200,
+    width: 150,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell
@@ -616,22 +616,6 @@ export const RecurringTransferList = ({
 
   const hasFilters = Dict.values(filters).some(isNotNullish);
 
-  const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filters)
-      .filter(([, value]) => isNotNullish(value))
-      .map(([name]) => name),
-  );
-
-  useEffect(() => {
-    setOpenFilters(openFilters => {
-      const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filters)
-        .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
-        .map(([name]) => name);
-      return [...openFilters, ...openFiltersNotYetInState];
-    });
-  }, [filters]);
-
   const { data, nextData, reload, isForceReloading, setAfter } = useUrqlPaginatedQuery(
     {
       query: GetStandingOrdersDocument,
@@ -681,18 +665,15 @@ export const RecurringTransferList = ({
   const onCancelRecurringTransfer = () => {
     if (recurringTransferToCancelId != null) {
       cancelRecurringTransfer({ id: recurringTransferToCancelId })
-        .mapOkToResult(({ cancelStandingOrder }) =>
-          match(cancelStandingOrder)
-            .with({ __typename: "CancelStandingOrderSuccessPayload" }, result => Result.Ok(result))
-            .otherwise(error => Result.Error(error)),
-        )
+        .mapOk(data => data.cancelStandingOrder)
+        .mapOkToResult(filterRejectionsToResult)
         .tapOk(() => {
           closeRightPanel();
           setRecurringTransferToCancelId(null);
           reload();
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     }
   };
@@ -717,21 +698,11 @@ export const RecurringTransferList = ({
     <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
       {({ large }) => (
         <>
-          <Box direction="row" style={[styles.filters, large && styles.filtersDesktop]}>
-            <FilterChooser
-              filters={filters}
-              availableFilters={[
-                { label: t("recurringTransfer.filters.status.canceled"), name: "canceled" },
-              ]}
-              openFilters={openFilters}
-              label={t("common.filters")}
-              title={t("common.chooseFilter")}
-              onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
-              large={large}
-            />
-
-            <Space width={8} />
-
+          <Box
+            direction="row"
+            alignItems="center"
+            style={[styles.filters, large && styles.filtersDesktop]}
+          >
             <LakeButton
               ariaLabel={t("common.refresh")}
               mode="secondary"
@@ -741,20 +712,16 @@ export const RecurringTransferList = ({
               onPress={reload}
             />
 
-            <Space width={8} />
-          </Box>
+            <Fill minWidth={24} />
 
-          <Space height={12} />
-
-          <View style={[styles.filters, large && styles.filtersDesktop]}>
-            <FiltersStack
-              definition={filtersDefinition}
-              filters={filters}
-              openedFilters={openFilters}
-              onChangeFilters={setFilters}
-              onChangeOpened={setOpenFilters}
+            <Toggle
+              mode={large ? "desktop" : "mobile"}
+              value={filters.canceled !== true}
+              onToggle={value => setFilters({ ...filters, canceled: !value })}
+              onLabel={t("recurringTransfer.filters.status.active")}
+              offLabel={t("recurringTransfer.filters.status.canceled")}
             />
-          </View>
+          </Box>
 
           <Space height={24} />
 

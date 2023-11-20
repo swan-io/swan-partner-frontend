@@ -62,8 +62,10 @@ type Props = {
   accountMembershipId: string;
   accountId: string | undefined;
   canAddCard: boolean;
+  canManageCards: boolean;
   canManageAccountMembership: boolean;
-  canOrderPhysicalCards: boolean;
+  cardOrderVisible: boolean;
+  physicalCardOrderVisible: boolean;
   idVerified: boolean;
   refetchAccountAreaQuery: () => void;
   userId: string;
@@ -136,8 +138,10 @@ export const CardsArea = ({
   accountMembershipId,
   accountId,
   canAddCard,
+  canManageCards,
   canManageAccountMembership,
-  canOrderPhysicalCards,
+  cardOrderVisible,
+  physicalCardOrderVisible,
   idVerified,
   refetchAccountAreaQuery,
   userId,
@@ -196,16 +200,19 @@ export const CardsArea = ({
                     ({ params: { accountMembershipId, new: _, ...params } }) => (
                       <CardListPage
                         accountMembershipId={accountMembershipId}
+                        canManageCards={canManageCards}
+                        canManageAccountMembership={canManageAccountMembership}
                         accountId={accountId}
                         canAddCard={canAddCard}
                         totalDisplayableCardCount={totalDisplayableCardCount}
                         params={params}
+                        cardOrderVisible={cardOrderVisible}
                       />
                     ),
                   )
                   .with({ name: "AccountCardsItemArea" }, ({ params: { cardId } }) => (
                     <>
-                      {canAddCard && onlyCardId.isSome() ? (
+                      {canAddCard && cardOrderVisible && onlyCardId.isSome() ? (
                         <View style={[styles.addButton, large && styles.addButtonDesktop]}>
                           <LakeButton
                             size="small"
@@ -233,9 +240,10 @@ export const CardsArea = ({
                         idVerified={idVerified}
                         userStatusIsProcessing={userStatusIsProcessing}
                         canManageAccountMembership={canManageAccountMembership}
-                        canOrderPhysicalCards={canOrderPhysicalCards}
+                        physicalCardOrderVisible={physicalCardOrderVisible}
                         large={large}
                         canViewAccount={accountMembership.canViewAccount}
+                        canManageCards={accountMembership.canManageCards}
                       />
                     </>
                   ))
@@ -246,7 +254,7 @@ export const CardsArea = ({
 
             <FullViewportLayer visible={isNotNullish(route?.params.new)}>
               <CardWizard
-                canOrderPhysicalCards={canOrderPhysicalCards}
+                physicalCardOrderVisible={physicalCardOrderVisible}
                 accountMembership={accountMembership}
                 onPressClose={() => {
                   match(route)

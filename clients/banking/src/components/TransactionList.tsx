@@ -143,13 +143,14 @@ export const TransactionList = ({
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
   const { desktop } = useResponsive();
+  const headerHeight = 48;
 
   return (
     <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
       {({ large }) => (
         <PlainListView
           withoutScroll={!desktop}
-          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - 1}
+          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - headerHeight - 1}
           data={transactions.map(({ node }) => node)}
           keyExtractor={item => item.id}
           groupBy={item =>
@@ -157,9 +158,9 @@ export const TransactionList = ({
               ? capitalize(dayjs(item.executionDate).format("MMMM YYYY"))
               : dayjs(item.executionDate).format("LL")
           }
-          headerHeight={48}
+          headerHeight={headerHeight}
+          groupHeaderHeight={headerHeight}
           rowHeight={56}
-          groupHeaderHeight={48}
           extraInfo={undefined}
           columns={columns}
           onActiveRowChange={onActiveRowChange}

@@ -15,7 +15,6 @@ import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
-import { t } from "../../utils/i18n";
 import { projectConfiguration } from "../../utils/projectId";
 import { IndividualOnboardingRoute, Router } from "../../utils/routes";
 
@@ -47,7 +46,7 @@ export const OnboardingIndividualFinalize = ({
   }, [shakeError, setShakeError]);
 
   const onPressPrevious = () => {
-    Router.push("OnboardingDetails", { onboardingId });
+    Router.push("Details", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -107,13 +106,15 @@ export const OnboardingIndividualFinalize = ({
             </Box>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        nextLabel={t("wizard.finalize")}
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          nextLabel={"wizard.finalize"}
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

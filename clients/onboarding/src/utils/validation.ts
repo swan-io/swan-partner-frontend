@@ -74,6 +74,7 @@ export const getValidationErrorMessage = (
       isEmpty(currentValue) ? t("error.requiredField") : t("error.invalidField"),
     )
     .with("InvalidType", "TooLong", "TooShort", () => t("error.invalidField"))
+    .with("UnrecognizedKeys", () => t("error.unrecognizedKeys"))
     .exhaustive();
 };
 

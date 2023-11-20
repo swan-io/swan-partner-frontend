@@ -1,4 +1,4 @@
-import { Lazy, Result } from "@swan-io/boxed";
+import { Lazy } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -10,12 +10,14 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
@@ -188,16 +190,9 @@ export const OnboardingCompanyRegistration = ({
         input: updateInput,
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-          match(unauthenticatedUpdateCompanyOnboarding)
-            .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-              Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push(nextStep, { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push(nextStep, { onboardingId }))
         .tapError(error => {
           match(error)
             .with({ __typename: "ValidationRejection" }, error => {
@@ -238,7 +233,7 @@ export const OnboardingCompanyRegistration = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small, large }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.registration.title")}</StepTitle>
@@ -377,13 +372,15 @@ export const OnboardingCompanyRegistration = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

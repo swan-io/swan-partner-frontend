@@ -1,11 +1,11 @@
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { match, P } from "ts-pattern";
 import { GetFirstAccountMembershipDocument } from "../graphql/partner";
 import { AccountNotFoundPage } from "../pages/NotFoundPage";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import { useQueryWithErrorBoundary } from "../utils/urql";
 import { Redirect } from "./Redirect";
 
 type Props = {

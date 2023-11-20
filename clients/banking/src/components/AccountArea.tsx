@@ -21,6 +21,7 @@ import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -49,7 +50,7 @@ import {
   paymentMenuRoutes,
 } from "../utils/routes";
 import { signout } from "../utils/signout";
-import { isUnauthorizedError, useQueryWithErrorBoundary } from "../utils/urql";
+import { isUnauthorizedError } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -329,57 +330,62 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
 
   const settings = projectInfo.webBankingSettings;
 
-  const canInitiatePaymentsToNewBeneficiaries = Boolean(
-    settings?.canInitiatePaymentsToNewBeneficiaries,
-  );
+  const accountStatementsVisible = Boolean(settings?.accountStatementsVisible);
+  const accountVisible = Boolean(settings?.accountVisible);
+  const transferCreationVisible = Boolean(settings?.transferCreationVisible);
+  const paymentListVisible = Boolean(settings?.paymentListVisible);
+  const virtualIbansVisible = Boolean(settings?.virtualIbansVisible);
 
-  const canAddNewMembers = Boolean(settings?.canAddNewMembers);
-  const canManageVirtualIbans = Boolean(settings?.canManageVirtualIbans);
-  const canOrderPhysicalCards = Boolean(settings?.canOrderPhysicalCards);
-  const canOrderVirtualCards = Boolean(settings?.canOrderVirtualCards);
-  const canViewAccountDetails = Boolean(settings?.canViewAccountDetails);
-  const canViewAccountStatement = Boolean(settings?.canViewAccountStatement);
-  const canViewMembers = Boolean(settings?.canViewMembers);
-  const canViewPaymentList = Boolean(settings?.canViewPaymentList);
+  const memberCreationVisible = Boolean(settings?.memberCreationVisible);
+  const memberListVisible = Boolean(settings?.memberListVisible);
+
+  const physicalCardOrderVisible = Boolean(settings?.physicalCardOrderVisible);
+  const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
+  const cardOrderVisible = physicalCardOrderVisible || virtualCardOrderVisible;
 
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
-        const { canInitiatePayments, canManageBeneficiaries, canViewAccount, legalRepresentative } =
+        const { canInitiatePayments, canManageBeneficiaries, canManageCards, canViewAccount } =
           accountMembership;
 
         const membershipEnabled = accountMembership.statusInfo.status === "Enabled";
         const canManageAccountMembership =
           accountMembership.canManageAccountMembership && membershipEnabled;
-        const canAddCard = canViewAccount && canManageAccountMembership && canOrderVirtualCards;
+        const canAddCard = canViewAccount && canManageCards;
 
         return {
           accountMembership,
-          isLegalRepresentative: legalRepresentative,
           canManageAccountMembership,
           canInitiatePayments,
           canManageBeneficiaries,
           canAddCard,
+          canManageCards,
+
           historyMenuIsVisible: canViewAccount,
-          detailsMenuIsVisible: canViewAccount && canViewAccountDetails,
+          detailsMenuIsVisible: canViewAccount && accountVisible,
+
           paymentMenuIsVisible:
             canViewAccount &&
             canInitiatePayments &&
             membershipEnabled &&
-            (canInitiatePaymentsToNewBeneficiaries || canViewPaymentList),
+            (transferCreationVisible || paymentListVisible),
+
           // In case the user doesn't have the right to manage cards
           // but has one attached to the current membership
-          cardMenuIsVisible: accountMembership.allCards.totalCount > 0 || canAddCard,
-          memberMenuIsVisible: canViewAccount && canViewMembers && canManageAccountMembership,
+          cardMenuIsVisible:
+            accountMembership.allCards.totalCount > 0 || (canAddCard && cardOrderVisible),
+
+          memberMenuIsVisible: canViewAccount && canManageAccountMembership && memberListVisible,
         };
       }),
     [
-      canInitiatePaymentsToNewBeneficiaries,
-      canOrderVirtualCards,
-      canViewAccountDetails,
-      canViewMembers,
-      canViewPaymentList,
       currentAccountMembership,
+      accountVisible,
+      paymentListVisible,
+      cardOrderVisible,
+      memberListVisible,
+      transferCreationVisible,
     ],
   );
 
@@ -654,9 +660,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                     ({
                       accountMembership,
                       canAddCard,
+                      canManageCards,
                       canManageAccountMembership,
                       cardMenuIsVisible,
-                      isLegalRepresentative,
                       historyMenuIsVisible,
                       detailsMenuIsVisible,
                       memberMenuIsVisible,
@@ -694,36 +700,26 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 <AccountNotFoundPage projectName={projectName} />
                               ),
                             )
-                            .with({ name: "AccountProfile" }, () =>
-                              currentAccountMembership.match({
-                                Ok: ({
-                                  email,
-                                  canManageAccountMembership,
-                                  canManageBeneficiaries,
-                                  canInitiatePayments,
-                                  recommendedIdentificationLevel,
-                                }) => (
-                                  <ProfilePage
-                                    accentColor={accentColor}
-                                    recommendedIdentificationLevel={recommendedIdentificationLevel}
-                                    additionalInfo={additionalInfo}
-                                    userStatusIsProcessing={userStatusIsProcessing}
-                                    refetchAccountAreaQuery={refetchAccountAreaQuery}
-                                    isLegalRepresentative={isLegalRepresentative}
-                                    email={email}
-                                    shouldDisplayIdVerification={
-                                      !(
-                                        projectInfo.B2BMembershipIDVerification === false &&
-                                        canManageAccountMembership === false &&
-                                        canInitiatePayments === false &&
-                                        canManageBeneficiaries === false
-                                      )
-                                    }
-                                  />
-                                ),
-                                Error: () => <ErrorView />,
-                              }),
-                            )
+                            .with({ name: "AccountProfile" }, () => (
+                              <ProfilePage
+                                accentColor={accentColor}
+                                recommendedIdentificationLevel={
+                                  accountMembership.recommendedIdentificationLevel
+                                }
+                                additionalInfo={additionalInfo}
+                                userStatusIsProcessing={userStatusIsProcessing}
+                                refetchAccountAreaQuery={refetchAccountAreaQuery}
+                                email={accountMembership.email}
+                                shouldDisplayIdVerification={
+                                  !(
+                                    projectInfo.B2BMembershipIDVerification === false &&
+                                    canManageAccountMembership === false &&
+                                    accountMembership.canInitiatePayments === false &&
+                                    accountMembership.canManageBeneficiaries === false
+                                  )
+                                }
+                              />
+                            ))
                             .with({ name: "AccountDetailsArea" }, () =>
                               isNullish(accountId) || !detailsMenuIsVisible ? (
                                 <ErrorView />
@@ -732,7 +728,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountId={accountId}
                                   accountMembershipId={accountMembershipId}
                                   canManageAccountMembership={canManageAccountMembership}
-                                  canManageVirtualIbans={canManageVirtualIbans}
+                                  virtualIbansVisible={virtualIbansVisible}
                                   idVerified={idVerified}
                                   projectName={projectName}
                                   userStatusIsProcessing={userStatusIsProcessing}
@@ -751,7 +747,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     accountMembershipId={accountMembershipId}
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                     onBalanceReceive={setAvailableBalance}
-                                    canViewAccountStatement={canViewAccountStatement}
+                                    accountStatementsVisible={accountStatementsVisible}
                                     canViewAccount={accountMembership.canViewAccount}
                                   />
                                 ),
@@ -766,9 +762,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   <TransferArea
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
-                                    canInitiatePaymentsToNewBeneficiaries={
-                                      canInitiatePaymentsToNewBeneficiaries
-                                    }
+                                    transferCreationVisible={transferCreationVisible}
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
                                     transferConsent={
                                       consentId != null && consentStatus != null
@@ -789,11 +783,13 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 userId={userId}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 canAddCard={canAddCard}
+                                canManageCards={canManageCards}
                                 accountMembership={accountMembership}
                                 idVerified={idVerified}
                                 userStatusIsProcessing={userStatusIsProcessing}
                                 canManageAccountMembership={canManageAccountMembership}
-                                canOrderPhysicalCards={canOrderPhysicalCards}
+                                cardOrderVisible={cardOrderVisible}
+                                physicalCardOrderVisible={physicalCardOrderVisible}
                               />
                             ))
                             .with({ name: "AccountMembersArea" }, ({ params }) =>
@@ -810,13 +806,13 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                     <MembershipsArea
                                       accountMembershipId={accountMembershipId}
                                       accountId={accountId}
-                                      canAddNewMembers={canAddNewMembers}
+                                      memberCreationVisible={memberCreationVisible}
                                       canAddCard={canAddCard}
                                       onAccountMembershipUpdate={refetchAccountAreaQuery}
                                       accountCountry={currentUserAccountMembership.account.country}
                                       params={params}
                                       currentUserAccountMembership={currentUserAccountMembership}
-                                      canOrderPhysicalCards={canOrderPhysicalCards}
+                                      physicalCardOrderVisible={physicalCardOrderVisible}
                                       shouldDisplayIdVerification={
                                         projectInfo.B2BMembershipIDVerification !== false
                                       }
@@ -831,7 +827,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 accentColor={accentColor}
                                 accountMembershipId={accountMembershipId}
                                 additionalInfo={additionalInfo}
-                                canViewAccountDetails={canViewAccountDetails}
+                                accountVisible={accountVisible}
                                 projectName={projectName}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                               />

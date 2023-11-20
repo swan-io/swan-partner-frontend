@@ -1,4 +1,4 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -7,7 +7,10 @@ import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useForm } from "react-ux-form";
@@ -21,7 +24,6 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { ConfirmModal } from "./ConfirmModal";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 
 const styles = StyleSheet.create({
@@ -60,6 +62,7 @@ type FormValues = {
   canInitiatePayments?: boolean;
   canManageBeneficiaries?: boolean;
   canManageAccountMembership?: boolean;
+  canManageCards?: boolean;
 };
 
 export const MembershipDetailRights = ({
@@ -95,6 +98,9 @@ export const MembershipDetailRights = ({
     },
     canManageAccountMembership: {
       initialValue: editingAccountMembership.canManageAccountMembership,
+    },
+    canManageCards: {
+      initialValue: editingAccountMembership.canManageCards,
     },
   });
 
@@ -150,15 +156,9 @@ export const MembershipDetailRights = ({
         ...rights,
       },
     })
-      .mapOkToResult(({ updateAccountMembership }) => {
-        return match(updateAccountMembership)
-          .with(
-            { __typename: "UpdateAccountMembershipSuccessPayload" },
-            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.updateAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
       .tapError(error => {
@@ -180,7 +180,7 @@ export const MembershipDetailRights = ({
               },
               () => t("error.missingAddressOrTaxNumberError"),
             )
-            .otherwise(() => t("error.generic")),
+            .otherwise(() => translateError(error)),
         });
       });
   };
@@ -192,7 +192,8 @@ export const MembershipDetailRights = ({
         (rights.canViewAccount === true ||
           rights.canInitiatePayments === true ||
           rights.canManageBeneficiaries === true ||
-          rights.canManageAccountMembership === true)
+          rights.canManageAccountMembership === true ||
+          rights.canManageCards === true)
       ) {
         setValuesToConfirm(Option.Some(rights));
         return;
@@ -208,18 +209,13 @@ export const MembershipDetailRights = ({
         accountMembershipId: editingAccountMembershipId,
       },
     })
-      .mapOkToResult(({ suspendAccountMembership }) => {
-        return match(suspendAccountMembership)
-          .with({ __typename: "SuspendAccountMembershipSuccessPayload" }, () =>
-            Result.Ok(undefined),
-          )
-          .otherwise(error => Result.Error(error));
-      })
+      .mapOk(data => data.suspendAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         onRefreshRequest();
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -235,19 +231,13 @@ export const MembershipDetailRights = ({
           }),
       },
     })
-      .mapOkToResult(({ resumeAccountMembership }) => {
-        return match(resumeAccountMembership)
-          .with(
-            { __typename: "ResumeAccountMembershipSuccessPayload" },
-            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.resumeAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -323,6 +313,25 @@ export const MembershipDetailRights = ({
               editingAccountMembership.legalRepresentative === true
             }
             label={t("membershipDetail.edit.canManageAccountMembership")}
+            value={value}
+            onValueChange={onChange}
+          />
+        )}
+      </Field>
+
+      <Space height={12} />
+
+      <Field name="canManageCards">
+        {({ value, onChange }) => (
+          <LakeLabelledCheckbox
+            disabled={
+              currentUserAccountMembership.canManageCards === false ||
+              accountMemberHasBirthDate === false ||
+              hasEditableStatus === false ||
+              isEditingCurrentUserAccountMembership === true ||
+              editingAccountMembership.legalRepresentative === true
+            }
+            label={t("membershipDetail.edit.canManageCards")}
             value={value}
             onValueChange={onChange}
           />

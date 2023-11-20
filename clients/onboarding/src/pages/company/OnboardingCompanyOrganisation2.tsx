@@ -1,16 +1,17 @@
-import { Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   businessActivities,
   monthlyPaymentVolumes,
@@ -143,16 +144,9 @@ export const OnboardingCompanyOrganisation2 = ({
         },
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateCompanyOnboarding }) =>
-          match(unauthenticatedUpdateCompanyOnboarding)
-            .with({ __typename: "UnauthenticatedUpdateCompanyOnboardingSuccessPayload" }, value =>
-              Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push(nextStep, { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push(nextStep, { onboardingId }))
         .tapError(error => {
           match(error)
             .with({ __typename: "ValidationRejection" }, error => {
@@ -179,7 +173,7 @@ export const OnboardingCompanyOrganisation2 = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.organisation2.title")}</StepTitle>
@@ -252,13 +246,15 @@ export const OnboardingCompanyOrganisation2 = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

@@ -4,7 +4,6 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/FixedListView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
@@ -14,6 +13,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -45,9 +45,9 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   accountId: string;
-  canAddNewMembers: boolean;
+  memberCreationVisible: boolean;
   canAddCard: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
   params: {
@@ -57,6 +57,8 @@ type Props = {
     canInitiatePayments?: string | undefined;
     canManageAccountMembership?: string | undefined;
     canManageBeneficiaries?: string | undefined;
+    canViewAccount?: string | undefined;
+    canManageCards?: string | undefined;
     // Params added after consent
     resourceId?: string | undefined;
     status?: string | undefined;
@@ -72,9 +74,9 @@ const statusList = ["BindingUserError", "Enabled", "InvitationSent", "Suspended"
 export const MembershipsArea = ({
   accountMembershipId,
   accountId,
-  canAddNewMembers,
+  memberCreationVisible,
   canAddCard,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   accountCountry,
   shouldDisplayIdVerification,
   params,
@@ -101,6 +103,12 @@ export const MembershipsArea = ({
       canManageBeneficiaries: match(params.canManageBeneficiaries)
         .with("true", "false", value => value)
         .otherwise(() => undefined),
+      canManageCards: match(params.canManageCards)
+        .with("true", "false", value => value)
+        .otherwise(() => undefined),
+      canViewAccount: match(params.canViewAccount)
+        .with("true", "false", value => value)
+        .otherwise(() => undefined),
       search: params.search,
     } as const;
   }, [
@@ -109,6 +117,8 @@ export const MembershipsArea = ({
     params.canInitiatePayments,
     params.canManageAccountMembership,
     params.canManageBeneficiaries,
+    params.canViewAccount,
+    params.canManageCards,
   ]);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
@@ -134,6 +144,14 @@ export const MembershipsArea = ({
           .with("false", () => false)
           .otherwise(() => undefined),
         canManageBeneficiaries: match(filters.canManageBeneficiaries)
+          .with("true", () => true)
+          .with("false", () => false)
+          .otherwise(() => undefined),
+        canManageCards: match(filters.canManageCards)
+          .with("true", () => true)
+          .with("false", () => false)
+          .otherwise(() => undefined),
+        canViewAccount: match(filters.canViewAccount)
           .with("true", () => true)
           .with("false", () => false)
           .otherwise(() => undefined),
@@ -237,7 +255,7 @@ export const MembershipsArea = ({
                 isFetching={nextData.isLoading()}
                 large={large}
               >
-                {canAddNewMembers ? (
+                {memberCreationVisible ? (
                   <LakeButton
                     size="small"
                     icon="add-circle-filled"
@@ -335,7 +353,7 @@ export const MembershipsArea = ({
                   editingAccountMembershipId={membership.id}
                   onAccountMembershipUpdate={onAccountMembershipUpdate}
                   canAddCard={canAddCard}
-                  canOrderPhysicalCards={canOrderPhysicalCards}
+                  physicalCardOrderVisible={physicalCardOrderVisible}
                   accountCountry={accountCountry}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}
                   onRefreshRequest={reload}
@@ -369,7 +387,8 @@ export const MembershipsArea = ({
                 Router.push("AccountMembersDetailsRoot", {
                   accountMembershipId,
                   editingAccountMembershipId,
-                  showInvitationLink: "true",
+                  showInvitationLink:
+                    __env.ACCOUNT_MEMBERSHIP_INVITATION_MODE === "LINK" ? "true" : undefined,
                   ...params,
                   new: undefined,
                 });

@@ -1,10 +1,10 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ChoicePicker } from "@swan-io/lake/src/components/ChoicePicker";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -33,13 +33,13 @@ type Props = {
   cardProduct: CardProduct;
   initialCardFormat?: CardFormat;
   onSubmit: (cardFormat: CardFormat) => void;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
 };
 
 export type CardWizardFormatRef = { submit: () => void };
 
 export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
-  ({ cardProduct, initialCardFormat, onSubmit, canOrderPhysicalCards }: Props, ref) => {
+  ({ cardProduct, initialCardFormat, onSubmit, physicalCardOrderVisible }: Props, ref) => {
     const [currentFormat, setCurrentCardFormat] = useState<CardFormat>(
       () => initialCardFormat ?? "Virtual",
     );
@@ -56,7 +56,7 @@ export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
 
     const items: CardFormat[] = [
       "Virtual",
-      ...(cardProduct.applicableToPhysicalCards && canOrderPhysicalCards
+      ...(cardProduct.applicableToPhysicalCards && physicalCardOrderVisible
         ? ["VirtualAndPhysical" as const]
         : []),
       "SingleUseVirtual",

@@ -12,6 +12,8 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -185,7 +187,7 @@ type Props = {
   onPressClose?: () => void;
   accountMembership: AccountMembershipFragment;
   preselectedAccountMembership?: AccountMembershipFragment;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
 };
 
 const Title = ({ visible, children }: { visible: boolean; children: string }) => (
@@ -204,7 +206,7 @@ export const CardWizard = ({
   accountMembership,
   onPressClose,
   preselectedAccountMembership,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
 }: Props) => {
   const [{ data }] = useQuery({
     query: GetCardProductsDocument,
@@ -243,12 +245,9 @@ export const CardWizard = ({
           spendingLimit: card.spendingLimit,
         },
       })
-        .mapOkToResult(({ addCard }) =>
-          match(addCard)
-            .with({ __typename: "AddCardSuccessPayload" }, ({ card }) => Result.Ok(card))
-            .otherwise(rejection => Result.Error(rejection)),
-        )
-        .mapOk(({ statusInfo }) =>
+        .mapOk(data => data.addCard)
+        .mapOkToResult(filterRejectionsToResult)
+        .mapOk(({ card: { statusInfo } }) =>
           match(statusInfo)
             .with({ __typename: "CardConsentPendingStatusInfo" }, ({ consent }) =>
               Option.Some(consent.consentUrl),
@@ -262,17 +261,14 @@ export const CardWizard = ({
             None: () => {},
           });
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     } else {
       return addCards({ input })
-        .mapOkToResult(({ addCards }) =>
-          match(addCards)
-            .with({ __typename: "AddCardsSuccessPayload" }, ({ cards }) => Result.Ok(cards))
-            .otherwise(rejection => Result.Error(rejection)),
-        )
-        .flatMapOk(cards => generateMultiConsent(cards))
+        .mapOk(data => data.addCards)
+        .mapOkToResult(filterRejectionsToResult)
+        .flatMapOk(data => generateMultiConsent(data.cards))
         .tap(() => setCardOrder(AsyncData.NotAsked()))
         .tapOk(value => {
           value.match({
@@ -280,8 +276,8 @@ export const CardWizard = ({
             None: () => {},
           });
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     }
   };
@@ -301,16 +297,9 @@ export const CardWizard = ({
           consentRedirectUrl: input.consentRedirectUrl,
         },
       })
-        .mapOkToResult(({ addSingleUseVirtualCard }) =>
-          match(addSingleUseVirtualCard)
-            .with(
-              { __typename: "AddSingleUseVirtualCardSuccessForUserPayload" },
-              { __typename: "AddSingleUseVirtualCardSuccessForProjectOwnerPayload" },
-              ({ card }) => Result.Ok(card),
-            )
-            .otherwise(rejection => Result.Error(rejection)),
-        )
-        .mapOk(({ statusInfo }) =>
+        .mapOk(data => data.addSingleUseVirtualCard)
+        .mapOkToResult(filterRejectionsToResult)
+        .mapOk(({ card: { statusInfo } }) =>
           match(statusInfo)
             .with({ __typename: "CardConsentPendingStatusInfo" }, ({ consent }) =>
               Option.Some(consent.consentUrl),
@@ -324,19 +313,14 @@ export const CardWizard = ({
             None: () => {},
           });
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     } else {
       return addSingleUseCards({ input })
-        .mapOkToResult(({ addSingleUseVirtualCards }) =>
-          match(addSingleUseVirtualCards)
-            .with({ __typename: "AddSingleUseVirtualCardsSuccessPayload" }, ({ cards }) =>
-              Result.Ok(cards),
-            )
-            .otherwise(rejection => Result.Error(rejection)),
-        )
-        .flatMapOk(cards => generateMultiConsent(cards))
+        .mapOk(data => data.addSingleUseVirtualCards)
+        .mapOkToResult(filterRejectionsToResult)
+        .flatMapOk(data => generateMultiConsent(data.cards))
         .tap(() => setCardOrder(AsyncData.NotAsked()))
         .tapOk(value => {
           value.match({
@@ -344,8 +328,8 @@ export const CardWizard = ({
             None: () => {},
           });
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     }
   };
@@ -612,7 +596,7 @@ export const CardWizard = ({
                       ref={cardWizardFormatRef}
                       cardProduct={cardProduct}
                       initialCardFormat={cardFormat}
-                      canOrderPhysicalCards={canOrderPhysicalCards}
+                      physicalCardOrderVisible={physicalCardOrderVisible}
                       onSubmit={cardFormat =>
                         setStep({ name: "CardProductSettings", cardProduct, cardFormat })
                       }
@@ -631,6 +615,7 @@ export const CardWizard = ({
                       nonMainCurrencyTransactions,
                     }) => (
                       <CardWizardSettings
+                        canManageCards={accountMembership.canManageCards}
                         ref={cardWizardSettingsRef}
                         cardProduct={cardProduct}
                         cardFormat={cardFormat}
@@ -824,15 +809,9 @@ export const CardWizard = ({
                                 })),
                               },
                             })
-                              .mapOkToResult(({ addCardsWithGroupDelivery }) =>
-                                match(addCardsWithGroupDelivery)
-                                  .with(
-                                    { __typename: "AddCardsWithGroupDeliverySuccessPayload" },
-                                    ({ cards }) => Result.Ok(cards),
-                                  )
-                                  .otherwise(rejection => Result.Error(rejection)),
-                              )
-                              .flatMapOk(cards => generateMultiConsent(cards))
+                              .mapOk(data => data.addCardsWithGroupDelivery)
+                              .mapOkToResult(filterRejectionsToResult)
+                              .flatMapOk(data => generateMultiConsent(data.cards))
                               .tap(() => setCardOrder(AsyncData.NotAsked()))
                               .tapOk(value => {
                                 value.match({
@@ -840,8 +819,8 @@ export const CardWizard = ({
                                   None: () => {},
                                 });
                               })
-                              .tapError(() => {
-                                showToast({ variant: "error", title: t("error.generic") });
+                              .tapError(error => {
+                                showToast({ variant: "error", title: translateError(error) });
                               });
                           }}
                         />

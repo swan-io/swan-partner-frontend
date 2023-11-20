@@ -1,39 +1,21 @@
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";
 import type { CombinedError } from "urql";
 import { CompanyType } from "../graphql/unauthenticated";
-import { t } from "./i18n";
+import { isTranslationKey, t } from "./i18n";
 
-export const getErrorFieldLabel = (field: string) => {
-  return match(field)
-    .with("email", () => t("step.finalizeError.email"))
-    .with("address", () => t("step.finalizeError.address"))
-    .with("city", () => t("step.finalizeError.city"))
-    .with("country", () => t("step.finalizeError.country"))
-    .with("postalCode", () => t("step.finalizeError.postalCode"))
-    .with("employmentStatus", () => t("step.finalizeError.employmentStatus"))
-    .with("monthlyIncome", () => t("step.finalizeError.monthlyIncome"))
-    .with("registrationNumber", () => t("step.finalizeError.registrationNumber"))
-    .with("vatNumber", () => t("step.finalizeError.vatNumber"))
-    .with("taxIdentificationNumber", () => t("step.finalizeError.taxIdentificationNumber"))
-    .with("businessActivity", () => t("step.finalizeError.businessActivity"))
-    .with("businessActivityDescription", () => t("step.finalizeError.businessActivityDescription"))
-    .with("monthlyPaymentVolume", () => t("step.finalizeError.monthlyPaymentVolume"))
+export const getErrorFieldLabel = (field: string) =>
+  match(`step.finalizeError.${field}`)
+    .with(P.when(isTranslationKey), key => t(key))
     .otherwise(() => field);
-};
 
 type UpdateOnboardingError =
   | Error
   | CombinedError
-  | {
-      __typename: "ForbiddenRejection";
-    }
-  | {
-      __typename: "InternalErrorRejection";
-    }
-  | {
-      __typename: "ValidationRejection";
-    };
+  | { __typename: "ForbiddenRejection" }
+  | { __typename: "InternalErrorRejection" }
+  | { __typename: "ValidationRejection" };
 
 export const getUpdateOnboardingError = (
   error: UpdateOnboardingError,
@@ -45,17 +27,17 @@ export const getUpdateOnboardingError = (
         description: t("error.fixInvalidFields"),
       };
     })
-    .with({ __typename: "InternalErrorRejection" }, () => {
+    .with({ __typename: "InternalErrorRejection" }, error => {
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     })
-    .with({ __typename: "ForbiddenRejection" }, () => {
+    .with({ __typename: "ForbiddenRejection" }, error => {
       // this should never happen because the user won't be able to load the onboarding UI
       // if they don't have the right permissions
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     })
@@ -65,9 +47,9 @@ export const getUpdateOnboardingError = (
         description: t("error.checkConnection"),
       };
     })
-    .otherwise(() => {
+    .otherwise(error => {
       return {
-        title: t("error.generic"),
+        title: translateError(error),
         description: t("error.tryAgain"),
       };
     });
@@ -82,7 +64,7 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("CZE", () => "Identifikační číslo")
     .with("DNK", () => "CVR-nummer")
     .with("EST", () => "Kood")
-    .with("FIN", () => "Y-tunnus FO-nummer")
+    .with("FIN", () => "Y-tunnus")
     .with("FRA", () => (companyType === "Association" ? "RNA" : "Numéro SIREN"))
     .with("DEU", () => "Nummer der Firma Registernummer")
     .with(

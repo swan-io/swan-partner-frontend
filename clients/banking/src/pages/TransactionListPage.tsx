@@ -47,7 +47,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
-  canViewAccountStatement: boolean;
+  accountStatementsVisible: boolean;
   canViewAccount: boolean;
   onBalanceReceive: (amount: Amount) => void;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
@@ -75,7 +75,7 @@ export const TransactionListPage = ({
   transferConsent,
   params,
   canQueryCardOnTransaction,
-  canViewAccountStatement,
+  accountStatementsVisible,
   canViewAccount,
 }: Props) => {
   useTransferToastWithRedirect(transferConsent, () =>
@@ -199,7 +199,7 @@ export const TransactionListPage = ({
               onRefresh={reload}
               large={large}
             >
-              {canViewAccountStatement ? (
+              {accountStatementsVisible ? (
                 <LakeButton
                   onPress={() =>
                     Router.push("AccountTransactionsListStatementsRoot", {

@@ -59,7 +59,7 @@ type Props = {
   shouldDisplayIdVerification: boolean;
   onAccountMembershipUpdate: () => void;
   canAddCard: boolean;
-  canOrderPhysicalCards: boolean;
+  physicalCardOrderVisible: boolean;
   onRefreshRequest: () => void;
   large: boolean;
   params: {
@@ -82,7 +82,7 @@ export const MembershipDetailArea = ({
   shouldDisplayIdVerification,
   onAccountMembershipUpdate,
   canAddCard,
-  canOrderPhysicalCards,
+  physicalCardOrderVisible,
   onRefreshRequest,
   large,
   params,
@@ -235,23 +235,41 @@ export const MembershipDetailArea = ({
                         editingAccountMembershipId,
                       }),
                     },
-                    {
-                      label: t("membershipDetail.cards"),
-                      url: Router.AccountMembersDetailsCardList({
-                        ...params,
-                        accountMembershipId: currentUserAccountMembershipId,
-                        editingAccountMembershipId,
-                      }),
-                    },
+                    ...match({ currentUserAccountMembership, accountMembership })
+                      .with(
+                        P.union(
+                          {
+                            currentUserAccountMembership: { canManageCards: true },
+                          },
+                          {
+                            accountMembership: { id: currentUserAccountMembershipId },
+                          },
+                        ),
+                        () => [
+                          {
+                            label: t("membershipDetail.cards"),
+                            url: Router.AccountMembersDetailsCardList({
+                              ...params,
+                              accountMembershipId: currentUserAccountMembershipId,
+                              editingAccountMembershipId,
+                            }),
+                          },
+                        ],
+                      )
+                      .otherwise(() => []),
                   ]}
                   otherLabel={t("common.tabs.other")}
                 />
 
                 <ListRightPanelContent large={large} style={styles.contents}>
-                  {match(route)
+                  {match({ route, currentUserAccountMembership, accountMembership })
                     .with(
-                      { name: "AccountMembersDetailsRoot" },
-                      ({ params: { showInvitationLink } }) => (
+                      { route: { name: "AccountMembersDetailsRoot" } },
+                      ({
+                        route: {
+                          params: { showInvitationLink },
+                        },
+                      }) => (
                         <MembershipDetailEditor
                           accountCountry={accountCountry}
                           editingAccountMembership={accountMembership}
@@ -267,7 +285,7 @@ export const MembershipDetailArea = ({
                         />
                       ),
                     )
-                    .with({ name: "AccountMembersDetailsRights" }, () => (
+                    .with({ route: { name: "AccountMembersDetailsRights" } }, () => (
                       <MembershipDetailRights
                         accountCountry={accountCountry}
                         editingAccountMembership={accountMembership}
@@ -283,13 +301,24 @@ export const MembershipDetailArea = ({
                       />
                     ))
                     .with(
-                      { name: "AccountMembersDetailsCardList" },
+                      P.union(
+                        {
+                          route: { name: "AccountMembersDetailsCardList" },
+                          currentUserAccountMembership: { canManageCards: true },
+                        },
+                        {
+                          route: { name: "AccountMembersDetailsCardList" },
+                          accountMembership: { id: currentUserAccountMembershipId },
+                        },
+                      ),
                       ({
-                        params: {
-                          accountMembershipId,
-                          editingAccountMembershipId,
-                          newCard: isCardWizardOpen,
-                          ...params
+                        route: {
+                          params: {
+                            accountMembershipId,
+                            editingAccountMembershipId,
+                            newCard: isCardWizardOpen,
+                            ...params
+                          },
                         },
                       }) => (
                         <View style={large ? styles.cardListLarge : styles.cardList}>
@@ -302,7 +331,7 @@ export const MembershipDetailArea = ({
                             totalDisplayableCardCount={accountMembership.allCards.totalCount}
                             params={params}
                             isCardWizardOpen={isCardWizardOpen != null}
-                            canOrderPhysicalCards={canOrderPhysicalCards}
+                            physicalCardOrderVisible={physicalCardOrderVisible}
                           />
                         </View>
                       ),

@@ -58,7 +58,7 @@ const routes = {
 
     ...createGroup("Cards", "/cards?:new", {
       Area: "/*",
-      List: "/?:search&:statuses[]&:type[]",
+      List: "/?:search&:status&:type[]",
       ItemArea: "/:cardId/*",
       Item: "/:cardId",
       ItemPhysicalCard: "/:cardId/physical-card",
@@ -72,7 +72,7 @@ const routes = {
 
     ...createGroup(
       "Members",
-      "/members?:new&:statuses[]&:canInitiatePayments&:canManageAccountMembership&:canManageBeneficiaries&:search&:resourceId&:status",
+      "/members?:new&:statuses[]&:canInitiatePayments&:canManageAccountMembership&:canViewAccount&:canManageCards&:canManageBeneficiaries&:search&:resourceId&:status",
       {
         Area: "/*",
         List: "/",
@@ -80,7 +80,7 @@ const routes = {
           Area: "/*",
           Root: "/",
           Rights: "/rights",
-          CardList: "/cards/?:cardSearch&:cardStatuses[]&:cardType[]&:newCard",
+          CardList: "/cards/?:cardSearch&:cardStatus&:cardType[]&:newCard",
         }),
       },
     ),
@@ -114,11 +114,6 @@ export const accountTransactionsRoutes = [
   "AccountTransactionsListStatementsArea",
   "AccountTransactionsUpcoming",
 ] as const;
-
-export const accountTransactionsStatementsRoutes = [
-  "AccountTransactionsListStatementsMonthly",
-  "AccountTransactionsListStatementsUpcoming",
-];
 
 export const membershipsRoutes = ["AccountMembersList", "AccountMembersDetailsArea"] as const;
 

@@ -7,10 +7,12 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -285,19 +287,13 @@ export const MembershipDetailEditor = ({
           taxIdentificationNumber: values.taxIdentificationNumber,
         },
       })
-        .mapOkToResult(({ updateAccountMembership }) => {
-          return match(updateAccountMembership)
-            .with(
-              { __typename: "UpdateAccountMembershipSuccessPayload" },
-              ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-            )
-            .otherwise(error => Result.Error(error));
-        })
-        .tapOk(consentUrl => {
+        .mapOk(data => data.updateAccountMembership)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(({ consent: { consentUrl } }) => {
           window.location.replace(consentUrl);
         })
-        .tapError(() => {
-          showToast({ variant: "error", title: t("error.generic") });
+        .tapError(error => {
+          showToast({ variant: "error", title: translateError(error) });
         });
     });
   };
@@ -308,18 +304,13 @@ export const MembershipDetailEditor = ({
         accountMembershipId: editingAccountMembershipId,
       },
     })
-      .mapOkToResult(({ suspendAccountMembership }) => {
-        return match(suspendAccountMembership)
-          .with({ __typename: "SuspendAccountMembershipSuccessPayload" }, () =>
-            Result.Ok(undefined),
-          )
-          .otherwise(error => Result.Error(error));
-      })
+      .mapOk(data => data.suspendAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         onRefreshRequest();
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -335,19 +326,13 @@ export const MembershipDetailEditor = ({
           }),
       },
     })
-      .mapOkToResult(({ resumeAccountMembership }) => {
-        return match(resumeAccountMembership)
-          .with(
-            { __typename: "ResumeAccountMembershipSuccessPayload" },
-            ({ consent: { consentUrl } }) => Result.Ok(consentUrl),
-          )
-          .otherwise(error => Result.Error(error));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.resumeAccountMembership)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 

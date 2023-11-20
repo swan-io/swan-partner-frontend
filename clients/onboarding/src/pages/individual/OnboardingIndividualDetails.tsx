@@ -1,4 +1,3 @@
-import { Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
@@ -7,17 +6,18 @@ import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGr
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useEffect } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";
-import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
@@ -108,7 +108,7 @@ export const OnboardingIndividualDetails = ({
   }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
-    Router.push("OnboardingLocation", { onboardingId });
+    Router.push("Location", { onboardingId });
   };
 
   const onPressNext = () => {
@@ -129,17 +129,9 @@ export const OnboardingIndividualDetails = ({
         },
         language: locale.language,
       })
-        .mapOkToResult(({ unauthenticatedUpdateIndividualOnboarding }) =>
-          match(unauthenticatedUpdateIndividualOnboarding)
-            .with(
-              { __typename: "UnauthenticatedUpdateIndividualOnboardingSuccessPayload" },
-              value => Result.Ok(value),
-            )
-            .otherwise(error => Result.Error(error)),
-        )
-        .tapOk(() => {
-          Router.push("OnboardingFinalize", { onboardingId });
-        })
+        .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(() => Router.push("Finalize", { onboardingId }))
         .tapError(error => {
           const errorMessage = getUpdateOnboardingError(error);
           showToast({
@@ -154,7 +146,7 @@ export const OnboardingIndividualDetails = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium}>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("individual.step.details.title")}</StepTitle>
@@ -235,13 +227,15 @@ export const OnboardingIndividualDetails = ({
             </>
           )}
         </ResponsiveContainer>
-      </OnboardingStepContent>
 
-      <OnboardingFooter
-        onPrevious={onPressPrevious}
-        onNext={onPressNext}
-        loading={updateResult.isLoading()}
-      />
+        <Space height={24} />
+
+        <OnboardingFooter
+          onPrevious={onPressPrevious}
+          onNext={onPressNext}
+          loading={updateResult.isLoading()}
+        />
+      </OnboardingStepContent>
     </>
   );
 };

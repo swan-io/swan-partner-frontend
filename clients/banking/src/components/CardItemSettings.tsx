@@ -1,9 +1,13 @@
 import { Result } from "@swan-io/boxed";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -32,6 +36,7 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   onRefreshAccountRequest: () => void;
   identificationStatus?: IdentificationStatus;
+  canManageCards: boolean;
 };
 
 export const CardItemSettings = ({
@@ -43,6 +48,7 @@ export const CardItemSettings = ({
   isCurrentUserCardOwner,
   onRefreshAccountRequest,
   identificationStatus,
+  canManageCards,
 }: Props) => {
   const [cardUpdate, updateCard] = useUrqlMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
@@ -70,18 +76,14 @@ export const CardItemSettings = ({
         nonMainCurrencyTransactions,
       },
     })
-      .mapOkToResult(({ updateCard }) => {
-        return match(updateCard)
-          .with({ __typename: "UpdateCardSuccessPayload" }, ({ consent }) =>
-            Result.Ok(consent.consentUrl),
-          )
-          .otherwise(value => Result.Error(value));
-      })
-      .tapOk(consentUrl => {
+      .mapOk(data => data.updateCard)
+      .mapOkToResult(data => (isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined)))
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ consent: { consentUrl } }) => {
         window.location.replace(consentUrl);
       })
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", title: translateError(error) });
       });
   };
 
@@ -130,6 +132,13 @@ export const CardItemSettings = ({
     </View>
   ) : (
     <>
+      {!canManageCards && (
+        <>
+          <LakeAlert title={t("card.settings.notAllowed")} variant="info" />
+          <Space height={24} />
+        </>
+      )}
+
       <CardWizardSettings
         ref={settingsRef}
         cardProduct={card.cardProduct}
@@ -144,6 +153,7 @@ export const CardItemSettings = ({
         }}
         onSubmit={onSubmit}
         accountHolder={accountHolder}
+        canManageCards={canManageCards}
       />
 
       <LakeButtonGroup>
@@ -165,9 +175,11 @@ export const CardItemSettings = ({
             <View />
           ))}
 
-        <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
-          {t("common.save")}
-        </LakeButton>
+        {canManageCards && (
+          <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
+            {t("common.save")}
+          </LakeButton>
+        )}
       </LakeButtonGroup>
 
       <CardCancelConfirmationModal

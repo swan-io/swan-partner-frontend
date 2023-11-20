@@ -4,17 +4,23 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
-import { t } from "../utils/i18n";
+import { TranslationKey, t } from "../utils/i18n";
+import { TrackPressable } from "./TrackPressable";
 
 const styles = StyleSheet.create({
-  container: {
+  topBorder: {
     borderTopWidth: 1,
     borderTopColor: colors.gray[100],
-    paddingHorizontal: 24,
+    alignSelf: "center",
+    height: 1,
+    position: "absolute",
+    top: 0,
+    width: "100vw",
+  },
+  container: {
     paddingVertical: 16,
   },
   containerDesktop: {
-    paddingHorizontal: 40,
     paddingVertical: 20,
   },
   buttons: {
@@ -33,52 +39,60 @@ const styles = StyleSheet.create({
 type Props = {
   onPrevious?: () => void;
   onNext: () => void;
-  nextLabel?: string;
+  nextLabel?: TranslationKey;
   loading?: boolean;
 };
 
 export const OnboardingFooter = ({
   onPrevious,
   onNext,
-  nextLabel = t("wizard.next"),
+  nextLabel = "wizard.next",
   loading,
 }: Props) => {
   return (
     <ResponsiveContainer>
       {({ large }) => (
-        <Box
-          direction="row"
-          justifyContent="center"
-          style={[styles.container, large && styles.containerDesktop]}
-        >
-          <Box style={styles.buttons} direction="row" alignItems="center">
-            {onPrevious ? (
-              <LakeButton
-                color="gray"
-                mode="secondary"
-                size={large ? "large" : "small"}
-                style={styles.button}
-                onPress={onPrevious}
-              >
-                {t("wizard.back")}
-              </LakeButton>
-            ) : (
-              <View style={styles.emptySpace} />
-            )}
+        <>
+          <View style={styles.topBorder} />
 
-            <Space width={16} />
+          <Box
+            direction="row"
+            justifyContent="center"
+            style={[styles.container, large && styles.containerDesktop]}
+          >
+            <Box style={styles.buttons} direction="row" alignItems="center">
+              {onPrevious ? (
+                <TrackPressable action="Go back">
+                  <LakeButton
+                    color="gray"
+                    mode="secondary"
+                    size={large ? "large" : "small"}
+                    style={styles.button}
+                    onPress={onPrevious}
+                  >
+                    {t("wizard.back")}
+                  </LakeButton>
+                </TrackPressable>
+              ) : (
+                <View style={styles.emptySpace} />
+              )}
 
-            <LakeButton
-              loading={loading}
-              color="partner"
-              size={large ? "large" : "small"}
-              style={styles.button}
-              onPress={onNext}
-            >
-              {nextLabel}
-            </LakeButton>
+              <Space width={16} />
+
+              <TrackPressable action="Go next">
+                <LakeButton
+                  loading={loading}
+                  color="partner"
+                  size={large ? "large" : "small"}
+                  style={styles.button}
+                  onPress={onNext}
+                >
+                  {t(nextLabel)}
+                </LakeButton>
+              </TrackPressable>
+            </Box>
           </Box>
-        </Box>
+        </>
       )}
     </ResponsiveContainer>
   );

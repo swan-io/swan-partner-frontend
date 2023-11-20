@@ -1,7 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeModal } from "@swan-io/lake/src/components/LakeModal";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -9,6 +8,7 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -25,7 +25,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
-  canViewAccountStatement: boolean;
+  accountStatementsVisible: boolean;
   canViewAccount: boolean;
   onBalanceReceive: (amount: Amount) => void;
 };
@@ -54,7 +54,7 @@ export const TransactionsArea = ({
   accountId,
   accountMembershipId,
   canQueryCardOnTransaction,
-  canViewAccountStatement,
+  accountStatementsVisible,
   onBalanceReceive,
   canViewAccount,
 }: Props) => {
@@ -140,7 +140,7 @@ export const TransactionsArea = ({
                       }
                       onBalanceReceive={onBalanceReceive}
                       canQueryCardOnTransaction={canQueryCardOnTransaction}
-                      canViewAccountStatement={canViewAccountStatement}
+                      accountStatementsVisible={accountStatementsVisible}
                       canViewAccount={canViewAccount}
                     />
 
@@ -149,7 +149,7 @@ export const TransactionsArea = ({
                       icon="arrow-download-filled"
                       title={t("accountStatements.title")}
                       visible={
-                        name === "AccountTransactionsListStatementsArea" && canViewAccountStatement
+                        name === "AccountTransactionsListStatementsArea" && accountStatementsVisible
                       }
                       onPressClose={() =>
                         Router.push("AccountTransactionsListRoot", {

@@ -1,10 +1,16 @@
+import { Array, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/FixedListView";
 import {
+  CellAction,
+  CenteredCell,
+  EndAlignedCell,
+  SimpleHeaderCell,
   SimpleRegularTextCell,
   SimpleTitleCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
@@ -15,21 +21,23 @@ import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
-import { P, isMatching, match } from "ts-pattern";
+import { P, isMatching } from "ts-pattern";
 import {
   AccountLanguage,
   AccountStatementsPageDocument,
@@ -42,25 +50,19 @@ import { validateDate, validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
-  cellContainerLarge: {
-    paddingHorizontal: spacings[24],
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
+  containerRowLarge: {
+    paddingHorizontal: spacings[32],
   },
-  cellContainer: {
-    flexGrow: 1,
-    alignSelf: "stretch",
-    alignItems: "center",
-    justifyContent: "space-between",
-    flexDirection: "row",
+  containerRow: {
+    paddingHorizontal: spacings[8],
   },
-  searchBarLarge: {
+  columnHeaders: {
+    paddingHorizontal: spacings[32],
+  },
+  buttonLarge: {
     paddingHorizontal: spacings[48],
   },
-  searchBar: {
+  button: {
     paddingHorizontal: spacings[24],
   },
   fieldLarge: {
@@ -118,36 +120,34 @@ type NewStatementType = {
 
 const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   {
-    title: "date",
-    width: 300,
-    id: "date",
-    renderTitle: () => null,
-    renderCell: ({ item: { openingDate, closingDate }, extraInfo: { large } }) => {
+    title: t("accountStatements.period"),
+    width: "grow",
+    id: "period",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item: { openingDate, closingDate } }) => {
       const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
       const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
-      return (
-        <View style={large ? styles.cellContainerLarge : styles.cellContainer}>
-          <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />
-        </View>
-      );
+      return <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />;
     },
   },
   {
-    title: "createdAt",
-    width: "grow",
-    id: "createdAt",
-    renderTitle: () => null,
-    renderCell: ({ item: { createdAt } }) => (
-      <SimpleRegularTextCell
-        textAlign="right"
-        variant="smallMedium"
-        text={dayjs(createdAt).format("MMM, DD YYYY")}
-      />
-    ),
+    title: t("accountStatements.generated"),
+    width: 150,
+    id: "generated",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item: { createdAt, status } }) => {
+      return status === "Available" ? (
+        <SimpleRegularTextCell
+          textAlign="left"
+          variant="smallMedium"
+          text={dayjs(createdAt).format("MMM, DD YYYY")}
+        />
+      ) : null;
+    },
   },
   {
     title: "notReady",
-    width: 250,
+    width: "grow",
     id: "notReady",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
@@ -161,14 +161,58 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     },
   },
   {
-    title: "download",
+    title: t("accountStatements.action"),
+    width: 70,
+    id: "action",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="center" />,
+    renderCell: ({ item: { status } }) => {
+      return status === "Available" ? (
+        <CenteredCell>
+          <Icon name="open-regular" size={16} color={colors.gray[300]} />
+        </CenteredCell>
+      ) : null;
+    },
+  },
+];
+
+const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
+  {
+    title: t("accountStatements.period"),
+    width: "grow",
+    id: "period",
+    renderTitle: () => null,
+    renderCell: ({ item: { openingDate, closingDate } }) => {
+      const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
+      const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
+      return <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />;
+    },
+  },
+
+  {
+    title: t("accountStatements.action"),
     width: 50,
-    id: "download",
+    id: "actions",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
-        <Icon name="open-regular" size={16} color={colors.gray[300]} />
-      ) : null;
+        <EndAlignedCell>
+          <CellAction>
+            <Icon name="open-regular" size={16} color={colors.gray[300]} />
+          </CellAction>
+        </EndAlignedCell>
+      ) : (
+        <EndAlignedCell>
+          <CellAction>
+            <BorderedIcon
+              name="clock-regular"
+              padding={4}
+              size={24}
+              color="warning"
+              borderRadius={4}
+            />
+          </CellAction>
+        </EndAlignedCell>
+      );
     },
   },
 ];
@@ -258,37 +302,31 @@ const NewStatementForm = ({
   const onPressSubmit = () => {
     submitForm(values => {
       if (hasDefinedKeys(values, ["startDate", "closingDate", "format", "language"])) {
-        const now = dayjs();
-        const closingDate = dayjs(values.closingDate, locale.dateFormat);
         return generateStatement({
           input: {
             accountId,
-            openingDate: dayjs(values.startDate, locale.dateFormat).startOf("day").toISOString(),
-            closingDate: closingDate.isSame(now, "day")
-              ? closingDate
-                  .set("hour", now.hour())
-                  .set("minute", now.minute())
-                  .set("second", now.second())
-                  .toISOString()
-              : closingDate.endOf("day").toISOString(),
+            openingDate: dayjs
+              .utc(values.startDate, locale.dateFormat)
+              .format("YYYY-MM-DDT00:00:00.000+01:00"),
+            closingDate: dayjs
+              .utc(values.closingDate, locale.dateFormat)
+              .format("YYYY-MM-DDT23:59:59.999+01:00"),
             statementType: values.format,
             language: values.language,
           },
-        }).onResolve(result =>
-          result.match({
-            Error: () => {
-              showToast({ variant: "error", title: t("error.generic") });
-            },
-            Ok: ({ generateAccountStatement: data }) => {
-              match(data)
-                .with({ __typename: "Statement" }, () => {
-                  setOpenNewStatement(false);
-                  reload();
-                })
-                .otherwise(() => showToast({ variant: "error", title: t("error.generic") }));
-            },
-          }),
-        );
+        })
+          .mapOk(data => data.generateAccountStatement)
+          .mapOkToResult(({ __typename }) =>
+            __typename === "Statement" ? Result.Ok(undefined) : Result.Error(__typename),
+          )
+          .tapOk(() => {
+            setOpenNewStatement(false);
+            reload();
+          })
+          .tapError(error => {
+            showToast({ variant: "error", title: translateError(error) });
+          })
+          .toPromise();
       }
     });
   };
@@ -445,107 +483,110 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
           result.match({
             Error: error => <ErrorView error={error} />,
             Ok: ({ account }) => (
-              <View style={commonStyles.fill}>
-                <TransitionView style={styles.fill} {...animations.fadeAndSlideInFromRight}>
-                  {displayedView === "new" ? (
-                    <NewStatementForm
-                      large={large}
-                      accountId={accountId}
-                      onCancel={() => setDisplayedView("list")}
-                      onSuccess={reload}
-                    />
-                  ) : null}
-                </TransitionView>
+              <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
+                {() => (
+                  <>
+                    <TransitionView style={styles.fill} {...animations.fadeAndSlideInFromRight}>
+                      {displayedView === "new" ? (
+                        <NewStatementForm
+                          large={large}
+                          accountId={accountId}
+                          onCancel={() => setDisplayedView("list")}
+                          onSuccess={reload}
+                        />
+                      ) : null}
+                    </TransitionView>
 
-                <TransitionView
-                  style={styles.fill}
-                  {...(newWasOpened ? animations.fadeAndSlideInFromLeft : {})}
-                >
-                  {displayedView === "list" ? (
-                    <>
-                      {isNotNullish(account) &&
-                        isNotNullish(account.statements) &&
-                        account.statements.totalCount > 0 && (
-                          <>
-                            <Space height={24} />
+                    <TransitionView
+                      style={styles.fill}
+                      {...(newWasOpened ? animations.fadeAndSlideInFromLeft : {})}
+                    >
+                      {displayedView === "list" ? (
+                        <>
+                          {isNotNullish(account) &&
+                            isNotNullish(account.statements) &&
+                            account.statements.totalCount > 0 && (
+                              <>
+                                <Space height={24} />
 
-                            <Box
-                              direction="row"
-                              style={large ? styles.searchBarLarge : styles.searchBar}
-                            >
-                              <LakeButton
-                                size="small"
-                                icon="add-circle-filled"
-                                onPress={() => {
-                                  setNewWasOpened(true);
-                                  setDisplayedView("new");
-                                }}
-                                color="current"
+                                <Box
+                                  direction="row"
+                                  style={large ? styles.buttonLarge : styles.button}
+                                >
+                                  <LakeButton
+                                    size="small"
+                                    icon="add-circle-filled"
+                                    onPress={() => {
+                                      setNewWasOpened(true);
+                                      setDisplayedView("new");
+                                    }}
+                                    color="current"
+                                  >
+                                    {t("common.new")}
+                                  </LakeButton>
+                                </Box>
+
+                                <Space height={12} />
+                              </>
+                            )}
+
+                          <PlainListView
+                            headerStyle={styles.columnHeaders}
+                            rowStyle={() =>
+                              large ? styles.containerRowLarge : styles.containerRow
+                            }
+                            breakpoint={breakpoints.tiny}
+                            data={account?.statements?.edges?.map(({ node }) => node) ?? []}
+                            keyExtractor={item => item.id}
+                            headerHeight={48}
+                            rowHeight={48}
+                            groupHeaderHeight={48}
+                            extraInfo={{ large }}
+                            columns={columns}
+                            getRowLink={({ item }) =>
+                              Array.findMap(item.type, item => Option.fromNullable(item?.url))
+                                .map(url => <Link to={url} target="_blank" />)
+                                .getWithDefault(<View />)
+                            }
+                            loading={{
+                              isLoading: nextData.isLoading(),
+                              count: NUM_TO_RENDER,
+                            }}
+                            onEndReached={() => {
+                              if (account?.statements?.pageInfo.hasNextPage ?? false) {
+                                setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
+                              }
+                            }}
+                            renderEmptyList={() => (
+                              <FixedListViewEmpty
+                                borderedIcon={true}
+                                icon="lake-inbox-empty"
+                                title={t("accountStatements.empty.title")}
+                                subtitle={t("accountStatements.empty.subtitle")}
                               >
-                                {t("common.new")}
-                              </LakeButton>
-                            </Box>
+                                <Space height={24} />
 
-                            <Space height={12} />
-                          </>
-                        )}
-
-                      <PlainListView
-                        data={account?.statements?.edges?.map(({ node }) => node) ?? []}
-                        keyExtractor={item => item.id}
-                        headerHeight={48}
-                        rowHeight={48}
-                        groupHeaderHeight={48}
-                        extraInfo={{ large }}
-                        columns={columns}
-                        getRowLink={({ item }) => {
-                          const url = item.type.find(
-                            item =>
-                              item?.__typename === "PdfStatement" ||
-                              item?.__typename === "CsvStatement",
-                          )?.url;
-                          return url != null && item.status === "Available" ? (
-                            <Link to={url} target="_blank" />
-                          ) : (
-                            <View />
-                          );
-                        }}
-                        loading={{
-                          isLoading: nextData.isLoading(),
-                          count: NUM_TO_RENDER,
-                        }}
-                        onEndReached={() => {
-                          if (account?.statements?.pageInfo.hasNextPage ?? false) {
-                            setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
-                          }
-                        }}
-                        renderEmptyList={() => (
-                          <FixedListViewEmpty
-                            borderedIcon={true}
-                            icon="lake-inbox-empty"
-                            title={t("accountStatements.empty.title")}
-                            subtitle={t("accountStatements.empty.subtitle")}
-                          >
-                            <Space height={24} />
-
-                            <LakeButton
-                              size="small"
-                              icon="add-circle-filled"
-                              onPress={() => {
-                                setNewWasOpened(true);
-                                setDisplayedView("new");
-                              }}
-                              color="current"
-                            >
-                              {t("common.new")}
-                            </LakeButton>
-                          </FixedListViewEmpty>
-                        )}
-                      />
-                    </>
-                  ) : null}
-                </TransitionView>
-              </View>
+                                <LakeButton
+                                  size="small"
+                                  icon="add-circle-filled"
+                                  onPress={() => {
+                                    setNewWasOpened(true);
+                                    setDisplayedView("new");
+                                  }}
+                                  color="current"
+                                >
+                                  {t("common.new")}
+                                </LakeButton>
+                              </FixedListViewEmpty>
+                            )}
+                            smallColumns={smallColumns}
+                          />
+                        </>
+                      ) : null}
+                    </TransitionView>
+                  </>
+                )}
+              </ResponsiveContainer>
             ),
           }),
       })}

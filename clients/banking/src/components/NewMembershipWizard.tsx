@@ -10,10 +10,12 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { useState } from "react";
@@ -106,6 +108,7 @@ type FormState = {
   canInitiatePayments: boolean;
   canManageBeneficiaries: boolean;
   canManageAccountMembership: boolean;
+  canManageCards: boolean;
   addressLine1: string;
   postalCode: string;
   city: string;
@@ -174,6 +177,7 @@ export const NewMembershipWizard = ({
       strategy: "onSuccessOrBlur",
       validate: (value, { getFieldState }) => {
         return match({
+          canManageCards: getFieldState("canManageCards").value,
           canInitiatePayments: getFieldState("canInitiatePayments").value,
           canManageBeneficiaries: getFieldState("canManageBeneficiaries").value,
           canManageAccountMembership: getFieldState("canManageAccountMembership").value,
@@ -182,6 +186,7 @@ export const NewMembershipWizard = ({
             { canInitiatePayments: true },
             { canManageBeneficiaries: true },
             { canManageAccountMembership: true },
+            { canManageCards: true },
             () => {
               const validate = combineValidators(validateRequired, validateBirthdate);
               return validate(value);
@@ -205,6 +210,9 @@ export const NewMembershipWizard = ({
     },
     canManageAccountMembership: {
       initialValue: partiallySavedValues?.canManageAccountMembership ?? false,
+    },
+    canManageCards: {
+      initialValue: partiallySavedValues?.canManageCards ?? false,
     },
     // German account specific fields
     addressLine1: {
@@ -413,6 +421,7 @@ export const NewMembershipWizard = ({
             canManageAccountMembership: computedValues.canManageAccountMembership,
             canManageBeneficiaries: computedValues.canManageBeneficiaries,
             canViewAccount: computedValues.canViewAccount,
+            canManageCards: computedValues.canManageCards,
             consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
             email: computedValues.email,
             residencyAddress,
@@ -428,56 +437,33 @@ export const NewMembershipWizard = ({
             taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
           },
         })
-          .mapOkToResult(({ addAccountMembership }) => {
-            return match(addAccountMembership)
+          .mapOk(data => data.addAccountMembership)
+          .mapOkToResult(filterRejectionsToResult)
+          .mapOk(data => data.accountMembership)
+          .mapOk(data =>
+            match(data)
               .with(
-                {
-                  __typename: "AddAccountMembershipSuccessPayload",
-                  accountMembership: {
-                    statusInfo: {
-                      __typename: "AccountMembershipConsentPendingStatusInfo",
-                      consent: { consentUrl: P.string },
-                    },
-                  },
-                },
-
-                ({
-                  accountMembership: {
-                    statusInfo: {
-                      consent: { consentUrl },
-                    },
-                  },
-                }) => Result.Ok(Option.Some(consentUrl)),
+                { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+                ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
               )
-              .with(
-                {
-                  __typename: "AddAccountMembershipSuccessPayload",
-                  accountMembership: {
-                    statusInfo: {
-                      __typename: P.not("AccountMembershipConsentPendingStatusInfo"),
-                    },
-                  },
-                },
-                ({ accountMembership }) => {
-                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                    .with("EMAIL", () => {
-                      sendInvitation({ editingAccountMembershipId: accountMembership.id });
-                    })
-                    .otherwise(() => {});
-                  onSuccess(accountMembership.id);
-                  return Result.Ok(Option.None());
-                },
-              )
-              .otherwise(error => Result.Error(error));
-          })
+              .otherwise(data => {
+                match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                  .with("EMAIL", () => {
+                    sendInvitation({ editingAccountMembershipId: data.id });
+                  })
+                  .otherwise(() => {});
+                onSuccess(data.id);
+                return Option.None();
+              }),
+          )
           .tapOk(consentUrl =>
             consentUrl.match({
               Some: consentUrl => window.location.replace(consentUrl),
               None: () => {},
             }),
           )
-          .tapError(() => {
-            showToast({ variant: "error", title: t("error.generic") });
+          .tapError(error => {
+            showToast({ variant: "error", title: translateError(error) });
           });
       }
     });
@@ -658,6 +644,21 @@ export const NewMembershipWizard = ({
                                     !currentUserAccountMembership.canManageAccountMembership
                                   }
                                   label={t("membershipDetail.edit.canManageAccountMembership")}
+                                  value={value}
+                                  onValueChange={onChange}
+                                />
+                              )}
+                            </Field>
+                          </View>
+                        </Box>
+
+                        <Box direction={large ? "row" : "column"} alignItems="start">
+                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                            <Field name="canManageCards">
+                              {({ value, onChange }) => (
+                                <LakeLabelledCheckbox
+                                  disabled={!currentUserAccountMembership.canManageCards}
+                                  label={t("membershipDetail.edit.canManageCards")}
                                   value={value}
                                   onValueChange={onChange}
                                 />

@@ -67,7 +67,7 @@
     "@graphql-codegen/typescript-urql-graphcache": "2.4.4",
     "@localazy/cli": "1.7.5",
     "@playwright/test": "1.39.0",
-    "@sentry/cli": "2.21.2",
+    "@sentry/cli": "2.21.5",
     "@swan-io/boxed": "1.2.0",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.8",

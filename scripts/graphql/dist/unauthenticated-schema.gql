@@ -1321,7 +1321,6 @@ input CardInfosInput {
   requestId: String
 }
 
-"""COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method

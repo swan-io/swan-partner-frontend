@@ -44,3 +44,16 @@ query GetMerchantPaymentLink {
     }
   }
 }
+
+mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
+  $input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!
+) {
+  addSepaDirectDebitPaymentMandateFromPaymentLink(input: $input) {
+    ... on AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
+      paymentMandate {
+        mandateDocumentUrl
+        id
+      }
+    }
+  }
+}

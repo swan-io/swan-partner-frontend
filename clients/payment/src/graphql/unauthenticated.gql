@@ -1,5 +1,5 @@
-query GetMerchantPaymentLink {
-  merchantPaymentLink(id: "711bf573-d067-4755-a63d-7e1cad94bc9f") {
+query GetMerchantPaymentLink($paymentLinkId: ID!) {
+  merchantPaymentLink(id: $paymentLinkId) {
     id
     projectId
     url

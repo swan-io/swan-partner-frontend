@@ -11,7 +11,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
@@ -21,7 +23,10 @@ import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { validateIban } from "../../../banking/src/utils/iban";
-import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
+import {
+  AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
+  GetMerchantPaymentLinkQuery,
+} from "../graphql/unauthenticated";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
@@ -105,7 +110,7 @@ export const PaymentForm = ({ paymentLink }: Props) => {
       validate: validateRequired,
     },
     addressLine1: {
-      initialValue: paymentLink.billingAddress.addressLine1 ?? "",
+      initialValue: paymentLink.billingAddress?.addressLine1 ?? "",
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
         if (sepaNonEeaCountries.includes(country)) {
@@ -117,11 +122,11 @@ export const PaymentForm = ({ paymentLink }: Props) => {
       sanitize: value => value.trim(),
     },
     addressLine2: {
-      initialValue: paymentLink.billingAddress.addressLine2 ?? "",
+      initialValue: paymentLink.billingAddress?.addressLine2 ?? "",
       sanitize: value => value.trim(),
     },
     city: {
-      initialValue: paymentLink.billingAddress.city ?? "",
+      initialValue: paymentLink.billingAddress?.city ?? "",
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
@@ -133,7 +138,7 @@ export const PaymentForm = ({ paymentLink }: Props) => {
       },
     },
     postalCode: {
-      initialValue: paymentLink.billingAddress.postalCode ?? "",
+      initialValue: paymentLink.billingAddress?.postalCode ?? "",
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
@@ -145,10 +150,14 @@ export const PaymentForm = ({ paymentLink }: Props) => {
       },
     },
     state: {
-      initialValue: paymentLink.billingAddress.state ?? "",
+      initialValue: paymentLink.billingAddress?.state ?? "",
       sanitize: value => value.trim(),
     },
   });
+
+  const [addSepaDirectDebitPaymentMandateData, addSepaDirectDebitPaymentMandate] = useUrqlMutation(
+    AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
+  );
 
   const onPressSubmit = () => {
     submitForm(values => {
@@ -164,7 +173,36 @@ export const PaymentForm = ({ paymentLink }: Props) => {
           "state",
         ])
       ) {
-        Router.replace("Success");
+        const { name, addressLine1, addressLine2, city, country, state, postalCode, iban } = values;
+
+        addSepaDirectDebitPaymentMandate({
+          input: {
+            debtor: {
+              IBAN: iban,
+              address: {
+                addressLine1,
+                addressLine2,
+                country,
+                city,
+                postalCode,
+                state,
+              },
+              name,
+            },
+            paymentLinkId: paymentLink.id,
+          },
+        })
+          .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
+          .mapOkToResult(data => (isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined)))
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => {
+            Router.replace("Success");
+          })
+          .tapError(error => {
+            // Router.replace("Error");
+            console.log(error);
+          })
+          .map(() => undefined);
       }
     });
   };

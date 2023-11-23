@@ -48,3 +48,10 @@ export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
   match(`transaction.fees.description.${fees}`)
     .with(P.when(isTranslationKey), key => t(key))
     .otherwise(() => undefined);
+
+export const getInternationalTransferFormRouteLabel = (route: string) => {
+  const key = `transfer.new.internationalTransfer.route.${route}`;
+  return match(key)
+    .with(P.when(isTranslationKey), key => t(key))
+    .otherwise(() => route);
+};

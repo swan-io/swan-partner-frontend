@@ -10,6 +10,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { TransferPage } from "../pages/TransferPage";
 import { t } from "../utils/i18n";
 import { paymentRoutes, Router } from "../utils/routes";
+import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
@@ -78,6 +79,14 @@ export const TransferArea = ({
 
                 <FullViewportLayer visible={type === "recurring"}>
                   <TransferRecurringWizard
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                  />
+                </FullViewportLayer>
+
+                <FullViewportLayer visible={type === "international"}>
+                  <TransferInternationalWizard
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}

@@ -7,7 +7,7 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { forwardRef, useEffect, useImperativeHandle, useMemo } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { Form, FormConfig, combineValidators, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
@@ -43,10 +43,14 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
   DynamicFormApi,
   TransferInternationalDynamicFormBuilderProps
 >(({ results = [], onChange, fields = [] }, forwardedRef) => {
+  const resultsRef = useRef<ResultItem[]>();
+  resultsRef.current = results;
+
   const form = useMemo(
     () =>
       fields.reduce<FormConfig<Record<string, string>>>((acc, field) => {
-        const initialValue = results.find(({ key: current }) => current === field.key)?.value ?? "";
+        const initialValue =
+          resultsRef.current?.find(({ key: current }) => current === field.key)?.value ?? "";
 
         acc[field.key] = {
           initialValue,
@@ -103,7 +107,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
           })),
         );
       });
-    }, [onChange, listenFields]);
+    }, [form, onChange, listenFields]);
 
     useEffect(() => {
       fields.map(async ({ key }) => {
@@ -113,7 +117,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
           await validateField(key);
         }
       });
-    }, [form]);
+    }, [form, fields, getFieldState, validateField]);
 
     if (fields.length === 0) {
       return null;

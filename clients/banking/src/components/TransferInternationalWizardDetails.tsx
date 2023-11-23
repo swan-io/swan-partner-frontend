@@ -14,6 +14,7 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
@@ -101,16 +102,25 @@ export const TransferInternationalWizardDetails = ({
       )
       .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
         if (isCombinedError(error)) {
-          const message = error.graphQLErrors.find(
-            ({ extensions: { code } }) => code === "BeneficiaryValidationError",
-          )?.message;
-          if (isNotNullishOrEmpty(message)) {
-            onPressPrevious(message.split("., ").map(m => (m.endsWith(".") ? m : `${m}.`)));
-          }
+          match(error)
+            .with(
+              {
+                graphQLErrors: P.array({
+                  extensions: {
+                    code: "BeneficiaryValidationError",
+                    errors: P.array({ message: P.select(P.string) }),
+                  },
+                }),
+              },
+              ([messages]) => {
+                onPressPrevious(messages);
+              },
+            )
+            .otherwise(() => showToast({ variant: "error", title: t("error.generic") }));
         }
       })
       .otherwise(noop);
-  }, [data]);
+  }, [data, onPressPrevious]);
 
   const refresh = useDebounce<void>(() => {
     const { value } = getFieldState("results");
@@ -120,7 +130,7 @@ export const TransferInternationalWizardDetails = ({
 
   useEffect(() => {
     listenFields(["results"], () => refresh());
-  }, [listenFields, fields]);
+  }, [fields, listenFields, refresh]);
 
   return (
     <View>

@@ -42,7 +42,7 @@
   "company.step.organisation2.activityPlaceholder": "Choose your business activity",
   "company.step.organisation2.descriptionLabel": "Description of your business, service, or product",
   "company.step.organisation2.descriptionPlaceholder": "Describe your business in few words...",
-  "company.step.organisation2.monthlyPaymentLabel": "Your company's expected monthly payments through this account",
+  "company.step.organisation2.monthlyPaymentLabel": "Your company's expected monthly transaction volume for this account",
   "company.step.organisation2.title": "Company details",
   "company.step.owners.addAnother": "Add another owner",
   "company.step.owners.addTitle": "Add an owner",

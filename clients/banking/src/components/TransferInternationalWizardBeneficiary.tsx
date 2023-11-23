@@ -17,6 +17,7 @@ import { hasDefinedKeys, useForm } from "react-ux-form";
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
@@ -33,6 +34,12 @@ import {
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
+
+const styles = StyleSheet.create({
+  hidden: {
+    display: "none",
+  },
+});
 
 export type Beneficiary = {
   name: string;
@@ -133,21 +140,21 @@ export const TransferInternationalWizardBeneficiary = ({
       setFieldValue("route", routes[0].value);
       setRoute(routes[0].value);
     }
-  }, [routes]);
+  }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldState]);
 
   useEffect(() => {
     listenFields(["route"], ({ route: { value } }) => setRoute(value));
     listenFields(["results"], () => refresh());
-  }, [listenFields]);
+  }, [listenFields, refresh]);
 
   return (
     <View>
       <Tile>
-        {errors?.map(message => (
-          <>
+        {errors?.map((message, i) => (
+          <View key={`validation-alert-${i}`}>
             <LakeAlert variant="error" title={message} />
             <Space height={12} />
-          </>
+          </View>
         ))}
 
         <LakeLabel
@@ -176,11 +183,7 @@ export const TransferInternationalWizardBeneficiary = ({
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
             <LakeLabel
               label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
-              style={
-                routes.length < 2 && {
-                  display: "none",
-                }
-              }
+              style={routes.length < 2 && styles.hidden}
               render={() => (
                 <>
                   <Space height={8} />

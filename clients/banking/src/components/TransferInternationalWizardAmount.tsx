@@ -1,6 +1,7 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -22,6 +23,7 @@ import {
   GetInternationalCreditTransferQuoteQuery,
 } from "../graphql/partner";
 import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
+import { isCombinedError } from "../utils/urql";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -109,6 +111,27 @@ export const TransferInternationalWizardAmount = ({
     );
   }, [listenFields]);
 
+  const errors = match(quote)
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
+      if (isCombinedError(error)) {
+        return match(error)
+          .with(
+            {
+              graphQLErrors: P.array({
+                extensions: {
+                  code: "QuoteValidationError",
+                  errors: P.array({ message: P.select(P.string) }),
+                },
+              }),
+            },
+            ([messages]) => messages ?? [],
+          )
+          .otherwise(() => []);
+      }
+      return [];
+    })
+    .otherwise(() => []);
+
   return (
     <View>
       <Tile>
@@ -152,7 +175,7 @@ export const TransferInternationalWizardAmount = ({
                   error={error}
                   valid={valid}
                   onChangeText={nextValue => {
-                    onChange({ currency, value: nextValue });
+                    onChange({ currency, value: nextValue.replace(/,/g, ".") });
                   }}
                   onBlur={onBlur}
                   units={currencies.toSorted() as unknown as string[]}
@@ -169,18 +192,23 @@ export const TransferInternationalWizardAmount = ({
 
         <Space height={24} />
 
-        {match(quote)
-          .with(AsyncData.P.NotAsked, () => null)
-          .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
-          .with(
-            AsyncData.P.Done(
-              Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
-            ),
-            quote => <QuoteDetails quote={quote} />,
-          )
-          .otherwise(() => (
-            <ErrorView />
-          ))}
+        {errors.length
+          ? errors.map((message, i) => (
+              <View key={`validation-alert-${i}`}>
+                <LakeAlert variant="error" title={message} />
+                <Space height={12} />
+              </View>
+            ))
+          : match(quote)
+              .with(AsyncData.P.NotAsked, () => null)
+              .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
+              .with(
+                AsyncData.P.Done(
+                  Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
+                ),
+                quote => <QuoteDetails quote={quote} />,
+              )
+              .otherwise(() => <ErrorView />)}
       </Tile>
 
       <Space height={32} />
@@ -195,6 +223,7 @@ export const TransferInternationalWizardAmount = ({
             <LakeButton
               color="current"
               onPress={() =>
+                errors?.length === 0 &&
                 submitForm(values => {
                   if (hasDefinedKeys(values, ["amount"])) {
                     onSave({

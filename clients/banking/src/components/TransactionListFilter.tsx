@@ -73,7 +73,7 @@ const statusFilter: FilterCheckboxDef<TransactionStatus> = {
   ],
 };
 
-const filtersDefinition = {
+export const defaultFiltersDefinition = {
   isAfterUpdatedAt: isAfterUpdatedAtFilter,
   isBeforeUpdatedAt: isBeforeUpdatedAtFilter,
   paymentProduct: paymentProductFilter,
@@ -81,7 +81,7 @@ const filtersDefinition = {
 };
 
 export type TransactionFiltersState = Omit<
-  FiltersState<typeof filtersDefinition>,
+  FiltersState<typeof defaultFiltersDefinition>,
   "paymentProduct"
 > & {
   search: string | undefined;
@@ -95,6 +95,12 @@ type TransactionListFilterProps = {
   available?: readonly (keyof TransactionFiltersState)[];
   children?: ReactNode;
   large?: boolean;
+  filtersDefinition?: {
+    isAfterUpdatedAt: FilterDateDef;
+    isBeforeUpdatedAt: FilterDateDef;
+    paymentProduct: FilterCheckboxDef<SimplifiedPaymentProduct>;
+    status: FilterCheckboxDef<TransactionStatus>;
+  };
 };
 
 const defaultAvailableFilters = [
@@ -112,6 +118,7 @@ export const TransactionListFilter = ({
   onRefresh,
   large = true,
   available = defaultAvailableFilters,
+  filtersDefinition = defaultFiltersDefinition,
 }: TransactionListFilterProps) => {
   const filtersWithoutSearch = useMemo(() => {
     const { search, ...filtersWithoutSearch } = filters;

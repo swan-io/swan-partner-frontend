@@ -6,9 +6,12 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
+import { match } from "ts-pattern";
+import { ErrorView } from "../components/ErrorView";
 import { RecurringTransferList } from "../components/RecurringTransferList";
+import { TransferList } from "../components/TransferList";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { Router, paymentRoutes } from "../utils/routes";
 
 const styles = StyleSheet.create({
   container: {
@@ -36,6 +39,8 @@ export const TransferPage = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
+  const route = Router.useRoute(paymentRoutes);
+
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
       {({ small }) => (
@@ -62,11 +67,14 @@ export const TransferPage = ({
           <TabView
             padding={small ? 24 : 40}
             sticky={true}
-            hideIfSingleItem={false}
             tabs={[
               {
-                label: t("transfer.tabs.recurringTransfer"),
+                label: t("transfer.tabs.transfers"),
                 url: Router.AccountPaymentsRoot({ accountMembershipId }),
+              },
+              {
+                label: t("transfer.tabs.recurringTransfer"),
+                url: Router.AccountPaymentsRecurringTransferList({ accountMembershipId }),
               },
             ]}
             otherLabel={t("common.tabs.other")}
@@ -74,12 +82,31 @@ export const TransferPage = ({
 
           <Space height={24} />
 
-          <RecurringTransferList
-            accountId={accountId}
-            accountMembershipId={accountMembershipId}
-            canQueryCardOnTransaction={canQueryCardOnTransaction}
-            canViewAccount={canViewAccount}
-          />
+          {match(route)
+            .with({ name: "AccountPaymentsRoot" }, ({ params }) => (
+              <TransferList
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                canQueryCardOnTransaction={canQueryCardOnTransaction}
+                canViewAccount={canViewAccount}
+                params={params}
+              />
+            ))
+            .with(
+              { name: "AccountPaymentsRecurringTransferList" },
+              { name: "AccountPaymentsRecurringTransferDetailsArea" },
+              () => (
+                <RecurringTransferList
+                  accountId={accountId}
+                  accountMembershipId={accountMembershipId}
+                  canQueryCardOnTransaction={canQueryCardOnTransaction}
+                  canViewAccount={canViewAccount}
+                />
+              ),
+            )
+            .otherwise(() => (
+              <ErrorView />
+            ))}
         </>
       )}
     </ResponsiveContainer>

@@ -53,6 +53,7 @@ export const TransferArea = ({
         {match(route)
           .with(
             { name: "AccountPaymentsRoot" },
+            { name: "AccountPaymentsRecurringTransferList" },
             { name: "AccountPaymentsRecurringTransferDetailsArea" },
             () => (
               <TransferPage

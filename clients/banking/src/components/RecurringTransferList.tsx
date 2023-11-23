@@ -650,7 +650,8 @@ export const RecurringTransferList = ({
       ? route.params.recurringTransferId
       : null;
 
-  const closeRightPanel = () => Router.push("AccountPaymentsRoot", { accountMembershipId });
+  const closeRightPanel = () =>
+    Router.push("AccountPaymentsRecurringTransferList", { accountMembershipId });
 
   const openStandingOrderDetails = (recurringTransferId: string) =>
     Router.push("AccountPaymentsRecurringTransferDetailsRoot", {

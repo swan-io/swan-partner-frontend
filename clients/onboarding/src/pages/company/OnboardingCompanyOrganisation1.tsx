@@ -473,7 +473,7 @@ export const OnboardingCompanyOrganisation1 = ({
                   setFieldValue={setFieldValue}
                   listenFields={listenFields}
                   isLarge={large}
-                  apiKey={env.GOOGLE_MAP_API_KEY}
+                  apiKey={env.PLACEKIT_API_KEY}
                 />
               </Tile>
             </>

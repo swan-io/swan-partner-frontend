@@ -13,7 +13,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
-import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useEffect } from "react";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -63,7 +63,7 @@ export const OnboardingIndividualLocation = ({
     initialAddressLine1 !== "" ||
       initialCity !== "" ||
       initialPostalCode !== "" ||
-      isNullish(env.GOOGLE_MAP_API_KEY),
+      isNullish(env.PLACEKIT_API_KEY),
   );
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
@@ -194,24 +194,23 @@ export const OnboardingIndividualLocation = ({
                         <LakeLabel
                           label={t("individual.step.location.addressLabel")}
                           render={id => (
-                            <GMapAddressSearchInput
-                              emptyResultText={t("common.noResult")}
-                              apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
+                            <PlacekitAddressSearchInput
                               shouldDisplaySuggestions={!manualModeEnabled}
-                              placeholder={t("addressInput.placeholder")}
-                              language={locale.language}
                               id={id}
+                              apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                               country={country.value}
                               value={value}
-                              error={error}
                               onValueChange={onChange}
                               onSuggestion={suggestion => {
                                 setFieldValue("address", suggestion.completeAddress);
                                 setFieldValue("city", suggestion.city);
-                                setFieldValue("country", suggestion.country as CountryCCA3);
-                                setFieldValue("postalCode", suggestion.postalCode);
+                                setFieldValue("postalCode", suggestion.postalCode ?? "");
                                 setManualMode.on();
                               }}
+                              language={locale.language}
+                              placeholder={t("addressInput.placeholder")}
+                              emptyResultText={t("common.noResult")}
+                              error={error}
                             />
                           )}
                           actions={

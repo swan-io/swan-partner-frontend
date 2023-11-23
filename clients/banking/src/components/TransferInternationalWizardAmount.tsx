@@ -155,7 +155,7 @@ export const TransferInternationalWizardAmount = ({
                     onChange({ currency, value: nextValue });
                   }}
                   onBlur={onBlur}
-                  units={currencies as unknown as string[]}
+                  units={currencies.toSorted() as unknown as string[]}
                   unit={currency}
                   inputMode="numeric"
                   onUnitChange={nextCurrency => {

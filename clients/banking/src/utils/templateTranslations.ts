@@ -53,5 +53,5 @@ export const getInternationalTransferFormRouteLabel = (route: string) => {
   const key = `transfer.new.internationalTransfer.route.${route}`;
   return match(key)
     .with(P.when(isTranslationKey), key => t(key))
-    .otherwise(() => undefined);
+    .otherwise(() => route);
 };

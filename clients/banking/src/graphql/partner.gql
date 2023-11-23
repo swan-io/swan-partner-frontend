@@ -2496,16 +2496,7 @@ mutation GenerateAccountStatement($input: GenerateAccountStatementInput!) {
 mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCreditTransferInput!) {
   initiateInternationalCreditTransfer(input: $input) {
     __typename
-    ... on ValidationRejection {
-      message
-    }
-    ... on InternalErrorRejection {
-      message
-    }
-    ... on ForbiddenRejection {
-      message
-    }
-    ... on AccountNotFoundRejection {
+    ... on Rejection {
       message
     }
     ... on InitiateInternationalCreditTransferResponseSuccessPayload {

@@ -51,7 +51,6 @@ export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
 
 export const getInternationalTransferFormRouteLabel = (route: string) => {
   const key = `transfer.new.internationalTransfer.route.${route}`;
-  console.log("[NC] key", key);
   return match(key)
     .with(P.when(isTranslationKey), key => t(key))
     .otherwise(() => undefined);

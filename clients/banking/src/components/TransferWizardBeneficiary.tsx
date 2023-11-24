@@ -19,7 +19,7 @@ import { P, match } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { printIbanFormat, validateIban } from "../utils/iban";
-import { validateName, validateRequired } from "../utils/validations";
+import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
 export type Beneficiary = {
   name: string;
@@ -54,7 +54,7 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
   const { Field, listenFields, submitForm } = useForm({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
-      validate: validateName,
+      validate: validateBeneficiaryName,
     },
     iban: {
       initialValue: initialBeneficiary?.iban ?? "",

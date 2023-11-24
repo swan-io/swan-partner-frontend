@@ -68,12 +68,12 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         title: t("transfer.tile.recurringTransfer.title"),
         subtitle: t("transfer.tile.recurringTransfer.subtitle"),
       },
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
-        icon: "earth-regular" as const,
-        title: t("transfer.tile.internationalTransfer.title"),
-        subtitle: t("transfer.tile.internationalTransfer.subtitle"),
-      },
+      // {
+      //   url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
+      //   icon: "earth-regular" as const,
+      //   title: t("transfer.tile.internationalTransfer.title"),
+      //   subtitle: t("transfer.tile.internationalTransfer.subtitle"),
+      // },
     ];
   }, [accountMembershipId]);
 

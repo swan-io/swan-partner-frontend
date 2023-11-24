@@ -33,9 +33,9 @@ import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
+  validateBeneficiaryName,
   validateBirthdate,
   validateEmail,
-  validateName,
   validateRequired,
 } from "../utils/validations";
 
@@ -163,13 +163,13 @@ export const NewMembershipWizard = ({
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
       strategy: "onBlur",
-      validate: validateName,
+      validate: validateBeneficiaryName,
       sanitize: value => value.trim(),
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
       strategy: "onBlur",
-      validate: validateName,
+      validate: validateBeneficiaryName,
       sanitize: value => value.trim(),
     },
     birthDate: {

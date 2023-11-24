@@ -24,7 +24,9 @@ export const App = () => {
       <Suspense fallback={<LoadingView color={colors.gray[100]} />}>
         <ClientProvider value={unauthenticatedClient}>
           {match(route)
-            .with({ name: "PaymentLink" }, () => <PaymentPage />)
+            .with({ name: "PaymentLink" }, ({ params: { paymentLinkId } }) => (
+              <PaymentPage paymentLinkId={paymentLinkId} />
+            ))
             .with({ name: "Success" }, () => <SuccessPage />)
             .with(P.nullish, () => <NotFoundPage />)
             .exhaustive()}

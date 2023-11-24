@@ -7,7 +7,9 @@ import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { PaymentForm } from "../components/PaymentForm";
 import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
+import { Router } from "../utils/routes";
 import { NotFoundPage } from "./NotFoundPage";
+import { SuccessPage } from "./SuccessPage";
 
 const styles = StyleSheet.create({
   base: {
@@ -16,14 +18,20 @@ const styles = StyleSheet.create({
   },
 });
 
-export const PaymentPage = () => {
+type Props = {
+  paymentLinkId: string;
+};
+
+export const PaymentPage = ({ paymentLinkId }: Props) => {
   const { data } = useUrqlQuery(
     {
       query: GetMerchantPaymentLinkDocument,
-      variables: { paymentLinkId: "test" },
+      variables: { paymentLinkId },
     },
     [],
   );
+
+  const route = Router.useRoute(["Success", "PaymentLink"]);
 
   return (
     <>
@@ -39,7 +47,14 @@ export const PaymentPage = () => {
             return merchantPaymentLink == null ? (
               <NotFoundPage />
             ) : (
-              <PaymentForm paymentLink={merchantPaymentLink} />
+              <>
+                {match(route)
+                  .with({ name: "PaymentLink" }, () => (
+                    <PaymentForm paymentLink={merchantPaymentLink} />
+                  ))
+                  .with({ name: "Success" }, () => <SuccessPage />)
+                  .otherwise(() => undefined)}
+              </>
             );
           },
         )

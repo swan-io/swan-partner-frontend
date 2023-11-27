@@ -30,6 +30,7 @@
     "dayjs": "1.11.10",
     "nanoid": "4.0.2",
     "react": "18.2.0",
+    "react-atomic-state": "1.2.7",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.9",
     "react-ux-form": "1.5.0",

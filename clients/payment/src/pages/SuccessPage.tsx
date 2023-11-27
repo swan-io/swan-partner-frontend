@@ -6,7 +6,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
+import { useMandateUrl } from "../states/mandateUrl";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -34,8 +36,13 @@ const styles = StyleSheet.create({
   },
 });
 
-export const SuccessPage = () => {
+type Props = {
+  redirectUrl: string;
+};
+
+export const SuccessPage = ({ redirectUrl }: Props) => {
   const { desktop } = useResponsive();
+  const mandateUrl = useMandateUrl();
 
   return (
     <Box
@@ -69,23 +76,25 @@ export const SuccessPage = () => {
             icon="dismiss-regular"
             mode="secondary"
             grow={true}
-            onPress={() => {}}
+            href={redirectUrl}
           >
             {t("paymentLink.button.returnToWebsite")}
           </LakeButton>
 
-          {desktop ? <Space width={16} /> : <Space height={12} />}
+          <Space height={12} width={16} />
 
-          <LakeButton
-            color="current"
-            ariaLabel={t("paymentLink.button.downloadMandate")}
-            icon="arrow-down-regular"
-            mode="primary"
-            grow={true}
-            onPress={() => {}}
-          >
-            {t("paymentLink.button.downloadMandate")}
-          </LakeButton>
+          {isNotNullish(mandateUrl) && (
+            <LakeButton
+              color="current"
+              ariaLabel={t("paymentLink.button.downloadMandate")}
+              icon="arrow-down-regular"
+              mode="primary"
+              grow={true}
+              href={mandateUrl}
+            >
+              {t("paymentLink.button.downloadMandate")}
+            </LakeButton>
+          )}
         </Box>
       </Box>
 

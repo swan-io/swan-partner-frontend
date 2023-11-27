@@ -808,9 +808,9 @@ export const CardItemPhysicalDetails = ({
                                 bindingUserError
                                   ? colors.gray[300]
                                   : Number(spending.amount.value) >=
-                                    Number(spendingLimit.amount.value)
-                                  ? colors.negative[500]
-                                  : colors.gray[800]
+                                      Number(spendingLimit.amount.value)
+                                    ? colors.negative[500]
+                                    : colors.gray[800]
                               }
                               variant="smallSemibold"
                             >

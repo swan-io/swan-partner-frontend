@@ -19,8 +19,8 @@ export const initSentry = () => {
       environment: env.BANKING_URL.includes("preprod")
         ? "preprod"
         : env.BANKING_URL.includes("master")
-        ? "master"
-        : "prod",
+          ? "master"
+          : "prod",
       normalizeDepth: 5,
     });
   }

@@ -406,8 +406,8 @@ export const CardActionsCell = ({
                           hovered
                             ? colors.negative[500]
                             : isRowHovered
-                            ? colors.gray[700]
-                            : colors.gray[500]
+                              ? colors.gray[700]
+                              : colors.gray[500]
                         }
                         size={16}
                       />

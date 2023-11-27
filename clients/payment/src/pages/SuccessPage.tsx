@@ -8,7 +8,6 @@ import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
-import { useMandateUrl } from "../states/mandateUrl";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -37,12 +36,12 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  mandateUrl?: string;
   redirectUrl: string;
 };
 
-export const SuccessPage = ({ redirectUrl }: Props) => {
+export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
   const { desktop } = useResponsive();
-  const mandateUrl = useMandateUrl();
 
   return (
     <Box

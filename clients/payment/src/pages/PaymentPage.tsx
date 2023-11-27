@@ -26,10 +26,9 @@ import { SepaLogo } from "../components/SepaLogo";
 import {
   AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   GetMerchantPaymentLinkQuery,
+  InitiateSddPaymentCollectionDocument,
 } from "../graphql/unauthenticated";
-import { setMandateUrl } from "../states/mandateUrl";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
-import { Router } from "../utils/routes";
 
 const IMAGE_STYLE: CSSProperties = {
   top: 0,
@@ -83,11 +82,12 @@ type FormState = {
 
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+  setMandateUrl: (value: string) => void;
 };
 
 const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
 
-export const PaymentPage = ({ paymentLink }: Props) => {
+export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
   const { desktop } = useResponsive();
 
   const { Field, submitForm } = useForm<FormState>({
@@ -158,6 +158,10 @@ export const PaymentPage = ({ paymentLink }: Props) => {
     AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   );
 
+  const [initiateSddPaymentCollectionData, initiateSddPaymentCollection] = useUrqlMutation(
+    InitiateSddPaymentCollectionDocument,
+  );
+
   const onPressSubmit = () => {
     submitForm(values => {
       if (
@@ -176,8 +180,10 @@ export const PaymentPage = ({ paymentLink }: Props) => {
 
         addSepaDirectDebitPaymentMandate({
           input: {
+            paymentLinkId: paymentLink.id,
             debtor: {
               IBAN: iban,
+              name,
               address: {
                 addressLine1,
                 addressLine2,
@@ -186,23 +192,36 @@ export const PaymentPage = ({ paymentLink }: Props) => {
                 postalCode,
                 state,
               },
-              name,
             },
-            paymentLinkId: paymentLink.id,
           },
         })
           .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
           .mapOkToResult(data => (isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined)))
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(data => {
-            setMandateUrl(data.paymentMandate.mandateDocumentUrl);
-            Router.replace("Success", { paymentLinkId: paymentLink.id });
+          .mapOk(data => data.paymentMandate)
+          .flatMapOk(paymentMandate =>
+            initiateSddPaymentCollection({
+              input: {
+                mandateId: paymentMandate.id,
+                paymentLinkId: paymentLink.id,
+              },
+            })
+              .mapOk(
+                data => data.unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink,
+              )
+              .mapOkToResult(data =>
+                isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined),
+              )
+              .mapOkToResult(filterRejectionsToResult)
+              .mapOk(() => paymentMandate.mandateDocumentUrl),
+          )
+          .tapOk(mandateUrl => {
+            setMandateUrl(mandateUrl);
           })
           .tapError(error => {
             // Router.replace("Error");
             console.log(error);
-          })
-          .map(() => undefined);
+          });
       }
     });
   };
@@ -258,7 +277,7 @@ export const PaymentPage = ({ paymentLink }: Props) => {
       {isNotNullish(paymentLink.merchantProfile.merchantLogoUrl) ? (
         <img src={paymentLink.merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
       ) : (
-        <LakeHeading variant="h3" level={3}>
+        <LakeHeading variant="h3" level={3} align="center">
           {paymentLink.merchantProfile.merchantName}
         </LakeHeading>
       )}
@@ -458,7 +477,10 @@ export const PaymentPage = ({ paymentLink }: Props) => {
       <LakeButton
         color="current"
         onPress={onPressSubmit}
-        loading={addSepaDirectDebitPaymentMandateData.isLoading()}
+        loading={
+          addSepaDirectDebitPaymentMandateData.isLoading() ||
+          initiateSddPaymentCollectionData.isLoading()
+        }
       >
         <LakeText color={colors.gray[50]}> {t("button.pay")}</LakeText>
       </LakeButton>

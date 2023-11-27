@@ -57,3 +57,14 @@ mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
     }
   }
 }
+
+mutation InitiateSddPaymentCollection(
+  $input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!
+) {
+  unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: $input) {
+    __typename
+    ... on ForbiddenRejection {
+      message
+    }
+  }
+}

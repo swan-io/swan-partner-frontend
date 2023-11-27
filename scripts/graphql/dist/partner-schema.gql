@@ -5628,43 +5628,6 @@ type IdentificationEdge implements Edge {
   cursor: String!
 }
 
-"""The identification process associated to the expert level"""
-type IdentificationExpertProcessInfo {
-  """
-  The identification process associated to the expert level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationExpertProcessProvider!
-
-  """The global status of the identification process"""
-  status: SwanIdentificationStatus!
-}
-
-"""The provider used for this expert-level identification process"""
-enum IdentificationExpertProcessProvider {
-  Fourthline
-  Ubble
-}
-
-"""
-The identification process associated to the Qualified Electronic Signature level
-"""
-type IdentificationExpertWithQESProcessInfo {
-  """
-  The identification process associated to the qes level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationExpertWithQESProcessProvider!
-
-  """The global status of the identification process"""
-  status: SwanIdentificationStatus!
-}
-
-"""The provider used for this QES-level identification process"""
-enum IdentificationExpertWithQESProcessProvider {
-  Fourthline
-}
-
 """
 Filter that can be passed to get the identifications in specific data ranges
 """
@@ -5843,28 +5806,6 @@ enum IdentificationProcess {
   Identity verified by an expert with a Remote Identity Verification Service
   """
   PVID
-}
-
-"""Union representing the process that was used for this identification"""
-union IdentificationProcessInfo = IdentificationExpertProcessInfo | IdentificationExpertWithQESProcessInfo | IdentificationPVIDProcessInfo
-
-"""
-The identification process associated to the PVID/Remote Identity Verification Service level
-"""
-type IdentificationPVIDProcessInfo {
-  """
-  The identification process associated to the pvid level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationPVIDProcessProvider!
-
-  """The global status of the identification process"""
-  status: SwanIdentificationStatus!
-}
-
-"""The provider used for this PVID-level identification process"""
-enum IdentificationPVIDProcessProvider {
-  Ubble
 }
 
 """
@@ -11668,6 +11609,11 @@ type Scheme {
 
 """Rejection returned when adding a B2B mandate with an Individual debtor"""
 type SchemeWrongRejection implements Rejection {
+  message: String!
+}
+
+type ScreeningNotFoundRejection implements Rejection {
+  id: ID!
   message: String!
 }
 

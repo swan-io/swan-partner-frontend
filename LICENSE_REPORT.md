@@ -22,7 +22,7 @@ Name | Version | License | URL | VendorUrl | VendorName
 @types/react-native | 0.72.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
 @urql/exchange-graphcache | 6.3.3 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
-@vitejs/plugin-legacy | 5.2.0 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme | Evan You
+@vitejs/plugin-legacy | 4.1.1 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme | Evan You
 @vitejs/plugin-react-swc | 3.5.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
 core-js | 3.33.3 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun

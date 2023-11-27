@@ -1,7 +1,10 @@
-import { createRouter } from "@swan-io/chicane";
+import { createGroup, createRouter } from "@swan-io/chicane";
 
-export const Router = createRouter({
-  PaymentLink: "/payment/:paymentLinkId",
-  Success: "/payment/success",
-  Error: "/payment/error",
-});
+export const Router = createRouter(
+  createGroup("Payment", "/:paymentLinkId", {
+    Area: "/*",
+    Form: "/",
+    Success: "/success",
+    Error: "/error",
+  }),
+);

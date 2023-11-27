@@ -155,8 +155,8 @@ const convertFetchUboToInput = (
     birthCountryCode: isCountryCCA3(fetchedUbo.birthCountryCode)
       ? fetchedUbo.birthCountryCode
       : isCountryCCA2(fetchedUbo.birthCountryCode)
-      ? getCCA3forCCA2(fetchedUbo.birthCountryCode)
-      : undefined,
+        ? getCCA3forCCA2(fetchedUbo.birthCountryCode)
+        : undefined,
     birthCity: fetchedUbo.birthCity ?? "",
     birthCityPostalCode: fetchedUbo.birthCityPostalCode ?? "",
     // Slice to remove the time part because the backend sends a DateTime instead of a Date

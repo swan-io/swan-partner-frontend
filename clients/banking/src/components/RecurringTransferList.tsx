@@ -258,11 +258,11 @@ const RecurringTransferPanel = ({
               {isFullBalance
                 ? t("recurringTransfer.table.fullBalanceTransfer")
                 : recurringTransfer?.amount
-                ? formatCurrency(
-                    Number(recurringTransfer.amount.value),
-                    recurringTransfer.amount.currency,
-                  )
-                : "-"}
+                  ? formatCurrency(
+                      Number(recurringTransfer.amount.value),
+                      recurringTransfer.amount.currency,
+                    )
+                  : "-"}
             </LakeHeading>
 
             <Space height={12} />

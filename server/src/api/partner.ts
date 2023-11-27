@@ -77,8 +77,8 @@ export const finalizeOnboarding = ({
         oauthRedirectUrl != null && oauthRedirectUrl !== ""
           ? oauthRedirectUrl
           : legacyRedirectUrl != null && legacyRedirectUrl !== ""
-          ? legacyRedirectUrl
-          : undefined;
+            ? legacyRedirectUrl
+            : undefined;
 
       return {
         accountMembershipId: onboarding.account?.legalRepresentativeMembership.id,

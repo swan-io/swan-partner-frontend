@@ -86,9 +86,9 @@ const hasGitRemoteBranch = (branch: string, remote: string) =>
   isOk(exec(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`));
 
 const getWorkspacePackages = () =>
-  exec("yarn --json workspaces info")
-    .then(_ => JSON.parse(_) as { data: string })
-    .then(_ => JSON.parse(_.data) as Record<string, { location: string }>);
+  exec("yarn workspaces info --json").then(
+    info => JSON.parse(info) as Record<string, { location: string }>,
+  );
 
 const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);
 const gitAddAll = () => exec("git add . -u");

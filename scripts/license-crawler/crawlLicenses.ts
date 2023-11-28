@@ -17,9 +17,8 @@ const exec = (command: string) => {
 };
 
 async function getLicenses() {
-  const info = await exec("yarn --json workspaces info");
-  const packages = JSON.parse(info) as { data: string };
-  const data = JSON.parse(packages.data) as { location: string }[];
+  const info = await exec("yarn workspaces info --json");
+  const data = JSON.parse(info) as Record<string, { location: string }>;
   const directDependencies = new Set();
 
   Object.values(data).forEach(({ location }) => {
@@ -34,7 +33,7 @@ async function getLicenses() {
     }
   });
 
-  const licencesOutput = await exec("yarn --json licenses list");
+  const licencesOutput = await exec("yarn licenses list --json");
   const licencesOutputLines = licencesOutput.trim().split("\n");
   const licenses = (
     JSON.parse(licencesOutputLines[licencesOutputLines.length - 1] as string) as {

@@ -76,16 +76,10 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """
-  COMING SOON
-  Link to the account's bank details
-  """
+  """Link to the account's bank details"""
   bankDetails: String
 
-  """
-  COMING SOON
-  Legal Documents linked to the account
-  """
+  """Legal Documents linked to the account"""
   legalDocuments(first: Int! = 50, after: String, filters: LegalDocumentsFilterInput): LegalDocumentConnection
 
   """A list of balances regarding an account."""
@@ -150,6 +144,21 @@ type Account {
     filters: AccountReceivedDirectDebitMandateFiltersInput
   ): ReceivedDirectDebitMandateConnection
 
+  """List of merchant profiles created on the account"""
+  merchantProfiles(
+    """number of elements in the list (default value 50)"""
+    first: Int! = 50
+
+    """When the list of elements needs to start after a element"""
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: MerchantProfileOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: MerchantProfileFiltersInput
+  ): MerchantProfileConnection
+
   """A list of standing orders regarding an account."""
   standingOrders(
     """number of elements in the list (default value 50)"""
@@ -182,21 +191,6 @@ type Account {
     """When the list of elements needs to be filtered"""
     filters: FundingSourceFiltersInput
   ): FundingSourceConnection
-
-  """List of merchant profiles created on the account"""
-  merchantProfiles(
-    """number of elements in the list (default value 50)"""
-    first: Int! = 50
-
-    """When the list of elements needs to start after a element"""
-    after: String
-
-    """When the list of elements needs to be ordered"""
-    orderBy: MerchantProfileOrderByInput
-
-    """When the list of elements needs to be filtered"""
-    filters: MerchantProfileFiltersInput
-  ): MerchantProfileConnection
 }
 
 """A list of balances regarding an account."""
@@ -275,10 +269,7 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """
-  Dutch account with a Dutch IBAN, starting with DU.
-  COMING SOON
-  """
+  """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
 }
 
@@ -359,10 +350,7 @@ type AccountHolder {
   """List of supporting document collection for an account holder"""
   supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
 
-  """
-  *COMING SOON*
-  List of funding limit settings change request for an account holder
-  """
+  """List of funding limit settings change request for an account holder"""
   fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
@@ -595,6 +583,7 @@ enum AccountLanguage {
   it
   nl
   es
+  pt
 }
 
 """
@@ -603,7 +592,7 @@ An account membership represents the rights of a user for a given account.
 *Each account is administered by an account membership having the capacity of legal representative. He has the possibility of delegating rights on this account to other users.*
 """
 type AccountMembership {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   id: ID!
 
   """email"""
@@ -634,7 +623,6 @@ type AccountMembership {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean!
@@ -846,7 +834,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -1115,15 +1102,25 @@ type ActivatePhysicalCardSuccessPayload {
   physicalCard: PhysicalCard!
 }
 
+type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expires.
+  The payment link expires 24 hours after it was created.
+  """
+  expiresAt: DateTime!
+}
+
 """Inputs to add a new account membership"""
 input AddAccountMembershipInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 
-  """email"""
+  """Email address"""
   email: String!
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: RestrictedToInput!
 
   """
@@ -1143,7 +1140,6 @@ input AddAccountMembershipInput {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -1162,10 +1158,10 @@ union AddAccountMembershipPayload = AddAccountMembershipSuccessPayload | BadAcco
 
 """Inputs to add a new account membership"""
 input AddAccountMembershipsInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 
-  """memberships to add to the account"""
+  """Memberships to add to the account"""
   memberships: [MembershipInfoInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1184,7 +1180,7 @@ type AddAccountMembershipSuccessPayload {
 
 """Inputs to add a new card"""
 input AddCardInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -1213,10 +1209,10 @@ input AddCardInput {
   """`true` to show the card confidential information in the same request"""
   viewCardNumber: Boolean
 
-  """The if of the card product to use to create the new card."""
+  """The id of the card product to use to create the new card."""
   cardProductId: ID
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput
 }
 
@@ -1224,7 +1220,7 @@ union AddCardPayload = AddCardSuccessPayload | AccountMembershipNotAllowedReject
 
 """Input to add a new cards"""
 input AddCardsInput {
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [CardConfigInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1248,10 +1244,10 @@ type AddCardSuccessPayload {
 
 """Input to add a new cards"""
 input AddCardsWithGroupDeliveryInput {
-  """address to deliver the printed physical cards"""
+  """Address to deliver the printed physical cards"""
   groupDeliveryAddress: CompleteAddressWithContactInput!
 
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [CardConfigWithGroupDeliveryInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1326,7 +1322,7 @@ type AddDirectDebitFundingSourceSuccessPayload {
 }
 
 input AddExternalAccountBalanceInput {
-  """unique identifier of a given external account"""
+  """Unique identifier of a given external account"""
   externalAccountId: ID!
 
   """Amount of the balance"""
@@ -1494,7 +1490,7 @@ type AddMerchantProfileSuccessPayload {
 }
 
 input AddOrUpdateExternalAccountBalanceInput {
-  """unique identifier of a given external account"""
+  """Unique identifier of a given external account"""
   externalAccountId: ID!
 
   """Amount of the balance"""
@@ -1688,7 +1684,7 @@ input AddressInput {
 
 input AddSepaDirectDebitPaymentMandateInput {
   """
-  Specifies payment ID of a SEPA Direct Debit CORE or B2B payment method. 
+  Specifies payment ID of a SEPA Direct Debit CORE or B2B payment method.
   """
   paymentMethodId: ID!
 
@@ -1723,10 +1719,10 @@ type AddSepaDirectDebitPaymentMandateSuccessPayload {
 
 """Inputs to add a new card"""
 input AddSingleUseVirtualCardInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
   """URL the user is redirected to after consent has been given"""
@@ -1738,7 +1734,7 @@ input AddSingleUseVirtualCardInput {
   """`true` to show the card confidential information in the same request"""
   viewCardNumber: Boolean
 
-  """The if of the card product to use to create the new card."""
+  """The id of the card product to use to create the new card."""
   cardProductId: ID
 }
 
@@ -1746,7 +1742,7 @@ union AddSingleUseVirtualCardPayload = AddSingleUseVirtualCardSuccessForUserPayl
 
 """Input to add a new single-use virtual cards"""
 input AddSingleUseVirtualCardsInput {
-  """the configuration of all the cards you want to add"""
+  """The configuration of all the cards you want to add"""
   cards: [SingleUseVirtualCardConfigInput!]!
 
   """URL the user is redirected to after consent has been given"""
@@ -1764,15 +1760,15 @@ type AddSingleUseVirtualCardsSuccessPayload {
 }
 
 type AddSingleUseVirtualCardSuccessForProjectOwnerPayload {
-  """the new card added"""
+  """The new card added"""
   card: Card!
 
-  """card condidential"""
+  """Card confidential"""
   confidential: CardConfidential!
 }
 
 type AddSingleUseVirtualCardSuccessForUserPayload {
-  """the new card added"""
+  """The new card added"""
   card: Card!
 }
 
@@ -1784,7 +1780,7 @@ type AddVirtualIbanEntrySuccessPayload {
 
 """Input to Add a Virtual IBAN"""
 input AddVirtualIbanInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 }
 
@@ -1795,7 +1791,7 @@ type AllowedValue {
 
 """Input to Allow SDD"""
 input AllowSddInput {
-  """unique identifier of a given account"""
+  """Unique identifier of a given account"""
   accountId: ID!
 }
 
@@ -2044,7 +2040,7 @@ input CancelCardInput {
 union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelCardSuccessPayload {
-  """the card canceled"""
+  """The canceled card """
   card: Card!
 }
 
@@ -2070,7 +2066,7 @@ input CancelDigitalCardInput {
 union CancelDigitalCardPayload = CancelDigitalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | DigitalCardNotFoundRejection | ForbiddenRejection | ValidationRejection
 
 type CancelDigitalCardSuccessPayload {
-  """the digital card canceled"""
+  """The canceled digital card"""
   digitalCard: DigitalCard!
 }
 
@@ -2106,7 +2102,14 @@ Describes an identification level for the process associated to this identificat
 """
 type CanceledIdentificationLevelStatusInfo {
   """Always set to `Cancelled`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
+}
+
+type CanceledMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """The date at which the customer canceled the payment."""
+  canceledAt: DateTime!
 }
 
 """CanceledMerchantPaymentMethodStatusInfo"""
@@ -2153,7 +2156,7 @@ input CancelPhysicalCardInput {
   """Unique identifier of a card"""
   cardId: ID!
 
-  """reason why the physical card is canceled"""
+  """Reason why the physical card is canceled"""
   reason: CancelPhysicalCardReason!
 }
 
@@ -2178,7 +2181,7 @@ enum CancelPhysicalCardReason {
 }
 
 type CancelPhysicalCardSuccessPayload {
-  """The physicalCard canceled"""
+  """The canceled physical card """
   physicalCard: PhysicalCard!
 }
 
@@ -2257,7 +2260,7 @@ type CapitalDepositCase {
 Implements the Relay Connection interface, used to paginate list of elements ([Learn More](https://docs.swan.io/api/pagination))
 """
 type CapitalDepositCaseConnection implements Connection {
-  """Total number of element in the list"""
+  """Total number of elements in the list"""
   totalCount: Int!
 
   """Information about the current, the previous and the next page"""
@@ -2312,7 +2315,7 @@ enum CapitalDepositCaseStatus {
   Initiated
 
   """
-  A new capital deposit case is created and Swan is waiting for the required information to be provided and each shareholder to wire its share of share capital.
+  A new capital deposit case is created and Swan is waiting for the required information to be provided and each shareholder to wire their share of share capital.
   """
   WaitingForRequirements
 
@@ -2357,6 +2360,12 @@ type CapitalDepositDocument {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Information about capital deposit case."""
+  relatedCapitalDepositCase: CapitalDepositCase
+
+  """Information about shareholder."""
+  relatedShareholder: Shareholder
 }
 
 """
@@ -2409,7 +2418,7 @@ enum CapitalDepositDocumentType {
   CompanyLeaseAgreement
 
   """
-  Created by the Notary, it certify the capital of the company to have been deposited with the appropriate share for each shareholder.
+  Created by the Notary, it certifies the capital of the company to have been deposited with the appropriate share for each shareholder.
   """
   CapitalShareDepositCertificate
 
@@ -2590,18 +2599,18 @@ type CardCanNotBeDigitalizedRejection implements Rejection {
 }
 
 type CardConfidential {
-  """card number"""
+  """Card number"""
   pan: String!
 
-  """card verification value"""
+  """Card verification value"""
   cvv: String!
 
-  """expiration date"""
+  """Expiration date"""
   expiryDate: String!
 }
 
 input CardConfigInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -2624,17 +2633,15 @@ input CardConfigInput {
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
-  """
-  if used a physical card will be printed and sent to the inputed address
-  """
+  """If used a physical card will be printed and sent to the given address"""
   physicalCard: PhysicalCardConfigInput
 }
 
 input CardConfigWithGroupDeliveryInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -2657,7 +2664,7 @@ input CardConfigWithGroupDeliveryInput {
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 
   """`true` when you wish for print an associated physical card"""
@@ -2790,6 +2797,33 @@ input CardFiltersInput {
   accountId: String
 }
 
+type CardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+}
+
 """
 Rejection returned if the card was not found or if the user does not have the rights to know that the account exists
 """
@@ -2809,6 +2843,12 @@ enum CardOrderByFieldInput {
 input CardOrderByInput {
   field: CardOrderByFieldInput
   direction: OrderByDirection
+}
+
+"""input for Card payment method"""
+input CardPaymentMethodInput {
+  """If true, the Payment Method will be in Pending Review"""
+  activate: Boolean = false
 }
 
 """when the card is in the process of being ready to use"""
@@ -3443,7 +3483,7 @@ type CompanyInfo {
   legalRepresentativePersonalAddress: AddressInformation
 }
 
-"""Company shareholder infos."""
+"""Company shareholder info."""
 type CompanyShareholder {
   """Whether the shareholder is an individual or a company."""
   type: ShareholderType!
@@ -3587,6 +3627,13 @@ enum CompleteDigitalCardStatus {
 interface CompleteDigitalCardStatusInfo {
   """Status of the digital card."""
   status: CompleteDigitalCardStatus!
+}
+
+type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """The time when the customer completed the payment."""
+  completedAt: DateTime!
 }
 
 """
@@ -3857,6 +3904,90 @@ type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
+input CreateMerchantPaymentLinkInput {
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfileId: ID!
+
+  """Amount to be paid to sucessfully complete the payment."""
+  amount: AmountInput!
+
+  """
+  Merchant Website URL to redirect the user to when the payment is completed.
+  """
+  redirectUrl: URL!
+
+  """URL to redirect the user to if they cancel their payment"""
+  cancelRedirectUrl: URL!
+
+  """billing address information"""
+  billingAddress: AddressInput!
+
+  """
+  The date when the payment link expires.
+  If not specified, the default time will be 24 hours
+  """
+  expiresAt: DateTime
+
+  """
+  A date that reflects the time at which the user asked the transaction to be executed.
+  For card transactions, request execution must occur within 7 days after authorization or the authorization may expire.
+  For SEPA Direct Debit transactions, request execution must occur up to 1 year in the future.
+  
+  Default value means that the execution will be as soon as possible
+  """
+  requestedExecutionAt: DateTime
+
+  """
+  Controls if the payment mandate created from this payment link is for one-time use or can be reused
+  This is applicable for card and SEPA Direct Debit payment methods only.
+  If not specified, the default value is OneOff.
+  """
+  sequence: SequenceType
+
+  """
+  Any string that you want to be attached to this payment link.
+  Usually something to help you reference the link in an external system.
+  """
+  externalReference: String
+
+  """
+  Optional field intended to provide a way for you to include a reference number or code.
+  The customer will most likely see this value on their bank statement, though we can't know as every banking platform is different.
+  """
+  reference: String
+
+  """
+  Label of the concerned payment collection, which will be displayed on Swan bank statement	and on the Swan merchant payment page.
+  """
+  label: String
+
+  """
+  The language used for the payment page.
+  Default is the browser's language, or English if not available.
+  """
+  language: Language
+
+  """
+  We will use the information specified here to prefill the payment link fields
+  depending on the payment method the end user chooses.
+  Keep in mind that your end customer will be able to edit these fields.
+  """
+  customer: CustomerInput
+
+  """
+  List of payment methods enabled for this payment link.
+  If the array is empty, Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
+  If you want to make payment possible via SEPA Direct Debit, the list should be populated either by a SEPA Direct Debit CORE or B2B.
+  """
+  paymentMethodIds: [String!]
+}
+
+union CreateMerchantPaymentLinkPayload = CreateMerchantPaymentLinkSuccessPayload | MerchantProfileWrongStatusRejection | MerchantPaymentMethodNotActiveRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection | ForbiddenRejection | ValidationRejection
+
+type CreateMerchantPaymentLinkSuccessPayload {
+  merchantPaymentLink: MerchantPaymentLink!
+}
+
 """Input of the `createMultiConsent` mutation"""
 input CreateMultiConsentInput {
   """A list of consent IDs with their related execution orders"""
@@ -3907,12 +4038,6 @@ input CreditTransferInput {
   externalReference: String
 
   """
-  *DEPRECATED*
-  if the transfer will execute as instant
-  """
-  isInstant: Boolean
-
-  """
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
   """
   mode: CreditTransferMode
@@ -3938,6 +4063,30 @@ type CsvStatement implements StatementInfo {
 
 """currency code alpha 3 (ISO 4217)"""
 scalar Currency
+
+type Customer {
+  """
+  A customer id present in a third-party system.
+  Alows to link a customer to a payment link and by extension, to a Merchant Payment.
+  """
+  externalCustomerId: String
+  name: String
+  iban: String
+}
+
+input CustomerInput {
+  """
+  A customer ID present in a third-party system.
+  Alows to link a customer to a payment link and by extension, to a merchant payment.
+  """
+  externalCustomerId: String
+
+  """Customer name"""
+  name: String
+
+  """Customer IBAN"""
+  iban: String
+}
 
 """Date with YYYY-MM-DD format"""
 scalar Date
@@ -4413,10 +4562,20 @@ Describes an identification level for the process associated to this identificat
 """
 type ExpiredIdentificationLevelStatusInfo {
   """Always set to `Expired`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 
   """When this identification level expired"""
   expiredAt: Date!
+}
+
+type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expired.
+  The payment link expires 24 hours after it was created.
+  """
+  expiredAt: DateTime!
 }
 
 type ExternalAccount {
@@ -4662,6 +4821,10 @@ type FeeOutDebtor implements FeeDebtor {
 
   """account number"""
   accountNumber: AccountNumber!
+}
+
+type FeeSettingsNotFoundRejection implements Rejection {
+  message: String!
 }
 
 """Fees type"""
@@ -5362,11 +5525,6 @@ type Identification {
   documents: [IdentificationDocument!]
 
   """
-  The available electronic signatures related to the identification (currently for QES only)
-  """
-  signatures: [Signature!]
-
-  """
   The identity document type used for the current identification (passport, id card ...)
   """
   identityDocumentType: IdentityDocumentType
@@ -5437,10 +5595,10 @@ input IdentificationFiltersInput {
   statuses: [SwanIdentificationStatus!]
 
   """To filter on level values"""
-  levels: [SwanIdentificationLevel!]
+  levels: [IdentificationLevel!]
 
   """To filter on process values"""
-  processes: [SwanIdentificationProcess!]
+  processes: [IdentificationProcess!]
 }
 
 """The various reasons that can lead to an invalid identification level"""
@@ -5569,41 +5727,6 @@ type IdentificationLevels {
   expert: Boolean!
 }
 
-"""Valid statuses for level identifications"""
-enum IdentificationLevelStatus {
-  """
-  This identification level is not supported for the process associated to this identification
-  """
-  NotSupported
-
-  """This identification level has not yet been started"""
-  NotStarted
-
-  """This identification level has been started"""
-  Started
-
-  """
-  This identification level is pending and requires an operation not related to the end-user to progress
-  """
-  Pending
-
-  """
-  This identification level is valid and identification documents can be accessed
-  """
-  Valid
-
-  """This identification level is invalid"""
-  Invalid
-
-  """The process of this identification level was canceled by the end-user"""
-  Canceled
-
-  """
-  This identification level is considered expired and no documents can be accessed
-  """
-  Expired
-}
-
 """
 The status and results associated to the available identification processes
 """
@@ -5627,6 +5750,22 @@ Union representing all the possible statuses: not supported, not started, pendin
 Each variant contains its relevant data, for example invalid contains a `reason` field, expired contains an `expiredAt` field, valid contains a `documents` field
 """
 union IdentificationLevelStatusInfo = NotSupportedIdentificationLevelStatusInfo | NotStartedIdentificationLevelStatusInfo | StartedIdentificationLevelStatusInfo | PendingIdentificationLevelStatusInfo | ValidIdentificationLevelStatusInfo | InvalidIdentificationLevelStatusInfo | CanceledIdentificationLevelStatusInfo | ExpiredIdentificationLevelStatusInfo
+
+"""Process of the identification"""
+enum IdentificationProcess {
+  """Identity verified by an expert"""
+  Expert
+
+  """
+  Identity verified by an expert and a Qualified Electronic Signature has been done
+  """
+  QES
+
+  """
+  Identity verified by an expert with a Remote Identity Verification Service
+  """
+  PVID
+}
 
 """Union representing the process that was used for this identification"""
 union IdentificationProcessInfo = IdentificationExpertProcessInfo | IdentificationExpertWithQESProcessInfo | IdentificationPVIDProcessInfo
@@ -5743,7 +5882,7 @@ type InAppProvisioningData {
   oaepHashingAlgorithm: String
 }
 
-"""Individual shareholder infos."""
+"""Individual shareholder info."""
 type IndividualShareholder {
   """Whether the shareholder is an individual or a company."""
   type: ShareholderType!
@@ -5793,6 +5932,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
+
+  """Individual beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Define the type of the UBO"""
@@ -5845,6 +5987,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformationInput
+
+  """Individual ultimate beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -6771,25 +6916,25 @@ input InternationalCreditTransferDetailsInput {
 """Language: ISO 639-1 language code"""
 enum InternationalCreditTransferDisplayLanguage {
   """British English"""
-  EN
+  en
 
   """Dutch"""
-  NL
+  nl
 
   """French"""
-  FR
+  fr
 
   """German"""
-  DE
+  de
 
   """Italian"""
-  IT
+  it
 
   """Portuguese"""
-  PT
+  pt
 
   """Spanish"""
-  ES
+  es
 }
 
 """
@@ -7245,7 +7390,7 @@ Describes an invalid identification level for the process associated to this ide
 """
 type InvalidIdentificationLevelStatusInfo {
   """Always set to `Invalid`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 
   """The reasons why this identification level is invalid"""
   reasons: [IdentificationInvalidReason!]
@@ -7328,6 +7473,15 @@ enum InvoiceType {
   RefundNote
 }
 
+enum Language {
+  de
+  en
+  fr
+  it
+  nl
+  es
+}
+
 type LegalDocument {
   """ID of the legal document"""
   id: ID!
@@ -7350,6 +7504,9 @@ type LegalDocumentActiveStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Active for type LegalDocumentActiveStatusInfo)
   """
   status: LegalDocumentStatus!
+
+  """Creation date"""
+  createdAt: DateTime!
 
   """Activation date"""
   activatedAt: DateTime
@@ -7380,6 +7537,12 @@ type LegalDocumentInactiveStatusInfo implements LegalDocumentStatusInfo {
   """
   status: LegalDocumentStatus!
 
+  """Creation date"""
+  createdAt: DateTime!
+
+  """Activation date"""
+  activatedAt: DateTime
+
   """Deactivation date"""
   deactivatedAt: DateTime
 }
@@ -7389,13 +7552,13 @@ input LegalDocumentsFilterInput {
 }
 
 enum LegalDocumentStatus {
-  """when the LegalDocument will be the next active on the account"""
+  """When the LegalDocument will be the next active on the account"""
   Upcoming
 
-  """when the LegalDocument is currently active on the account"""
+  """When the LegalDocument is currently active on the account"""
   Active
 
-  """when the LegalDocument is no more active on the account"""
+  """When the LegalDocument is no more active on the account"""
   Inactive
 }
 
@@ -7414,6 +7577,12 @@ type LegalDocumentUpcomingStatusInfo implements LegalDocumentStatusInfo {
   LegalDocument status (always Upcoming for type LegalDocumentUpcomingStatusInfo)
   """
   status: LegalDocumentStatus!
+
+  """Creation date"""
+  createdAt: DateTime!
+
+  """Date when the LegalDocument will be activated"""
+  effectiveDate: DateTime
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -7437,10 +7606,10 @@ enum MandateLanguage {
 }
 
 input MembershipInfoInput {
-  """email"""
+  """Email address"""
   email: String!
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: RestrictedToInput!
 
   """
@@ -7460,7 +7629,6 @@ input MembershipInfoInput {
   canManageAccountMembership: Boolean!
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -7477,7 +7645,6 @@ Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -7813,6 +7980,109 @@ enum MerchantCategoryDescription {
   WomenReadyToWearStores
 }
 
+type MerchantPaymentLink {
+  """Merchant payment link's unique ID."""
+  id: String!
+
+  """ID of the related project"""
+  projectId: ID!
+
+  """The URL at which the customer can complete the payment."""
+  url: String!
+
+  """The merchant payment link status."""
+  statusInfo: MerchantPaymentLinkStatusInfo!
+
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfile: MerchantProfile!
+
+  """Amount to be paid to sucessfully complete the payment."""
+  amount: Amount!
+
+  """
+  Merchant Website URL to redirect the user to when the payment is completed.
+  """
+  redirectUrl: String!
+
+  """URL to redirect the user to if they cancel their payment"""
+  cancelRedirectUrl: String!
+
+  """
+  Controls if the payment mandate created from this payment link is for one-time use or can be reused
+  This is applicable for card and SEPA Direct Debit payment methods only.
+  """
+  sequence: PaymentLinkSequenceType!
+
+  """billing address informations"""
+  billingAddress: Address
+
+  """
+    A date that reflects the time at which the user asked the transaction to be executed.
+  For card transactions, request execution must occur within 7 days after authorization or the authorization may expire.
+  For SEPA Direct Debit transactions, request execution must occur up to 1 year in the future.
+  
+  Default value means that the execution will be as soon as possible
+  """
+  requestedExecutionAt: DateTime
+
+  """
+  Any string that you want to be attached to this payment link.
+  Usually something to help you reference the link in an external system.
+  """
+  externalReference: String
+
+  """
+  Optional field intended to provide a way for you to include a reference number or code.
+  The customer will most likely see this value on their bank statement, though we can't know as every banking platform is different.
+  """
+  reference: String
+
+  """
+  The language used for the payment page.
+  Default is the browser's language, or English if not available.
+  """
+  language: String
+
+  """
+  Label of the concerned payment collection, which will be displayed on Swan bank statement	and on the Swan merchant payment page.
+  """
+  label: String
+
+  """
+   We will use the information specified here to prefill the payment link fields
+  depending on the payment method the end user chooses.
+  Keep in mind that your end customer will be able to edit these fields.
+  """
+  customer: Customer
+
+  """
+  List of payment methods IDs enabled for this payment link.
+  If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
+  """
+  paymentMethods: [MerchantPaymentMethod!]!
+
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfileId: ID!
+}
+
+enum MerchantPaymentLinkStatus {
+  """Customers can still use the merchant payment link to pay."""
+  Active
+
+  """The merchant payment link is expired."""
+  Expired
+
+  """The customer completed the payment."""
+  Completed
+
+  """The customer cancel the payment."""
+  Canceled
+}
+
+interface MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+}
+
 """Base object for the different Payment Methods available"""
 interface MerchantPaymentMethod {
   """
@@ -7822,12 +8092,6 @@ interface MerchantPaymentMethod {
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -7845,6 +8109,12 @@ interface MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+}
+
+"""Rejection returned when the Merchant Payment Method is not active"""
+type MerchantPaymentMethodNotActiveRejection implements Rejection {
+  paymentMethodIds: [String!]
+  message: String!
 }
 
 """The different statuses a MerchantPaymentMethod can have"""
@@ -7870,6 +8140,7 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitCore
   SepaDirectDebitB2b
   Check
+  Card
 }
 
 """Merchant Profile"""
@@ -8095,7 +8366,6 @@ type Mutation {
   addExternalAccount(input: AddExternalAccountInput!): AddExternalAccountPayload!
 
   """
-  *COMING SOON*
   Add a new request for funding limit settings change.
   
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -8110,7 +8380,7 @@ type Mutation {
   """
   addOrUpdateExternalAccountBalance(input: AddOrUpdateExternalAccountBalanceInput!): AddOrUpdateExternalAccountBalancePayload!
 
-  """add a new Single Use Virtual Card to an account membership."""
+  """Add a new Single Use Virtual Card to an account membership."""
   addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
 
   """
@@ -8144,7 +8414,7 @@ type Mutation {
   """Cancel a Digital Card"""
   cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
 
-  """Cancel a Physical Card."""
+  """Cancel a physical card."""
   cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
 
   """Cancels a Virtual IBAN."""
@@ -8321,7 +8591,7 @@ type Mutation {
   """
   Create a capital deposit case.
   
-  This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
   createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
 
@@ -8396,6 +8666,23 @@ type Mutation {
   """
   updateReceivedSepaDirectDebitB2bMandate(input: UpdateReceivedSepaDirectDebitB2bMandateInput!): UpdateReceivedSepaDirectDebitB2bMandatePayload!
 
+  """Allows to add an internal direct debit payment mandate."""
+  addInternalDirectDebitPaymentMandate(input: AddInternalDirectDebitPaymentMandateInput!): AddInternalDirectDebitPaymentMandatePayload!
+
+  """Add a merchant profile to a company account holder"""
+  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
+  addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
+
+  """Create a unique URL for a merchant to collect payment from a customer"""
+  createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
+  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
+
+  """Request merchant payment methods for a merchant profile"""
+  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
+
+  """Request an update of a MerchantProfile"""
+  requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
+
   """
   Cancels an UPCOMING credit transfer
   
@@ -8430,13 +8717,6 @@ type Mutation {
   """
   addDirectDebitFundingSource(input: AddDirectDebitFundingSourceInput!): AddDirectDebitFundingSourcePayload
 
-  """Allows to add an internal direct debit payment mandate."""
-  addInternalDirectDebitPaymentMandate(input: AddInternalDirectDebitPaymentMandateInput!): AddInternalDirectDebitPaymentMandatePayload!
-
-  """Add a merchant profile to a company account holder"""
-  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
-  addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
-
   """Cancel a funding source"""
   cancelFundingSource(input: CancelFundingSourceInput!): CancelFundingSourcePayload
 
@@ -8459,13 +8739,6 @@ type Mutation {
   Create an international transfer
   """
   initiateInternationalCreditTransfer(input: InitiateInternationalCreditTransferInput!): InitiateInternationalCreditTransferResponsePayload
-  initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
-
-  """Request merchant payment methods for a merchant profile"""
-  requestMerchantPaymentMethods(input: RequestMerchantPaymentMethodsInput!): RequestMerchantPaymentMethodsPayload
-
-  """Request an update of a MerchantProfile"""
-  requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
 
   """
   Schedule a standing Order
@@ -8497,7 +8770,7 @@ Describes an identification level that hasn't started for the process of the cur
 """
 type NotStartedIdentificationLevelStatusInfo {
   """Always set to `NotStarted`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """
@@ -8512,7 +8785,7 @@ Describes an identification level that's not supported for the process of the cu
 """
 type NotSupportedIdentificationLevelStatusInfo {
   """Always set to `NotSupported`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """Extra parameters provided by partner"""
@@ -8909,7 +9182,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
 }
 
 type OnboardingInfo {
-  """unique identifier of an onboarding"""
+  """Unique identifier of an onboarding"""
   id: String!
 
   """Account name"""
@@ -9260,6 +9533,11 @@ enum PaymentLevel {
   Unlimited
 }
 
+enum PaymentLinkSequenceType {
+  OneOff
+  Recurring
+}
+
 interface PaymentMandate {
   """Unique identifier of the Payment Mandate"""
   id: ID!
@@ -9382,7 +9660,7 @@ input PaymentMandateOrderByInput {
 }
 
 """
-Rejection returned if the payment mandate reference is already used for the same creditor
+Rejection returned when a payment mandate reference is already for a creditor
 """
 type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
   message: String!
@@ -9522,7 +9800,7 @@ type PdfStatement implements StatementInfo {
 
 """Pending Consent when the account membership will be updated"""
 type PendingConsentAccountMembershipUpdate {
-  """new account membership version waiting for consent"""
+  """New account membership version waiting for consent"""
   accountMembershipId: AccountMembership!
 
   """The consent required to update the account membership"""
@@ -9598,7 +9876,7 @@ Describes an identification level that is pending for the process of the current
 """
 type PendingIdentificationLevelStatusInfo {
   """Always set to `Pending`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """PendingMerchantPaymentMethodStatusInfo"""
@@ -9701,7 +9979,7 @@ type PhysicalCardCancelingStatusInfo implements PhysicalCardStatusInfo {
 }
 
 input PhysicalCardConfigInput {
-  """address to deliver the physical card"""
+  """Address to deliver the physical card"""
   deliveryAddress: CompleteAddressInput!
 
   """Custom options to use for physical cards."""
@@ -9901,7 +10179,7 @@ input PrintPhysicalCardInput {
   """Unique identifier of a card"""
   cardId: ID!
 
-  """address to deliver the physical card"""
+  """Address to deliver the physical card"""
   address: CompleteAddressInput!
 
   """`true` if the user must choose their PIN Code"""
@@ -10278,6 +10556,9 @@ type Query {
   """
   capitalDepositCases(first: Int! = 50, before: String, after: String, filters: CapitalDepositCaseFiltersInput, orderBy: CapitalDepositCaseOrderByInput): CapitalDepositCaseConnection!
 
+  """Return the CapitalDepositDocument for the provided id."""
+  capitalDepositDocument(id: ID!): CapitalDepositDocument
+
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
 
@@ -10326,6 +10607,9 @@ type Query {
   """Returns a received direct debit mandate from its id."""
   receivedDirectDebitMandate(receivedDirectDebitMandateId: ID!): ReceivedDirectDebitMandate
 
+  """Returns a merchant profile by id."""
+  merchantProfile(id: ID!): MerchantProfile
+
   """Returns funding source by id."""
   fundingSource(id: ID!): FundingSource
 
@@ -10336,10 +10620,7 @@ type Query {
   internationalCreditTransferTransactionDetailsDynamicForm(targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, internationalBeneficiary: InternationalBeneficiaryInput!, refreshableFields: [InternationalCreditTransferDetailsInput!]): InternationalCreditTransferDynamicForm
 
   """Request an international credit transfer quote."""
-  internationalCreditTransferQuote(targetAmount: AmountInput!): InternationalCreditTransferQuote
-
-  """Returns a merchant profile by id."""
-  merchantProfile(id: ID!): MerchantProfile
+  internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!): InternationalCreditTransferQuote
 
   """Returns standing order from its id."""
   standingOrder(standingOrderId: ID!): StandingOrder
@@ -11157,7 +11438,7 @@ type RestrictedToUserRejection implements Rejection {
 }
 
 input ResumeAccountMembershipInput {
-  """unique identifier of a given account membership to resume"""
+  """Unique identifier of a given account membership to resume"""
   accountMembershipId: ID!
 
   """URL the user is redirected to after consent has been given"""
@@ -12181,6 +12462,11 @@ with some follow extra rules :
 """
 scalar SepaReference
 
+enum SequenceType {
+  OneOff
+  Recurring
+}
+
 """
 Rejection returned when signature is not valid or remote IP address is not allowed
 """
@@ -12264,7 +12550,7 @@ union ShareholderInfo = IndividualShareholder | CompanyShareholder
 
 """Status of the shareholder during the process with Swan."""
 enum ShareholderStatus {
-  """Waiting for the shareholder to finalize its onboarding."""
+  """Waiting for the shareholder to finalize their onboarding."""
   PendingOnboarding
 
   """Waiting for Swan compliance team to verify the shareholder."""
@@ -12323,13 +12609,13 @@ enum SimulationCardType {
 }
 
 input SingleUseVirtualCardConfigInput {
-  """unique identifier of a given account membership"""
+  """Unique identifier of a given account membership"""
   accountMembershipId: ID!
 
   """Card name"""
   name: String
 
-  """spending limit"""
+  """Spending limit"""
   spendingLimit: SpendingLimitInput!
 }
 
@@ -12513,7 +12799,7 @@ Describes an identification level that has started for the process of the curren
 """
 type StartedIdentificationLevelStatusInfo {
   """Always set to `Started`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """
@@ -12839,6 +13125,9 @@ enum SupportingDocumentPurposeEnum {
   """Proof of company registration"""
   CompanyRegistration
 
+  """Minutes Of The General Assembly"""
+  GeneralAssemblyMinutes
+
   """Other"""
   Other
 
@@ -13044,6 +13333,9 @@ enum SupportingDocumentType {
 
   """Sworn statement"""
   SwornStatement
+
+  """Meeting's minutes"""
+  MeetingMinutes
 }
 
 """Supporting document with Uploaded status"""
@@ -13220,39 +13512,7 @@ input SwanAccountBeneficiaryInput {
   save: Boolean!
 }
 
-"""Used when filtering to filter on the identification level"""
-enum SwanIdentificationLevel {
-  """Identity verified by an expert"""
-  Expert
-
-  """
-  Identity verified by an expert and a Qualified Electronic Signature has been done
-  """
-  QES
-
-  """
-  Identity verified by an expert with a Remote Identity Verification Service
-  """
-  PVID
-}
-
-"""Used when filtering to filter on the identification process"""
-enum SwanIdentificationProcess {
-  """Identity verified by an expert"""
-  Expert
-
-  """
-  Identity verified by an expert and a Qualified Electronic Signature has been done
-  """
-  QES
-
-  """
-  Identity verified by an expert with a Remote Identity Verification Service
-  """
-  PVID
-}
-
-"""Used when filtering to filter on the status of the identifications"""
+"""Status values of an identification"""
 enum SwanIdentificationStatus {
   """
   When the identification process is currently being treated by a manual or automatic process
@@ -13265,6 +13525,14 @@ enum SwanIdentificationStatus {
   """When the identification is invalid"""
   Invalid
 
+  """
+  When the user canceled the identification process or the identification service was unavailable
+  """
+  Canceled
+
+  """When the identification is no longer valid"""
+  Expired
+
   """When the identification does not support an identification level"""
   NotSupported
 
@@ -13273,12 +13541,14 @@ enum SwanIdentificationStatus {
 
   """When the identification has been started"""
   Started
+}
 
-  """When the identification has been canceled"""
-  Canceled
+type SwanTCUDocumentNotFoundRejection implements Rejection {
+  message: String!
+}
 
-  """When the identification has expired"""
-  Expired
+type SwanTCUDocumentStatusNotAllowedRejection implements Rejection {
+  message: String!
 }
 
 type TextField implements Field {
@@ -13291,6 +13561,15 @@ type TextField implements Field {
   refreshDynamicFieldsOnChange: Boolean!
   required: Boolean!
   validationRegex: String
+}
+
+"""Individual ultimate beneficial owner title (Mr/Ms)"""
+enum TitleEnum {
+  """Identified as a man"""
+  Mr
+
+  """Identified as a woman"""
+  Ms
 }
 
 scalar TokenRequestorId
@@ -14025,25 +14304,25 @@ type UpdateAccountHolderSuccessPayload {
 
 """Inputs to update an account"""
 input UpdateAccountInput {
-  """unique identifier of an account"""
+  """Unique identifier of an account"""
   accountId: ID!
 
-  """name"""
+  """Name"""
   name: String
 
-  """language"""
+  """Language"""
   language: AccountLanguage
 }
 
 """Inputs to update an account membership"""
 input UpdateAccountMembershipInput {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   accountMembershipId: ID!
 
-  """email"""
+  """Email address"""
   email: String
 
-  """restricted to a user if necessary"""
+  """Restricted to a user if necessary"""
   restrictedTo: UpdatedRestrictedToInput
 
   """
@@ -14063,7 +14342,6 @@ input UpdateAccountMembershipInput {
   canManageAccountMembership: Boolean
 
   """
-  COMING SOON
   `true` if this account membership can manage cards for himself or to the memberships he manages
   """
   canManageCards: Boolean
@@ -14095,7 +14373,7 @@ type UpdateAccountSuccessPayload {
 
 """Input to Update Card"""
 input UpdateCardInput {
-  """unique identifier of the card to update"""
+  """Unique identifier of the card to update"""
   cardId: ID!
 
   """Card expiration date  if `null` it does not have an expiration date"""
@@ -14571,7 +14849,7 @@ Describes a valid identification level for the process associated to this identi
 """
 type ValidIdentificationLevelStatusInfo {
   """Always set to `Valid`"""
-  status: IdentificationLevelStatus!
+  status: SwanIdentificationStatus!
 }
 
 """Verification Flow."""

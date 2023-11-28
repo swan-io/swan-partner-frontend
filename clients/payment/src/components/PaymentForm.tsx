@@ -10,16 +10,26 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { useMemo } from "react";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import { CSSProperties, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
+import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
+import { validateIban } from "../../../banking/src/utils/iban";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { SepaLogo } from "./SepaLogo";
 
-const items = [{ id: "sdd", name: "SEPA Direct Debit" }] as const;
+const IMAGE_STYLE: CSSProperties = {
+  top: 0,
+  left: 0,
+  alignSelf: "center",
+  maxWidth: "200px",
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -45,22 +55,18 @@ const styles = StyleSheet.create({
     height: 9,
     width: 45 * (9 / 10),
   },
-  buttonItem: { width: "50%" },
+  buttonItem: { width: "40%", paddingHorizontal: 0 },
   buttonItemDesktop: { width: "15%" },
   selectLanguage: {
     alignItems: "flex-end",
   },
 });
 
-type ItemId = (typeof items)[number]["id"];
-const merchantName = "Test";
-
 type FormState = {
-  paymentMethod: ItemId;
+  paymentMethod: "SepaDirectDebitCore";
   iban: string;
   country: CountryCCA3;
-  firstName: string;
-  lastName: string;
+  name: string;
   addressLine1: string;
   addressLine2: string;
   city: string;
@@ -68,55 +74,75 @@ type FormState = {
   state: string;
 };
 
-export const PaymentForm = () => {
+type Props = {
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+};
+
+const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
+
+export const PaymentForm = ({ paymentLink }: Props) => {
   const { desktop } = useResponsive();
 
   const { Field, submitForm } = useForm<FormState>({
     paymentMethod: {
-      initialValue: items[0].id,
-      // validate: validateRequired,
+      initialValue: "SepaDirectDebitCore",
     },
     iban: {
-      initialValue: "",
-      // validate: combineValidators(validateRequired, validateIban),
+      initialValue: paymentLink?.customer?.iban ?? "",
       sanitize: value => value.trim(),
+      validate: combineValidators(validateRequired, validateIban),
     },
     country: {
       initialValue: "FRA",
-      // validate: validateRequired,
+      validate: validateRequired,
     },
-    firstName: {
-      initialValue: "",
-      // validate: validateRequired,
+    name: {
+      initialValue: paymentLink.customer?.name ?? "",
       sanitize: value => value.trim(),
-    },
-    lastName: {
-      initialValue: "",
-      // validate: validateRequired,
-      sanitize: value => value.trim(),
+      validate: validateRequired,
     },
     addressLine1: {
-      initialValue: "",
-      // validate: validateRequired,
+      initialValue: paymentLink.billingAddress.addressLine1 ?? "",
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
       sanitize: value => value.trim(),
     },
     addressLine2: {
-      initialValue: "",
+      initialValue: paymentLink.billingAddress.addressLine2 ?? "",
       sanitize: value => value.trim(),
     },
     city: {
-      initialValue: "",
-      // validate: validateRequired,
+      initialValue: paymentLink.billingAddress.city ?? "",
       sanitize: value => value.trim(),
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
     },
     postalCode: {
-      initialValue: "",
-      // validate: validateRequired,
+      initialValue: paymentLink.billingAddress.postalCode ?? "",
       sanitize: value => value.trim(),
+      validate: (value, { getFieldState }) => {
+        const country = getFieldState("country").value;
+        if (sepaNonEeaCountries.includes(country)) {
+          return validateRequired(value);
+        } else {
+          return;
+        }
+      },
     },
     state: {
-      initialValue: "",
-      // validate: validateRequired,
+      initialValue: paymentLink.billingAddress.state ?? "",
       sanitize: value => value.trim(),
     },
   });
@@ -128,8 +154,7 @@ export const PaymentForm = () => {
           "paymentMethod",
           "iban",
           "country",
-          "firstName",
-          "lastName",
+          "name",
           "addressLine1",
           "city",
           "postalCode",
@@ -137,7 +162,6 @@ export const PaymentForm = () => {
         ])
       ) {
         Router.replace("Success");
-        console.log(values);
       }
     });
   };
@@ -148,6 +172,8 @@ export const PaymentForm = () => {
       value: country.id,
     }));
   }, []);
+
+  const merchantName = paymentLink.merchantProfile.merchantName;
 
   return (
     <ScrollView
@@ -163,7 +189,9 @@ export const PaymentForm = () => {
             icon="dismiss-regular"
             mode="tertiary"
             grow={true}
-            onPress={() => {}}
+            onPress={() => {
+              window.location.replace(paymentLink.cancelRedirectUrl);
+            }}
           >
             {t("common.cancel")}
           </LakeButton>
@@ -186,22 +214,24 @@ export const PaymentForm = () => {
 
       <Space height={24} />
 
-      {/* Just for tests */}
-      <SwanLogo
-        color={colors.swan[500]}
-        // eslint-disable-next-line react-native/no-inline-styles
-        style={{
-          alignSelf: "center",
-          width: "144px",
-        }}
-      />
+      {isNotNullish(paymentLink.merchantProfile.merchantLogoUrl) ? (
+        <img src={paymentLink.merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
+      ) : (
+        <LakeHeading variant="h3" level={3}>
+          {paymentLink.merchantProfile.merchantName}
+        </LakeHeading>
+      )}
 
       <Space height={24} />
-      <LakeText align="center">Merchant item</LakeText>
+
+      <LakeText variant="medium" align="center" color={colors.gray[700]}>
+        {paymentLink?.label}
+      </LakeText>
+
       <Space height={12} />
 
       <LakeHeading variant="h1" level={2} align="center">
-        {formatCurrency(Number(10), "EUR")}
+        {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
       </LakeHeading>
 
       <Space height={32} />
@@ -215,7 +245,13 @@ export const PaymentForm = () => {
               <SegmentedControl
                 mode="desktop"
                 selected={value}
-                items={items}
+                items={[
+                  {
+                    id: "SepaDirectDebitCore",
+                    name: "Direct Debit",
+                    icon: <SepaLogo height={15} />,
+                  },
+                ]}
                 onValueChange={onChange}
               />
             )}
@@ -261,47 +297,24 @@ export const PaymentForm = () => {
         )}
       </Field>
 
-      <Box direction={desktop ? "row" : "column"}>
-        <Field name="firstName">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              label={t("paymentLink.firstName")}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-              style={styles.label}
-            />
-          )}
-        </Field>
-
-        <Space width={24} />
-
-        <Field name="lastName">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              style={styles.label}
-              label={t("paymentLink.lastName")}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-            />
-          )}
-        </Field>
-      </Box>
+      <Field name="name">
+        {({ value, valid, error, onChange, onBlur, ref }) => (
+          <LakeLabel
+            label={t("paymentLink.name")}
+            render={() => (
+              <LakeTextInput
+                value={value}
+                valid={valid}
+                error={error}
+                onChangeText={onChange}
+                onBlur={onBlur}
+                ref={ref}
+              />
+            )}
+            style={styles.label}
+          />
+        )}
+      </Field>
 
       <Field name="addressLine1">
         {({ value, valid, error, onChange, onBlur, ref }) => (
@@ -361,7 +374,7 @@ export const PaymentForm = () => {
         <Field name="postalCode">
           {({ value, valid, error, onChange, onBlur, ref }) => (
             <LakeLabel
-              label={t("paymentLink.postcode")}
+              label={t("paymentLink.postalCode")}
               render={() => (
                 <LakeTextInput
                   value={value}
@@ -407,7 +420,7 @@ export const PaymentForm = () => {
 
       <Space height={32} />
 
-      <LakeText color={colors.gray[700]} align="center">
+      <LakeText color={colors.gray[700]} align="center" variant="smallRegular">
         {t("paymentLink.termsAndConditions", { merchantName })}
       </LakeText>
 

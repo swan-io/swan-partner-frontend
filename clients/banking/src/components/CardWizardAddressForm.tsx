@@ -3,7 +3,7 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { GMapAddressSearchInput } from "@swan-io/shared-business/src/components/GMapAddressSearchInput";
+import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
@@ -104,22 +104,21 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
                   <LakeLabel
                     label={t("cardWizard.address.line1")}
                     render={id => (
-                      <GMapAddressSearchInput
-                        emptyResultText={t("common.noResults")}
-                        apiKey={__env.CLIENT_GOOGLE_MAPS_API_KEY}
-                        placeholder={t("addressInput.placeholder")}
-                        language={locale.language}
-                        id={id}
-                        error={error}
+                      <PlacekitAddressSearchInput
+                        apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                         country={country.value}
                         value={value}
                         onValueChange={onChange}
                         onSuggestion={suggestion => {
                           setFieldValue("addressLine1", suggestion.completeAddress);
                           setFieldValue("city", suggestion.city);
-                          setFieldValue("country", suggestion.country as CountryCCA3);
-                          setFieldValue("postalCode", suggestion.postalCode);
+                          setFieldValue("postalCode", suggestion.postalCode ?? "");
                         }}
+                        language={locale.language}
+                        placeholder={t("addressInput.placeholder")}
+                        emptyResultText={t("common.noResults")}
+                        error={error}
+                        id={id}
                       />
                     )}
                   />

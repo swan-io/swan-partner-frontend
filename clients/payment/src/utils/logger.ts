@@ -17,11 +17,11 @@ export const initSentry = () => {
     init({
       release: env.VERSION,
       dsn: "TODO",
-      environment: env.PAYMENT_URL.includes("preprod")
+      environment: env.CLIENT_PAYMENT_URL.includes("preprod")
         ? "preprod"
-        : env.PAYMENT_URL.includes("master")
-        ? "master"
-        : "prod",
+        : env.CLIENT_PAYMENT_URL.includes("master")
+          ? "master"
+          : "prod",
       normalizeDepth: 5,
     });
   }

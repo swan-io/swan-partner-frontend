@@ -38,6 +38,7 @@ type Props = {
     count: number;
   };
   withStickyTabs?: boolean;
+  withGrouping?: boolean;
 };
 
 type ExtraInfo = undefined;
@@ -59,7 +60,7 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   },
   {
     id: "method",
-    width: 160,
+    width: 180,
     title: t("transactions.method"),
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
     renderCell: ({ item }) => <TransactionMethodCell transaction={item} />,
@@ -140,6 +141,7 @@ export const TransactionList = ({
   renderEmptyList,
   activeRowId,
   withStickyTabs = false,
+  withGrouping = true,
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
   const { desktop } = useResponsive();
@@ -153,10 +155,13 @@ export const TransactionList = ({
           stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - headerHeight - 1}
           data={transactions.map(({ node }) => node)}
           keyExtractor={item => item.id}
-          groupBy={item =>
-            large
-              ? capitalize(dayjs(item.executionDate).format("MMMM YYYY"))
-              : dayjs(item.executionDate).format("LL")
+          groupBy={
+            withGrouping
+              ? item =>
+                  large
+                    ? capitalize(dayjs(item.executionDate).format("MMMM YYYY"))
+                    : dayjs(item.executionDate).format("LL")
+              : undefined
           }
           headerHeight={headerHeight}
           groupHeaderHeight={headerHeight}

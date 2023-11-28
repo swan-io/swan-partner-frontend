@@ -8,6 +8,7 @@ fragment TransactionDetails on Transaction {
   label
   counterparty
   reference
+  externalReference
   payment {
     id
     createdAt
@@ -66,6 +67,7 @@ fragment TransactionDetails on Transaction {
       }
     }
     currencyExchange {
+      __typename
       exchangeRate
     }
   }
@@ -156,6 +158,19 @@ fragment TransactionDetails on Transaction {
             name
           }
         }
+      }
+    }
+  }
+  ... on InternationalCreditTransferTransaction {
+    internationalCurrencyExchange: currencyExchange {
+      __typename
+      sourceAmount {
+        currency
+        value
+      }
+      targetAmount {
+        currency
+        value
       }
     }
   }
@@ -290,6 +305,7 @@ query AccountDetailsIbanPage($accountId: ID!) {
     id
     IBAN
     BIC
+    bankDetails
     name
     statusInfo {
       status
@@ -1917,6 +1933,164 @@ query GetAvailableAccountBalance($accountMembershipId: ID!) {
   }
 }
 
+query GetInternationalCreditTransferQuote(
+  $value: AmountValue!
+  $currency: Currency!
+  $accountId: ID!
+) {
+  internationalCreditTransferQuote(
+    accountId: $accountId
+    targetAmount: { value: $value, currency: $currency }
+  ) {
+    exchangeRate
+    feesAmount {
+      value
+      currency
+    }
+    targetAmount {
+      value
+      currency
+    }
+    sourceAmount {
+      value
+      currency
+    }
+  }
+}
+
+query GetInternationalBeneficiaryDynamicForms(
+  $amountValue: AmountValue!
+  $currency: Currency!
+  $language: InternationalCreditTransferDisplayLanguage!
+  $dynamicFields: [InternationalBeneficiaryDetailsInput!]
+) {
+  internationalBeneficiaryDynamicForms(
+    amount: { value: $amountValue, currency: $currency }
+    language: $language
+    dynamicFields: $dynamicFields
+  ) {
+    schemes {
+      type
+      title
+      remainingFieldsToRefreshCount
+      fields {
+        key
+        name
+        required
+        ... on DateField {
+          example
+          validationRegex
+          key
+          name
+          required
+        }
+        ... on TextField {
+          displayFormat
+          example
+          validationRegex
+          required
+          refreshDynamicFieldsOnChange
+          name
+          minLength
+          maxLength
+          key
+        }
+        ... on SelectField {
+          __typename
+          required
+          refreshDynamicFieldsOnChange
+          name
+          key
+          allowedValues {
+            name
+            key
+          }
+        }
+        ... on RadioField {
+          __typename
+          required
+          refreshDynamicFieldsOnChange
+          name
+          key
+          allowedValues {
+            name
+            key
+          }
+        }
+      }
+    }
+  }
+}
+
+query GetInternationalCreditTransferTransactionDetailsDynamicForm(
+  $name: String!
+  $route: InternationalCreditTransferRouteInput!
+  $amountValue: AmountValue!
+  $currency: Currency!
+  $language: InternationalCreditTransferDisplayLanguage!
+  $beneficiaryDetails: [InternationalBeneficiaryDetailsInput!]!
+  $dynamicFields: [InternationalCreditTransferDetailsInput!]
+) {
+  internationalCreditTransferTransactionDetailsDynamicForm(
+    internationalBeneficiary: {
+      details: $beneficiaryDetails
+      name: $name
+      route: $route
+      currency: $currency
+    }
+    targetAmount: { value: $amountValue, currency: $currency }
+    language: $language
+    refreshableFields: $dynamicFields
+  ) {
+    fields {
+      ... on TextField {
+        displayFormat
+        example
+        key
+        maxLength
+        minLength
+        name
+        refreshDynamicFieldsOnChange
+        required
+        validationRegex
+      }
+      ... on SelectField {
+        __typename
+        allowedValues {
+          key
+          name
+        }
+        key
+        name
+        refreshDynamicFieldsOnChange
+        required
+      }
+      ... on RadioField {
+        __typename
+        allowedValues {
+          key
+          name
+        }
+        name
+        key
+        refreshDynamicFieldsOnChange
+        required
+      }
+      ... on DateField {
+        example
+        validationRegex
+        key
+        name
+        required
+      }
+      required
+      name
+      key
+    }
+    remainingFieldsToRefreshCount
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2316,5 +2490,31 @@ mutation AddAccountMembership($input: AddAccountMembershipInput!) {
 mutation GenerateAccountStatement($input: GenerateAccountStatementInput!) {
   generateAccountStatement(input: $input) {
     id
+  }
+}
+
+mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCreditTransferInput!) {
+  initiateInternationalCreditTransfer(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on InitiateInternationalCreditTransferResponseSuccessPayload {
+      payment {
+        id
+        statusInfo {
+          __typename
+          ... on PaymentRejected {
+            reason
+          }
+          ... on PaymentConsentPending {
+            consent {
+              id
+              consentUrl
+            }
+          }
+        }
+      }
+    }
   }
 }

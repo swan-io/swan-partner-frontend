@@ -204,21 +204,34 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
           {match(transaction)
             .with(
-              {
-                __typename: "CardTransaction",
-                originalAmount: { value: P.string, currency: P.string },
-              },
-              transaction =>
-                transaction.originalAmount.currency !== transaction.amount.currency ? (
+              P.union(
+                {
+                  __typename: "InternationalCreditTransferTransaction",
+                  internationalCurrencyExchange: {
+                    targetAmount: {
+                      value: P.select("value", P.string),
+                      currency: P.select("currency", P.string),
+                    },
+                  },
+                },
+                {
+                  __typename: "CardTransaction",
+                  originalAmount: {
+                    value: P.select("value", P.string),
+                    currency: P.select("currency", P.string),
+                  },
+                },
+              ),
+              ({ currency = "", value }) => {
+                return (
                   <LakeText>
                     {(transaction.side === "Debit" ? "-" : "+") +
-                      formatCurrency(
-                        Number(transaction.originalAmount.value),
-                        transaction.originalAmount.currency,
-                      )}
+                      formatCurrency(Number(value), currency)}
                   </LakeText>
-                ) : null,
+                );
+              },
             )
+
             .otherwise(() => null)}
 
           <Space height={8} />

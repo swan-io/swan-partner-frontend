@@ -673,14 +673,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       const indexUrl: string = historyMenuIsVisible
                         ? Router.AccountTransactionsListRoot({ accountMembershipId })
                         : detailsMenuIsVisible
-                        ? Router.AccountDetailsIban({ accountMembershipId })
-                        : paymentMenuIsVisible
-                        ? Router.AccountPaymentsRoot({ accountMembershipId })
-                        : cardMenuIsVisible
-                        ? Router.AccountCardsList({ accountMembershipId })
-                        : memberMenuIsVisible
-                        ? Router.AccountMembersList({ accountMembershipId })
-                        : "";
+                          ? Router.AccountDetailsIban({ accountMembershipId })
+                          : paymentMenuIsVisible
+                            ? Router.AccountPaymentsRoot({ accountMembershipId })
+                            : cardMenuIsVisible
+                              ? Router.AccountCardsList({ accountMembershipId })
+                              : memberMenuIsVisible
+                                ? Router.AccountMembersList({ accountMembershipId })
+                                : "";
 
                       if (accountMembership.user?.id !== user?.id) {
                         return <Redirect to={Router.ProjectRootRedirect()} />;

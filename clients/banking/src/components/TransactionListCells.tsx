@@ -212,8 +212,10 @@ export const TransactionMethodCell = ({
             { type: "SepaInstantCreditTransferOut" },
             () => t("transactions.method.InstantTransfer"),
           )
-          .with({ __typename: "SEPACreditTransferTransaction" }, () =>
-            t("transactions.method.Transfer"),
+          .with(
+            { __typename: "SEPACreditTransferTransaction" },
+            { __typename: "InternationalCreditTransferTransaction" },
+            () => t("transactions.method.Transfer"),
           )
           .with(
             { __typename: "InternalDirectDebitTransaction" },
@@ -257,10 +259,19 @@ const TransactionAmount = ({ transaction }: { transaction: Transaction }) => (
 const TransactionOriginalAmount = ({
   transaction,
 }: {
-  transaction: Transaction & {
-    __typename: "CardTransaction";
-    originalAmount: { currency: string; value: string };
-  };
+  transaction: Transaction &
+    (
+      | {
+          __typename: "CardTransaction";
+          originalAmount: { currency: string; value: string };
+        }
+      | {
+          __typename: "InternationalCreditTransferTransaction";
+          internationalCurrencyExchange: {
+            targetAmount: { currency: string; value: string };
+          };
+        }
+    );
 }) => {
   return (
     <LakeText
@@ -275,10 +286,20 @@ const TransactionOriginalAmount = ({
         .otherwise(() => colors.gray[400])}
     >
       {(transaction.side === "Debit" ? "-" : "+") +
-        formatCurrency(
-          Number(transaction.originalAmount.value),
-          transaction.originalAmount.currency,
-        )}
+        match(transaction)
+          .with({ __typename: "CardTransaction" }, transaction =>
+            formatCurrency(
+              Number(transaction.originalAmount.value),
+              transaction.originalAmount.currency,
+            ),
+          )
+          .with({ __typename: "InternationalCreditTransferTransaction" }, transaction =>
+            formatCurrency(
+              Number(transaction.internationalCurrencyExchange.targetAmount.value),
+              transaction.internationalCurrencyExchange.targetAmount.currency,
+            ),
+          )
+          .exhaustive()}
     </LakeText>
   );
 };
@@ -297,6 +318,20 @@ export const TransactionAmountCell = ({ transaction }: { transaction: Transactio
             },
             transaction =>
               transaction.originalAmount.currency !== transaction.amount.currency ? (
+                <TransactionOriginalAmount transaction={transaction} />
+              ) : null,
+          )
+          .with(
+            {
+              __typename: "InternationalCreditTransferTransaction",
+              internationalCurrencyExchange: {
+                sourceAmount: { currency: P.string },
+                targetAmount: { value: P.string, currency: P.string },
+              },
+            },
+            transaction =>
+              transaction.internationalCurrencyExchange.sourceAmount.currency !==
+              transaction.internationalCurrencyExchange.targetAmount.currency ? (
                 <TransactionOriginalAmount transaction={transaction} />
               ) : null,
           )

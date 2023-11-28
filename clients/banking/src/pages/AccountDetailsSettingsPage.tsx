@@ -1,4 +1,4 @@
-import { Dict } from "@swan-io/boxed";
+import { AsyncData, Dict, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -12,8 +12,10 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
+import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import {
   isNotEmpty,
@@ -21,11 +23,7 @@ import {
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
-import {
-  filterRejectionsToPromise,
-  parseOperationResult,
-  useQueryWithErrorBoundary,
-} from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -34,15 +32,19 @@ import {
   validateIndividualTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
 import { ReactNode, useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { ScrollView, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
+import { P, match } from "ts-pattern";
 import { useMutation } from "urql";
+import { ErrorView } from "../components/ErrorView";
 import {
   AccountDetailsSettingsPageDocument,
+  AccountDetailsSettingsPageQuery,
   AccountLanguage,
   UpdateAccountDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { isUnauthorizedError } from "../utils/urql";
 import {
   validateAccountNameLength,
   validateRequired,
@@ -51,6 +53,16 @@ import {
 import { NotFoundPage } from "./NotFoundPage";
 
 const styles = StyleSheet.create({
+  content: {
+    flexShrink: 1,
+    flexGrow: 1,
+    paddingHorizontal: spacings[24],
+    paddingTop: spacings[32],
+  },
+  contentDesktop: {
+    paddingHorizontal: spacings[40],
+    paddingTop: spacings[40],
+  },
   tile: {
     ...commonStyles.fill,
   },
@@ -86,31 +98,19 @@ const Contract = ({ children, to }: { children: ReactNode; to: string }) => (
   </Link>
 );
 
-type Props = {
-  projectName: string;
-  accountId: string;
-  canManageAccountMembership: boolean;
-};
-
-export const AccountDetailsSettingsPage = ({
-  // projectName,
+const UpdateAccountForm = ({
   accountId,
+  account,
   canManageAccountMembership,
-}: Props) => {
-  const [
-    {
-      data: { account },
-    },
-  ] = useQueryWithErrorBoundary({
-    query: AccountDetailsSettingsPageDocument,
-    variables: { accountId },
-  });
-
-  const accountCountry = account?.country ?? "FRA";
-
+}: {
+  accountId: string;
+  account: NonNullable<AccountDetailsSettingsPageQuery["account"]>;
+  canManageAccountMembership: boolean;
+}) => {
+  const accountCountry = account.country ?? "FRA";
   const [, updateAccount] = useMutation(UpdateAccountDocument);
 
-  const holderInfo = account?.holder.info;
+  const holderInfo = account.holder.info;
   const isCompany = holderInfo?.__typename === "AccountHolderCompanyInfo";
 
   const { Field, formStatus, submitForm } = useForm<{
@@ -120,12 +120,12 @@ export const AccountDetailsSettingsPage = ({
     taxIdentificationNumber: string;
   }>({
     accountName: {
-      initialValue: account?.name ?? "",
+      initialValue: account.name ?? "",
       sanitize: value => value.trim(),
       validate: combineValidators(validateRequired, validateAccountNameLength),
     },
     language: {
-      initialValue: account?.language ?? "en",
+      initialValue: account.language ?? "en",
       strategy: "onChange",
       validate: validateRequired,
     },
@@ -151,6 +151,7 @@ export const AccountDetailsSettingsPage = ({
       fr: { name: "Français", cca3: "FRA" },
       it: { name: "Italiano", cca3: "ITA" },
       nl: { name: "Nederlands", cca3: "NLD" },
+      pt: { name: "Português", cca3: "PRT" },
     };
 
     return Dict.entries(map).map(([value, { name }]) => ({
@@ -158,10 +159,6 @@ export const AccountDetailsSettingsPage = ({
       name,
     }));
   }, []);
-
-  if (isNullish(account) || isNullish(holderInfo)) {
-    return <NotFoundPage />;
-  }
 
   const { statusInfo } = account;
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
@@ -368,5 +365,48 @@ export const AccountDetailsSettingsPage = ({
         </LakeButtonGroup>
       )}
     </View>
+  );
+};
+
+type Props = {
+  projectName: string;
+  accountId: string;
+  canManageAccountMembership: boolean;
+  largeBreakpoint: boolean;
+};
+
+export const AccountDetailsSettingsPage = ({
+  // projectName,
+  accountId,
+  canManageAccountMembership,
+  largeBreakpoint,
+}: Props) => {
+  const { data } = useUrqlQuery(
+    { query: AccountDetailsSettingsPageDocument, variables: { accountId } },
+    [],
+  );
+
+  return (
+    <ScrollView contentContainerStyle={[styles.content, largeBreakpoint && styles.contentDesktop]}>
+      {match(data)
+        .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <TilePlaceholder />)
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error =>
+          isUnauthorizedError(error) ? <></> : <ErrorView error={error} />,
+        )
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account }) =>
+          isNullish(account) ? (
+            <NotFoundPage />
+          ) : (
+            <UpdateAccountForm
+              accountId={accountId}
+              account={account}
+              canManageAccountMembership={canManageAccountMembership}
+            />
+          ),
+        )
+        .exhaustive()}
+
+      <Space height={24} />
+    </ScrollView>
   );
 };

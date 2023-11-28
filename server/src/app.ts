@@ -771,6 +771,7 @@ export const start = async ({
         .with(P.nullish, () => "LINK")
         .otherwise(() => "EMAIL"),
       BANKING_URL: env.BANKING_URL,
+      PAYMENT_URL: env.PAYMENT_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

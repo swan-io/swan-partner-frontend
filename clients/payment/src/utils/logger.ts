@@ -17,9 +17,9 @@ export const initSentry = () => {
     init({
       release: env.VERSION,
       dsn: "TODO",
-      environment: env.CLIENT_PAYMENT_URL.includes("preprod")
+      environment: env.PAYMENT_URL.includes("preprod")
         ? "preprod"
-        : env.CLIENT_PAYMENT_URL.includes("master")
+        : env.PAYMENT_URL.includes("master")
           ? "master"
           : "prod",
       normalizeDepth: 5,

@@ -772,6 +772,7 @@ export const start = async ({
         .otherwise(() => "EMAIL"),
       TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
+      PAYMENT_URL: env.PAYMENT_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,
         Error: () => undefined,

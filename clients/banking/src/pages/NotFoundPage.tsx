@@ -132,7 +132,7 @@ export const AccountNotFoundPage = ({ projectName }: { projectName: string }) =>
       alignItems="center"
       style={[styles.noAccountContainer, desktop && styles.noAccountContainerDesktop]}
     >
-      <BorderedIcon name="building-bank-regular" size={100} padding={16} />
+      <BorderedIcon name="lake-building-bank" size={100} padding={8} />
       <Space height={24} />
 
       <LakeText variant="medium" color={colors.gray[900]} align="center">

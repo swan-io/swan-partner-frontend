@@ -47,7 +47,7 @@ export const SuccessPage = () => {
       <SwanLogo />
 
       <Box direction="column" alignItems="center" style={styles.containerItems}>
-        <BorderedIcon name={"checkmark-filled"} color="positive" size={70} />
+        <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
         <Space height={24} />
 
         <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>

@@ -39,7 +39,7 @@ export const ErrorPage = () => {
       <SwanLogo />
 
       <Box direction="column" alignItems="center" style={styles.containerItems}>
-        <BorderedIcon name={"warning-regular"} color="negative" size={70} />
+        <BorderedIcon name={"lake-warning"} color="negative" size={70} padding={16} />
         <Space height={24} />
 
         <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>

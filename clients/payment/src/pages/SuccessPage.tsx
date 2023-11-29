@@ -38,9 +38,10 @@ const styles = StyleSheet.create({
 type Props = {
   mandateUrl?: string;
   redirectUrl: string;
+  name: string;
 };
 
-export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
+export const SuccessPage = ({ name, mandateUrl, redirectUrl }: Props) => {
   const { desktop } = useResponsive();
 
   return (
@@ -57,7 +58,7 @@ export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
         <Space height={24} />
 
         <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>
-          {t("paymentLink.success.title", { firstName: "toto" })}
+          {t("paymentLink.success.title", { name })}
         </LakeText>
 
         <LakeText align="center" color={colors.gray[500]} style={styles.subtitle}>

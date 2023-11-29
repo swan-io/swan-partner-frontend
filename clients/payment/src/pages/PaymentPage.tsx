@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Dict, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -12,10 +12,12 @@ import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { CSSProperties, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
@@ -87,10 +89,22 @@ type Props = {
 
 const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
 
+const fieldToPathMap = {
+  paymentMethod: ["paymentMethod"],
+  iban: ["iban"],
+  name: ["name"],
+  country: ["country"],
+  addressLine1: ["addressLine1"],
+  addressLine2: ["addressLine2"],
+  city: ["city"],
+  postalCode: ["postalCode"],
+  state: ["state"],
+} as const;
+
 export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
   const { desktop } = useResponsive();
 
-  const { Field, submitForm } = useForm<FormState>({
+  const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
     paymentMethod: {
       initialValue: "SepaDirectDebitCore",
     },
@@ -219,8 +233,32 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
             setMandateUrl(mandateUrl);
           })
           .tapError(error => {
-            // Router.replace("Error");
-            console.log(error);
+            match(error)
+              .with(
+                {
+                  __typename: "ValidationRejection",
+                  fields: P.not(P.nullish),
+                },
+                ({ fields }) => {
+                  let fieldToFocus: keyof FormState | undefined;
+                  fields.forEach(field => {
+                    Dict.entries(fieldToPathMap).forEach(([fieldName, path]) => {
+                      match(field.path)
+                        .with(path, () => {
+                          setFieldError(fieldName, t("form.invalidField"));
+                          if (fieldToFocus == null) {
+                            fieldToFocus = fieldName;
+                          }
+                        })
+                        .otherwise(() => {});
+                    });
+                  });
+                  if (fieldToFocus != null) {
+                    focusField(fieldToFocus);
+                  }
+                },
+              )
+              .otherwise(error => showToast({ variant: "error", title: translateError(error) }));
           });
       }
     });

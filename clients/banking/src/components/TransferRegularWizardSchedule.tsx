@@ -105,7 +105,7 @@ export const TransferRegularWizardSchedule = ({
       },
     },
     isInstant: {
-      initialValue: true,
+      initialValue: talse,
     },
   });
 

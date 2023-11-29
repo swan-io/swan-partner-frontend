@@ -8,6 +8,8 @@
   "paymentLink.button.returnToWebsite": "Return to website",
   "paymentLink.city": "City",
   "paymentLink.country": "Country",
+  "paymentLink.error.title": "Something went wrong",
+  "paymentLink.error.subtitle": "We couldn't set up your Direct Debit with Swan.\n Please try again or contact the support system.",
   "paymentLink.name": "Name",
   "paymentLink.iban": "IBAN",
   "paymentLink.paymentMethod": "Payment method",

@@ -20,8 +20,8 @@ export const initSentry = () => {
       environment: env.CLIENT_PAYMENT_URL.includes("preprod")
         ? "preprod"
         : env.CLIENT_PAYMENT_URL.includes("master")
-        ? "master"
-        : "prod",
+          ? "master"
+          : "prod",
       normalizeDepth: 5,
     });
   }

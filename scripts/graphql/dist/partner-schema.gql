@@ -11612,11 +11612,6 @@ type SchemeWrongRejection implements Rejection {
   message: String!
 }
 
-type ScreeningNotFoundRejection implements Rejection {
-  id: ID!
-  message: String!
-}
-
 type SelectField implements Field {
   key: String!
   name: String!

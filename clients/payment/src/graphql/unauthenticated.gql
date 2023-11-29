@@ -55,6 +55,12 @@ mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
         id
       }
     }
+    ... on ValidationRejection {
+      fields {
+        path
+        message
+      }
+    }
   }
 }
 

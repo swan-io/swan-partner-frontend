@@ -73,7 +73,6 @@ export const SuccessPage = ({ name, mandateUrl, redirectUrl }: Props) => {
         >
           <LakeButton
             ariaLabel={t("paymentLink.button.returnToWebsite")}
-            icon="dismiss-regular"
             mode="secondary"
             grow={true}
             href={redirectUrl}

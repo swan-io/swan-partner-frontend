@@ -4722,11 +4722,6 @@ type SchemeWrongRejection implements Rejection {
   message: String!
 }
 
-type ScreeningNotFoundRejection implements Rejection {
-  id: ID!
-  message: String!
-}
-
 """
 SEPA Creditor Identifier
 format :

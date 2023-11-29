@@ -23,7 +23,6 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
     sequence
     billingAddress {
       addressLine1
-      addressLine2
       city
       country
       postalCode

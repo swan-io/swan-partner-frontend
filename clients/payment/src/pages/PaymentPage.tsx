@@ -32,7 +32,7 @@ import {
 } from "../graphql/unauthenticated";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 
-const IMAGE_STYLE: CSSProperties = {
+export const IMAGE_STYLE: CSSProperties = {
   top: 0,
   left: 0,
   alignSelf: "center",
@@ -63,8 +63,6 @@ const styles = StyleSheet.create({
     height: 9,
     width: 45 * (9 / 10),
   },
-  buttonItem: { width: "40%", paddingHorizontal: 0 },
-  buttonItemDesktop: { width: "15%" },
   selectLanguage: {
     alignItems: "flex-end",
   },
@@ -76,7 +74,6 @@ type FormState = {
   country: CountryCCA3;
   name: string;
   addressLine1: string;
-  addressLine2: string;
   city: string;
   postalCode: string;
   state: string;
@@ -95,7 +92,6 @@ const fieldToPathMap = {
   name: ["name"],
   country: ["country"],
   addressLine1: ["addressLine1"],
-  addressLine2: ["addressLine2"],
   city: ["city"],
   postalCode: ["postalCode"],
   state: ["state"],
@@ -132,10 +128,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
           return;
         }
       },
-      sanitize: value => value.trim(),
-    },
-    addressLine2: {
-      initialValue: paymentLink.billingAddress?.addressLine2 ?? "",
       sanitize: value => value.trim(),
     },
     city: {
@@ -190,7 +182,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
           "state",
         ])
       ) {
-        const { name, addressLine1, addressLine2, city, country, state, postalCode, iban } = values;
+        const { name, addressLine1, city, country, state, postalCode, iban } = values;
 
         addSepaDirectDebitPaymentMandate({
           input: {
@@ -200,7 +192,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
               name,
               address: {
                 addressLine1,
-                addressLine2,
                 country,
                 city,
                 postalCode,
@@ -281,23 +272,21 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
       contentContainerStyle={styles.container}
     >
       <Box direction="row" alignItems="center" justifyContent="spaceBetween">
-        <Box style={desktop ? styles.buttonItemDesktop : styles.buttonItem}>
+        <Box>
           <LakeButton
-            ariaLabel={t("common.cancel")}
-            icon="dismiss-regular"
+            ariaLabel={t("common.back")}
+            icon="arrow-left-filled"
             mode="tertiary"
             grow={true}
             onPress={() => {
               window.location.replace(paymentLink.cancelRedirectUrl);
             }}
           >
-            {t("common.cancel")}
+            {desktop ? t("common.back") : null}
           </LakeButton>
         </Box>
 
-        <Box
-          style={[desktop ? styles.buttonItemDesktop : styles.buttonItem, styles.selectLanguage]}
-        >
+        <Box style={styles.selectLanguage}>
           <LakeSelect
             value={locale.language}
             items={languageOptions}
@@ -418,24 +407,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
         {({ value, valid, error, onChange, onBlur, ref }) => (
           <LakeLabel
             label={t("paymentLink.addressLine1")}
-            render={() => (
-              <LakeTextInput
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                ref={ref}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="addressLine2">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.addressLine2")}
             render={() => (
               <LakeTextInput
                 value={value}

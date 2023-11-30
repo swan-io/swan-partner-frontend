@@ -1,1 +1,23 @@
-{}
+{
+  "button.pay": "Pagar",
+  "common.back": "Volver",
+  "error.pageNotFound": "Página no encontrada",
+  "form.invalidField": "Campo inválido",
+  "paymentLink.addressLine1": "Dirección",
+  "paymentLink.button.downloadMandate": "Descargar mandato",
+  "paymentLink.button.returnToWebsite": "Volver al sitio web",
+  "paymentLink.city": "Ciudad",
+  "paymentLink.country": "País",
+  "paymentLink.error.subtitle": "No pudimos configurar tu Domiciliación Bancaria con Swan.\nPor favor, inténtalo de nuevo o contacta con el sistema de soporte.",
+  "paymentLink.error.title": "Algo salió mal",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Lo sentimos, tu enlace ha caducado",
+  "paymentLink.name": "Nombre",
+  "paymentLink.paymentMethod": "Método de pago",
+  "paymentLink.postalCode": "Código postal",
+  "paymentLink.poweredBySwan": "Desarrollado por",
+  "paymentLink.state": "Estado",
+  "paymentLink.success.subtitle": "La configuración de tu pago fue exitosa.\nPuedes cerrar esta ventana.",
+  "paymentLink.success.title": "¡Gracias!",
+  "paymentLink.termsAndConditions": "Al validar este paso, firmas electrónicamente el mandato de domiciliación y autorizas a {merchantName} a enviar instrucciones a Swan para cargar tu cuenta y autorizas a Swan a cargar tu cuenta de acuerdo con las instrucciones recibidas. Cualquier solicitud de reembolso se tratará de acuerdo con los términos y condiciones generales de tu banco."
+}

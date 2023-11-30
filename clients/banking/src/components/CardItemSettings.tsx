@@ -143,6 +143,9 @@ export const CardItemSettings = ({
         ref={settingsRef}
         cardProduct={card.cardProduct}
         cardFormat={card.type}
+        maxSpendingLimit={card.spendingLimits?.find(
+          item => item.type === "Partner" && item.period === "Monthly",
+        )}
         initialSettings={{
           spendingLimit: deriveInitialSpendingLimit(),
           cardName: card.name ?? "",

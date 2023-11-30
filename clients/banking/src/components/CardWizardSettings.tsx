@@ -24,9 +24,10 @@ import { emptyToUndefined, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
   AccountHolderForCardSettingsFragment,
+  Amount,
   CardProductFragment,
   SpendingLimitInput,
   SpendingLimitPeriodInput,
@@ -132,6 +133,7 @@ type Props = {
   onSubmit: (cardSettings: CardSettings) => void;
   accountHolder?: AccountHolderForCardSettingsFragment;
   canManageCards: boolean;
+  maxSpendingLimit?: { amount: Amount };
 };
 
 type ValidationError = "InvalidAmount";
@@ -223,12 +225,28 @@ const PERIODS = [
 
 export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
   (
-    { accountHolder, cardFormat, initialSettings, cardProduct, canManageCards, onSubmit }: Props,
+    {
+      accountHolder,
+      cardFormat,
+      initialSettings,
+      cardProduct,
+      canManageCards,
+      onSubmit,
+      maxSpendingLimit,
+    }: Props,
     ref,
   ) => {
-    const spendingLimitMaxValue = match(accountHolder?.info.__typename)
-      .with("AccountHolderCompanyInfo", () => Number(cardProduct.companySpendingLimit.amount.value))
-      .with("AccountHolderIndividualInfo", () =>
+    const spendingLimitMaxValue = match({
+      accountHolderType: accountHolder?.info.__typename,
+      maxSpendingLimit,
+    })
+      .with({ maxSpendingLimit: P.not(P.nullish) }, ({ maxSpendingLimit }) =>
+        Number(maxSpendingLimit.amount.value),
+      )
+      .with({ accountHolderType: "AccountHolderCompanyInfo" }, () =>
+        Number(cardProduct.companySpendingLimit.amount.value),
+      )
+      .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
         Number(cardProduct.individualSpendingLimit.amount.value),
       )
       .otherwise(() => null);

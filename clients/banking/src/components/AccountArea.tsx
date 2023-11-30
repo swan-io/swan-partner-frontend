@@ -237,6 +237,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     hasTransactions,
     identificationStatus,
     accountHolderType: account?.holder.info.__typename,
+    verificationStatus: account?.holder.verificationStatus,
     isIndividual,
     requireFirstTransfer,
     isLegalRepresentative: accountMembership?.legalRepresentative ?? false,
@@ -244,6 +245,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   })
     .returnType<AccountActivationTag>()
     // if payment level limitations have been lifted, no need for activation
+    .with({ verificationStatus: "Refused", isLegalRepresentative: true }, () => "refused")
     .with(
       { account: { paymentLevel: "Unlimited", paymentAccountType: "PaymentService" } },
       () => "none",
@@ -402,54 +404,57 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
         paymentMenuIsVisible,
         cardMenuIsVisible,
         memberMenuIsVisible,
-      }) => [
-        {
-          matchRoutes: ["AccountTransactionsArea"],
-          iconActive: "apps-list-filled",
-          icon: "apps-list-regular",
-          name: t("navigation.history"),
-          to: Router.AccountTransactionsListRoot({ accountMembershipId }),
-          hidden: !historyMenuIsVisible,
-        },
-        {
-          matchRoutes: ["AccountDetailsArea"],
-          iconActive: "building-bank-filled",
-          icon: "building-bank-regular",
-          name: t("navigation.account"),
-          to: Router.AccountDetailsIban({ accountMembershipId }),
-          hidden: !detailsMenuIsVisible,
-        },
-        {
-          matchRoutes: ["AccountPaymentsArea"],
-          iconActive: "arrow-swap-filled",
-          icon: "arrow-swap-regular",
-          name: t("navigation.transfer"),
-          to: Router.AccountPaymentsRoot({ accountMembershipId }),
-          hidden: !paymentMenuIsVisible,
-        },
-        {
-          matchRoutes: ["AccountCardsArea"],
-          iconActive: "payment-filled",
-          icon: "payment-regular",
-          name: t("navigation.cards"),
-          to: Router.AccountCardsList({ accountMembershipId }),
-          hidden: !cardMenuIsVisible,
-        },
-        {
-          matchRoutes: ["AccountMembersArea"],
-          iconActive: "people-filled",
-          icon: "people-regular",
-          name: t("navigation.members"),
-          to: Router.AccountMembersList({ accountMembershipId }),
-          hidden: !memberMenuIsVisible,
-          hasNotifications: Option.fromNullable(accountMembership.account)
-            .map(
-              ({ accountMembershipsWithBindingUserError }) =>
-                accountMembershipsWithBindingUserError.totalCount > 0,
-            )
-            .getWithDefault(false),
-        },
-      ],
+      }) =>
+        holder?.verificationStatus === "Refused"
+          ? []
+          : [
+              {
+                matchRoutes: ["AccountTransactionsArea"],
+                iconActive: "apps-list-filled",
+                icon: "apps-list-regular",
+                name: t("navigation.history"),
+                to: Router.AccountTransactionsListRoot({ accountMembershipId }),
+                hidden: !historyMenuIsVisible,
+              },
+              {
+                matchRoutes: ["AccountDetailsArea"],
+                iconActive: "building-bank-filled",
+                icon: "building-bank-regular",
+                name: t("navigation.account"),
+                to: Router.AccountDetailsIban({ accountMembershipId }),
+                hidden: !detailsMenuIsVisible,
+              },
+              {
+                matchRoutes: ["AccountPaymentsArea"],
+                iconActive: "arrow-swap-filled",
+                icon: "arrow-swap-regular",
+                name: t("navigation.transfer"),
+                to: Router.AccountPaymentsRoot({ accountMembershipId }),
+                hidden: !paymentMenuIsVisible,
+              },
+              {
+                matchRoutes: ["AccountCardsArea"],
+                iconActive: "payment-filled",
+                icon: "payment-regular",
+                name: t("navigation.cards"),
+                to: Router.AccountCardsList({ accountMembershipId }),
+                hidden: !cardMenuIsVisible,
+              },
+              {
+                matchRoutes: ["AccountMembersArea"],
+                iconActive: "people-filled",
+                icon: "people-regular",
+                name: t("navigation.members"),
+                to: Router.AccountMembersList({ accountMembershipId }),
+                hidden: !memberMenuIsVisible,
+                hasNotifications: Option.fromNullable(accountMembership.account)
+                  .map(
+                    ({ accountMembershipsWithBindingUserError }) =>
+                      accountMembershipsWithBindingUserError.totalCount > 0,
+                  )
+                  .getWithDefault(false),
+              },
+            ],
     )
     .getWithDefault([]);
 
@@ -673,14 +678,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       const indexUrl: string = historyMenuIsVisible
                         ? Router.AccountTransactionsListRoot({ accountMembershipId })
                         : detailsMenuIsVisible
-                          ? Router.AccountDetailsIban({ accountMembershipId })
-                          : paymentMenuIsVisible
-                            ? Router.AccountPaymentsRoot({ accountMembershipId })
-                            : cardMenuIsVisible
-                              ? Router.AccountCardsList({ accountMembershipId })
-                              : memberMenuIsVisible
-                                ? Router.AccountMembersList({ accountMembershipId })
-                                : "";
+                        ? Router.AccountDetailsIban({ accountMembershipId })
+                        : paymentMenuIsVisible
+                        ? Router.AccountPaymentsRoot({ accountMembershipId })
+                        : cardMenuIsVisible
+                        ? Router.AccountCardsList({ accountMembershipId })
+                        : memberMenuIsVisible
+                        ? Router.AccountMembersList({ accountMembershipId })
+                        : "";
 
                       if (accountMembership.user?.id !== user?.id) {
                         return <Redirect to={Router.ProjectRootRedirect()} />;
@@ -690,6 +695,19 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                         accountMembership.statusInfo.status !== "BindingUserError" &&
                         accountMembership.canManageAccountMembership;
 
+                      if (holder?.verificationStatus === "Refused") {
+                        return (
+                          <AccountActivationPage
+                            requireFirstTransfer={requireFirstTransfer}
+                            accentColor={accentColor}
+                            accountMembershipId={accountMembershipId}
+                            additionalInfo={additionalInfo}
+                            accountVisible={accountVisible}
+                            projectName={projectName}
+                            refetchAccountAreaQuery={refetchAccountAreaQuery}
+                          />
+                        );
+                      }
                       return (
                         <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                           {match(route)

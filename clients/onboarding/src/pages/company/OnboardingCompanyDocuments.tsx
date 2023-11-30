@@ -1,3 +1,4 @@
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -107,6 +108,8 @@ export const OnboardingCompanyDocuments = ({
           {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.documents.title")}</StepTitle>
+              <Space height={4} />
+              <LakeText>{t("company.step.documents.subtitle")}</LakeText>
               <Space height={small ? 24 : 32} />
 
               <DocumentsStepTile small={small}>

@@ -1,1 +1,23 @@
-{}
+{
+  "button.pay": "Pagar",
+  "common.back": "Voltar",
+  "error.pageNotFound": "Página não encontrada",
+  "form.invalidField": "Campo inválido",
+  "paymentLink.addressLine1": "Endereço",
+  "paymentLink.button.downloadMandate": "Baixar autorização",
+  "paymentLink.button.returnToWebsite": "Voltar para o site",
+  "paymentLink.city": "Cidade",
+  "paymentLink.country": "País",
+  "paymentLink.error.subtitle": "Não foi possível configurar o Débito Direto com a Swan.\n Por favor, tente novamente ou entre em contato com o suporte.",
+  "paymentLink.error.title": "Algo deu errado",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Desculpe, seu link expirou",
+  "paymentLink.name": "Nome",
+  "paymentLink.paymentMethod": "Método de pagamento",
+  "paymentLink.postalCode": "Código postal",
+  "paymentLink.poweredBySwan": "Desenvolvido por",
+  "paymentLink.state": "Estado",
+  "paymentLink.success.subtitle": "A configuração do seu pagamento foi concluída com sucesso.\nVocê pode fechar esta janela.",
+  "paymentLink.success.title": "Obrigado!",
+  "paymentLink.termsAndConditions": "Ao validar esta etapa, você assina eletronicamente a autorização de débito e autoriza {merchantName} a enviar instruções para a Swan para debitar sua conta, e autoriza a Swan a debitar sua conta de acordo com as instruções recebidas. Qualquer solicitação de reembolso será tratada de acordo com os termos e condições gerais do seu banco."
+}

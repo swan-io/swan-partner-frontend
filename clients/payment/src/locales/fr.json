@@ -1,1 +1,23 @@
-{}
+{
+  "button.pay": "Payer",
+  "common.back": "Retour",
+  "error.pageNotFound": "Page non trouvée",
+  "form.invalidField": "Champ invalide",
+  "paymentLink.addressLine1": "Adresse",
+  "paymentLink.button.downloadMandate": "Télécharger le mandat",
+  "paymentLink.button.returnToWebsite": "Retourner sur le site web",
+  "paymentLink.city": "Ville",
+  "paymentLink.country": "Pays",
+  "paymentLink.error.subtitle": "Nous n'avons pas pu configurer votre prélèvement automatique avec Swan.\n Veuillez réessayer ou contacter le support.",
+  "paymentLink.error.title": "Quelque chose s'est mal passé",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Désolé, votre lien a expiré",
+  "paymentLink.name": "Nom",
+  "paymentLink.paymentMethod": "Moyen de paiement",
+  "paymentLink.postalCode": "Code postal",
+  "paymentLink.poweredBySwan": "Propulsé par",
+  "paymentLink.state": "État",
+  "paymentLink.success.subtitle": "La configuration de votre paiement a réussi.\nVous pouvez fermer cette fenêtre.",
+  "paymentLink.success.title": "Merci !",
+  "paymentLink.termsAndConditions": "En validant cette étape, vous signez électroniquement le mandat de prélèvement et vous autorisez {merchantName} à envoyer des instructions à Swan pour prélever sur votre compte et vous autorisez Swan à prélever sur votre compte conformément aux instructions reçues. Toute demande de remboursement sera traitée conformément aux conditions générales de votre banque."
+}

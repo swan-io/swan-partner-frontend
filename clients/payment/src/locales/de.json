@@ -1,1 +1,23 @@
-{}
+{
+  "button.pay": "Bezahlen",
+  "common.back": "Zurück",
+  "error.pageNotFound": "Seite nicht gefunden",
+  "form.invalidField": "Ungültiges Feld",
+  "paymentLink.addressLine1": "Adresszeile",
+  "paymentLink.button.downloadMandate": "Mandat herunterladen",
+  "paymentLink.button.returnToWebsite": "Zurück zur Website",
+  "paymentLink.city": "Stadt",
+  "paymentLink.country": "Land",
+  "paymentLink.error.subtitle": "Wir konnten Ihre Lastschrift mit Swan nicht einrichten.\nBitte versuchen Sie es erneut oder kontaktieren Sie das Support-System.",
+  "paymentLink.error.title": "Etwas ist schiefgelaufen",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Entschuldigung, Ihr Link ist abgelaufen",
+  "paymentLink.name": "Name",
+  "paymentLink.paymentMethod": "Zahlungsmethode",
+  "paymentLink.postalCode": "Postleitzahl",
+  "paymentLink.poweredBySwan": "Powered by",
+  "paymentLink.state": "Bundesland",
+  "paymentLink.success.subtitle": "Ihre Zahlungseinrichtung war erfolgreich.\nSie können dieses Fenster schließen.",
+  "paymentLink.success.title": "Danke!",
+  "paymentLink.termsAndConditions": "Durch die Bestätigung dieses Schritts unterzeichnen Sie elektronisch das Lastschriftmandat und ermächtigen {merchantName}, Anweisungen an Swan zur Abbuchung von Ihrem Konto zu senden. Sie ermächtigen Swan, Ihr Konto gemäß den erhaltenen Anweisungen zu belasten. Jede Rückerstattungsanfrage wird gemäß den allgemeinen Geschäftsbedingungen Ihrer Bank bearbeitet."
+}

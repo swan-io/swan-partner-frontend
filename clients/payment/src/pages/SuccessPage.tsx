@@ -1,6 +1,7 @@
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
@@ -8,7 +9,9 @@ import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
+import { IMAGE_STYLE } from "./PaymentPage";
 
 const styles = StyleSheet.create({
   container: {
@@ -37,11 +40,10 @@ const styles = StyleSheet.create({
 
 type Props = {
   mandateUrl?: string;
-  redirectUrl: string;
-  name: string;
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
 };
 
-export const SuccessPage = ({ name, mandateUrl, redirectUrl }: Props) => {
+export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
   const { desktop } = useResponsive();
 
   return (
@@ -51,14 +53,20 @@ export const SuccessPage = ({ name, mandateUrl, redirectUrl }: Props) => {
       justifyContent="spaceBetween"
       style={styles.container}
     >
-      <SwanLogo />
+      {isNotNullish(paymentLink.merchantProfile.merchantLogoUrl) ? (
+        <img src={paymentLink.merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
+      ) : (
+        <LakeHeading variant="h3" level={3} align="center">
+          {paymentLink.merchantProfile.merchantName}
+        </LakeHeading>
+      )}
 
       <Box direction="column" alignItems="center" style={styles.containerItems}>
         <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
         <Space height={24} />
 
         <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>
-          {t("paymentLink.success.title", { name })}
+          {t("paymentLink.success.title")}
         </LakeText>
 
         <LakeText align="center" color={colors.gray[500]} style={styles.subtitle}>
@@ -75,7 +83,7 @@ export const SuccessPage = ({ name, mandateUrl, redirectUrl }: Props) => {
             ariaLabel={t("paymentLink.button.returnToWebsite")}
             mode="secondary"
             grow={true}
-            href={redirectUrl}
+            href={paymentLink.redirectUrl}
           >
             {t("paymentLink.button.returnToWebsite")}
           </LakeButton>

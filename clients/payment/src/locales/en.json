@@ -17,7 +17,7 @@
   "paymentLink.postalCode": "Postal code",
   "paymentLink.poweredBySwan": "Powered by",
   "paymentLink.state": "State",
-  "paymentLink.success.title": "Thanks, {name}!",
+  "paymentLink.success.title": "Thanks!",
   "paymentLink.success.subtitle": "Your payment setup was successful.\nYou can close this window.",
   "paymentLink.termsAndConditions": "By validating this step, you electronically sign the debit mandate and you authorise {merchantName} to send instructions to Swan to debit your account and you authorise Swan to debit your account in accordance with the instructions received. Any request for a refund will be dealt with in accordance with your bank's general terms and conditions."
 }

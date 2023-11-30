@@ -1,11 +1,15 @@
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
+import { IMAGE_STYLE } from "./PaymentPage";
 
 const styles = StyleSheet.create({
   container: {
@@ -28,7 +32,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ErrorPage = () => {
+type Props = {
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+};
+
+export const ErrorPage = ({ paymentLink }: Props) => {
   return (
     <Box
       direction="column"
@@ -36,7 +44,13 @@ export const ErrorPage = () => {
       justifyContent="spaceBetween"
       style={styles.container}
     >
-      <SwanLogo />
+      {isNotNullish(paymentLink.merchantProfile.merchantLogoUrl) ? (
+        <img src={paymentLink.merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
+      ) : (
+        <LakeHeading variant="h3" level={3} align="center">
+          {paymentLink.merchantProfile.merchantName}
+        </LakeHeading>
+      )}
 
       <Box direction="column" alignItems="center" style={styles.containerItems}>
         <BorderedIcon name={"lake-warning"} color="negative" size={70} padding={16} />

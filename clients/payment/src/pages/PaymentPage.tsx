@@ -1,4 +1,4 @@
-import { Dict, Result } from "@swan-io/boxed";
+import { Dict } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -88,13 +88,13 @@ const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
 
 const fieldToPathMap = {
   paymentMethod: ["paymentMethod"],
-  iban: ["iban"],
-  name: ["name"],
-  country: ["country"],
-  addressLine1: ["addressLine1"],
-  city: ["city"],
-  postalCode: ["postalCode"],
-  state: ["state"],
+  iban: ["debtor", "iban"],
+  name: ["debtor", "name"],
+  country: ["address", "country"],
+  addressLine1: ["address", "addressLine1"],
+  city: ["address", "city"],
+  postalCode: ["address", "postalCode"],
+  state: ["address", "state"],
 } as const;
 
 export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
@@ -188,7 +188,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
           input: {
             paymentLinkId: paymentLink.id,
             debtor: {
-              IBAN: iban,
+              iban,
               name,
               address: {
                 addressLine1,
@@ -201,7 +201,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
           },
         })
           .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
-          .mapOkToResult(data => (isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined)))
           .mapOkToResult(filterRejectionsToResult)
           .mapOk(data => data.paymentMandate)
           .flatMapOk(paymentMandate =>
@@ -213,9 +212,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
             })
               .mapOk(
                 data => data.unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink,
-              )
-              .mapOkToResult(data =>
-                isNotNullish(data) ? Result.Ok(data) : Result.Error(undefined),
               )
               .mapOkToResult(filterRejectionsToResult)
               .mapOk(() => paymentMandate.mandateDocumentUrl),

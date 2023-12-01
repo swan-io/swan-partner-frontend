@@ -246,16 +246,21 @@ export const TransferInternationalWizardAmount = ({
 
 type SummaryProps = {
   amount: Amount;
+  isMobile: boolean;
   onPressEdit: () => void;
 };
 
-export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }: SummaryProps) => {
+export const TransferInternationamWizardAmountSummary = ({
+  isMobile,
+  amount,
+  onPressEdit,
+}: SummaryProps) => {
   return (
     <Tile selected={false}>
       <Box direction="row">
         <View>
           <LakeText color={colors.gray[500]} variant="regular">
-            {t("transfer.new.internationalTransfer.amount.summary.title")}
+            {t("transfer.new.details.summaryTitle")}
           </LakeText>
 
           <Space height={8} />
@@ -267,8 +272,13 @@ export const TransferInternationamWizardAmountSummary = ({ amount, onPressEdit }
 
         <Fill />
 
-        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
-          {t("common.edit")}
+        <LakeButton
+          mode="tertiary"
+          icon="edit-regular"
+          ariaLabel={t("common.edit")}
+          onPress={onPressEdit}
+        >
+          {isMobile ? null : t("common.edit")}
         </LakeButton>
       </Box>
     </Tile>

@@ -208,6 +208,7 @@ export const TransferRegularWizard = ({ onPressClose, accountId, accountMembersh
                 return (
                   <>
                     <TransferWizardBeneficiarySummary
+                      isMobile={!large}
                       beneficiary={beneficiary}
                       onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
                     />
@@ -235,6 +236,7 @@ export const TransferRegularWizard = ({ onPressClose, accountId, accountMembersh
                 return (
                   <>
                     <TransferWizardBeneficiarySummary
+                      isMobile={!large}
                       beneficiary={beneficiary}
                       onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
                     />
@@ -242,6 +244,7 @@ export const TransferRegularWizard = ({ onPressClose, accountId, accountMembersh
                     <Space height={32} />
 
                     <TransferRegularWizardDetailsSummary
+                      isMobile={!large}
                       details={details}
                       onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
                     />

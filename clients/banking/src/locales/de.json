@@ -708,7 +708,6 @@
   "transfer.new.internationalTransfer.amount.converted": "Sie senden genau <colored>{amount}</colored>",
   "transfer.new.internationalTransfer.amount.description": "Gesamtbetrag, den wir in <bold>{amount}</bold> umrechnen (Wechselkurs {rate})",
   "transfer.new.internationalTransfer.amount.label": "Empfänger erhält",
-  "transfer.new.internationalTransfer.amount.summary.title": "Sie senden",
   "transfer.new.internationalTransfer.amount.title": "Geben Sie Details zu Ihrer Überweisung ein",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "Der Wert entspricht nicht dem erwarteten Muster",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "Der Wert entspricht nicht dem erwarteten Muster (Beispiel: {example})",

@@ -220,6 +220,7 @@ export const TransferRecurringWizard = ({
                 return (
                   <>
                     <TransferWizardBeneficiarySummary
+                      isMobile={!large}
                       beneficiary={beneficiary}
                       onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
                     />
@@ -240,6 +241,7 @@ export const TransferRecurringWizard = ({
                 return (
                   <>
                     <TransferWizardBeneficiarySummary
+                      isMobile={!large}
                       beneficiary={beneficiary}
                       onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
                     />
@@ -247,6 +249,7 @@ export const TransferRecurringWizard = ({
                     <Space height={32} />
 
                     <TransferRecurringWizardDetailsSummary
+                      isMobile={!large}
                       details={details}
                       onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
                     />

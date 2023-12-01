@@ -8,6 +8,7 @@ import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -20,6 +21,7 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
+import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useMemo, useRef } from "react";
@@ -34,7 +36,7 @@ import {
 import { AccountActivationPageDocument } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
-import { t } from "../utils/i18n";
+import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -120,6 +122,9 @@ const styles = StyleSheet.create({
     ...commonStyles.fill,
   },
   illustrationPanel: {
+    ...commonStyles.fill,
+  },
+  errorContainer: {
     ...commonStyles.fill,
   },
 });
@@ -439,6 +444,32 @@ export const AccountActivationPage = ({
 
   if (isNullish(step)) {
     return <ErrorView />;
+  }
+
+  if (holder?.verificationStatus === "Refused") {
+    return (
+      <Box alignItems="center" justifyContent="center" style={styles.errorContainer}>
+        <BorderedIcon name="lake-denied" size={100} padding={16} color="negative" />
+        <Space height={24} />
+
+        <LakeHeading variant="h1" level={1} align="center" color={colors.gray[900]}>
+          {t("accountActivation.refused.title")}
+        </LakeHeading>
+
+        <Space height={isMobile ? 4 : 12} />
+
+        <LakeText align="center">
+          {formatNestedMessage("accountActivation.refused.description", {
+            name: holder.info.name,
+            email: (
+              <Link to="mailto:support@swan.io">
+                <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
+              </Link>
+            ),
+          })}
+        </LakeText>
+      </Box>
+    );
   }
 
   const content = match(step)

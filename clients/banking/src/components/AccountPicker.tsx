@@ -242,7 +242,7 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
   });
 };
 
-export type AccountActivationTag = "actionRequired" | "pending" | "none";
+export type AccountActivationTag = "actionRequired" | "pending" | "none" | "refused";
 
 type AccountPickerButtonProps = {
   desktop: boolean;
@@ -315,29 +315,40 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
 
           {activationTag !== "none" && (
             <View>
-              <Link
-                to={Router.AccountActivation({ accountMembershipId })}
-                onPress={onPressActivationLink}
-                style={({ hovered }) => [
-                  styles.activationLink,
-                  hovered && styles.activationLinkHovered,
-                ]}
-              >
-                {match(activationTag)
-                  .with("actionRequired", () => (
-                    <Tag color="warning" size="small">
-                      {t("accountActivation.menuTag.actionRequired")}
+              {match(activationTag)
+                .with("refused", () => (
+                  <View style={styles.activationLink}>
+                    <Tag color="negative" size="small">
+                      {t("accountActivation.menuTag.refused")}
                     </Tag>
-                  ))
-                  .with("pending", () => (
-                    <Tag color="shakespear" size="small">
-                      {t("accountActivation.menuTag.pending")}
-                    </Tag>
-                  ))
-                  .exhaustive()}
+                  </View>
+                ))
+                .otherwise(activationTag => (
+                  <Link
+                    to={Router.AccountActivation({ accountMembershipId })}
+                    onPress={onPressActivationLink}
+                    style={({ hovered }) => [
+                      styles.activationLink,
+                      hovered && styles.activationLinkHovered,
+                    ]}
+                  >
+                    {match(activationTag)
+                      .with("actionRequired", () => (
+                        <Tag color="warning" size="small">
+                          {t("accountActivation.menuTag.actionRequired")}
+                        </Tag>
+                      ))
+                      .with("pending", () => (
+                        <Tag color="shakespear" size="small">
+                          {t("accountActivation.menuTag.pending")}
+                        </Tag>
+                      ))
 
-                <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />
-              </Link>
+                      .exhaustive()}
+
+                    <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />
+                  </Link>
+                ))}
 
               {activationLinkActive && (
                 <SidebarNavigationTrackerActiveMarker color={colors.current[500]} />

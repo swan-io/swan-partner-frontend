@@ -219,10 +219,15 @@ export const TransferRegularWizardDetails = ({
 
 type SummaryProps = {
   details: Details;
+  isMobile: boolean;
   onPressEdit: () => void;
 };
 
-export const TransferRegularWizardDetailsSummary = ({ details, onPressEdit }: SummaryProps) => {
+export const TransferRegularWizardDetailsSummary = ({
+  isMobile,
+  details,
+  onPressEdit,
+}: SummaryProps) => {
   return (
     <Tile selected={false}>
       <Box direction="row">
@@ -238,8 +243,13 @@ export const TransferRegularWizardDetailsSummary = ({ details, onPressEdit }: Su
           </LakeHeading>
         </View>
 
-        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
-          {t("common.edit")}
+        <LakeButton
+          mode="tertiary"
+          icon="edit-regular"
+          ariaLabel={t("common.edit")}
+          onPress={onPressEdit}
+        >
+          {isMobile ? null : t("common.edit")}
         </LakeButton>
       </Box>
     </Tile>

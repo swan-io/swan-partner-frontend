@@ -729,7 +729,6 @@
   "transfer.new.sendRegularTransfer.description": "You will send a regular standing order",
   "transfer.new.internationalTransfer.title": "New international transfer",
   "transfer.new.internationalTransfer.amount.title": "Enter details about your transfer",
-  "transfer.new.internationalTransfer.amount.summary.title": "You're sending",
   "transfer.new.internationalTransfer.amount.label": "Beneficiary gets",
   "transfer.new.internationalTransfer.amount.description": "Total amount we'll convert <bold>{amount}</bold> (Exchange rate {rate})",
   "transfer.new.internationalTransfer.fee": "Transfer fee <bold>{fee}</bold>",

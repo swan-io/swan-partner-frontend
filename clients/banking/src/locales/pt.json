@@ -705,7 +705,6 @@
   "transfer.new.internationalTransfer.amount.converted": "Você envia exatamente <colored>{amount}</colored>",
   "transfer.new.internationalTransfer.amount.description": "Valor total a ser convertido <bold>{amount}</bold> (Taxa de câmbio {rate})",
   "transfer.new.internationalTransfer.amount.label": "Beneficiário recebe",
-  "transfer.new.internationalTransfer.amount.summary.title": "Você está enviando",
   "transfer.new.internationalTransfer.amount.title": "Insira os detalhes sobre a sua transferência",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "O valor não corresponde ao padrão esperado",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "O valor não corresponde ao padrão esperado (exemplo: {example})",

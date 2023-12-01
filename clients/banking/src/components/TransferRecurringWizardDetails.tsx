@@ -471,11 +471,16 @@ export const TransferRecurringWizardDetails = ({
 };
 
 type SummaryProps = {
+  isMobile: boolean;
   details: Details;
   onPressEdit: () => void;
 };
 
-export const TransferRecurringWizardDetailsSummary = ({ details, onPressEdit }: SummaryProps) => {
+export const TransferRecurringWizardDetailsSummary = ({
+  isMobile,
+  details,
+  onPressEdit,
+}: SummaryProps) => {
   return (
     <Tile selected={false}>
       <Box direction="row">
@@ -513,8 +518,13 @@ export const TransferRecurringWizardDetailsSummary = ({ details, onPressEdit }: 
           ))
           .exhaustive()}
 
-        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
-          {t("common.edit")}
+        <LakeButton
+          mode="tertiary"
+          icon="edit-regular"
+          ariaLabel={t("common.edit")}
+          onPress={onPressEdit}
+        >
+          {isMobile ? null : t("common.edit")}
         </LakeButton>
       </Box>
     </Tile>

@@ -184,10 +184,15 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
 
 type SummaryProps = {
   beneficiary: Beneficiary;
+  isMobile: boolean;
   onPressEdit: () => void;
 };
 
-export const TransferWizardBeneficiarySummary = ({ beneficiary, onPressEdit }: SummaryProps) => {
+export const TransferWizardBeneficiarySummary = ({
+  isMobile,
+  beneficiary,
+  onPressEdit,
+}: SummaryProps) => {
   return (
     <Tile selected={false}>
       <Box direction="row">
@@ -207,8 +212,13 @@ export const TransferWizardBeneficiarySummary = ({ beneficiary, onPressEdit }: S
           </LakeText>
         </View>
 
-        <LakeButton mode="tertiary" icon="edit-regular" onPress={onPressEdit}>
-          {t("common.edit")}
+        <LakeButton
+          mode="tertiary"
+          icon="edit-regular"
+          ariaLabel={t("common.edit")}
+          onPress={onPressEdit}
+        >
+          {isMobile ? null : t("common.edit")}
         </LakeButton>
       </Box>
     </Tile>

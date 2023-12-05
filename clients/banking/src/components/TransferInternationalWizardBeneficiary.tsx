@@ -148,8 +148,13 @@ export const TransferInternationalWizardBeneficiary = ({
   }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldState]);
 
   useEffect(() => {
-    listenFields(["route"], ({ route: { value } }) => setRoute(value));
-    listenFields(["results"], () => refresh());
+    const removeRouteListener = listenFields(["route"], ({ route: { value } }) => setRoute(value));
+    const removeResultsListener = listenFields(["results"], () => refresh());
+
+    return () => {
+      removeRouteListener();
+      removeResultsListener();
+    };
   }, [listenFields, refresh]);
 
   return (

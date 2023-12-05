@@ -716,6 +716,7 @@
   "transfer.new.internationalTransfer.beneficiary.title": "Naar wie stuur je geld?",
   "transfer.new.internationalTransfer.details.form.field.customLabel": "Aangepast label",
   "transfer.new.internationalTransfer.details.title": "Overschrijvingsgegevens",
+  "transfer.new.internationalTransfer.errors.title": "Er is een fout opgetreden",
   "transfer.new.internationalTransfer.fee": "Overboekingskosten: <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.Aba": "Rekeningnummer en ACH-routingnummer",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (enkel bankcode)",

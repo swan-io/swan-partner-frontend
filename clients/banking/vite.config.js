@@ -48,7 +48,6 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     watch: false,
-    threads: false,
   },
   envDir: path.resolve(__dirname, "../../env"),
   publicDir: "../public",

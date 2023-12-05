@@ -31,6 +31,7 @@ type DynamicForm = Form<Record<string, string>>;
 
 export type DynamicFormApi = {
   submitDynamicForm: DynamicForm["submitForm"];
+  setDynamicFieldError: DynamicForm["setFieldError"];
 };
 
 type TransferInternationalDynamicFormBuilderProps = {
@@ -92,9 +93,14 @@ type DynamicFormProps = {
 
 const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
   ({ fields, form, onChange }, forwardedRef) => {
-    const { Field, listenFields, submitForm, validateField, getFieldState } = useForm(form);
+    const { Field, listenFields, submitForm, validateField, getFieldState, setFieldError } =
+      useForm(form);
 
-    useImperativeHandle(forwardedRef, () => ({ submitDynamicForm: submitForm }), [submitForm]);
+    useImperativeHandle(
+      forwardedRef,
+      () => ({ submitDynamicForm: submitForm, setDynamicFieldError: setFieldError }),
+      [submitForm, setFieldError],
+    );
 
     useEffect(() => {
       const keys = Object.keys(form);

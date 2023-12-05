@@ -108,12 +108,14 @@ export const TransferInternationalWizardDetails = ({
                 graphQLErrors: P.array({
                   extensions: {
                     code: "BeneficiaryValidationError",
-                    errors: P.array({ message: P.select(P.string) }),
+                    errors: P.select(),
                   },
                 }),
               },
-              ([messages]) => {
-                onPressPrevious(messages);
+              ([errors]) => {
+                onPressPrevious(
+                  errors.map(({ message, path }) => [beneficiary.results[path[2]]?.key, message]),
+                );
               },
             )
             .otherwise(() => showToast({ variant: "error", title: t("error.generic") }));

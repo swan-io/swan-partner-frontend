@@ -9,13 +9,19 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullish,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -50,7 +56,7 @@ export type Beneficiary = {
 type Props = {
   initialBeneficiary?: Beneficiary;
   amount: Amount;
-  errors?: string[];
+  errors?: string[][];
   onPressPrevious: () => void;
   onSave: (details: Beneficiary) => void;
 };
@@ -81,25 +87,32 @@ export const TransferInternationalWizardBeneficiary = ({
     [locale.language, dynamicFields],
   );
 
-  const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldState } =
-    useForm<{
-      name: string;
-      route: string;
-      results: ResultItem[];
-    }>({
-      name: {
-        initialValue: initialBeneficiary?.name ?? "",
-        validate: validateRequired,
-      },
-      route: {
-        initialValue: initialBeneficiary?.route ?? "",
-        validate: () => undefined,
-      },
-      results: {
-        initialValue: initialBeneficiary?.results ?? [],
-        validate: () => undefined,
-      },
-    });
+  const {
+    Field,
+    submitForm,
+    FieldsListener,
+    listenFields,
+    setFieldValue,
+    getFieldState,
+    setFieldError,
+  } = useForm<{
+    name: string;
+    route: string;
+    results: ResultItem[];
+  }>({
+    name: {
+      initialValue: initialBeneficiary?.name ?? "",
+      validate: validateRequired,
+    },
+    route: {
+      initialValue: initialBeneficiary?.route ?? "",
+      validate: () => undefined,
+    },
+    results: {
+      initialValue: initialBeneficiary?.results ?? [],
+      validate: () => undefined,
+    },
+  });
 
   useEffect(() => {
     match(data)
@@ -147,16 +160,37 @@ export const TransferInternationalWizardBeneficiary = ({
     listenFields(["results"], () => refresh());
   }, [listenFields, refresh]);
 
+  useEffect(() => {
+    if (isNotNullish(errors) && errors.length) {
+      for (const error of errors) {
+        if (isNotNullishOrEmpty(error[0])) {
+          dynamicFormApiRef.current?.setDynamicFieldError(error[0], error[1]);
+        }
+      }
+    }
+  }, [setFieldError, errors, dynamicFormApiRef.current?.setDynamicFieldError]);
+
+  const orphanErrors = useMemo(() => errors?.filter(([key]) => isNullish(key)), [errors])?.map(
+    ([_, message]) => message,
+  );
+
   return (
     <View>
-      <Tile>
-        {errors?.map((message, i) => (
-          <View key={`validation-alert-${i}`}>
-            <LakeAlert variant="error" title={message} />
-            <Space height={12} />
-          </View>
-        ))}
-
+      <Tile
+        footer={
+          isNotNullish(orphanErrors) && orphanErrors.length ? (
+            <LakeAlert
+              anchored={true}
+              variant="error"
+              title={t("transfer.new.internationalTransfer.errors.title")}
+            >
+              {orphanErrors?.map((message, i) => (
+                <LakeText key={`validation-alert-${i}`}>{message}</LakeText>
+              ))}
+            </LakeAlert>
+          ) : null
+        }
+      >
         <LakeLabel
           label={t("transfer.new.internationalTransfer.beneficiary.name")}
           render={id => (

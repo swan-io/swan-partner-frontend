@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/payment",
-  "version": "1.4.0",
+  "version": "1.4.1",
   "private": true,
   "engines": {
     "node": ">=18.0.0",
@@ -21,11 +21,11 @@
     "@0no-co/graphql.web": "1.0.4",
     "@formatjs/intl": "2.9.9",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/react": "7.81.1",
+    "@sentry/react": "7.85.0",
     "@swan-io/boxed": "1.2.0",
     "@swan-io/chicane": "1.4.1",
-    "@swan-io/lake": "4.0.2",
-    "@swan-io/shared-business": "4.0.2",
+    "@swan-io/lake": "4.0.4",
+    "@swan-io/shared-business": "4.0.4",
     "core-js": "3.33.3",
     "dayjs": "1.11.10",
     "iban": "0.0.14",
@@ -33,19 +33,19 @@
     "react-dom": "18.2.0",
     "react-native-web": "0.19.9",
     "react-ux-form": "1.5.0",
-    "ts-pattern": "5.0.5",
+    "ts-pattern": "5.0.6",
     "urql": "4.0.6",
     "wonka": "6.3.4"
   },
   "devDependencies": {
-    "@types/react": "18.2.38",
+    "@types/react": "18.2.42",
     "@types/react-dom": "18.2.17",
-    "@types/react-native": "0.72.7",
-    "@vitejs/plugin-legacy": "4.1.1",
+    "@types/react-native": "0.72.8",
+    "@vitejs/plugin-legacy": "5.2.0",
     "@vitejs/plugin-react-swc": "3.5.0",
     "jsdom": "22.1.0",
-    "type-fest": "4.8.2",
-    "vite": "4.5.0",
-    "vitest": "0.34.6"
+    "type-fest": "4.8.3",
+    "vite": "5.0.5",
+    "vitest": "1.0.1"
   }
 }

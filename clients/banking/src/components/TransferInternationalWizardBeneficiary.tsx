@@ -161,7 +161,7 @@ export const TransferInternationalWizardBeneficiary = ({
     <View>
       <Tile
         footer={
-          isNotNullish(errors) && errors.length ? (
+          isNotNullish(errors) && errors.length > 0 ? (
             <LakeAlert
               anchored={true}
               variant="error"

@@ -206,6 +206,7 @@ export const TransferInternationalWizard = ({
                 return (
                   <>
                     <TransferInternationamWizardAmountSummary
+                      isMobile={!large}
                       amount={amount}
                       onPressEdit={() => setStep({ name: "Amount", amount })}
                     />
@@ -232,6 +233,7 @@ export const TransferInternationalWizard = ({
                 return (
                   <>
                     <TransferInternationamWizardAmountSummary
+                      isMobile={!large}
                       amount={amount}
                       onPressEdit={() => setStep({ name: "Amount", amount })}
                     />

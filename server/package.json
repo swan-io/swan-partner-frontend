@@ -19,8 +19,8 @@
     "start-swan": "node -r ./dist/tracing.js ./dist/index.swan.js"
   },
   "dependencies": {
-    "@fastify/accepts": "4.2.0",
-    "@fastify/cors": "8.4.1",
+    "@fastify/accepts": "4.3.0",
+    "@fastify/cors": "8.4.2",
     "@fastify/reply-from": "9.4.0",
     "@fastify/secure-session": "7.1.0",
     "@fastify/sensible": "5.5.0",
@@ -45,11 +45,11 @@
     "graphql-request": "6.1.0",
     "graphql-tag": "2.12.6",
     "mustache": "4.2.0",
-    "node-mailjet": "6.0.4",
+    "node-mailjet": "6.0.5",
     "pathe": "1.1.1",
     "picocolors": "1.0.0",
     "pino-pretty": "10.2.3",
-    "ts-pattern": "5.0.5",
+    "ts-pattern": "5.0.6",
     "valienv": "0.5.0"
   },
   "devDependencies": {

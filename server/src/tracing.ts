@@ -8,6 +8,9 @@ import { Resource } from "@opentelemetry/resources";
 import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-base";
 import { NodeTracerProvider } from "@opentelemetry/sdk-trace-node";
 import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { FastifyRequest } from "fastify";
+
+const sensibleHeaderKeys = ["authorization", "cookie", "x-swan-token"];
 
 if (process.env.TRACING_SERVICE_NAME != null) {
   const provider = new NodeTracerProvider({
@@ -31,7 +34,15 @@ if (process.env.TRACING_SERVICE_NAME != null) {
       new HttpInstrumentation({
         ignoreIncomingPaths: [/\/health/],
       }),
-      new FastifyInstrumentation(),
+      new FastifyInstrumentation({
+        requestHook: (span, { request: { headers } }: { request: FastifyRequest }) => {
+          for (const [key, value = ""] of Object.entries(headers)) {
+            if (!sensibleHeaderKeys.includes(key.toLowerCase())) {
+              span.setAttribute(`http.header.${key}`, value);
+            }
+          }
+        },
+      }),
     ],
   });
 }

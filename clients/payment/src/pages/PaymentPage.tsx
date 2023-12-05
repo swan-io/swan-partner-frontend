@@ -22,6 +22,7 @@ import { validateRequired } from "@swan-io/shared-business/src/utils/validation"
 import { CSSProperties, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
+import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { validateIban } from "../../../banking/src/utils/iban";
 import { SepaLogo } from "../components/SepaLogo";

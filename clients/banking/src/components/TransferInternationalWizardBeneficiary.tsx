@@ -9,11 +9,7 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import {
-  isNotNullish,
-  isNotNullishOrEmpty,
-  isNullishOrEmpty,
-} from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -160,23 +156,20 @@ export const TransferInternationalWizardBeneficiary = ({
   return (
     <View>
       <Tile
-        footer={
-          isNotNullish(errors) && errors.length > 0 ? (
+        footer={match(errors)
+          .with(P.union([], P.nullish), () => null)
+          .with([P.select()], error => <LakeAlert anchored={true} variant="error" title={error} />)
+          .otherwise(errors => (
             <LakeAlert
               anchored={true}
               variant="error"
-              title={
-                errors.length > 1 ? t("transfer.new.internationalTransfer.errors.title") : errors[0]
-              }
+              title={t("transfer.new.internationalTransfer.errors.title")}
             >
-              {errors.length > 1
-                ? errors?.map((message, i) => (
-                    <LakeText key={`validation-alert-${i}`}>{message}</LakeText>
-                  ))
-                : null}
+              {errors.map((message, index) => (
+                <LakeText key={`validation-alert-${index}`}>{message}</LakeText>
+              ))}
             </LakeAlert>
-          ) : null
-        }
+          ))}
       >
         <LakeLabel
           label={t("transfer.new.internationalTransfer.beneficiary.name")}

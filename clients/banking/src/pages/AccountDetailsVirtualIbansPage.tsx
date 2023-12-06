@@ -260,7 +260,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
           ),
           Done: result =>
             result.match({
-              Error: () => <ErrorView />,
+              Error: error => <ErrorView error={error} />,
               Ok: data => {
                 const entries = data.account?.virtualIbanEntries;
                 const edges = entries?.edges ?? [];

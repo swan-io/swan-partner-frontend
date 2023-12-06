@@ -157,6 +157,7 @@ export const TransferInternationalWizardAmount = ({
               </View>
             ) : null;
           })
+          .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
           .otherwise(() => (
             <ErrorView />
           ))}
@@ -208,6 +209,9 @@ export const TransferInternationalWizardAmount = ({
                 ),
                 quote => <QuoteDetails quote={quote} />,
               )
+              .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
+                <ErrorView error={error} />
+              ))
               .otherwise(() => <ErrorView />)}
       </Tile>
 

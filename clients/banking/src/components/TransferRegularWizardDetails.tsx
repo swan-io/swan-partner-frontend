@@ -194,6 +194,7 @@ export const TransferRegularWizardDetails = ({
             </Tile>
           );
         })
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .otherwise(() => (
           <ErrorView />
         ))}

@@ -290,6 +290,7 @@ export const TransferRegularWizardSchedule = ({
             </>
           );
         })
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .otherwise(() => (
           <ErrorView />
         ))}

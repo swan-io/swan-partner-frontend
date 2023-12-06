@@ -738,7 +738,7 @@ export const RecurringTransferList = ({
             ),
             Done: result =>
               result.match({
-                Error: () => <ErrorView />,
+                Error: error => <ErrorView error={error} />,
                 Ok: recurringTransfers => (
                   <PlainListView
                     withoutScroll={!desktop}

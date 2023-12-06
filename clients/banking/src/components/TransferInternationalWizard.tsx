@@ -105,7 +105,7 @@ export const TransferInternationalWizard = ({
     initiateTransfers({
       input: {
         accountId,
-        targetAmount: amount,
+        targetAmount: { value: amount.value, currency: amount.currency },
         externalReference: details.externalReference,
         internationalBeneficiary: {
           name: beneficiary.name,

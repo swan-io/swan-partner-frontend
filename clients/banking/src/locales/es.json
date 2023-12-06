@@ -718,6 +718,7 @@
   "transfer.new.internationalTransfer.beneficiary.title": "¿A quién le estás enviando dinero?",
   "transfer.new.internationalTransfer.details.form.field.customLabel": "Etiqueta personalizada",
   "transfer.new.internationalTransfer.details.title": "Detalles de la transferencia",
+  "transfer.new.internationalTransfer.errors.title": "Ha ocurrido un error",
   "transfer.new.internationalTransfer.fee": "Comisión de transferencia <bold>{fee}</bold>",
   "transfer.new.internationalTransfer.route.Aba": "Número de cuenta y número de ruta ACH",
   "transfer.new.internationalTransfer.route.Argentina": "Alias CBU (código bancario único)",

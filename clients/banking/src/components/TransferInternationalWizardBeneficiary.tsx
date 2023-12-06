@@ -9,13 +9,18 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -143,20 +148,36 @@ export const TransferInternationalWizardBeneficiary = ({
   }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldState]);
 
   useEffect(() => {
-    listenFields(["route"], ({ route: { value } }) => setRoute(value));
-    listenFields(["results"], () => refresh());
+    const removeRouteListener = listenFields(["route"], ({ route: { value } }) => setRoute(value));
+    const removeResultsListener = listenFields(["results"], () => refresh());
+
+    return () => {
+      removeRouteListener();
+      removeResultsListener();
+    };
   }, [listenFields, refresh]);
 
   return (
     <View>
-      <Tile>
-        {errors?.map((message, i) => (
-          <View key={`validation-alert-${i}`}>
-            <LakeAlert variant="error" title={message} />
-            <Space height={12} />
-          </View>
-        ))}
-
+      <Tile
+        footer={
+          isNotNullish(errors) && errors.length > 0 ? (
+            <LakeAlert
+              anchored={true}
+              variant="error"
+              title={
+                errors.length > 1 ? t("transfer.new.internationalTransfer.errors.title") : errors[0]
+              }
+            >
+              {errors.length > 1
+                ? errors?.map((message, i) => (
+                    <LakeText key={`validation-alert-${i}`}>{message}</LakeText>
+                  ))
+                : null}
+            </LakeAlert>
+          ) : null
+        }
+      >
         <LakeLabel
           label={t("transfer.new.internationalTransfer.beneficiary.name")}
           render={id => (

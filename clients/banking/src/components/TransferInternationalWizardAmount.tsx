@@ -156,23 +156,20 @@ export const TransferInternationalWizardAmount = ({
   return (
     <View>
       <Tile
-        footer={
-          errors.length > 0 ? (
+        footer={match(errors)
+          .with([], () => null)
+          .with([P.select()], error => <LakeAlert anchored={true} variant="error" title={error} />)
+          .otherwise(errors => (
             <LakeAlert
               anchored={true}
               variant="error"
-              title={
-                errors.length > 1 ? t("transfer.new.internationalTransfer.errors.title") : errors[0]
-              }
+              title={t("transfer.new.internationalTransfer.errors.title")}
             >
-              {errors.length > 1
-                ? errors?.map((message, i) => (
-                    <LakeText key={`validation-alert-${i}`}>{message}</LakeText>
-                  ))
-                : null}
+              {errors.map((message, index) => (
+                <LakeText key={`validation-alert-${index}`}>{message}</LakeText>
+              ))}
             </LakeAlert>
-          ) : null
-        }
+          ))}
       >
         {match(balance)
           .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (

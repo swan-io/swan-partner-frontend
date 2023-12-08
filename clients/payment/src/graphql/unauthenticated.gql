@@ -1,4 +1,5 @@
 query GetMerchantPaymentLink($paymentLinkId: ID!) {
+  nonEEACountries
   merchantPaymentLink(id: $paymentLinkId) {
     id
     projectId
@@ -69,6 +70,9 @@ mutation InitiateSddPaymentCollection(
   unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: $input) {
     __typename
     ... on ForbiddenRejection {
+      message
+    }
+    ... on InternalErrorRejection {
       message
     }
   }

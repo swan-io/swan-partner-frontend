@@ -57,9 +57,8 @@ type FormState = {
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   setMandateUrl: (value: string) => void;
+  nonEeaCountries: string[];
 };
-
-const sepaNonEeaCountries = ["CHE", "VAT", "GBR", "MCO", "SMR", "AND"];
 
 const fieldToPathMap = {
   paymentMethod: ["paymentMethod"],
@@ -72,7 +71,7 @@ const fieldToPathMap = {
   state: ["address", "state"],
 } as const;
 
-export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
+export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Props) => {
   const { desktop } = useResponsive();
 
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
@@ -97,7 +96,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
       initialValue: paymentLink.billingAddress?.addressLine1 ?? "",
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
-        if (sepaNonEeaCountries.includes(country)) {
+        if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
       },
@@ -108,7 +107,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
-        if (sepaNonEeaCountries.includes(country)) {
+        if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
       },
@@ -118,7 +117,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl }: Props) => {
       sanitize: value => value.trim(),
       validate: (value, { getFieldState }) => {
         const country = getFieldState("country").value;
-        if (sepaNonEeaCountries.includes(country)) {
+        if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
       },

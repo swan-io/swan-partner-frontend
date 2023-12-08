@@ -11,6 +11,7 @@ import dayjs from "dayjs";
 import dayjsLocaleDE from "dayjs/locale/de";
 import dayjsLocaleEN from "dayjs/locale/en";
 import dayjsLocaleES from "dayjs/locale/es";
+import dayjsLocaleFI from "dayjs/locale/fi";
 import dayjsLocaleFR from "dayjs/locale/fr";
 import dayjsLocaleIT from "dayjs/locale/it";
 import dayjsLocaleNL from "dayjs/locale/nl";
@@ -23,6 +24,7 @@ import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
+import translationFI from "../locales/fi.json";
 import translationFR from "../locales/fr.json";
 import translationIT from "../locales/it.json";
 import translationNL from "../locales/nl.json";
@@ -34,7 +36,7 @@ dayjs.extend(customParseFormat);
 dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
-const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt"] as const;
+const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt", "fi"] as const;
 type SupportedLanguage = (typeof supportedLanguages)[number];
 
 const translationKeys = Dict.keys(translationEN);
@@ -135,6 +137,17 @@ const locales: Record<SupportedLanguage, () => Locale> = {
     timePlaceholder: "HH:mm:ss",
     taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
     firstWeekday: "sunday",
+  }),
+  fi: () => ({
+    language: "fi",
+    translations: translationFI,
+    dayjsLocale: dayjsLocaleFI,
+    dateFormat: "DD/MM/YYYY",
+    datePlaceholder: "DD/MM/YYYY",
+    timeFormat: "HH:mm:ss",
+    timePlaceholder: "HH:mm:ss",
+    taxIdentificationNumberPlaceholder: "XXX/XXXX/XXXX",
+    firstWeekday: "monday",
   }),
 };
 
@@ -256,6 +269,13 @@ export const languages: Language[] = [
     id: "pt",
     cca3: "PRT",
     flag: "🇵🇹",
+  },
+  {
+    name: "Finnish",
+    native: "Suomi",
+    id: "fi",
+    cca3: "FIN",
+    flag: "🇫🇮",
   },
 ];
 

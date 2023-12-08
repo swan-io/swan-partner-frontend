@@ -76,7 +76,8 @@ export const TransferInternationalWizardBeneficiary = ({
         dynamicFields,
         amountValue: amount.value,
         currency: amount.currency,
-        language: locale.language,
+        //TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
+        language: locale.language === "fi" ? "en" : locale.language,
       },
     },
     [locale.language, dynamicFields],

@@ -79,8 +79,11 @@ export const validateAccountNameLength: Validator<string> = value => {
   }
 };
 
+// https://github.com/colinhacks/zod/blob/v3.22.4/src/types.ts#L568
 export const validateEmail: Validator<string> = value => {
-  if (!/.+@.+\..{2,}/.test(value)) {
+  if (
+    !/^(?!\.)(?!.*\.\.)([A-Z0-9_+-.]*)[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i.test(value)
+  ) {
     return t("common.form.invalidEmail");
   }
 };

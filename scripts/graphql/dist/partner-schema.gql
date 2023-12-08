@@ -11664,9 +11664,6 @@ input RequestMerchantPaymentMethodsInput {
 
   """Input for Check payment method"""
   check: CheckPaymentMethodInput
-
-  """input for Card payment method"""
-  card: CardPaymentMethodInput
 }
 
 union RequestMerchantPaymentMethodsPayload = RequestMerchantPaymentMethodsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection

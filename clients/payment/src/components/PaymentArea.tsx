@@ -87,8 +87,14 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
         .with(AsyncData.P.NotAsked, () => null)
         .with(AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
         .with(
-          AsyncData.P.Done(Result.P.Ok({ merchantPaymentLink: P.select(P.not(P.nullish)) })),
-          merchantPaymentLink => {
+          AsyncData.P.Done(
+            Result.P.Ok({
+              nonEEACountries: P.select("nonEEACountries"),
+              merchantPaymentLink: P.select("merchantPaymentLink", P.not(P.nullish)),
+            }),
+          ),
+          paymentLink => {
+            const { merchantPaymentLink, nonEEACountries } = paymentLink;
             const { cancelRedirectUrl, merchantProfile, statusInfo } = merchantPaymentLink;
             const { merchantLogoUrl, merchantName } = merchantProfile;
             const status = isNullish(mandateUrl) ? statusInfo.status : "Completed";
@@ -147,7 +153,11 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
                 {match({ route: route?.name, status })
                   .with({ route: "PaymentForm", status: "Active" }, () => (
-                    <PaymentPage paymentLink={merchantPaymentLink} setMandateUrl={setMandateUrl} />
+                    <PaymentPage
+                      paymentLink={merchantPaymentLink}
+                      setMandateUrl={setMandateUrl}
+                      nonEeaCountries={nonEEACountries}
+                    />
                   ))
                   .with({ route: "PaymentSuccess", status: "Completed" }, () => (
                     <SuccessPage paymentLink={merchantPaymentLink} mandateUrl={mandateUrl} />

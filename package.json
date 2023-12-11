@@ -94,7 +94,7 @@
     "semver": "7.5.4",
     "slackify-markdown": "4.4.0",
     "sodium-native": "^4.0.4",
-    "terser": "5.25.0",
+    "terser": "5.26.0",
     "tiktoken-node": "0.0.6",
     "ts-prune": "0.10.3",
     "tsx": "4.6.2",

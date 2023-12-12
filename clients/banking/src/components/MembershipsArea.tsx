@@ -47,6 +47,7 @@ type Props = {
   accountId: string;
   memberCreationVisible: boolean;
   canAddCard: boolean;
+  cardOrderVisible: boolean;
   physicalCardOrderVisible: boolean;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
@@ -76,6 +77,7 @@ export const MembershipsArea = ({
   accountId,
   memberCreationVisible,
   canAddCard,
+  cardOrderVisible,
   physicalCardOrderVisible,
   accountCountry,
   shouldDisplayIdVerification,
@@ -352,7 +354,7 @@ export const MembershipsArea = ({
                   currentUserAccountMembership={currentUserAccountMembership}
                   editingAccountMembershipId={membership.id}
                   onAccountMembershipUpdate={onAccountMembershipUpdate}
-                  canAddCard={canAddCard}
+                  canAddCard={cardOrderVisible && canAddCard}
                   physicalCardOrderVisible={physicalCardOrderVisible}
                   accountCountry={accountCountry}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}

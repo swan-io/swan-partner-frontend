@@ -830,6 +830,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                       accountCountry={currentUserAccountMembership.account.country}
                                       params={params}
                                       currentUserAccountMembership={currentUserAccountMembership}
+                                      cardOrderVisible={cardOrderVisible}
                                       physicalCardOrderVisible={physicalCardOrderVisible}
                                       shouldDisplayIdVerification={
                                         projectInfo.B2BMembershipIDVerification !== false

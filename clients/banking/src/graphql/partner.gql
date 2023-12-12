@@ -1873,6 +1873,18 @@ fragment AccountBalances on Account {
       value
       currency
     }
+    pending {
+      value
+      currency
+    }
+    booked {
+      value
+      currency
+    }
+    reserved {
+      value
+      currency
+    }
   }
 }
 

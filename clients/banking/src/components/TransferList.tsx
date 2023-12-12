@@ -62,14 +62,6 @@ const DEFAULT_STATUSES = [
   "Rejected" as const,
 ];
 
-const DEFAULT_PRODUCTS = [
-  "SEPACreditTransfer" as const,
-  "InternalCreditTransfer" as const,
-  "InternationalCreditTransfer" as const,
-  "SEPADirectDebit" as const,
-  "InternalDirectDebit" as const,
-];
-
 export const TransferList = ({
   accountId,
   accountMembershipId,

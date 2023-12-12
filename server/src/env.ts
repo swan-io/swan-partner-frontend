@@ -6,7 +6,7 @@ export const url: Validator<string> = (value = "") => {
   try {
     new URL(value);
     return value;
-  } catch {} // eslint-disable-line no-empty
+  } catch { } // eslint-disable-line no-empty
 };
 
 export const env = validate({
@@ -26,5 +26,6 @@ export const env = validate({
 
     BANKING_URL: url,
     ONBOARDING_URL: url,
+    ALLOWED_ORIGIN: url,
   },
 });

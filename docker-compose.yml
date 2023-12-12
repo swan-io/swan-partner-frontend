@@ -1,0 +1,12 @@
+version: "3.9"
+
+services:
+  web:
+    build: .
+    command: ["/usr/bin/npm", "start"]
+    env_file: env_local
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "banking.swan.local:127.0.0.1"
+      - "onboarding.swan.local:127.0.0.1"

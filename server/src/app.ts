@@ -152,9 +152,9 @@ export const start = async ({
     https:
       httpsConfig != null
         ? {
-            key: fs.readFileSync(httpsConfig.key, "utf8"),
-            cert: fs.readFileSync(httpsConfig.cert, "utf8"),
-          }
+          key: fs.readFileSync(httpsConfig.key, "utf8"),
+          cert: fs.readFileSync(httpsConfig.cert, "utf8"),
+        }
         : null,
     trustProxy: true,
     logger: {
@@ -203,7 +203,7 @@ export const start = async ({
    * when the onboarding flow completes with the OAuth2 flow
    */
   await app.register(cors, {
-    origin: [env.ONBOARDING_URL, env.BANKING_URL, ...allowedCorsOrigins],
+    origin: [env.ONBOARDING_URL, env.BANKING_URL, env.ALLOWED_ORIGIN, ...allowedCorsOrigins],
     credentials: true,
   });
 
@@ -277,7 +277,7 @@ export const start = async ({
               request.session.set("refreshToken", refreshToken);
             },
           )
-          .otherwise(() => {});
+          .otherwise(() => { });
         done();
       }
     }

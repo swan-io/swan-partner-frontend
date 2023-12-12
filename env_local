@@ -1,0 +1,29 @@
+# Env
+NODE_ENV="production"
+LOG_LEVEL="error"
+
+# APIs
+PARTNER_ADMIN_API_URL="https://api.swan.io/sandbox-partner-admin/graphql"
+PARTNER_API_URL="https://api.swan.io/sandbox-partner/graphql"
+UNAUTHENTICATED_API_URL="https://api.swan.io/sandbox-unauthenticated/graphql"
+
+OAUTH_SERVER_URL="https://oauth.swan.io"
+OAUTH_CLIENT_ID="SANDBOX_1190c161-dc76-4aa9-a549-3e2fbf50b468"
+OAUTH_CLIENT_SECRET="7L~ixLuwmyWCVRkBUdR~MijoYy"
+
+# Key to encrypt cookies
+COOKIE_KEY="29b5d335b69862c6e1b905a7a0a25caa6b793dbb744ef9b20e454346aef12215"
+
+# URLs to expose your interfaces on
+BANKING_URL="http://banking.swan.local:8080"
+ONBOARDING_URL="http://onboarding.swan.local:8080"
+
+# Origins allowed
+ALLOWED_ORIGIN="http://localhost:19006"
+
+# Extra keys for the client
+CLIENT_PLACEKIT_API_KEY="" # Your placekit API key
+CLIENT_ONBOARDING_MATOMO_SITE_ID="" 
+
+# API key for automated translations
+OPENAI_API_KEY=""

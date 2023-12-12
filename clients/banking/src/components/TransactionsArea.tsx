@@ -111,7 +111,7 @@ export const TransactionsArea = ({
                   ariaLabel={t("common.see")}
                   mode="tertiary"
                   size="large"
-                  icon={visible ? "eye-regular" : "eye-off-filled"}
+                  icon={visible ? "eye-regular" : "eye-off-regular"}
                   onPress={() => {
                     setVisible(!visible);
                   }}

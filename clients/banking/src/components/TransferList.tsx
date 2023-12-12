@@ -18,7 +18,7 @@ import { match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
-import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
+import { TransactionListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -50,7 +50,6 @@ type Props = {
   params: {
     isAfterUpdatedAt?: string | undefined;
     isBeforeUpdatedAt?: string | undefined;
-    paymentProduct?: string[] | undefined;
     search?: string | undefined;
     transactionStatus?: string[] | undefined;
   };
@@ -61,14 +60,6 @@ const DEFAULT_STATUSES = [
   "Canceled" as const,
   "Pending" as const,
   "Rejected" as const,
-];
-
-const DEFAULT_PRODUCTS = [
-  "SEPACreditTransfer" as const,
-  "InternalCreditTransfer" as const,
-  "InternationalCreditTransfer" as const,
-  "SEPADirectDebit" as const,
-  "InternalDirectDebit" as const,
 ];
 
 export const TransferList = ({
@@ -83,13 +74,7 @@ export const TransferList = ({
       includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      paymentProduct: isNotNullish(params.paymentProduct)
-        ? Array.filterMap(params.paymentProduct, item =>
-            match(item)
-              .with("CreditTransfer", "DirectDebit", value => Option.Some(value))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+      paymentProduct: undefined,
       search: params.search,
       status: isNotNullish(params.transactionStatus)
         ? Array.filterMap(params.transactionStatus, item =>
@@ -101,32 +86,17 @@ export const TransferList = ({
           )
         : undefined,
     } as const;
-  }, [
-    params.isAfterUpdatedAt,
-    params.isBeforeUpdatedAt,
-    params.paymentProduct,
-    params.search,
-    params.transactionStatus,
-  ]);
+  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.search, params.transactionStatus]);
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
   const paymentProduct = useMemo(() => {
-    const actualPaymentProduct: PaymentProduct[] = [];
-    filters.paymentProduct?.forEach(item => {
-      const items = match(item)
-        .returnType<PaymentProduct[]>()
-        .with("CreditTransfer", () => [
-          "SEPACreditTransfer",
-          "InternalCreditTransfer",
-          "InternationalCreditTransfer",
-        ])
-        .with("DirectDebit", () => ["SEPADirectDebit", "InternalDirectDebit"])
-        .otherwise(() => []);
-      actualPaymentProduct.push(...items);
-    });
-    return actualPaymentProduct.length > 0 ? actualPaymentProduct : DEFAULT_PRODUCTS;
-  }, [filters]);
+    return [
+      "SEPACreditTransfer" as const,
+      "InternalCreditTransfer" as const,
+      "InternationalCreditTransfer" as const,
+    ];
+  }, []);
 
   const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
     {
@@ -178,12 +148,13 @@ export const TransferList = ({
               }
               onRefresh={reload}
               large={large}
+              available={["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"]}
               filtersDefinition={{
                 ...defaultFiltersDefinition,
                 paymentProduct: {
                   ...defaultFiltersDefinition.paymentProduct,
                   items: defaultFiltersDefinition.paymentProduct.items.filter(({ value }) =>
-                    ["CreditTransfer", "DirectDebit"].includes(value),
+                    ["CreditTransfer"].includes(value),
                   ),
                 },
               }}

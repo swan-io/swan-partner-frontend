@@ -13,6 +13,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
+import { StyleSheet } from "react-native";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -27,6 +28,13 @@ const typeFilter: FilterCheckboxDef<CardType> = {
   label: t("cardList.type"),
   submitText: t("common.filters.apply"),
 };
+
+const styles = StyleSheet.create({
+  endFilters: {
+    flexGrow: 0,
+    flexShrink: 1,
+  },
+});
 
 const filtersDefinition = {
   type: typeFilter,
@@ -129,7 +137,7 @@ export const CardListFilter = ({
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center">
+        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
           <Toggle
             mode={large ? "desktop" : "mobile"}
             value={filters.status === "Active"}
@@ -141,6 +149,7 @@ export const CardListFilter = ({
           <Space width={16} />
 
           <LakeSearchField
+            key={String(large)}
             placeholder={t("common.search")}
             initialValue={filters.search ?? ""}
             onChangeText={search => onChange({ ...filters, search })}

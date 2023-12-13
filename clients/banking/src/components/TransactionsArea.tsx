@@ -66,16 +66,29 @@ const styles = StyleSheet.create({
     transitionDuration: "150ms",
     alignItems: "center",
   },
+  grow: { flexGrow: 1 },
   linkPressed: {
     opacity: 0.7,
+  },
+  balanceDetailsButton: {
+    backgroundColor: colors.gray[100],
   },
   balanceDetailDesktopContainer: {
     paddingLeft: spacings[16],
     width: "400px",
   },
-  balanceDetailDesktop: { flexGrow: 1 },
   balanceDetailDesktopLarge: { paddingBottom: spacings[16] },
   balanceDetailDesktopItem: { paddingLeft: spacings[24] },
+  bottomPanelContainer: { padding: spacings[24] },
+  bottomPanelItem: {
+    paddingBottom: spacings[4],
+  },
+  linkContainerLarge: {
+    paddingLeft: spacings[40],
+  },
+  linkContainer: {
+    paddingLeft: spacings[24],
+  },
 });
 
 export const TransactionsArea = ({
@@ -129,6 +142,7 @@ export const TransactionsArea = ({
                       setBalanceDetailsVisible(!balanceDetailsVisible);
                     }}
                     color="swan"
+                    style={({ hovered }) => hovered && styles.balanceDetailsButton}
                   />
                 </Box>
 
@@ -139,10 +153,7 @@ export const TransactionsArea = ({
                     style={styles.balanceDetailDesktopContainer}
                   >
                     <Box
-                      style={[
-                        large && styles.balanceDetailDesktopLarge,
-                        styles.balanceDetailDesktop,
-                      ]}
+                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
                       direction="row"
                     >
                       <LakeText> = </LakeText>
@@ -159,10 +170,7 @@ export const TransactionsArea = ({
                     </Box>
 
                     <Box
-                      style={[
-                        large && styles.balanceDetailDesktopLarge,
-                        styles.balanceDetailDesktop,
-                      ]}
+                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
                       direction="row"
                     >
                       <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
@@ -182,10 +190,7 @@ export const TransactionsArea = ({
                     </Box>
 
                     <Box
-                      style={[
-                        large && styles.balanceDetailDesktopLarge,
-                        styles.balanceDetailDesktop,
-                      ]}
+                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
                       direction="row"
                     >
                       <LakeText> - </LakeText>
@@ -210,8 +215,8 @@ export const TransactionsArea = ({
                       setBalanceDetailsVisible(!balanceDetailsVisible);
                     }}
                   >
-                    <View style={{ padding: spacings[24] }}>
-                      <Icon name="money-regular" size={40} color={colors.current.primary} />
+                    <View style={styles.bottomPanelContainer}>
+                      <Icon name="money-filled" size={40} color={colors.current.primary} />
                       <Space height={12} />
 
                       <LakeHeading
@@ -243,15 +248,12 @@ export const TransactionsArea = ({
                         {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
                       </LakeText>
 
-                      <LakeText
-                        color={colors.gray[500]}
-                        variant="smallRegular"
-                        style={{ paddingBottom: spacings[4] }}
-                      >
+                      <LakeText color={colors.gray[500]} variant="smallRegular">
                         {t("transactions.availableBalance")}
                       </LakeText>
 
-                      <LakeText style={{ paddingBottom: spacings[4] }}>=</LakeText>
+                      <Space height={4} />
+                      <LakeText style={styles.bottomPanelItem}>=</LakeText>
 
                       <LakeText variant="medium" color={colors.gray[700]}>
                         {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
@@ -260,7 +262,7 @@ export const TransactionsArea = ({
                       <LakeText
                         color={colors.gray[500]}
                         variant="smallRegular"
-                        style={{ paddingBottom: spacings[4] }}
+                        style={styles.bottomPanelItem}
                       >
                         {t("transactions.bookedBalance")}
                       </LakeText>
@@ -277,12 +279,12 @@ export const TransactionsArea = ({
                       <LakeText
                         color={colors.gray[500]}
                         variant="smallRegular"
-                        style={{ paddingBottom: spacings[4] }}
+                        style={styles.bottomPanelItem}
                       >
                         {t("transactions.pendingBalance")}
                       </LakeText>
 
-                      <LakeText style={{ paddingBottom: spacings[4] }}> - </LakeText>
+                      <LakeText style={styles.bottomPanelItem}> - </LakeText>
 
                       <LakeText variant="medium" color={colors.gray[700]}>
                         {formatCurrency(Number(reservedBalance.value), reservedBalance.currency)}
@@ -296,21 +298,7 @@ export const TransactionsArea = ({
                 )}
               </Box>
 
-              <Box
-                direction="row"
-                style={[
-                  large
-                    ? {
-                        paddingLeft: spacings[40],
-                      }
-                    : {
-                        paddingLeft: spacings[24],
-                      },
-                  {
-                    paddingBottom: spacings[24],
-                  },
-                ]}
-              >
+              <Box direction="row" style={large ? styles.linkContainerLarge : styles.linkContainer}>
                 <Link
                   target="blank"
                   to={`https://docs.swan.io/concept/account/balances`}
@@ -324,6 +312,8 @@ export const TransactionsArea = ({
                   <Icon color={colors.current.primary} name="open-filled" size={16} />
                 </Link>
               </Box>
+
+              <Space height={24} />
             </>
           ) : (
             <Space height={24} />

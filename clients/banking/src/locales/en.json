@@ -264,6 +264,7 @@
   "common.form.invalidTransferReference": "Can include up to 35 characters, 0-9 and a-z only.",
   "common.form.invalidVatNumber": "Invalid VAT number",
   "common.form.required": "This field is required",
+  "common.learnMore": "Learn more about balances",
   "common.list.noResults": "No results",
   "common.list.noResultsSuggestion": "Please change your search or filters",
   "common.new": "New",

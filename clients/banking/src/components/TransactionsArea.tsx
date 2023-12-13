@@ -1,8 +1,11 @@
 import { Option } from "@swan-io/boxed";
+import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -13,6 +16,8 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { typography } from "@swan-io/lake/src/constants/typography";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
@@ -47,7 +52,7 @@ const styles = StyleSheet.create({
     paddingLeft: spacings[40],
     paddingRight: spacings[8],
     paddingTop: spacings[40],
-    paddingBottom: spacings[16],
+    paddingBottom: spacings[12],
   },
   statementsLarge: {
     marginHorizontal: negativeSpacings[48],
@@ -55,6 +60,22 @@ const styles = StyleSheet.create({
   statements: {
     marginHorizontal: negativeSpacings[24],
   },
+  link: {
+    display: "flex",
+    transitionProperty: "opacity",
+    transitionDuration: "150ms",
+    alignItems: "center",
+  },
+  linkPressed: {
+    opacity: 0.7,
+  },
+  balanceDetailDesktopContainer: {
+    paddingLeft: spacings[16],
+    width: "400px",
+  },
+  balanceDetailDesktop: { flexGrow: 1 },
+  balanceDetailDesktopLarge: { paddingBottom: spacings[16] },
+  balanceDetailDesktopItem: { paddingLeft: spacings[24] },
 });
 
 export const TransactionsArea = ({
@@ -73,7 +94,8 @@ export const TransactionsArea = ({
     number | undefined
   >(undefined);
 
-  const [visible, setVisible] = useState<boolean>(true);
+  const { desktop } = useResponsive();
+  const [balanceDetailsVisible, setBalanceDetailsVisible] = useState<boolean>(false);
 
   const route = Router.useRoute(accountTransactionsRoutes);
   const account = data?.account;
@@ -82,97 +104,186 @@ export const TransactionsArea = ({
   const pendingBalance = account?.balances?.pending;
   const reservedBalance = account?.balances?.reserved;
 
-  const formatPendingAmount = (pendingBalance: string) => {
-    if (pendingBalance.startsWith("-")) {
-      return pendingBalance.slice(1);
-    }
-  };
-
   return (
     <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
       {({ small, large }) => (
         <>
           {availableBalance && bookedBalance && pendingBalance && reservedBalance ? (
-            <Box
-              style={{
-                flexDirection: "row",
-              }}
-            >
-              <Box style={[styles.balance, large && styles.balanceLarge]}>
-                <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
+            <>
+              <Box direction="row">
+                <Box style={[styles.balance, large && styles.balanceLarge]}>
+                  <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
 
-                <LakeHeading level={1} variant={large ? "h1" : "h3"}>
-                  {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
-                </LakeHeading>
-              </Box>
+                  <LakeHeading level={1} variant={large ? "h1" : "h3"}>
+                    {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+                  </LakeHeading>
+                </Box>
 
-              <Box justifyContent="center">
-                <LakeButton
-                  ariaLabel={t("common.see")}
-                  mode="tertiary"
-                  size="large"
-                  icon={visible ? "eye-regular" : "eye-off-regular"}
-                  onPress={() => {
-                    setVisible(!visible);
-                  }}
-                  color="swan"
-                />
-              </Box>
+                <Box justifyContent="center">
+                  <LakeButton
+                    ariaLabel={t("common.see")}
+                    mode="tertiary"
+                    size="large"
+                    icon={balanceDetailsVisible ? "eye-regular" : "eye-off-regular"}
+                    onPress={() => {
+                      setBalanceDetailsVisible(!balanceDetailsVisible);
+                    }}
+                    color="swan"
+                  />
+                </Box>
 
-              {visible && (
-                <Box
-                  direction="row"
-                  alignItems="end"
-                  style={{ paddingLeft: spacings[16], width: "400px" }}
-                >
+                {balanceDetailsVisible && desktop && (
                   <Box
-                    style={[large && { paddingBottom: spacings[16] }, { flexGrow: 1 }]}
                     direction="row"
+                    alignItems="end"
+                    style={styles.balanceDetailDesktopContainer}
                   >
-                    <LakeText> = </LakeText>
+                    <Box
+                      style={[
+                        large && styles.balanceDetailDesktopLarge,
+                        styles.balanceDetailDesktop,
+                      ]}
+                      direction="row"
+                    >
+                      <LakeText> = </LakeText>
 
-                    <Box direction="column" style={{ paddingLeft: spacings[24] }}>
+                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <LakeText variant="medium" color={colors.gray[700]}>
+                          {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
+                        </LakeText>
+
+                        <LakeText color={colors.gray[500]} variant="smallRegular">
+                          {t("transactions.bookedBalance")}
+                        </LakeText>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      style={[
+                        large && styles.balanceDetailDesktopLarge,
+                        styles.balanceDetailDesktop,
+                      ]}
+                      direction="row"
+                    >
+                      <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
+
+                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <LakeText variant="medium" color={colors.gray[700]}>
+                          {formatCurrency(
+                            Math.abs(Number(pendingBalance.value)),
+                            pendingBalance.currency,
+                          )}
+                        </LakeText>
+
+                        <LakeText color={colors.gray[500]} variant="smallRegular">
+                          {t("transactions.pendingBalance")}
+                        </LakeText>
+                      </Box>
+                    </Box>
+
+                    <Box
+                      style={[
+                        large && styles.balanceDetailDesktopLarge,
+                        styles.balanceDetailDesktop,
+                      ]}
+                      direction="row"
+                    >
+                      <LakeText> - </LakeText>
+
+                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <LakeText variant="medium" color={colors.gray[700]}>
+                          {formatCurrency(Number(reservedBalance.value), reservedBalance.currency)}
+                        </LakeText>
+
+                        <LakeText color={colors.gray[500]} variant="smallRegular">
+                          {t("transactions.reservedBalance")}
+                        </LakeText>
+                      </Box>
+                    </Box>
+                  </Box>
+                )}
+
+                {balanceDetailsVisible && !desktop && (
+                  <BottomPanel
+                    visible={screen != null}
+                    onPressClose={() => {
+                      setBalanceDetailsVisible(!balanceDetailsVisible);
+                    }}
+                  >
+                    <View style={{ padding: spacings[24] }}>
+                      <Icon name="money-regular" size={40} color={colors.current.primary} />
+                      <Space height={12} />
+
+                      <LakeHeading
+                        level={3}
+                        variant="h3"
+                        style={{ lineHeight: typography.lineHeights.body }}
+                      >
+                        Available balance
+                      </LakeHeading>
+
+                      <Box direction="row">
+                        <Link
+                          target="blank"
+                          to={`https://docs.swan.io/concept/account/balances`}
+                          style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
+                        >
+                          <LakeText color={colors.current.primary}>
+                            {t("common.learnMore")}
+                          </LakeText>
+
+                          <Space width={4} />
+                          <Icon color={colors.current.primary} name="open-filled" size={16} />
+                        </Link>
+                      </Box>
+
+                      <Space height={24} />
+
+                      <LakeText variant="medium" color={colors.gray[700]}>
+                        {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+                      </LakeText>
+
+                      <LakeText
+                        color={colors.gray[500]}
+                        variant="smallRegular"
+                        style={{ paddingBottom: spacings[4] }}
+                      >
+                        {t("transactions.availableBalance")}
+                      </LakeText>
+
+                      <LakeText style={{ paddingBottom: spacings[4] }}>=</LakeText>
+
                       <LakeText variant="medium" color={colors.gray[700]}>
                         {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
                       </LakeText>
 
-                      <LakeText color={colors.gray[500]} variant="smallRegular">
+                      <LakeText
+                        color={colors.gray[500]}
+                        variant="smallRegular"
+                        style={{ paddingBottom: spacings[4] }}
+                      >
                         {t("transactions.bookedBalance")}
                       </LakeText>
-                    </Box>
-                  </Box>
 
-                  <Box
-                    style={[large && { paddingBottom: spacings[16] }, { flexGrow: 1 }]}
-                    direction="row"
-                  >
-                    {/* Get operator from the pending amount */}
-                    <LakeText>
-                      {formatCurrency(Number(pendingBalance.value), pendingBalance.currency).charAt(
-                        0,
-                      )}
-                    </LakeText>
+                      <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
 
-                    <Box direction="column" style={{ paddingLeft: spacings[24] }}>
                       <LakeText variant="medium" color={colors.gray[700]}>
-                        {formatPendingAmount(
-                          formatCurrency(Number(pendingBalance.value), pendingBalance.currency),
+                        {formatCurrency(
+                          Math.abs(Number(pendingBalance.value)),
+                          pendingBalance.currency,
                         )}
                       </LakeText>
 
-                      <LakeText color={colors.gray[500]} variant="smallRegular">
+                      <LakeText
+                        color={colors.gray[500]}
+                        variant="smallRegular"
+                        style={{ paddingBottom: spacings[4] }}
+                      >
                         {t("transactions.pendingBalance")}
                       </LakeText>
-                    </Box>
-                  </Box>
 
-                  <Box
-                    style={[large && { paddingBottom: spacings[16] }, { flexGrow: 1 }]}
-                    direction="row"
-                  >
-                    <LakeText> - </LakeText>
+                      <LakeText style={{ paddingBottom: spacings[4] }}> - </LakeText>
 
-                    <Box direction="column" style={{ paddingLeft: spacings[24] }}>
                       <LakeText variant="medium" color={colors.gray[700]}>
                         {formatCurrency(Number(reservedBalance.value), reservedBalance.currency)}
                       </LakeText>
@@ -180,11 +291,40 @@ export const TransactionsArea = ({
                       <LakeText color={colors.gray[500]} variant="smallRegular">
                         {t("transactions.reservedBalance")}
                       </LakeText>
-                    </Box>
-                  </Box>
-                </Box>
-              )}
-            </Box>
+                    </View>
+                  </BottomPanel>
+                )}
+              </Box>
+
+              <Box
+                direction="row"
+                style={[
+                  large
+                    ? {
+                        paddingLeft: spacings[40],
+                      }
+                    : {
+                        paddingLeft: spacings[24],
+                      },
+                  {
+                    paddingBottom: spacings[24],
+                  },
+                ]}
+              >
+                <Link
+                  target="blank"
+                  to={`https://docs.swan.io/concept/account/balances`}
+                  style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
+                >
+                  <LakeText variant="smallRegular" color={colors.current.primary}>
+                    {t("common.learnMore")}
+                  </LakeText>
+
+                  <Space width={4} />
+                  <Icon color={colors.current.primary} name="open-filled" size={16} />
+                </Link>
+              </Box>
+            </>
           ) : (
             <Space height={24} />
           )}

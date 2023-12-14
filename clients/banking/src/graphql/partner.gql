@@ -224,6 +224,9 @@ query AccountArea($accountMembershipId: ID!) {
     id
     ...AccountMembership
     account {
+      IBAN
+      bankDetails
+      language
       id
       paymentLevel
       paymentAccountType
@@ -429,6 +432,17 @@ query AccountDetailsSettingsPage($accountId: ID!) {
       }
       residencyAddress {
         country
+      }
+    }
+  }
+}
+
+mutation UpdateAccountLanguage($id: ID!, $language: AccountLanguage!) {
+  updateAccount(input: { accountId: $id, language: $language }) {
+    __typename
+    ... on UpdateAccountSuccessPayload {
+      account {
+        id
       }
     }
   }

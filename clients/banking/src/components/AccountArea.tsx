@@ -19,6 +19,7 @@ import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
@@ -34,7 +35,11 @@ import {
 } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
-import { AccountAreaDocument, IdentificationLevelsFragment } from "../graphql/partner";
+import {
+  AccountAreaDocument,
+  IdentificationLevelsFragment,
+  UpdateAccountLanguageDocument,
+} from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -180,6 +185,21 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     query: AccountAreaDocument,
     variables: { accountMembershipId },
   });
+
+  const [, updateAccountLanguage] = useUrqlMutation(UpdateAccountLanguageDocument);
+
+  const accountId = accountMembership?.account?.id;
+  const language = accountMembership?.account?.language;
+  const iban = accountMembership?.account?.IBAN;
+  const bankDetails = accountMembership?.account?.bankDetails;
+
+  useEffect(() => {
+    // Triggers `bankDetails` generation if not yet available
+    if (accountId != null && language != null && iban != null && bankDetails == null) {
+      const future = updateAccountLanguage({ id: accountId, language });
+      return () => future.cancel();
+    }
+  }, [accountId, language, iban, bankDetails, updateAccountLanguage]);
 
   const currentAccountMembership = useMemo(
     () => Option.fromNullable(accountMembership).toResult(new Error("NoAccountMembership")),

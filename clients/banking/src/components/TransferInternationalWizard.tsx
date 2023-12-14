@@ -209,6 +209,7 @@ export const TransferInternationalWizard = ({
                       isMobile={!large}
                       amount={amount}
                       onPressEdit={() => setStep({ name: "Amount", amount })}
+                      hideQuote={true}
                     />
 
                     <Space height={24} />

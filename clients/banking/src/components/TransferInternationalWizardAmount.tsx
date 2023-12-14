@@ -283,12 +283,14 @@ export const TransferInternationalWizardAmount = ({
 type SummaryProps = {
   amount: Amount;
   isMobile: boolean;
+  hideQuote: boolean;
   onPressEdit: () => void;
 };
 
 export const TransferInternationamWizardAmountSummary = ({
   isMobile,
   amount,
+  hideQuote,
   onPressEdit,
 }: SummaryProps) => {
   return (
@@ -305,7 +307,7 @@ export const TransferInternationamWizardAmountSummary = ({
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeHeading>
 
-          {isNotNullish(amount.metadata) && (
+          {isNotNullish(amount.metadata) && !hideQuote ? (
             <>
               <Space height={16} />
 
@@ -336,7 +338,7 @@ export const TransferInternationamWizardAmountSummary = ({
                 })}
               </LakeText>
             </>
-          )}
+          ) : null}
         </View>
 
         <Fill />

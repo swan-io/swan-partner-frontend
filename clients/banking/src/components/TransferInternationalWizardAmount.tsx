@@ -283,14 +283,14 @@ export const TransferInternationalWizardAmount = ({
 type SummaryProps = {
   amount: Amount;
   isMobile: boolean;
-  hideQuote: boolean;
+  hideQuote?: boolean;
   onPressEdit: () => void;
 };
 
 export const TransferInternationamWizardAmountSummary = ({
   isMobile,
   amount,
-  hideQuote,
+  hideQuote = false,
   onPressEdit,
 }: SummaryProps) => {
   return (

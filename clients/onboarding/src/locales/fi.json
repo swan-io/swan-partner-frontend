@@ -26,6 +26,7 @@
   "company.step.documents.confirmModal.confirm": "Olen varma",
   "company.step.documents.confirmModal.message": "Tämä on helpoin tapa lähettää asiakirjat. Vaihtoehtoisesti lähetyksen voi hoitaa myöhemmin sähköpostitse.",
   "company.step.documents.confirmModal.title": "Oletko varmasti ladannut kaikki asiakirjat?",
+  "company.step.documents.subtitle": "Toimita laadukkaita, täysivärisiä tiedostoja, jotka tallentavat koko asiakirjan.",
   "company.step.documents.title": "Muut asiakirjat",
   "company.step.organisation1.addressLabel": "Etsi organisaatiosi osoite",
   "company.step.organisation1.addressTitle": "Organisaation osoite",

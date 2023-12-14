@@ -43,10 +43,9 @@ type Props = {
 
 const styles = StyleSheet.create({
   balance: {
-    paddingHorizontal: spacings[24],
+    paddingLeft: spacings[24],
     paddingVertical: spacings[12],
     paddingBottom: 0,
-    flexDirection: "column-reverse",
   },
   balanceLarge: {
     paddingLeft: spacings[40],
@@ -124,25 +123,27 @@ export const TransactionsArea = ({
           {availableBalance && bookedBalance && pendingBalance && reservedBalance ? (
             <>
               <Box direction="row">
-                <Box style={[styles.balance, large && styles.balanceLarge]}>
-                  <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
+                <Box style={[styles.balance, large && styles.balanceLarge]} direction="row">
+                  <Box direction="columnReverse">
+                    <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
 
-                  <LakeHeading level={1} variant={large ? "h1" : "h3"}>
-                    {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
-                  </LakeHeading>
-                </Box>
+                    <LakeHeading level={1} variant={large ? "h1" : "h3"}>
+                      {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+                    </LakeHeading>
+                  </Box>
 
-                <Box justifyContent="center">
+                  <Space width={12} />
+
                   <LakeButton
                     ariaLabel={t("common.see")}
                     mode="tertiary"
-                    size="large"
+                    size="small"
                     icon={balanceDetailsVisible ? "eye-regular" : "eye-off-regular"}
                     onPress={() => {
                       setBalanceDetailsVisible(!balanceDetailsVisible);
                     }}
                     color="swan"
-                    style={({ hovered }) => hovered && styles.balanceDetailsButton}
+                    style={({ hovered }) => [hovered && styles.balanceDetailsButton]}
                   />
                 </Box>
 

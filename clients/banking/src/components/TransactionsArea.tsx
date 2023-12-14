@@ -19,7 +19,6 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { typography } from "@swan-io/lake/src/constants/typography";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
@@ -76,10 +75,9 @@ const styles = StyleSheet.create({
   },
   balanceDetailDesktopContainer: {
     paddingLeft: spacings[16],
-    width: "400px",
   },
   balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
-  balanceDetailDesktopItem: { paddingLeft: spacings[24] },
+  balanceDetailDesktopItem: { paddingHorizontal: spacings[24] },
   bottomPanelContainer: { padding: spacings[24] },
   bottomPanelItem: {
     paddingBottom: spacings[4],
@@ -112,7 +110,6 @@ export const TransactionsArea = ({
     number | undefined
   >(undefined);
 
-  const { desktop } = useResponsive();
   const [balanceDetailsVisible, setBalanceDetailsVisible] = useState<boolean>(false);
 
   const route = Router.useRoute(accountTransactionsRoutes);
@@ -158,7 +155,7 @@ export const TransactionsArea = ({
                   enter={animations.fadeAndSlideInFromLeft.enter}
                   leave={animations.fadeAndSlideInFromLeft.leave}
                 >
-                  {balanceDetailsVisible && desktop ? (
+                  {balanceDetailsVisible && large ? (
                     <Box direction="row" style={styles.balanceDetailDesktopContainer}>
                       <Box
                         style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
@@ -220,7 +217,7 @@ export const TransactionsArea = ({
                   ) : null}
                 </TransitionView>
 
-                {balanceDetailsVisible && !desktop && (
+                {balanceDetailsVisible && !large && (
                   <BottomPanel
                     visible={screen != null}
                     onPressClose={() => {
@@ -236,7 +233,7 @@ export const TransactionsArea = ({
                         variant="h3"
                         style={{ lineHeight: typography.lineHeights.body }}
                       >
-                        Available balance
+                        {t("transactions.availableBalance")}
                       </LakeHeading>
 
                       <Box direction="row">

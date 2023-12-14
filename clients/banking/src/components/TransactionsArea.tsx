@@ -153,12 +153,12 @@ export const TransactionsArea = ({
                   />
                 </Box>
 
-                {balanceDetailsVisible && desktop && (
-                  <TransitionView
-                    style={styles.transitionView}
-                    enter={animations.fadeAndSlideInFromLeft.enter}
-                    leave={animations.fadeAndSlideInFromLeft.leave}
-                  >
+                <TransitionView
+                  style={styles.transitionView}
+                  enter={animations.fadeAndSlideInFromLeft.enter}
+                  leave={animations.fadeAndSlideInFromLeft.leave}
+                >
+                  {balanceDetailsVisible && desktop ? (
                     <Box direction="row" style={styles.balanceDetailDesktopContainer}>
                       <Box
                         style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
@@ -217,8 +217,8 @@ export const TransactionsArea = ({
                         </Box>
                       </Box>
                     </Box>
-                  </TransitionView>
-                )}
+                  ) : null}
+                </TransitionView>
 
                 {balanceDetailsVisible && !desktop && (
                   <BottomPanel

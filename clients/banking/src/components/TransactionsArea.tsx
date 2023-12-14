@@ -9,8 +9,10 @@ import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
+import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import {
+  animations,
   breakpoints,
   colors,
   negativeSpacings,
@@ -76,7 +78,7 @@ const styles = StyleSheet.create({
     paddingLeft: spacings[16],
     width: "400px",
   },
-  balanceDetailDesktopLarge: { paddingBottom: spacings[16] },
+  balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
   balanceDetailDesktopItem: { paddingLeft: spacings[24] },
   bottomPanelContainer: { padding: spacings[24] },
   bottomPanelItem: {
@@ -87,6 +89,10 @@ const styles = StyleSheet.create({
   },
   linkContainer: {
     paddingLeft: spacings[24],
+  },
+  transitionView: {
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
 });
 
@@ -148,65 +154,70 @@ export const TransactionsArea = ({
                 </Box>
 
                 {balanceDetailsVisible && desktop && (
-                  <Box
-                    direction="row"
-                    alignItems="end"
-                    style={styles.balanceDetailDesktopContainer}
+                  <TransitionView
+                    style={styles.transitionView}
+                    enter={animations.fadeAndSlideInFromLeft.enter}
+                    leave={animations.fadeAndSlideInFromLeft.leave}
                   >
-                    <Box
-                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                      direction="row"
-                    >
-                      <LakeText> = </LakeText>
+                    <Box direction="row" style={styles.balanceDetailDesktopContainer}>
+                      <Box
+                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
+                        direction="row"
+                      >
+                        <LakeText> = </LakeText>
 
-                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                        <LakeText variant="medium" color={colors.gray[700]}>
-                          {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
-                        </LakeText>
+                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                          <LakeText variant="medium" color={colors.gray[700]}>
+                            {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
+                          </LakeText>
 
-                        <LakeText color={colors.gray[500]} variant="smallRegular">
-                          {t("transactions.bookedBalance")}
-                        </LakeText>
+                          <LakeText color={colors.gray[500]} variant="smallRegular">
+                            {t("transactions.bookedBalance")}
+                          </LakeText>
+                        </Box>
+                      </Box>
+
+                      <Box
+                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
+                        direction="row"
+                      >
+                        <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
+
+                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                          <LakeText variant="medium" color={colors.gray[700]}>
+                            {formatCurrency(
+                              Math.abs(Number(pendingBalance.value)),
+                              pendingBalance.currency,
+                            )}
+                          </LakeText>
+
+                          <LakeText color={colors.gray[500]} variant="smallRegular">
+                            {t("transactions.pendingBalance")}
+                          </LakeText>
+                        </Box>
+                      </Box>
+
+                      <Box
+                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
+                        direction="row"
+                      >
+                        <LakeText> - </LakeText>
+
+                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                          <LakeText variant="medium" color={colors.gray[700]}>
+                            {formatCurrency(
+                              Number(reservedBalance.value),
+                              reservedBalance.currency,
+                            )}
+                          </LakeText>
+
+                          <LakeText color={colors.gray[500]} variant="smallRegular">
+                            {t("transactions.reservedBalance")}
+                          </LakeText>
+                        </Box>
                       </Box>
                     </Box>
-
-                    <Box
-                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                      direction="row"
-                    >
-                      <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
-
-                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                        <LakeText variant="medium" color={colors.gray[700]}>
-                          {formatCurrency(
-                            Math.abs(Number(pendingBalance.value)),
-                            pendingBalance.currency,
-                          )}
-                        </LakeText>
-
-                        <LakeText color={colors.gray[500]} variant="smallRegular">
-                          {t("transactions.pendingBalance")}
-                        </LakeText>
-                      </Box>
-                    </Box>
-
-                    <Box
-                      style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                      direction="row"
-                    >
-                      <LakeText> - </LakeText>
-
-                      <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                        <LakeText variant="medium" color={colors.gray[700]}>
-                          {formatCurrency(Number(reservedBalance.value), reservedBalance.currency)}
-                        </LakeText>
-
-                        <LakeText color={colors.gray[500]} variant="smallRegular">
-                          {t("transactions.reservedBalance")}
-                        </LakeText>
-                      </Box>
-                    </Box>
-                  </Box>
+                  </TransitionView>
                 )}
 
                 {balanceDetailsVisible && !desktop && (

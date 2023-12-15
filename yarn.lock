@@ -2686,10 +2686,10 @@
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
 
-"@swan-io/boxed@1.2.0", "@swan-io/boxed@^1.2.0":
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-1.2.0.tgz#e7d8b7a1e56ec31bbecb639fca3182c3e64d0783"
-  integrity sha512-Oh9/sBeCWNzpino8s5Wp6y+Ivg0q/m2SVQ0ThiPc7bNH+/zLIs12lgasYLwVP6C/1nQpuXi4QhoS11+OwaDg5Q==
+"@swan-io/boxed@2.0.0", "@swan-io/boxed@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.0.0.tgz#b56bd01f6dc192e7aa1ed0659f149ebdc030d308"
+  integrity sha512-2U098tBOTMShB1fbkapIVxDZJGnS7Sz5Hr4T1MX6xJETaTrFCj2YhCjR4wxrCqzHrDT3PVvaSI6HN4H3PUZHqA==
 
 "@swan-io/chicane@1.4.1", "@swan-io/chicane@^1.4.1":
   version "1.4.1"
@@ -2700,15 +2700,15 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.1.2":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.1.2.tgz#37787520c59028fdc6b0c9349d37df1571ee8f7f"
-  integrity sha512-hQ+QNCxeIKVqsJlbKst1IWk7YbGHbfj+sqeqp1SqynYn17k541JV/axZgoaLgAL5qHDzfelHd8ia4HHeKtytzQ==
+"@swan-io/lake@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.2.0.tgz#60bdd3f75b6056bcb7144e773fbf49e69b69abe7"
+  integrity sha512-3I2ggiVlzXdpyH1f941mk/mN61fm4oy0lUkAJqoQSSDxLknQ9yexgbKyxqniR9ZwHgOPwkytCOLiTxPmjxb7RQ==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.90.0"
     "@react-three/fiber" "^8.15.12"
-    "@swan-io/boxed" "^1.2.0"
+    "@swan-io/boxed" "^2.0.0"
     "@swan-io/chicane" "^1.4.1"
     dayjs "^1.11.10"
     polished "^4.2.2"
@@ -2726,15 +2726,15 @@
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.1.2":
-  version "4.1.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.1.2.tgz#895f59318c71864067159c1b3b099978d4b35662"
-  integrity sha512-BvOfkZbzPP5AeUHIyO6wXG4vVerE/rUiO3qH07+lGbPASwgNEswx/pJvU8CjALDbripCGRXTowUBpZFkLvE7nQ==
+"@swan-io/shared-business@4.2.0":
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.2.0.tgz#ad6d701d562d160ec343bfbffbf2a042d73f9f55"
+  integrity sha512-YzWiOZB1LQZ25fKYzJlG6TOjETdoGt5ifU8SohGKHe48LgELeVquxjGAz57+o9wsV0qHV5PY3Lp4/1O2XXzCZA==
   dependencies:
     "@formatjs/intl" "^2.9.9"
     "@googlemaps/js-api-loader" "1.16.2"
     "@placekit/client-js" "^2.2.0"
-    "@swan-io/boxed" "^1.2.0"
+    "@swan-io/boxed" "^2.0.0"
     dayjs "^1.11.10"
     react "^18.2.0"
     react-atomic-state "^1.2.7"

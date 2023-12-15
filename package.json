@@ -68,7 +68,7 @@
     "@localazy/cli": "1.7.5",
     "@playwright/test": "1.40.1",
     "@sentry/cli": "2.22.3",
-    "@swan-io/boxed": "1.2.0",
+    "@swan-io/boxed": "2.0.0",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.9",
     "@types/sodium-native": "2.3.9",

@@ -1881,6 +1881,12 @@ query GetTransactionDetails(
 
 fragment AccountBalances on Account {
   __typename
+  merchantProfiles {
+    totalCount
+  }
+  fundingSources {
+    totalCount
+  }
   id
   balances {
     available {

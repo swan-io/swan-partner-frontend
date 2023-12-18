@@ -5,7 +5,6 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -60,16 +59,16 @@ const styles = StyleSheet.create({
   statements: {
     marginHorizontal: negativeSpacings[24],
   },
-  link: {
-    display: "flex",
-    transitionProperty: "opacity",
-    transitionDuration: "150ms",
-    alignItems: "center",
-  },
+  // link: {
+  //   display: "flex",
+  //   transitionProperty: "opacity",
+  //   transitionDuration: "150ms",
+  //   alignItems: "center",
+  // },
   grow: { flexGrow: 1 },
-  linkPressed: {
-    opacity: 0.7,
-  },
+  // linkPressed: {
+  //   opacity: 0.7,
+  // },
   balanceDetailsButton: {
     backgroundColor: colors.gray[100],
   },
@@ -82,12 +81,12 @@ const styles = StyleSheet.create({
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
-  linkContainerLarge: {
-    paddingLeft: spacings[40],
-  },
-  linkContainer: {
-    paddingLeft: spacings[24],
-  },
+  // linkContainerLarge: {
+  //   paddingLeft: spacings[40],
+  // },
+  // linkContainer: {
+  //   paddingLeft: spacings[24],
+  // },
   transitionView: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -106,6 +105,20 @@ export const TransactionsArea = ({
     query: GetAccountBalanceDocument,
     variables: { accountId },
   });
+
+  const shouldShowDetailedBalance = Option.fromNullable(data?.account)
+    .flatMap(account =>
+      Option.allFromDict({
+        fundingSources: Option.fromNullable(account.fundingSources),
+        merchantProfiles: Option.fromNullable(account.merchantProfiles),
+      }),
+    )
+    .map(
+      ({ fundingSources, merchantProfiles }) =>
+        fundingSources.totalCount > 0 && merchantProfiles.totalCount > 0,
+    )
+    .getWithDefault(false);
+
   const [updatedUpcommingTransactionCount, setUpdatedUpcommingTransactionCount] = useState<
     number | undefined
   >(undefined);
@@ -137,17 +150,19 @@ export const TransactionsArea = ({
 
                   <Space width={12} />
 
-                  <LakeButton
-                    ariaLabel={t("common.see")}
-                    mode="tertiary"
-                    size="small"
-                    icon={balanceDetailsVisible ? "eye-regular" : "eye-off-regular"}
-                    onPress={() => {
-                      setBalanceDetailsVisible(!balanceDetailsVisible);
-                    }}
-                    color="swan"
-                    style={({ hovered }) => [hovered && styles.balanceDetailsButton]}
-                  />
+                  {shouldShowDetailedBalance && (
+                    <LakeButton
+                      ariaLabel={t("common.see")}
+                      mode="tertiary"
+                      size="small"
+                      icon={balanceDetailsVisible ? "eye-regular" : "eye-off-regular"}
+                      onPress={() => {
+                        setBalanceDetailsVisible(!balanceDetailsVisible);
+                      }}
+                      color="swan"
+                      style={({ hovered }) => [hovered && styles.balanceDetailsButton]}
+                    />
+                  )}
                 </Box>
 
                 <TransitionView
@@ -236,10 +251,12 @@ export const TransactionsArea = ({
                         {t("transactions.availableBalance")}
                       </LakeHeading>
 
+                      {/* 
+                      WAITING FOR DOC LINK
                       <Box direction="row">
                         <Link
                           target="blank"
-                          to={`https://docs.swan.io/concept/account/balances`}
+                          to={``}
                           style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
                         >
                           <LakeText color={colors.current.primary}>
@@ -249,7 +266,7 @@ export const TransactionsArea = ({
                           <Space width={4} />
                           <Icon color={colors.current.primary} name="open-filled" size={16} />
                         </Link>
-                      </Box>
+                      </Box> */}
 
                       <Space height={24} />
 
@@ -307,20 +324,26 @@ export const TransactionsArea = ({
                 )}
               </Box>
 
-              <Box direction="row" style={large ? styles.linkContainerLarge : styles.linkContainer}>
-                <Link
-                  target="blank"
-                  to={`https://docs.swan.io/concept/account/balances`}
-                  style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
+              {/*  WAITING FOR DOC LINK
+              {shouldShowDetailedBalance && (
+                <Box
+                  direction="row"
+                  style={large ? styles.linkContainerLarge : styles.linkContainer}
                 >
-                  <LakeText variant="smallRegular" color={colors.current.primary}>
-                    {t("common.learnMore")}
-                  </LakeText>
+                  <Link
+                    target="blank"
+                    to={``}
+                    style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
+                  >
+                    <LakeText variant="smallRegular" color={colors.current.primary}>
+                      {t("common.learnMore")}
+                    </LakeText>
 
-                  <Space width={4} />
-                  <Icon color={colors.current.primary} name="open-filled" size={16} />
-                </Link>
-              </Box>
+                    <Space width={4} />
+                    <Icon color={colors.current.primary} name="open-filled" size={16} />
+                  </Link>
+                </Box>
+              )} */}
 
               <Space height={24} />
             </>

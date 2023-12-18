@@ -2238,10 +2238,10 @@
     "@opentelemetry/semantic-conventions" "1.18.1"
     jaeger-client "^3.15.0"
 
-"@opentelemetry/instrumentation-fastify@0.32.4":
-  version "0.32.4"
-  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-fastify/-/instrumentation-fastify-0.32.4.tgz#5c183a65a28cc4d09d3d1f41e76e4e79370b4ce2"
-  integrity sha512-uAgH8M483yP2eezc+xnuViOkIq3kzD3+gX9RfPCp9zNA1JV/CIe3i34+CkelBRtI62PyiTijrCxHykCcm5uAXQ==
+"@opentelemetry/instrumentation-fastify@0.32.5":
+  version "0.32.5"
+  resolved "https://registry.yarnpkg.com/@opentelemetry/instrumentation-fastify/-/instrumentation-fastify-0.32.5.tgz#86bc38ea064ac161b38a136c94a08e2deb08c1c8"
+  integrity sha512-u88jctr2Y04N8ALpO448s6IH5F0RB3XXa8+fJ+SMh0JsDwpX4oJZGjbnXSKZP0Gl9FscWIENasNoedW+R2vaHw==
   dependencies:
     "@opentelemetry/core" "^1.8.0"
     "@opentelemetry/instrumentation" "^0.45.1"

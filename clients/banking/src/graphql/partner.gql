@@ -89,6 +89,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on InternalDirectDebitTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     creditor {
       accountId
     }
@@ -125,6 +130,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on SEPADirectDebitTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     __typename
     creditor {
       name
@@ -180,6 +190,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on CheckTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     cmc7
     rlmcKey
   }

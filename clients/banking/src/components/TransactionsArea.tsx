@@ -59,16 +59,16 @@ const styles = StyleSheet.create({
   statements: {
     marginHorizontal: negativeSpacings[24],
   },
-  link: {
-    display: "flex",
-    transitionProperty: "opacity",
-    transitionDuration: "150ms",
-    alignItems: "center",
-  },
+  // link: {
+  //   display: "flex",
+  //   transitionProperty: "opacity",
+  //   transitionDuration: "150ms",
+  //   alignItems: "center",
+  // },
   grow: { flexGrow: 1 },
-  linkPressed: {
-    opacity: 0.7,
-  },
+  // linkPressed: {
+  //   opacity: 0.7,
+  // },
   balanceDetailsButton: {
     backgroundColor: colors.gray[100],
   },
@@ -81,12 +81,12 @@ const styles = StyleSheet.create({
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
-  linkContainerLarge: {
-    paddingLeft: spacings[40],
-  },
-  linkContainer: {
-    paddingLeft: spacings[24],
-  },
+  // linkContainerLarge: {
+  //   paddingLeft: spacings[40],
+  // },
+  // linkContainer: {
+  //   paddingLeft: spacings[24],
+  // },
   transitionView: {
     flexDirection: "row",
     alignItems: "flex-end",

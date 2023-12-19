@@ -1872,33 +1872,35 @@ scalar AuditId
 
 """A method used to authenticate a user"""
 type Authenticator {
-  """Operating System (Apple, Android, ...)"""
+  """
+  Operating System parsed from the user agent (eg AIX, Amiga OS, Android, Arch, Bada, BeOS, BlackBerry, ...)
+  """
   os: String
 
-  """Device Brand (Apple, Samsung, ...)"""
+  """
+  Device Brand parsed from the user agent (eg: Acer, Alcatel, Amazon, Apple, ...)
+  """
   brand: String
 
-  """Device Model (iPhone XS, Samsung S3, ...)"""
+  """Device Model parsed from the user agent"""
   model: String
 
   """Type of authenticator"""
   type: AuthenticatorType!
 
-  """User agent, if it's a web authenticator"""
+  """Raw user agent"""
   userAgent: String
 
-  """
-  Accept-Language header used during registration, if it's a web authenticator
-  """
+  """Accept-Language header used during registration"""
   acceptLanguage: String
 }
 
 enum AuthenticatorType {
-  """The Swan app"""
-  Swan
-
   """A Swan web authenticator"""
   SwanWeb
+
+  """Deprecated: swan authenticator"""
+  Swan
 }
 
 scalar AuthorizationId

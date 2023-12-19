@@ -572,8 +572,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       label={t("transaction.reservedAmount")}
                       render={() => (
                         <LakeText variant="regular" color={colors.gray[900]}>
-                          {(transaction.side === "Debit" ? "-" : "+") +
-                            formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
+                          {formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
                         </LakeText>
                       )}
                     />
@@ -779,8 +778,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         label={t("transaction.reservedAmount")}
                         render={() => (
                           <LakeText variant="regular" color={colors.gray[900]}>
-                            {(transaction.side === "Debit" ? "-" : "+") +
-                              formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
+                            {formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
                           </LakeText>
                         )}
                       />

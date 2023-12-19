@@ -900,6 +900,29 @@ input AddressInput {
   country: CCA3!
 }
 
+input AddSepaDirectDebitPaymentMandateFromPaymentLinkInput {
+  """Debtor of the SEPA Direct Debit Payment Mandate"""
+  debtor: SepaPaymentMandateDebtorInput!
+
+  """Payment Link related to the SEPA Direct Debit Payment Mandate"""
+  paymentLinkId: ID!
+
+  """
+  The browser's language used for the mandate, or English if not available.
+  """
+  language: Language
+}
+
+"""Union type return by the addSepaDirectDebitPaymentMandate mutation"""
+union AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload = AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+
+"""
+Return type in case of a successful response of the addSepaDirectDebitPaymentMandateFromPaymentLink mutation
+"""
+type AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
+  paymentMandate: SEPAPaymentDirectDebitMandate!
+}
+
 """Rejection returned if card already has a valid Physical Card"""
 type AlreadyValidPhysicalCardRejection implements Rejection {
   message: String!
@@ -952,33 +975,35 @@ type ApprovedFundingLimit {
 
 """A method used to authenticate a user"""
 type Authenticator {
-  """Operating System (Apple, Android, ...)"""
+  """
+  Operating System parsed from the user agent (eg AIX, Amiga OS, Android, Arch, Bada, BeOS, BlackBerry, ...)
+  """
   os: String
 
-  """Device Brand (Apple, Samsung, ...)"""
+  """
+  Device Brand parsed from the user agent (eg: Acer, Alcatel, Amazon, Apple, ...)
+  """
   brand: String
 
-  """Device Model (iPhone XS, Samsung S3, ...)"""
+  """Device Model parsed from the user agent"""
   model: String
 
   """Type of authenticator"""
   type: AuthenticatorType!
 
-  """User agent, if it's a web authenticator"""
+  """Raw user agent"""
   userAgent: String
 
-  """
-  Accept-Language header used during registration, if it's a web authenticator
-  """
+  """Accept-Language header used during registration"""
   acceptLanguage: String
 }
 
 enum AuthenticatorType {
-  """The Swan app"""
-  Swan
-
   """A Swan web authenticator"""
   SwanWeb
+
+  """Deprecated: swan authenticator"""
+  Swan
 }
 
 """Rejection returned if the status account is not valid"""
@@ -1014,13 +1039,6 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
-}
-
-type CanceledMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
-  status: MerchantPaymentLinkStatus!
-
-  """The date at which the customer canceled the payment."""
-  canceledAt: DateTime!
 }
 
 """CanceledMerchantPaymentMethodStatusInfo"""
@@ -1301,6 +1319,34 @@ type CardInfos {
 input CardInfosInput {
   token: String!
   requestId: String
+}
+
+"""COMING SOON"""
+type CardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
 }
 
 """
@@ -1613,12 +1659,6 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -2263,6 +2303,11 @@ enum DigitalizationType {
   Unknown
 }
 
+enum DirectDebitSequence {
+  OneOff
+  Recurring
+}
+
 """EnabledMerchantPaymentMethodStatusInfo"""
 type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -2784,12 +2829,6 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -2815,12 +2854,6 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -2869,6 +2902,15 @@ type InvalidPhoneNumberRejection implements Rejection {
 """Rejection returned if siren number is not well formatted"""
 type InvalidSirenNumberRejection implements Rejection {
   message: String!
+}
+
+enum Language {
+  de
+  en
+  fr
+  it
+  nl
+  es
 }
 
 type LegalRepresentativeAccountMembershipCannotBeDisabledRejection implements Rejection {
@@ -2958,8 +3000,13 @@ type MerchantPaymentLink {
   """
   sequence: PaymentLinkSequenceType!
 
-  """billing address informations"""
-  billingAddress: Address!
+  """
+  The customer billing Address
+  These fields should be completed also to pre-fill a SEPA direct debit mandate.
+  
+  We strongly advice to complete these fields if merchants want to get paid through card payment method, in order to minimize the risk of payment rejection by Visa / Mastercard schemes
+  """
+  billingAddress: Address
 
   """
     A date that reflects the time at which the user asked the transaction to be executed.
@@ -3082,6 +3129,7 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitCore
   SepaDirectDebitB2b
   Check
+  Card
 }
 
 """Merchant Profile"""
@@ -3205,6 +3253,8 @@ type Mutation {
   *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
+  addSepaDirectDebitPaymentMandateFromPaymentLink(input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!): AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload!
+  unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!): UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload!
 }
 
 """
@@ -3680,12 +3730,46 @@ interface PartnershipStatusInfo {
   status: PartnershipStatus!
 }
 
+type Payment {
+  """unique identifier of a payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: PaymentStatusInfo!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
 enum PaymentAccountType {
   """When the account holder if the account hasn't met KYC requirements"""
   EMoney
 
   """When all KYC requirements are met"""
   PaymentService
+}
+
+"""Payment status consent pending"""
+type PaymentConsentPending implements PaymentStatusInfo {
+  """status of the payment"""
+  status: PaymentStatus!
+
+  """The consent required to initiate this payment"""
+  consent: Consent!
+}
+
+interface PaymentDirectDebitMandate {
+  """Unique identifier of the Direct Debit Payment Mandate"""
+  id: ID!
+}
+
+"""Payment status initiated"""
+type PaymentInitiated implements PaymentStatusInfo {
+  """status of the payment"""
+  status: PaymentStatus!
 }
 
 """Payment Level of the account"""
@@ -3704,6 +3788,96 @@ enum PaymentLinkSequenceType {
   Recurring
 }
 
+interface PaymentMandate {
+  """Unique identifier of the Payment Mandate"""
+  id: ID!
+}
+
+enum PaymentMandateCanceledReason {
+  """When the user requested to cancel the Payment Mandate"""
+  RequestedByUser
+
+  """When the Payment Mandate is expired"""
+  MandateExpired
+}
+
+"""Payment Mandate Canceled status information"""
+type PaymentMandateCanceledStatusInfo implements PaymentMandateStatusInfo {
+  """
+  Payment Mandate status (always Canceled for type PaymentMandateCanceledStatusInfo).
+  """
+  status: PaymentMandateStatus!
+
+  """Reason behind the Payment Mandate Canceled status"""
+  reason: PaymentMandateCanceledReason!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type PaymentMandateConnection implements Connection {
+  """Total number of elements in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """PaymentMandateEdge list"""
+  edges: [PaymentMandateEdge!]!
+}
+
+"""Payment Mandate Consent Pending status information"""
+type PaymentMandateConsentPendingStatusInfo implements PaymentMandateStatusInfo {
+  """
+  Payment Mandate status (always Enabled for type PaymentMandateEnableedStatusInfo).
+  """
+  status: PaymentMandateStatus!
+
+  """Consent information required to enable the concerned Payment Mandate"""
+  consent: Consent!
+}
+
+interface PaymentMandateCreditor {
+  """Creditor UUID"""
+  id: ID!
+
+  """Creditor name"""
+  name: String!
+
+  """Creditor address"""
+  address: Address!
+}
+
+interface PaymentMandateDebtor {
+  """Debtor name"""
+  name: String!
+
+  """Debtor e-mail"""
+  email: String
+
+  """Debtor country"""
+  country: CCA3!
+}
+
+"""Implements the Relay Edge interface"""
+type PaymentMandateEdge implements Edge {
+  """
+  Opaque identifier pointing to this onboarding node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The payment mandate"""
+  node: PaymentMandate!
+}
+
+"""Payment Mandate Enabled status information"""
+type PaymentMandateEnabledStatusInfo implements PaymentMandateStatusInfo {
+  """
+  Payment Mandate status (always Enabled for type PaymentMandateEnabledStatusInfo).
+  """
+  status: PaymentMandateStatus!
+}
+
 """
 Rejection returned when a payment mandate reference is already for a creditor
 """
@@ -3711,11 +3885,74 @@ type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
   message: String!
 }
 
+"""Payment Mandate Rejected status information"""
+type PaymentMandateRejectedStatusInfo implements PaymentMandateStatusInfo {
+  """
+  Payment Mandate status (always Rejected for type PaymentMandateSuspendedStatusInfo).
+  """
+  status: PaymentMandateStatus!
+}
+
+enum PaymentMandateScheme {
+  """SEPA Direct Debit Core"""
+  SepaDirectDebitCore
+
+  """SEPA Direct Debit B2B"""
+  SepaDirectDebitB2b
+
+  """Internal Direct Debit Standard"""
+  InternalDirectDebitStandard
+
+  """Internal Direct Debit B2B"""
+  InternalDirectDebitB2b
+}
+
+"""Payment Mandate status"""
+enum PaymentMandateStatus {
+  ConsentPending
+  Enabled
+  Rejected
+  Canceled
+}
+
+"""Payment Mandate status information"""
+interface PaymentMandateStatusInfo {
+  """Status of the payment mandate."""
+  status: PaymentMandateStatus!
+}
+
 """
 Rejection returned when a payment method is not compatible for the requested mutation
 """
 type PaymentMethodNotCompatibleRejection implements Rejection {
   message: String!
+}
+
+"""Payment status rejected"""
+type PaymentRejected implements PaymentStatusInfo {
+  """status of the payment"""
+  status: PaymentStatus!
+
+  """rejected reason"""
+  reason: String!
+}
+
+"""Payment status"""
+enum PaymentStatus {
+  """when a consent is pending before initiating the payment"""
+  ConsentPending
+
+  """when the payment has been initiated"""
+  Initiated
+
+  """when the payment has been rejected"""
+  Rejected
+}
+
+"""Payment Status Information"""
+interface PaymentStatusInfo {
+  """status of the payment"""
+  status: PaymentStatus!
 }
 
 """Pending Digital Card used for ApplePay or GooglePay"""
@@ -3908,28 +4145,33 @@ type PhysicalCardRenewedStatusInfo implements PhysicalCardStatusInfo {
 
 """Physical Card Status"""
 enum PhysicalCardStatus {
-  """when the consent to authorize physical card production is pending"""
+  """Consent to authorize physical card production is pending"""
   ConsentPending
 
-  """when the physical card is in the process of being ready to use"""
+  """Physical card is in processing and can’t be used yet"""
   Processing
 
-  """when the physical card is activated"""
+  """Physical card is activated and can be used"""
   Activated
 
-  """when the physical card is suspended"""
+  """Physical card is suspended and can’t be used"""
   Suspended
 
-  """when the physical card is canceled"""
+  """Physical card is canceled, can’t be used, and can’t be restored"""
   Canceled
 
-  """when the physical card is about to be canceled"""
+  """
+  Physical card is in the process of being canceled; card can’t be used or restored
+  """
   Canceling
 
-  """when the physical card is not yet activated"""
+  """Physical card needs to be activated by cardholder"""
   ToActivate
 
-  """when the physical card is renewed"""
+  """Physical card is in the process of being renewed"""
+  ToRenew
+
+  """Physical card is renewed but hasn’t made a transaction since renewal"""
   Renewed
 }
 
@@ -3971,6 +4213,17 @@ type PhysicalCardToActivateStatusInfo implements PhysicalCardStatusInfo {
 
   """`true` if PIN Code is available."""
   isPINReady: Boolean!
+}
+
+"""when the physical card is in the process of being renewed"""
+type PhysicalCardToRenewStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical card status (always ToRenew for type PhysicalCardToRenewStatusInfo)
+  """
+  status: PhysicalCardStatus!
+
+  """registered address to deliver the new physical card"""
+  address: Address!
 }
 
 """Rejection returned when the Physical Card is not the expected status"""
@@ -4128,10 +4381,10 @@ type ProjectInfo {
     this consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
     """
     language: String!
-  ): String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  ): String!
 
   """Unique id of your current Terms and Conditions of Use"""
-  tcuDocumentId: String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  tcuDocumentId: String!
 
   """Web banking settings"""
   webBankingSettings: WebBankingSettings
@@ -4215,6 +4468,9 @@ type Query {
 
   """Return a merchant payment link by id"""
   merchantPaymentLink(id: ID!): MerchantPaymentLink
+
+  """Return the list of CCA3 non-EEA countries"""
+  nonEEACountries: [CCA3!]!
 }
 
 """Define a reason with a message"""
@@ -4380,12 +4636,6 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -4422,12 +4672,6 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -4450,6 +4694,23 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   When the above is false, the value of the Sepa Creditor Identifier used
   """
   sepaCreditorIdentifier: String
+}
+
+type SEPAPaymentDirectDebitMandate {
+  """Unique identifier of the SEPA Direct Debit Payment Mandate"""
+  id: ID!
+
+  """SEPA Direct Debit Payment Mandate PDF document URL"""
+  mandateDocumentUrl: String!
+}
+
+input SepaPaymentMandateDebtorInput {
+  """SEPA Direct Debit Payment Mandate debtor name"""
+  name: String!
+
+  """SEPA Direct Debit Payment Mandate debtor IBAN"""
+  iban: String!
+  address: AddressInput!
 }
 
 """
@@ -4544,6 +4805,10 @@ type SupportingDocument {
   updatedAt: DateTime!
 }
 
+type SupportingDocumentAccountHolder {
+  id: ID
+}
+
 """
 Collection of supporting documents used for compliance
 
@@ -4571,6 +4836,8 @@ type SupportingDocumentCollection {
   List of required supporting document purposes for this supporting document collection
   """
   requiredSupportingDocumentPurposes: [SupportingDocumentPurpose!]!
+  accountHolder: SupportingDocumentAccountHolder!
+  onboarding: SupportingDocumentOnboarding!
 }
 
 """Supporting document collection with Approved status"""
@@ -4716,6 +4983,10 @@ type SupportingDocumentNotUploadedStatusInfo implements SupportingDocumentStatus
   status: SupportingDocumentStatus!
 }
 
+type SupportingDocumentOnboarding {
+  id: ID
+}
+
 type SupportingDocumentPostField {
   key: String!
   value: String!
@@ -4778,6 +5049,27 @@ enum SupportingDocumentPurposeEnum {
 
   """Sworn statement"""
   SwornStatement
+
+  """Proof of identity of the legal representative"""
+  LegalRepresentativeProofOfIdentity
+
+  """Proof of identity of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfIdentity
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment of the President"""
+  PresidentDecisionOfAppointment
+
+  """Decision of appointment of Administrator"""
+  AdministratorDecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
+
+  """Proof of address of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfAddress
 }
 
 """Supporting document with Refused status"""
@@ -4954,6 +5246,15 @@ enum SupportingDocumentType {
 
   """Meeting's minutes"""
   MeetingMinutes
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment"""
+  DecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
 }
 
 """Supporting document with Uploaded status"""
@@ -5194,6 +5495,24 @@ enum UltimateBeneficialOwnerType {
 
   """Indirect Company Owner (Legal person)."""
   IndirectCompany
+}
+
+input UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput {
+  """Payment Mandate ID generated by Swan"""
+  mandateId: ID!
+
+  """Payment Link related to the SEPA Direct Debit Payment Mandate"""
+  paymentLinkId: ID!
+}
+
+"""Union type return by the addSepaDirectDebitPaymentMandate mutation"""
+union UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload = UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+
+"""
+Return type in case of a successful response of the initiateMerchantSddPaymentCollectionFromPaymentLink mutation
+"""
+type UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPayload {
+  merchantPaymentCollection: Payment!
 }
 
 input UnauthenticatedOnboardPublicCompanyAccountHolderInput {

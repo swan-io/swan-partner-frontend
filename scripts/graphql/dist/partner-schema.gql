@@ -11029,11 +11029,19 @@ enum RejectedReasonCode {
   """Rejected because the account is unknown"""
   AccountUnknown
 
+  """
+  Rejected because the declared amount does not match the amount on the check
+  """
+  AmountMismatch
+
   """Rejected by the bank"""
   BankRefused
 
   """Rejected because the creditor bank is not reachable"""
   BeneficiaryBankNotReachable
+
+  """Rejected because the beneficiary is missing or incorrect"""
+  BeneficiaryMissingOrIncorrect
 
   """Rejected because the card is expired"""
   CardExpired
@@ -11044,6 +11052,9 @@ enum RejectedReasonCode {
   """Rejected because the card is suspended"""
   CardSuspended
 
+  """Rejected because the check was received too late"""
+  CheckReceivedLate
+
   """Rejected because the creditor bank is offline"""
   CreditorBankOffline
 
@@ -11052,6 +11063,12 @@ enum RejectedReasonCode {
 
   """Rejected following a timeout from the creditor bank"""
   CreditorBankTimeout
+
+  """Rejected because the date is missing"""
+  DateMissing
+
+  """Rejected because the date is invalid"""
+  DateInvalid
 
   """Rejected because the debtor account is closed"""
   DebtorAccountClosed
@@ -11076,6 +11093,12 @@ enum RejectedReasonCode {
   """Rejected because the debtor account holder is dead"""
   DebtorDeceased
 
+  """Rejected because the debtor's name is missing"""
+  DebtorNameMissing
+
+  """Rejected because of the endorsement is missing"""
+  EndorsementMissing
+
   """Rejected because of a fraud suspicion"""
   FraudSuspected
 
@@ -11090,6 +11113,9 @@ enum RejectedReasonCode {
 
   """Rejected because of invalid transfer date"""
   InvalidTransferDate
+
+  """Rejected because the amount is invalid or missing"""
+  InvalidOrMissingAmount
 
   """Rejected by debtor because the mandate is invalid"""
   MandateInvalid
@@ -11121,6 +11147,12 @@ enum RejectedReasonCode {
 
   """Rejected by bank for regulatory reason"""
   RegulatoryReason
+
+  """Rejected because the signature is missing"""
+  SignatureMissing
+
+  """Rejected because the check is suspicious"""
+  SuspiciousCheck
 
   """Rejected because the debtor or the creditor bank is offline"""
   SwanOffline

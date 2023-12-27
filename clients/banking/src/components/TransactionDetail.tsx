@@ -1,3 +1,5 @@
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -64,9 +66,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         type="viewSmall"
         label={t("transaction.bookingDateTime")}
         render={() => (
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {formatDateTime(new Date(bookingDate), "LLL")}
-          </LakeText>
+          <Box direction="row" alignItems="center">
+            <Icon name="calendar-ltr-regular" size={16} />
+            <Space width={8} />
+
+            <LakeText variant="regular" color={colors.gray[900]}>
+              {formatDateTime(new Date(bookingDate), "LLL")}
+            </LakeText>
+          </Box>
         )}
       />
     ))
@@ -92,9 +99,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         type="viewSmall"
         label={t("transaction.rejectedDate")}
         render={() => (
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {formatDateTime(new Date(transaction.updatedAt), "LLL")}
-          </LakeText>
+          <Box direction="row" alignItems="center">
+            <Icon name="calendar-ltr-regular" size={16} />
+            <Space width={8} />
+
+            <LakeText variant="regular" color={colors.gray[900]}>
+              {formatDateTime(new Date(transaction.updatedAt), "LLL")}
+            </LakeText>
+          </Box>
         )}
       />
     ))
@@ -348,9 +360,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       type="viewSmall"
                       label={t("transaction.paymentDateTime")}
                       render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {formatDateTime(new Date(createdAt), "LLL")}
-                        </LakeText>
+                        <Box direction="row" alignItems="center">
+                          <Icon name="calendar-ltr-regular" size={16} />
+                          <Space width={8} />
+
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {formatDateTime(new Date(createdAt), "LLL")}
+                          </LakeText>
+                        </Box>
                       )}
                     />
                   ) : null}
@@ -362,9 +379,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       type="viewSmall"
                       label={t("transaction.debtor")}
                       render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {debtor.name}
-                        </LakeText>
+                        <Box direction="row" alignItems="center">
+                          <Icon name="person-regular" size={16} />
+                          <Space width={8} />
+
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {debtor.name}
+                          </LakeText>
+                        </Box>
                       )}
                     />
                   ) : null}
@@ -381,9 +403,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                           type="viewSmall"
                           label={t("transaction.creditorName")}
                           render={() => (
-                            <LakeText variant="regular" color={colors.gray[900]}>
-                              {creditor.name}
-                            </LakeText>
+                            <Box direction="row" alignItems="center">
+                              <Icon name="person-regular" size={16} />
+                              <Space width={8} />
+
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {creditor.name}
+                              </LakeText>
+                            </Box>
                           )}
                         />
                       ),
@@ -398,9 +425,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                           type="viewSmall"
                           label={t("transaction.creditorName")}
                           render={() => (
-                            <LakeText variant="regular" color={colors.gray[900]}>
-                              {creditor.name}
-                            </LakeText>
+                            <Box direction="row" alignItems="center">
+                              <Icon name="person-regular" size={16} />
+                              <Space width={8} />
+
+                              <LakeText variant="regular" color={colors.gray[900]}>
+                                {creditor.name}
+                              </LakeText>
+                            </Box>
                           )}
                         />
                       ),
@@ -478,9 +510,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       type="viewSmall"
                       label={t("transaction.reservedUntil")}
                       render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                        </LakeText>
+                        <Box direction="row" alignItems="center">
+                          <Icon name="calendar-ltr-regular" size={16} />
+                          <Space width={8} />
+
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                          </LakeText>
+                        </Box>
                       )}
                     />
                   )}
@@ -489,18 +526,23 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     type="viewSmall"
                     label={t("transaction.paymentMethod")}
                     render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {match(transaction)
-                          .with({ __typename: "CheckTransaction" }, () =>
-                            t("transactions.method.Check"),
-                          )
-                          .with(
-                            { __typename: "InternalDirectDebitTransaction" },
-                            { __typename: "SEPADirectDebitTransaction" },
-                            () => t("transactions.method.DirectDebit"),
-                          )
-                          .otherwise(() => null)}
-                      </LakeText>
+                      <Box direction="row" alignItems="center">
+                        <Icon name="arrow-swap-regular" size={16} />
+                        <Space width={8} />
+
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {match(transaction)
+                            .with({ __typename: "CheckTransaction" }, () =>
+                              t("transactions.method.Check"),
+                            )
+                            .with(
+                              { __typename: "InternalDirectDebitTransaction" },
+                              { __typename: "SEPADirectDebitTransaction" },
+                              () => t("transactions.method.DirectDebit"),
+                            )
+                            .otherwise(() => null)}
+                        </LakeText>
+                      </Box>
                     )}
                   />
 
@@ -510,9 +552,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         type="viewSmall"
                         label={t("transaction.debtor")}
                         render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {debtor.name}
-                          </LakeText>
+                          <Box direction="row" alignItems="center">
+                            <Icon name="person-regular" size={16} />
+                            <Space width={8} />
+
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {debtor.name}
+                            </LakeText>
+                          </Box>
                         )}
                       />
                     ))
@@ -533,9 +580,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                             type="viewSmall"
                             label={t("transaction.creditorName")}
                             render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {ultimateCreditorName ?? creditor.name}
-                              </LakeText>
+                              <Box direction="row" alignItems="center">
+                                <Icon name="person-regular" size={16} />
+                                <Space width={8} />
+
+                                <LakeText variant="regular" color={colors.gray[900]}>
+                                  {ultimateCreditorName ?? creditor.name}
+                                </LakeText>
+                              </Box>
                             )}
                           />
                         );
@@ -639,9 +691,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     type="viewSmall"
                     label={t("transaction.creditorName")}
                     render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {creditor.name}
-                      </LakeText>
+                      <Box direction="row" alignItems="center">
+                        <Icon name="person-regular" size={16} />
+                        <Space width={8} />
+
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {creditor.name}
+                        </LakeText>
+                      </Box>
                     )}
                   />
                 ) : null}
@@ -662,9 +719,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     type="viewSmall"
                     label={t("transaction.creditorName")}
                     render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {counterparty}
-                      </LakeText>
+                      <Box direction="row" alignItems="center">
+                        <Icon name="person-regular" size={16} />
+                        <Space width={8} />
+
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {counterparty}
+                        </LakeText>
+                      </Box>
                     )}
                   />
 

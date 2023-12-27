@@ -13,4 +13,5 @@ declare const __env: {
   CLIENT_PLACEKIT_API_KEY: string;
   CLIENT_BANKING_URL: string;
   CLIENT_ONBOARDING_MATOMO_SITE_ID: string;
+  CLIENT_CHECKOUT_API_KEY: string;
 };

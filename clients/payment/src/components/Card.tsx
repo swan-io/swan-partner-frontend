@@ -1,7 +1,6 @@
 import { Frames } from "frames-react";
 import { useEffect } from "react";
 import { env } from "../utils/env";
-import "./styles.css";
 
 export const Card = () => {
   useEffect(() => {

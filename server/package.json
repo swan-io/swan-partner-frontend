@@ -48,7 +48,7 @@
     "node-mailjet": "6.0.5",
     "pathe": "1.1.1",
     "picocolors": "1.0.0",
-    "pino-pretty": "10.2.3",
+    "pino-pretty": "10.3.1",
     "ts-pattern": "5.0.6",
     "valienv": "0.5.0"
   },

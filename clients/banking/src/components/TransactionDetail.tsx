@@ -226,12 +226,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 },
               ),
               ({ currency = "", value }) => {
-                return (
-                  <LakeText>
-                    {(transaction.side === "Debit" ? "-" : "+") +
-                      formatCurrency(Number(value), currency)}
-                  </LakeText>
-                );
+                if (currency !== "EUR") {
+                  return (
+                    <LakeText>
+                      {(transaction.side === "Debit" ? "-" : "+") +
+                        formatCurrency(Number(value), currency)}
+                    </LakeText>
+                  );
+                }
               },
             )
 

@@ -571,6 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Voor de regelgeving hebben we een eedverklaring van de UBO-verklaring nodig",
   "supportingDocuments.swornStatementModal.title": "Eedverklaring UBO-verklaring",
   "transaction.bookingDateTime": "Boekingsdatum",
+  "transaction.canceledDate": "Datum geannuleerd",
   "transaction.cardHolder": "Kaarthouder",
   "transaction.checkNumber": "Controleer nummer",
   "transaction.cmc7": "CMC7",

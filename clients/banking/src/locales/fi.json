@@ -571,6 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Tosiasiallisen edunsaajan ilmoituksen vahvistus",
   "supportingDocuments.swornStatementModal.title": "Tosiasiallisen edunsaajan ilmoituksen vahvistus",
   "transaction.bookingDateTime": "Varauksen päivämäärä",
+  "transaction.canceledDate": "Peruutuspäivä",
   "transaction.cardHolder": "Kortin haltija",
   "transaction.checkNumber": "Shekin numero",
   "transaction.cmc7": "CMC7",

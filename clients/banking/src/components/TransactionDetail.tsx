@@ -46,14 +46,30 @@ const styles = StyleSheet.create({
   },
 });
 
+const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
+const truncateTransactionId = (id: string) => id.split("#", 2)[0];
+
+const FormattedDateTime = ({ date, label }: { date: string; label: string }) => (
+  <LakeLabel
+    type="viewSmall"
+    label={label}
+    render={() => (
+      <Box direction="row" alignItems="center">
+        <Icon name="calendar-ltr-regular" size={16} />
+        <Space width={8} />
+
+        <LakeText variant="regular" color={colors.gray[900]}>
+          {formatDateTime(new Date(date), "LLL")}
+        </LakeText>
+      </Box>
+    )}
+  />
+);
+
 type Props = {
   transaction: TransactionDetailsFragment;
   large: boolean;
 };
-
-const truncateTransactionId = (id: string) => id.split("#", 2)[0];
-
-const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 
 export const TransactionDetail = ({ transaction, large }: Props) => {
   if (transaction == null) {
@@ -62,53 +78,28 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
   const bookingDateTime = match(transaction.statusInfo)
     .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
-      <LakeLabel
-        type="viewSmall"
-        label={t("transaction.bookingDateTime")}
-        render={() => (
-          <Box direction="row" alignItems="center">
-            <Icon name="calendar-ltr-regular" size={16} />
-            <Space width={8} />
-
-            <LakeText variant="regular" color={colors.gray[900]}>
-              {formatDateTime(new Date(bookingDate), "LLL")}
-            </LakeText>
-          </Box>
-        )}
-      />
+      <FormattedDateTime label={t("transaction.bookingDateTime")} date={bookingDate} />
     ))
     .otherwise(() => null);
 
   const executionDateTime = match(transaction.statusInfo)
     .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
-      <LakeLabel
-        type="viewSmall"
-        label={t("transaction.executionDateTime")}
-        render={() => (
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {formatDateTime(new Date(executionDate), "LLL")}
-          </LakeText>
-        )}
-      />
+      <FormattedDateTime label={t("transaction.executionDateTime")} date={executionDate} />
     ))
     .otherwise(() => null);
 
-  const rejectedDate = match(transaction.statusInfo)
-    .with({ __typename: "RejectedTransactionStatusInfo" }, () => (
-      <LakeLabel
-        type="viewSmall"
-        label={t("transaction.rejectedDate")}
-        render={() => (
-          <Box direction="row" alignItems="center">
-            <Icon name="calendar-ltr-regular" size={16} />
-            <Space width={8} />
+  const canceledDateTime = match(transaction.statusInfo)
+    .with(
+      { __typename: "CanceledTransactionStatusInfo", canceledDate: P.not(P.nullish) },
+      ({ canceledDate }) => (
+        <FormattedDateTime label={t("transaction.canceledDate")} date={canceledDate} />
+      ),
+    )
+    .otherwise(() => null);
 
-            <LakeText variant="regular" color={colors.gray[900]}>
-              {formatDateTime(new Date(transaction.updatedAt), "LLL")}
-            </LakeText>
-          </Box>
-        )}
-      />
+  const rejectedDateTime = match(transaction.statusInfo)
+    .with({ __typename: "RejectedTransactionStatusInfo" }, () => (
+      <FormattedDateTime label={t("transaction.rejectedDate")} date={transaction.updatedAt} />
     ))
     .otherwise(() => null);
 
@@ -280,20 +271,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 return (
                   <ReadOnlyFieldList>
                     {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
-                      <LakeLabel
-                        type="viewSmall"
+                      <FormattedDateTime
                         label={t("transaction.paymentDateTime")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(createdAt), "LLL")}
-                          </LakeText>
-                        )}
+                        date={createdAt}
                       />
                     ) : null}
 
                     {bookingDateTime}
                     {executionDateTime}
-                    {rejectedDate}
+                    {canceledDateTime}
+                    {rejectedDateTime}
                     {rejectedReason}
 
                     {match({ merchantCity, merchantCountry })
@@ -356,20 +343,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               ({ createdAt, side, debtor, creditor }) => (
                 <ReadOnlyFieldList>
                   {isNotNullish(createdAt) ? (
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.paymentDateTime")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="calendar-ltr-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(createdAt), "LLL")}
-                          </LakeText>
-                        </Box>
-                      )}
-                    />
+                    <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
                   ) : null}
 
                   {bookingDateTime}
@@ -481,7 +455,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     .otherwise(() => null)}
 
                   {executionDateTime}
-                  {rejectedDate}
+                  {canceledDateTime}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
                 </ReadOnlyFieldList>
@@ -506,19 +481,9 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   )}
 
                   {isNotNullish(reservedAmountReleasedAt) && (
-                    <LakeLabel
-                      type="viewSmall"
+                    <FormattedDateTime
                       label={t("transaction.reservedUntil")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="calendar-ltr-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                          </LakeText>
-                        </Box>
-                      )}
+                      date={reservedAmountReleasedAt}
                     />
                   )}
 
@@ -595,7 +560,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )
                     .otherwise(() => null)}
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
 
                   <LakeLabel
@@ -631,14 +596,9 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   )}
 
                   {isNotNullish(reservedAmountReleasedAt) && (
-                    <LakeLabel
-                      type="viewSmall"
+                    <FormattedDateTime
                       label={t("transaction.reservedUntil")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                        </LakeText>
-                      )}
+                      date={reservedAmountReleasedAt}
                     />
                   )}
 
@@ -675,7 +635,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
                   ) : null}
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
                 </ReadOnlyFieldList>
@@ -703,7 +663,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   />
                 ) : null}
 
-                {rejectedDate}
+                {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
               </ReadOnlyFieldList>
@@ -730,7 +690,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )}
                   />
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
 
@@ -746,14 +706,9 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         )}
                       />
 
-                      <LakeLabel
-                        type="viewSmall"
+                      <FormattedDateTime
                         label={t("transaction.originalTransactionDate")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
-                          </LakeText>
-                        )}
+                        date={originTransaction.executionDate}
                       />
 
                       {match(feesType)
@@ -847,14 +802,9 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )}
 
                     {isNotNullish(reservedAmountReleasedAt) && (
-                      <LakeLabel
-                        type="viewSmall"
+                      <FormattedDateTime
                         label={t("transaction.reservedUntil")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                          </LakeText>
-                        )}
+                        date={reservedAmountReleasedAt}
                       />
                     )}
 
@@ -878,7 +828,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
 
                     {executionDateTime}
-                    {rejectedDate}
+                    {rejectedDateTime}
                     {rejectedReason}
                     {transactionId}
 
@@ -940,7 +890,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               <ReadOnlyFieldList>
                 {bookingDateTime}
                 {executionDateTime}
-                {rejectedDate}
+                {canceledDateTime}
+                {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
               </ReadOnlyFieldList>

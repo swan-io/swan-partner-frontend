@@ -92,7 +92,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     .with(
       { __typename: "CanceledTransactionStatusInfo", canceledDate: P.not(P.nullish) },
       ({ canceledDate }) => (
-        <FormattedDate label={t("transaction.rejectedDate")} date={canceledDate} />
+        <FormattedDate label={t("transaction.canceledDate")} date={canceledDate} />
       ),
     )
     .otherwise(() => null);

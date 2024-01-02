@@ -571,6 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Por razões regulatórias, precisamos de uma declaração juramentada da declaração do beneficiário final.",
   "supportingDocuments.swornStatementModal.title": "Declaração Juramentada do Beneficiário Final",
   "transaction.bookingDateTime": "Data da reserva",
+  "transaction.canceledDate": "Data de cancelamento",
   "transaction.cardHolder": "Titular do cartão",
   "transaction.checkNumber": "Número do cheque",
   "transaction.cmc7": "CMC7",

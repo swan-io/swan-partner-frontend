@@ -571,6 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Sworn statement validating the UBO Declaration",
   "supportingDocuments.swornStatementModal.title": "Sworn statement validating the UBO declaration",
   "transaction.bookingDateTime": "Booked date",
+  "transaction.canceledDate": "Canceled date",
   "transaction.cardHolder": "Card holder",
   "transaction.checkNumber": "Check number",
   "transaction.cmc7": "CMC7",

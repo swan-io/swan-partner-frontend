@@ -571,6 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Por motivos reglamentarios, necesitamos una declaración jurada de la titularidad real",
   "supportingDocuments.swornStatementModal.title": "Declaración jurada de titularidad real",
   "transaction.bookingDateTime": "Fecha de reserva",
+  "transaction.canceledDate": "Fecha de cancelación",
   "transaction.cardHolder": "Titular de la tarjeta",
   "transaction.checkNumber": "Número de cheque",
   "transaction.cmc7": "CMC7",

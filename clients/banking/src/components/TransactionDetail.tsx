@@ -149,6 +149,27 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
+  const referenceToDisplay = (ref: string) => (
+    <LakeLabel
+      type="viewSmall"
+      label={t("transaction.reference")}
+      actions={
+        isNotNullishOrEmpty(ref) ? (
+          <LakeCopyButton
+            valueToCopy={ref}
+            copiedText={t("copyButton.copiedTooltip")}
+            copyText={t("copyButton.copyTooltip")}
+          />
+        ) : null
+      }
+      render={() => (
+        <LakeText variant="regular" color={colors.gray[900]}>
+          {isNotNullishOrEmpty(ref) ? ref : "—"}
+        </LakeText>
+      )}
+    />
+  );
+
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -266,6 +287,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 merchantCountry: merchantCountryCCA3,
                 merchantCity,
                 maskedPan,
+                reference,
               }) => {
                 const merchantCountry = countries.find(
                   country => country.cca3 === merchantCountryCCA3,
@@ -339,13 +361,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       .otherwise(() => null)}
 
                     {transactionId}
+                    {referenceToDisplay(reference)}
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "SEPACreditTransferTransaction" },
-              ({ createdAt, side, debtor, creditor }) => (
+              ({ createdAt, side, debtor, creditor, reference }) => (
                 <ReadOnlyFieldList>
                   {isNotNullish(createdAt) ? (
                     <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
@@ -464,12 +487,13 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
+                  {referenceToDisplay(reference)}
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "SEPADirectDebitTransaction" },
-              ({ mandate, creditor, reference, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ mandate, creditor, reservedAmount, reservedAmountReleasedAt, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
 
@@ -568,24 +592,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.reference")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {isNotNullishOrEmpty(reference) ? reference : "—"}
-                      </LakeText>
-                    )}
-                  />
-
+                  {referenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "InternalDirectDebitTransaction" },
-              ({ creditor, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ creditor, reservedAmount, reservedAmountReleasedAt, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
 
@@ -644,11 +658,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
+                  {referenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
-            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor, reference }) => (
               <ReadOnlyFieldList>
                 {bookingDateTime}
                 {executionDateTime}
@@ -674,11 +689,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
+                {referenceToDisplay(reference)}
               </ReadOnlyFieldList>
             ))
             .with(
               { __typename: "FeeTransaction" },
-              ({ counterparty, feesType, originTransaction }) => (
+              ({ counterparty, feesType, originTransaction, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
                   {executionDateTime}
@@ -786,12 +802,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         .otherwise(() => null)}
                     </ReadOnlyFieldList>
                   )}
+
+                  {referenceToDisplay(reference)}
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt }) => {
+              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt, reference }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
@@ -893,6 +911,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         </LakeText>
                       )}
                     />
+
+                    {referenceToDisplay(reference)}
                   </ReadOnlyFieldList>
                 );
               },

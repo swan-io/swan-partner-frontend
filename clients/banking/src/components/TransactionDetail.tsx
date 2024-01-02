@@ -49,7 +49,7 @@ const styles = StyleSheet.create({
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 const truncateTransactionId = (id: string) => id.split("#", 2)[0];
 
-const FormattedDate = ({ date, label }: { date: string; label: string }) => (
+const FormattedDateTime = ({ date, label }: { date: string; label: string }) => (
   <LakeLabel
     type="viewSmall"
     label={label}
@@ -78,28 +78,28 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
   const bookingDateTime = match(transaction.statusInfo)
     .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
-      <FormattedDate label={t("transaction.bookingDateTime")} date={bookingDate} />
+      <FormattedDateTime label={t("transaction.bookingDateTime")} date={bookingDate} />
     ))
     .otherwise(() => null);
 
   const executionDateTime = match(transaction.statusInfo)
     .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
-      <FormattedDate label={t("transaction.executionDateTime")} date={executionDate} />
+      <FormattedDateTime label={t("transaction.executionDateTime")} date={executionDate} />
     ))
     .otherwise(() => null);
 
-  const canceledDate = match(transaction.statusInfo)
+  const canceledDateTime = match(transaction.statusInfo)
     .with(
       { __typename: "CanceledTransactionStatusInfo", canceledDate: P.not(P.nullish) },
       ({ canceledDate }) => (
-        <FormattedDate label={t("transaction.canceledDate")} date={canceledDate} />
+        <FormattedDateTime label={t("transaction.canceledDate")} date={canceledDate} />
       ),
     )
     .otherwise(() => null);
 
-  const rejectedDate = match(transaction.statusInfo)
+  const rejectedDateTime = match(transaction.statusInfo)
     .with({ __typename: "RejectedTransactionStatusInfo" }, () => (
-      <FormattedDate label={t("transaction.rejectedDate")} date={transaction.updatedAt} />
+      <FormattedDateTime label={t("transaction.rejectedDate")} date={transaction.updatedAt} />
     ))
     .otherwise(() => null);
 
@@ -271,13 +271,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 return (
                   <ReadOnlyFieldList>
                     {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
-                      <FormattedDate label={t("transaction.paymentDateTime")} date={createdAt} />
+                      <FormattedDateTime
+                        label={t("transaction.paymentDateTime")}
+                        date={createdAt}
+                      />
                     ) : null}
 
                     {bookingDateTime}
                     {executionDateTime}
-                    {canceledDate}
-                    {rejectedDate}
+                    {canceledDateTime}
+                    {rejectedDateTime}
                     {rejectedReason}
 
                     {match({ merchantCity, merchantCountry })
@@ -340,7 +343,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               ({ createdAt, side, debtor, creditor }) => (
                 <ReadOnlyFieldList>
                   {isNotNullish(createdAt) ? (
-                    <FormattedDate label={t("transaction.paymentDateTime")} date={createdAt} />
+                    <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
                   ) : null}
 
                   {bookingDateTime}
@@ -452,8 +455,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     .otherwise(() => null)}
 
                   {executionDateTime}
-                  {canceledDate}
-                  {rejectedDate}
+                  {canceledDateTime}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
                 </ReadOnlyFieldList>
@@ -478,7 +481,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   )}
 
                   {isNotNullish(reservedAmountReleasedAt) && (
-                    <FormattedDate
+                    <FormattedDateTime
                       label={t("transaction.reservedUntil")}
                       date={reservedAmountReleasedAt}
                     />
@@ -557,7 +560,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )
                     .otherwise(() => null)}
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
 
                   <LakeLabel
@@ -593,7 +596,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   )}
 
                   {isNotNullish(reservedAmountReleasedAt) && (
-                    <FormattedDate
+                    <FormattedDateTime
                       label={t("transaction.reservedUntil")}
                       date={reservedAmountReleasedAt}
                     />
@@ -632,7 +635,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
                   ) : null}
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
                 </ReadOnlyFieldList>
@@ -660,7 +663,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   />
                 ) : null}
 
-                {rejectedDate}
+                {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
               </ReadOnlyFieldList>
@@ -687,7 +690,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )}
                   />
 
-                  {rejectedDate}
+                  {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
 
@@ -703,7 +706,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         )}
                       />
 
-                      <FormattedDate
+                      <FormattedDateTime
                         label={t("transaction.originalTransactionDate")}
                         date={originTransaction.executionDate}
                       />
@@ -799,7 +802,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )}
 
                     {isNotNullish(reservedAmountReleasedAt) && (
-                      <FormattedDate
+                      <FormattedDateTime
                         label={t("transaction.reservedUntil")}
                         date={reservedAmountReleasedAt}
                       />
@@ -825,7 +828,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
 
                     {executionDateTime}
-                    {rejectedDate}
+                    {rejectedDateTime}
                     {rejectedReason}
                     {transactionId}
 
@@ -887,8 +890,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               <ReadOnlyFieldList>
                 {bookingDateTime}
                 {executionDateTime}
-                {canceledDate}
-                {rejectedDate}
+                {canceledDateTime}
+                {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
               </ReadOnlyFieldList>

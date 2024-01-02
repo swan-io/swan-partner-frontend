@@ -75,6 +75,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
   if (transaction == null) {
     return <ErrorView />;
   }
+  console.log(transaction);
 
   const bookingDateTime = match(transaction.statusInfo)
     .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
@@ -272,12 +273,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                 return (
                   <ReadOnlyFieldList>
-                    {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
-                      <FormattedDateTime
-                        label={t("transaction.paymentDateTime")}
-                        date={createdAt}
-                      />
-                    ) : null}
+                    {match(statusInfo.status)
+                      .with("Booked", "Pending", () => (
+                        <FormattedDateTime
+                          label={t("transaction.paymentDateTime")}
+                          date={createdAt}
+                        />
+                      ))
+                      .otherwise(() => null)}
 
                     {bookingDateTime}
                     {executionDateTime}

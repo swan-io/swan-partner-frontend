@@ -152,7 +152,7 @@ export const TransactionList = ({
       {({ large }) => (
         <PlainListView
           withoutScroll={!desktop}
-          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - headerHeight - 1}
+          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - 1}
           data={transactions.map(({ node }) => node)}
           keyExtractor={item => item.id}
           groupBy={

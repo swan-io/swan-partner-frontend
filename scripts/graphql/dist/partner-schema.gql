@@ -1872,33 +1872,35 @@ scalar AuditId
 
 """A method used to authenticate a user"""
 type Authenticator {
-  """Operating System (Apple, Android, ...)"""
+  """
+  Operating System parsed from the user agent (eg AIX, Amiga OS, Android, Arch, Bada, BeOS, BlackBerry, ...)
+  """
   os: String
 
-  """Device Brand (Apple, Samsung, ...)"""
+  """
+  Device Brand parsed from the user agent (eg: Acer, Alcatel, Amazon, Apple, ...)
+  """
   brand: String
 
-  """Device Model (iPhone XS, Samsung S3, ...)"""
+  """Device Model parsed from the user agent"""
   model: String
 
   """Type of authenticator"""
   type: AuthenticatorType!
 
-  """User agent, if it's a web authenticator"""
+  """Raw user agent"""
   userAgent: String
 
-  """
-  Accept-Language header used during registration, if it's a web authenticator
-  """
+  """Accept-Language header used during registration"""
   acceptLanguage: String
 }
 
 enum AuthenticatorType {
-  """The Swan app"""
-  Swan
-
   """A Swan web authenticator"""
   SwanWeb
+
+  """Deprecated: swan authenticator"""
+  Swan
 }
 
 scalar AuthorizationId
@@ -2103,13 +2105,6 @@ Describes an identification level for the process associated to this identificat
 type CanceledIdentificationLevelStatusInfo {
   """Always set to `Cancelled`"""
   status: SwanIdentificationStatus!
-}
-
-type CanceledMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
-  status: MerchantPaymentLinkStatus!
-
-  """The date at which the customer canceled the payment."""
-  canceledAt: DateTime!
 }
 
 """CanceledMerchantPaymentMethodStatusInfo"""
@@ -2353,7 +2348,10 @@ type CapitalDepositDocument {
   uploadedAt: Date
 
   """Status of the document."""
-  status: CapitalDepositDocumentStatus!
+  status: CapitalDepositDocumentStatus! @deprecated(reason: "use statusInfo.status")
+
+  """Status info of the document."""
+  statusInfo: CapitalDepositDocumentStatusInfo!
 
   """Created date"""
   createdAt: DateTime!
@@ -2370,10 +2368,34 @@ type CapitalDepositDocument {
 
 """
 Rejection returned if the document from a capital deposit case cannot be uploaded in its context
+@deprecated(reason: "use `CapitalDepositDocumentCanNotBeUploadedRejection` instead")
 """
 type CapitalDepositDocumentCanNotBeUploaded implements Rejection {
   id: String!
   message: String!
+}
+
+"""
+Rejection returned if the document from a capital deposit case cannot be uploaded in its context
+"""
+type CapitalDepositDocumentCanNotBeUploadedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Capital Deposit Document with Pending status"""
+type CapitalDepositDocumentPendingStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Pending"""
+  status: CapitalDepositDocumentStatus!
+}
+
+"""Capital Deposit Document with Refused status"""
+type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Refused"""
+  status: CapitalDepositDocumentStatus!
+
+  """Reason for the rejection."""
+  reasonCode: DocumentReasonCode!
 }
 
 """Status of the Capital Deposit Case"""
@@ -2389,6 +2411,12 @@ enum CapitalDepositDocumentStatus {
 
   """Document has been refused by Swan, it must be uploaded again."""
   Refused
+}
+
+"""Status info of the document."""
+interface CapitalDepositDocumentStatusInfo {
+  """Status of the document."""
+  status: CapitalDepositDocumentStatus!
 }
 
 """Type of the document."""
@@ -2424,6 +2452,18 @@ enum CapitalDepositDocumentType {
 
   """Signed power of attorney document to give the power to act on behalf."""
   PowerOfAttorney
+}
+
+"""Capital Deposit Document with Uploaded status"""
+type CapitalDepositDocumentUploadedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Uploaded"""
+  status: CapitalDepositDocumentStatus!
+}
+
+"""Capital Deposit Document with Validated status"""
+type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Validated"""
+  status: CapitalDepositDocumentStatus!
 }
 
 """Card"""
@@ -2797,6 +2837,7 @@ input CardFiltersInput {
   accountId: String
 }
 
+"""COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier tied to every version of a given Merchant Payment Method
@@ -2843,12 +2884,6 @@ enum CardOrderByFieldInput {
 input CardOrderByInput {
   field: CardOrderByFieldInput
   direction: OrderByDirection
-}
-
-"""input for Card payment method"""
-input CardPaymentMethodInput {
-  """If true, the Payment Method will be in Pending Review"""
-  activate: Boolean = false
 }
 
 """when the card is in the process of being ready to use"""
@@ -3284,12 +3319,6 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -3919,8 +3948,13 @@ input CreateMerchantPaymentLinkInput {
   """URL to redirect the user to if they cancel their payment"""
   cancelRedirectUrl: URL!
 
-  """billing address information"""
-  billingAddress: AddressInput!
+  """
+  The customer billing Address
+  These fields should be completed also to pre-fill a SEPA direct debit mandate.
+  
+  We strongly advice to complete these fields if merchants want to get paid through card payment method, in order to minimize the risk of payment rejection by Visa / Mastercard schemes
+  """
+  billingAddress: AddressInput
 
   """
   The date when the payment link expires.
@@ -4435,6 +4469,41 @@ enum DocumentFileSide {
   SideB
   BothSides
   Unknown
+}
+
+"""Reason code of the document."""
+enum DocumentReasonCode {
+  """Company name in document doesn’t match our records"""
+  CompanyNameMismatch
+
+  """Declared amount in document doesn’t match the amount received"""
+  DeclaredAmountMismatch
+
+  """Document must be dated less than 3 months ago"""
+  ExpiredDocument
+
+  """Address in document doesn’t match our records"""
+  InvalidAddress
+
+  """Default value when none of the other values is appropriate"""
+  InvalidDocument
+
+  """Name of shareholder is not clearly visible or is missing"""
+  InvalidOrMissingData
+
+  """Missing identity document of accommodation provider"""
+  MissingAccommodationProviderId
+
+  """
+  Missing identity document and proof of accommodation from accommodation provider
+  """
+  MissingAccommodationProviderIdLetter
+
+  """Missing proof of accommodation from accommodation provider"""
+  MissingAccommodationProviderLetter
+
+  """Document can’t be accepted as a proof of address"""
+  UnacceptableDocument
 }
 
 """The type of the document"""
@@ -5357,7 +5426,7 @@ input GenerateCapitalDepositDocumentUploadUrlInput {
   filename: String!
 }
 
-union GenerateCapitalDepositDocumentUploadUrlPayload = GenerateCapitalDepositDocumentUploadUrlSuccessPayload | CapitalDepositDocumentCanNotBeUploaded | ForbiddenRejection | BadRequestRejection | InternalErrorRejection
+union GenerateCapitalDepositDocumentUploadUrlPayload = GenerateCapitalDepositDocumentUploadUrlSuccessPayload | CapitalDepositDocumentCanNotBeUploaded | CapitalDepositDocumentCanNotBeUploadedRejection | ForbiddenRejection | BadRequestRejection | InternalErrorRejection
 
 type GenerateCapitalDepositDocumentUploadUrlSuccessPayload {
   """URL to be used to upload the document."""
@@ -5511,8 +5580,11 @@ type Identification {
   """Last update date of the identification"""
   updatedAt: DateTime!
 
+  """The global status of the identification"""
+  status: SwanIdentificationStatus!
+
   """The process that was used for this identification"""
-  process: IdentificationProcessInfo!
+  process: IdentificationProcess!
 
   """
   The status and results associated to the available identification processes
@@ -5556,37 +5628,6 @@ type IdentificationEdge implements Edge {
   cursor: String!
 }
 
-"""The identification process associated to the expert level"""
-type IdentificationExpertProcessInfo {
-  """
-  The identification process associated to the expert level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationExpertProcessProvider!
-}
-
-"""The provider used for this expert-level identification process"""
-enum IdentificationExpertProcessProvider {
-  Fourthline
-  Ubble
-}
-
-"""
-The identification process associated to the Qualified Electronic Signature level
-"""
-type IdentificationExpertWithQESProcessInfo {
-  """
-  The identification process associated to the qes level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationExpertWithQESProcessProvider!
-}
-
-"""The provider used for this QES-level identification process"""
-enum IdentificationExpertWithQESProcessProvider {
-  Fourthline
-}
-
 """
 Filter that can be passed to get the identifications in specific data ranges
 """
@@ -5610,7 +5651,7 @@ enum IdentificationInvalidReason {
   AlteredDevice
 
   """Light on actual document is insufficient"""
-  BadDocumentLightning
+  BadDocumentLighting
 
   """
   Something about the document is damaged (could be as tiny as a bent corner)
@@ -5629,7 +5670,7 @@ enum IdentificationInvalidReason {
   InadequateVideo
 
   """Lighting on applicant’s face is insufficient"""
-  InsufficientApplicantLightning
+  InsufficientApplicantLighting
 
   """Applicant isn’t meeting movement requirements"""
   InsufficientApplicantLiveness
@@ -5765,25 +5806,6 @@ enum IdentificationProcess {
   Identity verified by an expert with a Remote Identity Verification Service
   """
   PVID
-}
-
-"""Union representing the process that was used for this identification"""
-union IdentificationProcessInfo = IdentificationExpertProcessInfo | IdentificationExpertWithQESProcessInfo | IdentificationPVIDProcessInfo
-
-"""
-The identification process associated to the PVID/Remote Identity Verification Service level
-"""
-type IdentificationPVIDProcessInfo {
-  """
-  The identification process associated to the pvid level.
-  Using an alias to map this property is mandatory when querying multiple processes.
-  """
-  provider: IdentificationPVIDProcessProvider!
-}
-
-"""The provider used for this PVID-level identification process"""
-enum IdentificationPVIDProcessProvider {
-  Ubble
 }
 
 """
@@ -6127,6 +6149,9 @@ input InitiateInternationalCreditTransferInput {
 
   """External reference"""
   externalReference: String
+
+  """Language used to output errors"""
+  language: InternationalCreditTransferDisplayLanguage
 }
 
 """Initiate International Credit Transfer Response Payload"""
@@ -6372,12 +6397,6 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -6440,12 +6459,6 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -6864,10 +6877,12 @@ input InternationalBeneficiaryInput {
 
   """
   *COMING SOON*
-  Route that Wise will use to transfer the funds
+  Route that Swan will use to transfer the funds
   """
   route: InternationalCreditTransferRouteInput!
 }
+
+union InternationalCreditTransferCreditor = InternationalCreditTransferOutCreditor | InternationalCreditTransferInCreditor
 
 """International Currency Exchange / Quote"""
 type InternationalCreditTransferCurrencyExchange {
@@ -6875,14 +6890,16 @@ type InternationalCreditTransferCurrencyExchange {
   exchangeRate: String!
 
   """Fees"""
-  feesAmount: Amount!
+  feesAmount: Amount
 
   """Source amount of the quote"""
-  sourceAmount: Amount!
+  sourceAmount: Amount
 
   """target amount of the quote"""
-  targetAmount: Amount!
+  targetAmount: Amount
 }
+
+union InternationalCreditTransferDebtor = InternationalCreditTransferOutDebtor | InternationalCreditTransferInDebtor
 
 """
 International Credit Transfer - Currency-specific details of the beneficiary
@@ -6952,6 +6969,23 @@ type InternationalCreditTransferDynamicForm {
   remainingFieldsToRefreshCount: Int!
 }
 
+"""International Credit Transfer In - Creditor info"""
+type InternationalCreditTransferInCreditor {
+  """Account holder name"""
+  name: String!
+}
+
+type InternationalCreditTransferInDebtor {
+  """Account holder name"""
+  name: String!
+
+  """Account Number"""
+  accountNumber: String!
+
+  """BIC"""
+  bic: String
+}
+
 """International Credit Transfer Out - Creditor info"""
 type InternationalCreditTransferOutCreditor {
   """Currency of the international beneficiary account"""
@@ -6963,12 +6997,12 @@ type InternationalCreditTransferOutCreditor {
   """Account holder name"""
   name: String!
 
-  """Route that Wise will use to transfer the funds"""
+  """Route that Swan will use to transfer the funds"""
   route: InternationalCreditTransferRoute!
 }
 
-"""International Credit Transfer Out - Debtor info"""
 type InternationalCreditTransferOutDebtor {
+  """Account holder name"""
   name: String!
 }
 
@@ -7056,6 +7090,9 @@ enum InternationalCreditTransferRoute {
 
   """Israeli local route"""
   IsraeliLocal
+
+  """Japanese local route"""
+  Japanese
 
   """Kenyan local route"""
   KenyaLocal
@@ -7185,6 +7222,9 @@ enum InternationalCreditTransferRouteInput {
   """Israeli local route"""
   IsraeliLocal
 
+  """Japanese local route"""
+  Japanese
+
   """Kenyan local route"""
   KenyaLocal
 
@@ -7268,10 +7308,10 @@ type InternationalCreditTransferTransaction implements Transaction {
   createdAt: DateTime!
 
   """creditor information"""
-  creditor: InternationalCreditTransferOutCreditor!
+  creditor: InternationalCreditTransferCreditor!
 
   """debtor information"""
-  debtor: InternationalCreditTransferOutDebtor!
+  debtor: InternationalCreditTransferDebtor!
 
   """
   a date that reflects the execution date of a transaction from a user viewpoint. Can be used for sorting transactions.
@@ -7290,6 +7330,12 @@ type InternationalCreditTransferTransaction implements Transaction {
 
   """unique identifier of the transaction"""
   id: ID!
+
+  """instructed amount"""
+  instructedAmount: Amount
+
+  """instructed amount"""
+  intermediaryBankFees: [Amount!]
 
   """label"""
   label: String!
@@ -7549,6 +7595,7 @@ type LegalDocumentInactiveStatusInfo implements LegalDocumentStatusInfo {
 
 input LegalDocumentsFilterInput {
   status: LegalDocumentStatus
+  type: LegalDocumentType
 }
 
 enum LegalDocumentStatus {
@@ -7603,6 +7650,8 @@ enum MandateLanguage {
   it
   nl
   es
+  pt
+  fi
 }
 
 input MembershipInfoInput {
@@ -8013,7 +8062,12 @@ type MerchantPaymentLink {
   """
   sequence: PaymentLinkSequenceType!
 
-  """billing address informations"""
+  """
+  The customer billing Address
+  These fields should be completed also to pre-fill a SEPA direct debit mandate.
+  
+  We strongly advice to complete these fields if merchants want to get paid through card payment method, in order to minimize the risk of payment rejection by Visa / Mastercard schemes
+  """
   billingAddress: Address
 
   """
@@ -8060,9 +8114,6 @@ type MerchantPaymentLink {
   If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   """
   paymentMethods: [MerchantPaymentMethod!]!
-
-  """The Merchant Profile to link this Payment Link to"""
-  merchantProfileId: ID!
 }
 
 enum MerchantPaymentLinkStatus {
@@ -10078,28 +10129,33 @@ type PhysicalCardRenewedStatusInfo implements PhysicalCardStatusInfo {
 
 """Physical Card Status"""
 enum PhysicalCardStatus {
-  """when the consent to authorize physical card production is pending"""
+  """Consent to authorize physical card production is pending"""
   ConsentPending
 
-  """when the physical card is in the process of being ready to use"""
+  """Physical card is in processing and can’t be used yet"""
   Processing
 
-  """when the physical card is activated"""
+  """Physical card is activated and can be used"""
   Activated
 
-  """when the physical card is suspended"""
+  """Physical card is suspended and can’t be used"""
   Suspended
 
-  """when the physical card is canceled"""
+  """Physical card is canceled, can’t be used, and can’t be restored"""
   Canceled
 
-  """when the physical card is about to be canceled"""
+  """
+  Physical card is in the process of being canceled; card can’t be used or restored
+  """
   Canceling
 
-  """when the physical card is not yet activated"""
+  """Physical card needs to be activated by cardholder"""
   ToActivate
 
-  """when the physical card is renewed"""
+  """Physical card is in the process of being renewed"""
+  ToRenew
+
+  """Physical card is renewed but hasn’t made a transaction since renewal"""
   Renewed
 }
 
@@ -10141,6 +10197,17 @@ type PhysicalCardToActivateStatusInfo implements PhysicalCardStatusInfo {
 
   """`true` if PIN Code is available."""
   isPINReady: Boolean!
+}
+
+"""when the physical card is in the process of being renewed"""
+type PhysicalCardToRenewStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical card status (always ToRenew for type PhysicalCardToRenewStatusInfo)
+  """
+  status: PhysicalCardStatus!
+
+  """registered address to deliver the new physical card"""
+  address: Address!
 }
 
 """Rejection returned when the Physical Card is not the expected status"""
@@ -10302,7 +10369,6 @@ type ProjectInfo {
   """Unique identifier of the project"""
   id: ID!
   B2BMembershipIDVerification: Boolean
-  amlRiskLevel: AmlRiskLevel
   supportingDocumentSettings: SupportingDocumentSettings
 
   """
@@ -10335,10 +10401,10 @@ type ProjectInfo {
     this consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
     """
     language: String!
-  ): String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  ): String!
 
   """Unique id of your current Terms and Conditions of Use"""
-  tcuDocumentId: String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  tcuDocumentId: String!
 
   """Web banking settings"""
   webBankingSettings: WebBankingSettings
@@ -10620,7 +10686,7 @@ type Query {
   internationalCreditTransferTransactionDetailsDynamicForm(targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, internationalBeneficiary: InternationalBeneficiaryInput!, refreshableFields: [InternationalCreditTransferDetailsInput!]): InternationalCreditTransferDynamicForm
 
   """Request an international credit transfer quote."""
-  internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!): InternationalCreditTransferQuote
+  internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage): InternationalCreditTransferQuote
 
   """Returns standing order from its id."""
   standingOrder(standingOrderId: ID!): StandingOrder
@@ -11872,12 +11938,6 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
   methodId: ID!
 
@@ -11926,12 +11986,6 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
-
-  """
-  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
-  DEPRECATED use the methodId field instead.
-  """
-  productId: ID! @deprecated(reason: "Use methodId instead")
 
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
@@ -12543,6 +12597,9 @@ type Shareholder {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Information about capital deposit case."""
+  relatedCapitalDepositCase: CapitalDepositCase!
 }
 
 """Shareholder information."""
@@ -12577,10 +12634,6 @@ enum ShareholderType {
   Company
 }
 
-type Signature {
-  status: SignatureStatus!
-}
-
 """Signature data used during apple pay inApp provisioning"""
 input SignatureData {
   """nonce"""
@@ -12591,16 +12644,6 @@ input SignatureData {
 
   """list of apple generated certificates"""
   certificates: [Certificate!]!
-}
-
-enum SignatureStatus {
-  Signed
-  Created
-  Processing
-  PendingVerification
-  Invalid
-  Failed
-  Canceled
 }
 
 enum SimulationCardType {
@@ -12926,6 +12969,10 @@ type SupportingDocument {
   updatedAt: DateTime!
 }
 
+type SupportingDocumentAccountHolder {
+  id: ID
+}
+
 """
 Collection of supporting documents used for compliance
 
@@ -12953,6 +13000,8 @@ type SupportingDocumentCollection {
   List of required supporting document purposes for this supporting document collection
   """
   requiredSupportingDocumentPurposes: [SupportingDocumentPurpose!]!
+  accountHolder: SupportingDocumentAccountHolder!
+  onboarding: SupportingDocumentOnboarding!
 }
 
 """Supporting document collection with Approved status"""
@@ -13098,6 +13147,10 @@ type SupportingDocumentNotUploadedStatusInfo implements SupportingDocumentStatus
   status: SupportingDocumentStatus!
 }
 
+type SupportingDocumentOnboarding {
+  id: ID
+}
+
 type SupportingDocumentPostField {
   key: String!
   value: String!
@@ -13160,6 +13213,27 @@ enum SupportingDocumentPurposeEnum {
 
   """Sworn statement"""
   SwornStatement
+
+  """Proof of identity of the legal representative"""
+  LegalRepresentativeProofOfIdentity
+
+  """Proof of identity of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfIdentity
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment of the President"""
+  PresidentDecisionOfAppointment
+
+  """Decision of appointment of Administrator"""
+  AdministratorDecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
+
+  """Proof of address of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfAddress
 }
 
 """Supporting document with Refused status"""
@@ -13336,6 +13410,15 @@ enum SupportingDocumentType {
 
   """Meeting's minutes"""
   MeetingMinutes
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment"""
+  DecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
 }
 
 """Supporting document with Uploaded status"""

@@ -49,7 +49,6 @@ const styles = StyleSheet.create({
 export type Amount = {
   value: string;
   currency: Currency;
-  metadata?: { rate: string; total: Amount; out: Amount };
 };
 
 const FIXED_AMOUNT_DEFAULT_VALUE = "";
@@ -264,7 +263,6 @@ export const TransferInternationalWizardAmount = ({
                     onSave({
                       value: values.amount.value,
                       currency: values.amount.currency as Currency,
-                      metadata,
                     });
                   }
                 })
@@ -304,39 +302,6 @@ export const TransferInternationamWizardAmountSummary = ({
           <LakeHeading level={4} variant="h4">
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeHeading>
-
-          {isNotNullish(amount.metadata) && (
-            <>
-              <Space height={16} />
-
-              <LakeText color={colors.gray[700]} variant="smallRegular">
-                {formatNestedMessage("transfer.new.internationalTransfer.amount.summary.rate", {
-                  rate: amount.metadata.rate,
-                  black: str => <LakeText color={colors.gray[900]}>{str}</LakeText>,
-                })}
-              </LakeText>
-
-              <LakeText color={colors.gray[700]} variant="smallRegular">
-                {formatNestedMessage("transfer.new.internationalTransfer.amount.summary.total", {
-                  total: formatCurrency(
-                    Number(amount.metadata.total.value),
-                    amount.metadata.total.currency,
-                  ),
-                  black: str => <LakeText color={colors.gray[900]}>{str}</LakeText>,
-                })}
-              </LakeText>
-
-              <LakeText color={colors.gray[700]} variant="smallRegular">
-                {formatNestedMessage("transfer.new.internationalTransfer.amount.summary.out", {
-                  out: formatCurrency(
-                    Number(amount.metadata.out.value),
-                    amount.metadata.out.currency,
-                  ),
-                  black: str => <LakeText color={colors.gray[900]}>{str}</LakeText>,
-                })}
-              </LakeText>
-            </>
-          )}
         </View>
 
         <Fill />

@@ -22,6 +22,11 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingHorizontal: 40,
   },
+  buttonContainer: {
+    flexDirection: "row",
+    justifyContent: "flex-end",
+    alignItems: "center",
+  },
 });
 
 type Props = {
@@ -46,19 +51,27 @@ export const TransferPage = ({
       {({ small }) => (
         <>
           {transferCreationVisible ? (
-            <Box
-              direction="row"
-              justifyContent="end"
-              style={small ? styles.container : styles.containerDesktop}
-            >
-              <LakeButton
-                onPress={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                icon="add-circle-filled"
-                size="small"
-                color="current"
+            <Box direction="row">
+              <ResponsiveContainer
+                breakpoint={breakpoints.small}
+                style={[
+                  styles.buttonContainer,
+                  commonStyles.fill,
+                  small ? styles.container : styles.containerDesktop,
+                ]}
               >
-                {t("transfer.newTransfer")}
-              </LakeButton>
+                {({ small }) => (
+                  <LakeButton
+                    grow={small}
+                    onPress={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                    icon="add-circle-filled"
+                    size="small"
+                    color="current"
+                  >
+                    {t("transfer.newTransfer")}
+                  </LakeButton>
+                )}
+              </ResponsiveContainer>
             </Box>
           ) : null}
 

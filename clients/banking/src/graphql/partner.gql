@@ -23,13 +23,16 @@ fragment TransactionDetails on Transaction {
     }
   }
   statusInfo {
-    status
     __typename
+    status
     ... on BookedTransactionStatusInfo {
       bookingDate
     }
     ... on PendingTransactionStatusInfo {
       pendingEndDate
+    }
+    ... on CanceledTransactionStatusInfo {
+      canceledDate
     }
     ... on RejectedTransactionStatusInfo {
       status
@@ -89,6 +92,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on InternalDirectDebitTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     creditor {
       accountId
     }
@@ -125,6 +133,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on SEPADirectDebitTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     __typename
     creditor {
       name
@@ -180,6 +193,11 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on CheckTransaction {
+    reservedAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     cmc7
     rlmcKey
   }
@@ -224,6 +242,9 @@ query AccountArea($accountMembershipId: ID!) {
     id
     ...AccountMembership
     account {
+      IBAN
+      bankDetails
+      language
       id
       paymentLevel
       paymentAccountType
@@ -429,6 +450,17 @@ query AccountDetailsSettingsPage($accountId: ID!) {
       }
       residencyAddress {
         country
+      }
+    }
+  }
+}
+
+mutation UpdateAccountLanguage($id: ID!, $language: AccountLanguage!) {
+  updateAccount(input: { accountId: $id, language: $language }) {
+    __typename
+    ... on UpdateAccountSuccessPayload {
+      account {
+        id
       }
     }
   }
@@ -1867,9 +1899,27 @@ query GetTransactionDetails(
 
 fragment AccountBalances on Account {
   __typename
+  merchantProfiles {
+    totalCount
+  }
+  fundingSources {
+    totalCount
+  }
   id
   balances {
     available {
+      value
+      currency
+    }
+    pending {
+      value
+      currency
+    }
+    booked {
+      value
+      currency
+    }
+    reserved {
       value
       currency
     }

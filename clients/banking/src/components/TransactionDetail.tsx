@@ -360,8 +360,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )
                       .otherwise(() => null)}
 
-                    {transactionId}
                     {referenceToDisplay(reference)}
+                    {transactionId}
                   </ReadOnlyFieldList>
                 );
               },
@@ -486,8 +486,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {transactionId}
                   {referenceToDisplay(reference)}
+                  {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
@@ -688,8 +688,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
-                {transactionId}
                 {referenceToDisplay(reference)}
+                {transactionId}
               </ReadOnlyFieldList>
             ))
             .with(
@@ -717,6 +717,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
+                  {referenceToDisplay(reference)}
                   {transactionId}
 
                   {originTransaction != null && (
@@ -802,8 +803,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         .otherwise(() => null)}
                     </ReadOnlyFieldList>
                   )}
-
-                  {referenceToDisplay(reference)}
                 </ReadOnlyFieldList>
               ),
             )
@@ -811,6 +810,8 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               { __typename: "CheckTransaction" },
               ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt, reference }) => {
                 // The check number is the first 7 numbers of the cmc7
+                console.log(executionDateTime);
+
                 const checkNumber = cmc7.slice(0, 7);
 
                 return (
@@ -859,6 +860,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
+                    {referenceToDisplay(reference)}
                     {transactionId}
 
                     <LakeLabel
@@ -911,8 +913,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         </LakeText>
                       )}
                     />
-
-                    {referenceToDisplay(reference)}
                   </ReadOnlyFieldList>
                 );
               },

@@ -1,6 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
-import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
+import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import { Validator } from "react-ux-form";
 import { match } from "ts-pattern";
 import {
@@ -17,7 +17,7 @@ export const validateRequired: Validator<string> = value => {
 };
 
 export const validateEmail: Validator<string> = value => {
-  if (!/.+@.+\..{2,}/.test(value)) {
+  if (!isValidEmail(value)) {
     return t("error.invalidEmail");
   }
 };

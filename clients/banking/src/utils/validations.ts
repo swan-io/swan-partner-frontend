@@ -1,6 +1,6 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
-import { isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
+import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import dayjs from "dayjs";
 import { Validator } from "react-ux-form";
 import { P, match } from "ts-pattern";
@@ -80,7 +80,7 @@ export const validateAccountNameLength: Validator<string> = value => {
 };
 
 export const validateEmail: Validator<string> = value => {
-  if (!/.+@.+\..{2,}/.test(value)) {
+  if (!isValidEmail(value)) {
     return t("common.form.invalidEmail");
   }
 };

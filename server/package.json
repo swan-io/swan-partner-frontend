@@ -28,7 +28,7 @@
     "@fastify/view": "8.2.0",
     "@opentelemetry/api": "1.7.0",
     "@opentelemetry/exporter-jaeger": "1.18.1",
-    "@opentelemetry/instrumentation": "0.45.1",
+    "@opentelemetry/instrumentation": "0.46.0",
     "@opentelemetry/instrumentation-fastify": "0.32.5",
     "@opentelemetry/instrumentation-http": "0.45.1",
     "@opentelemetry/instrumentation-pino": "0.34.3",

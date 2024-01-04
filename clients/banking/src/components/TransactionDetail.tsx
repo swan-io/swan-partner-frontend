@@ -75,7 +75,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
   if (transaction == null) {
     return <ErrorView />;
   }
-  console.log(transaction);
 
   const bookingDateTime = match(transaction.statusInfo)
     .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
@@ -229,36 +228,41 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
           {match(transaction)
             .with(
-              P.union(
-                {
-                  __typename: "InternationalCreditTransferTransaction",
-                  internationalCurrencyExchange: {
-                    targetAmount: {
-                      value: P.select("value", P.string),
-                      currency: P.select("currency", P.string),
-                    },
-                  },
-                },
-                {
-                  __typename: "CardTransaction",
-                  originalAmount: {
-                    value: P.select("value", P.string),
-                    currency: P.select("currency", P.string),
-                  },
-                },
-              ),
-              ({ currency = "", value }) => {
-                if (currency !== "EUR") {
-                  return (
-                    <LakeText>
-                      {(transaction.side === "Debit" ? "-" : "+") +
-                        formatCurrency(Number(value), currency)}
-                    </LakeText>
-                  );
-                }
+              {
+                __typename: "CardTransaction",
+                originalAmount: P.select("originalAmount", {
+                  value: P.select("value", P.string),
+                  currency: P.select("currency", P.string),
+                }),
               },
+              ({ currency, value, originalAmount }) =>
+                originalAmount.currency !== transaction.amount.currency ? (
+                  <LakeText>
+                    {(transaction.side === "Debit" ? "-" : "+") +
+                      formatCurrency(Number(value), currency)}
+                  </LakeText>
+                ) : null,
             )
-
+            .with(
+              {
+                __typename: "InternationalCreditTransferTransaction",
+                internationalCurrencyExchange: P.select("internationalCurrencyExchange", {
+                  sourceAmount: { currency: P.string },
+                  targetAmount: { value: P.string, currency: P.string },
+                }),
+              },
+              ({ internationalCurrencyExchange }) =>
+                internationalCurrencyExchange.sourceAmount.currency !==
+                internationalCurrencyExchange.targetAmount.currency ? (
+                  <LakeText>
+                    {(transaction.side === "Debit" ? "-" : "+") +
+                      formatCurrency(
+                        Number(internationalCurrencyExchange.targetAmount.value),
+                        internationalCurrencyExchange.targetAmount.currency,
+                      )}
+                  </LakeText>
+                ) : null,
+            )
             .otherwise(() => null)}
 
           <Space height={8} />

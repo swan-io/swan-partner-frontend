@@ -560,6 +560,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )
                     .otherwise(() => null)}
 
+                  {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
 
@@ -635,6 +636,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
                   ) : null}
 
+                  {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
@@ -663,6 +665,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   />
                 ) : null}
 
+                {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
                 {transactionId}
@@ -690,6 +693,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )}
                   />
 
+                  {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
                   {transactionId}
@@ -785,6 +789,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
+
                 return (
                   <ReadOnlyFieldList>
                     {bookingDateTime}
@@ -828,6 +833,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
 
                     {executionDateTime}
+                    {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
                     {transactionId}

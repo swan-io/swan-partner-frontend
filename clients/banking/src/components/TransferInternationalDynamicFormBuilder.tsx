@@ -110,13 +110,15 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
     }, [form, onChange, listenFields]);
 
     useEffect(() => {
-      fields.map(async ({ key }) => {
-        const { value } = getFieldState(key);
+      void Promise.all(
+        fields.map(async ({ key }) => {
+          const { value } = getFieldState(key);
 
-        if (isNotNullishOrEmpty(value)) {
-          await validateField(key);
-        }
-      });
+          if (isNotNullishOrEmpty(value)) {
+            await validateField(key);
+          }
+        }),
+      );
     }, [form, fields, getFieldState, validateField]);
 
     if (fields.length === 0) {

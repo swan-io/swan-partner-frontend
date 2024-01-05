@@ -812,10 +812,15 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt, reference }) => {
+              ({
+                cmc7,
+                rlmcKey,
+                reservedAmount,
+                reservedAmountReleasedAt,
+                reference,
+                createdAt,
+              }) => {
                 // The check number is the first 7 numbers of the cmc7
-                console.log(executionDateTime);
-
                 const checkNumber = cmc7.slice(0, 7);
 
                 return (
@@ -859,6 +864,13 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         </LakeText>
                       )}
                     />
+
+                    {transaction.statusInfo.status !== "Upcoming" && (
+                      <FormattedDateTime
+                        label={t("transaction.paymentDateTime")}
+                        date={createdAt}
+                      />
+                    )}
 
                     {executionDateTime}
                     {canceledDateTime}

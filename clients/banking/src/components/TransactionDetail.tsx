@@ -148,6 +148,27 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
+  const renderReferenceToDisplay = (referenceToDisplay: string) => (
+    <LakeLabel
+      type="viewSmall"
+      label={t("transaction.reference")}
+      actions={
+        isNotNullishOrEmpty(referenceToDisplay) ? (
+          <LakeCopyButton
+            valueToCopy={referenceToDisplay}
+            copiedText={t("copyButton.copiedTooltip")}
+            copyText={t("copyButton.copyTooltip")}
+          />
+        ) : null
+      }
+      render={() => (
+        <LakeText variant="regular" color={colors.gray[900]}>
+          {isNotNullishOrEmpty(referenceToDisplay) ? referenceToDisplay : "—"}
+        </LakeText>
+      )}
+    />
+  );
+
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -207,34 +228,41 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
           {match(transaction)
             .with(
-              P.union(
-                {
-                  __typename: "InternationalCreditTransferTransaction",
-                  internationalCurrencyExchange: {
-                    targetAmount: {
-                      value: P.select("value", P.string),
-                      currency: P.select("currency", P.string),
-                    },
-                  },
-                },
-                {
-                  __typename: "CardTransaction",
-                  originalAmount: {
-                    value: P.select("value", P.string),
-                    currency: P.select("currency", P.string),
-                  },
-                },
-              ),
-              ({ currency = "", value }) => {
-                return (
+              {
+                __typename: "CardTransaction",
+                originalAmount: P.select("originalAmount", {
+                  value: P.select("value", P.string),
+                  currency: P.select("currency", P.string),
+                }),
+              },
+              ({ currency, value, originalAmount }) =>
+                originalAmount.currency !== transaction.amount.currency ? (
                   <LakeText>
                     {(transaction.side === "Debit" ? "-" : "+") +
                       formatCurrency(Number(value), currency)}
                   </LakeText>
-                );
-              },
+                ) : null,
             )
-
+            .with(
+              {
+                __typename: "InternationalCreditTransferTransaction",
+                internationalCurrencyExchange: P.select("internationalCurrencyExchange", {
+                  sourceAmount: { currency: P.string },
+                  targetAmount: { value: P.string, currency: P.string },
+                }),
+              },
+              ({ internationalCurrencyExchange }) =>
+                internationalCurrencyExchange.sourceAmount.currency !==
+                internationalCurrencyExchange.targetAmount.currency ? (
+                  <LakeText>
+                    {(transaction.side === "Debit" ? "-" : "+") +
+                      formatCurrency(
+                        Number(internationalCurrencyExchange.targetAmount.value),
+                        internationalCurrencyExchange.targetAmount.currency,
+                      )}
+                  </LakeText>
+                ) : null,
+            )
             .otherwise(() => null)}
 
           <Space height={8} />
@@ -263,6 +291,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 merchantCountry: merchantCountryCCA3,
                 merchantCity,
                 maskedPan,
+                reference,
               }) => {
                 const merchantCountry = countries.find(
                   country => country.cca3 === merchantCountryCCA3,
@@ -270,12 +299,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                 return (
                   <ReadOnlyFieldList>
-                    {statusInfo.status === "Pending" && isNotNullish(createdAt) ? (
-                      <FormattedDateTime
-                        label={t("transaction.paymentDateTime")}
-                        date={createdAt}
-                      />
-                    ) : null}
+                    {match(statusInfo.status)
+                      .with("Booked", "Pending", () => (
+                        <FormattedDateTime
+                          label={t("transaction.paymentDateTime")}
+                          date={createdAt}
+                        />
+                      ))
+                      .otherwise(() => null)}
 
                     {bookingDateTime}
                     {executionDateTime}
@@ -333,6 +364,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )
                       .otherwise(() => null)}
 
+                    {renderReferenceToDisplay(reference)}
                     {transactionId}
                   </ReadOnlyFieldList>
                 );
@@ -340,7 +372,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "SEPACreditTransferTransaction" },
-              ({ createdAt, side, debtor, creditor }) => (
+              ({ createdAt, side, debtor, creditor, reference }) => (
                 <ReadOnlyFieldList>
                   {isNotNullish(createdAt) ? (
                     <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
@@ -458,13 +490,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "SEPADirectDebitTransaction" },
-              ({ mandate, creditor, reference, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ mandate, creditor, reservedAmount, reservedAmountReleasedAt, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
 
@@ -563,24 +596,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.reference")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {isNotNullishOrEmpty(reference) ? reference : "—"}
-                      </LakeText>
-                    )}
-                  />
-
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "InternalDirectDebitTransaction" },
-              ({ creditor, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ creditor, reservedAmount, reservedAmountReleasedAt, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
 
@@ -639,11 +662,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
-            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor, reference }) => (
               <ReadOnlyFieldList>
                 {bookingDateTime}
                 {executionDateTime}
@@ -668,12 +692,13 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
+                {renderReferenceToDisplay(reference)}
                 {transactionId}
               </ReadOnlyFieldList>
             ))
             .with(
               { __typename: "FeeTransaction" },
-              ({ counterparty, feesType, originTransaction }) => (
+              ({ counterparty, feesType, originTransaction, reference }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
                   {executionDateTime}
@@ -696,6 +721,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
 
                   {originTransaction != null && (
@@ -786,7 +812,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt }) => {
+              ({
+                cmc7,
+                rlmcKey,
+                reservedAmount,
+                reservedAmountReleasedAt,
+                reference,
+                createdAt,
+              }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
@@ -832,10 +865,20 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )}
                     />
 
+                    {match(transaction.statusInfo.status)
+                      .with(P.not("Upcoming"), () => (
+                        <FormattedDateTime
+                          label={t("transaction.paymentDateTime")}
+                          date={createdAt}
+                        />
+                      ))
+                      .otherwise(() => null)}
+
                     {executionDateTime}
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
+                    {renderReferenceToDisplay(reference)}
                     {transactionId}
 
                     <LakeLabel

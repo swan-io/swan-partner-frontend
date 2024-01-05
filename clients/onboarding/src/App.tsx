@@ -2,7 +2,8 @@ import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { colors, defaultAccentColor } from "@swan-io/lake/src/constants/colors";
+import { defaultAccentColor } from "@swan-io/lake/src/constants/colors";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { Suspense } from "react";
 import { P, match } from "ts-pattern";
@@ -98,7 +99,7 @@ export const App = () => {
       onError={error => logFrontendError(error)}
       fallback={({ error }) => <ErrorView error={error} />}
     >
-      <Suspense fallback={<LoadingView color={colors.gray[50]} />}>
+      <Suspense fallback={<LoadingView color={colors.gray[400]} />}>
         <ClientProvider value={unauthenticatedClient}>
           {match(route)
             .with(

@@ -304,7 +304,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   }, [onboarding.language, onboardingId, updateOnboarding]);
 
   if (!updateResult.isDone()) {
-    return <LoadingView color={colors.gray[50]} />;
+    return <LoadingView color={colors.gray[400]} />;
   }
 
   return (

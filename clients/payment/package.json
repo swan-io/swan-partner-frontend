@@ -28,7 +28,7 @@
     "@swan-io/shared-business": "4.4.0",
     "core-js": "3.35.0",
     "dayjs": "1.11.10",
-    "nanoid": "5.0.2",
+    "nanoid": "5.0.4",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.10",

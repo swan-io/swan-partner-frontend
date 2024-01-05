@@ -148,14 +148,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
-  const referenceToDisplay = (ref: string) => (
+  const renderReferenceToDisplay = (referenceToDisplay: string) => (
     <LakeLabel
       type="viewSmall"
       label={t("transaction.reference")}
       actions={
-        isNotNullishOrEmpty(ref) ? (
+        isNotNullishOrEmpty(referenceToDisplay) ? (
           <LakeCopyButton
-            valueToCopy={ref}
+            valueToCopy={referenceToDisplay}
             copiedText={t("copyButton.copiedTooltip")}
             copyText={t("copyButton.copyTooltip")}
           />
@@ -163,7 +163,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
       }
       render={() => (
         <LakeText variant="regular" color={colors.gray[900]}>
-          {isNotNullishOrEmpty(ref) ? ref : "—"}
+          {isNotNullishOrEmpty(referenceToDisplay) ? referenceToDisplay : "—"}
         </LakeText>
       )}
     />
@@ -364,7 +364,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )
                       .otherwise(() => null)}
 
-                    {referenceToDisplay(reference)}
+                    {renderReferenceToDisplay(reference)}
                     {transactionId}
                   </ReadOnlyFieldList>
                 );
@@ -490,7 +490,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {referenceToDisplay(reference)}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
@@ -596,7 +596,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {referenceToDisplay(reference)}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
@@ -662,7 +662,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {referenceToDisplay(reference)}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
@@ -692,7 +692,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
-                {referenceToDisplay(reference)}
+                {renderReferenceToDisplay(reference)}
                 {transactionId}
               </ReadOnlyFieldList>
             ))
@@ -721,7 +721,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {referenceToDisplay(reference)}
+                  {renderReferenceToDisplay(reference)}
                   {transactionId}
 
                   {originTransaction != null && (
@@ -865,18 +865,20 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )}
                     />
 
-                    {transaction.statusInfo.status !== "Upcoming" && (
-                      <FormattedDateTime
-                        label={t("transaction.paymentDateTime")}
-                        date={createdAt}
-                      />
-                    )}
+                    {match(transaction.statusInfo.status)
+                      .with(P.not("Upcoming"), () => (
+                        <FormattedDateTime
+                          label={t("transaction.paymentDateTime")}
+                          date={createdAt}
+                        />
+                      ))
+                      .otherwise(() => null)}
 
                     {executionDateTime}
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
-                    {referenceToDisplay(reference)}
+                    {renderReferenceToDisplay(reference)}
                     {transactionId}
 
                     <LakeLabel

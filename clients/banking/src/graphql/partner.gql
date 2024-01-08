@@ -475,6 +475,7 @@ mutation UpdateAccount(
     ... on UpdateAccountSuccessPayload {
       account {
         id
+        name
       }
     }
   }

@@ -56,17 +56,21 @@ const styles = StyleSheet.create({
   balanceDetailsButton: {
     backgroundColor: colors.gray[100],
   },
+  balanceDetailsTransitionView: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+  },
   balanceDetailDesktopContainer: {
     paddingLeft: spacings[16],
   },
   balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
   balanceDetailDesktopItem: { paddingHorizontal: spacings[24] },
-  balanceDetailPadding: { paddingBottom: "2px" },
+  balanceDetailPadding: { paddingBottom: 2 },
   bottomPanelContainer: { padding: spacings[24] },
+
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
-  grow: { flexGrow: 1 },
   // link: {
   //   display: "flex",
   //   transitionProperty: "opacity",
@@ -87,10 +91,6 @@ const styles = StyleSheet.create({
   },
   statementsLarge: {
     marginHorizontal: negativeSpacings[48],
-  },
-  transitionView: {
-    flexDirection: "row",
-    alignItems: "flex-end",
   },
 });
 
@@ -141,12 +141,12 @@ export const TransactionsArea = ({
             <>
               <Box direction="row">
                 <Box style={[styles.balance, large && styles.balanceLarge]} direction="row">
-                  <Box direction="columnReverse">
-                    <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
-
+                  <Box>
                     <LakeHeading level={1} variant={large ? "h1" : "h3"}>
                       {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
                     </LakeHeading>
+
+                    <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
                   </Box>
 
                   <Space width={12} />
@@ -167,19 +167,16 @@ export const TransactionsArea = ({
                 </Box>
 
                 <TransitionView
-                  style={styles.transitionView}
+                  style={styles.balanceDetailsTransitionView}
                   enter={animations.fadeAndSlideInFromLeft.enter}
                   leave={animations.fadeAndSlideInFromLeft.leave}
                 >
                   {balanceDetailsVisible && large ? (
                     <Box direction="row" style={styles.balanceDetailDesktopContainer}>
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
-                        <LakeText> = </LakeText>
+                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
+                        <LakeText>=</LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <Box style={styles.balanceDetailDesktopItem}>
                           <LakeText
                             variant="medium"
                             color={colors.gray[700]}
@@ -194,13 +191,10 @@ export const TransactionsArea = ({
                         </Box>
                       </Box>
 
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
+                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
                         <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <Box style={styles.balanceDetailDesktopItem}>
                           <LakeText variant="medium" color={colors.gray[700]}>
                             {formatCurrency(
                               Math.abs(Number(pendingBalance.value)),
@@ -214,13 +208,10 @@ export const TransactionsArea = ({
                         </Box>
                       </Box>
 
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
-                        <LakeText> - </LakeText>
+                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
+                        <LakeText>-</LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
+                        <Box style={styles.balanceDetailDesktopItem}>
                           <LakeText variant="medium" color={colors.gray[700]}>
                             {formatCurrency(
                               Number(reservedBalance.value),

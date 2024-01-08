@@ -131,7 +131,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const typeOfRepresentation = holder.typeOfRepresentation ?? "LegalRepresentative";
   const companyType = holder.companyType ?? "Company";
-  const isRegistered = holder.isRegistered ?? true;
+  const isRegistered = holder.isRegistered;
 
   const requiredDocuments =
     onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes
@@ -388,7 +388,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               nextStep="Organisation2"
               onboardingId={params.onboardingId}
               companyType={companyType}
-              initialIsRegistered={isRegistered}
+              initialIsRegistered={isRegistered ?? undefined}
               initialName={holder.name ?? ""}
               initialRegistrationNumber={holder.registrationNumber ?? ""}
               initialVatNumber={holder.vatNumber ?? ""}

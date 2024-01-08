@@ -56,18 +56,24 @@ const styles = StyleSheet.create({
   balanceDetailsButton: {
     backgroundColor: colors.gray[100],
   },
-  balanceDetailsTransitionView: {
+  balanceDetailsDesktopTransitionView: {
     alignItems: "flex-end",
     flexDirection: "row",
-  },
-  balanceDetailDesktopContainer: {
     paddingLeft: spacings[16],
   },
-  balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
-  balanceDetailDesktopItem: { paddingHorizontal: spacings[24] },
-  balanceDetailPadding: { paddingBottom: 2 },
-  bottomPanelContainer: { padding: spacings[24] },
-
+  balanceDetailDesktopOperator: {
+    alignSelf: "center",
+    paddingBottom: spacings[12],
+  },
+  balanceDetailDesktopItem: {
+    paddingHorizontal: spacings[24],
+  },
+  balanceDetailDesktopText: {
+    paddingBottom: 2,
+  },
+  bottomPanelContainer: {
+    padding: spacings[24],
+  },
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
@@ -164,23 +170,27 @@ export const TransactionsArea = ({
                       style={({ hovered }) => [hovered && styles.balanceDetailsButton]}
                     />
                   )}
-                </Box>
 
-                <TransitionView
-                  style={styles.balanceDetailsTransitionView}
-                  enter={animations.fadeAndSlideInFromLeft.enter}
-                  leave={animations.fadeAndSlideInFromLeft.leave}
-                >
-                  {balanceDetailsVisible && large ? (
-                    <Box direction="row" style={styles.balanceDetailDesktopContainer}>
-                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
-                        <LakeText>=</LakeText>
+                  <TransitionView
+                    enter={animations.fadeAndSlideInFromLeft.enter}
+                    leave={animations.fadeAndSlideInFromLeft.leave}
+                    style={styles.balanceDetailsDesktopTransitionView}
+                  >
+                    {balanceDetailsVisible && large ? (
+                      <>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          =
+                        </LakeText>
 
                         <Box style={styles.balanceDetailDesktopItem}>
                           <LakeText
-                            variant="medium"
                             color={colors.gray[700]}
-                            style={styles.balanceDetailPadding}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
                           >
                             {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
                           </LakeText>
@@ -189,13 +199,21 @@ export const TransactionsArea = ({
                             {t("transactions.bookedBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
 
-                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
-                        <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          {Number(pendingBalance.value) < 0 ? "-" : "+"}
+                        </LakeText>
 
                         <Box style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                          <LakeText
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
+                          >
                             {formatCurrency(
                               Math.abs(Number(pendingBalance.value)),
                               pendingBalance.currency,
@@ -206,13 +224,21 @@ export const TransactionsArea = ({
                             {t("transactions.pendingBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
 
-                      <Box style={styles.balanceDetailDesktopLarge} direction="row">
-                        <LakeText>-</LakeText>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          -
+                        </LakeText>
 
                         <Box style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                          <LakeText
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
+                          >
                             {formatCurrency(
                               Number(reservedBalance.value),
                               reservedBalance.currency,
@@ -223,10 +249,10 @@ export const TransactionsArea = ({
                             {t("transactions.reservedBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
-                    </Box>
-                  ) : null}
-                </TransitionView>
+                      </>
+                    ) : null}
+                  </TransitionView>
+                </Box>
 
                 {balanceDetailsVisible && !large && (
                   <BottomPanel

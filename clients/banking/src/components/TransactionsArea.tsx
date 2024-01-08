@@ -53,22 +53,6 @@ const styles = StyleSheet.create({
     paddingTop: spacings[40],
     paddingBottom: spacings[12],
   },
-  statementsLarge: {
-    marginHorizontal: negativeSpacings[48],
-  },
-  statements: {
-    marginHorizontal: negativeSpacings[24],
-  },
-  // link: {
-  //   display: "flex",
-  //   transitionProperty: "opacity",
-  //   transitionDuration: "150ms",
-  //   alignItems: "center",
-  // },
-  grow: { flexGrow: 1 },
-  // linkPressed: {
-  //   opacity: 0.7,
-  // },
   balanceDetailsButton: {
     backgroundColor: colors.gray[100],
   },
@@ -77,16 +61,33 @@ const styles = StyleSheet.create({
   },
   balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
   balanceDetailDesktopItem: { paddingHorizontal: spacings[24] },
+  balanceDetailPadding: { paddingBottom: "2px" },
   bottomPanelContainer: { padding: spacings[24] },
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
-  // linkContainerLarge: {
-  //   paddingLeft: spacings[40],
+  grow: { flexGrow: 1 },
+  // link: {
+  //   display: "flex",
+  //   transitionProperty: "opacity",
+  //   transitionDuration: "150ms",
+  //   alignItems: "center",
+  // },
+  // linkPressed: {
+  //   opacity: 0.7,
   // },
   // linkContainer: {
   //   paddingLeft: spacings[24],
   // },
+  // linkContainerLarge: {
+  //   paddingLeft: spacings[40],
+  // },
+  statements: {
+    marginHorizontal: negativeSpacings[24],
+  },
+  statementsLarge: {
+    marginHorizontal: negativeSpacings[48],
+  },
   transitionView: {
     flexDirection: "row",
     alignItems: "flex-end",
@@ -115,7 +116,7 @@ export const TransactionsArea = ({
     )
     .map(
       ({ fundingSources, merchantProfiles }) =>
-        fundingSources.totalCount > 0 && merchantProfiles.totalCount > 0,
+        fundingSources.totalCount > 0 || merchantProfiles.totalCount > 0,
     )
     .getWithDefault(false);
 
@@ -179,7 +180,11 @@ export const TransactionsArea = ({
                         <LakeText> = </LakeText>
 
                         <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                          <LakeText
+                            variant="medium"
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailPadding}
+                          >
                             {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
                           </LakeText>
 

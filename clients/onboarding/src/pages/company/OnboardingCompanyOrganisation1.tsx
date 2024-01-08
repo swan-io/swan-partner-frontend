@@ -1,14 +1,12 @@
-import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Switch } from "@swan-io/lake/src/components/Switch";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -20,6 +18,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect } from "react";
+import { View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { LakeCompanyInput } from "../../components/LakeCompanyInput";
@@ -47,6 +46,7 @@ import {
   extractServerValidationErrors,
   getValidationErrorMessage,
   validateRequired,
+  validateRequiredBoolean,
   validateVatNumber,
 } from "../../utils/validation";
 
@@ -63,7 +63,7 @@ type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
   companyType: CompanyType;
-  initialIsRegistered: boolean;
+  initialIsRegistered?: boolean;
   initialName: string;
   initialRegistrationNumber: string;
   initialVatNumber: string;
@@ -123,6 +123,7 @@ export const OnboardingCompanyOrganisation1 = ({
     {
       isRegistered: {
         initialValue: initialIsRegistered,
+        validate: validateRequiredBoolean,
       },
       name: {
         initialValue: initialName,
@@ -133,7 +134,7 @@ export const OnboardingCompanyOrganisation1 = ({
         initialValue: initialRegistrationNumber,
         validate: (value, { getFieldState }) => {
           const isRegistered = getFieldState("isRegistered").value;
-          return isRegistered ? validateRequired(value) : undefined;
+          return isRegistered === true ? validateRequired(value) : undefined;
         },
         sanitize: value => value.trim(),
       },
@@ -317,7 +318,7 @@ export const OnboardingCompanyOrganisation1 = ({
                 }
               >
                 <Field name="isRegistered">
-                  {({ value, onChange, ref }) => (
+                  {({ value, error, onChange, ref }) => (
                     <LakeLabel
                       label={
                         countryRegisterName != null
@@ -327,25 +328,22 @@ export const OnboardingCompanyOrganisation1 = ({
                           : t("company.step.organisation1.isRegisteredLabel")
                       }
                       render={() => (
-                        <Box direction="row" alignItems="center">
-                          <LakeText variant="smallRegular" color={colors.gray[900]}>
-                            {t("common.no")}
-                          </LakeText>
-
-                          <Space width={8} />
-                          <Switch ref={ref} value={value} onValueChange={onChange} />
-                          <Space width={8} />
-
-                          <LakeText variant="smallRegular" color={colors.gray[900]}>
-                            {t("common.yes")}
-                          </LakeText>
-                        </Box>
+                        <View ref={ref}>
+                          <RadioGroup
+                            direction="row"
+                            error={error}
+                            items={[
+                              { name: t("common.yes"), value: true },
+                              { name: t("common.no"), value: false },
+                            ]}
+                            value={value}
+                            onValueChange={onChange}
+                          />
+                        </View>
                       )}
                     />
                   )}
                 </Field>
-
-                <Space height={24} />
 
                 <Field name="name">
                   {({ value, valid, error, onChange, ref }) => (
@@ -392,7 +390,9 @@ export const OnboardingCompanyOrganisation1 = ({
                               companyType,
                             ),
                           })}
-                          optionalLabel={isRegistered.value ? undefined : t("common.optional")}
+                          optionalLabel={
+                            isRegistered.value === true ? undefined : t("common.optional")
+                          }
                           render={id => (
                             <LakeTextInput
                               id={id}
@@ -403,7 +403,7 @@ export const OnboardingCompanyOrganisation1 = ({
                               value={value}
                               valid={valid}
                               // when we set isRegistered to false, validation on registrationNumber isn't triggered
-                              error={isRegistered.value ? error : undefined}
+                              error={isRegistered.value === true ? error : undefined}
                               onChangeText={onChange}
                             />
                           )}

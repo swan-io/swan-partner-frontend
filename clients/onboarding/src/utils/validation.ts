@@ -10,6 +10,12 @@ import {
 } from "../graphql/unauthenticated";
 import { t } from "./i18n";
 
+export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
+  if (typeof value != "boolean") {
+    return t("error.requiredField");
+  }
+};
+
 export const validateRequired: Validator<string> = value => {
   if (!value) {
     return t("error.requiredField");

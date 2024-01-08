@@ -571,7 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Per motivi normativi, abbiamo bisogno di una dichiarazione giurata di beneficiario effettivo (UBO)",
   "supportingDocuments.swornStatementModal.title": "Dichiarazione giurata di beneficiario effettivo (UBO)",
   "transaction.bookingDateTime": "Data prenotata",
-  "transaction.canceledDate": "Data di cancellazione",
+  "transaction.canceledDate": "Canceled date",
   "transaction.cardHolder": "Titolare della carta",
   "transaction.checkNumber": "Numero dell'assegno",
   "transaction.cmc7": "CMC7",

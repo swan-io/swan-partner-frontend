@@ -571,7 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Pour des raisons réglementaires, nous avons besoin d'une déclaration sous serment du BE",
   "supportingDocuments.swornStatementModal.title": "Déclaration sous serment du BE",
   "transaction.bookingDateTime": "Date de règlement",
-  "transaction.canceledDate": "Date d'annulation",
+  "transaction.canceledDate": "Canceled date",
   "transaction.cardHolder": "Titulaire de la carte",
   "transaction.checkNumber": "Numéro de chèque",
   "transaction.cmc7": "CMC7",

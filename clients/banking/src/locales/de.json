@@ -571,7 +571,7 @@
   "supportingDocuments.swornStatementModal.text": "Aus regulatorischen Gründen benötigen wir eine eidesstattliche Erklärung des wirtschaftlich Berechtigten",
   "supportingDocuments.swornStatementModal.title": "Eidesstattliche Erklärung des wirtschaftlich Berechtigten",
   "transaction.bookingDateTime": "Gebuchtes Datum",
-  "transaction.canceledDate": "Stornierungsdatum",
+  "transaction.canceledDate": "Canceled date",
   "transaction.cardHolder": "Karteninhaber",
   "transaction.checkNumber": "Schecknummer",
   "transaction.cmc7": "CMC7",

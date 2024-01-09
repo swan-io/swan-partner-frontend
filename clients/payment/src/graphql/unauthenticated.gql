@@ -1,5 +1,6 @@
-query GetMerchantPaymentLink {
-  merchantPaymentLink(id: "711bf573-d067-4755-a63d-7e1cad94bc9f") {
+query GetMerchantPaymentLink($paymentLinkId: ID!) {
+  nonEEACountries
+  merchantPaymentLink(id: $paymentLinkId) {
     id
     projectId
     url
@@ -23,7 +24,6 @@ query GetMerchantPaymentLink {
     sequence
     billingAddress {
       addressLine1
-      addressLine2
       city
       country
       postalCode
@@ -41,6 +41,39 @@ query GetMerchantPaymentLink {
     }
     paymentMethods {
       type
+    }
+  }
+}
+
+mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
+  $input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!
+) {
+  addSepaDirectDebitPaymentMandateFromPaymentLink(input: $input) {
+    ... on AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
+      paymentMandate {
+        mandateDocumentUrl
+        id
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+        message
+      }
+    }
+  }
+}
+
+mutation InitiateSddPaymentCollection(
+  $input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!
+) {
+  unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: $input) {
+    __typename
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on InternalErrorRejection {
+      message
     }
   }
 }

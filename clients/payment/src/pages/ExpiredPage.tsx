@@ -1,10 +1,12 @@
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -14,24 +16,31 @@ const styles = StyleSheet.create({
   title: {
     paddingBottom: spacings[4],
   },
-  subtitle: {
-    lineHeight: 24,
-  },
 });
 
-export const ErrorPage = () => {
+type Props = {
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+};
+
+export const ExpiredPage = ({ paymentLink }: Props) => {
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
-      <BorderedIcon name={"lake-warning"} color="negative" size={70} padding={16} />
+      <BorderedIcon name={"lake-warning"} color="warning" size={70} padding={16} />
       <Space height={24} />
 
       <LakeText variant="semibold" color={colors.gray[900]} style={styles.title}>
-        {t("paymentLink.error.title")}
+        {t("paymentLink.linkExpired")}
       </LakeText>
 
-      <LakeText align="center" color={colors.gray[500]} style={styles.subtitle}>
-        {t("paymentLink.error.subtitle")}
-      </LakeText>
+      <Space height={32} />
+
+      <LakeButton
+        ariaLabel={t("paymentLink.button.returnToWebsite")}
+        mode="secondary"
+        href={paymentLink.redirectUrl}
+      >
+        {t("paymentLink.button.returnToWebsite")}
+      </LakeButton>
     </Box>
   );
 };

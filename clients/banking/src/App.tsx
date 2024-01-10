@@ -16,6 +16,7 @@ import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { logFrontendError } from "./utils/logger";
 import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
+import { TgglProvider } from "./utils/tggl";
 import { isUnauthorizedError, partnerClient } from "./utils/urql";
 
 const styles = StyleSheet.create({
@@ -34,44 +35,46 @@ export const App = () => {
   ]);
 
   return (
-    <ErrorBoundary
-      key={route?.name}
-      onError={error => logFrontendError(error)}
-      fallback={({ error }) =>
-        isUnauthorizedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
-      }
-    >
-      <ClientProvider value={partnerClient}>
-        <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
-          {match(route)
-            .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
-            .with({ name: "ProjectLogin" }, ({ params: { sessionExpired } }) =>
-              projectConfiguration.match({
-                None: () => <ErrorView />,
-                Some: ({ projectId }) => (
-                  <ProjectLoginPage
-                    projectId={projectId}
-                    sessionExpired={isNotNullishOrEmpty(sessionExpired)}
-                  />
-                ),
-              }),
-            )
-            .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route =>
-              match(route)
-                .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
-                  <AccountArea accountMembershipId={accountMembershipId} />
-                ))
-                .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
-                  <ProjectRootRedirect to={to} source={source} />
-                ))
-                .exhaustive(),
-            )
-            .with(P.nullish, () => <NotFoundPage style={styles.base} />)
-            .exhaustive()}
-        </Suspense>
-      </ClientProvider>
+    <TgglProvider>
+      <ErrorBoundary
+        key={route?.name}
+        onError={error => logFrontendError(error)}
+        fallback={({ error }) =>
+          isUnauthorizedError(error) ? <></> : <ErrorView error={error} style={styles.base} />
+        }
+      >
+        <ClientProvider value={partnerClient}>
+          <Suspense fallback={<LoadingView color={colors.gray[400]} style={styles.base} />}>
+            {match(route)
+              .with({ name: "PopupCallback" }, () => <PopupCallbackPage />)
+              .with({ name: "ProjectLogin" }, ({ params: { sessionExpired } }) =>
+                projectConfiguration.match({
+                  None: () => <ErrorView />,
+                  Some: ({ projectId }) => (
+                    <ProjectLoginPage
+                      projectId={projectId}
+                      sessionExpired={isNotNullishOrEmpty(sessionExpired)}
+                    />
+                  ),
+                }),
+              )
+              .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route =>
+                match(route)
+                  .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
+                    <AccountArea accountMembershipId={accountMembershipId} />
+                  ))
+                  .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
+                    <ProjectRootRedirect to={to} source={source} />
+                  ))
+                  .exhaustive(),
+              )
+              .with(P.nullish, () => <NotFoundPage style={styles.base} />)
+              .exhaustive()}
+          </Suspense>
+        </ClientProvider>
 
-      <ToastStack />
-    </ErrorBoundary>
+        <ToastStack />
+      </ErrorBoundary>
+    </TgglProvider>
   );
 };

@@ -36,6 +36,7 @@
     "react-atomic-state": "2.0.0",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.10",
+    "react-tggl-client": "1.6.0",
     "react-ux-form": "1.5.0",
     "rifm": "0.12.1",
     "ts-pattern": "5.0.6",

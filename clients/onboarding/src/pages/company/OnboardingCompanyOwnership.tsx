@@ -1,12 +1,10 @@
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
-import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Link } from "@swan-io/lake/src/components/Link";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -55,23 +53,7 @@ import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 
-const UBO_DOCUMENTATION_LINK = `https://support.swan.io/hc/${locale.language}-150/articles/5767206365981`;
-
 const styles = StyleSheet.create({
-  noUboContainer: {
-    maxWidth: 530,
-    marginHorizontal: "auto",
-    paddingVertical: 24,
-    flex: 1,
-    flexShrink: 0,
-  },
-  link: {
-    display: "inline-flex",
-    flexDirection: "row",
-    alignItems: "center",
-    textDecorationLine: "underline",
-    color: colors.current[500],
-  },
   uboInfo: {
     flex: 1,
   },
@@ -79,14 +61,18 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     paddingVertical: 12,
   },
-  addAnotherButton: {
+  addOwnerButton: {
     padding: 18,
-    alignItems: "center",
     borderColor: colors.gray[300],
     borderWidth: 1,
     borderRadius: radii[8],
     borderStyle: "dashed",
+    flexGrow: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
+
+  additionalDescription: { fontStyle: "italic" },
 });
 
 type PageState =
@@ -498,60 +484,39 @@ export const OnboardingCompanyOwnership = ({
         <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
           {({ small }) =>
             editableUbos.length === 0 ? (
-              <Box alignItems="center" justifyContent="center" style={styles.noUboContainer}>
-                <BorderedIcon name="person-add-regular" color="current" size={100} padding={16} />
+              <Box>
+                <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
+                <Space height={12} />
+                <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
                 <Space height={24} />
 
-                <LakeText variant="medium" color={colors.gray[900]}>
-                  {t("company.step.owners.title")}
+                <LakeText style={styles.additionalDescription}>
+                  {t("company.step.owners.additionalDescription")}
                 </LakeText>
-
-                <Space height={12} />
-
-                <LakeText align="center">
-                  {t("company.step.owners.description", { companyName })}
-                </LakeText>
-
-                <Space height={12} />
-
-                <Link to={UBO_DOCUMENTATION_LINK} target="blank" style={styles.link}>
-                  <LakeText color={colors.current[500]}>{t("common.learnMore")}</LakeText>
-                  <Space width={4} />
-                  <Icon name="open-filled" size={16} />
-                </Link>
 
                 <Space height={24} />
 
-                <LakeButton
-                  size={small ? "small" : "large"}
-                  icon="add-circle-filled"
-                  color="current"
-                  onPress={openNewUbo}
-                >
-                  {t("common.add")}
-                </LakeButton>
+                <Pressable style={styles.addOwnerButton} onPress={openNewUbo}>
+                  <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
+                  <Space height={8} />
+                  <LakeText>{t("company.step.owners.addTitle")}</LakeText>
+                </Pressable>
               </Box>
             ) : (
               <Box>
                 <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
-                <Space height={8} />
+                <Space height={12} />
+                <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
+                <Space height={24} />
 
-                <LakeText>
-                  {t("company.step.owners.checkDescription", { companyName })}
-
-                  <Space width={4} />
-
-                  <Link to={UBO_DOCUMENTATION_LINK} target="blank" style={styles.link}>
-                    <LakeText color={colors.current[500]}>{t("common.learnMore")}</LakeText>
-                    <Space width={4} />
-                    <Icon name="open-filled" size={16} />
-                  </Link>
+                <LakeText style={styles.additionalDescription}>
+                  {t("company.step.owners.additionalDescription")}
                 </LakeText>
 
-                <Space height={32} />
+                <Space height={24} />
 
                 <Grid numColumns={small ? 1 : 2} horizontalSpace={32} verticalSpace={32}>
-                  <Pressable style={styles.addAnotherButton} onPress={openNewUbo}>
+                  <Pressable style={styles.addOwnerButton} onPress={openNewUbo}>
                     <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
                     <Space height={8} />
                     <LakeText>{t("company.step.owners.addAnother")}</LakeText>
@@ -588,10 +553,15 @@ export const OnboardingCompanyOwnership = ({
       <ConfirmModal
         visible={showConfirmNoUboModal}
         title={t("company.step.owners.confirmModal.title")}
-        icon="person-regular"
-        confirmText={t("company.step.owners.confirmModal.confirm")}
-        onConfirm={submitStep}
-        onCancel={setShowConfirmNoUboModal.off}
+        message={t("company.step.owners.confirmModal.description")}
+        icon="warning-regular"
+        confirmText={t("company.step.owners.confirmModal.add")}
+        onConfirm={() => {
+          setShowConfirmNoUboModal.off();
+          openNewUbo();
+        }}
+        cancelText={t("company.step.owners.confirmModal.next")}
+        onCancel={submitStep}
         loading={updateResult.isLoading()}
       />
 

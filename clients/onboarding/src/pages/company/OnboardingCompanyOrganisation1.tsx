@@ -328,7 +328,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           : t("company.step.organisation1.isRegisteredLabel")
                       }
                       render={() => (
-                        <View ref={ref}>
+                        <View tabIndex={-1} ref={ref}>
                           <RadioGroup
                             direction="row"
                             error={error}

@@ -19,5 +19,5 @@
   "paymentLink.state": "Stato",
   "paymentLink.success.subtitle": "La configurazione del tuo pagamento è stata effettuata con successo.\nPuoi chiudere questa finestra.",
   "paymentLink.success.title": "Grazie!",
-  "paymentLink.termsAndConditions": "Convalidando questo passaggio, firmi elettronicamente il mandato di addebito e autorizzi {merchantName} a inviare istruzioni a Swan per addebitare il tuo conto e autorizzi Swan ad addebitare il tuo conto in conformità alle istruzioni ricevute. Eventuali richieste di rimborso saranno gestite in conformità con i termini e le condizioni generali della tua banca."
+  "paymentLink.termsAndConditions": "Cliccando su Paga, stai firmando un mandato di addebito diretto in forma elettronica. Il mandato autorizza: (1) {merchantName} a condividere le informazioni di pagamento con Swan, e (2) Swan ad addebitare il tuo conto di conseguenza. Le richieste di rimborso saranno elaborate in conformità con i termini e le condizioni della tua banca."
 }

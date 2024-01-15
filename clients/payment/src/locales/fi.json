@@ -1,0 +1,23 @@
+{
+  "button.pay": "Maksa",
+  "common.back": "Takaisin",
+  "error.pageNotFound": "Sivua ei löytynyt",
+  "form.invalidField": "Virheellinen kenttä",
+  "paymentLink.addressLine1": "Katuosoite",
+  "paymentLink.button.downloadMandate": "Lataa valtakirja",
+  "paymentLink.button.returnToWebsite": "Palaa verkkosivustolle",
+  "paymentLink.city": "Kaupunki",
+  "paymentLink.country": "Maa",
+  "paymentLink.error.subtitle": "Emme voineet luoda suoraveloitusta Swanin kanssa.\n Yritä uudelleen tai ota yhteyttä tukijärjestelmään.",
+  "paymentLink.error.title": "Jotain meni pieleen",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Pahoittelut, linkkisi on vanhentunut",
+  "paymentLink.name": "Nimi",
+  "paymentLink.paymentMethod": "Maksutapa",
+  "paymentLink.postalCode": "Postinumero",
+  "paymentLink.poweredBySwan": "Powered by",
+  "paymentLink.state": "Osavaltio",
+  "paymentLink.success.subtitle": "Maksun asetus onnistui.\nVoit sulkea tämän ikkunan.",
+  "paymentLink.success.title": "Kiitos!",
+  "paymentLink.termsAndConditions": "Klikkaamalla Maksa, allekirjoitat suoraveloitussopimuksen sähköisesti. Valtakirja valtuuttaa: (1) {merchantName} jakamaan maksutiedot Swanin kanssa ja (2) Swanin veloittamaan tilisi sen mukaisesti. Palautuspyynnöt käsitellään pankkisi ehtojen mukaisesti."
+}

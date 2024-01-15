@@ -19,5 +19,5 @@
   "paymentLink.state": "Provincie",
   "paymentLink.success.subtitle": "Uw betalingsinstelling is succesvol verlopen.\nU kunt dit venster sluiten.",
   "paymentLink.success.title": "Bedankt!",
-  "paymentLink.termsAndConditions": "Door deze stap te valideren, ondertekent u elektronisch het incassomandaat en machtigt u {merchantName} om instructies naar Swan te sturen om uw rekening te debiteren en machtigt u Swan om uw rekening te debiteren volgens de ontvangen instructies. Een verzoek om teruggave wordt behandeld volgens de algemene voorwaarden van uw bank."
+  "paymentLink.termsAndConditions": "Door op Betalen te klikken, ondertekent u elektronisch een automatische incasso-mandaat. Het mandaat machtigt: (1) {merchantName} om betalingsinformatie te delen met Swan, en (2) Swan om uw rekening dienovereenkomstig te debiteren. Terugbetalingsverzoeken worden verwerkt volgens de voorwaarden van uw bank."
 }

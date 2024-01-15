@@ -19,5 +19,5 @@
   "paymentLink.state": "Estado",
   "paymentLink.success.subtitle": "A configuração do seu pagamento foi concluída com sucesso.\nVocê pode fechar esta janela.",
   "paymentLink.success.title": "Obrigado!",
-  "paymentLink.termsAndConditions": "Ao validar esta etapa, você assina eletronicamente a autorização de débito e autoriza {merchantName} a enviar instruções para a Swan para debitar sua conta, e autoriza a Swan a debitar sua conta de acordo com as instruções recebidas. Qualquer solicitação de reembolso será tratada de acordo com os termos e condições gerais do seu banco."
+  "paymentLink.termsAndConditions": "Ao clicar em Pagar, você está assinando uma autorização de débito direto eletronicamente. A autorização autoriza: (1) {merchantName} a compartilhar informações de pagamento com a Swan e (2) a Swan a debitar sua conta de acordo. Solicitações de reembolso serão processadas de acordo com os termos e condições do seu banco."
 }

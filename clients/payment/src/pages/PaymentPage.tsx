@@ -36,10 +36,8 @@ const styles = StyleSheet.create({
   segmentedControl: {
     maxWidth: "100%",
   },
-  half: {
-    flexBasis: "0%",
+  grow: {
     flexGrow: 1,
-    flexShrink: 1,
   },
 });
 
@@ -51,7 +49,6 @@ type FormState = {
   addressLine1: string;
   city: string;
   postalCode: string;
-  state: string;
 };
 
 type Props = {
@@ -68,7 +65,6 @@ const fieldToPathMap = {
   addressLine1: ["address", "addressLine1"],
   city: ["address", "city"],
   postalCode: ["address", "postalCode"],
-  state: ["address", "state"],
 } as const;
 
 export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Props) => {
@@ -122,10 +118,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
         }
       },
     },
-    state: {
-      initialValue: paymentLink.billingAddress?.state ?? "",
-      sanitize: value => value.trim(),
-    },
   });
 
   const [addSepaDirectDebitPaymentMandateData, addSepaDirectDebitPaymentMandate] = useUrqlMutation(
@@ -147,10 +139,9 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
           "addressLine1",
           "city",
           "postalCode",
-          "state",
         ])
       ) {
-        const { name, addressLine1, city, country, state, postalCode, iban } = values;
+        const { name, addressLine1, city, country, postalCode, iban } = values;
 
         addSepaDirectDebitPaymentMandate({
           input: {
@@ -163,7 +154,6 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
                 country,
                 city,
                 postalCode,
-                state,
               },
             },
           },
@@ -332,64 +322,48 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
         )}
       </Field>
 
-      <Field name="city">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.city")}
-            render={() => (
-              <LakeTextInput
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                ref={ref}
+      <Box direction={desktop ? "row" : "column"}>
+        <Box style={styles.grow}>
+          <Field name="city">
+            {({ value, valid, error, onChange, onBlur, ref }) => (
+              <LakeLabel
+                label={t("paymentLink.city")}
+                render={() => (
+                  <LakeTextInput
+                    value={value}
+                    valid={valid}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    ref={ref}
+                  />
+                )}
               />
             )}
-          />
-        )}
-      </Field>
-
-      <Box direction={desktop ? "row" : "column"}>
-        <Field name="postalCode">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              label={t("paymentLink.postalCode")}
-              style={desktop && styles.half}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-            />
-          )}
-        </Field>
+          </Field>
+        </Box>
 
         <Space width={24} />
 
-        <Field name="state">
-          {({ value, valid, error, onChange, onBlur, ref }) => (
-            <LakeLabel
-              label={t("paymentLink.state")}
-              style={desktop && styles.half}
-              render={() => (
-                <LakeTextInput
-                  value={value}
-                  valid={valid}
-                  error={error}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  ref={ref}
-                />
-              )}
-            />
-          )}
-        </Field>
+        <Box style={styles.grow}>
+          <Field name="postalCode">
+            {({ value, valid, error, onChange, onBlur, ref }) => (
+              <LakeLabel
+                label={t("paymentLink.postalCode")}
+                render={() => (
+                  <LakeTextInput
+                    value={value}
+                    valid={valid}
+                    error={error}
+                    onChangeText={onChange}
+                    onBlur={onBlur}
+                    ref={ref}
+                  />
+                )}
+              />
+            )}
+          </Field>
+        </Box>
       </Box>
 
       <Space height={32} />

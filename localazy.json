@@ -24,6 +24,11 @@
       },
       {
         "group": "onboarding",
+        "lang": "fi",
+        "pattern": "clients/onboarding/src/locales/fi.json"
+      },
+      {
+        "group": "onboarding",
         "lang": "fr",
         "pattern": "clients/onboarding/src/locales/fr.json"
       },
@@ -57,6 +62,11 @@
         "group": "banking",
         "lang": "es",
         "pattern": "clients/banking/src/locales/es.json"
+      },
+      {
+        "group": "banking",
+        "lang": "fi",
+        "pattern": "clients/banking/src/locales/fi.json"
       },
       {
         "group": "banking",

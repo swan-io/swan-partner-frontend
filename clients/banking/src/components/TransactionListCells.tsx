@@ -9,7 +9,7 @@ import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
-import { formatCurrency, t } from "../utils/i18n";
+import { formatCurrency, isTranslationKey, t } from "../utils/i18n";
 
 type Transaction = TransactionDetailsFragment;
 
@@ -59,75 +59,17 @@ const getTransactionIcon = (transaction: Transaction): IconName =>
 export const getTransactionLabel = (transaction: Transaction): string =>
   match(transaction)
     .with({ __typename: "FeeTransaction" }, ({ feesType }) => {
-      return match(feesType)
-        .with("CardPaymentsOutsideSEPA", () => t("paymentMethod.fees.cardPaymentsOutsideSEPA"))
-        .with("CashWithdrawalsOutsideSEPA", () =>
-          t("paymentMethod.fees.cashWithdrawalsOutsideSEPA"),
-        )
-        .with("CashWithdrawalsWithinSEPA", () => t("paymentMethod.fees.cashWithdrawalsWithinSEPA"))
-        .with("CirculationLetterDraftingFee", () =>
-          t("paymentMethod.fees.circulationLetterDraftingFee"),
-        )
-        .with("DirectDebitRejection", () => t("paymentMethod.fees.directDebitRejection"))
-        .with("ImproperUseOfAccount", () => t("paymentMethod.fees.improperUseOfAccount"))
-        .with("ProcessingJudicialOrAdministrativeSeizure", () =>
-          t("paymentMethod.fees.processingJudicialOrAdministrativeSeizure"),
-        )
-        .with("UnauthorizedOverdraft", () => t("paymentMethod.fees.unauthorizedOverdraft"))
-        .with("BankingFee", () => transaction.label)
-        .with("ConfirmationLetterDraftingFee", () =>
-          t("paymentMethod.fees.confirmationLetterDraftingFee"),
-        )
-        .with("CheckIncident", () => t("paymentMethod.fees.checkIncident"))
-        .with("CheckDeposit", () => t("paymentMethod.fees.checkDeposit"))
-        .with("PhysicalCardPrinting", () => t("paymentMethod.fees.physicalCardPrinting"))
-        .with("PhysicalCardDeliveryFrance", () =>
-          t("paymentMethod.fees.physicalCardDeliveryFrance"),
-        )
-        .with("PhysicalCardDeliveryIntl", () => t("paymentMethod.fees.physicalCardDeliveryIntl"))
-        .with("PhysicalCardDeliveryExpress", () =>
-          t("paymentMethod.fees.physicalCardDeliveryExpress"),
-        )
-        .with("InternationalCreditTransferInGroup1", () =>
-          t("paymentMethod.fees.internationalCreditTransferInGroup1"),
-        )
-        .with("InternationalCreditTransferInGroup2", () =>
-          t("paymentMethod.fees.internationalCreditTransferInGroup2"),
-        )
-        .with("InternationalCreditTransferInGroup3", () =>
-          t("paymentMethod.fees.internationalCreditTransferInGroup3"),
-        )
-        .with("InternationalCreditTransferInGroup4", () =>
-          t("paymentMethod.fees.internationalCreditTransferInGroup4"),
-        )
-        .with("InternationalCreditTransferOutGroup1", () =>
-          t("paymentMethod.fees.internationalCreditTransferOutGroup1"),
-        )
-        .with("InternationalCreditTransferOutGroup2", () =>
-          t("paymentMethod.fees.internationalCreditTransferOutGroup2"),
-        )
-        .with("InternationalCreditTransferOutGroup3", () =>
-          t("paymentMethod.fees.internationalCreditTransferOutGroup3"),
-        )
-        .with("InternationalCreditTransferOutGroup4", () =>
-          t("paymentMethod.fees.internationalCreditTransferOutGroup4"),
-        )
-        .with("SepaDirectDebitInB2bLevel1", () =>
-          t("paymentMethod.fees.sepaDirectDebitInB2bLevel1"),
-        )
-        .with("SepaDirectDebitInB2bLevel2", () =>
-          t("paymentMethod.fees.sepaDirectDebitInB2bLevel2"),
-        )
-        .with("SepaDirectDebitInCoreLevel1", () =>
-          t("paymentMethod.fees.sepaDirectDebitInCoreLevel1"),
-        )
-        .with("SepaDirectDebitInCoreLevel2", () =>
-          t("paymentMethod.fees.sepaDirectDebitInCoreLevel2"),
-        )
-        .with("SepaDirectDebitInCoreReturn", () =>
-          t("paymentMethod.fees.sepaDirectDebitInCoreReturn"),
-        )
-        .exhaustive();
+      if (feesType === "BankingFee") {
+        return transaction.label;
+      }
+
+      try {
+        return match(`paymentMethod.fees.${feesType}`)
+          .with(P.when(isTranslationKey), key => t(key))
+          .exhaustive();
+      } catch {
+        return transaction.label;
+      }
     })
     //The check number is the first 7 numbers of the cmc7
     .with({ __typename: "CheckTransaction" }, ({ cmc7 }) => `Check N° ${cmc7.slice(0, 7)}`)

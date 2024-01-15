@@ -1280,13 +1280,14 @@
   dependencies:
     fast-json-stringify "^5.7.0"
 
-"@fastify/reply-from@9.5.0":
-  version "9.5.0"
-  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.5.0.tgz#bf6e0b5f1a028149ef17491bb36a9a449230dfed"
-  integrity sha512-lSEASzAMHELN2mp0BDheL5omr+IaakuTPM70cHWHn/KEPJqPqGpN6x8YfOhY6fL1f3Hlgyhqq7CiFdEtT4xZ/Q==
+"@fastify/reply-from@9.7.0":
+  version "9.7.0"
+  resolved "https://registry.yarnpkg.com/@fastify/reply-from/-/reply-from-9.7.0.tgz#8cc48d8c07a5d4e1af8d11938eb42d6202e15842"
+  integrity sha512-/F1QBl3FGlTqStjmiuoLRDchVxP967TZh6FZPwQteWhdLsDec8mqSACE+cRzw6qHUj3v9hfdd7JNgmb++fyFhQ==
   dependencies:
     "@fastify/error" "^3.0.0"
     end-of-stream "^1.4.4"
+    fast-content-type-parse "^1.1.0"
     fast-querystring "^1.0.0"
     fastify-plugin "^4.0.0"
     pump "^3.0.0"

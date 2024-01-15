@@ -39,18 +39,29 @@ export const getSupportingDocumentStatusLabel = (status: UploadedFile["status"])
     .with(P.when(isTranslationKey), key => t(key))
     .exhaustive();
 
-export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
-  match(`transactionRejectedReason.${reason}`)
-    .with(P.when(isTranslationKey), key => t(key))
-    .otherwise(() => undefined);
+export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) => {
+  try {
+    return match(`transactionRejectedReason.${reason}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return;
+  }
+};
 
-export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) =>
-  match(`transaction.fees.description.${fees}`)
-    .with(P.when(isTranslationKey), key => t(key))
-    .otherwise(() => undefined);
+export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) => {
+  try {
+    return match(`transaction.fees.description.${fees}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return;
+  }
+};
 
 export const getInternationalTransferFormRouteLabel = (route: string) => {
   const key = `transfer.new.internationalTransfer.route.${route}`;
+
   return match(key)
     .with(P.when(isTranslationKey), key => t(key))
     .otherwise(() => route);

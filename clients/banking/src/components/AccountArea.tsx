@@ -55,6 +55,7 @@ import {
   paymentMenuRoutes,
 } from "../utils/routes";
 import { signout } from "../utils/signout";
+import { useTgglContext } from "../utils/tggl";
 import { isUnauthorizedError } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
@@ -213,6 +214,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     .getWithDefault(false);
 
   const account = accountMembership?.account;
+  const accountCountry = account?.country ?? undefined;
   const holder = account?.holder;
 
   const isIndividual = holder?.info.__typename === "AccountHolderIndividualInfo";
@@ -507,6 +509,21 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     .map(accountMembership => accountMembership.email)
     .toOption()
     .toUndefined();
+
+  useTgglContext(
+    useMemo(
+      () => ({
+        accountCountry,
+        userId,
+        email,
+        environmentType: env.APP_TYPE === "LIVE" ? "live" : "sandbox",
+        projectId: projectConfiguration
+          .map<string | undefined>(config => config.projectId)
+          .getWithDefault(undefined),
+      }),
+      [accountCountry, userId, email],
+    ),
+  );
 
   const additionalInfo = useMemo(
     () => ({

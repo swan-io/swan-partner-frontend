@@ -5,7 +5,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { defaultAccentColor } from "@swan-io/lake/src/constants/colors";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
 import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
@@ -20,7 +20,9 @@ import { env } from "./utils/env";
 import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
+import { projectConfiguration } from "./utils/projectId";
 import { Router } from "./utils/routes";
+import { TgglProvider, useTgglContext } from "./utils/tggl";
 import { unauthenticatedClient } from "./utils/urql";
 
 type Props = {
@@ -32,6 +34,21 @@ const FlowPicker = ({ onboardingId }: Props) => {
     query: GetOnboardingDocument,
     variables: { id: onboardingId, language: locale.language },
   });
+
+  const accountCountry = data.onboardingInfo?.accountCountry ?? undefined;
+
+  useTgglContext(
+    useMemo(
+      () => ({
+        accountCountry,
+        environmentType: env.SWAN_ENVIRONMENT === "LIVE" ? "live" : "sandbox",
+        projectId: projectConfiguration
+          .map<string | undefined>(config => config.projectId)
+          .getWithDefault(undefined),
+      }),
+      [accountCountry],
+    ),
+  );
 
   const onboarding = data.onboardingInfo;
   const project = onboarding?.projectInfo;
@@ -94,33 +111,35 @@ export const App = () => {
   const route = Router.useRoute(["Area", "PopupCallback"]);
 
   return (
-    <ErrorBoundary
-      key={route?.name}
-      onError={error => logFrontendError(error)}
-      fallback={({ error }) => <ErrorView error={error} />}
-    >
-      <Suspense fallback={<LoadingView color={colors.gray[400]} />}>
-        <ClientProvider value={unauthenticatedClient}>
-          {match(route)
-            .with(
-              { name: "PopupCallback" },
-              ({ params: { redirectUrl, accountMembershipId, projectId } }) => (
-                <PopupCallbackPage
-                  redirectUrl={redirectUrl}
-                  accountMembershipId={accountMembershipId}
-                  projectId={projectId}
-                />
-              ),
-            )
-            .with({ name: "Area" }, ({ params: { onboardingId } }) => (
-              <FlowPicker onboardingId={onboardingId} />
-            ))
-            .with(P.nullish, () => <NotFoundPage />)
-            .exhaustive()}
-        </ClientProvider>
-      </Suspense>
+    <TgglProvider>
+      <ErrorBoundary
+        key={route?.name}
+        onError={error => logFrontendError(error)}
+        fallback={({ error }) => <ErrorView error={error} />}
+      >
+        <Suspense fallback={<LoadingView color={colors.gray[400]} />}>
+          <ClientProvider value={unauthenticatedClient}>
+            {match(route)
+              .with(
+                { name: "PopupCallback" },
+                ({ params: { redirectUrl, accountMembershipId, projectId } }) => (
+                  <PopupCallbackPage
+                    redirectUrl={redirectUrl}
+                    accountMembershipId={accountMembershipId}
+                    projectId={projectId}
+                  />
+                ),
+              )
+              .with({ name: "Area" }, ({ params: { onboardingId } }) => (
+                <FlowPicker onboardingId={onboardingId} />
+              ))
+              .with(P.nullish, () => <NotFoundPage />)
+              .exhaustive()}
+          </ClientProvider>
+        </Suspense>
 
-      <ToastStack />
-    </ErrorBoundary>
+        <ToastStack />
+      </ErrorBoundary>
+    </TgglProvider>
   );
 };

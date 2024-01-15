@@ -767,6 +767,7 @@ export const start = async ({
       ACCOUNT_MEMBERSHIP_INVITATION_MODE: match(sendAccountMembershipInvitation)
         .with(P.nullish, () => "LINK")
         .otherwise(() => "EMAIL"),
+      TGGL_API_KEY: process.env.TGGL_API_KEY,
       BANKING_URL: env.BANKING_URL,
       SWAN_PROJECT_ID: projectId.match({
         Ok: projectId => projectId,

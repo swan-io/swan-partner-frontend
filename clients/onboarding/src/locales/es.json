@@ -31,6 +31,8 @@
   "company.step.organisation1.addressLabel": "Busca la dirección de tu organización",
   "company.step.organisation1.addressTitle": "Dirección de la organización",
   "company.step.organisation1.isRegisteredLabel": "¿ Tu organización está inscrita en un registro público?",
+  "company.step.organisation1.isRegisteredLabel.description": "Si lo estás, se te pedirá tu número de registro",
+  "company.step.organisation1.isRegisteredLabel.descriptionWithName": "Si lo estás, se te pedirá tu «{documentName}».",
   "company.step.organisation1.isRegisteredWithNameLabel": "¿ Tu organización está inscrita en un registro público en {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Tu organización",
   "company.step.organisation1.organisationPlaceholder": "Escribe el nombre de tu organización...",

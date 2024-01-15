@@ -31,6 +31,8 @@
   "company.step.organisation1.addressLabel": "Vind het adres van je bedrijf",
   "company.step.organisation1.addressTitle": "Bedrijfsadres",
   "company.step.organisation1.isRegisteredLabel": "Ben je geregistreerd?",
+  "company.step.organisation1.isRegisteredLabel.description": "Als je dat wel bent, wordt er gevraagd naar je registratienummer",
+  "company.step.organisation1.isRegisteredLabel.descriptionWithName": "Als je dat wel bent, wordt er gevraagd naar je «{documentName}».",
   "company.step.organisation1.isRegisteredWithNameLabel": "Ben je geregistreerd bij {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Jouw organisatie",
   "company.step.organisation1.organisationPlaceholder": "Typ de naam van je organisatie...",

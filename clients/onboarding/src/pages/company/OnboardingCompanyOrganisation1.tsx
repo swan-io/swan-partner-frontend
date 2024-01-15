@@ -1,12 +1,13 @@
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -18,7 +19,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { useCallback, useEffect } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { LakeCompanyInput } from "../../components/LakeCompanyInput";
@@ -59,6 +60,12 @@ export type Organisation1FieldName =
   | "city"
   | "postalCode";
 
+const styles = StyleSheet.create({
+  registrationHelp: {
+    marginTop: negativeSpacings[4],
+  },
+});
+
 type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
@@ -90,6 +97,15 @@ const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
   FRA: "RCS",
   ITA: "REGISTRO IMPRESE",
   NLD: "Handelsregister",
+};
+
+const registrationDocumentPerCountry: Partial<Record<CountryCCA3, string>> = {
+  FRA: "Extrait de Kbis",
+  BEL: "Extrait BCE",
+  DEU: "Handelsregisterauszug",
+  NLD: "Handelsregisterauszug",
+  ITA: "Visura Camerale",
+  ESP: "Certificado de Registro Mercantil",
 };
 
 export const OnboardingCompanyOrganisation1 = ({
@@ -297,6 +313,8 @@ export const OnboardingCompanyOrganisation1 = ({
     .with("Association", () => associationRegisterNamePerCountry[country])
     .otherwise(() => registerNamePerCountry[country]);
 
+  const countryRegistrationDocumentName = registrationDocumentPerCountry[country] ?? undefined;
+
   return (
     <>
       <OnboardingStepContent>
@@ -328,18 +346,33 @@ export const OnboardingCompanyOrganisation1 = ({
                           : t("company.step.organisation1.isRegisteredLabel")
                       }
                       render={() => (
-                        <View tabIndex={-1} ref={ref}>
-                          <RadioGroup
-                            direction="row"
-                            error={error}
-                            items={[
-                              { name: t("common.yes"), value: true },
-                              { name: t("common.no"), value: false },
-                            ]}
-                            value={value}
-                            onValueChange={onChange}
-                          />
-                        </View>
+                        <>
+                          <LakeText variant="smallRegular" style={styles.registrationHelp}>
+                            {countryRegistrationDocumentName != null
+                              ? t(
+                                  "company.step.organisation1.isRegisteredLabel.descriptionWithName",
+                                  {
+                                    documentName: countryRegistrationDocumentName,
+                                  },
+                                )
+                              : t("company.step.organisation1.isRegisteredLabel.description")}
+                          </LakeText>
+
+                          <Space height={8} />
+
+                          <View tabIndex={-1} ref={ref}>
+                            <RadioGroup
+                              direction="row"
+                              error={error}
+                              items={[
+                                { name: t("common.yes"), value: true },
+                                { name: t("common.no"), value: false },
+                              ]}
+                              value={value}
+                              onValueChange={onChange}
+                            />
+                          </View>
+                        </>
                       )}
                     />
                   )}

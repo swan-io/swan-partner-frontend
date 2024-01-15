@@ -95,8 +95,9 @@ const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "“Code des sociétés”",
   DEU: "Handelsregister",
   FRA: "RCS",
-  ITA: "REGISTRO IMPRESE",
+  ITA: "Registro Imprese",
   NLD: "Handelsregister",
+  ESP: "Registradores de España",
 };
 
 const registrationDocumentPerCountry: Partial<Record<CountryCCA3, string>> = {

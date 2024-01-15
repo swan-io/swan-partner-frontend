@@ -53,11 +53,51 @@ type Account {
   """Updated date"""
   updatedAt: DateTime!
 
-  """List of Virtual IBAN"""
-  virtualIbanEntries(first: Int! = 50, before: String, after: String): VirtualIBANEntryConnection!
+  """
+  List of Virtual IBAN
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  virtualIbanEntries(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
 
-  """List of account membership for this account"""
-  memberships(first: Int! = 50, before: String, after: String, filters: MembershipsFilterInput, orderBy: AccountMembershipOrderByInput): AccountMembershipConnection!
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): VirtualIBANEntryConnection!
+
+  """
+  List of account membership for this account
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  memberships(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: AccountMembershipOrderByInput
+  ): AccountMembershipConnection!
 
   """`true`if a consent is required to fetch new transactions"""
   requiredConsentToFetchNewTransactions: Boolean!
@@ -180,14 +220,68 @@ type AccountHolder {
   """Updated date."""
   updatedDate: DateTime!
 
-  """List of accounts owned by the account holder."""
-  accounts(after: String, before: String, first: Int! = 50, orderBy: AccountOrderByInput): AccountConnection!
+  """
+  List of accounts owned by the account holder.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  accounts(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
 
-  """List of supporting document collection for an account holder"""
-  supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
 
-  """List of funding limit settings change request for an account holder"""
-  fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: AccountOrderByInput
+  ): AccountConnection!
+
+  """
+  List of supporting document collection for an account holder
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  supportingDocumentCollections(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): SupportingDocumentCollectionConnection!
+
+  """
+  List of funding limit settings change request for an account holder
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  fundingLimitSettingsChangeRequests(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
   onboarding: Onboarding
@@ -472,16 +566,29 @@ type AccountMembership {
   """Disabled date"""
   disabledAt: DateTime
 
-  """account membership's cards"""
+  """
+  account membership's cards
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   cards(
+    """the number of elements to load (maximum: 100)"""
     first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
     before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be ordered"""
+    """an order you can apply to your list of connections"""
     orderBy: CardOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: CardFiltersInput
   ): CardConnection!
 }
@@ -783,7 +890,7 @@ type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInf
 
   """
   The date when the payment link expires.
-  The payment link expires 24 hours after it was created.
+  By default the payment link expires 120 days after it was created.
   """
   expiresAt: DateTime!
 }
@@ -1133,15 +1240,24 @@ type Card {
   """Issuing Country"""
   issuingCountry: CCA3!
 
-  """Digital Cards linked to this card"""
+  """
+  Digital Cards linked to this card
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   digitalCards(
+    """the number of elements to load (maximum: 100)"""
     first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be ordered"""
+    """an order you can apply to your list of connections"""
     orderBy: DigitalCardOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: DigitalCardFiltersInput
   ): DigitalCardConnection!
 }
@@ -2303,11 +2419,6 @@ enum DigitalizationType {
   Unknown
 }
 
-enum DirectDebitSequence {
-  OneOff
-  Recurring
-}
-
 """EnabledMerchantPaymentMethodStatusInfo"""
 type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -2372,7 +2483,7 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
 
   """
   The date when the payment link expired.
-  The payment link expires 24 hours after it was created.
+  By default the payment link expires 120 days after it was created.
   """
   expiredAt: DateTime!
 }
@@ -3785,7 +3896,7 @@ enum PaymentLevel {
 
 enum PaymentLinkSequenceType {
   OneOff
-  Recurring
+  Recurrent
 }
 
 interface PaymentMandate {
@@ -5598,8 +5709,28 @@ type User {
   """unique identifier of the user"""
   id: ID!
 
-  """The list of account memberships"""
-  accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
+  """
+  The list of account memberships
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  accountMemberships(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: AccountMembershipsFilterInput
+  ): AccountMembershipConnection!
 
   """
   mobile phone number with the international format (Example: +33689788967)

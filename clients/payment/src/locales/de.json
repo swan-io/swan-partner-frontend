@@ -19,5 +19,5 @@
   "paymentLink.state": "Bundesland",
   "paymentLink.success.subtitle": "Ihre Zahlungseinrichtung war erfolgreich.\nSie können dieses Fenster schließen.",
   "paymentLink.success.title": "Danke!",
-  "paymentLink.termsAndConditions": "Durch die Bestätigung dieses Schritts unterzeichnen Sie elektronisch das Lastschriftmandat und ermächtigen {merchantName}, Anweisungen an Swan zur Abbuchung von Ihrem Konto zu senden. Sie ermächtigen Swan, Ihr Konto gemäß den erhaltenen Anweisungen zu belasten. Jede Rückerstattungsanfrage wird gemäß den allgemeinen Geschäftsbedingungen Ihrer Bank bearbeitet."
+  "paymentLink.termsAndConditions": "Durch das Klicken auf Bezahlen geben Sie eine Einzugsermächtigung elektronisch ab. Die Ermächtigung berechtigt: (1) {merchantName} zur Weitergabe von Zahlungsinformationen an Swan und (2) Swan zur entsprechenden Abbuchung von Ihrem Konto. Rückerstattungsanfragen werden gemäß den Geschäftsbedingungen Ihrer Bank bearbeitet."
 }

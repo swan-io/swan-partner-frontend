@@ -286,12 +286,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               { __typename: "CardTransaction" },
               ({
                 card,
-                createdAt,
                 statusInfo,
                 merchantCountry: merchantCountryCCA3,
                 merchantCity,
                 maskedPan,
                 reference,
+                payment,
               }) => {
                 const merchantCountry = countries.find(
                   country => country.cca3 === merchantCountryCCA3,
@@ -300,12 +300,16 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 return (
                   <ReadOnlyFieldList>
                     {match(statusInfo.status)
-                      .with("Booked", "Pending", () => (
-                        <FormattedDateTime
-                          label={t("transaction.paymentDateTime")}
-                          date={createdAt}
-                        />
-                      ))
+                      .with("Booked", "Pending", () => {
+                        if (isNotNullish(payment)) {
+                          return (
+                            <FormattedDateTime
+                              label={t("transaction.paymentDateTime")}
+                              date={payment.createdAt}
+                            />
+                          );
+                        }
+                      })
                       .otherwise(() => null)}
 
                     {bookingDateTime}
@@ -935,6 +939,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 );
               },
             )
+            .with({ __typename: "InternationalCreditTransferTransaction" }, ({ reference }) => (
+              <ReadOnlyFieldList>
+                {executionDateTime}
+                {renderReferenceToDisplay(reference)}
+                {transactionId}
+              </ReadOnlyFieldList>
+            ))
+
             .otherwise(() => (
               <ReadOnlyFieldList>
                 {bookingDateTime}

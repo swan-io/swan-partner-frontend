@@ -32,7 +32,6 @@
   "company.step.organisation1.addressTitle": "Organization address",
   "company.step.organisation1.isRegisteredLabel": "Are you registered?",
   "company.step.organisation1.isRegisteredWithNameLabel": "Are you registered with {countryRegisterName}?",
-  "company.step.organisation1.isRegisteredLabel.descriptionWithName": "If you are, you’ll be asked for your «{documentName}».",
   "company.step.organisation1.isRegisteredLabel.description": "If you are, you’ll be asked for your registration number",
   "company.step.organisation1.organisationLabel": "Your organization",
   "company.step.organisation1.organisationPlaceholder": "Type your organization name...",

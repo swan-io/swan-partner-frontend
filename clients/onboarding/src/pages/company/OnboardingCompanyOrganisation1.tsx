@@ -94,19 +94,10 @@ const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = 
 const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
   BEL: "“Code des sociétés”",
   DEU: "Handelsregister",
-  FRA: "RCS",
+  FRA: "Registre du Commerce et des Sociétés (RCS)",
   ITA: "Registro Imprese",
   NLD: "Handelsregister",
   ESP: "Registradores de España",
-};
-
-const registrationDocumentPerCountry: Partial<Record<CountryCCA3, string>> = {
-  FRA: "Extrait de Kbis",
-  BEL: "Extrait BCE",
-  DEU: "Handelsregisterauszug",
-  NLD: "Handelsregisterauszug",
-  ITA: "Visura Camerale",
-  ESP: "Certificado de Registro Mercantil",
 };
 
 export const OnboardingCompanyOrganisation1 = ({
@@ -314,8 +305,6 @@ export const OnboardingCompanyOrganisation1 = ({
     .with("Association", () => associationRegisterNamePerCountry[country])
     .otherwise(() => registerNamePerCountry[country]);
 
-  const countryRegistrationDocumentName = registrationDocumentPerCountry[country] ?? undefined;
-
   return (
     <>
       <OnboardingStepContent>
@@ -349,14 +338,7 @@ export const OnboardingCompanyOrganisation1 = ({
                       render={() => (
                         <>
                           <LakeText variant="smallRegular" style={styles.registrationHelp}>
-                            {countryRegistrationDocumentName != null
-                              ? t(
-                                  "company.step.organisation1.isRegisteredLabel.descriptionWithName",
-                                  {
-                                    documentName: countryRegistrationDocumentName,
-                                  },
-                                )
-                              : t("company.step.organisation1.isRegisteredLabel.description")}
+                            {t("company.step.organisation1.isRegisteredLabel.description")}
                           </LakeText>
 
                           <Space height={8} />

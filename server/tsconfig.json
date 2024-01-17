@@ -27,6 +27,6 @@
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
 
-    "typeRoots": ["types", "node_modules/@types"]
-  }
+    "typeRoots": ["types", "node_modules/@types"],
+  },
 }

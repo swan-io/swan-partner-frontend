@@ -94,7 +94,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText(t("shared.country.FRA"));
+  await expect(picker).toHaveText("France");
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -184,7 +184,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText(t("shared.country.DEU"));
+  await expect(picker).toHaveText("Germany");
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -195,7 +195,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
   await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
-    t("shared.country.DEU"),
+    "Germany",
   );
 
   await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
@@ -250,7 +250,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   const listbox = page.getByRole("listbox");
   await listbox.type("F");
-  await listbox.getByText(t("shared.country.FRA")).click();
+  await listbox.getByText("France").click();
 
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
@@ -296,7 +296,7 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText(t("shared.country.ESP"));
+  await expect(picker).toHaveText("Spain");
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -353,7 +353,7 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   const listbox = page.getByRole("listbox");
   await listbox.type("F");
-  await listbox.getByText(t("shared.country.FRA")).click();
+  await listbox.getByText("France").click();
 
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");
@@ -413,7 +413,7 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
 
   const picker = page.getByLabel(t("onboarding.company.step.basicInfo.countryLabel"));
   await picker.waitFor();
-  await expect(picker).toHaveText(t("shared.country.NLD"));
+  await expect(picker).toHaveText("Netherlands");
 
   await page.getByText(t("onboarding.company.step.basicInfo.legalRepresentativeLabel")).waitFor();
   await page.getByText(t("onboarding.company.step.basicInfo.organisationTypeLabel")).waitFor();
@@ -424,7 +424,7 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
   await expect(page.getByLabel(t("onboarding.company.step.registration.countryLabel"))).toHaveText(
-    t("shared.country.NLD"),
+    "Netherlands",
   );
 
   await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
@@ -477,7 +477,7 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
 
   const listbox = page.getByRole("listbox");
   await listbox.type("F");
-  await listbox.getByText(t("shared.country.FRA")).click();
+  await listbox.getByText("France").click();
 
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthCity")).fill("Paris");
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.birthPostalCode")).fill("75001");

@@ -2086,10 +2086,10 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.5.0.tgz#ac04733958927190b14aab676d0512a7c235cd12"
-  integrity sha512-AQmkAskeM6YzI8+16euhEvL+zV21wK0+3wUFVW7TV47MqULG8TBfIq9CGAfAwQtecfLZBViPHQOYYi8V04G9Qg==
+"@swan-io/lake@4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.5.1.tgz#b4d9015cbca43e860e21d0811d57b1e3cee3a0ef"
+  integrity sha512-Css45jvl+ncMj/hkD1jIsuRqWh8HGjpYCgUkB/AuKSmSVD6gUz8X4BHFjpAUpPWrQe90hYYzc6Byh6a7bx6zWA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.94.1"
@@ -2112,10 +2112,10 @@
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.5.0":
-  version "4.5.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.5.0.tgz#ccf794f8ede2e6894c64a1197d4027b2f1592c48"
-  integrity sha512-MgbOQLuPLJE/ScO7YW7Vxf24IEL8ub0RXtir5s5zxFcXwFKQYFGj7kiYjzNJQ94+z9kF57GLDyyoMzQtEbXbBg==
+"@swan-io/shared-business@4.5.1":
+  version "4.5.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.5.1.tgz#a6cbb099959909e47276d8ef81ad6ea57c004f96"
+  integrity sha512-V/v8ddvAm4FOQ9puwd61LsVIuuGwpdDcVzZvyqgCqTCNhnEyE4WmOpUMJ/ZsSu7KehUNUvSy/KXHdZZ68qMgew==
   dependencies:
     "@formatjs/intl" "^2.9.11"
     "@googlemaps/js-api-loader" "1.16.2"

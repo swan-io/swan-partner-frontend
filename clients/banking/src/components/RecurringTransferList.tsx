@@ -134,10 +134,9 @@ const RecurringTransferHistory = ({
     .map(edges =>
       edges
         .filter(({ node }) => Boolean(node.transactions?.totalCount))
-        .reduce<{ node: TransactionDetailsFragment }[]>(
-          (list, { node }) => [...list, ...(node.transactions?.edges ?? [])],
-          [],
-        ),
+        .reduce<
+          { node: TransactionDetailsFragment }[]
+        >((list, { node }) => [...list, ...(node.transactions?.edges ?? [])], []),
     )
     .getWithDefault([]);
 

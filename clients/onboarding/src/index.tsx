@@ -2,7 +2,9 @@ import "@swan-io/lake/src/assets/fonts/Inter.css";
 import "@swan-io/lake/src/assets/main.css";
 
 import { ResizeObserver } from "@juggle/resize-observer";
-import "core-js/actual/array/flat";
+import "core-js/proposals/array-flat-map";
+import "core-js/proposals/change-array-by-copy-stage-4";
+import "core-js/proposals/object-from-entries";
 
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";

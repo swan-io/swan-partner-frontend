@@ -21,8 +21,8 @@ Name | Version | License | URL | VendorUrl | VendorName
 @types/react-dom | 18.2.18 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
+@urql/devtools | 2.0.3 | MIT | https://github.com/FormidableLabs/urql-devtools-exchange.git | https://github.com/FormidableLabs/urql-devtools-exchange#readme | Formidable
 @urql/exchange-graphcache | 6.4.0 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
-@vitejs/plugin-legacy | 5.2.0 | MIT | https://github.com/vitejs/vite.git | https://github.com/vitejs/vite/tree/main/packages/plugin-legacy#readme | Evan You
 @vitejs/plugin-react-swc | 3.5.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
 core-js | 3.35.0 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
@@ -70,6 +70,7 @@ wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @opentelemetry/sdk-trace-node | 1.19.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node | OpenTelemetry Authors
 @opentelemetry/semantic-conventions | 1.19.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
 picocolors | 1.0.0 | ISC | https://github.com/alexeyraspopov/picocolors.git | Unknown | Alexey Raspopov
+react-tggl-client | 1.6.0 | ISC | Unknown | Unknown | Nicolas Keller
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 3.13.1 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

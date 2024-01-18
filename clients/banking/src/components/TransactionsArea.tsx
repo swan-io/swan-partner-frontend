@@ -53,11 +53,29 @@ const styles = StyleSheet.create({
     paddingTop: spacings[40],
     paddingBottom: spacings[12],
   },
-  statementsLarge: {
-    marginHorizontal: negativeSpacings[48],
+  balanceDetailsButton: {
+    backgroundColor: colors.gray[100],
   },
-  statements: {
-    marginHorizontal: negativeSpacings[24],
+  balanceDetailsDesktopTransitionView: {
+    alignItems: "flex-end",
+    flexDirection: "row",
+    paddingLeft: spacings[16],
+  },
+  balanceDetailDesktopOperator: {
+    alignSelf: "center",
+    paddingBottom: spacings[12],
+  },
+  balanceDetailDesktopItem: {
+    paddingHorizontal: spacings[24],
+  },
+  balanceDetailDesktopText: {
+    paddingBottom: 2,
+  },
+  bottomPanelContainer: {
+    padding: spacings[24],
+  },
+  bottomPanelItem: {
+    paddingBottom: spacings[4],
   },
   // link: {
   //   display: "flex",
@@ -65,31 +83,20 @@ const styles = StyleSheet.create({
   //   transitionDuration: "150ms",
   //   alignItems: "center",
   // },
-  grow: { flexGrow: 1 },
   // linkPressed: {
   //   opacity: 0.7,
-  // },
-  balanceDetailsButton: {
-    backgroundColor: colors.gray[100],
-  },
-  balanceDetailDesktopContainer: {
-    paddingLeft: spacings[16],
-  },
-  balanceDetailDesktopLarge: { paddingBottom: spacings[12] },
-  balanceDetailDesktopItem: { paddingHorizontal: spacings[24] },
-  bottomPanelContainer: { padding: spacings[24] },
-  bottomPanelItem: {
-    paddingBottom: spacings[4],
-  },
-  // linkContainerLarge: {
-  //   paddingLeft: spacings[40],
   // },
   // linkContainer: {
   //   paddingLeft: spacings[24],
   // },
-  transitionView: {
-    flexDirection: "row",
-    alignItems: "flex-end",
+  // linkContainerLarge: {
+  //   paddingLeft: spacings[40],
+  // },
+  statements: {
+    marginHorizontal: negativeSpacings[24],
+  },
+  statementsLarge: {
+    marginHorizontal: negativeSpacings[48],
   },
 });
 
@@ -115,7 +122,7 @@ export const TransactionsArea = ({
     )
     .map(
       ({ fundingSources, merchantProfiles }) =>
-        fundingSources.totalCount > 0 && merchantProfiles.totalCount > 0,
+        fundingSources.totalCount > 0 || merchantProfiles.totalCount > 0,
     )
     .getWithDefault(false);
 
@@ -140,12 +147,12 @@ export const TransactionsArea = ({
             <>
               <Box direction="row">
                 <Box style={[styles.balance, large && styles.balanceLarge]} direction="row">
-                  <Box direction="columnReverse">
-                    <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
-
+                  <Box>
                     <LakeHeading level={1} variant={large ? "h1" : "h3"}>
                       {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
                     </LakeHeading>
+
+                    <LakeText variant="smallRegular">{t("transactions.availableBalance")}</LakeText>
                   </Box>
 
                   <Space width={12} />
@@ -163,23 +170,28 @@ export const TransactionsArea = ({
                       style={({ hovered }) => [hovered && styles.balanceDetailsButton]}
                     />
                   )}
-                </Box>
 
-                <TransitionView
-                  style={styles.transitionView}
-                  enter={animations.fadeAndSlideInFromLeft.enter}
-                  leave={animations.fadeAndSlideInFromLeft.leave}
-                >
-                  {balanceDetailsVisible && large ? (
-                    <Box direction="row" style={styles.balanceDetailDesktopContainer}>
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
-                        <LakeText> = </LakeText>
+                  <TransitionView
+                    enter={animations.fadeAndSlideInFromLeft.enter}
+                    leave={animations.fadeAndSlideInFromLeft.leave}
+                    style={styles.balanceDetailsDesktopTransitionView}
+                  >
+                    {balanceDetailsVisible && large ? (
+                      <>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          =
+                        </LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                        <Box style={styles.balanceDetailDesktopItem}>
+                          <LakeText
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
+                          >
                             {formatCurrency(Number(bookedBalance.value), bookedBalance.currency)}
                           </LakeText>
 
@@ -187,16 +199,21 @@ export const TransactionsArea = ({
                             {t("transactions.bookedBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
 
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
-                        <LakeText>{Number(pendingBalance.value) < 0 ? "-" : "+"}</LakeText>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          {Number(pendingBalance.value) < 0 ? "-" : "+"}
+                        </LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                        <Box style={styles.balanceDetailDesktopItem}>
+                          <LakeText
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
+                          >
                             {formatCurrency(
                               Math.abs(Number(pendingBalance.value)),
                               pendingBalance.currency,
@@ -207,16 +224,21 @@ export const TransactionsArea = ({
                             {t("transactions.pendingBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
 
-                      <Box
-                        style={[large && styles.balanceDetailDesktopLarge, styles.grow]}
-                        direction="row"
-                      >
-                        <LakeText> - </LakeText>
+                        <LakeText
+                          color={colors.gray[700]}
+                          variant="medium"
+                          style={styles.balanceDetailDesktopOperator}
+                        >
+                          -
+                        </LakeText>
 
-                        <Box direction="column" style={styles.balanceDetailDesktopItem}>
-                          <LakeText variant="medium" color={colors.gray[700]}>
+                        <Box style={styles.balanceDetailDesktopItem}>
+                          <LakeText
+                            color={colors.gray[700]}
+                            style={styles.balanceDetailDesktopText}
+                            variant="medium"
+                          >
                             {formatCurrency(
                               Number(reservedBalance.value),
                               reservedBalance.currency,
@@ -227,10 +249,10 @@ export const TransactionsArea = ({
                             {t("transactions.reservedBalance")}
                           </LakeText>
                         </Box>
-                      </Box>
-                    </Box>
-                  ) : null}
-                </TransitionView>
+                      </>
+                    ) : null}
+                  </TransitionView>
+                </Box>
 
                 {balanceDetailsVisible && !large && (
                   <BottomPanel

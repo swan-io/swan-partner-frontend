@@ -175,7 +175,28 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on InternationalCreditTransferTransaction {
+    creditor {
+      ... on InternationalCreditTransferInCreditor {
+        name
+      }
+      ... on InternationalCreditTransferOutCreditor {
+        name
+        details {
+          key
+          value
+        }
+      }
+    }
+    reference
+    paymentProduct
+    statusInfo {
+      status
+      ... on RejectedTransactionStatusInfo {
+        reason
+      }
+    }
     internationalCurrencyExchange: currencyExchange {
+      exchangeRate
       __typename
       sourceAmount {
         currency

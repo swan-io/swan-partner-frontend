@@ -21,7 +21,7 @@ import {
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { TransactionDetailsFragment } from "../graphql/partner";
+import { InternationalCreditTransferDetails, TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { printIbanFormat } from "../utils/iban";
 import {
@@ -169,6 +169,25 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
+  const getInternationalCreditTransferDetails = (details: InternationalCreditTransferDetails[]) => {
+    console.log(details);
+
+    //  return (<LakeLabel
+    //   type="viewSmall"
+    //         {/* {detail.key} */}
+    //   label={t("transaction.creditorName")}
+    //   render={() => (
+    //     <Box direction="row" alignItems="center">
+    //       <Icon name="person-regular" size={16} />
+    //       <Space width={8} />
+
+    //       <LakeText variant="regular" color={colors.gray[900]}>
+    //         {/* {detail.value} */}
+    //       </LakeText>
+    //     </Box>
+    //   )}
+    // />)
+  };
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -939,13 +958,46 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 );
               },
             )
-            .with({ __typename: "InternationalCreditTransferTransaction" }, ({ reference }) => (
-              <ReadOnlyFieldList>
-                {executionDateTime}
-                {renderReferenceToDisplay(reference)}
-                {transactionId}
-              </ReadOnlyFieldList>
-            ))
+            .with(
+              { __typename: "InternationalCreditTransferTransaction" },
+              ({ reference, createdAt, creditor }) => (
+                <ReadOnlyFieldList>
+                  <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
+
+                  {/* {executionDateTime} */}
+
+                  {match(creditor)
+                    .with(
+                      { __typename: "InternationalCreditTransferOutCreditor" },
+                      ({ name, details }) => (
+                        console.log(getInternationalCreditTransferDetails(details)),
+                        (
+                          <>
+                            <LakeLabel
+                              type="viewSmall"
+                              label={t("transaction.creditorName")}
+                              render={() => (
+                                <Box direction="row" alignItems="center">
+                                  <Icon name="person-regular" size={16} />
+                                  <Space width={8} />
+
+                                  <LakeText variant="regular" color={colors.gray[900]}>
+                                    {name}
+                                  </LakeText>
+                                </Box>
+                              )}
+                            />
+                          </>
+                        )
+                      ),
+                    )
+                    .otherwise(() => null)}
+
+                  {renderReferenceToDisplay(reference)}
+                  {transactionId}
+                </ReadOnlyFieldList>
+              ),
+            )
 
             .otherwise(() => (
               <ReadOnlyFieldList>

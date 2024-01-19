@@ -21,12 +21,13 @@ import {
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { InternationalCreditTransferDetails, TransactionDetailsFragment } from "../graphql/partner";
+import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { printIbanFormat } from "../utils/iban";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
+  getWiseIctLabel,
 } from "../utils/templateTranslations";
 import { ErrorView } from "./ErrorView";
 import { getTransactionLabel } from "./TransactionListCells";
@@ -169,25 +170,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
-  const getInternationalCreditTransferDetails = (details: InternationalCreditTransferDetails[]) => {
-    console.log(details);
-
-    //  return (<LakeLabel
-    //   type="viewSmall"
-    //         {/* {detail.key} */}
-    //   label={t("transaction.creditorName")}
-    //   render={() => (
-    //     <Box direction="row" alignItems="center">
-    //       <Icon name="person-regular" size={16} />
-    //       <Space width={8} />
-
-    //       <LakeText variant="regular" color={colors.gray[900]}>
-    //         {/* {detail.value} */}
-    //       </LakeText>
-    //     </Box>
-    //   )}
-    // />)
-  };
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -960,39 +942,80 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "InternationalCreditTransferTransaction" },
-              ({ reference, createdAt, creditor }) => (
+              ({
+                reference,
+                createdAt,
+                creditor,
+                internationalCurrencyExchange,
+                paymentProduct,
+              }) => (
                 <ReadOnlyFieldList>
                   <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
-
-                  {/* {executionDateTime} */}
 
                   {match(creditor)
                     .with(
                       { __typename: "InternationalCreditTransferOutCreditor" },
                       ({ name, details }) => (
-                        console.log(getInternationalCreditTransferDetails(details)),
-                        (
-                          <>
-                            <LakeLabel
-                              type="viewSmall"
-                              label={t("transaction.creditorName")}
-                              render={() => (
-                                <Box direction="row" alignItems="center">
-                                  <Icon name="person-regular" size={16} />
-                                  <Space width={8} />
+                        <ReadOnlyFieldList>
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.creditorName")}
+                            render={() => (
+                              <Box direction="row" alignItems="center">
+                                <Icon name="person-regular" size={16} />
+                                <Space width={8} />
 
-                                  <LakeText variant="regular" color={colors.gray[900]}>
-                                    {name}
-                                  </LakeText>
-                                </Box>
+                                <LakeText variant="regular" color={colors.gray[900]}>
+                                  {name}
+                                </LakeText>
+                              </Box>
+                            )}
+                          />
+
+                          {details.map(detail => (
+                            <LakeLabel
+                              key={getWiseIctLabel(detail.key)}
+                              type="viewSmall"
+                              label={getWiseIctLabel(detail.key)}
+                              render={() => (
+                                <LakeText variant="regular" color={colors.gray[900]}>
+                                  {getWiseIctLabel(detail.value)}
+                                </LakeText>
                               )}
                             />
-                          </>
-                        )
+                          ))}
+                        </ReadOnlyFieldList>
                       ),
                     )
                     .otherwise(() => null)}
 
+                  {
+                    <LakeLabel
+                      type="viewSmall"
+                      label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
+                      render={() => (
+                        <LakeText variant="regular" color={colors.gray[900]}>
+                          {internationalCurrencyExchange.exchangeRate}
+                        </LakeText>
+                      )}
+                    />
+                  }
+
+                  {match(paymentProduct)
+                    .with("InternationalCreditTransfer", () => (
+                      <LakeLabel
+                        type="viewSmall"
+                        label={t("transactionDetail.internationalCreditTransfer.paymentProduct")}
+                        render={() => (
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {t("transactionDetail.paymentProduct.InternationalCreditTransfer")}
+                          </LakeText>
+                        )}
+                      />
+                    ))
+                    .otherwise(() => null)}
+
+                  {rejectedReason}
                   {renderReferenceToDisplay(reference)}
                   {transactionId}
                 </ReadOnlyFieldList>

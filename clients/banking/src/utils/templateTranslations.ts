@@ -17,6 +17,11 @@ export const getSupportingDocumentPurposeLabel = (purpose: SupportingDocumentPur
   }
 };
 
+export const getWiseIctLabel = (key: string) =>
+  match(`transactionDetail.internationalCreditTransfer.${key}`)
+    .with(P.when(isTranslationKey), key => t(key))
+    .otherwise(() => key);
+
 export const getSupportingDocumentPurposeDescriptionLabel = (
   purpose: SupportingDocumentPurposeEnum,
 ) => {

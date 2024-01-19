@@ -2,8 +2,7 @@ import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { defaultAccentColor } from "@swan-io/lake/src/constants/colors";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { Suspense, useMemo } from "react";
 import { P, match } from "ts-pattern";
@@ -52,7 +51,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
 
   const onboarding = data.onboardingInfo;
   const project = onboarding?.projectInfo;
-  const projectColor = project?.accentColor ?? defaultAccentColor;
+  const projectColor = project?.accentColor ?? invariantColors.defaultAccentColor;
   const holder = onboarding?.info;
 
   useTitle((project?.name ?? "Swan") + " onboarding");

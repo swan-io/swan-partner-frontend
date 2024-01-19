@@ -16,8 +16,8 @@ import {
   colors,
   negativeSpacings,
   spacings,
+  texts,
 } from "@swan-io/lake/src/constants/design";
-import { typography } from "@swan-io/lake/src/constants/typography";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
@@ -268,7 +268,7 @@ export const TransactionsArea = ({
                       <LakeHeading
                         level={3}
                         variant="h3"
-                        style={{ lineHeight: typography.lineHeights.body }}
+                        style={{ lineHeight: texts.regular.lineHeight }}
                       >
                         {t("transactions.availableBalance")}
                       </LakeHeading>

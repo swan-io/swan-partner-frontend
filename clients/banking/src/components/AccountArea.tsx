@@ -12,9 +12,13 @@ import { SidebarNavigationTracker } from "@swan-io/lake/src/components/SidebarNa
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
-import { defaultAccentColor } from "@swan-io/lake/src/constants/colors";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
+import {
+  backgroundColor,
+  colors,
+  invariantColors,
+  spacings,
+} from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
@@ -413,7 +417,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     ],
   );
 
-  const accentColor = projectInfo.accentColor ?? defaultAccentColor;
+  const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
   const projectName = projectInfo.name;
   const projectLogo = projectInfo.logoUri ?? undefined;
 

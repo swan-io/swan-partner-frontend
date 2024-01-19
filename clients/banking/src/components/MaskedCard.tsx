@@ -5,8 +5,7 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Svg } from "@swan-io/lake/src/components/Svg";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors } from "@swan-io/lake/src/constants/design";
-import { typography } from "@swan-io/lake/src/constants/typography";
+import { colors, texts } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { ImageBackground, StyleSheet, Text, View } from "react-native";
@@ -25,9 +24,8 @@ const styles = StyleSheet.create({
     overflow: "hidden",
   },
   holder: {
-    ...typography.bodyLarge,
-    fontWeight: typography.fontWeights.demi,
-    lineHeight: typography.lineHeights.title,
+    ...texts.semibold,
+    lineHeight: texts.h1.lineHeight,
     maxWidth: "50%",
   },
 

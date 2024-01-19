@@ -1,7 +1,6 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
-import { colors } from "@swan-io/lake/src/constants/design";
-import { typography } from "@swan-io/lake/src/constants/typography";
+import { colors, texts } from "@swan-io/lake/src/constants/design";
 import { RefObject, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
 import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
@@ -9,12 +8,12 @@ import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   itemTitle: {
-    ...typography.bodyLarge,
-    lineHeight: typography.lineHeights.title,
+    ...texts.regular,
+    lineHeight: texts.h1.lineHeight,
     userSelect: "none",
   },
   itemSubtitle: {
-    ...typography.bodySmall,
+    ...texts.smallRegular,
     color: colors.gray[400],
     userSelect: "none",
   },

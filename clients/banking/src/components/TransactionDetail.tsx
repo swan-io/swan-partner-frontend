@@ -989,17 +989,15 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )
                     .otherwise(() => null)}
 
-                  {
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {internationalCurrencyExchange.exchangeRate}
-                        </LakeText>
-                      )}
-                    />
-                  }
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {internationalCurrencyExchange.exchangeRate}
+                      </LakeText>
+                    )}
+                  />
 
                   {match(paymentProduct)
                     .with("InternationalCreditTransfer", () => (

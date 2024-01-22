@@ -27,6 +27,7 @@ import { printIbanFormat } from "../utils/iban";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
+  getWiseIctLabel,
 } from "../utils/templateTranslations";
 import { ErrorView } from "./ErrorView";
 import { getTransactionLabel } from "./TransactionListCells";
@@ -939,13 +940,85 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 );
               },
             )
-            .with({ __typename: "InternationalCreditTransferTransaction" }, ({ reference }) => (
-              <ReadOnlyFieldList>
-                {executionDateTime}
-                {renderReferenceToDisplay(reference)}
-                {transactionId}
-              </ReadOnlyFieldList>
-            ))
+            .with(
+              { __typename: "InternationalCreditTransferTransaction" },
+              ({
+                reference,
+                createdAt,
+                creditor,
+                internationalCurrencyExchange,
+                paymentProduct,
+              }) => (
+                <ReadOnlyFieldList>
+                  <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
+
+                  {match(creditor)
+                    .with(
+                      { __typename: "InternationalCreditTransferOutCreditor" },
+                      ({ name, details }) => (
+                        <ReadOnlyFieldList>
+                          <LakeLabel
+                            type="viewSmall"
+                            label={t("transaction.creditorName")}
+                            render={() => (
+                              <Box direction="row" alignItems="center">
+                                <Icon name="person-regular" size={16} />
+                                <Space width={8} />
+
+                                <LakeText variant="regular" color={colors.gray[900]}>
+                                  {name}
+                                </LakeText>
+                              </Box>
+                            )}
+                          />
+
+                          {details.map(detail => (
+                            <LakeLabel
+                              key={getWiseIctLabel(detail.key)}
+                              type="viewSmall"
+                              label={getWiseIctLabel(detail.key)}
+                              render={() => (
+                                <LakeText variant="regular" color={colors.gray[900]}>
+                                  {getWiseIctLabel(detail.value)}
+                                </LakeText>
+                              )}
+                            />
+                          ))}
+                        </ReadOnlyFieldList>
+                      ),
+                    )
+                    .otherwise(() => null)}
+
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {internationalCurrencyExchange.exchangeRate}
+                      </LakeText>
+                    )}
+                  />
+
+                  {match(paymentProduct)
+                    .with("InternationalCreditTransfer", () => (
+                      <LakeLabel
+                        type="viewSmall"
+                        label={t("transactionDetail.internationalCreditTransfer.paymentProduct")}
+                        render={() => (
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {t("transactionDetail.paymentProduct.InternationalCreditTransfer")}
+                          </LakeText>
+                        )}
+                      />
+                    ))
+                    .otherwise(() => null)}
+
+                  {rejectedReason}
+                  {renderReferenceToDisplay(reference)}
+                  {transactionId}
+                </ReadOnlyFieldList>
+              ),
+            )
 
             .otherwise(() => (
               <ReadOnlyFieldList>

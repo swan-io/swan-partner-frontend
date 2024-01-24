@@ -359,6 +359,7 @@ start({
         }/onboarding/company/start?accountCountry=${cca3}`,
       );
     });
+    console.log(`${pc.magenta("Payment")} -> ${env.PAYMENT_URL}`);
     console.log(`${pc.white("---")}`);
     console.log(``);
     console.log(``);

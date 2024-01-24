@@ -1,0 +1,23 @@
+{
+  "button.pay": "Pay",
+  "common.back": "Back",
+  "error.pageNotFound": "Page not found",
+  "form.invalidField": "Invalid field",
+  "paymentLink.addressLine1": "Address line",
+  "paymentLink.button.downloadMandate": "Download mandate",
+  "paymentLink.button.returnToWebsite": "Return to website",
+  "paymentLink.city": "City",
+  "paymentLink.country": "Country",
+  "paymentLink.error.title": "Something went wrong",
+  "paymentLink.error.subtitle": "We couldn't set up your Direct Debit with Swan.\n Please try again or contact the support system.",
+  "paymentLink.name": "Name",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Sorry, your link has expired",
+  "paymentLink.paymentMethod": "Payment method",
+  "paymentLink.postalCode": "Postal code",
+  "paymentLink.poweredBySwan": "Powered by",
+  "paymentLink.state": "State",
+  "paymentLink.success.title": "Thanks!",
+  "paymentLink.success.subtitle": "Your payment setup was successful.\nYou can close this window.",
+  "paymentLink.termsAndConditions": "By clicking Pay, you're signing a direct debit mandate electronically. The mandate authorizes: (1) {merchantName} to share payment information with Swan, and (2) Swan to debit your account accordingly. Refund requests will be processed according to your bank's terms and conditions."
+}

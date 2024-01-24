@@ -1,0 +1,23 @@
+{
+  "button.pay": "Paga",
+  "common.back": "Indietro",
+  "error.pageNotFound": "Pagina non trovata",
+  "form.invalidField": "Campo non valido",
+  "paymentLink.addressLine1": "Indirizzo",
+  "paymentLink.button.downloadMandate": "Scarica mandato",
+  "paymentLink.button.returnToWebsite": "Torna al sito web",
+  "paymentLink.city": "Città",
+  "paymentLink.country": "Paese",
+  "paymentLink.error.subtitle": "Non siamo riusciti a configurare il tuo addebito diretto con Swan.\nPer favore riprova o contatta il sistema di supporto.",
+  "paymentLink.error.title": "Qualcosa è andato storto",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Spiacenti, il tuo link è scaduto",
+  "paymentLink.name": "Nome",
+  "paymentLink.paymentMethod": "Metodo di pagamento",
+  "paymentLink.postalCode": "Codice postale",
+  "paymentLink.poweredBySwan": "Offerto da",
+  "paymentLink.state": "Stato",
+  "paymentLink.success.subtitle": "La configurazione del tuo pagamento è stata effettuata con successo.\nPuoi chiudere questa finestra.",
+  "paymentLink.success.title": "Grazie!",
+  "paymentLink.termsAndConditions": "Cliccando su Paga, stai firmando un mandato di addebito diretto in forma elettronica. Il mandato autorizza: (1) {merchantName} a condividere le informazioni di pagamento con Swan, e (2) Swan ad addebitare il tuo conto di conseguenza. Le richieste di rimborso saranno elaborate in conformità con i termini e le condizioni della tua banca."
+}

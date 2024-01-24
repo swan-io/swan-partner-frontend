@@ -1,0 +1,23 @@
+{
+  "button.pay": "Bezahlen",
+  "common.back": "Zurück",
+  "error.pageNotFound": "Seite nicht gefunden",
+  "form.invalidField": "Ungültiges Feld",
+  "paymentLink.addressLine1": "Adresszeile",
+  "paymentLink.button.downloadMandate": "Mandat herunterladen",
+  "paymentLink.button.returnToWebsite": "Zurück zur Website",
+  "paymentLink.city": "Stadt",
+  "paymentLink.country": "Land",
+  "paymentLink.error.subtitle": "Wir konnten Ihre Lastschrift mit Swan nicht einrichten.\nBitte versuchen Sie es erneut oder kontaktieren Sie das Support-System.",
+  "paymentLink.error.title": "Etwas ist schiefgelaufen",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Entschuldigung, Ihr Link ist abgelaufen",
+  "paymentLink.name": "Name",
+  "paymentLink.paymentMethod": "Zahlungsmethode",
+  "paymentLink.postalCode": "Postleitzahl",
+  "paymentLink.poweredBySwan": "Powered by",
+  "paymentLink.state": "Bundesland",
+  "paymentLink.success.subtitle": "Ihre Zahlungseinrichtung war erfolgreich.\nSie können dieses Fenster schließen.",
+  "paymentLink.success.title": "Danke!",
+  "paymentLink.termsAndConditions": "Durch das Klicken auf Bezahlen geben Sie eine Einzugsermächtigung elektronisch ab. Die Ermächtigung berechtigt: (1) {merchantName} zur Weitergabe von Zahlungsinformationen an Swan und (2) Swan zur entsprechenden Abbuchung von Ihrem Konto. Rückerstattungsanfragen werden gemäß den Geschäftsbedingungen Ihrer Bank bearbeitet."
+}

@@ -1,0 +1,79 @@
+query GetMerchantPaymentLink($paymentLinkId: ID!) {
+  nonEEACountries
+  merchantPaymentLink(id: $paymentLinkId) {
+    id
+    projectId
+    url
+    statusInfo {
+      status
+    }
+    merchantProfile {
+      merchantLogoUrl
+      merchantName
+      merchantPaymentMethods {
+        type
+      }
+      merchantWebsite
+    }
+    amount {
+      currency
+      value
+    }
+    redirectUrl
+    cancelRedirectUrl
+    sequence
+    billingAddress {
+      addressLine1
+      city
+      country
+      postalCode
+      state
+    }
+    requestedExecutionAt
+    externalReference
+    reference
+    language
+    label
+    customer {
+      externalCustomerId
+      iban
+      name
+    }
+    paymentMethods {
+      type
+    }
+  }
+}
+
+mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
+  $input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!
+) {
+  addSepaDirectDebitPaymentMandateFromPaymentLink(input: $input) {
+    ... on AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
+      paymentMandate {
+        mandateDocumentUrl
+        id
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+        message
+      }
+    }
+  }
+}
+
+mutation InitiateSddPaymentCollection(
+  $input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!
+) {
+  unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: $input) {
+    __typename
+    ... on ForbiddenRejection {
+      message
+    }
+    ... on InternalErrorRejection {
+      message
+    }
+  }
+}

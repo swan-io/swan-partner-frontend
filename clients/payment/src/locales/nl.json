@@ -1,0 +1,23 @@
+{
+  "button.pay": "Betalen",
+  "common.back": "Terug",
+  "error.pageNotFound": "Pagina niet gevonden",
+  "form.invalidField": "Ongeldig veld",
+  "paymentLink.addressLine1": "Adresregel",
+  "paymentLink.button.downloadMandate": "Mandaat downloaden",
+  "paymentLink.button.returnToWebsite": "Terug naar website",
+  "paymentLink.city": "Stad",
+  "paymentLink.country": "Land",
+  "paymentLink.error.subtitle": "We konden uw Automatische Incasso niet instellen met Swan.\nProbeer het opnieuw of neem contact op met het ondersteuningssysteem.",
+  "paymentLink.error.title": "Er is iets misgegaan",
+  "paymentLink.iban": "IBAN",
+  "paymentLink.linkExpired": "Sorry, uw link is verlopen",
+  "paymentLink.name": "Naam",
+  "paymentLink.paymentMethod": "Betaalmethode",
+  "paymentLink.postalCode": "Postcode",
+  "paymentLink.poweredBySwan": "Aangedreven door",
+  "paymentLink.state": "Provincie",
+  "paymentLink.success.subtitle": "Uw betalingsinstelling is succesvol verlopen.\nU kunt dit venster sluiten.",
+  "paymentLink.success.title": "Bedankt!",
+  "paymentLink.termsAndConditions": "Door op Betalen te klikken, ondertekent u elektronisch een automatische incasso-mandaat. Het mandaat machtigt: (1) {merchantName} om betalingsinformatie te delen met Swan, en (2) Swan om uw rekening dienovereenkomstig te debiteren. Terugbetalingsverzoeken worden verwerkt volgens de voorwaarden van uw bank."
+}

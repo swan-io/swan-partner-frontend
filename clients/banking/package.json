@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/banking",
-  "version": "1.6.2",
+  "version": "1.7.0",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

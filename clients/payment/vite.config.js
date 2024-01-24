@@ -1,4 +1,3 @@
-import legacy from "@vitejs/plugin-legacy";
 import react from "@vitejs/plugin-react-swc";
 import path from "pathe";
 import { searchForWorkspaceRoot } from "vite";
@@ -33,13 +32,7 @@ export default defineConfig({
     },
   },
   logLevel: "warn",
-  plugins: [
-    legacy({
-      targets: ["defaults", "not IE 11"],
-      polyfills: ["es.object.from-entries"],
-    }),
-    react(),
-  ],
+  plugins: [react()],
   resolve: {
     alias: {
       "react-native": "react-native-web",

@@ -44,7 +44,7 @@
     "@vitejs/plugin-legacy": "5.2.0",
     "@vitejs/plugin-react-swc": "3.5.0",
     "jsdom": "23.1.0",
-    "type-fest": "4.9.0",
+    "type-fest": "4.10.1",
     "vite": "5.0.11",
     "vitest": "1.1.3"
   }

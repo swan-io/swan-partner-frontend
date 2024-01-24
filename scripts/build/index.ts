@@ -8,7 +8,7 @@ const { version } = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), "package.json"), "utf-8"),
 ) as { version: string };
 
-const apps = ["onboarding", "banking"];
+const apps = ["onboarding", "banking", "payment"];
 
 console.log(``);
 console.log(`${pc.magenta("swan-partner-frontend")}`);

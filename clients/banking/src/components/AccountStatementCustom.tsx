@@ -29,6 +29,7 @@ import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/con
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { unionToArray } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -85,15 +86,22 @@ const styles = StyleSheet.create({
   },
 });
 
+const accountLanguages = new Set<string>(
+  unionToArray<AccountLanguage>({
+    de: true,
+    en: true,
+    es: true,
+    fr: true,
+    it: true,
+    nl: true,
+    pt: true,
+  }),
+);
+
+const isAccountLanguage = (value: string): value is AccountLanguage => accountLanguages.has(value);
+
 const isCountryAccountLanguage = isMatching({
-  id: P.union(
-    "de" as const,
-    "en" as const,
-    "es" as const,
-    "fr" as const,
-    "it" as const,
-    "nl" as const,
-  ),
+  id: P.when(isAccountLanguage),
   name: P.string,
   native: P.string,
   cca3: P.string,

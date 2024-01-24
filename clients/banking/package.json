@@ -52,7 +52,7 @@
     "@vitejs/plugin-react-swc": "3.5.0",
     "jsdom": "23.2.0",
     "type-fest": "4.9.0",
-    "vite": "5.0.11",
+    "vite": "5.0.12",
     "vitest": "1.2.1"
   }
 }

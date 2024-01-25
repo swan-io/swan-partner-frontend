@@ -1,5 +1,4 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
@@ -10,6 +9,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import dayjs from "dayjs";
 import { ScrollView, StyleSheet, View } from "react-native";

@@ -1,12 +1,12 @@
 import { Result } from "@swan-io/boxed";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";

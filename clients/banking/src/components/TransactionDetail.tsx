@@ -1,6 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -18,6 +17,7 @@ import {
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

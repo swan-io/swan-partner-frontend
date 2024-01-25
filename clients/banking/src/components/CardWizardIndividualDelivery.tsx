@@ -1,7 +1,6 @@
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -9,6 +8,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { forwardRef, useImperativeHandle, useState } from "react";

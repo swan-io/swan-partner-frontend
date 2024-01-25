@@ -1,7 +1,6 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -14,6 +13,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, radii } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";

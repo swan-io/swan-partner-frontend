@@ -1,4 +1,3 @@
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -7,6 +6,7 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { Form, FormConfig, combineValidators, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";

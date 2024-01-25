@@ -1,7 +1,6 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -15,6 +14,7 @@ import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";

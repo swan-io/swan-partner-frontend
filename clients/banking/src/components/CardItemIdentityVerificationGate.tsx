@@ -1,6 +1,6 @@
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { StyleSheet, View } from "react-native";
 import { IdentificationLevel, IdentificationStatus } from "../graphql/partner";
 import { openPopup } from "../states/popup";

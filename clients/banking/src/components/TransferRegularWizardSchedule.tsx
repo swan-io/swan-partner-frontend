@@ -1,6 +1,5 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -14,6 +13,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import dayjs from "dayjs";
 import { electronicFormat } from "iban";
 import { ActivityIndicator, StyleSheet, View } from "react-native";

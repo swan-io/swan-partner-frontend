@@ -15,9 +15,9 @@ import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {

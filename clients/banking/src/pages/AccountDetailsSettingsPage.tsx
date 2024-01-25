@@ -2,7 +2,6 @@ import { AsyncData, Dict, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -24,6 +23,7 @@ import {
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";

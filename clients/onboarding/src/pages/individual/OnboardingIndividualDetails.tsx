@@ -1,4 +1,3 @@
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -13,6 +12,7 @@ import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";

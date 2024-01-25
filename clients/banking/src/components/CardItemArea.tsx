@@ -1,5 +1,4 @@
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -8,6 +7,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { Suspense, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

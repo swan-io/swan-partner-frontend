@@ -1,7 +1,6 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -20,6 +19,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
+import { LakeAlert } from "@swan-io/shared-business/src/components/LakeAlert";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import {

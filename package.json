@@ -12,6 +12,7 @@
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
+    "postinstall": "yarn graphql-codegen",
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",

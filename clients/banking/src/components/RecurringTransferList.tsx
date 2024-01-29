@@ -243,6 +243,7 @@ const RecurringTransferPanel = ({
   );
 
   const isFullBalance = recurringTransfer.targetAvailableBalance != null;
+  const isCancelled = recurringTransfer.statusInfo.status === "Canceled";
 
   return (
     <>
@@ -251,6 +252,12 @@ const RecurringTransferPanel = ({
       >
         <ListRightPanelContent large={large}>
           <Tile>
+            {isCancelled ? (
+              <Box alignItems="center">
+                <Tag color="negative">{t("recurringTransfer.filters.status.canceled")}</Tag>
+              </Box>
+            ) : null}
+
             <Space height={8} />
 
             <LakeHeading level={1} variant={large ? "h1" : "h3"} align="center">

@@ -30,6 +30,10 @@ export const Card = () => {
 
   return (
     <>
+      <style>
+        {".card-number-frame, .expiry-date-frame, .cvv-frame, iframe { height: 62px !important; }"}
+      </style>
+
       <LakeLabel
         label={t("paymentLink.postalCode")}
         render={() => (
@@ -43,8 +47,13 @@ export const Card = () => {
           <div className="expiry-date-frame">{/* <!-- expiry date will be added here --> */}</div>
         )}
       />
-      <div className="expiry-date-frame">{/* <!-- expiry date will be added here --> */}</div>
-      <div className="cvv-frame">{/* <!-- cvv frame will be added here --> */}</div>
+
+      <LakeLabel
+        label={t("paymentLink.postalCode")}
+        render={() => (
+          <div className="cvv-frame">{/* <!-- cvv frame will be added here --> */}</div>
+        )}
+      />
 
       <button
         onClick={() => {

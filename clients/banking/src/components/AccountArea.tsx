@@ -561,7 +561,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   }, [membership]);
 
   if (membership.isError()) {
-    return <Redirect to={Router.ProjectRootRedirect()} />;
+    return <ErrorView error={membership.getError()} />;
   }
 
   return (

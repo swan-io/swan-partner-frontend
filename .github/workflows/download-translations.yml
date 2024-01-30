@@ -18,6 +18,14 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
+      - uses: actions/setup-node@v3
+        with:
+          node-version: lts/*
+          cache: yarn
+
+      - name: Install dependencies
+        run: yarn install --pure-lockfile
+
       - name: Download onboarding translation keys
         uses: localazy/download@v1
         with:
@@ -31,6 +39,9 @@ jobs:
           read_key: ${{ secrets.LOCALAZY_BANKING_READ_KEY }}
           write_key: ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
           groups: banking
+
+      - name: Sort locales
+        run: yarn sort-locales
 
       - uses: peter-evans/create-pull-request@v5
         with:

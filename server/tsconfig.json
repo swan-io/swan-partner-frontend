@@ -3,7 +3,7 @@
   "exclude": ["node_modules"],
   "compilerOptions": {
     "module": "CommonJS",
-    "target": "ES2018",
+    "target": "ES2019",
     "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "outDir": "dist",
     "moduleResolution": "Node",

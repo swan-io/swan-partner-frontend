@@ -10,13 +10,6 @@
     "prepack": "tsc --build",
     "clean": "tsc --clean"
   },
-  "browserslist": [
-    ">0.2%",
-    "not op_mini all",
-    "not dead",
-    "not ie <= 11",
-    "safari >= 12"
-  ],
   "dependencies": {
     "@0no-co/graphql.web": "1.0.4",
     "@formatjs/intl": "2.9.11",

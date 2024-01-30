@@ -555,9 +555,15 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     title: t("recurringTransfer.table.recipient"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item: { sepaBeneficiary, amount } }) => (
+    renderCell: ({ item: { sepaBeneficiary, amount, statusInfo } }) => (
       <StartAlignedCell>
-        <BorderedIcon name="clock-regular" color="gray" size={32} padding={8} />
+        <BorderedIcon
+          name="clock-regular"
+          color={statusInfo.status === "Canceled" ? "negative" : "gray"}
+          size={32}
+          padding={8}
+        />
+
         <Space width={12} />
 
         <View style={commonStyles.fill}>
@@ -573,6 +579,20 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
         </View>
       </StartAlignedCell>
     ),
+  },
+  {
+    id: "nextExecutionDate",
+    title: t("recurringTransfer.table.nextExecution"),
+    width: 36,
+    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderCell: ({ item: { statusInfo } }) =>
+      match(statusInfo)
+        .with({ status: "Canceled" }, () => (
+          <EndAlignedCell>
+            <BorderedIcon name="subtract-circle-regular" color="negative" size={32} padding={8} />
+          </EndAlignedCell>
+        ))
+        .otherwise(() => null),
   },
   {
     id: "actions",

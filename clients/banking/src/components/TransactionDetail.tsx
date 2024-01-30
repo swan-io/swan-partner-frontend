@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -50,19 +50,23 @@ const styles = StyleSheet.create({
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 const truncateTransactionId = (id: string) => id.split("#", 2)[0];
 
+const IconLine = ({ icon, text }: { icon: IconName; text: string }) => (
+  <Box direction="row" alignItems="center">
+    <Icon name={icon} size={16} />
+    <Space width={8} />
+
+    <LakeText variant="regular" color={colors.gray[900]}>
+      {text}
+    </LakeText>
+  </Box>
+);
+
 const FormattedDateTime = ({ date, label }: { date: string; label: string }) => (
   <LakeLabel
     type="viewSmall"
     label={label}
     render={() => (
-      <Box direction="row" alignItems="center">
-        <Icon name="calendar-ltr-regular" size={16} />
-        <Space width={8} />
-
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {formatDateTime(new Date(date), "LLL")}
-        </LakeText>
-      </Box>
+      <IconLine icon="calendar-ltr-regular" text={formatDateTime(new Date(date), "LLL")} />
     )}
   />
 );
@@ -287,30 +291,26 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
               { __typename: "CardTransaction" },
               ({
                 card,
-                statusInfo,
-                merchantCountry: merchantCountryCCA3,
-                merchantCity,
                 maskedPan,
+                merchantCity,
+                merchantCountry,
                 payment,
+                statusInfo: { status },
               }) => {
-                const merchantCountry = countries.find(
-                  country => country.cca3 === merchantCountryCCA3,
+                const user = card?.accountMembership.user;
+
+                const merchantCountryName = countries.find(
+                  country => country.cca3 === merchantCountry,
                 )?.name;
 
                 return (
                   <ReadOnlyFieldList>
-                    {match(statusInfo.status)
-                      .with("Booked", "Pending", () => {
-                        if (isNotNullish(payment)) {
-                          return (
-                            <FormattedDateTime
-                              label={t("transaction.paymentDateTime")}
-                              date={payment.createdAt}
-                            />
-                          );
-                        }
-                      })
-                      .otherwise(() => null)}
+                    {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
+                      <FormattedDateTime
+                        label={t("transaction.paymentDateTime")}
+                        date={payment.createdAt}
+                      />
+                    )}
 
                     {bookingDateTime}
                     {executionDateTime}
@@ -318,21 +318,18 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {rejectedDateTime}
                     {rejectedReason}
 
-                    {match({ merchantCity, merchantCountry })
-                      .with(
-                        { merchantCity: P.string, merchantCountry: P.string },
-                        ({ merchantCity, merchantCountry }) => (
-                          <LakeLabel
-                            type="viewSmall"
-                            label={t("transaction.place")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {`${merchantCity} - ${merchantCountry}`}
-                              </LakeText>
-                            )}
-                          />
-                        ),
-                      )
+                    {match(merchantCountryName)
+                      .with(P.string, name => (
+                        <LakeLabel
+                          type="viewSmall"
+                          label={t("transaction.place")}
+                          render={() => (
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {`${merchantCity} - ${name}`}
+                            </LakeText>
+                          )}
+                        />
+                      ))
                       .otherwise(() => null)}
 
                     <LakeLabel
@@ -345,16 +342,10 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )}
                     />
 
-                    {match(card)
+                    {match(user)
                       .with(
-                        {
-                          accountMembership: { user: { firstName: P.string, lastName: P.string } },
-                        },
-                        ({
-                          accountMembership: {
-                            user: { firstName, lastName },
-                          },
-                        }) => (
+                        { firstName: P.string, lastName: P.string },
+                        ({ firstName, lastName }) => (
                           <LakeLabel
                             type="viewSmall"
                             label={t("transaction.cardHolder")}
@@ -382,28 +373,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                 return (
                   <ReadOnlyFieldList>
-                    {isNotNullish(createdAt) ? (
-                      <FormattedDateTime
-                        label={t("transaction.paymentDateTime")}
-                        date={createdAt}
-                      />
-                    ) : null}
+                    <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
 
                     {bookingDateTime}
 
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.debtorName")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="person-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {debtor.name}
-                          </LakeText>
-                        </Box>
-                      )}
+                      render={() => <IconLine icon="person-regular" text={debtor.name} />}
                     />
 
                     {isNotNullish(debtorIban) && (
@@ -421,16 +398,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.creditorName")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="person-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {creditor.name}
-                          </LakeText>
-                        </Box>
-                      )}
+                      render={() => <IconLine icon="person-regular" text={creditor.name} />}
                     />
 
                     {isNotNullish(creditorIban) && (
@@ -472,16 +440,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.debtorName")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="person-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {debtor.name}
-                          </LakeText>
-                        </Box>
-                      )}
+                      render={() => <IconLine icon="person-regular" text={debtor.name} />}
                     />
 
                     {isNotNullish(debtorIban) && (
@@ -499,16 +458,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     <LakeLabel
                       type="viewSmall"
                       label={t("transaction.creditorName")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="person-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {creditor.name}
-                          </LakeText>
-                        </Box>
-                      )}
+                      render={() => <IconLine icon="person-regular" text={creditor.name} />}
                     />
 
                     {isNotNullish(creditorIban) && (
@@ -622,17 +572,15 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                   {executionDateTime}
 
-                  {creditor.accountId != null ? (
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.creditorName")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {creditor.accountId}
-                        </LakeText>
-                      )}
-                    />
-                  ) : null}
+                  <LakeLabel
+                    type="viewSmall"
+                    label={t("transaction.creditorName")}
+                    render={() => (
+                      <LakeText variant="regular" color={colors.gray[900]}>
+                        {creditor.accountId}
+                      </LakeText>
+                    )}
+                  />
 
                   {canceledDateTime}
                   {rejectedDateTime}
@@ -647,22 +595,11 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {bookingDateTime}
                 {executionDateTime}
 
-                {creditor.name != null ? (
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.creditorName")}
-                    render={() => (
-                      <Box direction="row" alignItems="center">
-                        <Icon name="person-regular" size={16} />
-                        <Space width={8} />
-
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {creditor.name}
-                        </LakeText>
-                      </Box>
-                    )}
-                  />
-                ) : null}
+                <LakeLabel
+                  type="viewSmall"
+                  label={t("transaction.creditorName")}
+                  render={() => <IconLine icon="person-regular" text={creditor.name} />}
+                />
 
                 {canceledDateTime}
                 {rejectedDateTime}
@@ -681,16 +618,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   <LakeLabel
                     type="viewSmall"
                     label={t("transaction.creditorName")}
-                    render={() => (
-                      <Box direction="row" alignItems="center">
-                        <Icon name="person-regular" size={16} />
-                        <Space width={8} />
-
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {counterparty}
-                        </LakeText>
-                      </Box>
-                    )}
+                    render={() => <IconLine icon="person-regular" text={counterparty} />}
                   />
 
                   {canceledDateTime}
@@ -787,7 +715,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt, createdAt }) => {
+              ({
+                cmc7,
+                createdAt,
+                reservedAmount,
+                reservedAmountReleasedAt,
+                rlmcKey,
+                statusInfo: { status },
+              }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
@@ -833,14 +768,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )}
                     />
 
-                    {match(transaction.statusInfo.status)
-                      .with(P.not("Upcoming"), () => (
-                        <FormattedDateTime
-                          label={t("transaction.paymentDateTime")}
-                          date={createdAt}
-                        />
-                      ))
-                      .otherwise(() => null)}
+                    {status !== "Upcoming" && (
+                      <FormattedDateTime
+                        label={t("transaction.paymentDateTime")}
+                        date={createdAt}
+                      />
+                    )}
 
                     {executionDateTime}
                     {canceledDateTime}
@@ -917,16 +850,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                           <LakeLabel
                             type="viewSmall"
                             label={t("transaction.creditorName")}
-                            render={() => (
-                              <Box direction="row" alignItems="center">
-                                <Icon name="person-regular" size={16} />
-                                <Space width={8} />
-
-                                <LakeText variant="regular" color={colors.gray[900]}>
-                                  {name}
-                                </LakeText>
-                              </Box>
-                            )}
+                            render={() => <IconLine icon="person-regular" text={name} />}
                           />
 
                           {details.map(detail => (

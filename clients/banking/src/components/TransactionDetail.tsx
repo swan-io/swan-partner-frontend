@@ -144,6 +144,26 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     })
     .otherwise(() => null);
 
+  const paymentMethod = match(transaction.__typename)
+    .with(
+      "CheckTransaction",
+      "InternalDirectDebitTransaction",
+      "SEPADirectDebitTransaction",
+      type => (
+        <Box direction="row" alignItems="center">
+          <Icon name="arrow-swap-regular" size={16} />
+          <Space width={8} />
+
+          <LakeText variant="regular" color={colors.gray[900]}>
+            {type === "CheckTransaction"
+              ? t("transactions.method.Check")
+              : t("transactions.method.DirectDebit")}
+          </LakeText>
+        </Box>
+      ),
+    )
+    .otherwise(() => null);
+
   const transactionId = (
     <CopiableLine label={t("transaction.id")} text={truncateTransactionId(transaction.id)} />
   );
@@ -473,30 +493,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       />
                     )}
 
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.paymentMethod")}
-                      render={() => (
-                        <Box direction="row" alignItems="center">
-                          <Icon name="arrow-swap-regular" size={16} />
-                          <Space width={8} />
-
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {match(transaction)
-                              .with({ __typename: "CheckTransaction" }, () =>
-                                t("transactions.method.Check"),
-                              )
-                              .with(
-                                { __typename: "InternalDirectDebitTransaction" },
-                                { __typename: "SEPADirectDebitTransaction" },
-                                () => t("transactions.method.DirectDebit"),
-                              )
-                              .otherwise(() => null)}
-                          </LakeText>
-                        </Box>
-                      )}
-                    />
-
+                    {paymentMethod}
                     {executionDateTime}
                     {canceledDateTime}
                     {rejectedDateTime}
@@ -532,25 +529,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     />
                   )}
 
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.paymentMethod")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {match(transaction)
-                          .with({ __typename: "CheckTransaction" }, () =>
-                            t("transactions.method.Check"),
-                          )
-                          .with(
-                            { __typename: "InternalDirectDebitTransaction" },
-                            { __typename: "SEPADirectDebitTransaction" },
-                            () => t("transactions.method.DirectDebit"),
-                          )
-                          .otherwise(() => null)}
-                      </LakeText>
-                    )}
-                  />
-
+                  {paymentMethod}
                   {executionDateTime}
 
                   <LakeLabel
@@ -730,24 +709,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       />
                     )}
 
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.paymentMethod")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {match(transaction)
-                            .with({ __typename: "CheckTransaction" }, () =>
-                              t("transactions.method.Check"),
-                            )
-                            .with(
-                              { __typename: "InternalDirectDebitTransaction" },
-                              { __typename: "SEPADirectDebitTransaction" },
-                              () => t("transactions.method.DirectDebit"),
-                            )
-                            .otherwise(() => null)}
-                        </LakeText>
-                      )}
-                    />
+                    {paymentMethod}
 
                     {status !== "Upcoming" && (
                       <FormattedDateTime

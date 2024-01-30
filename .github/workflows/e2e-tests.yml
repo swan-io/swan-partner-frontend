@@ -11,9 +11,9 @@ jobs:
     timeout-minutes: 60
     if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[E2E]') }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: lts/*
           cache: yarn

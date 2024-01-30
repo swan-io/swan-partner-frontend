@@ -76,19 +76,12 @@ fragment TransactionDetails on Transaction {
   }
   ... on SEPACreditTransferTransaction {
     creditor {
-      __typename
       name
       IBAN
-      ... on SEPACreditTransferInCreditor {
-        IBAN
-      }
-      ... on SEPACreditTransferOutCreditor {
-        IBAN
-        name
-      }
     }
     debtor {
       name
+      IBAN
     }
   }
   ... on InternalDirectDebitTransaction {
@@ -101,10 +94,7 @@ fragment TransactionDetails on Transaction {
       accountId
     }
     mandate {
-      __typename
-      ... on InternalDirectDebitMandate {
-        id
-      }
+      id
     }
   }
   ... on FeeTransaction {
@@ -118,7 +108,6 @@ fragment TransactionDetails on Transaction {
       statusInfo {
         status
         ... on RejectedTransactionStatusInfo {
-          __typename
           reason
         }
       }
@@ -133,43 +122,29 @@ fragment TransactionDetails on Transaction {
     }
   }
   ... on SEPADirectDebitTransaction {
-    reservedAmount {
-      currency
-      value
-    }
-    reservedAmountReleasedAt
     __typename
+    reservedAmountReleasedAt
+
     creditor {
       name
+      IBAN
+    }
+    debtor {
+      name
+      IBAN
+    }
+    reservedAmount {
+      value
+      currency
     }
     mandate {
-      __typename
+      id
       ... on SEPAReceivedDirectDebitMandate {
-        id
         ultimateCreditorName
       }
       ... on SEPAPaymentDirectDebitMandate {
-        id
         debtor {
           name
-        }
-      }
-    }
-    ... on SEPADirectDebitTransaction {
-      creditor {
-        name
-      }
-      mandate {
-        __typename
-        ... on SEPAReceivedDirectDebitMandate {
-          id
-          ultimateCreditorName
-        }
-        ... on SEPAPaymentDirectDebitMandate {
-          id
-          debtor {
-            name
-          }
         }
       }
     }

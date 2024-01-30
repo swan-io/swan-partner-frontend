@@ -12,7 +12,12 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotEmpty,
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullish,
+} from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -144,22 +149,22 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     />
   );
 
-  const renderReferenceToDisplay = (referenceToDisplay: string) => (
+  const reference = (
     <LakeLabel
       type="viewSmall"
       label={t("transaction.reference")}
       actions={
-        isNotNullishOrEmpty(referenceToDisplay) ? (
+        isNotEmpty(transaction.reference) && (
           <LakeCopyButton
-            valueToCopy={referenceToDisplay}
+            valueToCopy={transaction.reference}
             copiedText={t("copyButton.copiedTooltip")}
             copyText={t("copyButton.copyTooltip")}
           />
-        ) : null
+        )
       }
       render={() => (
         <LakeText variant="regular" color={colors.gray[900]}>
-          {isNotNullishOrEmpty(referenceToDisplay) ? referenceToDisplay : "—"}
+          {isNotNullishOrEmpty(transaction.reference) ? transaction.reference : "—"}
         </LakeText>
       )}
     />
@@ -286,7 +291,6 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 merchantCountry: merchantCountryCCA3,
                 merchantCity,
                 maskedPan,
-                reference,
                 payment,
               }) => {
                 const merchantCountry = countries.find(
@@ -364,7 +368,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       )
                       .otherwise(() => null)}
 
-                    {renderReferenceToDisplay(reference)}
+                    {reference}
                     {transactionId}
                   </ReadOnlyFieldList>
                 );
@@ -372,7 +376,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "SEPACreditTransferTransaction" },
-              ({ createdAt, debtor, creditor, reference }) => {
+              ({ createdAt, debtor, creditor }) => {
                 const debtorIban = debtor.IBAN;
                 const creditorIban = creditor.IBAN;
 
@@ -445,7 +449,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
-                    {renderReferenceToDisplay(reference)}
+                    {reference}
                     {transactionId}
                   </ReadOnlyFieldList>
                 );
@@ -453,14 +457,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "SEPADirectDebitTransaction" },
-              ({
-                mandate,
-                creditor,
-                debtor,
-                reservedAmount,
-                reservedAmountReleasedAt,
-                reference,
-              }) => {
+              ({ mandate, creditor, debtor, reservedAmount, reservedAmountReleasedAt }) => {
                 const debtorIban = debtor.IBAN;
 
                 const creditorIban =
@@ -573,7 +570,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
-                    {renderReferenceToDisplay(reference)}
+                    {reference}
                     {transactionId}
                   </ReadOnlyFieldList>
                 );
@@ -581,7 +578,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "InternalDirectDebitTransaction" },
-              ({ creditor, reservedAmount, reservedAmountReleasedAt, reference }) => (
+              ({ creditor, reservedAmount, reservedAmountReleasedAt }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
 
@@ -640,12 +637,12 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {renderReferenceToDisplay(reference)}
+                  {reference}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
-            .with({ __typename: "InternalCreditTransfer" }, ({ creditor, reference }) => (
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
               <ReadOnlyFieldList>
                 {bookingDateTime}
                 {executionDateTime}
@@ -670,13 +667,13 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
-                {renderReferenceToDisplay(reference)}
+                {reference}
                 {transactionId}
               </ReadOnlyFieldList>
             ))
             .with(
               { __typename: "FeeTransaction" },
-              ({ counterparty, feesType, originTransaction, reference }) => (
+              ({ counterparty, feesType, originTransaction }) => (
                 <ReadOnlyFieldList>
                   {bookingDateTime}
                   {executionDateTime}
@@ -699,7 +696,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {canceledDateTime}
                   {rejectedDateTime}
                   {rejectedReason}
-                  {renderReferenceToDisplay(reference)}
+                  {reference}
                   {transactionId}
 
                   {originTransaction != null && (
@@ -790,14 +787,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({
-                cmc7,
-                rlmcKey,
-                reservedAmount,
-                reservedAmountReleasedAt,
-                reference,
-                createdAt,
-              }) => {
+              ({ cmc7, rlmcKey, reservedAmount, reservedAmountReleasedAt, createdAt }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
@@ -856,7 +846,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {canceledDateTime}
                     {rejectedDateTime}
                     {rejectedReason}
-                    {renderReferenceToDisplay(reference)}
+                    {reference}
                     {transactionId}
 
                     <LakeLabel
@@ -915,13 +905,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             )
             .with(
               { __typename: "InternationalCreditTransferTransaction" },
-              ({
-                reference,
-                createdAt,
-                creditor,
-                internationalCurrencyExchange,
-                paymentProduct,
-              }) => (
+              ({ createdAt, creditor, internationalCurrencyExchange, paymentProduct }) => (
                 <ReadOnlyFieldList>
                   <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
 
@@ -987,7 +971,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     .otherwise(() => null)}
 
                   {rejectedReason}
-                  {renderReferenceToDisplay(reference)}
+                  {reference}
                   {transactionId}
                 </ReadOnlyFieldList>
               ),
@@ -1000,6 +984,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {canceledDateTime}
                 {rejectedDateTime}
                 {rejectedReason}
+                {reference}
                 {transactionId}
               </ReadOnlyFieldList>
             ))}

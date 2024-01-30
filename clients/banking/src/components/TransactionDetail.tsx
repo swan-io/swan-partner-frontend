@@ -12,12 +12,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import {
-  isNotEmpty,
-  isNotNullish,
-  isNotNullishOrEmpty,
-  isNullish,
-} from "@swan-io/lake/src/utils/nullish";
+import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -48,7 +43,7 @@ const styles = StyleSheet.create({
 });
 
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
-const truncateTransactionId = (id: string) => id.split("#", 2)[0];
+const truncateTransactionId = (id: string) => id.split("#")[0] ?? id;
 
 const IconLine = ({ icon, text }: { icon: IconName; text: string }) => (
   <Box direction="row" alignItems="center">
@@ -67,6 +62,25 @@ const FormattedDateTime = ({ date, label }: { date: string; label: string }) => 
     label={label}
     render={() => (
       <IconLine icon="calendar-ltr-regular" text={formatDateTime(new Date(date), "LLL")} />
+    )}
+  />
+);
+
+const CopiableLine = ({ label, text }: { label: string; text: string }) => (
+  <LakeLabel
+    type="viewSmall"
+    label={label}
+    actions={
+      <LakeCopyButton
+        valueToCopy={text}
+        copiedText={t("copyButton.copiedTooltip")}
+        copyText={t("copyButton.copyTooltip")}
+      />
+    }
+    render={() => (
+      <LakeText variant="regular" color={colors.gray[900]}>
+        {text}
+      </LakeText>
     )}
   />
 );
@@ -130,47 +144,14 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     })
     .otherwise(() => null);
 
-  const truncatesTransactionId = truncateTransactionId(transaction.id);
-
   const transactionId = (
-    <LakeLabel
-      type="viewSmall"
-      label={t("transaction.id")}
-      actions={
-        truncatesTransactionId != null ? (
-          <LakeCopyButton
-            valueToCopy={truncatesTransactionId}
-            copiedText={t("copyButton.copiedTooltip")}
-            copyText={t("copyButton.copyTooltip")}
-          />
-        ) : undefined
-      }
-      render={() => (
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {truncatesTransactionId}
-        </LakeText>
-      )}
-    />
+    <CopiableLine label={t("transaction.id")} text={truncateTransactionId(transaction.id)} />
   );
 
   const reference = (
-    <LakeLabel
-      type="viewSmall"
+    <CopiableLine
       label={t("transaction.reference")}
-      actions={
-        isNotEmpty(transaction.reference) && (
-          <LakeCopyButton
-            valueToCopy={transaction.reference}
-            copiedText={t("copyButton.copiedTooltip")}
-            copyText={t("copyButton.copyTooltip")}
-          />
-        )
-      }
-      render={() => (
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {isNotNullishOrEmpty(transaction.reference) ? transaction.reference : "—"}
-        </LakeText>
-      )}
+      text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
     />
   );
 
@@ -782,56 +763,9 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {reference}
                     {transactionId}
 
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.cmc7")}
-                      actions={
-                        <LakeCopyButton
-                          valueToCopy={cmc7}
-                          copiedText={t("copyButton.copiedTooltip")}
-                          copyText={t("copyButton.copyTooltip")}
-                        />
-                      }
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {cmc7}
-                        </LakeText>
-                      )}
-                    />
-
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.rlmcKey")}
-                      actions={
-                        <LakeCopyButton
-                          valueToCopy={rlmcKey}
-                          copiedText={t("copyButton.copiedTooltip")}
-                          copyText={t("copyButton.copyTooltip")}
-                        />
-                      }
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {rlmcKey}
-                        </LakeText>
-                      )}
-                    />
-
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.checkNumber")}
-                      actions={
-                        <LakeCopyButton
-                          valueToCopy={checkNumber}
-                          copiedText={t("copyButton.copiedTooltip")}
-                          copyText={t("copyButton.copyTooltip")}
-                        />
-                      }
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {checkNumber}
-                        </LakeText>
-                      )}
-                    />
+                    <CopiableLine label={t("transaction.cmc7")} text={cmc7} />
+                    <CopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
+                    <CopiableLine label={t("transaction.checkNumber")} text={checkNumber} />
                   </ReadOnlyFieldList>
                 );
               },

@@ -153,12 +153,16 @@ const readLocaleFile = async (
 const writeLocaleFile = async (
   app: keyof typeof appTranslationsPaths,
   locale: Locale,
-  content: Record<string, string>,
+  json: Record<string, string>,
 ): Promise<Result<void, Error>> => {
   const localePath = path.join(appTranslationsPaths[app], `${locale}.json`);
 
   try {
-    await fs.writeFile(localePath, JSON.stringify(content, null, 2) + os.EOL, "utf-8");
+    const sorted = Object.keys(json)
+      .sort()
+      .reduce<Record<string, string>>((acc, key) => ({ ...acc, [key]: json[key] as string }), {});
+
+    await fs.writeFile(localePath, JSON.stringify(sorted, null, 2) + os.EOL, "utf-8");
     return Result.Ok(undefined);
   } catch (error) {
     console.error(error);

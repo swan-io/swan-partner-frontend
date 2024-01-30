@@ -45,16 +45,9 @@ const styles = StyleSheet.create({
 
 const getTransactionIcon = (transaction: Transaction): IconName =>
   match(transaction.__typename)
-    .with("CardTransaction", () => "payment-regular" as const)
-    .with("FeeTransaction", () => "arrow-swap-regular" as const)
-    .with(
-      "InternalCreditTransfer",
-      "InternalDirectDebitTransaction",
-      "SEPACreditTransferTransaction",
-      "SEPADirectDebitTransaction",
-      () => "arrow-swap-regular" as const,
-    )
-    .otherwise(() => "arrow-swap-regular" as const);
+    .returnType<IconName>()
+    .with("CardTransaction", () => "payment-regular")
+    .otherwise(() => "arrow-swap-regular");
 
 export const getTransactionLabel = (transaction: Transaction): string =>
   match(transaction)

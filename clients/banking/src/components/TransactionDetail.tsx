@@ -193,6 +193,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
             })
             .with(
               {
+                statusInfo: { status: "Pending" },
                 originTransaction: {
                   type: P.union("SepaInstantCreditTransferIn", "SepaInstantCreditTransferOut"),
                 },

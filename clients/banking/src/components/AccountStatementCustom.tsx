@@ -551,11 +551,16 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                             groupHeaderHeight={48}
                             extraInfo={{ large }}
                             columns={columns}
-                            getRowLink={({ item }) =>
-                              Array.findMap(item.type, item => Option.fromNullable(item?.url))
+                            getRowLink={({ item }) => {
+                              const availableItem =
+                                item.status === "Available" ? Option.Some(item) : Option.None();
+                              return availableItem
+                                .flatMap(item =>
+                                  Array.findMap(item.type, item => Option.fromNullable(item?.url)),
+                                )
                                 .map(url => <Link to={url} target="_blank" />)
-                                .getWithDefault(<View />)
-                            }
+                                .getWithDefault(<View />);
+                            }}
                             loading={{
                               isLoading: nextData.isLoading(),
                               count: NUM_TO_RENDER,

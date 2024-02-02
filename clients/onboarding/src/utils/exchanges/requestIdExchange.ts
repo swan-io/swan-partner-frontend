@@ -58,7 +58,7 @@ export const requestIdExchange: Exchange =
           ...fetchOptions,
           headers: {
             ...unwrapHeaders(fetchOptions.headers),
-            "x-request-id": requestId,
+            "x-swan-request-id": requestId,
             traceparent,
           },
         };
@@ -82,7 +82,7 @@ export const requestIdExchange: Exchange =
             if (isNotNullish(result.error)) {
               const fetchOptions = unwrapFetchOptions(result.operation.context);
               const headers = unwrapHeaders(fetchOptions.headers);
-              const requestId = headers["x-request-id"];
+              const requestId = headers["x-swan-request-id"];
 
               if (isNotNullish(requestId)) {
                 result.error.requestId = requestId;

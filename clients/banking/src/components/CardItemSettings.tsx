@@ -10,9 +10,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
-import { CountryCCA3, getCCA2forCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { getCCA2forCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -169,42 +169,42 @@ export const CardItemSettings = ({
         canManageCards={canManageCards}
       />
 
-      {match(accountHolder)
-        .with({ info: { type: "Company" } }, () => {
-          const country = getCCA2forCCA3(card.issuingCountry as CountryCCA3);
-          if (isNotNullishOrEmpty(country)) {
-            return (
-              <>
-                <Space height={24} />
+      {match({
+        type: accountHolder?.info.type,
+        country: isCountryCCA3(card.issuingCountry)
+          ? getCCA2forCCA3(card.issuingCountry)?.toLowerCase()
+          : undefined,
+      })
+        .with({ type: "Company", country: P.not(P.nullish) }, ({ country }) => (
+          <>
+            <Space height={24} />
 
-                <LakeText variant="smallRegular">
-                  {formatNestedMessage("card.mastercardBonusProgramLink", {
-                    learnMoreLink: (
-                      <>
-                        <Link
-                          style={styles.link}
-                          to={`https://www.mastercard.com/businessbonus/${country.toLowerCase()}/home`}
-                          target="blank"
-                        >
-                          <Box direction="row" alignItems="center">
-                            <LakeText color={colors.current.primary} variant="smallRegular">
-                              {t("common.learnMore")}
-                            </LakeText>
+            <LakeText variant="smallRegular">
+              {formatNestedMessage("card.mastercardBonusProgramLink", {
+                learnMoreLink: (
+                  <>
+                    <Link
+                      style={styles.link}
+                      to={`https://www.mastercard.com/businessbonus/${country}/home`}
+                      target="blank"
+                    >
+                      <Box direction="row" alignItems="center">
+                        <LakeText color={colors.current.primary} variant="smallRegular">
+                          {t("common.learnMore")}
+                        </LakeText>
 
-                            <Space width={4} />
-                            <Icon color={colors.current.primary} name="open-filled" size={16} />
-                          </Box>
-                        </Link>
-                      </>
-                    ),
-                  })}
-                </LakeText>
+                        <Space width={4} />
+                        <Icon color={colors.current.primary} name="open-filled" size={16} />
+                      </Box>
+                    </Link>
+                  </>
+                ),
+              })}
+            </LakeText>
 
-                <Space height={16} />
-              </>
-            );
-          }
-        })
+            <Space height={16} />
+          </>
+        ))
         .otherwise(() => null)}
 
       <LakeButtonGroup>

@@ -65,7 +65,7 @@ export const logBackendError = (
 
   const headers = getOperationContextHeaders(context);
   const existingHeaders = Object.keys(headers).filter(key => isNotNullish(headers[key]));
-  const requestId = headers["x-request-id"];
+  const requestId = headers["x-swan-request-id"];
 
   graphQLErrors
     .filter(({ message }) => {

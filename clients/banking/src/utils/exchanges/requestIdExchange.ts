@@ -29,6 +29,21 @@ const unwrapHeaders = (headers?: HeadersInit): Record<string, string> => {
   }, {});
 };
 
+const generateTraceId = () => {
+  const buffer = new Uint8Array(16);
+  crypto.getRandomValues(buffer);
+  return Array.from(buffer, value => value.toString(16).padStart(2, "0")).join("");
+};
+
+const generateSpanId = () => {
+  const buffer = new Uint8Array(8);
+  crypto.getRandomValues(buffer);
+  return Array.from(buffer, value => value.toString(16).padStart(2, "0")).join("");
+};
+
+const traceparentVersion = "00";
+const traceFlags = "01";
+
 export const requestIdExchange: Exchange =
   ({ forward }) =>
   ops$ => {
@@ -37,12 +52,14 @@ export const requestIdExchange: Exchange =
       mergeMap(operation => {
         const requestId = "req-" + nanoid();
         const fetchOptions = unwrapFetchOptions(operation.context);
+        const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;
 
         const finalOptions = {
           ...fetchOptions,
           headers: {
             ...unwrapHeaders(fetchOptions.headers),
             "x-request-id": requestId,
+            traceparent,
           },
         };
 

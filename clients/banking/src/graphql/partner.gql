@@ -217,6 +217,7 @@ fragment AccountHolderForCardSettings on AccountHolder {
   info {
     __typename
     name
+    type
   }
 }
 
@@ -728,6 +729,7 @@ query CardPage($cardId: ID!) {
     withdrawal
     nonMainCurrencyTransactions
     international
+    issuingCountry
     statusInfo {
       status
     }

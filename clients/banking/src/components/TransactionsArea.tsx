@@ -282,7 +282,7 @@ export const TransactionsArea = ({
                           style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
                         >
                           <LakeText color={colors.current.primary}>
-                            {t("common.learnMore")}
+                            {t("balances.learnMore")}
                           </LakeText>
 
                           <Space width={4} />
@@ -358,7 +358,7 @@ export const TransactionsArea = ({
                     style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
                   >
                     <LakeText variant="smallRegular" color={colors.current.primary}>
-                      {t("common.learnMore")}
+                      {t("balances.learnMore")}
                     </LakeText>
 
                     <Space width={4} />

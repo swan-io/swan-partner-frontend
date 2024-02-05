@@ -608,9 +608,7 @@ export const start = async ({
 
                               // When onboarding from the dashboard, we don't yet have a OAuth2 client,
                               // so we bypass the second OAuth2 link.
-                              if (
-                                redirectHost === BANKING_HOST.replace("onboarding.", "dashboard.")
-                              ) {
+                              if (redirectHost === BANKING_HOST.replace("banking.", "dashboard.")) {
                                 queryString.append("redirectUrl", redirectUrl);
                               } else {
                                 const authUri = createAuthUrl({

@@ -352,6 +352,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
   const cardOrderVisible = physicalCardOrderVisible || virtualCardOrderVisible;
 
+  const B2BMembershipIDVerification = projectInfo.B2BMembershipIDVerification;
+
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
@@ -363,6 +365,17 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           accountMembership.canManageAccountMembership && membershipEnabled;
         const canAddCard = canViewAccount && canManageCards;
 
+        // identity verication is removed for permission-less membership
+        // if the project has a disabled `B2BMembershipIDVerification`
+        const shouldDisplayIdVerification = !(
+          B2BMembershipIDVerification === false &&
+          accountMembership.canManageAccountMembership === false &&
+          accountMembership.canInitiatePayments === false &&
+          accountMembership.canManageBeneficiaries === false &&
+          accountMembership.canViewAccount === false &&
+          accountMembership.canManageCards === false
+        );
+
         return {
           accountMembership,
           canManageAccountMembership,
@@ -370,6 +383,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canManageBeneficiaries,
           canAddCard,
           canManageCards,
+
+          shouldDisplayIdVerification,
 
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && accountVisible,
@@ -395,6 +410,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       cardOrderVisible,
       memberListVisible,
       transferCreationVisible,
+      B2BMembershipIDVerification,
     ],
   );
 
@@ -579,68 +595,64 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               )}
 
               {match(membership)
-                .with(Result.P.Ok(P.select()), ({ accountMembership }) => (
-                  <>
-                    <Space height={32} />
+                .with(
+                  Result.P.Ok(P.select()),
+                  ({ accountMembership, shouldDisplayIdVerification }) => (
+                    <>
+                      <Space height={32} />
 
-                    <AccountPickerButton
-                      ref={accountPickerButtonRef}
-                      desktop={true}
-                      accountMembershipId={accountMembershipId}
-                      activationTag={activationTag}
-                      activationLinkActive={route?.name === "AccountActivation"}
-                      hasMultipleMemberships={hasMultipleMemberships}
-                      selectedAccountMembership={accountMembership}
-                      onPress={setAccountPickerOpen.on}
-                      availableBalance={availableBalance}
-                    />
+                      <AccountPickerButton
+                        ref={accountPickerButtonRef}
+                        desktop={true}
+                        accountMembershipId={accountMembershipId}
+                        activationTag={activationTag}
+                        activationLinkActive={route?.name === "AccountActivation"}
+                        hasMultipleMemberships={hasMultipleMemberships}
+                        selectedAccountMembership={accountMembership}
+                        onPress={setAccountPickerOpen.on}
+                        availableBalance={availableBalance}
+                      />
 
-                    <Popover
-                      referenceRef={accountPickerButtonRef}
-                      matchReferenceMinWidth={true}
-                      visible={isAccountPickerOpen}
-                      onDismiss={setAccountPickerOpen.off}
-                    >
-                      <View style={styles.accountPicker}>
-                        <AccountPicker
-                          accountMembershipId={accountMembershipId}
-                          availableBalance={availableBalance}
-                          onPressItem={accountMembershipId => {
-                            // TODO: Prevent full reload by tweaking layout + Suspense
-                            window.location.assign(Router.AccountRoot({ accountMembershipId }));
-                          }}
-                        />
-                      </View>
-                    </Popover>
+                      <Popover
+                        referenceRef={accountPickerButtonRef}
+                        matchReferenceMinWidth={true}
+                        visible={isAccountPickerOpen}
+                        onDismiss={setAccountPickerOpen.off}
+                      >
+                        <View style={styles.accountPicker}>
+                          <AccountPicker
+                            accountMembershipId={accountMembershipId}
+                            availableBalance={availableBalance}
+                            onPressItem={accountMembershipId => {
+                              // TODO: Prevent full reload by tweaking layout + Suspense
+                              window.location.assign(Router.AccountRoot({ accountMembershipId }));
+                            }}
+                          />
+                        </View>
+                      </Popover>
 
-                    <Space height={32} />
-                    <AccountNavigation menu={menu} />
-                    <Fill minHeight={48} />
+                      <Space height={32} />
+                      <AccountNavigation menu={menu} />
+                      <Fill minHeight={48} />
 
-                    <Pressable role="button" style={styles.additionalLink} onPress={signout}>
-                      <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
-                      <Space width={12} />
-                      <LakeText variant="medium">{t("login.signout")}</LakeText>
-                    </Pressable>
+                      <Pressable role="button" style={styles.additionalLink} onPress={signout}>
+                        <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
+                        <Space width={12} />
+                        <LakeText variant="medium">{t("login.signout")}</LakeText>
+                      </Pressable>
 
-                    <Space height={12} />
+                      <Space height={12} />
 
-                    <ProfileButton
-                      identificationStatus={identificationStatus ?? "Uninitiated"}
-                      firstName={firstName}
-                      lastName={lastName}
-                      accountMembershipId={accountMembershipId}
-                      shouldDisplayIdVerification={
-                        !(
-                          projectInfo.B2BMembershipIDVerification === false &&
-                          accountMembership.canManageAccountMembership === false &&
-                          accountMembership.canInitiatePayments === false &&
-                          accountMembership.canManageBeneficiaries === false
-                        )
-                      }
-                    />
-                  </>
-                ))
+                      <ProfileButton
+                        identificationStatus={identificationStatus ?? "Uninitiated"}
+                        firstName={firstName}
+                        lastName={lastName}
+                        accountMembershipId={accountMembershipId}
+                        shouldDisplayIdVerification={shouldDisplayIdVerification}
+                      />
+                    </>
+                  ),
+                )
                 .otherwise(() => null)}
             </SidebarNavigationTracker>
           )}
@@ -694,6 +706,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       detailsMenuIsVisible,
                       memberMenuIsVisible,
                       paymentMenuIsVisible,
+                      shouldDisplayIdVerification,
                     }) => {
                       const accountId = accountMembership.account?.id;
 
@@ -749,14 +762,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 additionalInfo={additionalInfo}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 email={accountMembership.email}
-                                shouldDisplayIdVerification={
-                                  !(
-                                    projectInfo.B2BMembershipIDVerification === false &&
-                                    canManageAccountMembership === false &&
-                                    accountMembership.canInitiatePayments === false &&
-                                    accountMembership.canManageBeneficiaries === false
-                                  )
-                                }
+                                shouldDisplayIdVerification={shouldDisplayIdVerification}
                               />
                             ))
                             .with({ name: "AccountDetailsArea" }, () =>
@@ -849,9 +855,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                       currentUserAccountMembership={currentUserAccountMembership}
                                       cardOrderVisible={cardOrderVisible}
                                       physicalCardOrderVisible={physicalCardOrderVisible}
-                                      shouldDisplayIdVerification={
-                                        projectInfo.B2BMembershipIDVerification !== false
-                                      }
+                                      shouldDisplayIdVerification={shouldDisplayIdVerification}
                                     />
                                   ),
                                 )
@@ -892,21 +896,14 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           {!desktop &&
             membership.match({
               Error: () => null,
-              Ok: membership => (
+              Ok: ({ accountMembership, shouldDisplayIdVerification }) => (
                 <NavigationTabBar
                   identificationStatus={identificationStatus ?? "Uninitiated"}
                   accountMembershipId={accountMembershipId}
                   hasMultipleMemberships={hasMultipleMemberships}
                   activationTag={activationTag}
-                  accountMembership={membership.accountMembership}
-                  shouldDisplayIdVerification={
-                    !(
-                      projectInfo.B2BMembershipIDVerification === false &&
-                      membership.canManageAccountMembership === false &&
-                      membership.canInitiatePayments === false &&
-                      membership.canManageBeneficiaries === false
-                    )
-                  }
+                  accountMembership={accountMembership}
+                  shouldDisplayIdVerification={shouldDisplayIdVerification}
                   additionalInfo={additionalInfo}
                   entries={menu}
                   firstName={firstName}

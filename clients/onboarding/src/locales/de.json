@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "Unbekannte Schlüssel",
   "individual.step.details.description": "Das Gesetz verlangt von uns, dass wir unsere Nutzer gut kennen. Dies hilft uns, Betrug und Finanzkriminalität zu verhindern.",
   "individual.step.details.title": "Was ist Ihr Beruf?",
+  "individual.step.email.description": "Bitte verwenden Sie die E-Mail-Adresse der Person, die das Onboarding durchführt. Diejenige, die während des Kontoeröffnungsprozesses kontaktiert wird.",
   "individual.step.email.label": "Wie lautet Ihre E-Mail-Adresse?",
   "individual.step.email.title": "Wer sind Sie?",
   "individual.step.introduction.description": "Wir helfen Ihnen bei der Registrierung Ihres Kontos. Folgen Sie einfach den nächsten Schritten, die nicht länger als 5 Minuten dauern werden.",

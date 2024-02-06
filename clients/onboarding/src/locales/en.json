@@ -117,6 +117,7 @@
   "individual.step.introduction.step3": "Provide the details",
   "individual.step.introduction.step4": "Finalize",
   "individual.step.introduction.title": "Just 4 more steps",
+  "individual.step.email.description": "Please use the email of the person doing the onboarding. The one that will be contacted during the account opening process.",
   "individual.step.location.addressLabel": "Type your personal home address",
   "individual.step.location.cityLabel": "City",
   "individual.step.location.countryLabel": "What country do you live in?",

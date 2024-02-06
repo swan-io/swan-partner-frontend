@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "Chiavi non riconosciute",
   "individual.step.details.description": "La legge ci impone di conoscere bene i nostri utenti. Questo ci aiuta a prevenire le frodi e i reati finanziari.",
   "individual.step.details.title": "Qual è la sua occupazione?",
+  "individual.step.email.description": "Si prega di utilizzare l'email della persona che sta effettuando l'onboarding. Quella che verrà contattata durante il processo di apertura del conto.",
   "individual.step.email.label": "Qual è il suo indirizzo email?",
   "individual.step.email.title": "Conosciamoci!",
   "individual.step.introduction.description": "La aiuteremo a procedere con la registrazione del suo conto, seguendo semplici passaggi che non richiederanno più di 5 minuti.",

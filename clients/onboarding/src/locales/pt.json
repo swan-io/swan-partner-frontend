@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "Chaves não reconhecidas",
   "individual.step.details.description": "A lei exige que conheçamos bem os nossos utilizadores. Isso ajuda-nos a evitar fraudes e crimes financeiros.",
   "individual.step.details.title": "Qual é a sua ocupação?",
+  "individual.step.email.description": "Por favor, utilize o e-mail da pessoa responsável pelo processo de abertura de conta. Aquele que será contactado durante o processo de abertura de conta.",
   "individual.step.email.label": "Qual é o seu e-mail?",
   "individual.step.email.title": "Quem é você?",
   "individual.step.introduction.description": "Vamos ajudá-lo a iniciar o registo da sua conta, basta seguir alguns passos simples que não demoram mais do que 5 minutos.",

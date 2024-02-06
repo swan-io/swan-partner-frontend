@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "Clés non reconnues",
   "individual.step.details.description": "Les lois en vigueur nous imposent de bien connaître nos utilisateurs. Cela permet de lutter efficacement contre la fraude et la criminalité financière.",
   "individual.step.details.title": "Quelle est votre profession ?",
+  "individual.step.email.description": "Veuillez utiliser l'adresse e-mail de la personne qui effectue l'onboarding. Celle qui sera contactée lors du processus d'ouverture de compte.",
   "individual.step.email.label": "Quelle est votre adresse e-mail ?",
   "individual.step.email.title": "Qui êtes-vous ?",
   "individual.step.introduction.description": "Nous allons vous aider à créer votre compte. Il vous suffit de suivre quelques étapes qui ne devraient pas vous prendre plus de 5 minutes.",

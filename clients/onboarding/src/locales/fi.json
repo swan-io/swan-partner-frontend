@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "",
   "individual.step.details.description": "Laki velvoittaa meitä tuntemaan käyttäjämme hyvin. Tämä auttaa meitä estämään petoksia ja talousrikoksia.",
   "individual.step.details.title": "Mikä on ammattisi?",
+  "individual.step.email.description": "Käytä henkilön sähköpostia, joka suorittaa käyttöönoton. Se on henkilö, johon otetaan yhteyttä tilin avaamisprosessin aikana.",
   "individual.step.email.label": "Sähköposti-osoitteesi",
   "individual.step.email.title": "Kuka olet?",
   "individual.step.introduction.description": "Autamme sinua käynnistämään tilisi rekisteröinnin. Noudata seuraavia ohjeita (arvioitu kokonaiskesto noin 5 minuuttia).",

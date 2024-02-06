@@ -154,7 +154,7 @@ export const OnboardingIndividualEmail = ({
             <>
               <StepTitle isMobile={small}>{t("individual.step.email.title")}</StepTitle>
               <Space height={small ? 8 : 12} />
-              <LakeText>{t("individual.step.introduction.description")}</LakeText>
+              <LakeText>{t("individual.step.email.description")}</LakeText>
               <Space height={small ? 24 : 32} />
 
               <Tile>

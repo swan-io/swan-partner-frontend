@@ -109,6 +109,7 @@
   "error.unrecognizedKeys": "Claves no reconocidas",
   "individual.step.details.description": "La ley nos obliga a conocer bien a nuestros usuarios. Esto nos ayuda a prevenir el fraude y los delitos financieros.",
   "individual.step.details.title": "¿Cuál es tu ocupación?",
+  "individual.step.email.description": "Por favor, utiliza el correo electrónico de la persona que realiza el proceso de incorporación. Aquel que será contactado durante el proceso de apertura de cuenta.",
   "individual.step.email.label": "¿Cuál es tu correo electrónico?",
   "individual.step.email.title": "¿Quién eres?",
   "individual.step.introduction.description": "Te ayudaremos a comenzar el registro de tu cuenta. Solo tienes que seguir unos sencillos pasos, no tardarás más de 5 minutos.",

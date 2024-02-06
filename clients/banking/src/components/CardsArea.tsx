@@ -66,10 +66,8 @@ type Props = {
   canManageAccountMembership: boolean;
   cardOrderVisible: boolean;
   physicalCardOrderVisible: boolean;
-  idVerified: boolean;
   refetchAccountAreaQuery: () => void;
   userId: string;
-  userStatusIsProcessing: boolean;
 };
 
 const relevantCardsFilter = {
@@ -142,10 +140,8 @@ export const CardsArea = ({
   canManageAccountMembership,
   cardOrderVisible,
   physicalCardOrderVisible,
-  idVerified,
   refetchAccountAreaQuery,
   userId,
-  userStatusIsProcessing,
 }: Props) => {
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
@@ -237,8 +233,6 @@ export const CardsArea = ({
                         userId={userId}
                         cardId={cardId}
                         refetchAccountAreaQuery={refetchAccountAreaQuery}
-                        idVerified={idVerified}
-                        userStatusIsProcessing={userStatusIsProcessing}
                         canManageAccountMembership={canManageAccountMembership}
                         physicalCardOrderVisible={physicalCardOrderVisible}
                         large={large}

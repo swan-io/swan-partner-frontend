@@ -1,4 +1,4 @@
-import { Array, Dict, Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@swan-io/boxed";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
@@ -39,11 +39,7 @@ import {
 } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
-import {
-  AccountAreaDocument,
-  IdentificationLevelsFragment,
-  UpdateAccountLanguageDocument,
-} from "../graphql/partner";
+import { AccountAreaDocument, UpdateAccountLanguageDocument } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -150,13 +146,6 @@ type Props = {
   accountMembershipId: string;
 };
 
-const defaultIdentificationLevels: IdentificationLevelsFragment = {
-  __typename: "IdentificationLevels",
-  expert: false,
-  QES: false,
-  PVID: false,
-};
-
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 export const AccountArea = ({ accountMembershipId }: Props) => {
@@ -225,14 +214,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
   const identificationStatus = user?.identificationStatus;
-  const identificationLevels: IdentificationLevelsFragment =
-    user?.identificationLevels ?? defaultIdentificationLevels;
-  const userStatusIsProcessing = identificationStatus === "Processing";
-
-  // checks that at least one identificationLevel is valid
-  const idVerified = Array.filterMap(Dict.entries(identificationLevels), ([_, value]) =>
-    typeof value === "boolean" ? Option.Some(value) : Option.None(),
-  ).some(isValid => isValid);
 
   const requireFirstTransfer = match({ account, user })
     .with(
@@ -766,7 +747,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountMembership.recommendedIdentificationLevel
                                 }
                                 additionalInfo={additionalInfo}
-                                userStatusIsProcessing={userStatusIsProcessing}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 email={accountMembership.email}
                                 shouldDisplayIdVerification={
@@ -788,9 +768,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountMembershipId={accountMembershipId}
                                   canManageAccountMembership={canManageAccountMembership}
                                   virtualIbansVisible={virtualIbansVisible}
-                                  idVerified={idVerified}
                                   projectName={projectName}
-                                  userStatusIsProcessing={userStatusIsProcessing}
                                   isIndividual={isIndividual}
                                 />
                               ),
@@ -844,8 +822,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 canAddCard={canAddCard}
                                 canManageCards={canManageCards}
                                 accountMembership={accountMembership}
-                                idVerified={idVerified}
-                                userStatusIsProcessing={userStatusIsProcessing}
                                 canManageAccountMembership={canManageAccountMembership}
                                 cardOrderVisible={cardOrderVisible}
                                 physicalCardOrderVisible={physicalCardOrderVisible}

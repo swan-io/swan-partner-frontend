@@ -45,7 +45,6 @@ const styles = StyleSheet.create({
 
 type Props = {
   additionalInfo: AdditionalInfo;
-  userStatusIsProcessing: boolean;
   refetchAccountAreaQuery: () => void;
   shouldDisplayIdVerification: boolean;
   email: string;

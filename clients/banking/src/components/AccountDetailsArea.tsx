@@ -25,9 +25,7 @@ type Props = {
   accountMembershipId: string;
   canManageAccountMembership: boolean;
   virtualIbansVisible: boolean;
-  idVerified: boolean;
   projectName: string;
-  userStatusIsProcessing: boolean;
   isIndividual: boolean;
 };
 
@@ -36,9 +34,7 @@ export const AccountDetailsArea = ({
   accountMembershipId,
   canManageAccountMembership,
   virtualIbansVisible,
-  idVerified,
   projectName,
-  userStatusIsProcessing,
   isIndividual,
 }: Props) => {
   const route = Router.useRoute([
@@ -92,13 +88,7 @@ export const AccountDetailsArea = ({
 
           {match(route)
             .with({ name: "AccountDetailsIban" }, () => (
-              <AccountDetailsIbanPage
-                accountId={accountId}
-                accountMembershipId={accountMembershipId}
-                idVerified={idVerified}
-                largeBreakpoint={large}
-                userStatusIsProcessing={userStatusIsProcessing}
-              />
+              <AccountDetailsIbanPage accountId={accountId} largeBreakpoint={large} />
             ))
             .with({ name: "AccountDetailsVirtualIbans" }, () => (
               <>

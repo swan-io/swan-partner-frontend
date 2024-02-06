@@ -41,8 +41,6 @@ type Props = {
   userId: string;
   cardId: string;
   refetchAccountAreaQuery: () => void;
-  idVerified: boolean;
-  userStatusIsProcessing: boolean;
   canManageAccountMembership: boolean;
   physicalCardOrderVisible: boolean;
   canViewAccount: boolean;

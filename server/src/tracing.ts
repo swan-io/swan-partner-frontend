@@ -1,3 +1,4 @@
+import { CompositePropagator, W3CTraceContextPropagator } from "@opentelemetry/core";
 import { JaegerExporter } from "@opentelemetry/exporter-jaeger";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { FastifyInstrumentation } from "@opentelemetry/instrumentation-fastify";
@@ -21,12 +22,13 @@ if (process.env.TRACING_SERVICE_NAME != null) {
     ),
   });
 
-  const jaegerPropagator = new JaegerPropagator();
-  const jaegerExporter = new JaegerExporter();
-  const batchSpanProcessor = new BatchSpanProcessor(jaegerExporter);
+  provider.addSpanProcessor(new BatchSpanProcessor(new JaegerExporter()));
 
-  provider.addSpanProcessor(batchSpanProcessor);
-  provider.register({ propagator: jaegerPropagator });
+  provider.register({
+    propagator: new CompositePropagator({
+      propagators: [new W3CTraceContextPropagator(), new JaegerPropagator()],
+    }),
+  });
 
   registerInstrumentations({
     instrumentations: [

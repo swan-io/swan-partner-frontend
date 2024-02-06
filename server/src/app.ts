@@ -118,8 +118,9 @@ export const start = async ({
   sendAccountMembershipInvitation,
   allowedCorsOrigins = [],
 }: AppConfig) => {
+  const BANKING_HOST = new URL(env.BANKING_URL).hostname;
+
   if (mode === "development") {
-    const BANKING_HOST = new URL(env.BANKING_URL).hostname;
     const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
     const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
 
@@ -174,7 +175,13 @@ export const start = async ({
         },
       }),
     },
-    genReqId: () => `req-${randomUUID()}`,
+    genReqId: req => {
+      const existingRequestId = req.headers["x-swan-request-id"];
+      if (typeof existingRequestId === "string") {
+        return existingRequestId;
+      }
+      return `req-${randomUUID()}`;
+    },
   });
 
   /**
@@ -603,15 +610,23 @@ export const start = async ({
                             const queryString = new URLSearchParams();
 
                             if (redirectUrl != undefined) {
-                              const authUri = createAuthUrl({
-                                oAuthClientId,
-                                scope: [],
-                                redirectUri: redirectUrl,
-                                state: state ?? onboardingId,
-                                params: {},
-                              });
+                              const redirectHost = new URL(redirectUrl).hostname;
 
-                              queryString.append("redirectUrl", authUri);
+                              // When onboarding from the dashboard, we don't yet have a OAuth2 client,
+                              // so we bypass the second OAuth2 link.
+                              if (redirectHost === BANKING_HOST.replace("banking.", "dashboard.")) {
+                                queryString.append("redirectUrl", redirectUrl);
+                              } else {
+                                const authUri = createAuthUrl({
+                                  oAuthClientId,
+                                  scope: [],
+                                  redirectUri: redirectUrl,
+                                  state: state ?? onboardingId,
+                                  params: {},
+                                });
+
+                                queryString.append("redirectUrl", authUri);
+                              }
                             }
 
                             if (accountMembershipId != undefined) {

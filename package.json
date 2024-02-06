@@ -4,7 +4,7 @@
   "version": "1.7.2",
   "private": true,
   "engines": {
-    "node": ">=18.0.0",
+    "node": ">=20.9.0",
     "yarn": "^1.22.0"
   },
   "repository": {

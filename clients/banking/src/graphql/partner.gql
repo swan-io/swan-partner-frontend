@@ -305,7 +305,6 @@ query AccountArea($accountMembershipId: ID!) {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
     identificationStatus
     identificationLevels {
       ...IdentificationLevelsFragment
@@ -1299,6 +1298,7 @@ fragment AccountMembership on AccountMembership {
   email
   legalRepresentative
   recommendedIdentificationLevel
+  hasRequiredIdentificationLevel
   statusInfo {
     __typename
     status
@@ -1338,7 +1338,6 @@ fragment AccountMembership on AccountMembership {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
   }
   account {
     id
@@ -1457,7 +1456,6 @@ query ProfilePage {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
     identificationStatus
     birthDate
   }

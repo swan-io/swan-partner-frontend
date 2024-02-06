@@ -100,7 +100,7 @@ export const MembershipDetailArea = ({
   }
 
   const requiresIdentityVerification =
-    shouldDisplayIdVerification && accountMembership.user?.idVerified === false;
+    shouldDisplayIdVerification && accountMembership.hasRequiredIdentificationLevel === false;
 
   return (
     <ScrollView

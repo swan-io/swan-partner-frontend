@@ -175,7 +175,13 @@ export const start = async ({
         },
       }),
     },
-    genReqId: () => `req-${randomUUID()}`,
+    genReqId: req => {
+      const existingRequestId = req.headers["x-swan-request-id"];
+      if (typeof existingRequestId === "string") {
+        return existingRequestId;
+      }
+      return `req-${randomUUID()}`;
+    },
   });
 
   /**

@@ -1,4 +1,4 @@
-import { Result } from "@swan-io/boxed";
+import { Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -17,7 +17,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageQuery, IdentificationStatus, UpdateCardDocument } from "../graphql/partner";
+import { CardPageQuery, IdentificationFragment, UpdateCardDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -45,7 +45,7 @@ type Props = {
   cardRequiresIdentityVerification: boolean;
   isCurrentUserCardOwner: boolean;
   onRefreshAccountRequest: () => void;
-  identificationStatus?: IdentificationStatus;
+  lastRelevantIdentification: Option<IdentificationFragment>;
   canManageCards: boolean;
 };
 
@@ -57,7 +57,7 @@ export const CardItemSettings = ({
   cardRequiresIdentityVerification,
   isCurrentUserCardOwner,
   onRefreshAccountRequest,
-  identificationStatus,
+  lastRelevantIdentification,
   canManageCards,
 }: Props) => {
   const [cardUpdate, updateCard] = useUrqlMutation(UpdateCardDocument);
@@ -136,7 +136,7 @@ export const CardItemSettings = ({
             name: getMemberName({ accountMembership: card.accountMembership }),
           })}
           onComplete={onRefreshAccountRequest}
-          identificationStatus={identificationStatus}
+          lastRelevantIdentification={lastRelevantIdentification}
         />
       </FixedListViewEmpty>
     </View>

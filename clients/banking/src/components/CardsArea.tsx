@@ -66,6 +66,7 @@ type Props = {
   canManageAccountMembership: boolean;
   cardOrderVisible: boolean;
   physicalCardOrderVisible: boolean;
+  shouldDisplayIdVerification: boolean;
   refetchAccountAreaQuery: () => void;
   userId: string;
 };
@@ -140,6 +141,7 @@ export const CardsArea = ({
   canManageAccountMembership,
   cardOrderVisible,
   physicalCardOrderVisible,
+  shouldDisplayIdVerification,
   refetchAccountAreaQuery,
   userId,
 }: Props) => {
@@ -238,6 +240,7 @@ export const CardsArea = ({
                         large={large}
                         canViewAccount={accountMembership.canViewAccount}
                         canManageCards={accountMembership.canManageCards}
+                        shouldDisplayIdVerification={shouldDisplayIdVerification}
                       />
                     </>
                   ))

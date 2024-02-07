@@ -38,13 +38,19 @@ import {
   View,
 } from "react-native";
 import { P, match } from "ts-pattern";
+import { useQuery } from "urql";
 import logoSwan from "../assets/images/logo-swan.svg";
-import { AccountAreaDocument, UpdateAccountLanguageDocument } from "../graphql/partner";
+import {
+  AccountAreaDocument,
+  LastRelevantIdentificationDocument,
+  UpdateAccountLanguageDocument,
+} from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { logFrontendError, setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import {
@@ -180,6 +186,25 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     variables: { accountMembershipId },
   });
 
+  const hasRequiredIdentificationLevel =
+    accountMembership?.hasRequiredIdentificationLevel ?? undefined;
+
+  // We have to perform a cascading request here because the `recommendedIdentificationLevel`
+  // is only available once the account membership is loaded.
+  // This is acceptable because it only triggers the query if necessary.
+  const [{ data: lastRelevantIdentificationData }] = useQuery({
+    query: LastRelevantIdentificationDocument,
+    pause: hasRequiredIdentificationLevel !== false,
+    variables: {
+      accountMembershipId,
+      identificationProcess: accountMembership?.recommendedIdentificationLevel,
+    },
+  });
+
+  const lastRelevantIdentification = Option.fromNullable(
+    lastRelevantIdentificationData?.accountMembership?.user?.identifications?.edges?.[0]?.node,
+  );
+
   const [, updateAccountLanguage] = useUrqlMutation(UpdateAccountLanguageDocument);
 
   const accountId = accountMembership?.account?.id;
@@ -213,8 +238,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const isIndividual = holder?.info.__typename === "AccountHolderIndividualInfo";
   const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-  const identificationStatus = user?.identificationStatus;
-
   const requireFirstTransfer = match({ account, user })
     .with(
       { account: { country: "FRA" }, user: { identificationLevels: { PVID: false, QES: false } } },
@@ -242,7 +265,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     documentCollectionStatus,
     documentCollectMode,
     hasTransactions,
-    identificationStatus,
+    identificationStatusInfo: lastRelevantIdentification.map(getIdentificationLevelStatusInfo),
     accountHolderType: account?.holder.info.__typename,
     verificationStatus: account?.holder.verificationStatus,
     isIndividual,
@@ -259,8 +282,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     )
     // never show to non-legal rep memberships
     .with({ isLegalRepresentative: false }, () => "none")
-    .with({ identificationStatus: "Processing" }, () => "pending")
-    .with({ identificationStatus: P.not("ValidIdentity") }, () => "actionRequired")
+    .with({ identificationStatusInfo: Option.P.Some({ status: "Pending" }) }, () => "pending")
+    .with(
+      { identificationStatusInfo: Option.P.Some({ status: P.not("Valid") }) },
+      () => "actionRequired",
+    )
     .with(
       { documentCollectionStatus: "PendingReview", accountHolderType: "AccountHolderCompanyInfo" },
       () => "pending",
@@ -644,7 +670,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       <Space height={12} />
 
                       <ProfileButton
-                        identificationStatus={identificationStatus ?? "Uninitiated"}
+                        identificationStatusInfo={lastRelevantIdentification.map(
+                          getIdentificationLevelStatusInfo,
+                        )}
                         firstName={firstName}
                         lastName={lastName}
                         accountMembershipId={accountMembershipId}
@@ -734,6 +762,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                         return (
                           <AccountActivationPage
                             requireFirstTransfer={requireFirstTransfer}
+                            hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                            lastRelevantIdentification={lastRelevantIdentification}
                             accentColor={accentColor}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
@@ -763,6 +793,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 email={accountMembership.email}
                                 shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                lastRelevantIdentification={lastRelevantIdentification}
                               />
                             ))
                             .with({ name: "AccountDetailsArea" }, () =>
@@ -829,6 +861,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 canManageCards={canManageCards}
                                 accountMembership={accountMembership}
                                 canManageAccountMembership={canManageAccountMembership}
+                                shouldDisplayIdVerification={shouldDisplayIdVerification}
                                 cardOrderVisible={cardOrderVisible}
                                 physicalCardOrderVisible={physicalCardOrderVisible}
                               />
@@ -863,6 +896,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                             )
                             .with({ name: "AccountActivation" }, () => (
                               <AccountActivationPage
+                                hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                lastRelevantIdentification={lastRelevantIdentification}
                                 requireFirstTransfer={requireFirstTransfer}
                                 accentColor={accentColor}
                                 accountMembershipId={accountMembershipId}
@@ -898,7 +933,9 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               Error: () => null,
               Ok: ({ accountMembership, shouldDisplayIdVerification }) => (
                 <NavigationTabBar
-                  identificationStatus={identificationStatus ?? "Uninitiated"}
+                  identificationStatusInfo={lastRelevantIdentification.map(
+                    getIdentificationLevelStatusInfo,
+                  )}
                   accountMembershipId={accountMembershipId}
                   hasMultipleMemberships={hasMultipleMemberships}
                   activationTag={activationTag}

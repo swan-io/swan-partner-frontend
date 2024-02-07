@@ -24,7 +24,7 @@ import {
   CancelDigitalCardDocument,
   CardPageQuery,
   DigitalCardFragment,
-  IdentificationStatus,
+  IdentificationFragment,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
@@ -111,7 +111,7 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   onRefreshAccountRequest: () => void;
   projectId: string;
-  identificationStatus?: IdentificationStatus;
+  lastRelevantIdentification: Option<IdentificationFragment>;
 };
 
 export const CardItemMobilePayment = ({
@@ -121,7 +121,7 @@ export const CardItemMobilePayment = ({
   isCurrentUserCardOwner,
   onRefreshAccountRequest,
   projectId,
-  identificationStatus,
+  lastRelevantIdentification,
 }: Props) => {
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<
     Option<CompleteDigitalCard>
@@ -182,7 +182,7 @@ export const CardItemMobilePayment = ({
                       { name: getMemberName({ accountMembership: card.accountMembership }) },
                     )}
                     onComplete={onRefreshAccountRequest}
-                    identificationStatus={identificationStatus}
+                    lastRelevantIdentification={lastRelevantIdentification}
                   />
                 </>
               ) : null}

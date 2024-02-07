@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -10,7 +11,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageQuery, IdentificationStatus, ViewCardNumbersDocument } from "../graphql/partner";
+import { CardPageQuery, IdentificationFragment, ViewCardNumbersDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -62,8 +63,8 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   cardRequiresIdentityVerification: boolean;
   onRefreshAccountRequest: () => void;
-  identificationStatus?: IdentificationStatus;
-  bindingUserError: boolean;
+  lastRelevantIdentification: Option<IdentificationFragment>;
+  hasBindingUserError: boolean;
 };
 
 export const CardItemVirtualDetails = ({
@@ -74,8 +75,8 @@ export const CardItemVirtualDetails = ({
   isCurrentUserCardOwner,
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
-  identificationStatus,
-  bindingUserError,
+  lastRelevantIdentification,
+  hasBindingUserError,
 }: Props) => {
   const [cardNumberViewing, viewCardNumbers] = useUrqlMutation(ViewCardNumbersDocument);
 
@@ -97,7 +98,7 @@ export const CardItemVirtualDetails = ({
       });
   };
 
-  const textColor = bindingUserError ? colors.gray[300] : colors.gray[800];
+  const textColor = hasBindingUserError ? colors.gray[300] : colors.gray[800];
 
   return (
     <View style={styles.container}>
@@ -130,7 +131,7 @@ export const CardItemVirtualDetails = ({
                 name: getMemberName({ accountMembership: card.accountMembership }),
               })}
               onComplete={onRefreshAccountRequest}
-              identificationStatus={identificationStatus}
+              lastRelevantIdentification={lastRelevantIdentification}
             />
           </>
         ) : (
@@ -196,7 +197,7 @@ export const CardItemVirtualDetails = ({
 
                           <LakeText
                             color={
-                              bindingUserError
+                              hasBindingUserError
                                 ? colors.gray[300]
                                 : Number(spending.amount.value) >=
                                     Number(spendingLimit.amount.value)

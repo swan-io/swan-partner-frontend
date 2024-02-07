@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -11,7 +12,8 @@ import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { Suspense, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageDocument } from "../graphql/partner";
+import { useQuery } from "urql";
+import { CardPageDocument, LastRelevantIdentificationDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -46,6 +48,7 @@ type Props = {
   canViewAccount: boolean;
   canManageCards: boolean;
   large?: boolean;
+  shouldDisplayIdVerification: boolean;
 };
 
 export const CardItemArea = ({
@@ -57,6 +60,7 @@ export const CardItemArea = ({
   physicalCardOrderVisible,
   canViewAccount,
   canManageCards,
+  shouldDisplayIdVerification,
   large = true,
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
@@ -76,7 +80,7 @@ export const CardItemArea = ({
     {
       data: {
         card,
-        projectInfo: { id: projectId, B2BMembershipIDVerification },
+        projectInfo: { id: projectId },
       },
     },
     reexecuteQuery,
@@ -84,6 +88,26 @@ export const CardItemArea = ({
     query: CardPageDocument,
     variables: { cardId },
   });
+
+  const cardAccountMembershipId = card?.accountMembership?.id ?? undefined;
+  const hasRequiredIdentificationLevel =
+    card?.accountMembership?.hasRequiredIdentificationLevel ?? undefined;
+  // We have to perform a cascading request here because the `recommendedIdentificationLevel`
+  // is only available once the card is loaded.
+  // This is acceptable because it only triggers the query if necessary.
+  const [{ data: lastRelevantIdentificationData }] = useQuery({
+    query: LastRelevantIdentificationDocument,
+    pause: cardAccountMembershipId == undefined || hasRequiredIdentificationLevel !== false,
+    variables: {
+      // we can case given the query is paused otherwise
+      accountMembershipId: cardAccountMembershipId as string,
+      identificationProcess: card?.accountMembership?.recommendedIdentificationLevel,
+    },
+  });
+
+  const lastRelevantIdentification = Option.fromNullable(
+    lastRelevantIdentificationData?.accountMembership?.user?.identifications?.edges?.[0]?.node,
+  );
 
   useCrumb(
     useMemo(() => {
@@ -115,18 +139,15 @@ export const CardItemArea = ({
   const membershipStatus = card?.accountMembership.statusInfo;
 
   const cardRequiresIdentityVerification =
-    B2BMembershipIDVerification === true &&
-    membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
-    membershipStatus.idVerifiedMatchError;
+    shouldDisplayIdVerification && card?.accountMembership?.hasRequiredIdentificationLevel !== true;
 
-  const bindingUserError =
+  const hasBindingUserError =
+    shouldDisplayIdVerification &&
     membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
     (membershipStatus.birthDateMatchError ||
       membershipStatus.firstNameMatchError ||
       membershipStatus.lastNameMatchError ||
       membershipStatus.phoneNumberMatchError);
-
-  const identificationStatus = card?.accountMembership.user?.identificationStatus ?? undefined;
 
   if (card == null) {
     return <ErrorView />;
@@ -200,7 +221,7 @@ export const CardItemArea = ({
               style={styles.container}
               contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
             >
-              {bindingUserError && B2BMembershipIDVerification === true && (
+              {hasBindingUserError && (
                 <>
                   <Space height={24} />
 
@@ -213,7 +234,7 @@ export const CardItemArea = ({
               )}
 
               <CardItemVirtualDetails
-                bindingUserError={bindingUserError}
+                hasBindingUserError={hasBindingUserError}
                 projectId={projectId}
                 cardId={cardId}
                 accountMembershipId={accountMembershipId}
@@ -221,7 +242,7 @@ export const CardItemArea = ({
                 isCurrentUserCardOwner={isCurrentUserCardOwner}
                 cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                 onRefreshAccountRequest={refetchAccountAreaQuery}
-                identificationStatus={identificationStatus}
+                lastRelevantIdentification={lastRelevantIdentification}
               />
 
               <Space height={24} />
@@ -234,7 +255,7 @@ export const CardItemArea = ({
                 style={styles.container}
                 contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
               >
-                {bindingUserError && B2BMembershipIDVerification === true && (
+                {hasBindingUserError && (
                   <>
                     <Space height={24} />
 
@@ -247,7 +268,7 @@ export const CardItemArea = ({
                 )}
 
                 <CardItemPhysicalDetails
-                  bindingUserError={bindingUserError}
+                  hasBindingUserError={hasBindingUserError}
                   projectId={projectId}
                   card={card}
                   cardId={cardId}
@@ -257,7 +278,7 @@ export const CardItemArea = ({
                   onRefreshRequest={reexecuteQuery}
                   cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                   onRefreshAccountRequest={refetchAccountAreaQuery}
-                  identificationStatus={identificationStatus}
+                  lastRelevantIdentification={lastRelevantIdentification}
                   physicalCardOrderVisible={physicalCardOrderVisible}
                 />
 
@@ -279,7 +300,7 @@ export const CardItemArea = ({
                 isCurrentUserCardOwner={isCurrentUserCardOwner}
                 cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                 onRefreshAccountRequest={refetchAccountAreaQuery}
-                identificationStatus={identificationStatus}
+                lastRelevantIdentification={lastRelevantIdentification}
               />
 
               <Space height={24} />
@@ -297,7 +318,7 @@ export const CardItemArea = ({
                 isCurrentUserCardOwner={isCurrentUserCardOwner}
                 cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                 onRefreshAccountRequest={refetchAccountAreaQuery}
-                identificationStatus={identificationStatus}
+                lastRelevantIdentification={lastRelevantIdentification}
                 canViewAccount={canViewAccount}
               />
             ),
@@ -317,7 +338,7 @@ export const CardItemArea = ({
                 isCurrentUserCardOwner={isCurrentUserCardOwner}
                 cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                 onRefreshAccountRequest={refetchAccountAreaQuery}
-                identificationStatus={identificationStatus}
+                lastRelevantIdentification={lastRelevantIdentification}
                 canManageCards={canManageCards}
               />
 

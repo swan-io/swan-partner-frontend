@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -28,7 +29,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountAreaQuery, IdentificationStatus } from "../graphql/partner";
+import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { logFrontendError } from "../utils/logger";
 import { Router, accountAreaRoutes } from "../utils/routes";
@@ -136,7 +137,7 @@ type Props = {
   firstName: string;
   lastName: string;
   accountMembershipId: string;
-  identificationStatus: IdentificationStatus;
+  identificationStatusInfo: Option<IdentificationLevelFragment>;
   refetchAccountAreaQuery: () => void;
   additionalInfo: AdditionalInfo;
   shouldDisplayIdVerification: boolean;
@@ -152,7 +153,7 @@ export const NavigationTabBar = ({
   accountMembershipId,
   firstName,
   lastName,
-  identificationStatus,
+  identificationStatusInfo,
   shouldDisplayIdVerification,
   isScrolled,
   onScrollToTop,
@@ -241,16 +242,18 @@ export const NavigationTabBar = ({
 
           {shouldDisplayIdVerification
             ? match({
-                identificationStatus,
+                identificationStatusInfo,
                 hasNotifications: entries.some(item => item.hasNotifications),
                 hasActivationTag: activationTag !== "none",
               })
                 .with(
                   {
-                    identificationStatus: P.union(
-                      "Uninitiated",
-                      "InvalidIdentity",
-                      "InsufficientDocumentQuality",
+                    identificationStatusInfo: P.union(
+                      "NotStarted",
+                      "Started",
+                      "Invalid",
+                      "Canceled",
+                      "Expired",
                     ),
                   },
                   { hasNotifications: true },
@@ -316,11 +319,18 @@ export const NavigationTabBar = ({
                             </LakeText>
 
                             {shouldDisplayIdVerification
-                              ? match(identificationStatus)
+                              ? match(identificationStatusInfo)
                                   .with(
-                                    "Uninitiated",
-                                    "InvalidIdentity",
-                                    "InsufficientDocumentQuality",
+                                    Option.P.None,
+                                    Option.P.Some({
+                                      status: P.union(
+                                        "NotStarted",
+                                        "Started",
+                                        "Invalid",
+                                        "Canceled",
+                                        "Expired",
+                                      ),
+                                    }),
                                     () => (
                                       <>
                                         <Fill minWidth={24} />

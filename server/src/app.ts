@@ -210,6 +210,9 @@ export const start = async ({
   });
 
   await app.register(fastifyHelmet, {
+    crossOriginOpenerPolicy: {
+      policy: "unsafe-none",
+    },
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {

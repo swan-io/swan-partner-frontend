@@ -10,6 +10,7 @@ import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
 import { Http2SecureServer } from "node:http2";
 // @ts-expect-error
+import fastifyHelmet from "@fastify/helmet";
 import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
@@ -205,6 +206,16 @@ export const start = async ({
       secure: env.BANKING_URL.startsWith("https"),
       httpOnly: true,
       domain: `.${new URL(env.BANKING_URL).hostname}`,
+    },
+  });
+
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ["*", "'unsafe-inline'"],
+        frameAncestors: ["'self'"],
+      },
     },
   });
 

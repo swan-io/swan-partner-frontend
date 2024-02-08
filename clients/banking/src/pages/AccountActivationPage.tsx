@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -33,10 +34,11 @@ import {
   SupportingDocumentsForm,
   SupportingDocumentsFormRef,
 } from "../components/SupportingDocumentsForm";
-import { AccountActivationPageDocument } from "../graphql/partner";
+import { AccountActivationPageDocument, IdentificationFragment } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
+import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -282,6 +284,8 @@ type Props = {
   projectName: string;
   refetchAccountAreaQuery: () => void;
   requireFirstTransfer: boolean;
+  hasRequiredIdentificationLevel: boolean | undefined;
+  lastRelevantIdentification: Option<IdentificationFragment>;
 };
 
 export const AccountActivationPage = ({
@@ -292,6 +296,8 @@ export const AccountActivationPage = ({
   projectName,
   refetchAccountAreaQuery,
   requireFirstTransfer,
+  hasRequiredIdentificationLevel,
+  lastRelevantIdentification,
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
@@ -319,7 +325,6 @@ export const AccountActivationPage = ({
     .otherwise(() => "en" as const);
 
   const user = accountMembership?.user;
-  const identificationStatus = user?.identificationStatus;
   const firstName = user?.firstName;
   const lastName = user?.lastName;
   const phoneNumber = user?.mobilePhoneNumber;
@@ -348,24 +353,38 @@ export const AccountActivationPage = ({
 
   const step = useMemo<Step | undefined>(() => {
     return (
-      match({ identificationStatus, account, requireFirstTransfer })
+      match({
+        hasRequiredIdentificationLevel,
+        account,
+        requireFirstTransfer,
+      })
         .returnType<Step | undefined>()
-        .with({ identificationStatus: P.nullish }, () => undefined)
-        // handle legacy account that didn't go through the new process
+        // Handle legacy account that didn't go through the new process
         .with(
           { account: { paymentLevel: "Unlimited", paymentAccountType: "PaymentService" } },
           () => "Done",
         )
+        // Case where the membership doesn't yet have a user, should occur
+        .with({ hasRequiredIdentificationLevel: undefined }, () => undefined)
         .with(
-          { identificationStatus: P.union("Uninitiated", "ReadyToSign") },
-          () => "IdentityVerificationTodo",
+          {
+            hasRequiredIdentificationLevel: false,
+          },
+          () =>
+            match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+              .returnType<Step | undefined>()
+              // this branch shouldn't occur but is required to typecheck
+              .with(Option.P.Some({ status: P.union("Valid", "NotSupported") }), () => undefined)
+              .with(
+                Option.P.None,
+                Option.P.Some({ status: P.union("NotStarted", "Started", "Canceled", "Expired") }),
+                () => "IdentityVerificationTodo",
+              )
+              .with(Option.P.Some({ status: "Pending" }), () => "IdentityVerificationPending")
+              .with(Option.P.Some({ status: "Invalid" }), () => "IdentityVerificationToRedo")
+              .exhaustive(),
         )
-        .with({ identificationStatus: "Processing" }, () => "IdentityVerificationPending")
-        .with(
-          { identificationStatus: P.union("InsufficientDocumentQuality", "InvalidIdentity") },
-          () => "IdentityVerificationToRedo",
-        )
-        .with({ identificationStatus: "ValidIdentity" }, ({ account }): Step | undefined => {
+        .with({ hasRequiredIdentificationLevel: true }, ({ account }): Step | undefined => {
           if (isCompany) {
             return match(documentCollectionStatus)
               .returnType<Step | undefined>()
@@ -400,7 +419,6 @@ export const AccountActivationPage = ({
         .exhaustive()
     );
   }, [
-    identificationStatus,
     account,
     requireFirstTransfer,
     isCompany,
@@ -409,6 +427,8 @@ export const AccountActivationPage = ({
     documentCollectMode,
     accountVisible,
     hasIBAN,
+    hasRequiredIdentificationLevel,
+    lastRelevantIdentification,
   ]);
 
   const [contentVisible, setContentVisible] = useBoolean(false);
@@ -424,23 +444,14 @@ export const AccountActivationPage = ({
     const identificationLevel = accountMembership?.recommendedIdentificationLevel ?? "Expert";
     const params = new URLSearchParams();
     params.set("projectId", projectInfo.id);
+    params.set("identificationLevel", identificationLevel);
+    params.set("redirectTo", Router.PopupCallback());
 
     openPopup({
-      url: match(identificationStatus)
-        // means that the last started process is a QES one
-        .with("ReadyToSign", () => {
-          params.set("identificationLevel", "QES");
-          params.set("redirectTo", Router.PopupCallback());
-          return `/auth/login?${params.toString()}`;
-        })
-        .otherwise(() => {
-          params.set("identificationLevel", identificationLevel);
-          params.set("redirectTo", Router.PopupCallback());
-          return `/auth/login?${params.toString()}`;
-        }),
+      url: `/auth/login?${params.toString()}`,
       onClose: refetchQueries,
     });
-  }, [projectInfo, refetchQueries, identificationStatus, accountMembership]);
+  }, [projectInfo, refetchQueries, accountMembership]);
 
   if (isNullish(step)) {
     return <ErrorView />;
@@ -518,9 +529,9 @@ export const AccountActivationPage = ({
           <Space height={32} />
 
           <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
-            {match(identificationStatus)
-              .with("ReadyToSign", () => t("accountActivation.identity.button.signVerification"))
-              .otherwise(() => t("accountActivation.identity.button.verifyMyIdentity"))}
+            {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+              ? t("accountActivation.identity.button.signVerification")
+              : t("accountActivation.identity.button.verifyMyIdentity")}
           </LakeButton>
         </Box>
       </StepScrollView>

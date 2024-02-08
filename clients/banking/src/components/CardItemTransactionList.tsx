@@ -18,7 +18,7 @@ import { match } from "ts-pattern";
 import {
   CardPageQuery,
   CardTransactionsPageDocument,
-  IdentificationStatus,
+  IdentificationFragment,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
@@ -55,7 +55,7 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   cardRequiresIdentityVerification: boolean;
   onRefreshAccountRequest: () => void;
-  identificationStatus?: IdentificationStatus;
+  lastRelevantIdentification: Option<IdentificationFragment>;
 
   params: {
     isAfterUpdatedAt?: string | undefined;
@@ -93,7 +93,7 @@ export const CardItemTransactionList = ({
   isCurrentUserCardOwner,
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
-  identificationStatus,
+  lastRelevantIdentification,
   canViewAccount,
 }: Props) => {
   const filters: TransactionFiltersState = useMemo(() => {
@@ -247,7 +247,7 @@ export const CardItemTransactionList = ({
                                   },
                                 )}
                                 onComplete={onRefreshAccountRequest}
-                                identificationStatus={identificationStatus}
+                                lastRelevantIdentification={lastRelevantIdentification}
                               />
                             </>
                           ) : null}

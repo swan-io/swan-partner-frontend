@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -21,10 +22,15 @@ import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/compon
 import dayjs from "dayjs";
 import { useCallback, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
-import { IdentificationLevel, ProfilePageDocument } from "../graphql/partner";
+import { P, match } from "ts-pattern";
+import {
+  IdentificationFragment,
+  IdentificationLevel,
+  ProfilePageDocument,
+} from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
+import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -45,12 +51,13 @@ const styles = StyleSheet.create({
 
 type Props = {
   additionalInfo: AdditionalInfo;
-  userStatusIsProcessing: boolean;
   refetchAccountAreaQuery: () => void;
   shouldDisplayIdVerification: boolean;
   email: string;
   recommendedIdentificationLevel: IdentificationLevel;
   accentColor: string;
+  hasRequiredIdentificationLevel: boolean | undefined;
+  lastRelevantIdentification: Option<IdentificationFragment>;
 };
 
 export const ProfilePage = ({
@@ -60,6 +67,8 @@ export const ProfilePage = ({
   shouldDisplayIdVerification,
   email,
   accentColor,
+  hasRequiredIdentificationLevel,
+  lastRelevantIdentification,
 }: Props) => {
   const [{ data }] = useQueryWithErrorBoundary({ query: ProfilePageDocument });
 
@@ -78,20 +87,12 @@ export const ProfilePage = ({
     const params = new URLSearchParams();
     params.set("projectId", data.projectInfo.id);
     params.set("redirectTo", Router.PopupCallback());
+    params.set("identificationLevel", recommendedIdentificationLevel);
     openPopup({
-      url: match(user?.identificationStatus)
-        // means that the last started process is a QES one
-        .with("ReadyToSign", () => {
-          params.set("identificationLevel", "QES");
-          return `/auth/login?${params.toString()}`;
-        })
-        .otherwise(() => {
-          params.set("identificationLevel", recommendedIdentificationLevel);
-          return `/auth/login?${params.toString()}`;
-        }),
+      url: `/auth/login?${params.toString()}`,
       onClose: () => refetchAccountAreaQuery(),
     });
-  }, [data.projectInfo, refetchAccountAreaQuery, user, recommendedIdentificationLevel]);
+  }, [data.projectInfo, refetchAccountAreaQuery, recommendedIdentificationLevel]);
 
   const languageOptions = useMemo(
     () =>
@@ -103,45 +104,50 @@ export const ProfilePage = ({
   );
 
   const tileFooter =
-    shouldDisplayIdVerification &&
-    match(user?.identificationStatus)
-      .with("Uninitiated", () => (
-        <LakeAlert
-          anchored={true}
-          variant="warning"
-          title={t("profile.identityVerification.uninitiated.description")}
-        />
-      ))
-      .with("ReadyToSign", () => (
-        <LakeAlert
-          anchored={true}
-          variant="warning"
-          title={t("profile.identityVerification.readyToSign.description")}
-        />
-      ))
-      .with("Processing", () => (
-        <LakeAlert
-          anchored={true}
-          variant="info"
-          title={t("profile.identityVerification.processing")}
-        >
-          <LakeText variant="smallRegular" color={colors.gray[700]}>
-            {t("profile.identityVerification.processing.description")}
-          </LakeText>
-        </LakeAlert>
-      ))
-      .with("InsufficientDocumentQuality", "InvalidIdentity", () => (
-        <LakeAlert
-          anchored={true}
-          variant="warning"
-          title={t("profile.identityVerification.failed")}
-        >
-          <LakeText variant="smallRegular" color={colors.gray[700]}>
-            {t("profile.identityVerification.failed.description")}
-          </LakeText>
-        </LakeAlert>
-      ))
-      .otherwise(() => null);
+    shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
+      ? match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+          .with(
+            Option.P.None,
+            Option.P.Some({ status: P.union("NotStarted", "Started", "Canceled", "Expired") }),
+            () =>
+              lastRelevantIdentification.map(isReadyToSign).getWithDefault(false) ? (
+                <LakeAlert
+                  anchored={true}
+                  variant="warning"
+                  title={t("profile.identityVerification.readyToSign.description")}
+                />
+              ) : (
+                <LakeAlert
+                  anchored={true}
+                  variant="warning"
+                  title={t("profile.identityVerification.uninitiated.description")}
+                />
+              ),
+          )
+          .with(Option.P.Some({ status: "Pending" }), () => (
+            <LakeAlert
+              anchored={true}
+              variant="info"
+              title={t("profile.identityVerification.processing")}
+            >
+              <LakeText variant="smallRegular" color={colors.gray[700]}>
+                {t("profile.identityVerification.processing.description")}
+              </LakeText>
+            </LakeAlert>
+          ))
+          .with(Option.P.Some({ status: "Invalid" }), () => (
+            <LakeAlert
+              anchored={true}
+              variant="warning"
+              title={t("profile.identityVerification.failed")}
+            >
+              <LakeText variant="smallRegular" color={colors.gray[700]}>
+                {t("profile.identityVerification.failed.description")}
+              </LakeText>
+            </LakeAlert>
+          ))
+          .otherwise(() => null)
+      : null;
 
   return (
     <ResponsiveContainer style={styles.container} breakpoint={breakpoints.large}>
@@ -172,13 +178,24 @@ export const ProfilePage = ({
                     {firstName} {lastName}
                   </LakeHeading>
 
-                  {shouldDisplayIdVerification &&
-                    match(user?.identificationStatus)
+                  {shouldDisplayIdVerification && hasRequiredIdentificationLevel === true ? (
+                    <>
+                      <Space height={12} />
+                      <Tag color="positive">{t("profile.verified")}</Tag>
+                    </>
+                  ) : (
+                    match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
                       .with(
-                        "Uninitiated",
-                        "InsufficientDocumentQuality",
-                        "InvalidIdentity",
-                        "ReadyToSign",
+                        Option.P.None,
+                        Option.P.Some({
+                          status: P.union(
+                            "NotStarted",
+                            "Started",
+                            "Canceled",
+                            "Expired",
+                            "Invalid",
+                          ),
+                        }),
                         () => (
                           <>
                             <Space height={12} />
@@ -186,35 +203,30 @@ export const ProfilePage = ({
                           </>
                         ),
                       )
-                      .with("ValidIdentity", () => (
-                        <>
-                          <Space height={12} />
-                          <Tag color="positive">{t("profile.verified")}</Tag>
-                        </>
-                      ))
-                      .otherwise(() => null)}
+                      .otherwise(() => null)
+                  )}
                 </Box>
 
                 {shouldDisplayIdVerification &&
-                  match(user?.identificationStatus)
-                    .with("Uninitiated", "InsufficientDocumentQuality", "InvalidIdentity", () => (
-                      <>
-                        <Space height={24} />
+                  hasRequiredIdentificationLevel === false &&
+                  match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+                    .with(
+                      Option.P.None,
+                      Option.Some({
+                        status: P.union("NotStarted", "Started", "Invalid", "Canceled", "Expired"),
+                      }),
+                      () => (
+                        <>
+                          <Space height={24} />
 
-                        <LakeButton color="current" mode="primary" onPress={handleProveIdentity}>
-                          {t("profile.verifyIdentity")}
-                        </LakeButton>
-                      </>
-                    ))
-                    .with("ReadyToSign", () => (
-                      <>
-                        <Space height={24} />
-
-                        <LakeButton color="current" mode="primary" onPress={handleProveIdentity}>
-                          {t("profile.finalizeVerification")}
-                        </LakeButton>
-                      </>
-                    ))
+                          <LakeButton color="current" mode="primary" onPress={handleProveIdentity}>
+                            {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+                              ? t("profile.finalizeVerification")
+                              : t("profile.verifyIdentity")}
+                          </LakeButton>
+                        </>
+                      ),
+                    )
                     .otherwise(() => null)}
               </Tile>
 
@@ -278,36 +290,46 @@ export const ProfilePage = ({
                     )}
                   </Box>
 
-                  {shouldDisplayIdVerification &&
-                    user?.identificationStatus === "ValidIdentity" && (
-                      <>
-                        <Space height={12} />
-                        <Tag color="positive">{t("profile.verified")}</Tag>
-                      </>
-                    )}
+                  {shouldDisplayIdVerification && hasRequiredIdentificationLevel === true && (
+                    <>
+                      <Space height={12} />
+                      <Tag color="positive">{t("profile.verified")}</Tag>
+                    </>
+                  )}
                 </View>
 
-                {shouldDisplayIdVerification &&
-                  match(user?.identificationStatus)
-                    .with("Uninitiated", "InsufficientDocumentQuality", "InvalidIdentity", () => (
-                      <>
-                        <Fill minWidth={32} />
+                {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
+                  ? hasRequiredIdentificationLevel === false &&
+                    match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+                      .with(
+                        Option.P.None,
+                        Option.Some({
+                          status: P.union(
+                            "NotStarted",
+                            "Started",
+                            "Invalid",
+                            "Canceled",
+                            "Expired",
+                          ),
+                        }),
+                        () => (
+                          <>
+                            <Fill minWidth={32} />
 
-                        <LakeButton color="current" mode="primary" onPress={handleProveIdentity}>
-                          {t("profile.verifyIdentity")}
-                        </LakeButton>
-                      </>
-                    ))
-                    .with("ReadyToSign", () => (
-                      <>
-                        <Fill minWidth={32} />
-
-                        <LakeButton color="current" mode="primary" onPress={handleProveIdentity}>
-                          {t("profile.finalizeVerification")}
-                        </LakeButton>
-                      </>
-                    ))
-                    .otherwise(() => null)}
+                            <LakeButton
+                              color="current"
+                              mode="primary"
+                              onPress={handleProveIdentity}
+                            >
+                              {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+                                ? t("profile.finalizeVerification")
+                                : t("profile.verifyIdentity")}
+                            </LakeButton>
+                          </>
+                        ),
+                      )
+                      .otherwise(() => null)
+                  : null}
               </Box>
             </Tile>
           )}

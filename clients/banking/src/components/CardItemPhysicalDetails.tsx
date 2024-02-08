@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -42,7 +43,7 @@ import {
   CancelPhysicalCardReason,
   CardPageQuery,
   CompleteAddressInput,
-  IdentificationStatus,
+  IdentificationFragment,
   PrintPhysicalCardDocument,
   ResumePhysicalCardDocument,
   SuspendPhysicalCardDocument,
@@ -432,9 +433,9 @@ type Props = {
   cardRequiresIdentityVerification: boolean;
   onRefreshRequest: () => void;
   onRefreshAccountRequest: () => void;
-  identificationStatus?: IdentificationStatus;
+  lastRelevantIdentification: Option<IdentificationFragment>;
   physicalCardOrderVisible: boolean;
-  bindingUserError: boolean;
+  hasBindingUserError: boolean;
 };
 
 export const CardItemPhysicalDetails = ({
@@ -446,10 +447,10 @@ export const CardItemPhysicalDetails = ({
   canManageAccountMembership,
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
-  identificationStatus,
+  lastRelevantIdentification,
   onRefreshRequest,
   physicalCardOrderVisible,
-  bindingUserError,
+  hasBindingUserError,
 }: Props) => {
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isPermanentlyBlockModalOpen, setIsPermanentlyBlockModalOpen] = useState(false);
@@ -607,7 +608,7 @@ export const CardItemPhysicalDetails = ({
       });
   };
 
-  const textColor = bindingUserError ? colors.gray[300] : colors.gray[800];
+  const textColor = hasBindingUserError ? colors.gray[300] : colors.gray[800];
 
   return (
     <View style={styles.container}>
@@ -658,7 +659,7 @@ export const CardItemPhysicalDetails = ({
                       name: getMemberName({ accountMembership: card.accountMembership }),
                     })}
                     onComplete={onRefreshAccountRequest}
-                    identificationStatus={identificationStatus}
+                    lastRelevantIdentification={lastRelevantIdentification}
                   />
                 </>
               ) : null}
@@ -717,13 +718,13 @@ export const CardItemPhysicalDetails = ({
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
                         placement="bottom"
-                        disabled={!bindingUserError}
+                        disabled={!hasBindingUserError}
                       >
                         <LakeButton
                           color="current"
                           onPress={() => setIsActivationModalOpen(true)}
                           loading={physicalCardActivation.isLoading()}
-                          disabled={bindingUserError}
+                          disabled={hasBindingUserError}
                         >
                           {t("card.physical.activate")}
                         </LakeButton>
@@ -753,10 +754,10 @@ export const CardItemPhysicalDetails = ({
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
                         placement="bottom"
-                        disabled={!bindingUserError}
+                        disabled={!hasBindingUserError}
                       >
                         <LakeButton
-                          disabled={bindingUserError}
+                          disabled={hasBindingUserError}
                           mode="secondary"
                           icon="eye-regular"
                           loading={physicalCardNumberViewing.isLoading()}
@@ -805,7 +806,7 @@ export const CardItemPhysicalDetails = ({
 
                             <LakeText
                               color={
-                                bindingUserError
+                                hasBindingUserError
                                   ? colors.gray[300]
                                   : Number(spending.amount.value) >=
                                       Number(spendingLimit.amount.value)
@@ -926,8 +927,8 @@ export const CardItemPhysicalDetails = ({
                           icon: "lock-closed-regular" as const,
                           onPress: () => suspendCard(),
                           isLoading: cardSuspension.isLoading(),
-                          disabled: bindingUserError,
-                          tooltipDisabled: !bindingUserError,
+                          disabled: hasBindingUserError,
+                          tooltipDisabled: !hasBindingUserError,
                           tooltipText: t("card.tooltipConflict"),
                         },
                       ],
@@ -946,8 +947,8 @@ export const CardItemPhysicalDetails = ({
                           color: colors.warning.contrast,
                           backgroundColor: colors.warning[500],
                           isLoading: cardUnsuspension.isLoading(),
-                          disabled: bindingUserError,
-                          tooltipDisabled: !bindingUserError,
+                          disabled: hasBindingUserError,
+                          tooltipDisabled: !hasBindingUserError,
                           tooltipText: t("card.tooltipConflict"),
                         },
                       ],
@@ -976,8 +977,8 @@ export const CardItemPhysicalDetails = ({
                           label: t("card.physical.cancel"),
                           icon: "subtract-circle-regular" as const,
                           onPress: () => setIsPermanentlyBlockModalOpen(true),
-                          disabled: bindingUserError,
-                          tooltipDisabled: !bindingUserError,
+                          disabled: hasBindingUserError,
+                          tooltipDisabled: !hasBindingUserError,
                           tooltipText: t("card.tooltipConflict"),
                         },
                       ],
@@ -1007,8 +1008,8 @@ export const CardItemPhysicalDetails = ({
                           icon: "key-regular" as const,
                           onPress: () => viewPinCode(),
                           isLoading: pinCardViewing.isLoading(),
-                          disabled: bindingUserError,
-                          tooltipDisabled: !bindingUserError,
+                          disabled: hasBindingUserError,
+                          tooltipDisabled: !hasBindingUserError,
                           tooltipText: t("card.tooltipConflict"),
                         },
                       ],
@@ -1099,10 +1100,10 @@ export const CardItemPhysicalDetails = ({
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
                         placement="bottom"
-                        disabled={!bindingUserError}
+                        disabled={!hasBindingUserError}
                       >
                         <LakeButton
-                          disabled={bindingUserError}
+                          disabled={hasBindingUserError}
                           color="current"
                           onPress={() => setIsOrderModalOpen(true)}
                         >

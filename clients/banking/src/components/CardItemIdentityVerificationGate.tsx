@@ -1,10 +1,12 @@
+import { Option } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { StyleSheet, View } from "react-native";
-import { IdentificationLevel, IdentificationStatus } from "../graphql/partner";
+import { IdentificationFragment, IdentificationLevel } from "../graphql/partner";
 import { openPopup } from "../states/popup";
 import { t } from "../utils/i18n";
+import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -17,7 +19,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   isCurrentUserCardOwner: boolean;
-  identificationStatus?: IdentificationStatus;
+  lastRelevantIdentification: Option<IdentificationFragment>;
   recommendedIdentificationLevel: IdentificationLevel;
   description: string;
   descriptionForOtherMember: string;
@@ -27,7 +29,7 @@ type Props = {
 
 export const CardItemIdentityVerificationGate = ({
   isCurrentUserCardOwner,
-  identificationStatus,
+  lastRelevantIdentification,
   recommendedIdentificationLevel,
   description,
   descriptionForOtherMember,
@@ -45,18 +47,17 @@ export const CardItemIdentityVerificationGate = ({
     });
   };
 
+  const isProcessing = lastRelevantIdentification
+    .map(getIdentificationLevelStatusInfo)
+    .map(({ status }) => status === "Pending")
+    .getWithDefault(false);
+
   return (
     <View style={styles.container}>
       {isCurrentUserCardOwner ? (
         <Tile footer={<LakeAlert anchored={true} variant="warning" title={description} />}>
-          <LakeButton
-            color="current"
-            onPress={onPressProve}
-            disabled={identificationStatus === "Processing"}
-          >
-            {identificationStatus === "Processing"
-              ? t("profile.verifyIdentity.processing")
-              : t("profile.verifyIdentity")}
+          <LakeButton color="current" onPress={onPressProve} disabled={isProcessing}>
+            {isProcessing ? t("profile.verifyIdentity.processing") : t("profile.verifyIdentity")}
           </LakeButton>
         </Tile>
       ) : (

@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -16,8 +17,8 @@ import {
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
-import { IdentificationStatus } from "../graphql/partner";
+import { P, match } from "ts-pattern";
+import { IdentificationLevelFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
 type Props = {
   firstName: string;
   lastName: string;
-  identificationStatus: IdentificationStatus;
+  identificationStatusInfo: Option<IdentificationLevelFragment>;
   accountMembershipId: string;
   shouldDisplayIdVerification: boolean;
 };
@@ -59,7 +60,7 @@ export const ProfileButton = memo<Props>(
   ({
     firstName,
     lastName,
-    identificationStatus,
+    identificationStatusInfo,
     accountMembershipId,
     shouldDisplayIdVerification,
   }) => {
@@ -88,12 +89,18 @@ export const ProfileButton = memo<Props>(
                   </LakeText>
 
                   {shouldDisplayIdVerification
-                    ? match(identificationStatus)
+                    ? match(identificationStatusInfo)
                         .with(
-                          "Uninitiated",
-                          "InvalidIdentity",
-                          "InsufficientDocumentQuality",
-                          "ReadyToSign",
+                          Option.P.None,
+                          Option.P.Some({
+                            status: P.union(
+                              "NotStarted",
+                              "Started",
+                              "Invalid",
+                              "Canceled",
+                              "Expired",
+                            ),
+                          }),
                           () => (
                             <>
                               <Space height={4} />

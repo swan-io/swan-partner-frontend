@@ -1,4 +1,4 @@
-import { Array, Dict, Option, Result } from "@swan-io/boxed";
+import { Option, Result } from "@swan-io/boxed";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
@@ -38,10 +38,11 @@ import {
   View,
 } from "react-native";
 import { P, match } from "ts-pattern";
+import { useQuery } from "urql";
 import logoSwan from "../assets/images/logo-swan.svg";
 import {
   AccountAreaDocument,
-  IdentificationLevelsFragment,
+  LastRelevantIdentificationDocument,
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
@@ -49,6 +50,7 @@ import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { logFrontendError, setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
 import {
@@ -150,13 +152,6 @@ type Props = {
   accountMembershipId: string;
 };
 
-const defaultIdentificationLevels: IdentificationLevelsFragment = {
-  __typename: "IdentificationLevels",
-  expert: false,
-  QES: false,
-  PVID: false,
-};
-
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 export const AccountArea = ({ accountMembershipId }: Props) => {
@@ -191,6 +186,25 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     variables: { accountMembershipId },
   });
 
+  const hasRequiredIdentificationLevel =
+    accountMembership?.hasRequiredIdentificationLevel ?? undefined;
+
+  // We have to perform a cascading request here because the `recommendedIdentificationLevel`
+  // is only available once the account membership is loaded.
+  // This is acceptable because it only triggers the query if necessary.
+  const [{ data: lastRelevantIdentificationData }] = useQuery({
+    query: LastRelevantIdentificationDocument,
+    pause: hasRequiredIdentificationLevel !== false,
+    variables: {
+      accountMembershipId,
+      identificationProcess: accountMembership?.recommendedIdentificationLevel,
+    },
+  });
+
+  const lastRelevantIdentification = Option.fromNullable(
+    lastRelevantIdentificationData?.accountMembership?.user?.identifications?.edges?.[0]?.node,
+  );
+
   const [, updateAccountLanguage] = useUrqlMutation(UpdateAccountLanguageDocument);
 
   const accountId = accountMembership?.account?.id;
@@ -224,16 +238,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const isIndividual = holder?.info.__typename === "AccountHolderIndividualInfo";
   const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-  const identificationStatus = user?.identificationStatus;
-  const identificationLevels: IdentificationLevelsFragment =
-    user?.identificationLevels ?? defaultIdentificationLevels;
-  const userStatusIsProcessing = identificationStatus === "Processing";
-
-  // checks that at least one identificationLevel is valid
-  const idVerified = Array.filterMap(Dict.entries(identificationLevels), ([_, value]) =>
-    typeof value === "boolean" ? Option.Some(value) : Option.None(),
-  ).some(isValid => isValid);
-
   const requireFirstTransfer = match({ account, user })
     .with(
       { account: { country: "FRA" }, user: { identificationLevels: { PVID: false, QES: false } } },
@@ -261,7 +265,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     documentCollectionStatus,
     documentCollectMode,
     hasTransactions,
-    identificationStatus,
+    identificationStatusInfo: lastRelevantIdentification.map(getIdentificationLevelStatusInfo),
     accountHolderType: account?.holder.info.__typename,
     verificationStatus: account?.holder.verificationStatus,
     isIndividual,
@@ -278,8 +282,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     )
     // never show to non-legal rep memberships
     .with({ isLegalRepresentative: false }, () => "none")
-    .with({ identificationStatus: "Processing" }, () => "pending")
-    .with({ identificationStatus: P.not("ValidIdentity") }, () => "actionRequired")
+    .with({ identificationStatusInfo: Option.P.Some({ status: "Pending" }) }, () => "pending")
+    .with(
+      { identificationStatusInfo: Option.P.Some({ status: P.not("Valid") }) },
+      () => "actionRequired",
+    )
     .with(
       { documentCollectionStatus: "PendingReview", accountHolderType: "AccountHolderCompanyInfo" },
       () => "pending",
@@ -371,6 +378,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   const virtualCardOrderVisible = Boolean(settings?.virtualCardOrderVisible);
   const cardOrderVisible = physicalCardOrderVisible || virtualCardOrderVisible;
 
+  const B2BMembershipIDVerification = projectInfo.B2BMembershipIDVerification;
+
   const membership = useMemo(
     () =>
       currentAccountMembership.map(accountMembership => {
@@ -382,6 +391,17 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           accountMembership.canManageAccountMembership && membershipEnabled;
         const canAddCard = canViewAccount && canManageCards;
 
+        // identity verication is removed for permission-less membership
+        // if the project has a disabled `B2BMembershipIDVerification`
+        const shouldDisplayIdVerification = !(
+          B2BMembershipIDVerification === false &&
+          accountMembership.canManageAccountMembership === false &&
+          accountMembership.canInitiatePayments === false &&
+          accountMembership.canManageBeneficiaries === false &&
+          accountMembership.canViewAccount === false &&
+          accountMembership.canManageCards === false
+        );
+
         return {
           accountMembership,
           canManageAccountMembership,
@@ -389,6 +409,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           canManageBeneficiaries,
           canAddCard,
           canManageCards,
+
+          shouldDisplayIdVerification,
 
           historyMenuIsVisible: canViewAccount,
           detailsMenuIsVisible: canViewAccount && accountVisible,
@@ -414,6 +436,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
       cardOrderVisible,
       memberListVisible,
       transferCreationVisible,
+      B2BMembershipIDVerification,
     ],
   );
 
@@ -598,68 +621,66 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
               )}
 
               {match(membership)
-                .with(Result.P.Ok(P.select()), ({ accountMembership }) => (
-                  <>
-                    <Space height={32} />
+                .with(
+                  Result.P.Ok(P.select()),
+                  ({ accountMembership, shouldDisplayIdVerification }) => (
+                    <>
+                      <Space height={32} />
 
-                    <AccountPickerButton
-                      ref={accountPickerButtonRef}
-                      desktop={true}
-                      accountMembershipId={accountMembershipId}
-                      activationTag={activationTag}
-                      activationLinkActive={route?.name === "AccountActivation"}
-                      hasMultipleMemberships={hasMultipleMemberships}
-                      selectedAccountMembership={accountMembership}
-                      onPress={setAccountPickerOpen.on}
-                      availableBalance={availableBalance}
-                    />
+                      <AccountPickerButton
+                        ref={accountPickerButtonRef}
+                        desktop={true}
+                        accountMembershipId={accountMembershipId}
+                        activationTag={activationTag}
+                        activationLinkActive={route?.name === "AccountActivation"}
+                        hasMultipleMemberships={hasMultipleMemberships}
+                        selectedAccountMembership={accountMembership}
+                        onPress={setAccountPickerOpen.on}
+                        availableBalance={availableBalance}
+                      />
 
-                    <Popover
-                      referenceRef={accountPickerButtonRef}
-                      matchReferenceMinWidth={true}
-                      visible={isAccountPickerOpen}
-                      onDismiss={setAccountPickerOpen.off}
-                    >
-                      <View style={styles.accountPicker}>
-                        <AccountPicker
-                          accountMembershipId={accountMembershipId}
-                          availableBalance={availableBalance}
-                          onPressItem={accountMembershipId => {
-                            // TODO: Prevent full reload by tweaking layout + Suspense
-                            window.location.assign(Router.AccountRoot({ accountMembershipId }));
-                          }}
-                        />
-                      </View>
-                    </Popover>
+                      <Popover
+                        referenceRef={accountPickerButtonRef}
+                        matchReferenceMinWidth={true}
+                        visible={isAccountPickerOpen}
+                        onDismiss={setAccountPickerOpen.off}
+                      >
+                        <View style={styles.accountPicker}>
+                          <AccountPicker
+                            accountMembershipId={accountMembershipId}
+                            availableBalance={availableBalance}
+                            onPressItem={accountMembershipId => {
+                              // TODO: Prevent full reload by tweaking layout + Suspense
+                              window.location.assign(Router.AccountRoot({ accountMembershipId }));
+                            }}
+                          />
+                        </View>
+                      </Popover>
 
-                    <Space height={32} />
-                    <AccountNavigation menu={menu} />
-                    <Fill minHeight={48} />
+                      <Space height={32} />
+                      <AccountNavigation menu={menu} />
+                      <Fill minHeight={48} />
 
-                    <Pressable role="button" style={styles.additionalLink} onPress={signout}>
-                      <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
-                      <Space width={12} />
-                      <LakeText variant="medium">{t("login.signout")}</LakeText>
-                    </Pressable>
+                      <Pressable role="button" style={styles.additionalLink} onPress={signout}>
+                        <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
+                        <Space width={12} />
+                        <LakeText variant="medium">{t("login.signout")}</LakeText>
+                      </Pressable>
 
-                    <Space height={12} />
+                      <Space height={12} />
 
-                    <ProfileButton
-                      identificationStatus={identificationStatus ?? "Uninitiated"}
-                      firstName={firstName}
-                      lastName={lastName}
-                      accountMembershipId={accountMembershipId}
-                      shouldDisplayIdVerification={
-                        !(
-                          projectInfo.B2BMembershipIDVerification === false &&
-                          accountMembership.canManageAccountMembership === false &&
-                          accountMembership.canInitiatePayments === false &&
-                          accountMembership.canManageBeneficiaries === false
-                        )
-                      }
-                    />
-                  </>
-                ))
+                      <ProfileButton
+                        identificationStatusInfo={lastRelevantIdentification.map(
+                          getIdentificationLevelStatusInfo,
+                        )}
+                        firstName={firstName}
+                        lastName={lastName}
+                        accountMembershipId={accountMembershipId}
+                        shouldDisplayIdVerification={shouldDisplayIdVerification}
+                      />
+                    </>
+                  ),
+                )
                 .otherwise(() => null)}
             </SidebarNavigationTracker>
           )}
@@ -713,6 +734,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                       detailsMenuIsVisible,
                       memberMenuIsVisible,
                       paymentMenuIsVisible,
+                      shouldDisplayIdVerification,
                     }) => {
                       const accountId = accountMembership.account?.id;
 
@@ -740,6 +762,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                         return (
                           <AccountActivationPage
                             requireFirstTransfer={requireFirstTransfer}
+                            hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                            lastRelevantIdentification={lastRelevantIdentification}
                             accentColor={accentColor}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
@@ -766,17 +790,11 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountMembership.recommendedIdentificationLevel
                                 }
                                 additionalInfo={additionalInfo}
-                                userStatusIsProcessing={userStatusIsProcessing}
                                 refetchAccountAreaQuery={refetchAccountAreaQuery}
                                 email={accountMembership.email}
-                                shouldDisplayIdVerification={
-                                  !(
-                                    projectInfo.B2BMembershipIDVerification === false &&
-                                    canManageAccountMembership === false &&
-                                    accountMembership.canInitiatePayments === false &&
-                                    accountMembership.canManageBeneficiaries === false
-                                  )
-                                }
+                                shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                lastRelevantIdentification={lastRelevantIdentification}
                               />
                             ))
                             .with({ name: "AccountDetailsArea" }, () =>
@@ -788,9 +806,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                   accountMembershipId={accountMembershipId}
                                   canManageAccountMembership={canManageAccountMembership}
                                   virtualIbansVisible={virtualIbansVisible}
-                                  idVerified={idVerified}
                                   projectName={projectName}
-                                  userStatusIsProcessing={userStatusIsProcessing}
                                   isIndividual={isIndividual}
                                 />
                               ),
@@ -844,9 +860,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 canAddCard={canAddCard}
                                 canManageCards={canManageCards}
                                 accountMembership={accountMembership}
-                                idVerified={idVerified}
-                                userStatusIsProcessing={userStatusIsProcessing}
                                 canManageAccountMembership={canManageAccountMembership}
+                                shouldDisplayIdVerification={shouldDisplayIdVerification}
                                 cardOrderVisible={cardOrderVisible}
                                 physicalCardOrderVisible={physicalCardOrderVisible}
                               />
@@ -873,9 +888,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                       currentUserAccountMembership={currentUserAccountMembership}
                                       cardOrderVisible={cardOrderVisible}
                                       physicalCardOrderVisible={physicalCardOrderVisible}
-                                      shouldDisplayIdVerification={
-                                        projectInfo.B2BMembershipIDVerification !== false
-                                      }
+                                      shouldDisplayIdVerification={shouldDisplayIdVerification}
                                     />
                                   ),
                                 )
@@ -883,6 +896,8 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                             )
                             .with({ name: "AccountActivation" }, () => (
                               <AccountActivationPage
+                                hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                lastRelevantIdentification={lastRelevantIdentification}
                                 requireFirstTransfer={requireFirstTransfer}
                                 accentColor={accentColor}
                                 accountMembershipId={accountMembershipId}
@@ -916,21 +931,16 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           {!desktop &&
             membership.match({
               Error: () => null,
-              Ok: membership => (
+              Ok: ({ accountMembership, shouldDisplayIdVerification }) => (
                 <NavigationTabBar
-                  identificationStatus={identificationStatus ?? "Uninitiated"}
+                  identificationStatusInfo={lastRelevantIdentification.map(
+                    getIdentificationLevelStatusInfo,
+                  )}
                   accountMembershipId={accountMembershipId}
                   hasMultipleMemberships={hasMultipleMemberships}
                   activationTag={activationTag}
-                  accountMembership={membership.accountMembership}
-                  shouldDisplayIdVerification={
-                    !(
-                      projectInfo.B2BMembershipIDVerification === false &&
-                      membership.canManageAccountMembership === false &&
-                      membership.canInitiatePayments === false &&
-                      membership.canManageBeneficiaries === false
-                    )
-                  }
+                  accountMembership={accountMembership}
+                  shouldDisplayIdVerification={shouldDisplayIdVerification}
                   additionalInfo={additionalInfo}
                   entries={menu}
                   firstName={firstName}

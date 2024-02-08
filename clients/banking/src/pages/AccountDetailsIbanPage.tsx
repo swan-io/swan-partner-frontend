@@ -61,19 +61,10 @@ const IBANCopyLine = ({ IBAN }: { IBAN: string }) => (
 
 type Props = {
   accountId: string;
-  accountMembershipId: string;
-  idVerified: boolean;
   largeBreakpoint: boolean;
-  userStatusIsProcessing: boolean;
 };
 
-export const AccountDetailsIbanPage = ({
-  // accountMembershipId,
-  // idVerified,
-  // userStatusIsProcessing,
-  accountId,
-  largeBreakpoint,
-}: Props) => {
+export const AccountDetailsIbanPage = ({ accountId, largeBreakpoint }: Props) => {
   const { data } = useUrqlQuery(
     { query: AccountDetailsIbanPageDocument, variables: { accountId } },
     [],

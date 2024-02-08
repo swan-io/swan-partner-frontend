@@ -234,6 +234,74 @@ query AuthStatus {
   }
 }
 
+fragment IdentificationLevelFragment on IdentificationLevelStatusInfo {
+  ... on NotSupportedIdentificationLevelStatusInfo {
+    status
+  }
+  ... on StartedIdentificationLevelStatusInfo {
+    status
+  }
+  ... on PendingIdentificationLevelStatusInfo {
+    status
+  }
+  ... on ValidIdentificationLevelStatusInfo {
+    status
+  }
+  ... on InvalidIdentificationLevelStatusInfo {
+    reasons
+    status
+  }
+  ... on CanceledIdentificationLevelStatusInfo {
+    status
+  }
+  ... on ExpiredIdentificationLevelStatusInfo {
+    status
+    expiredAt
+  }
+  ... on NotStartedIdentificationLevelStatusInfo {
+    status
+  }
+}
+
+fragment Identification on Identification {
+  id
+  levels {
+    expert {
+      ...IdentificationLevelFragment
+    }
+    pvid {
+      ...IdentificationLevelFragment
+    }
+    qes {
+      ...IdentificationLevelFragment
+    }
+  }
+  process
+}
+
+query LastRelevantIdentification(
+  $accountMembershipId: ID!
+  $identificationProcess: [IdentificationProcess!]
+) {
+  accountMembership(id: $accountMembershipId) {
+    id
+    user {
+      id
+      identifications(
+        first: 1
+        orderBy: { field: updatedAt, direction: Desc }
+        filters: { processes: $identificationProcess }
+      ) {
+        edges {
+          node {
+            ...Identification
+          }
+        }
+      }
+    }
+  }
+}
+
 query AccountArea($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
@@ -305,8 +373,6 @@ query AccountArea($accountMembershipId: ID!) {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
-    identificationStatus
     identificationLevels {
       ...IdentificationLevelsFragment
     }
@@ -715,7 +781,6 @@ fragment DigitalCard on DigitalCard {
 query CardPage($cardId: ID!) {
   projectInfo {
     id
-    B2BMembershipIDVerification
   }
   card(cardId: $cardId) {
     id
@@ -740,6 +805,7 @@ query CardPage($cardId: ID!) {
       id
       canManageAccountMembership
       recommendedIdentificationLevel
+      hasRequiredIdentificationLevel
       canViewAccount
       canManageBeneficiaries
       canInitiatePayments
@@ -768,7 +834,6 @@ query CardPage($cardId: ID!) {
         id
         firstName
         lastName
-        identificationStatus
         identificationLevels {
           expert
           QES
@@ -1299,6 +1364,7 @@ fragment AccountMembership on AccountMembership {
   email
   legalRepresentative
   recommendedIdentificationLevel
+  hasRequiredIdentificationLevel
   statusInfo {
     __typename
     status
@@ -1338,7 +1404,6 @@ fragment AccountMembership on AccountMembership {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
   }
   account {
     id
@@ -1358,6 +1423,10 @@ fragment AccountMembership on AccountMembership {
 }
 
 query MembershipDetail($accountMembershipId: ID!) {
+  projectInfo {
+    id
+    B2BMembershipIDVerification
+  }
   accountMembership(id: $accountMembershipId) {
     ...AccountMembership
   }
@@ -1457,8 +1526,6 @@ query ProfilePage {
     firstName
     lastName
     mobilePhoneNumber
-    idVerified
-    identificationStatus
     birthDate
   }
 }
@@ -1529,12 +1596,6 @@ query AccountActivationPage($accountMembershipId: ID!) {
     }
     user {
       id
-      identificationStatus
-      identificationLevels {
-        expert
-        QES
-        PVID
-      }
       firstName
       lastName
       birthDate

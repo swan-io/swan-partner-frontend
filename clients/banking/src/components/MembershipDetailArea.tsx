@@ -12,6 +12,7 @@ import { colors, negativeSpacings, spacings } from "@swan-io/lake/src/constants/
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import dayjs from "dayjs";
+import { useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { useQuery } from "urql";
@@ -94,13 +95,41 @@ export const MembershipDetailArea = ({
     variables: { accountMembershipId: editingAccountMembershipId },
   });
 
-  const accountMembership = data?.accountMembership;
+  const accountMembership = useMemo(() => {
+    return match(data)
+      .returnType<AccountMembershipFragment | undefined>()
+      .with(
+        {
+          accountMembership: {
+            canManageAccountMembership: false,
+            canInitiatePayments: false,
+            canManageBeneficiaries: false,
+            canViewAccount: false,
+            canManageCards: false,
+            statusInfo: {
+              __typename: "AccountMembershipBindingUserErrorStatusInfo",
+              idVerifiedMatchError: true,
+            },
+          },
+          projectInfo: { B2BMembershipIDVerification: false },
+        },
+        ({ accountMembership }) => ({
+          ...accountMembership,
+          statusInfo: {
+            ...accountMembership.statusInfo,
+            idVerifiedMatchError: false,
+          },
+        }),
+      )
+      .otherwise(() => data?.accountMembership ?? undefined);
+  }, [data]);
+
   if (accountMembership == null) {
     return null;
   }
 
   const requiresIdentityVerification =
-    shouldDisplayIdVerification && accountMembership.user?.idVerified === false;
+    shouldDisplayIdVerification && accountMembership.hasRequiredIdentificationLevel === false;
 
   return (
     <ScrollView

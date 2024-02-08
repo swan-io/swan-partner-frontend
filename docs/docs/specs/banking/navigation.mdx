@@ -4,7 +4,7 @@ The primary navigation for the web banking app consists of four main sections:
 
 1. Partner **logo** and **environment** type.
 1. **Account information**, including account name, user name or email address, and balance.
-1. **Application pages**, namely *History*, *Account*, *Transfer*, *Cards*, and *Members*.
+1. **Application pages**, namely _History_, _Account_, _Transfer_, _Cards_, and _Members_.
 1. Option to **sign out** and view your own **user profile**.
 
 ![Screenshot of the navigation with the four sections highlighted](./images/nav-main.png)
@@ -24,7 +24,7 @@ Alternatively, only the email address might be displayed.
 
 ![Focused screenshot of section two of the navigation (account information)](./images/nav-section2.png)
 
-All are retrieved with the API, though visibility is determined by account membership permissions (an *account membership* is what binds a user to an account).
+All are retrieved with the API, though visibility is determined by account membership permissions (an _account membership_ is what binds a user to an account).
 For any user, query **account memberships** to see which accounts they can access.
 
 **Display the currently-selected account membership**.
@@ -32,10 +32,10 @@ When multiple account memberships are available, they should be accessible with 
 
 Based on `canViewAccount` permissions, display the following:
 
-| `canViewAccount` | Display |
-| --- | --- |
-| **`true`** | <ul><li>`membership.account.name` (example: My account)</li><li>`membership.account.holder.name` (example: Matthias Le Brun)</li><li>`account.balance.available`</li></ul> |
-| **`false`**<br />(restricts access to the account membership property `account`) | <ul><li>`membership.email` (example: m.lebrun[@]mybrand.com)</li></ul> |
+| `canViewAccount`                                                                 | Display                                                                                                                                                                    |
+| -------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **`true`**                                                                       | <ul><li>`membership.account.name` (example: My account)</li><li>`membership.account.holder.name` (example: Matthias Le Brun)</li><li>`account.balance.available`</li></ul> |
+| **`false`**<br />(restricts access to the account membership property `account`) | <ul><li>`membership.email` (example: m.lebrun[@]mybrand.com)</li></ul>                                                                                                     |
 
 :::note Account member with no permissions
 A user can be an account member **without any permissions**, even the permission to view the account.
@@ -44,18 +44,19 @@ This account member won’t be able to access any account information, including
 
 ### Status tags
 
-The account information section can also be used to share details about the user's `identificationStatus`, `documentCollectionStatus`, and `transactions`.
+The account information section can also be used to share details about the user's `identifications`, `documentCollectionStatus`, and `transactions`.
 
 ![Focused screenshot of tag that might be added to account information](./images/nav-section2-tags.png)
 
-| Status | Explanation | Tag |
-| --- | --- | --- |
-| **`identificationStatus`** is `Processing` | Identification verification is still processing | **Pending** |
-| **`identificationStatus`** is *not* `ValidIdentity` or `Processing` | Identification verification is at any stage of processing, but not completed | **Action Required** |
-| **`identificationStatus`** is `Uninitiated`, `InsufficientDocumentQuality`, `InvalidIdentity`, `ReadyToSign` | If any of these statuses are present **and** the project and account membership [require identity verification](./identity-verification-bypass)  | **Action Required** |
-| **`documentCollectionStatus`** is *not* `Approved` or `PendingReview` | If **any** account holder has missing or invalid documents (`supportingDocumentCollections`) | **Action Required** |
-| **`documentCollectionStatus`** is `PendingReview` | If **any** account holder has documents being reviewed (`supportingDocumentCollections`) | **Pending** |
-| **`transactions`** total is `0` | For `individual` account holders only | **Action Required** |
+We get the last relevant identification (the one matching the `recommendedIdentificationLevel` on the account membership).
+
+| Status                                                                | Explanation                                                                                  | Tag                 |
+| --------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- | ------------------- |
+| **`identification`** is `Pending`                                     | Identification verification is still processing                                              | **Pending**         |
+| **`identification`** is _not_ `Valid` or `Pending`                    | Identification verification is at any stage of processing, but not completed                 | **Action Required** |
+| **`documentCollectionStatus`** is _not_ `Approved` or `PendingReview` | If **any** account holder has missing or invalid documents (`supportingDocumentCollections`) | **Action Required** |
+| **`documentCollectionStatus`** is `PendingReview`                     | If **any** account holder has documents being reviewed (`supportingDocumentCollections`)     | **Pending**         |
+| **`transactions`** total is `0`                                       | For `individual` account holders only                                                        | **Action Required** |
 
 ## Section 3: Application pages
 
@@ -63,13 +64,13 @@ Pages are visible based on account membership permissions.
 
 ![Focused screenshot of section three of the navigation (application pages)](./images/nav-section3.png)
 
-| Page | Rules |
-| --- | --- |
-| History (1) | Visible if `membership.canViewAccount` is `true` |
-| Account (2) | Visible if `membership.canViewAccount` is `true` |
-| Payments (3) | Visible if **all match**: <br /><ul><li>either `webBankingSettings.canInitiatePaymentsToNewBeneficiaries` or `webBankingSettings.canViewPaymentList` is `true`</li><li>`membership.canInitiatePayments` is `true`</li><li>`membership.statusInfo.status` is `Enabled`</li></ul> |
-| Cards (4) | Visible if **either match**: <br /><ul><li>`membership.canManageMembership` and `webBankingSettings.canOrderVirtualCards` is `true`</li><li>`membership.cards.totalCount` > 0 (allows users to manage their cards, even without the permissions)</li></ul> |
-| Members (5) | Visible if **all match**: <br /><ul><li>`webBankingSettings.canViewMembers` is `true`</li><li>`membership.canManageMembership` is `true`</li></ul><br />Display a notification alert (often a small, red circle) if the account has at least one membership with the status `BindingUserErrorStatus`. |
+| Page         | Rules                                                                                                                                                                                                                                                                                                 |
+| ------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| History (1)  | Visible if `membership.canViewAccount` is `true`                                                                                                                                                                                                                                                      |
+| Account (2)  | Visible if `membership.canViewAccount` is `true`                                                                                                                                                                                                                                                      |
+| Payments (3) | Visible if **all match**: <br /><ul><li>either `webBankingSettings.canInitiatePaymentsToNewBeneficiaries` or `webBankingSettings.canViewPaymentList` is `true`</li><li>`membership.canInitiatePayments` is `true`</li><li>`membership.statusInfo.status` is `Enabled`</li></ul>                       |
+| Cards (4)    | Visible if **either match**: <br /><ul><li>`membership.canManageMembership` and `webBankingSettings.canOrderVirtualCards` is `true`</li><li>`membership.cards.totalCount` > 0 (allows users to manage their cards, even without the permissions)</li></ul>                                            |
+| Members (5)  | Visible if **all match**: <br /><ul><li>`webBankingSettings.canViewMembers` is `true`</li><li>`membership.canManageMembership` is `true`</li></ul><br />Display a notification alert (often a small, red circle) if the account has at least one membership with the status `BindingUserErrorStatus`. |
 
 ## Section 4: Sign out and profile
 

@@ -1,5 +1,6 @@
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
+import fastifyHelmet from "@fastify/helmet";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import sensible from "@fastify/sensible";
@@ -10,7 +11,6 @@ import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
 import { Http2SecureServer } from "node:http2";
 // @ts-expect-error
-import fastifyHelmet from "@fastify/helmet";
 import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";

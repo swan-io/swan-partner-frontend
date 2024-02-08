@@ -1,5 +1,6 @@
 import accepts from "@fastify/accepts";
 import cors from "@fastify/cors";
+import fastifyHelmet from "@fastify/helmet";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
 import sensible from "@fastify/sensible";
@@ -205,6 +206,16 @@ export const start = async ({
       secure: env.BANKING_URL.startsWith("https"),
       httpOnly: true,
       domain: `.${new URL(env.BANKING_URL).hostname}`,
+    },
+  });
+
+  await app.register(fastifyHelmet, {
+    contentSecurityPolicy: {
+      useDefaults: false,
+      directives: {
+        defaultSrc: ["*", "'unsafe-inline'"],
+        frameAncestors: ["'self'"],
+      },
     },
   });
 

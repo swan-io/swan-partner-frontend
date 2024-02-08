@@ -216,7 +216,7 @@ export const start = async ({
     contentSecurityPolicy: {
       useDefaults: false,
       directives: {
-        defaultSrc: ["*", "'unsafe-inline'"],
+        defaultSrc: ["*", "data:*", "'unsafe-inline'"],
         frameAncestors: ["'self'"],
       },
     },

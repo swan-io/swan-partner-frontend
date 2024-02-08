@@ -41,7 +41,7 @@ const create = async (page: Page, options: Options) => {
   await clickOnButton(layer, t("banking.common.next"));
 
   await waitForText(layer, t("banking.cardWizard.header.cardSettings"));
-  await layer.getByLabel("Card name - (optional)").fill(name);
+  await layer.getByLabel("Card name - optional").fill(name);
 
   if (options.kind === "singleUse") {
     await layer.getByLabel(t("banking.cardSettings.amount")).fill("42");

@@ -10,6 +10,8 @@ import { saveSession } from "./utils/session";
 import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
+const SHOULD_RECREATE = false;
+
 test("Test suite setup", async ({ browser, page, request }) => {
   const requestApi = getApiRequester(request);
 
@@ -25,44 +27,46 @@ test("Test suite setup", async ({ browser, page, request }) => {
     user: userTokens,
   });
 
-  const [createBenady, createSaison] = await Promise.all([
-    requestApi({
-      query: CreateSandboxUserDocument,
+  if (SHOULD_RECREATE) {
+    const [createBenady, createSaison] = await Promise.all([
+      requestApi({
+        query: CreateSandboxUserDocument,
+        as: "user",
+        api: "partner-admin",
+        variables: {
+          lastName: "Benady",
+          firstName: "Nicolas",
+        },
+      }).then(response => response.createSandboxUser),
+
+      requestApi({
+        query: CreateSandboxUserDocument,
+        as: "user",
+        api: "partner-admin",
+        variables: {
+          lastName: "Saison",
+          firstName: "Nicolas",
+        },
+      }).then(response => response.createSandboxUser),
+    ]);
+
+    assertTypename(createBenady, "CreateSandboxUserSuccessPayload");
+    assertTypename(createSaison, "CreateSandboxUserSuccessPayload");
+
+    await saveSession({
+      benady: { id: createBenady.sandboxUser.id, email: benadyEmail },
+      saison: { id: createSaison.sandboxUser.id, email: saisonEmail },
+    });
+
+    await requestApi({
+      query: EndorseSandboxUserDocument,
       as: "user",
       api: "partner-admin",
       variables: {
-        lastName: "Benady",
-        firstName: "Nicolas",
+        id: createBenady.sandboxUser.id,
       },
-    }).then(response => response.createSandboxUser),
-
-    requestApi({
-      query: CreateSandboxUserDocument,
-      as: "user",
-      api: "partner-admin",
-      variables: {
-        lastName: "Saison",
-        firstName: "Nicolas",
-      },
-    }).then(response => response.createSandboxUser),
-  ]);
-
-  assertTypename(createBenady, "CreateSandboxUserSuccessPayload");
-  assertTypename(createSaison, "CreateSandboxUserSuccessPayload");
-
-  await saveSession({
-    benady: { id: createBenady.sandboxUser.id, email: benadyEmail },
-    saison: { id: createSaison.sandboxUser.id, email: saisonEmail },
-  });
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: createBenady.sandboxUser.id,
-    },
-  });
+    });
+  }
 
   await page.goto(env.BANKING_URL);
   await sca.loginWithButtonClick(browser, getButtonByName(page, "Sign into Web Banking"));

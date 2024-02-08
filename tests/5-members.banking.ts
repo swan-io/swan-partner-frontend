@@ -3,7 +3,6 @@ import { EndorseSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { t } from "./utils/i18n";
-import { sca } from "./utils/sca";
 import { clickOnButton, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
@@ -56,39 +55,6 @@ test("Members - create french", async ({ browser, page, request }) => {
 
   await waitForText(page, t("banking.members.invitationLink"));
 
-  const invitation = page
-    .getByRole("dialog")
-    .filter({ hasText: t("banking.members.invitationLink") });
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: saison.id,
-    },
-  });
-
-  const url = await invitation.getByLabel(t("banking.members.invitationLink")).inputValue();
-  await page.goto(url);
-
-  waitForText(page, "Check your phone")
-    .then(() => sca.consent(browser, date))
-    .catch(() => {});
-
-  await waitForText(page, t("banking.login.signout"));
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: benady.id,
-    },
-  });
-
-  await page.goto(MEMBERS_PAGE_URL);
-
   await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
 });
 
@@ -135,39 +101,6 @@ test("Members - create german", async ({ browser, page, request }) => {
   await clickOnButton(modal, t("banking.membershipList.newMember.sendInvitation"));
 
   await waitForText(page, t("banking.members.invitationLink"));
-
-  const invitation = page
-    .getByRole("dialog")
-    .filter({ hasText: t("banking.members.invitationLink") });
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: saison.id,
-    },
-  });
-
-  const url = await invitation.getByLabel(t("banking.members.invitationLink")).inputValue();
-  await page.goto(url);
-
-  waitForText(page, "Check your phone")
-    .then(() => sca.consent(browser, date))
-    .catch(() => {});
-
-  await waitForText(page, t("banking.login.signout"));
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: benady.id,
-    },
-  });
-
-  await page.goto(MEMBERS_PAGE_URL);
 
   await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
 });

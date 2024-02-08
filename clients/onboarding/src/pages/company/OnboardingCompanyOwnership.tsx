@@ -496,7 +496,7 @@ export const OnboardingCompanyOwnership = ({
 
                 <Space height={24} />
 
-                <Pressable style={styles.addOwnerButton} onPress={openNewUbo}>
+                <Pressable role="button" style={styles.addOwnerButton} onPress={openNewUbo}>
                   <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
                   <Space height={8} />
                   <LakeText>{t("company.step.owners.addTitle")}</LakeText>
@@ -516,7 +516,7 @@ export const OnboardingCompanyOwnership = ({
                 <Space height={24} />
 
                 <Grid numColumns={small ? 1 : 2} horizontalSpace={32} verticalSpace={32}>
-                  <Pressable style={styles.addOwnerButton} onPress={openNewUbo}>
+                  <Pressable role="button" style={styles.addOwnerButton} onPress={openNewUbo}>
                     <Icon name="add-circle-regular" size={32} color={colors.gray[500]} />
                     <Space height={8} />
                     <LakeText>{t("company.step.owners.addAnother")}</LakeText>

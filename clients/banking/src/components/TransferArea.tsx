@@ -35,7 +35,12 @@ export const TransferArea = ({
   const route = Router.useRoute(paymentRoutes);
 
   useTransferToastWithRedirect(transferConsent, () =>
-    Router.replace("AccountPaymentsRoot", { accountMembershipId }),
+    Router.replace(
+      route?.name === "AccountPaymentsRecurringTransferList"
+        ? "AccountPaymentsRecurringTransferList"
+        : "AccountPaymentsRoot",
+      { accountMembershipId },
+    ),
   );
 
   const rootLevelCrumbs = useMemo(() => {

@@ -106,7 +106,7 @@ export const TransferRecurringWizard = ({
   }) => {
     const consentRedirectUrl =
       window.location.origin +
-      Router.AccountPaymentsRoot({ accountMembershipId }) +
+      Router.AccountPaymentsRecurringTransferList({ accountMembershipId }) +
       `?${new URLSearchParams({ standingOrder: "true" }).toString()}`;
 
     scheduleStandingOrder({

@@ -1,6 +1,6 @@
 import { test } from "@playwright/test";
 import { storagePath } from "../playwright.config";
-import { EndorseSandboxUserDocument, ResetSandboxUserDocument } from "./graphql/partner-admin";
+import { CreateSandboxUserDocument, EndorseSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { assertTypename } from "./utils/functions";
@@ -23,43 +23,44 @@ test("Test suite setup", async ({ browser, page, request }) => {
   await saveSession({
     project: { accessToken: projectAccessToken },
     user: userTokens,
-    benady: { email: benadyEmail },
-    saison: { email: saisonEmail },
   });
 
-  const [updateBenady, updateSaison] = await Promise.all([
+  const [createBenady, createSaison] = await Promise.all([
     requestApi({
-      query: ResetSandboxUserDocument,
+      query: CreateSandboxUserDocument,
       as: "user",
       api: "partner-admin",
       variables: {
-        id: env.SANDBOX_USER_BENADY_ID,
         lastName: "Benady",
         firstName: "Nicolas",
       },
-    }).then(response => response.updateSandboxUser),
+    }).then(response => response.createSandboxUser),
 
     requestApi({
-      query: ResetSandboxUserDocument,
+      query: CreateSandboxUserDocument,
       as: "user",
       api: "partner-admin",
       variables: {
-        id: env.SANDBOX_USER_SAISON_ID,
         lastName: "Saison",
         firstName: "Nicolas",
       },
-    }).then(response => response.updateSandboxUser),
+    }).then(response => response.createSandboxUser),
   ]);
 
-  assertTypename(updateBenady, "UpdateSandboxUserSuccessPayload");
-  assertTypename(updateSaison, "UpdateSandboxUserSuccessPayload");
+  assertTypename(createBenady, "CreateSandboxUserSuccessPayload");
+  assertTypename(createSaison, "CreateSandboxUserSuccessPayload");
+
+  await saveSession({
+    benady: { id: createBenady.sandboxUser.id, email: benadyEmail },
+    saison: { id: createSaison.sandboxUser.id, email: saisonEmail },
+  });
 
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: createBenady.sandboxUser.id,
     },
   });
 

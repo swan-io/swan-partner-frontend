@@ -1,5 +1,3 @@
-directive @apollo_studio_metadata(buildId: String, checkId: String, launchId: String) on SCHEMA
-
 """
 Whether you call it a wallet, monetary account, payment account or bank account, the notion of account is fundamental at Swan. All payment flows necessarily go through an account.
 """
@@ -55,11 +53,51 @@ type Account {
   """Updated date"""
   updatedAt: DateTime!
 
-  """List of Virtual IBAN"""
-  virtualIbanEntries(first: Int! = 50, before: String, after: String): VirtualIBANEntryConnection!
+  """
+  List of Virtual IBAN
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  virtualIbanEntries(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
 
-  """List of account membership for this account"""
-  memberships(first: Int! = 50, before: String, after: String, filters: MembershipsFilterInput, orderBy: AccountMembershipOrderByInput): AccountMembershipConnection!
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): VirtualIBANEntryConnection!
+
+  """
+  List of account membership for this account
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  memberships(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MembershipsFilterInput
+
+    """an order you can apply to your list of connections"""
+    orderBy: AccountMembershipOrderByInput
+  ): AccountMembershipConnection!
 
   """`true`if a consent is required to fetch new transactions"""
   requiredConsentToFetchNewTransactions: Boolean!
@@ -78,23 +116,35 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """
-  COMING SOON
-  Link to the account's bank details
-  """
+  """Link to the account's bank details"""
   bankDetails: String
 
   """
   A list of invoices of an account.
   The list is ordered by creation date (from newest to oldest)
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   invoices(
-    """number of elements in the list (default value 10)"""
+    """the number of elements to load (maximum: 100)"""
     first: Int! = 10
 
-    """When the list of elements needs to start after an element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
   ): InvoiceConnection
+}
+
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
 }
 
 """Account Closed status information"""
@@ -141,15 +191,22 @@ type AccountConnection implements Connection {
   edges: [AccountEdge!]!
 }
 
-"""Available Account Country: CCA3"""
+"""
+Refers to the country of the account. It will determine the country code of the local IBAN of the account.
+
+Available Account Country: CCA3
+"""
 enum AccountCountry {
+  """French account with a French IBAN, starting with FR."""
   FRA
+
+  """German account with a German IBAN, starting with DE."""
   DEU
 
-  """COMING SOON"""
+  """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """COMING SOON"""
+  """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
 }
 
@@ -213,38 +270,92 @@ type AccountHolder {
   """Updated date."""
   updatedDate: DateTime!
 
-  """List of accounts owned by the account holder."""
-  accounts(after: String, before: String, first: Int! = 50, orderBy: AccountOrderByInput): AccountConnection!
+  """
+  List of accounts owned by the account holder.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  accounts(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
 
-  """List of supporting document collection for an account holder"""
-  supportingDocumentCollections(first: Int! = 50, before: String, after: String): SupportingDocumentCollectionConnection!
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: AccountOrderByInput
+  ): AccountConnection!
 
   """
-  *COMING SOON*
+  List of supporting document collection for an account holder
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  supportingDocumentCollections(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): SupportingDocumentCollectionConnection!
+
+  """
   List of funding limit settings change request for an account holder
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
-  fundingLimitSettingsChangeRequests(first: Int! = 50, before: String, after: String): FundingLimitSettingsChangeRequestConnection!
+  fundingLimitSettingsChangeRequests(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+  ): FundingLimitSettingsChangeRequestConnection!
 
   """Account holder onboarding"""
   onboarding: Onboarding
 
-  """Funding limit settings"""
-  fundingLimitSettings: FundingLimitSettings
-
-  """A list of Payment Mandates for an account holder."""
+  """
+  A list of Payment Mandates for an account holder.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   paymentMandates(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
     """
-    When the list of elements needs to be ordered, by default, the list will be ordered by the latest updated Payment Mandate
+    an order you can apply to your list of connections (default value updatedAt desc)
     """
     orderBy: PaymentMandateOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: PaymentMandateFiltersInput
   ): PaymentMandateConnection
 }
@@ -444,6 +555,7 @@ enum AccountLanguage {
   it
   nl
   es
+  pt
 }
 
 """
@@ -452,7 +564,7 @@ An account membership represents the rights of a user for a given account.
 *Each account is administered by an account membership having the capacity of legal representative. He has the possibility of delegating rights on this account to other users.*
 """
 type AccountMembership {
-  """unique identifier of an account membership"""
+  """Unique identifier of an account membership"""
   id: ID!
 
   """email"""
@@ -481,6 +593,11 @@ type AccountMembership {
   `true` if this account membership can invite, update, suspend or resume memberships
   """
   canManageAccountMembership: Boolean!
+
+  """
+  `true` if this account membership can manage cards for himself or to the memberships he manages
+  """
+  canManageCards: Boolean!
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
@@ -521,6 +638,19 @@ type AccountMembership {
 
   """Disabled date"""
   disabledAt: DateTime
+
+  """account membership's cards"""
+  cards(
+    first: Int! = 50
+    before: String
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: CardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: CardFiltersInput
+  ): CardConnection!
 }
 
 """when a user is binded with the error to the account membership"""
@@ -627,6 +757,13 @@ type AccountMembershipInvitationSentStatusInfo implements AccountMembershipStatu
 }
 
 """
+Rejection returned when the Account Membership is not allowed to use an operation.
+"""
+type AccountMembershipNotAllowedRejection implements Rejection {
+  message: String!
+}
+
+"""
 Field we can use when ordering that can be applied when listing account memberships
 """
 enum AccountMembershipOrderByFieldInput {
@@ -644,6 +781,11 @@ input AccountMembershipOrderByInput {
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input AccountMembershipsFilterInput {
+  """
+  `true` if this account membership can manage cards for himself or to the memberships he manages
+  """
+  canManageCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 
@@ -835,6 +977,23 @@ type AccountVerificationWrongStatusRejection implements Rejection {
   message: String!
 }
 
+type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expires.
+  By default the payment link expires 120 days after it was created.
+  """
+  expiresAt: DateTime!
+}
+
+"""
+Rejection returned if the attempting to add cards to different accounts.
+"""
+type AddingCardsToDifferentAccountsRejection implements Rejection {
+  message: String!
+}
+
 """Address Information"""
 type Address {
   """address line 1"""
@@ -940,6 +1099,16 @@ input AddressInput {
   country: CCA3!
 }
 
+type AllowedValue {
+  key: String!
+  name: String!
+}
+
+"""Rejection returned if card already has a valid Physical Card"""
+type AlreadyValidPhysicalCardRejection implements Rejection {
+  message: String!
+}
+
 """Amount with its currency"""
 type Amount {
   """currency"""
@@ -975,6 +1144,12 @@ type AmountWithCurrency {
   currency: Currency!
 }
 
+"""Rejection return if the project is not configured to allow Apple Pay"""
+type ApplePayNotAllowedForProjectRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """Approved Funding Limit"""
 type ApprovedFundingLimit {
   """Requested amount settings for the instant funding limit"""
@@ -988,24 +1163,26 @@ scalar AuditId
 
 """A method used to authenticate a user"""
 type Authenticator {
-  """Operating System (Apple, Android, ...)"""
+  """
+  Operating System parsed from the user agent (eg AIX, Amiga OS, Android, Arch, Bada, BeOS, BlackBerry, ...)
+  """
   os: String
 
-  """Device Brand (Apple, Samsung, ...)"""
+  """
+  Device Brand parsed from the user agent (eg: Acer, Alcatel, Amazon, Apple, ...)
+  """
   brand: String
 
-  """Device Model (iPhone XS, Samsung S3, ...)"""
+  """Device Model parsed from the user agent"""
   model: String
 
   """Type of authenticator"""
   type: AuthenticatorType!
 
-  """User agent, if it's a web authenticator"""
+  """Raw user agent"""
   userAgent: String
 
-  """
-  Accept-Language header used during registration, if it's a web authenticator
-  """
+  """Accept-Language header used during registration"""
   acceptLanguage: String
   status: AuthenticatorStatus!
 }
@@ -1043,11 +1220,11 @@ enum AuthenticatorStatus {
 }
 
 enum AuthenticatorType {
-  """The Swan app"""
-  Swan
-
   """A Swan web authenticator"""
   SwanWeb
+
+  """Deprecated: swan authenticator"""
+  Swan
 }
 
 scalar AuthorizationId
@@ -1089,6 +1266,7 @@ type BrowserConsent implements DetailedConsent {
   consentOperations: [ConsentOperation!]!
   env: EnvType!
   identityId: String!
+  userId: String
   state: String
   branding: Branding!
   operationsSHA256HexDigest: String
@@ -1113,6 +1291,7 @@ type BrowserMultiConsent implements DetailedConsent {
   consentOperations: [ConsentOperation!]!
   env: EnvType!
   identityId: String!
+  userId: String
   state: String
   branding: Branding!
   operationsSHA256HexDigest: String
@@ -1145,6 +1324,27 @@ enum BusinessActivity {
   Transportation
 }
 
+"""Inputs to cancel a card"""
+input CancelCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CancelCardSuccessPayload {
+  """The canceled card """
+  card: Card!
+}
+
+"""
+Describes an identification level for the process associated to this identification that has been cancelled by the end-user
+"""
+type CanceledIdentificationLevelStatusInfo {
+  """Always set to `Cancelled`"""
+  status: SwanIdentificationStatus!
+}
+
 """CanceledMerchantPaymentMethodStatusInfo"""
 type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -1153,19 +1353,150 @@ type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   canceledAt: Date!
 }
 
-"""CanceledMerchantPaymentProductStatusInfo"""
-type CanceledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product canceled date"""
-  canceledAt: Date!
-}
-
 """CanceledMerchantProfileStatusInfo"""
 type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   canceledAt: Date!
   enabledAt: Date
+}
+
+"""Inputs to cancel a physical card"""
+input CancelPhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+
+  """Reason why the physical card is canceled"""
+  reason: CancelPhysicalCardReason!
+}
+
+union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
+
+"""reason why the physical card is canceled"""
+enum CancelPhysicalCardReason {
+  """When the card holder never received the card"""
+  NonReceived
+
+  """When the card has been stolen"""
+  Lost
+
+  """When the card has been stolen"""
+  Stolen
+
+  """When the card doesn't work anymore"""
+  Defected
+
+  """When the card holder wants to block his card"""
+  Blocked
+}
+
+type CancelPhysicalCardSuccessPayload {
+  """The canceled physical card """
+  physicalCard: PhysicalCard!
+}
+
+"""Rejection returned when the Physical Card cannot be activated"""
+type CannotActivatePhysicalCardRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""Status of the Capital Deposit Document"""
+enum CapitalDepositDocumentStatusInput {
+  """Document is not uploaded yet."""
+  Pending
+
+  """Document has been uploaded but not verified by Swan yet."""
+  Uploaded
+
+  """Document has been uploaded and verified by Swan."""
+  Validated
+
+  """Document has been refused by Swan, it must be uploaded again."""
+  Refused
+}
+
+"""Card"""
+type Card {
+  """Unique identifier of a card"""
+  id: ID!
+
+  """Type of a card"""
+  type: CardType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """
+  Account membership to define the card holder and the account linked to the card.
+  """
+  accountMembership: AccountMembership!
+
+  """Main Currency"""
+  mainCurrency: Currency!
+
+  """Card expiration date  if `null` it does not have an expiration date"""
+  cardContractExpiryDate: DateTime
+
+  """URL of the card design"""
+  cardDesignUrl: String!
+
+  """
+  URL of the card with masked card information (like its number) and with full card information if connected user consented beforehand
+  """
+  cardUrl: String!
+
+  """Card status information"""
+  statusInfo: CardStatusInfo!
+
+  """`true` if this card allows cash withdrawals"""
+  withdrawal: Boolean!
+
+  """`true` if this card allows payments outside of the country"""
+  international: Boolean!
+
+  """
+  `true` if this card allows transactions outside of the card's main currency
+  """
+  nonMainCurrencyTransactions: Boolean!
+
+  """`true` if this card allows transactions at eCommerce sites"""
+  eCommerce: Boolean!
+
+  """Periodic Spending limit list"""
+  spendingLimits: [SpendingLimit!]
+
+  """Physical card if the card holder has ordered one"""
+  physicalCard: PhysicalCard
+
+  """Masked Card Number"""
+  cardMaskedNumber: String!
+
+  """Card expiry date with MM/YY format"""
+  expiryDate: String
+
+  """Card name"""
+  name: String
+
+  """Card product"""
+  cardProduct: CardProduct!
+
+  """Issuing Country"""
+  issuingCountry: CCA3!
+
+  """Digital Cards linked to this card"""
+  digitalCards(
+    first: Int! = 50
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: DigitalCardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: DigitalCardFiltersInput
+  ): DigitalCardConnection!
 }
 
 enum CardAuthorizationOutcome {
@@ -1211,10 +1542,196 @@ enum CardAuthorizationOutcome {
   TransactionNotAuthorizedForPointOfSale
 }
 
+enum CardAuthorizationReleaseReason {
+  """Authorization expired"""
+  Expired
+
+  """Authorization manually released by Swan"""
+  ManuallyReleased
+
+  """Authorization released by the merchant"""
+  MerchantReleased
+}
+
 enum CardAuthorizationType {
   Classic
   PreAuthorization
   DataRequest
+}
+
+"""Card Canceled Status Information"""
+type CardCanceledStatusInfo implements CardStatusInfo {
+  """Card status (always Canceled for type CardCanceledStatusInfo)."""
+  status: CardStatus!
+
+  """Reason why the card is canceled"""
+  reason: String!
+}
+
+"""Card Canceling Status Information"""
+type CardCancelingStatusInfo implements CardStatusInfo {
+  """Card status (always Canceling for type CardCancelingStatusInfo)."""
+  status: CardStatus!
+
+  """Reason why the card is about to be canceled."""
+  reason: String!
+}
+
+"""Rejection returned if the card could not be digitalized"""
+type CardCanNotBeDigitalizedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type CardConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """CardEdge list"""
+  edges: [CardEdge!]!
+}
+
+"""when the user has to consent to add this card"""
+type CardConsentPendingStatusInfo implements CardStatusInfo {
+  """
+  Card status (always ConsentPending for type CardConsentPendingStatusInfo)
+  """
+  status: CardStatus!
+
+  """The consent required to add this card"""
+  consent: Consent!
+}
+
+type CardDesignBackground {
+  """Unique identifier of a project card design background"""
+  id: ID!
+
+  """Card design background name"""
+  name: String!
+
+  """Card design background type"""
+  type: String!
+
+  """Card design background text color"""
+  cardTextColor: String!
+
+  """Card design background url"""
+  cardBackgroundUrl: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""Project Card Design Background Type"""
+enum CardDesignBackgroundType {
+  """when Card design background is black"""
+  Black
+
+  """when Card design background is light"""
+  Silver
+
+  """when Card design background is customized"""
+  Custom
+}
+
+"""Card designs Status"""
+enum CardDesignStatus {
+  """when card design are in Draft"""
+  Draft
+
+  """when card design are Enabled"""
+  Enabled
+
+  """when card design are Disabled"""
+  Disabled
+
+  """when card design are ToReview"""
+  ToReview
+}
+
+"""Implements the Relay Edge interface"""
+type CardEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Card entry"""
+  node: Card!
+}
+
+"""Card Enabled Status Information"""
+type CardEnabledStatusInfo implements CardStatusInfo {
+  """Card status (always Enabled for type CardEnabledStatusInfo)."""
+  status: CardStatus!
+}
+
+"""Filters that can be applied when listing cards"""
+input CardFiltersInput {
+  """
+  The status of the card.
+  
+  @deprecated(reason: "use `statuses` instead")
+  """
+  status: CardStatus
+
+  """Statuses of the card."""
+  statuses: [CardStatus!]
+
+  """
+  Type of card
+  
+  @deprecated(reason: "use `types` instead")
+  """
+  type: CardType
+
+  """Types of card"""
+  types: [CardType!]
+
+  """String searched"""
+  search: String
+
+  """
+  Account identifier
+  
+  This filter is only available for User Access Token, for the moment
+  """
+  accountId: String
+}
+
+"""COMING SOON"""
+type CardMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
 }
 
 """
@@ -1223,6 +1740,233 @@ Rejection returned if the card was not found or if the user does not have the ri
 type CardNotFoundRejection implements Rejection {
   id: String!
   message: String!
+}
+
+"""Field we can use when ordering that can be applied when listing cards"""
+enum CardOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing cards"""
+input CardOrderByInput {
+  field: CardOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
+"""when the card is in the process of being ready to use"""
+type CardProcessingStatusInfo implements CardStatusInfo {
+  """Card status (always Processing for type CardProcessingStatusInfo)"""
+  status: CardStatus!
+}
+
+"""Card Product"""
+type CardProduct {
+  id: ID!
+  name: String
+  projectId: ID!
+  status: CardProductStatus!
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  applicableToPhysicalCards: Boolean!
+  cardDesigns: [CardProductDesign!]!
+  defaultCardProduct: Boolean!
+  individualSpendingLimit: SpendingLimit!
+  companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
+}
+
+"""Card design of a Card Product"""
+type CardProductDesign {
+  """Unique identifier of a card design"""
+  id: ID!
+
+  """Design version"""
+  version: Int!
+
+  """Logo url svg"""
+  cardProjectLogoSvgUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo300dpiUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo600dpiUrl: String
+
+  """Zoom level"""
+  zoomRatioProjectLogo: Int
+
+  """Card Design URL"""
+  cardDesignUrl: String
+
+  """Accent color"""
+  accentColor: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Status of the card design"""
+  status: CardDesignStatus!
+
+  """Card Background of the Card design"""
+  cardBackground: CardDesignBackground!
+}
+
+"""Rejection returned if the card product is disabled."""
+type CardProductDisabledRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned if the card product is not applicable to physical card.
+"""
+type CardProductNotApplicableToPhysicalCardsRejection implements Rejection {
+  message: String!
+}
+
+type CardProductNotFoundRejection implements Rejection {
+  message: String!
+}
+
+"""Card Product Status"""
+enum CardProductStatus {
+  """When card product is waiting for review"""
+  PendingReview
+
+  """When card product is Enabled"""
+  Enabled
+
+  """When card product is suspended"""
+  Suspended
+
+  """When card product is suspended"""
+  Disabled
+}
+
+"""Rejection returned if the card product is suspended."""
+type CardProductSuspendedRejection implements Rejection {
+  message: String!
+}
+
+type CardProductUsedRejection implements Rejection {
+  message: String!
+}
+
+"""Card settings for a Project"""
+type CardSettings {
+  """Unique identifier of a project card settings"""
+  id: ID!
+
+  """Flag used to indicate if ApplePay is activated for the project"""
+  allowsApplePay: Boolean! @deprecated
+
+  """Settings version"""
+  version: Int!
+
+  """Logo url svg"""
+  cardProjectLogoSvgUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo300dpiUrl: String
+
+  """Logo url 300 dpi"""
+  cardProjectLogo600dpiUrl: String
+
+  """Zoom level"""
+  zoomRatioProjectLogo: Int
+
+  """Card Design URL"""
+  cardDesignUrl: String
+
+  """Accent color"""
+  accentColor: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Status of the card settings"""
+  status: ProjectCardStatus!
+
+  """Card Background of the Card Settings"""
+  cardBackground: CardSettingsBackground!
+}
+
+type CardSettingsBackground {
+  """Unique identifier of a project card settings"""
+  id: ID!
+
+  """Card settings background name"""
+  name: String!
+
+  """Card settings background type"""
+  type: String!
+
+  """Card settings background text color"""
+  cardTextColor: String!
+
+  """Card settings background url"""
+  cardBackgroundUrl: String!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""Card Settings Background Type"""
+enum CardSettingsBackgroundType {
+  """when Card background is black"""
+  Black
+
+  """when Card background is light"""
+  Silver
+
+  """when Card background is customized"""
+  Custom
+}
+
+input CardSettingsByProjectIdInput {
+  projectId: ID!
+}
+
+"""Card Status"""
+enum CardStatus {
+  """when the consent to add this card is pending"""
+  ConsentPending
+
+  """when the card is in the process of being ready to use"""
+  Processing
+
+  """when the card is enabled"""
+  Enabled
+
+  """when the card is canceled"""
+  Canceled
+
+  """when the card is about to be canceled"""
+  Canceling
+}
+
+"""Card Status Information"""
+interface CardStatusInfo {
+  """Status of the card."""
+  status: CardStatus!
 }
 
 scalar CardToken
@@ -1239,6 +1983,14 @@ enum CardTransactionCategory {
 enum CardType {
   Physical
   Virtual
+}
+
+"""Rejection returned when the Card is not the expected status"""
+type CardWrongStatusRejection implements Rejection {
+  message: String!
+  identifier: String!
+  currentStatus: CardStatus!
+  expectedStatus: CardStatus!
 }
 
 """Cash account type (Always Current)"""
@@ -1272,6 +2024,19 @@ scalar CCA2
 """Country code alpha 3 (ISO 3166)"""
 scalar CCA3
 
+"""Certificate"""
+input Certificate {
+  """
+  CertificateType
+  
+  Can be either LEAF or INTERMEDIATE
+  """
+  key: String!
+
+  """Base64 value of the certificate"""
+  value: String!
+}
+
 """CheckMerchantPaymentMethod"""
 type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -1285,7 +2050,7 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
-  productId: ID!
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -1296,35 +2061,7 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
-  """Rolling Reserve applicated to the Merchant Payment Method"""
-  rollingReserve: RollingReserve
-}
-
-"""CheckMerchantPaymentProduct"""
-type CheckMerchantPaymentProduct implements MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
+  """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
 }
 
@@ -1414,6 +2151,93 @@ input CompleteAddressWithContactInput {
 
   """contact company name (max 38 characters)"""
   companyName: String
+}
+
+"""
+Complete Digital Card used for ApplePay or GooglePay
+
+Once the pending phase is over, more data will be available in the response
+"""
+type CompleteDigitalCard implements DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+
+  """
+  Device
+  In case of a wallet application, some information about the device will be provided
+  """
+  device: Device!
+
+  """
+  Id of the wallet application.
+  Will not be present for Merchant
+  """
+  walletId: String
+
+  """
+  Masked DPAN with the last four digits visible
+  
+  This value is present in the user wallet application
+  """
+  cardMaskedNumber: String!
+
+  """
+  Digital Card status information
+  
+  In this type the status will be either ConsentPending or Pending
+  """
+  statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
+}
+
+"""Complete Digital Card Status"""
+enum CompleteDigitalCardStatus {
+  """when the digital card is enabled"""
+  Enabled
+
+  """
+  when the digital card is suspended
+  
+  the transactions will be blocked
+  """
+  Suspended
+
+  """
+  when the digital card is canceled
+  
+  this is a final state
+  """
+  Canceled
+}
+
+"""Complete Digital Card Status Information"""
+interface CompleteDigitalCardStatusInfo {
+  """Status of the digital card."""
+  status: CompleteDigitalCardStatus!
+}
+
+type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """The time when the customer completed the payment."""
+  completedAt: DateTime!
 }
 
 """
@@ -1521,32 +2345,36 @@ enum ConsentOperationPropertyName {
   CardHolderName
   CardNumber
   CardOption
+  CreditorAddress
+  CreditorIdentifier
+  CreditorName
+  CurrencyExchangeQuoteDurationInBusinessHours
+  CurrencyExchangeTargetAmount
+  CurrencyExchangeTotalAmount
+  DebtorBankName
+  DebtorIban
+  DebtorName
   DeliveryAddress
   Email
+  ExchangeRate
   FirstName
   From
   Iban
   Label
   LastName
+  MandateLegalNotice
+  MandateReference
+  MandateScheme
+  MandateSequenceType
   Merchant
   MerchantIdentifier
   Option
   Permissions
   PhoneNumber
   PublicKey
+  SignatureDate
   SpendingLimit
   To
-  MandateScheme
-  MandateReference
-  MandateSequenceType
-  SignatureDate
-  CreditorName
-  CreditorAddress
-  CreditorIdentifier
-  DebtorName
-  DebtorIban
-  DebtorBankName
-  MandateLegalNotice
 }
 
 """Purpose of a consent"""
@@ -1620,6 +2448,9 @@ enum ConsentPurpose {
   """when initiating an instant funding request"""
   InitiateInstantFundingRequest
 
+  """when initiating an international credit transfer"""
+  InitiateInternationalCreditTransfer
+
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
 }
@@ -1666,6 +2497,61 @@ enum ConsentStatus {
   Canceled
 }
 
+type CouldNotFindCapitalDepositCaseRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type CouldNotFindCapitalDepositDocumentRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type CouldNotRejectCapitalDepositDocumentRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type CouldNotUpdateCapitalDepositDocumentStatusRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+type CouldNotUploadCapitalDepositDocumentRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Inputs to create a new card product"""
+input CreateCardProductInput {
+  projectId: ID!
+  name: String
+  applicableToPhysicalCards: Boolean
+}
+
+union CreateCardProductPayload = CreateCardProductSuccessPayload | ProjectNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CreateCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
+"""Create sandbox identification input payload."""
+input CreateSandboxIdentificationInput {
+  userId: String!
+  process: IdentificationProcess!
+  levels: IdentificationLevelStatusesInput!
+  errorReasons: [IdentificationInvalidReason!]
+}
+
+"""Union of success payload and possible rejections"""
+union CreateSandboxIdentificationPayload = CreateSandboxIdentificationSuccessPayload | UserNotFoundRejection | ForbiddenRejection | InvalidIdentificationLevelsRejection | InvalidIdentificationErrorReasonsRejection
+
+"""Success payload type"""
+type CreateSandboxIdentificationSuccessPayload {
+  """Created sandbox identification"""
+  sandboxIdentification: SandboxIdentification!
+}
+
 """Sandbox user input payload."""
 input CreateSandboxUserInput {
   """First name"""
@@ -1690,18 +2576,6 @@ input CreateSandboxUserInput {
   Ex: FRA for french nationality
   """
   nationalityCCA3: CCA3!
-
-  """
-  Verification status is now is now an Account-Holder's attribute
-  @deprecated(reason: "Verification status is now is now an Account-Holder's attribute. Updating this status should be done on the account holder level instead of sandbox users.")
-  """
-  verificationStatus: VerificationStatus
-
-  """Let you simulate every use case of our identity verification process."""
-  identificationStatus: IdentificationStatus!
-
-  """Identification levels."""
-  identificationLevels: IdentificationLevelsInput
 
   """
   Saves you considerable time during the development phase,
@@ -1735,8 +2609,26 @@ enum CreditTransferMode {
 """currency code alpha 3 (ISO 4217)"""
 scalar Currency
 
+type Customer {
+  """
+  A customer id present in a third-party system.
+  Alows to link a customer to a payment link and by extension, to a Merchant Payment.
+  """
+  externalCustomerId: String
+  name: String
+  iban: String
+}
+
 """Date with YYYY-MM-DD format"""
 scalar Date
+
+type DateField implements Field {
+  example: String
+  key: String!
+  name: String!
+  required: Boolean!
+  validationRegex: String
+}
 
 """
 Date time (ISO 8601 with time information)
@@ -1754,6 +2646,17 @@ Rejection returned when the Debtor does not belong to the same project as the cr
 """
 type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
+}
+
+"""Inputs to delete a card product"""
+input DeleteCardProductInput {
+  id: ID!
+}
+
+union DeleteCardProductPayload = DeleteCardProductSuccessPayload | CardProductNotFoundRejection | CardProductUsedRejection | ForbiddenRejection | ValidationRejection
+
+type DeleteCardProductSuccessPayload {
+  cardProduct: CardProduct!
 }
 
 """Input of to delete a sandbox user"""
@@ -1783,22 +2686,12 @@ interface DetailedConsent {
   purpose: DetailedConsentPurpose!
   consentOperations: [ConsentOperation!]!
   env: EnvType!
-  identityId: String!
+  identityId: String! @deprecated(reason: "use userId, which can be null in the oAuth2 consent case")
+  userId: String
   state: String
   branding: Branding!
   operationsSHA256HexDigest: String
   challenge: String
-}
-
-type DetailedConsentConnection {
-  totalCount: Int!
-  pageInfo: PageInfo
-  edges: [DetailedConsentEdge!]!
-}
-
-type DetailedConsentEdge {
-  node: DetailedConsent!
-  cursor: String!
 }
 
 """Purpose of a consent"""
@@ -1872,6 +2765,9 @@ enum DetailedConsentPurpose {
   """when initiating an instant funding request"""
   InitiateInstantFundingRequest
 
+  """when initiating an international credit transfer"""
+  InitiateInternationalCreditTransfer
+
   """if the consent is a multiple consent"""
   ConsentToMultipleConsents
 
@@ -1882,6 +2778,182 @@ enum DetailedConsentPurpose {
 
   """if the consent originates from a 3DS flow"""
   ThreeDsPayment
+}
+
+"""Device"""
+type Device {
+  """The type of device. It can be a Phone, Tablet, Watch"""
+  type: String
+
+  """
+  Device name
+  End user defined name of the device on which the card id provided
+  """
+  name: String
+
+  """Secure Element ID"""
+  SEID: String
+}
+
+"""Digital Card used for ApplePay or GooglePay"""
+interface DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
+}
+
+"""Digital Card Canceled Status Information"""
+type DigitalCardCanceledStatusInfo implements CompleteDigitalCardStatusInfo {
+  """Card status (always Canceled for type DigitalCardCanceledStatusInfo)."""
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+
+  """Cancel Date"""
+  canceledAt: DateTime!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type DigitalCardConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """CardEdge list"""
+  edges: [DigitalCardEdge!]!
+}
+
+"""Digital Card ConsentPending Status Information"""
+type DigitalCardConsentPendingStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always ConsentPending for type DigitalCardConsentPendingStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+
+  """A reference to the consent to validate"""
+  consent: Consent!
+}
+
+"""Digital Card Declined Status Information"""
+type DigitalCardDeclinedStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always Declined for type DigitalCardDeclinedStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+}
+
+"""Implements the Relay Edge interface"""
+type DigitalCardEdge implements Edge {
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+
+  """The Card entry"""
+  node: DigitalCard!
+}
+
+"""Digital Card Enabled Status Information"""
+type DigitalCardEnabledStatusInfo implements CompleteDigitalCardStatusInfo {
+  """
+  Digital Card status (always Enabled for type DigitalCardEnabledStatusInfo).
+  """
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+}
+
+"""Filters that can be applied when listing digitalCards"""
+input DigitalCardFiltersInput {
+  """The id of the digitalCard"""
+  id: String
+
+  """
+  The status of the digital card. It can be a CompleteDigitalCardStatus or a PendingDigitalCardStatus
+  """
+  status: String
+
+  """
+  The Secure Element ID
+  Mostly present on APple Devices
+  """
+  SEID: String
+
+  """The digital card masker number"""
+  cardMaskedNumber: String
+
+  """The ID of the wallet provider in the scheme system"""
+  walletProviderId: String
+
+  """Either ApplePay, GooglePay or Merchant"""
+  walletProviderName: String
+
+  """The wallet application ID in the user phone"""
+  walletId: String
+}
+
+"""Rejection returned when the Digital Card does not exist"""
+type DigitalCardNotFoundRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""
+Field we can use when ordering that can be applied when listing digital cards
+"""
+enum DigitalCardOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing digital cards"""
+input DigitalCardOrderByInput {
+  field: DigitalCardOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Digital Card Pending Status Information"""
+type DigitalCardPendingStatusInfo implements PendingDigitalCardStatusInfo {
+  """
+  Digital Card status (always Pending for type DigitalCardPendingStatusInfo).
+  """
+  status: PendingDigitalCardStatus!
+}
+
+"""Digital Card Suspended Status Information"""
+type DigitalCardSuspendedStatusInfo implements CompleteDigitalCardStatusInfo {
+  """
+  Digital Card status (always Suspended for type DigitalCardSuspendedStatusInfo).
+  """
+  status: CompleteDigitalCardStatus!
+
+  """Enable Date"""
+  enabledAt: DateTime!
+
+  """Suspend Date"""
+  suspendedAt: DateTime!
 }
 
 """Input to decide on digitalization"""
@@ -1900,6 +2972,27 @@ input DigitalizationInput {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProviderType
+}
+
+"""Digitalization Type"""
+enum DigitalizationType {
+  """
+  This digital card was created by direct input of the PAN into a wallet application
+  
+  This direct input can also be done using the device camera
+  """
+  Manual
+
+  """
+  This digital card was created based on a PAN stored into a merchant application (ex: iTunes)
+  """
+  CardOnFile
+
+  """This digital card was created by an in app provisioning"""
+  InApp
+
+  """We could not get the source of the digitalization"""
+  Unknown
 }
 
 """Direct Debit Account Verification"""
@@ -1934,12 +3027,48 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
-"""EnabledMerchantPaymentProductStatusInfo"""
-type DisabledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
+"""Retrieved document extracted from the identity verification"""
+interface DocumentFile {
+  downloadUrl: String!
+}
 
-  """Merchant Payment Product disabled date"""
-  disabledAt: Date!
+"""From which side the document picture was taken"""
+enum DocumentFileSide {
+  SideA
+  SideB
+  BothSides
+  Unknown
+}
+
+"""The type of the document"""
+enum DocumentType {
+  IdCard
+  Passport
+  ResidencePermit
+  DriversLicense
+  Face
+  Report
+}
+
+"""The document corresponding to a driver's license"""
+type DriversLicenseDocument {
+  """Unique identifier of the driver's license document"""
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+
+  """List of the associated files"""
+  files: [DriversLicenseDocumentFile!]!
+}
+
+"""The file associated to the driver's license document"""
+type DriversLicenseDocumentFile implements DocumentFile {
+  """The file's temporary download url"""
+  downloadUrl: String!
+
+  """From which side the deiver's license's picture was taken"""
+  side: DocumentFileSide!
 }
 
 """
@@ -1967,6 +3096,13 @@ enum EmploymentStatus {
   Unemployed
 }
 
+"""
+Rejection returned if the card product don't have a card design enabled
+"""
+type EnabledCardDesignNotFoundRejection implements Rejection {
+  message: String!
+}
+
 """StatusInfo when the funding limit settings is enabled"""
 type EnabledFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
   status: FundingLimitSettingsStatus!
@@ -1977,14 +3113,6 @@ type EnabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStat
   status: MerchantPaymentMethodStatus!
 
   """Merchant Payment Method enabled date"""
-  enabledAt: Date!
-}
-
-"""EnabledMerchantPaymentProductStatusInfo"""
-type EnabledMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product enabled date"""
   enabledAt: Date!
 }
 
@@ -2015,6 +3143,51 @@ type EndorseSandboxUserSuccessPayload {
 enum EnvType {
   Live
   Sandbox
+}
+
+enum ExpectedStatus {
+  Registered
+  AccountAlert
+  IrregularCheck
+  UnknownCheck
+}
+
+"""
+Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
+"""
+type ExpiredIdentificationLevelStatusInfo {
+  """Always set to `Expired`"""
+  status: SwanIdentificationStatus!
+
+  """When this identification level expired"""
+  expiredAt: Date!
+}
+
+type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
+
+  """
+  The date when the payment link expired.
+  By default the payment link expires 120 days after it was created.
+  """
+  expiredAt: DateTime!
+}
+
+"""The document corresponding to a face photo"""
+type FacePhotoDocument {
+  """
+  Unique identifier of the face photo document. For privacy reasons, no temporary download url is exposed for this document
+  """
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+}
+
+interface Field {
+  key: String!
+  name: String!
+  required: Boolean!
 }
 
 enum FieldValidationError {
@@ -2270,6 +3443,29 @@ type FundingSourceWrongStatusRejection implements Rejection {
   expectedStatus: FundingSourceStatus!
 }
 
+"""GenerateCheckInput"""
+input GenerateCheckInput {
+  expectedStatus: ExpectedStatus
+}
+
+union GenerateCheckPayload = GenerateCheckSuccessPayload | InternalErrorRejection
+
+"""GenerateCheckSuccessPayload"""
+type GenerateCheckSuccessPayload {
+  """
+  31-character unique identifier.
+  CMC7 is composed of 3 sections (check number (7 char.), check issuing bank code (12 char.), check holder account number (12 char.)).
+  Combined with RLMC key, it  allows the check traceability.
+  """
+  cmc7: String!
+
+  """
+  2-digit key used to check the integrity of the CMC7 line.
+  Combined with CMC7 line, it allows the check traceability.
+  """
+  rlmcKey: String!
+}
+
 """Rejection returned when the Global Funding has been exceeded"""
 type GlobalFundingLimitExceededRejection implements Rejection {
   message: String!
@@ -2315,6 +3511,191 @@ enum IBANStatus {
   Suspended
 }
 
+"""The document corresponding to an ID card"""
+type IdCardDocument {
+  """Unique identifier of the ID card document"""
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+
+  """The date at which the ID card was issued"""
+  issueDate: Date
+
+  """The date at which the ID card expires"""
+  expiryDate: Date
+
+  """Machine-readable zone code of the ID card"""
+  mrz: String
+
+  """Number of the ID card"""
+  number: String
+
+  """List of the associated files"""
+  files: [IdCardDocumentFile!]!
+}
+
+"""The file associated to the ID card document"""
+type IdCardDocumentFile implements DocumentFile {
+  """The file's temporary download url"""
+  downloadUrl: String!
+
+  """From which side the ID card's picture was taken"""
+  side: DocumentFileSide!
+}
+
+"""
+The identification represents an ongoing identification process or its result
+"""
+type Identification {
+  """Unique identifier of the identification"""
+  id: String!
+
+  """Creation date of the identification"""
+  createdAt: DateTime!
+
+  """Last update date of the identification"""
+  updatedAt: DateTime!
+
+  """The global status of the identification"""
+  status: SwanIdentificationStatus!
+
+  """The process that was used for this identification"""
+  process: IdentificationProcess!
+
+  """
+  The status and results associated to the available identification processes
+  """
+  levels: IdentificationLevelStatusesInfo!
+
+  """
+  The available documents related to the identification (id doc, selfie, report...)
+  """
+  documents: [IdentificationDocument!]
+
+  """
+  The identity document type used for the current identification (passport, id card ...)
+  """
+  identityDocumentType: IdentityDocumentType
+}
+
+"""
+Fields we can use when ordering that can be applied when listing identifications
+"""
+type IdentificationConnection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo
+
+  """IdentificationEdge list"""
+  edges: [IdentificationEdge!]!
+}
+
+"""Union representing all the possible identification document types"""
+union IdentificationDocument = IdCardDocument | PassportDocument | ResidencePermitDocument | DriversLicenseDocument | FacePhotoDocument | ReportDocument
+
+"""Implements the Relay Edge interface"""
+type IdentificationEdge implements Edge {
+  """The identification entry"""
+  node: Identification!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+"""The various reasons that can lead to an invalid identification level"""
+enum IdentificationInvalidReason {
+  """Face must be fully present in the photo"""
+  AbsentOrIncompleteFace
+
+  """Applicant used a device that has been technically altered / modified"""
+  AlteredDevice
+
+  """Light on actual document is insufficient"""
+  BadDocumentLighting
+
+  """
+  Something about the document is damaged (could be as tiny as a bent corner)
+  """
+  DamagedDocument
+
+  """Expiry date of document has passed"""
+  ExpiredDocument
+
+  """Attempt to commit fraud detected"""
+  FraudDetected
+
+  """
+  Video quality isn’t sufficient or video is missing required information
+  """
+  InadequateVideo
+
+  """Lighting on applicant’s face is insufficient"""
+  InsufficientApplicantLighting
+
+  """Applicant isn’t meeting movement requirements"""
+  InsufficientApplicantLiveness
+
+  """Internet connection quality is insufficient"""
+  InsufficientConnectionQuality
+
+  """Video of document doesn’t meet movement requirements"""
+  InsufficientDocumentLiveness
+
+  """Document is blurry or otherwise distorted"""
+  InsufficientDocumentReadability
+
+  """Face is blurry or otherwise distorted"""
+  InsufficientFaceReadability
+
+  """Video is blurry or otherwise distorted"""
+  InsufficientVideoReadability
+
+  """There was a technical error"""
+  InternalError
+
+  """Address is not valid or accepted"""
+  InvalidAddress
+
+  """Identification data is invalid or missing"""
+  InvalidOrMissingData
+
+  """Applicant seems to be doing verification against their will"""
+  InvoluntaryIdentification
+
+  """Geolocation data is required but not available"""
+  MissingGeolocationData
+
+  """Applicant appears on unacceptable news list"""
+  NegativeNewsHit
+
+  """Applicant’s identity does not match the expected ID info"""
+  NonMatchingIdentity
+
+  """Applicant presented a duplicate of the document (digital or paper)"""
+  NonOriginalDocument
+
+  """Applicant appears on a sanctions list"""
+  SanctionListHit
+
+  """Applicant required to provide a second document"""
+  SecondDocumentRequired
+
+  """There was a technical error with the electronic signature process"""
+  TechnicalSignatureError
+
+  """The time to complete the signature timed out"""
+  TimeoutSignatureFlow
+
+  """Document not on list of acceptable document types"""
+  UnacceptableDocument
+
+  """Applicant is under the minimum required age"""
+  UnderageApplicant
+}
+
 """Possible value for the field IdentificationLevel"""
 enum IdentificationLevel {
   """Human identity verification"""
@@ -2348,6 +3729,52 @@ input IdentificationLevelsInput {
   Identity verified by an expert and a Qualified Electronic Signature has been done
   """
   QES: Boolean!
+}
+
+"""
+The status and results associated to the available identification processes
+"""
+type IdentificationLevelStatusesInfo {
+  """The status and results associated to the expert level"""
+  expert: IdentificationLevelStatusInfo!
+
+  """
+  The status and results associated to the Qualified Electronic Signature level
+  """
+  qes: IdentificationLevelStatusInfo!
+
+  """
+  The status and results associated to the Remote Identity Verification Service level
+  """
+  pvid: IdentificationLevelStatusInfo!
+}
+
+input IdentificationLevelStatusesInput {
+  expert: SwanIdentificationStatus
+  pvid: SwanIdentificationStatus
+  qes: SwanIdentificationStatus
+}
+
+"""
+Union representing all the possible statuses: not supported, not started, pending, valid, invalid, cancelled, expired
+Each variant contains its relevant data, for example invalid contains a `reason` field, expired contains an `expiredAt` field, valid contains a `documents` field
+"""
+union IdentificationLevelStatusInfo = NotSupportedIdentificationLevelStatusInfo | NotStartedIdentificationLevelStatusInfo | StartedIdentificationLevelStatusInfo | PendingIdentificationLevelStatusInfo | ValidIdentificationLevelStatusInfo | InvalidIdentificationLevelStatusInfo | CanceledIdentificationLevelStatusInfo | ExpiredIdentificationLevelStatusInfo
+
+"""Process of the identification"""
+enum IdentificationProcess {
+  """Identity verified by an expert"""
+  Expert
+
+  """
+  Identity verified by an expert and a Qualified Electronic Signature has been done
+  """
+  QES
+
+  """
+  Identity verified by an expert with a Remote Identity Verification Service
+  """
+  PVID
 }
 
 """Identification status"""
@@ -2385,6 +3812,14 @@ enum IdentificationStatus {
   InvalidIdentity
 }
 
+"""The type of the identity document"""
+enum IdentityDocumentType {
+  IdCard
+  Passport
+  ResidencePermit
+  DriversLicense
+}
+
 """Input to decide on digitalization"""
 input InAPpDigitalizationInput {
   """The ID of a InApp Pending DigitalCard"""
@@ -2397,14 +3832,59 @@ input InAPpDigitalizationInput {
   responseChannel: ResponseChannel!
 }
 
+"""Data used for in app provisioning"""
+type InAppProvisioningData {
+  """Cryptographic OTP used to pre-validate digitalization"""
+  activationData: String!
+
+  """
+  Base64 public key used with the wallet provider public key to encrypt the card data
+  """
+  ephemeralPublicKey: String!
+
+  """Encrypted card data"""
+  encryptedData: String!
+
+  """IV used to encrypt the card Data (Useful for Google Pay)"""
+  iv: String
+
+  """
+  public key fingerprint of the key used to encrypt card data (Useful for Google Pay)
+  """
+  publicKeyFingerprint: String
+
+  """
+  hash algorithm used during encryption of the card data (Useful for Google Pay)
+  """
+  oaepHashingAlgorithm: String
+}
+
 enum IncomingCheckRejectionReasonCodeEnum {
-  CheckInvalid
+  BeneficiaryMissingOrIncorrect
+  DateMissing
+  DateInvalid
+  EndorsementMissing
+  InvalidOrMissingAmount
+  SignatureMissing
+  DebtorNameMissing
+  AmountMismatch
+  CheckReceivedLate
+  SuspiciousCheck
+  SwanTechnicalErrorOccurred
+  CheckExpiredReject
 }
 
 enum IncomingInternalDirectDebitRejectReasonCodeEnum {
   AccountClosed
   InsufficientFunds
   ReasonNotSpecifiedByDebtor
+}
+
+enum IncomingInternalDirectDebitReturnReasonCodeEnum {
+  ReasonNotSpecifiedByBank
+  ReasonNotSpecifiedByDebtor
+  RefundRequestedByDebtor
+  RegulatoryReason
 }
 
 """Inputs for SEPA credit transfer"""
@@ -2490,6 +3970,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformation
+
+  """Individual beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Define the type of the UBO"""
@@ -2542,6 +4025,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual beneficial owner residency Address"""
   residencyAddress: AddressInformationInput
+
+  """Individual ultimate beneficial owner title (Mr/Ms)"""
+  title: TitleEnum
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -2616,7 +4102,7 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
-  productId: ID!
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -2627,7 +4113,7 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
-  """Rolling Reserve applicated to the Merchant Payment Method"""
+  """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
 }
 
@@ -2636,34 +4122,6 @@ interface InternalDirectDebitMandate {
   Unique identifier of the internal received direct debit mandate, generated by Swan
   """
   id: ID!
-}
-
-"""InternalDirectDebitMerchantPaymentProduct"""
-type InternalDirectDebitMerchantPaymentProduct implements MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
 }
 
 """InternalDirectDebitStandardMerchantPaymentMethod"""
@@ -2679,7 +4137,7 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
-  productId: ID!
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -2690,7 +4148,7 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
-  """Rolling Reserve applicated to the Merchant Payment Method"""
+  """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
 }
 
@@ -2750,6 +4208,9 @@ type InternalPaymentDirectDebitMandate implements InternalDirectDebitMandate & P
 
   """Language that will be used to produce the mandate PDF document"""
   language: String!
+
+  """Custom name of the mandate"""
+  name: String
 }
 
 type InternalPaymentMandateCreditor implements PaymentMandateCreditor {
@@ -2800,7 +4261,12 @@ enum InternalPaymentMandateSequence {
   """
   The Internal Direct Debit Payment Mandate can be used for recurrent collections
   """
-  Recurring
+  Recurring @deprecated(reason: "Use Recurrent instead")
+
+  """
+  The Internal Direct Debit Payment Mandate can be used for recurrent collections
+  """
+  Recurrent
 
   """The Internal Direct Debit Payment Mandate can be used only once"""
   OneOff
@@ -2903,10 +4369,273 @@ enum InternalReceivedDirectDebitMandateSequence {
   Recurrent
 }
 
-"""International beneficiary account"""
+"""Address of an international beneficiary"""
+input InternationalAddressInput {
+  """Address 1"""
+  address1: String
+
+  """City"""
+  city: String
+
+  """Country"""
+  country: String
+
+  """Zip Code"""
+  zipCode: String
+
+  """State"""
+  state: String
+}
+
+"""International Beneficiary Details"""
+input InternationalBeneficiaryDetailsInput {
+  """Key"""
+  key: String!
+
+  """Value"""
+  value: String!
+}
+
+"""
+*COMING SOON*
+International Beneficiary Dynamic Forms
+"""
+type InternationalBeneficiaryDynamicForms {
+  """
+  *COMING SOON*
+  Schemes
+  """
+  schemes: [Scheme!]!
+}
+
+"""
+*COMING SOON*
+International Beneficiary
+"""
 input InternationalBeneficiaryInput {
-  """Currency of the international beneficiary"""
+  """Account holder name"""
+  name: String!
+
+  """Currency of the international beneficiary account"""
   currency: Currency!
+
+  """
+  *COMING SOON*
+  Currency-specific details of the beneficiary
+  """
+  details: [InternationalBeneficiaryDetailsInput!]!
+
+  """
+  *COMING SOON*
+  Route that Swan will use to transfer the funds
+  """
+  route: InternationalCreditTransferRouteInput!
+}
+
+"""
+*COMING SOON*
+International Credit Transfer Details
+"""
+input InternationalCreditTransferDetailsInput {
+  """
+  *COMING SOON*
+  Key
+  """
+  key: String!
+
+  """
+  *COMING SOON*
+  Value
+  """
+  value: String!
+}
+
+"""Language: ISO 639-1 language code"""
+enum InternationalCreditTransferDisplayLanguage {
+  """British English"""
+  en
+
+  """Dutch"""
+  nl
+
+  """French"""
+  fr
+
+  """German"""
+  de
+
+  """Italian"""
+  it
+
+  """Portuguese"""
+  pt
+
+  """Spanish"""
+  es
+}
+
+"""
+*COMING SOON*
+International Credit Transfer Dynamic Form
+"""
+type InternationalCreditTransferDynamicForm {
+  """List of international transaction fields"""
+  fields: [Field!]!
+
+  """
+  *COMING SOON*
+  Number of fields that need to be updated to fill the form completely. Please re run the query internationalCreditTransferTransactionDetailsDynamicForm with updated refreshableFields if the value of this field is not 0
+  """
+  remainingFieldsToRefreshCount: Int!
+}
+
+"""
+*COMING SOON*
+International Quote
+"""
+type InternationalCreditTransferQuote {
+  """Rate of the quote"""
+  exchangeRate: String!
+
+  """Source amount of the quote"""
+  sourceAmount: Amount!
+
+  """target amount of the quote"""
+  targetAmount: Amount!
+
+  """Fees"""
+  feesAmount: Amount!
+}
+
+"""International Credit Transfer Route"""
+enum InternationalCreditTransferRouteInput {
+  """American ACH for low-value payments"""
+  Aba
+
+  """Argentinian local route"""
+  Argentina
+
+  """Australian local route"""
+  Australian
+
+  """Australian local route Bpay usually used for bill payments"""
+  AustralianBpay
+
+  """Brazilian local route"""
+  Brazil
+
+  """Canadian local route"""
+  Canadian
+
+  """Chilean local route"""
+  Chile
+
+  """Costa Rican local route"""
+  CostaRica
+
+  """Czech local route"""
+  Czech
+
+  """Emirate local route"""
+  Emirates
+
+  """
+  American credit transfers service for large-value and time-critical payments
+  """
+  FedwireLocal
+
+  """M-PAiSA"""
+  FijiMobile
+
+  """Faster Payment System"""
+  HongKongFps
+
+  """Hong Kong's local route"""
+  Hongkong
+
+  """Hungarian local route"""
+  Hungarian
+
+  """Local route using an IBAN as recipient account identifier"""
+  Iban
+
+  """Indian local route"""
+  Indian
+
+  """Indian instant payment system Unified Payments Interface"""
+  IndianUpi
+
+  """Canadian payment network Interac"""
+  Interac
+
+  """Israeli local route"""
+  IsraeliLocal
+
+  """Japanese local route"""
+  Japanese
+
+  """Kenyan local route"""
+  KenyaLocal
+
+  """Kenyan mobile payment network M-PESA"""
+  KenyaMobile
+
+  """Malaysian local route"""
+  Malaysian
+
+  """Malaysian payment network DuitNow"""
+  MalaysianDuitnow
+
+  """Mexican local route"""
+  Mexican
+
+  """Moroccan local route"""
+  Morocco
+
+  """Nepalese local route"""
+  Nepal
+
+  """New Zealand local route"""
+  NewZealand
+
+  """Filipino local route"""
+  Philippines
+
+  """Filipino mobile payment network"""
+  PhilippinesMobile
+
+  """Polish local route"""
+  Polish
+
+  """Ukranian local route"""
+  PrivatBank
+
+  """Singapore local route"""
+  Singapore
+
+  """Singapore mobile payment network PayNow"""
+  SingaporePaynow
+
+  """British local route"""
+  SortCode
+
+  """South Korean payment network Paygate"""
+  SouthKoreanPaygate
+
+  """South Korean payment network Paygate for corporates"""
+  SouthKoreanPaygateBusiness
+
+  """South African local route"""
+  SouthAfrica
+
+  """Swift"""
+  SwiftCode
+
+  """Thai local route"""
+  Thailand
+
+  """Turkish local route"""
+  TurkishEarthport
 }
 
 """Rejection returned on invalid argument error"""
@@ -2925,6 +4654,25 @@ type InvalidArgumentRejectionField {
   errors: [String!]!
 }
 
+type InvalidIdentificationErrorReasonsRejection implements Rejection {
+  message: String!
+}
+
+type InvalidIdentificationLevelsRejection implements Rejection {
+  message: String!
+}
+
+"""
+Describes an invalid identification level for the process associated to this identification, and the invalid reason can be accessed
+"""
+type InvalidIdentificationLevelStatusInfo {
+  """Always set to `Invalid`"""
+  status: SwanIdentificationStatus!
+
+  """The reasons why this identification level is invalid"""
+  reasons: [IdentificationInvalidReason!]
+}
+
 """Rejection returned if phone number is not well formatted"""
 type InvalidPhoneNumberRejection implements Rejection {
   message: String!
@@ -2940,6 +4688,9 @@ type Invoice {
 
   """name of the invoice"""
   name: String!
+
+  """type of the invoice"""
+  type: InvoiceType!
 
   """status of the invoice"""
   status: InvoiceStatus!
@@ -2989,6 +4740,11 @@ enum InvoiceStatus {
   Voided
 }
 
+enum InvoiceType {
+  Invoice
+  RefundNote
+}
+
 """
 Rejection returned when you try to delete the last sandbox user.
 At least one sandbox user should be present
@@ -3013,10 +4769,35 @@ input MandateAmendment {
   previousMandateReference: SepaReference
 }
 
+"""Banking fee which could add manually"""
+enum ManualBankingFee {
+  """Drafting a circulation letter for a legal entity holder"""
+  CirculationLetterDraftingFee
+
+  """Drafting a confirmation letter for a legal entity holder"""
+  ConfirmationLetterDraftingFee
+
+  """Improper use of the account"""
+  ImproperUseOfAccount
+
+  """
+  Processing of judicial or administrative seizures, notice to third party holders
+  """
+  ProcessingJudicialOrAdministrativeSeizure
+
+  """Intervention fee for managing unauthorized overdrafts"""
+  UnauthorizedOverdraft
+}
+
 """
 Filters that can be applied when listing accounts (Only applied in user context)
 """
 input MembershipsFilterInput {
+  """
+  `true` if this account membership can manage cards for himself or to the memberships he manages
+  """
+  canManageCards: Boolean
+
   """Can the user initiate payments on this account"""
   canInitiatePayments: Boolean
 
@@ -3025,6 +4806,9 @@ input MembershipsFilterInput {
 
   """Can the user manage beneficiaries"""
   canManageBeneficiaries: Boolean
+
+  """Can the user view account"""
+  canViewAccount: Boolean
 
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
@@ -3057,6 +4841,117 @@ input Merchant {
 
   """Merchant name"""
   name: String = "SWAN"
+
+  """Merchant postal Code"""
+  postalCode: String = "75010"
+}
+
+type MerchantPaymentLink {
+  """Merchant payment link's unique ID."""
+  id: String!
+
+  """ID of the related project"""
+  projectId: ID!
+
+  """The URL at which the customer can complete the payment."""
+  url: String!
+
+  """The merchant payment link status."""
+  statusInfo: MerchantPaymentLinkStatusInfo!
+
+  """The Merchant Profile to link this Payment Link to"""
+  merchantProfile: MerchantProfile!
+
+  """Amount to be paid to sucessfully complete the payment."""
+  amount: Amount!
+
+  """
+  Merchant Website URL to redirect the user to when the payment is completed.
+  """
+  redirectUrl: String!
+
+  """URL to redirect the user to if they cancel their payment"""
+  cancelRedirectUrl: String!
+
+  """URL to redirect the user to if their payment fails"""
+  failRedirectUrl: URL
+
+  """
+  Controls if the payment mandate created from this payment link is for one-time use or can be reused
+  This is applicable for card and SEPA Direct Debit payment methods only.
+  """
+  sequence: PaymentLinkSequenceType!
+
+  """
+  The customer billing Address
+  These fields should be completed also to pre-fill a SEPA direct debit mandate.
+  
+  We strongly advice to complete these fields if merchants want to get paid through card payment method, in order to minimize the risk of payment rejection by Visa / Mastercard schemes
+  """
+  billingAddress: Address
+
+  """
+    A date that reflects the time at which the user asked the transaction to be executed.
+  For card transactions, request execution must occur within 7 days after authorization or the authorization may expire.
+  For SEPA Direct Debit transactions, request execution must occur up to 1 year in the future.
+  
+  Default value means that the execution will be as soon as possible
+  """
+  requestedExecutionAt: DateTime
+
+  """
+  Any string that you want to be attached to this payment link.
+  Usually something to help you reference the link in an external system.
+  """
+  externalReference: String
+
+  """
+  Optional field intended to provide a way for you to include a reference number or code.
+  The customer will most likely see this value on their bank statement, though we can't know as every banking platform is different.
+  """
+  reference: String
+
+  """
+  The language used for the payment page.
+  Default is the browser's language, or English if not available.
+  """
+  language: String
+
+  """
+  Label of the concerned payment collection, which will be displayed on Swan bank statement	and on the Swan merchant payment page.
+  """
+  label: String
+
+  """
+   We will use the information specified here to prefill the payment link fields
+  depending on the payment method the end user chooses.
+  Keep in mind that your end customer will be able to edit these fields.
+  """
+  customer: Customer
+
+  """
+  List of payment methods IDs enabled for this payment link.
+  If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
+  """
+  paymentMethods: [MerchantPaymentMethod!]!
+}
+
+enum MerchantPaymentLinkStatus {
+  """Customers can still use the merchant payment link to pay."""
+  Active
+
+  """The merchant payment link is expired."""
+  Expired
+
+  """The customer completed the payment."""
+  Completed
+
+  """The customer cancel the payment."""
+  Canceled
+}
+
+interface MerchantPaymentLinkStatusInfo {
+  status: MerchantPaymentLinkStatus!
 }
 
 """Base object for the different Payment Methods available"""
@@ -3072,7 +4967,7 @@ interface MerchantPaymentMethod {
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
-  productId: ID!
+  methodId: ID!
 
   """Status of the Merchant Payment Method"""
   statusInfo: MerchantPaymentMethodStatusInfo!
@@ -3083,8 +4978,14 @@ interface MerchantPaymentMethod {
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
 
-  """Rolling Reserve applicated to the Merchant Payment Method"""
+  """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+}
+
+"""Rejection returned when the Merchant Payment Method is not active"""
+type MerchantPaymentMethodNotActiveRejection implements Rejection {
+  paymentMethodIds: [String!]
+  message: String!
 }
 
 """The different statuses a MerchantPaymentMethod can have"""
@@ -3106,58 +5007,11 @@ interface MerchantPaymentMethodStatusInfo {
 """The different statuses a MerchantPaymentMethod can have"""
 enum MerchantPaymentMethodType {
   InternalDirectDebitStandard
-  InternalDirectDebitB2B
+  InternalDirectDebitB2b
+  SepaDirectDebitCore
+  SepaDirectDebitB2b
   Check
-}
-
-"""Base object for the different Payment Products available"""
-interface MerchantPaymentProduct {
-  """
-  Unique identifier tied to every version of a given Merchant Payment Product
-  """
-  id: ID!
-
-  """The Merchant Payment Product Type"""
-  type: MerchantPaymentProductType!
-
-  """
-  Unique identifier for a given merchant Payment Product, identical for every version of a given Merchant Payment Product Type
-  """
-  productId: ID!
-
-  """Status of the Merchant Payment Product"""
-  statusInfo: MerchantPaymentProductStatusInfo!
-
-  """Version of the Merchant Payment Product"""
-  version: Int!
-
-  """Date at which the Merchant Payment Product was last updated"""
-  updatedAt: Date!
-
-  """Rolling Reserve applicated to the Merchant Payment Product"""
-  rollingReserve: RollingReserve
-}
-
-"""The different statuses a MerchantPaymentProduct can have"""
-enum MerchantPaymentProductStatus {
-  PendingReview
-  Enabled
-  Rejected
-  Disabled
-  Canceled
-  Suspended
-}
-
-"""The payment product status information"""
-interface MerchantPaymentProductStatusInfo {
-  """Merchant Payment Product Status"""
-  status: MerchantPaymentProductStatus!
-}
-
-"""The different statuses a MerchantPaymentProduct can have"""
-enum MerchantPaymentProductType {
-  InternalDirectDebit
-  Check
+  Card
 }
 
 """Merchant Profile"""
@@ -3176,6 +5030,9 @@ type MerchantProfile {
   """Url of the merchant's website"""
   merchantWebsite: String
 
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
   """The status of the merchant profile"""
   statusInfo: MerchantProfileStatusInfo!
 
@@ -3187,11 +5044,11 @@ type MerchantProfile {
   """Expected annual activity volumes for all payment method"""
   expectedMonthlyPaymentVolume: Amount!
 
-  """Payment Products associated"""
-  merchantPaymentProducts: [MerchantPaymentProduct!] @deprecated(reason: "Use merchantPaymentMethods instead")
-
   """Payment Methods associated"""
   merchantPaymentMethods: [MerchantPaymentMethod!]
+
+  """Updates Requested associated"""
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!]
 
   """expected average basket value."""
   expectedAverageBasket: Amount!
@@ -3235,6 +5092,11 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   expectedStatus: MerchantProfileStatus!
 }
 
+"""Rejection returned when mandatory fields are missing from the call."""
+type MissingMandatoryFieldRejection implements Rejection {
+  message: String!
+}
+
 """Monthly income."""
 enum MonthlyIncome {
   """less than 500"""
@@ -3262,11 +5124,124 @@ enum MonthlyPaymentVolume {
 }
 
 type Mutation {
+  """Mutation to simulate a manual provisioning"""
+  simulateManualProvisioning(input: DigitalizationInput!): SimulationResponse!
+
+  """
+  Mutation to give decision on digitalization.
+  If more than one InApp digitalization process are ongoing, only the latest one will be acted upon
+  """
+  simulateInAppProvisioningCompletion(input: InAPpDigitalizationInput!): SimulationResponse!
+
+  """
+  Mutation to simulate the reception of a physical card.
+  Requires a physical card in a valid state for reception.
+  """
+  physicalCardReception(input: PhysicalCardReceptionInput!): PhysicalCardReceptionPayload!
+
+  """
+  Mutation to promote an account holder to the role of project owner.
+  Requires the account holder identifier to be promoted to Project Owner.
+  Beware, if another account holder had this role, they will lose it.
+  """
+  promoteAccountHolderToProjectOwner(input: PromoteAccountHolderToProjectOwnerInput!): PromoteAccountHolderToProjectOwnerPayload!
+
+  """
+  Mutation to simulate delivery of a physical card.
+  Requires a physical card in a valid state for delivery.
+  """
+  simulatePhysicalCardDelivery(input: SimulatePhysicalCardDeliveryInput!): SimulationResponse!
+  updateSupportingDocumentCollectionStatus(input: UpdateSupportingDocumentCollectionStatusInput!): UpdateSupportingDocumentCollectionStatusPayload!
+  updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
+  updateFundingLimitSettingsChangeRequest(input: UpdateFundingLimitSettingsChangeRequestInput!): UpdateFundingLimitSettingsChangeRequestPayload!
+
+  """
+  Mutation to simulate the generation of an account invoice
+  This invoice will contain all banking fees related to the account
+  """
+  simulateInvoiceGeneration(input: SimulateInvoiceGenerationInput!): SimulateInvoiceGenerationPayload
+
+  """Mutation to simulate a banking fee manually added by the Swan Team"""
+  simulateManualBankingFee(input: SimulateManualBankingFeeInput!): SimulateManualBankingFeePayload
+
+  """Mutation to simulate a capital deposit case approval."""
+  simulateApproveCapitalDepositCase(input: SimulateApproveCapitalDepositCaseInput!): SimulateApproveCapitalDepositCasePayload!
+
+  """Mutation to simulate an update of capital deposit document status."""
+  simulateCapitalDepositDocumentStatus(input: SimulateCapitalDepositDocumentStatusInput!): SimulateCapitalDepositDocumentStatusPayload!
+
+  """Cancel a Card"""
+  cancelCard(input: CancelCardInput): CancelCardPayload!
+
+  """Cancel a physical card."""
+  cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
+
+  """Add a new card product for project."""
+  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
+
+  """Delete a card product."""
+  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
+
+  """
+  Resume a Physical Card.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have the account membership for this card
+  """
+  resumePhysicalCard(input: ResumePhysicalCardInput): ResumePhysicalCardPayload!
+  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
+
+  """Suspend a card product for a project."""
+  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
+
+  """Suspend a Physical Card."""
+  suspendPhysicalCard(input: SuspendPhysicalCardInput): SuspendPhysicalCardPayload!
+  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
+
+  """Create a sandbox identification"""
+  createSandboxIdentification(input: CreateSandboxIdentificationInput!): CreateSandboxIdentificationPayload!
+
+  """Update a sandbox identification"""
+  updateSandboxIdentification(input: UpdateSandboxIdentificationInput!): UpdateSandboxIdentificationPayload!
+
+  """
+  Create a sandbox user
+  This mutation is restricted to a User access token
+  """
+  createSandboxUser(input: CreateSandboxUserInput!): CreateSandboxUserPayload!
+
+  """
+  Delete a sandbox user
+  This mutation is restricted to a User access token
+  """
+  deleteSandboxUser(input: DeleteSandboxUserInput!): DeleteSandboxUserPayload!
+
+  """
+  Log sandbox user
+  This mutation is restricted to a User access token
+  """
+  endorseSandboxUser(input: EndorseSandboxUserInput!): EndorseSandboxUserPayload!
+
+  """
+  Updates a sandbox user
+  This mutation is restricted to a User access token
+  """
+  updateSandboxUser(input: UpdateSandboxUserInput!): UpdateSandboxUserPayload!
+
+  """Simulate Swan processing on Account Verification"""
+  updateAccountVerificationStatus(input: UpdateAccountVerificationStatusInput!): UpdateAccountVerificationStatusPayload!
+
+  """Generate a CMC7 with its RLMC key usable for test purpose"""
+  generateTestCheck(input: GenerateCheckInput!): GenerateCheckPayload!
+
   """Simulate the update of a Merchant Profile"""
   simulateUpdateMerchantProfile(input: SimulateUpdateMerchantProfileInput!): SimulateUpdateMerchantProfilePayload
 
-  """Update the account holder funding limit"""
-  updateAccountHolderFundingLimits(input: UpdateAccountHolderFundingLimitsInput!): UpdateAccountHolderFundingLimitsPayload @deprecated(reason: "Use mutation updateFundingLimitSettingsChangeRequest in sandbox-partner-admin instead.")
+  """
+  Simulate a card advice (amendment) received for a previous authorization for a card issued on a Swan account.
+  """
+  simulateOutgoingCardAdvice(input: SimulateOutgoingCardAdviceInput!): SimulateOutgoingCardAuthorizationPayload!
 
   """
   Simulate a card authorization release being received for a card authorization.
@@ -3320,6 +5295,29 @@ type Mutation {
   After an incoming Internal Direct Debit has been sent, simulate the corresponding transaction being rejected on the Swan creditor account.
   """
   simulateIncomingInternalDirectDebitReject(input: SimulateIncomingInternalDirectDebitRejectInput!): SimulateIncomingInternalDirectDebitRejectPayload!
+
+  """
+  After an incoming Internal Direct Debit has been sent, simulate the corresponding transaction being returned.
+  """
+  simulateIncomingInternalDirectDebitReturn(input: SimulateIncomingInternalDirectDebitReturnInput!): SimulateIncomingInternalDirectDebitReturnPayload!
+
+  """
+  After an outgoing International Credit Transfer has been sent for execution to Swan, simulate the corresponding transaction being booked on the Swan debtor account.
+  """
+  simulateOutgoingInternationalCreditTransferBooking(input: SimulateOutgoingInternationalCreditTransferBookingInput!): SimulateOutgoingInternationalCreditTransferBookingPayload!
+
+  """
+  Simulate Swan rejecting an outgoing International Credit Transfer request, for compliance reasons.
+  """
+  simulateOutgoingInternationalCreditTransferRejection(input: SimulateOutgoingInternationalCreditTransferRejectionInput!): SimulateOutgoingInternationalCreditTransferRejectionPayload!
+
+  """
+  Simulate Swan returning an outgoing International Credit Transfer request.
+  """
+  simulateOutgoingInternationalCreditTransferReturn(input: SimulateOutgoingInternationalCreditTransferReturnInput!): SimulateOutgoingInternationalCreditTransferReturnPayload!
+
+  """Simulate an incoming international credit transfer"""
+  simulateIncomingInternationalCreditTransferReception(input: SimulateIncomingInternationalCreditTransferInput!): SimulateIncomingInternationalCreditTransferPayload!
 
   """
   After a SEPA Credit Transfer has credited a Swan account, simulate an authorized account member accepting a recall request, and the subsequent return of funds to the issuer.
@@ -3397,64 +5395,8 @@ type Mutation {
   """Release reserved balance associate to a transaction id."""
   simulateReleaseReservedBalance(input: SimulateReleaseReservedBalanceInput!): SimulateReleaseReservedBalancePayload!
 
-  """Simulate Swan processing on Account Verification"""
-  updateAccountVerificationStatus(input: UpdateAccountVerificationStatusInput!): UpdateAccountVerificationStatusPayload!
-
-  """
-  Create a sandbox user
-  This mutation is restricted to a User access token
-  """
-  createSandboxUser(input: CreateSandboxUserInput!): CreateSandboxUserPayload!
-
-  """
-  Delete a sandbox user
-  This mutation is restricted to a User access token
-  """
-  deleteSandboxUser(input: DeleteSandboxUserInput!): DeleteSandboxUserPayload!
-
-  """
-  Log sandbox user
-  This mutation is restricted to a User access token
-  """
-  endorseSandboxUser(input: EndorseSandboxUserInput!): EndorseSandboxUserPayload!
-
-  """
-  Updates a sandbox user
-  This mutation is restricted to a User access token
-  """
-  updateSandboxUser(input: UpdateSandboxUserInput!): UpdateSandboxUserPayload!
-  simulateInvoiceGeneration(input: SimulateInvoiceGenerationInput!): SimulateInvoiceGenerationPayload
-
-  """Mutation to simulate a manual provisioning"""
-  simulateManualProvisioning(input: DigitalizationInput!): SimulationResponse!
-
-  """
-  Mutation to give decision on digitalization.
-  If more than one InApp digitalization process are ongoing, only the latest one will be acted upon
-  """
-  simulateInAppProvisioningCompletion(input: InAPpDigitalizationInput!): SimulationResponse!
-
-  """
-  Mutation to simulate the reception of a physical card.
-  Requires a physical card in a valid state for reception.
-  """
-  physicalCardReception(input: PhysicalCardReceptionInput!): PhysicalCardReceptionPayload!
-
-  """
-  Mutation to promote an account holder to the role of project owner.
-  Requires the account holder identifier to be promoted to Project Owner.
-  Beware, if another account holder had this role, they will lose it.
-  """
-  promoteAccountHolderToProjectOwner(input: PromoteAccountHolderToProjectOwnerInput!): PromoteAccountHolderToProjectOwnerPayload!
-
-  """
-  Mutation to simulate delivery of a physical card.
-  Requires a physical card in a valid state for delivery.
-  """
-  simulatePhysicalCardDelivery(input: SimulatePhysicalCardDeliveryInput!): SimulationResponse!
-  updateSupportingDocumentCollectionStatus(input: UpdateSupportingDocumentCollectionStatusInput!): UpdateSupportingDocumentCollectionStatusPayload!
-  updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
-  updateFundingLimitSettingsChangeRequest(input: UpdateFundingLimitSettingsChangeRequestInput!): UpdateFundingLimitSettingsChangeRequestPayload!
+  """Update the account holder funding limit"""
+  updateAccountHolderFundingLimits(input: UpdateAccountHolderFundingLimitsInput!): UpdateAccountHolderFundingLimitsPayload @deprecated(reason: "Use mutation updateFundingLimitSettingsChangeRequest in sandbox-partner-admin instead.")
 }
 
 """Rejection returned on unknown nationality"""
@@ -3478,6 +5420,22 @@ type NotReachableConsentStatusRejection implements Rejection {
   unreachableStatus: ConsentStatus
 }
 
+"""
+Describes an identification level that hasn't started for the process of the current identification
+"""
+type NotStartedIdentificationLevelStatusInfo {
+  """Always set to `NotStarted`"""
+  status: SwanIdentificationStatus!
+}
+
+"""
+Describes an identification level that's not supported for the process of the current identification
+"""
+type NotSupportedIdentificationLevelStatusInfo {
+  """Always set to `NotSupported`"""
+  status: SwanIdentificationStatus!
+}
+
 type OAuth2Consent implements DetailedConsent {
   id: ID!
   projectId: String
@@ -3492,6 +5450,7 @@ type OAuth2Consent implements DetailedConsent {
   consentOperations: [ConsentOperation!]!
   env: EnvType!
   identityId: String!
+  userId: String
   state: String
   branding: Branding!
   operationsSHA256HexDigest: String
@@ -3525,7 +5484,7 @@ type Onboarding {
   accountName: String
 
   """Account Country"""
-  accountCountry: AccountCountry
+  accountCountry: AccountCountry!
 
   """Creation date"""
   createdAt: DateTime!
@@ -3717,7 +5676,7 @@ type OnboardingIndividualAccountHolderInfo implements OnboardingAccountHolderInf
 }
 
 type OnboardingInfo {
-  """unique identifier of an onboarding"""
+  """Unique identifier of an onboarding"""
   id: String!
 
   """Account name"""
@@ -3841,6 +5800,38 @@ enum OrderByDirection {
   Desc
 }
 
+"""Reason codes for returning an outgoing transfer"""
+enum OutgoingInternationalCreditTransferReturnReasonCode {
+  AccountBlocked
+  AccountClosed
+  AccountDoesNotExist
+  AccountFrozen
+  AccountLimitReached
+  BusinessPaymentsForbidden
+  CannotAcceptFrom3RdParty
+  CreditingAccountForbidden
+  DuplicateEntry
+  FundsNotExpectedReturned
+  MandateNotFilledIn
+  ReasonNotSpecified
+  TaxIdNotMatching
+  TaxIdSuspended
+  WrongAccountDetails
+  WrongAccountNumber
+  WrongAccountType
+  WrongBankCode
+  WrongBranchCode
+  WrongCardNumber
+  WrongCardType
+  WrongCurrency
+  WrongIdNumber
+  WrongName
+  WrongPaymentPurpose
+  WrongPhoneNumber
+  WrongReference
+  WrongRutNumber
+}
+
 """
 Implements PageInfo from the Relay Connections Specification - information about a page in the pagination mechanism
 """
@@ -3919,6 +5910,39 @@ interface PartnershipStatusInfo {
   status: PartnershipStatus!
 }
 
+"""The document corresponding to a passport"""
+type PassportDocument {
+  """Unique identifier of the passport document"""
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+
+  """The date at which the passport was issued"""
+  issueDate: Date
+
+  """The date at which the passport expires"""
+  expiryDate: Date
+
+  """Machine-readable zone code of the passport"""
+  mrz: String
+
+  """Number of the passport"""
+  number: String
+
+  """List of the associated files"""
+  files: [PassportDocumentFile!]!
+}
+
+"""The file associated to the passport document"""
+type PassportDocumentFile implements DocumentFile {
+  """The file's temporary download url"""
+  downloadUrl: String!
+
+  """From which side the passport's picture was taken"""
+  side: DocumentFileSide!
+}
+
 enum PaymentAccountType {
   """When the account holder if the account hasn't met KYC requirements"""
   EMoney
@@ -3943,9 +5967,37 @@ enum PaymentLevel {
   Unlimited
 }
 
+enum PaymentLinkSequenceType {
+  OneOff
+  Recurrent
+}
+
 interface PaymentMandate {
   """Unique identifier of the Payment Mandate"""
   id: ID!
+
+  """Custom name of the mandate"""
+  name: String
+
+  """Account Holder information"""
+  accountHolder: AccountHolder!
+
+  """Creation date of the Payment Mandate"""
+  createdAt: DateTime!
+
+  """Last Update date of the Payment Mandate"""
+  updatedAt: DateTime!
+
+  """
+  Date of the the last transaction executed for the concerned Payment Mandate
+  """
+  executedAt: DateTime
+
+  """Expiry date of the Payment Mandate"""
+  expiredAt: Date
+
+  """Payment Mandate status information"""
+  statusInfo: PaymentMandateStatusInfo!
 }
 
 enum PaymentMandateCanceledReason {
@@ -3965,6 +6017,9 @@ type PaymentMandateCanceledStatusInfo implements PaymentMandateStatusInfo {
 
   """Reason behind the Payment Mandate Canceled status"""
   reason: PaymentMandateCanceledReason!
+
+  """Date of Cancellation of the mandate."""
+  canceledAt: DateTime!
 }
 
 """
@@ -4008,7 +6063,7 @@ interface PaymentMandateDebtor {
   name: String!
 
   """Debtor e-mail"""
-  email: String!
+  email: String
 
   """Debtor country"""
   country: CCA3!
@@ -4044,6 +6099,12 @@ input PaymentMandateFiltersInput {
   scheme: [PaymentMandateScheme!]
 }
 
+"""Error returned if the payment mandate was not found"""
+type PaymentMandateMandateNotFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """
 Field we can use when ordering that can be applied when listing payment mandate results
 """
@@ -4059,7 +6120,7 @@ input PaymentMandateOrderByInput {
 }
 
 """
-Rejection returned when a payment mandate reference is already for a creditor
+Rejection returned if the payment mandate reference is already used for the same creditor
 """
 type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
   message: String!
@@ -4110,14 +6171,88 @@ interface PaymentMandateStatusInfo {
   status: PaymentMandateStatus!
 }
 
+"""
+Rejection returned when a payment method is not compatible for the requested mutation
+"""
+type PaymentMethodNotCompatibleRejection implements Rejection {
+  message: String!
+}
+
+"""Pending Digital Card used for ApplePay or GooglePay"""
+type PendingDigitalCard implements DigitalCard {
+  """Unique identifier of a digital card"""
+  id: ID!
+
+  """The type of digitalization that created this digital card."""
+  type: DigitalizationType!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Wallet Provider (ApplePay, GooglePay ...)"""
+  walletProvider: WalletProvider!
+
+  """
+  Digital Card status information
+  
+  In this type the status will be either ConsentPending or Pending
+  """
+  statusInfo: PendingDigitalCardStatusInfo!
+
+  """
+  Data to provide to the wallet during InApp Provisioning
+  
+  Signature Data is mandatory for ApplePay
+  
+  This data is only available for a digital card in
+  - status: Pending
+  - type: InApp
+  """
+  inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
+}
+
+"""Pending Digital Card Status"""
+enum PendingDigitalCardStatus {
+  """when the digital card is waiting for the user to finish his consent"""
+  ConsentPending
+
+  """when the digital card is pending the end of the digitalization process"""
+  Pending
+
+  """
+  when the creation of a digital card is declined
+  
+  this is a final state
+  """
+  Declined
+}
+
+"""Pending Digital Card Status Information"""
+interface PendingDigitalCardStatusInfo {
+  """Status of the digital card."""
+  status: PendingDigitalCardStatus!
+}
+
+"""
+Describes an identification level that is pending for the process of the current identification, requiring an operation not related to the end-user to progress
+"""
+type PendingIdentificationLevelStatusInfo {
+  """Always set to `Pending`"""
+  status: SwanIdentificationStatus!
+}
+
 """PendingMerchantPaymentMethodStatusInfo"""
 type PendingMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
-}
-
-"""PendingMerchantPaymentProductStatusInfo"""
-type PendingMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
 }
 
 """PendingReviewMerchantProfileStatusInfo"""
@@ -4146,6 +6281,90 @@ Examples
 """
 scalar PhoneNumber
 
+"""Physical Card"""
+type PhysicalCard {
+  """Physical Card status information"""
+  statusInfo: PhysicalCardStatusInfo!
+
+  """Physical Card expiration date  with MM/YY string format"""
+  expiryDate: String
+
+  """
+  Unique identifier present on physical card, such identifier is null if the status is ToActivate or Canceled. This identifier is updated when a renewed card is activated
+  """
+  identifier: String
+
+  """Offline Spending limit defined by Swan"""
+  offlineSpendingLimit: Amount!
+
+  """Masked Card Number"""
+  cardMaskedNumber: String!
+
+  """Custom Options"""
+  customOptions: PhysicalCardCustomOptions!
+}
+
+"""Physical Card Activated Status Information"""
+type PhysicalCardActivatedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Activated for type PhysicalCardEnabledStatusInfo).
+  """
+  status: PhysicalCardStatus!
+}
+
+"""Physical Card Canceled Status Information"""
+type PhysicalCardCanceledStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Canceled for type PhysicalCardCanceledStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is canceled."""
+  reason: String!
+}
+
+"""Physical Card Canceling Status Information"""
+type PhysicalCardCancelingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Canceling for type PhysicalCardCancelingStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is canceled."""
+  reason: String!
+}
+
+"""when the user has to authorize production of the physical card"""
+type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always ConsentPending for type PhysicalCardConsentPendingStatusInfo)
+  """
+  status: PhysicalCardStatus!
+
+  """The consent required to authorize production of the physical card"""
+  consent: Consent!
+}
+
+"""Custom options for physical card."""
+type PhysicalCardCustomOptions {
+  """Additional line embossed on the card."""
+  additionalPrintedLine: String
+}
+
+"""Rejection returned when the Physical Card does not exist"""
+type PhysicalCardNotFoundRejection implements Rejection {
+  message: String!
+  identifier: String!
+}
+
+"""when the physical card is in the process of being ready to use"""
+type PhysicalCardProcessingStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical card status (always Processing for type PhysicalCardProcessingStatusInfo)
+  """
+  status: PhysicalCardStatus!
+}
+
 """Input to simulate reception of a physical card"""
 input PhysicalCardReceptionInput {
   """Unique identifier of a card"""
@@ -4156,6 +6375,120 @@ union PhysicalCardReceptionPayload = PhysicalCardReceptionSuccessPayload | Simul
 
 type PhysicalCardReceptionSuccessPayload {
   physicalCardIdentifier: String!
+}
+
+"""Physical Card Renewed Status Information"""
+type PhysicalCardRenewedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Renewed for type PhysicalCardRenewedStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """address to deliver the physical card"""
+  address: Address!
+
+  """Estimated delivery date"""
+  estimatedDeliveryDate: DateTime
+
+  """Shipping tracking number"""
+  trackingNumber: String
+
+  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
+  shippingProvider: String
+
+  """`true` if PIN Code is available."""
+  isPINReady: Boolean!
+}
+
+"""Physical Card Status"""
+enum PhysicalCardStatus {
+  """Consent to authorize physical card production is pending"""
+  ConsentPending
+
+  """Physical card is in processing and can’t be used yet"""
+  Processing
+
+  """Physical card is activated and can be used"""
+  Activated
+
+  """Physical card is suspended and can’t be used"""
+  Suspended
+
+  """Physical card is canceled, can’t be used, and can’t be restored"""
+  Canceled
+
+  """
+  Physical card is in the process of being canceled; card can’t be used or restored
+  """
+  Canceling
+
+  """Physical card needs to be activated by cardholder"""
+  ToActivate
+
+  """Physical card is in the process of being renewed"""
+  ToRenew
+
+  """Physical card is renewed but hasn’t made a transaction since renewal"""
+  Renewed
+}
+
+"""Physical Card Status Information"""
+interface PhysicalCardStatusInfo {
+  """Status of the physical card."""
+  status: PhysicalCardStatus!
+}
+
+"""Physical Card Suspended Status Information"""
+type PhysicalCardSuspendedStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always Suspended for type PhysicalCardSuspendedStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """Reason why the card is suspended."""
+  reason: String!
+}
+
+"""Physical Card To Activate Status Information"""
+type PhysicalCardToActivateStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical Card status (always ToActivate for type PhysicalCardToActivateStatusInfo).
+  """
+  status: PhysicalCardStatus!
+
+  """address to deliver the physical card"""
+  address: Address!
+
+  """Estimated delivery date"""
+  estimatedDeliveryDate: DateTime
+
+  """Shipping tracking number"""
+  trackingNumber: String
+
+  """Name of the shipping provider (Ex: LaPoste, DHL ...)"""
+  shippingProvider: String
+
+  """`true` if PIN Code is available."""
+  isPINReady: Boolean!
+}
+
+"""when the physical card is in the process of being renewed"""
+type PhysicalCardToRenewStatusInfo implements PhysicalCardStatusInfo {
+  """
+  Physical card status (always ToRenew for type PhysicalCardToRenewStatusInfo)
+  """
+  status: PhysicalCardStatus!
+
+  """registered address to deliver the new physical card"""
+  address: Address!
+}
+
+"""Rejection returned when the Physical Card is not the expected status"""
+type PhysicalCardWrongStatusRejection implements Rejection {
+  message: String!
+  identifier: String!
+  currentStatus: PhysicalCardStatus!
+  expectedStatus: PhysicalCardStatus!
 }
 
 """6 digits numeric passcode"""
@@ -4169,6 +6502,13 @@ enum PreferredNotificationChannel {
   App
 }
 
+type PreProvisioningSUVCardSettings {
+  preProvisioningSUVCards: Boolean!
+  preProvisioningSUVNumberOfCards: Int!
+  ownerProvisioningSUVCards: ID
+  preProvisioningSUVCardsAvailablePercentage: Float!
+}
+
 """
 Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
 """
@@ -4177,6 +6517,79 @@ enum ProductType {
   Services
   VirtualGoods
   GiftsAndDonations
+}
+
+type ProjectCardDesigns {
+  """Unique identifier of a project"""
+  id: ID!
+
+  """Visual Id from the issuing card processor (Monext)"""
+  issuingProcessorVisualId: String
+
+  """Specific card product for companies"""
+  specificCardProductCodeForCompanies: String
+
+  """Project name"""
+  name: String
+
+  """Project card product designs"""
+  cardDesigns: [CardProductDesign!]!
+
+  """Project's pre provisioning suv card settings"""
+  preProvisioningSUVCardSettings: PreProvisioningSUVCardSettings
+}
+
+type ProjectCardSettings {
+  """Unique identifier of a project"""
+  id: ID!
+
+  """Visual Id from the issuing card processor (Monext)"""
+  issuingProcessorVisualId: String
+
+  """Specific card product for companies"""
+  specificCardProductCodeForCompanies: String
+
+  """Project name"""
+  name: String
+
+  """Project's card settings"""
+  cardSettings: [CardSettings!]!
+
+  """Project's pre provisioning suv card settings"""
+  preProvisioningSUVCardSettings: PreProvisioningSUVCardSettings
+}
+
+"""Project Card Settings Background Type"""
+enum ProjectCardSettingsBackgroundType {
+  """when Card setting background is black"""
+  Black
+
+  """when Card setting background is light"""
+  Silver
+
+  """when Card setting background is customized"""
+  Custom
+}
+
+"""Card Status"""
+enum ProjectCardStatus {
+  """when project's card settings are Initiated"""
+  Initiated
+
+  """when project's card settings are Enabled"""
+  Enabled
+
+  """when project's card settings are Disabled"""
+  Disabled
+
+  """when project's card settings are ToReview"""
+  ToReview
+
+  """when project's card settings are Suspended"""
+  Suspended
+
+  """when project's card settings are Rejected"""
+  Rejected
 }
 
 type ProjectForbiddenRejection implements Rejection {
@@ -4192,6 +6605,13 @@ type ProjectFundingLimitExceededRejection implements Rejection {
 type ProjectInfo {
   """Unique identifier of the project"""
   id: ID!
+  B2BMembershipIDVerification: Boolean
+
+  """The card products associated with this project."""
+  cardProducts: [CardProduct!]
+
+  """the currently active card settings"""
+  activeCardSettings: CardSettings @deprecated(reason: "Use cardProduct.cardDesigns instead")
 
   """
   Your project name displayed in white label interfaces and in the terms and conditions
@@ -4223,17 +6643,21 @@ type ProjectInfo {
     this consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
     """
     language: String!
-  ): String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  ): String!
 
   """Unique id of your current Terms and Conditions of Use"""
-  tcuDocumentId: String! @deprecated(reason: "use tcuDocumentUrl from the onboarding query")
+  tcuDocumentId: String!
 
   """Web banking settings"""
   webBankingSettings: WebBankingSettings
 
   """Project status"""
   status: ProjectStatus!
-  B2BMembershipIDVerification: Boolean
+
+  """
+  Flag that determines if desktop authentication is enabled for this project
+  """
+  allowsDesktopAuthentication: Boolean!
 }
 
 """
@@ -4248,6 +6672,11 @@ type ProjectInvalidStatusRejection implements Rejection {
 }
 
 type ProjectNotFound implements Rejection {
+  message: String!
+}
+
+"""Rejection returned when the project is not found"""
+type ProjectNotFoundRejection implements Rejection {
   message: String!
 }
 
@@ -4319,11 +6748,39 @@ type PurposeWithOperations {
 }
 
 type Query {
+  noop: String
+  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
+
+  """Returns a card from its id."""
+  card(cardId: ID!): Card
+
   """
-  Returns sandbox user data of provided user ID
-  This query is restricted to a User access token
+  Returns the list of cards.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  
+  *For a Project access token, this is all the cards of the project and for an User access token, these are the cards owned by the user whom have an account membership.*
   """
-  sandboxUserById(id: ID!): SandboxUser
+  cards(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: CardOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: CardFiltersInput
+  ): CardConnection!
 
   """
   Returns sandbox user data of active user.
@@ -4331,6 +6788,12 @@ type Query {
   This query is restricted to a User access token
   """
   sandboxUser: SandboxUser!
+
+  """
+  Returns sandbox user data of provided user ID
+  This query is restricted to a User access token
+  """
+  sandboxUserById(id: ID!): SandboxUser
 
   """
   Returns a list of sandbox users data
@@ -4349,6 +6812,14 @@ type Query {
     """When the list of elements needs to be ordered"""
     orderBy: SandboxUsersOrderByInput
   ): SandboxUserConnection
+}
+
+type RadioField implements Field {
+  key: String!
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  allowedValues: [AllowedValue!]!
 }
 
 """Define a reason with a message"""
@@ -4556,14 +7027,6 @@ type RejectedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   rejectedAt: Date!
 }
 
-"""RejectedMerchantPaymentProductStatusInfo"""
-type RejectedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product rejected date"""
-  rejectedAt: Date!
-}
-
 """RejectedMerchantProfileStatusInfo"""
 type RejectedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
@@ -4596,6 +7059,109 @@ type ReleaseReservedBalanceSuccessPayload {
   transactionId: ID!
 }
 
+"""The document corresponding to a identification report"""
+type ReportDocument {
+  """Unique identifier of the report document"""
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+
+  """List of the associated files"""
+  files: [ReportDocumentFile!]!
+}
+
+"""The file associated to the report document"""
+type ReportDocumentFile implements DocumentFile {
+  """The file's temporary download url"""
+  downloadUrl: String!
+}
+
+"""Request Update Merchant Profile"""
+type RequestMerchantProfileUpdate {
+  """The Request ID"""
+  id: ID!
+
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
+
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
+
+  """
+  Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount!
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount!
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Request Merchant Profile Update Statuses"""
+enum RequestMerchantProfileUpdateStatus {
+  """A Request is created in the PendingReview status"""
+  PendingReview
+
+  """A Request that has already been approved"""
+  Enabled
+
+  """A Request that has already been rejected"""
+  Rejected
+}
+
+"""The document corresponding to a residence permit"""
+type ResidencePermitDocument {
+  """Unique identifier of the residence permit document"""
+  id: String!
+
+  """The type of the document"""
+  type: DocumentType!
+
+  """The date at which the residence permit was issued"""
+  issueDate: Date
+
+  """The date at which the residence permit expires"""
+  expiryDate: Date
+
+  """Machine-readable zone code of the residence permit"""
+  mrz: String
+
+  """Number of the residence permit"""
+  number: String
+
+  """List of the associated files"""
+  files: [ResidencePermitDocumentFile!]!
+}
+
+"""The file associated to the resident permit document"""
+type ResidencePermitDocumentFile implements DocumentFile {
+  """The file's temporary download url"""
+  downloadUrl: String!
+
+  """From which side the residence permit's picture was taken"""
+  side: DocumentFileSide!
+}
+
 """
 The channels that can be used to send the OTP and the end of provisioning message
 """
@@ -4618,6 +7184,39 @@ type RestrictedTo {
   phoneNumber: String!
 }
 
+"""Inputs to resume a physical card"""
+input ResumePhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+}
+
+union ResumePhysicalCardPayload = ResumePhysicalCardSuccessPayload | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection | ValidationRejection
+
+type ResumePhysicalCardSuccessPayload {
+  """The physicalCard to resume"""
+  physicalCard: PhysicalCard!
+
+  """The consent required to resume a physical card"""
+  consent: Consent!
+}
+
+input ReviewProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+}
+
+union ReviewProjectCardSettingsPayload = ReviewProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type ReviewProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  cardSettings: CardSettings!
+}
+
 """
 Percentage over a number of business days, that is applied to all funds collected to compute a Reserved amount
 This amount cannot be used over the corresponding business days
@@ -4628,6 +7227,15 @@ type RollingReserve {
 
   """Number of business days the computed amount is reserved"""
   rollingDays: Int!
+}
+
+type SandboxIdentification {
+  """Unique identifier of the identification"""
+  id: String!
+}
+
+type SandboxIdentificationNotFoundRejection implements Rejection {
+  message: String!
 }
 
 """
@@ -4690,9 +7298,6 @@ type SandboxUser {
   """
   preferredNotificationChannel: PreferredNotificationChannel
 
-  """Verification status is now is now an Account-Holder's attribute"""
-  verificationStatus: VerificationStatus @deprecated(reason: "Verification status is now is now an Account-Holder's attribute. Updating this status should be done on the account holder level instead of sandbox users.")
-
   """
   List of identification levels available for the user.
   
@@ -4752,9 +7357,24 @@ input SandboxUsersOrderByInput {
   direction: OrderByDirection
 }
 
+type Scheme {
+  fields: [Field!]!
+  title: String!
+  type: InternationalCreditTransferRouteInput!
+  remainingFieldsToRefreshCount: Int!
+}
+
 """Rejection returned when adding a B2B mandate with an Individual debtor"""
 type SchemeWrongRejection implements Rejection {
   message: String!
+}
+
+type SelectField implements Field {
+  key: String!
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  allowedValues: [AllowedValue!]!
 }
 
 """Sepa beneficiary account"""
@@ -4812,9 +7432,34 @@ enum SepaCreditTransferRecallReasonCodeEnum {
 
 """List of rejection reasons"""
 enum SepaCreditTransferRejectionReasonCodeEnum {
+  AccountClosed
+  AccountHolderDeceased
+  AccountLimited
+  AccountSuspended
+  AccountUnknown
+  AmountExceedsSettlementLimit
+  BankOperationCodeInvalid
   BeneficiaryBankBicInvalid
   BeneficiaryBankBicNotFound
   BeneficiaryBankNotReachable
+  CreditorAddressMissing
+  CreditorAgentSuspended
+  CreditorBankOffline
+  CreditorBankTechnicalErrorOccurred
+  CreditorBankTimeout
+  CreditorNameOrAddressMissing
+  DebtorAccountOrIdMissing
+  DebtorBankTimeout
+  DebtorNameOrAddressMissing
+  InsufficientFunds
+  InvalidTransferDate
+  PaymentNotReceived
+  ReasonNotSpecifiedByBank
+  ReasonNotSpecifiedByCreditor
+  RejectedByCompliance
+  TransactionAmountLimitExceeded
+  TransactionDuplicated
+  TransactionOnAccountTypeNotAllowed
 }
 
 """List of return reasons"""
@@ -4863,6 +7508,42 @@ input SepaDirectDebitAccount {
   ultimateName: String
 }
 
+"""SepaDirectDebitB2BMerchantPaymentMethod"""
+type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+}
+
 """List of SDD cancel reasons"""
 enum SepaDirectDebitCancelReasonCodeEnum {
   AgentIncorrect
@@ -4870,6 +7551,42 @@ enum SepaDirectDebitCancelReasonCodeEnum {
   NotSpecifiedByOriginator
   PaymentUndue
   TransactionDuplicated
+}
+
+"""SepaDirectDebitCoreMerchantPaymentMethod"""
+type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
+  """
+  Unique identifier tied to every version of a given Merchant Payment Method
+  """
+  id: ID!
+
+  """The Merchant Payment Method Type"""
+  type: MerchantPaymentMethodType!
+
+  """
+  Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
+  """
+  methodId: ID!
+
+  """Status of the Merchant Payment Method"""
+  statusInfo: MerchantPaymentMethodStatusInfo!
+
+  """Version of the Merchant Payment Method"""
+  version: Int!
+
+  """Date at which the Merchant Payment Method was last updated"""
+  updatedAt: Date!
+
+  """Rolling Reserve applied to the Merchant Payment Method"""
+  rollingReserve: RollingReserve
+
+  """Whether this payment method uses the Swan Sepa Creditor Identifier"""
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
 }
 
 interface SEPADirectDebitMandate {
@@ -4951,6 +7668,9 @@ type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentDi
 
   """Account Holder information"""
   accountHolder: AccountHolder!
+
+  """Custom name of the mandate"""
+  name: String
 }
 
 type SEPAPaymentMandateCreditor implements PaymentMandateCreditor {
@@ -4975,7 +7695,7 @@ type SEPAPaymentMandateDebtor implements PaymentMandateDebtor {
   iban: IBAN!
 
   """SEPA Direct Debit Payment Mandate debtor e-mail"""
-  email: String!
+  email: String
 
   """SEPA Direct Debit Payment Mandate debtor country"""
   country: CCA3!
@@ -5126,6 +7846,48 @@ with some follow extra rules :
 """
 scalar SepaReference
 
+"""Signature data used during apple pay inApp provisioning"""
+input SignatureData {
+  """nonce"""
+  nonce: String!
+
+  """nonce signed by the secure element"""
+  nonceSignature: String!
+
+  """list of apple generated certificates"""
+  certificates: [Certificate!]!
+}
+
+"""Inputs to approve a capital deposit case."""
+input SimulateApproveCapitalDepositCaseInput {
+  """Identifier of capital deposit case to validated."""
+  capitalDepositCaseId: String!
+}
+
+union SimulateApproveCapitalDepositCasePayload = SimulateApproveCapitalDepositCaseSuccessPayload | CouldNotFindCapitalDepositCaseRejection
+
+type SimulateApproveCapitalDepositCaseSuccessPayload {
+  id: String!
+}
+
+"""
+Inputs to update a capital deposit document status.
+Automatically uploads the document if the document status in input is UPLOADED.
+"""
+input SimulateCapitalDepositDocumentStatusInput {
+  """Identifier of capital deposit document."""
+  documentId: String!
+
+  """Status of capital deposit document."""
+  documentStatus: CapitalDepositDocumentStatusInput!
+}
+
+union SimulateCapitalDepositDocumentStatusPayload = SimulateCapitalDepositDocumentStatusSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CouldNotUpdateCapitalDepositDocumentStatusRejection | CouldNotUploadCapitalDepositDocumentRejection | CouldNotFindCapitalDepositDocumentRejection | CouldNotRejectCapitalDepositDocumentRejection
+
+type SimulateCapitalDepositDocumentStatusSuccessPayload {
+  id: String!
+}
+
 """Book an incoming check simulation input"""
 input SimulateIncomingCheckBookingInput {
   """Transaction ID to be booked"""
@@ -5207,6 +7969,60 @@ union SimulateIncomingInternalDirectDebitRejectPayload = SimulateIncomingInterna
 
 """Success payload type"""
 type SimulateIncomingInternalDirectDebitRejectSuccessPayload {
+  transactionId: ID!
+}
+
+type SimulateIncomingInternalDirectDebitReturnErrorPayload {
+  reason: String!
+}
+
+"""Return incoming SEPA Direct Debit simulation input"""
+input SimulateIncomingInternalDirectDebitReturnInput {
+  """Transaction ID to be Returned"""
+  transactionId: ID!
+
+  """Return reason code"""
+  reasonCode: IncomingInternalDirectDebitReturnReasonCodeEnum!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateIncomingInternalDirectDebitReturnPayload = SimulateIncomingInternalDirectDebitReturnSuccessPayload | SimulateIncomingInternalDirectDebitReturnErrorPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateIncomingInternalDirectDebitReturnSuccessPayload {
+  transactionId: ID!
+}
+
+input SimulateIncomingInternationalCreditTransferInput {
+  """Amount of the incoming credit transfer"""
+  amount: AmountInput!
+
+  """
+  Creditor IBAN. Your Swan IBAN if you want to receive a credit transfer in your Swan account
+  """
+  creditorIban: IBAN!
+
+  """Creditor name"""
+  creditorName: String!
+
+  """Debtor IBAN. It should be a valid IBAN"""
+  debtorIban: IBAN!
+
+  """Debtor name"""
+  debtorName: String!
+
+  """External identifier of the transaction"""
+  reference: String
+
+  """Label"""
+  label: String
+}
+
+"""SimulateIncomingInternationalCreditTransferPayload"""
+union SimulateIncomingInternationalCreditTransferPayload = SimulateIncomingInternationalCreditTransferSuccessPayload | AccountNotFoundRejection
+
+"""SimulateIncomingInternationalCreditTransferSuccessPayload"""
+type SimulateIncomingInternationalCreditTransferSuccessPayload {
   transactionId: ID!
 }
 
@@ -5309,13 +8125,72 @@ type SimulateIncomingSepaDirectDebitReturnSuccessPayload {
 }
 
 input SimulateInvoiceGenerationInput {
+  """ID of the account for which we want to generate an invoice"""
   accountId: ID!
 }
 
-union SimulateInvoiceGenerationPayload = SimulateInvoiceGenerationSuccessPayload | AccountNotFoundRejection | AccountNotEligibleRejection
+union SimulateInvoiceGenerationPayload = SimulateInvoiceGenerationSuccessPayload | AccountNotFoundRejection | AccountNotEligibleRejection | ForbiddenRejection
 
 type SimulateInvoiceGenerationSuccessPayload {
+  """The generated invoice"""
   invoice: Invoice!
+}
+
+"""Input to simulate a manual banking fee"""
+input SimulateManualBankingFeeInput {
+  """ID of the account for which we want add a banking fee manually"""
+  accountId: ID!
+
+  """Type of banking fee to add"""
+  type: ManualBankingFee!
+
+  """
+  When is it booked ?
+  cf. https://docs.swan.io/concept/account/billing
+  """
+  effectiveDate: DateTime!
+
+  """
+  Related due amount
+  Used when the banking fee is a percentage of initial amount
+  """
+  dueAmount: AmountInput
+}
+
+union SimulateManualBankingFeePayload = SimulateManualBankingFeeSuccessPayload | AccountNotFoundRejection | AccountNotEligibleRejection | ForbiddenRejection
+
+type SimulateManualBankingFeeSuccessPayload {
+  """internal ID of this usage"""
+  id: ID!
+
+  """amount to debit on the account"""
+  debitedAmount: Amount
+}
+
+"""Request a card advice simulation input"""
+input SimulateOutgoingCardAdviceInput {
+  amount: AmountInput!
+
+  """Card transaction category"""
+  cardTransactionCategory: CardTransactionCategory = Other
+
+  """Merchant"""
+  merchant: Merchant
+
+  """Original amount"""
+  originalAmount: AmountInput
+
+  """Authorization wanted outcome"""
+  outcome: CardAuthorizationOutcome
+
+  """Terminal ID"""
+  terminalId: String = "SWAN01"
+
+  """Transaction ID"""
+  transactionId: ID!
+
+  """Expiration date time"""
+  expirationDateTime: DateTime
 }
 
 """Request a card authorization simulation input"""
@@ -5323,13 +8198,13 @@ input SimulateOutgoingCardAuthorizationInput {
   amount: AmountInput!
 
   """Authorization request type"""
-  authorizationType: CardAuthorizationType
+  authorizationType: CardAuthorizationType = Classic
 
   """Card ID"""
   cardId: String!
 
   """Card transaction category"""
-  cardTransactionCategory: CardTransactionCategory
+  cardTransactionCategory: CardTransactionCategory = Other
 
   """Simulation card type"""
   cardType: SimulationCardType
@@ -5364,12 +8239,21 @@ type SimulateOutgoingCardAuthorizationRejectPayload {
 
 """Reject payload reason"""
 enum SimulateOutgoingCardAuthorizationRejectPayloadReason {
+  AccountSuspended
+  CardExpired
+  CardSuspended
+  InsufficientFunds
   NotHeld
+  PartnerRefused
+  PeriodAmountLimitExceeded
+  SwanRefused
+  TransactionTypeNotAllowed
 }
 
 """Input to simulate a release of a card authorization"""
 input SimulateOutgoingCardAuthorizationReleaseInput {
   transactionId: ID!
+  reason: CardAuthorizationReleaseReason = Expired
 }
 
 """Union of Success payload and potential rejections"""
@@ -5413,6 +8297,9 @@ input SimulateOutgoingCardCreditInput {
 
   """Merchant City"""
   merchantCity: String
+
+  """Merchant Postal Code"""
+  merchantPostalCode: String
 
   """Merchant Country"""
   merchantCountry: CCA3
@@ -5483,6 +8370,51 @@ type SimulateOutgoingCardDebitReverseSuccessPayload {
 
 """Success payload type"""
 type SimulateOutgoingCardDebitSuccessPayload {
+  transactionId: ID!
+}
+
+"""Book an outgoing transfer simulation input"""
+input SimulateOutgoingInternationalCreditTransferBookingInput {
+  """Transaction ID to be booked"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingInternationalCreditTransferBookingPayload = SimulateOutgoingInternationalCreditTransferBookingSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingInternationalCreditTransferBookingSuccessPayload {
+  transactionId: ID!
+}
+
+"""Reject an outgoing transfer simulation input"""
+input SimulateOutgoingInternationalCreditTransferRejectionInput {
+  """Transaction ID to be booked"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingInternationalCreditTransferRejectionPayload = SimulateOutgoingInternationalCreditTransferRejectionSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingInternationalCreditTransferRejectionSuccessPayload {
+  transactionId: ID!
+}
+
+"""Return an outgoing transfer simulation input"""
+input SimulateOutgoingInternationalCreditTransferReturnInput {
+  """Reason of the return"""
+  reasonCode: OutgoingInternationalCreditTransferReturnReasonCode!
+
+  """Transaction ID to return"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateOutgoingInternationalCreditTransferReturnPayload = SimulateOutgoingInternationalCreditTransferReturnSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateOutgoingInternationalCreditTransferReturnSuccessPayload {
   transactionId: ID!
 }
 
@@ -5690,12 +8622,6 @@ input SimulateUpdateMerchantProfileInput {
   """Desired status of the Merchant Profile"""
   merchantProfileStatus: MerchantProfileStatus
 
-  """
-  Input to apply changes to the current underlying payment product
-  DEPRECATED : Use merchantPaymentMethod instead
-  """
-  merchantPaymentProduct: [UpdateMerchantPaymentProductInput!]
-
   """Input to apply changes to the current underlying payment method"""
   merchantPaymentMethod: [UpdateMerchantPaymentMethodInput!]
 }
@@ -5801,6 +8727,14 @@ type StandingOrderNotFoundRejection implements Rejection {
   message: String!
 }
 
+"""
+Describes an identification level that has started for the process of the current identification
+"""
+type StartedIdentificationLevelStatusInfo {
+  """Always set to `Started`"""
+  status: SwanIdentificationStatus!
+}
+
 """Supporting document used for compliance"""
 type SupportingDocument {
   """Unique identifier of the document"""
@@ -5820,6 +8754,10 @@ type SupportingDocument {
 
   """Updated date"""
   updatedAt: DateTime!
+}
+
+type SupportingDocumentAccountHolder {
+  id: ID
 }
 
 """
@@ -5849,6 +8787,8 @@ type SupportingDocumentCollection {
   List of required supporting document purposes for this supporting document collection
   """
   requiredSupportingDocumentPurposes: [SupportingDocumentPurpose!]!
+  accountHolder: SupportingDocumentAccountHolder!
+  onboarding: SupportingDocumentOnboarding!
 }
 
 """Supporting document collection with Approved status"""
@@ -5977,6 +8917,10 @@ type SupportingDocumentNotUploadedStatusInfo implements SupportingDocumentStatus
   status: SupportingDocumentStatus!
 }
 
+type SupportingDocumentOnboarding {
+  id: ID
+}
+
 type SupportingDocumentPostField {
   key: String!
   value: String!
@@ -6003,6 +8947,9 @@ enum SupportingDocumentPurposeEnum {
 
   """Proof of company registration"""
   CompanyRegistration
+
+  """Minutes Of The General Assembly"""
+  GeneralAssemblyMinutes
 
   """Other"""
   Other
@@ -6036,6 +8983,27 @@ enum SupportingDocumentPurposeEnum {
 
   """Sworn statement"""
   SwornStatement
+
+  """Proof of identity of the legal representative"""
+  LegalRepresentativeProofOfIdentity
+
+  """Proof of identity of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfIdentity
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment of the President"""
+  PresidentDecisionOfAppointment
+
+  """Decision of appointment of Administrator"""
+  AdministratorDecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
+
+  """Proof of address of the Ultimate Beneficial Owner"""
+  UltimateBeneficialOwnerProofOfAddress
 }
 
 """Supporting document with Refused status"""
@@ -6178,6 +9146,18 @@ enum SupportingDocumentType {
 
   """Sworn statement"""
   SwornStatement
+
+  """Meeting's minutes"""
+  MeetingMinutes
+
+  """NIF Accreditation Card"""
+  NIFAccreditationCard
+
+  """Decision of appointment"""
+  DecisionOfAppointment
+
+  """Financial Statements"""
+  FinancialStatements
 }
 
 """Supporting document with Uploaded status"""
@@ -6246,6 +9226,17 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
+"""Inputs to suspend a card product"""
+input SuspendCardProductInput {
+  id: ID!
+}
+
+union SuspendCardProductPayload = SuspendCardProductSuccessPayload | CardProductNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type SuspendCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 """StatusInfo when funding limit settings has been suspended"""
 type SuspendedFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
   status: FundingLimitSettingsStatus!
@@ -6260,18 +9251,23 @@ type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSt
   suspendedAt: Date!
 }
 
-"""SuspendedMerchantPaymentProductStatusInfo"""
-type SuspendedMerchantPaymentProductStatusInfo implements MerchantPaymentProductStatusInfo {
-  status: MerchantPaymentProductStatus!
-
-  """Merchant Payment Product suspended date"""
-  suspendedAt: Date!
-}
-
 """SuspendedMerchantProfileStatusInfo"""
 type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   suspendedAt: Date!
+}
+
+"""Inputs to suspend a physical card"""
+input SuspendPhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union SuspendPhysicalCardPayload = SuspendPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
+
+type SuspendPhysicalCardSuccessPayload {
+  """The physicalCard suspended"""
+  physicalCard: PhysicalCard!
 }
 
 """Swan account beneficiary"""
@@ -6286,6 +9282,49 @@ input SwanAccountBeneficiaryInput {
   `true` if this new beneficiary will be saved to the beneficiary list of the debited account.
   """
   save: Boolean!
+}
+
+"""Status values of an identification"""
+enum SwanIdentificationStatus {
+  """
+  When the identification process is currently being treated by a manual or automatic process
+  """
+  Pending
+
+  """When the identification is valid"""
+  Valid
+
+  """When the identification is invalid"""
+  Invalid
+
+  """
+  When the user canceled the identification process or the identification service was unavailable
+  """
+  Canceled
+
+  """When the identification is no longer valid"""
+  Expired
+
+  """When the identification does not support an identification level"""
+  NotSupported
+
+  """When the identification hasn't been started yet"""
+  NotStarted
+
+  """When the identification has been started"""
+  Started
+}
+
+type TextField implements Field {
+  displayFormat: String
+  example: String
+  key: String!
+  maxLength: Int
+  minLength: Int
+  name: String!
+  refreshDynamicFieldsOnChange: Boolean!
+  required: Boolean!
+  validationRegex: String
 }
 
 type ThreeDsConsent implements DetailedConsent {
@@ -6303,6 +9342,7 @@ type ThreeDsConsent implements DetailedConsent {
   consentOperations: [ConsentOperation!]!
   env: EnvType!
   identityId: String!
+  userId: String
   state: String
   branding: Branding!
   operationsSHA256HexDigest: String
@@ -6314,6 +9354,15 @@ type ThreeDsConsent implements DetailedConsent {
   maskedCardNumber: String!
   amount: AmountWithCurrency!
   challenge: String
+}
+
+"""Individual ultimate beneficial owner title (Mr/Ms)"""
+enum TitleEnum {
+  """Identified as a man"""
+  Mr
+
+  """Identified as a woman"""
+  Ms
 }
 
 scalar TokenRequestorId
@@ -6418,12 +9467,36 @@ input UpdateMerchantPaymentMethodInput {
   status: MerchantPaymentMethodStatus!
 }
 
-"""Update Merchant Profile Internal Direct Debit Status Input"""
-input UpdateMerchantPaymentProductInput {
-  productType: MerchantPaymentProductType!
+input UpdateProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+  status: ProjectCardStatus
+}
 
-  """Status to which to move the related payment product"""
-  status: MerchantPaymentProductStatus!
+union UpdateProjectCardSettingsPayload = UpdateProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type UpdateProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  projectCardSettings: CardSettings!
+}
+
+"""Update sandbox identification input payload."""
+input UpdateSandboxIdentificationInput {
+  identificationId: String!
+  process: IdentificationProcess!
+  levels: IdentificationLevelStatusesInput!
+  errorReasons: [IdentificationInvalidReason!]
+}
+
+"""Union of success payload and possible rejections"""
+union UpdateSandboxIdentificationPayload = UpdateSandboxIdentificationSuccessPayload | ForbiddenRejection | SandboxIdentificationNotFoundRejection | InvalidIdentificationLevelsRejection | InvalidIdentificationErrorReasonsRejection
+
+"""Success payload type"""
+type UpdateSandboxIdentificationSuccessPayload {
+  """Updated sandbox identification"""
+  sandboxIdentification: SandboxIdentification!
 }
 
 input UpdateSandboxUserInput {
@@ -6451,18 +9524,6 @@ input UpdateSandboxUserInput {
   Ex: FRA for french nationality
   """
   nationalityCCA3: CCA3!
-
-  """
-  Verification status is now is now an Account-Holder's attribute
-  @deprecated(reason: "Verification status is now is now an Account-Holder's attribute. Updating this status should be done on the account holder level instead of sandbox users.")
-  """
-  verificationStatus: VerificationStatus
-
-  """Let you simulate every use case of our identity verification process."""
-  identificationStatus: IdentificationStatus
-
-  """Identification levels."""
-  identificationLevels: IdentificationLevelsInput
 
   """
   Saves you considerable time during the development phase,
@@ -6502,6 +9563,29 @@ scalar URL
 type User {
   """unique identifier of the user"""
   id: ID!
+
+  """
+  The list of account memberships
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  accountMemberships(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """a filtering table you can apply to your list of connections"""
+    filters: AccountMembershipsFilterInput
+  ): AccountMembershipConnection!
 
   """
   mobile phone number with the international format (Example: +33689788967)
@@ -6557,9 +9641,6 @@ type User {
 
   """Last update date of the user"""
   updatedAt: DateTime!
-
-  """The list of account memberships"""
-  accountMemberships(first: Int! = 50, before: String, after: String, filters: AccountMembershipsFilterInput): AccountMembershipConnection!
 }
 
 """
@@ -6598,6 +9679,16 @@ type UserEdge implements Edge {
   node: User!
 }
 
+"""Rejection returned when the User is not the Card Holder"""
+type UserNotCardHolderRejection implements Rejection {
+  message: String!
+}
+
+type UserNotFoundRejection implements Rejection {
+  id: ID!
+  message: String!
+}
+
 """A detail of a validation error : what field is errored and why"""
 type ValidationError {
   """
@@ -6620,12 +9711,21 @@ enum ValidationFieldErrorCode {
   InvalidType
   TooLong
   TooShort
+  UnrecognizedKeys
 }
 
 """Rejection returned if an input contains invalid data"""
 type ValidationRejection implements Rejection {
   fields: [ValidationFieldError!]!
   message: String!
+}
+
+"""
+Describes a valid identification level for the process associated to this identification, and identification documents can be accessed
+"""
+type ValidIdentificationLevelStatusInfo {
+  """Always set to `Valid`"""
+  status: SwanIdentificationStatus!
 }
 
 """Verification Flow."""
@@ -6716,6 +9816,15 @@ type VirtualIBANEntryEdge implements Edge {
 
   """The virtual iban entry"""
   node: VirtualIBANEntry!
+}
+
+"""Wallet Provider (ApplePay, GooglePay ...)"""
+type WalletProvider {
+  """name of the Wallet Provider (Apple / Google / Amazon or Unknown)"""
+  name: String!
+
+  """id of the Wallet Provider"""
+  id: String!
 }
 
 """Wallet Provider"""

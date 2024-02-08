@@ -120,6 +120,17 @@ type Account {
   bankDetails: String
 }
 
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
+}
+
 """Account Closed status information"""
 type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
@@ -885,6 +896,10 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   reasonInfo: SuspendAccountStatusReason!
 }
 
+type ActionNotAllowedRejection implements Rejection {
+  message: String!
+}
+
 type ActiveMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusInfo {
   status: MerchantPaymentLinkStatus!
 
@@ -1148,6 +1163,19 @@ enum BusinessActivity {
   Transportation
 }
 
+"""Inputs to cancel a card"""
+input CancelCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CancelCardSuccessPayload {
+  """The canceled card """
+  card: Card!
+}
+
 """CanceledMerchantPaymentMethodStatusInfo"""
 type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -1161,6 +1189,40 @@ type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   canceledAt: Date!
   enabledAt: Date
+}
+
+"""Inputs to cancel a physical card"""
+input CancelPhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+
+  """Reason why the physical card is canceled"""
+  reason: CancelPhysicalCardReason!
+}
+
+union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
+
+"""reason why the physical card is canceled"""
+enum CancelPhysicalCardReason {
+  """When the card holder never received the card"""
+  NonReceived
+
+  """When the card has been stolen"""
+  Lost
+
+  """When the card has been stolen"""
+  Stolen
+
+  """When the card doesn't work anymore"""
+  Defected
+
+  """When the card holder wants to block his card"""
+  Blocked
+}
+
+type CancelPhysicalCardSuccessPayload {
+  """The canceled physical card """
+  physicalCard: PhysicalCard!
 }
 
 """Rejection returned when the Physical Card cannot be activated"""
@@ -1501,6 +1563,12 @@ input CardPINInfosInput {
   requestId: String!
 }
 
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -1520,6 +1588,9 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
 
 """Card design of a Card Product"""
@@ -1676,6 +1747,10 @@ enum CardSettingsBackgroundType {
 
   """when Card background is customized"""
   Custom
+}
+
+input CardSettingsByProjectIdInput {
+  projectId: ID!
 }
 
 """Card Status"""
@@ -1968,6 +2043,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -2194,6 +2275,19 @@ enum ConsentStatus {
   Canceled
 }
 
+"""Inputs to create a new card product"""
+input CreateCardProductInput {
+  projectId: ID!
+  name: String
+  applicableToPhysicalCards: Boolean
+}
+
+union CreateCardProductPayload = CreateCardProductSuccessPayload | ProjectNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CreateCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 """currency code alpha 3 (ISO 4217)"""
 scalar Currency
 
@@ -2228,6 +2322,17 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+"""Inputs to delete a card product"""
+input DeleteCardProductInput {
+  id: ID!
+}
+
+union DeleteCardProductPayload = DeleteCardProductSuccessPayload | CardProductNotFoundRejection | CardProductUsedRejection | ForbiddenRejection | ValidationRejection
+
+type DeleteCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 """Device"""
 type Device {
   """The type of device. It can be a Phone, Tablet, Watch"""
@@ -2259,6 +2364,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -3105,6 +3216,9 @@ type MerchantPaymentLink {
   """URL to redirect the user to if they cancel their payment"""
   cancelRedirectUrl: String!
 
+  """URL to redirect the user to if their payment fails"""
+  failRedirectUrl: URL
+
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
   This is applicable for card and SEPA Direct Debit payment methods only.
@@ -3364,6 +3478,35 @@ type Mutation {
   *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
+
+  """Cancel a Card"""
+  cancelCard(input: CancelCardInput): CancelCardPayload!
+
+  """Cancel a physical card."""
+  cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
+
+  """Add a new card product for project."""
+  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
+
+  """Delete a card product."""
+  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
+
+  """
+  Resume a Physical Card.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have the account membership for this card
+  """
+  resumePhysicalCard(input: ResumePhysicalCardInput): ResumePhysicalCardPayload!
+  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
+
+  """Suspend a card product for a project."""
+  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
+
+  """Suspend a Physical Card."""
+  suspendPhysicalCard(input: SuspendPhysicalCardInput): SuspendPhysicalCardPayload!
+  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
   addSepaDirectDebitPaymentMandateFromPaymentLink(input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!): AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload!
   unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!): UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload!
 }
@@ -4100,6 +4243,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -4575,6 +4724,38 @@ type Query {
   """
   companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
   onboardingInfo(id: ID!): OnboardingInfo
+  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
+
+  """Returns a card from its id."""
+  card(cardId: ID!): Card
+
+  """
+  Returns the list of cards.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  
+  *For a Project access token, this is all the cards of the project and for an User access token, these are the cards owned by the user whom have an account membership.*
+  """
+  cards(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: CardOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: CardFiltersInput
+  ): CardConnection!
   projectInfoById(id: ID!): ProjectInfo!
 
   """Return a merchant payment link by id"""
@@ -4704,6 +4885,39 @@ Rejection returned if the mutation cannot be executed in another context than us
 """
 type RestrictedToUserRejection implements Rejection {
   message: String!
+}
+
+"""Inputs to resume a physical card"""
+input ResumePhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+}
+
+union ResumePhysicalCardPayload = ResumePhysicalCardSuccessPayload | ForbiddenRejection | CardNotFoundRejection | UserNotCardHolderRejection | PhysicalCardNotFoundRejection | PhysicalCardWrongStatusRejection | ValidationRejection
+
+type ResumePhysicalCardSuccessPayload {
+  """The physicalCard to resume"""
+  physicalCard: PhysicalCard!
+
+  """The consent required to resume a physical card"""
+  consent: Consent!
+}
+
+input ReviewProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+}
+
+union ReviewProjectCardSettingsPayload = ReviewProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type ReviewProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  cardSettings: CardSettings!
 }
 
 """
@@ -5442,6 +5656,17 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
+"""Inputs to suspend a card product"""
+input SuspendCardProductInput {
+  id: ID!
+}
+
+union SuspendCardProductPayload = SuspendCardProductSuccessPayload | CardProductNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type SuspendCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 """SuspendedMerchantPaymentMethodStatusInfo"""
 type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -5454,6 +5679,19 @@ type SuspendedMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSt
 type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   status: MerchantProfileStatus!
   suspendedAt: Date!
+}
+
+"""Inputs to suspend a physical card"""
+input SuspendPhysicalCardInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+}
+
+union SuspendPhysicalCardPayload = SuspendPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
+
+type SuspendPhysicalCardSuccessPayload {
+  """The physicalCard suspended"""
+  physicalCard: PhysicalCard!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
@@ -5693,6 +5931,21 @@ union UnauthenticatedUpdateIndividualOnboardingPayload = ForbiddenRejection | In
 
 type UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
+}
+
+input UpdateProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+  status: ProjectCardStatus
+}
+
+union UpdateProjectCardSettingsPayload = UpdateProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type UpdateProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  projectCardSettings: CardSettings!
 }
 
 scalar Upload

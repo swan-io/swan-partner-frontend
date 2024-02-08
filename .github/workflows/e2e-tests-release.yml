@@ -40,8 +40,6 @@ jobs:
           echo "TEST_KEY=${{ secrets.E2E_TEST_KEY }}" >> .env.e2e
           echo "PHONE_NUMBER=${{ secrets.E2E_PHONE_NUMBER }}" >> .env.e2e
           echo "PASSCODE=${{ secrets.E2E_PASSCODE }}" >> .env.e2e
-          echo "SANDBOX_USER_BENADY_ID=${{ secrets.E2E_SANDBOX_USER_BENADY_ID }}" >> .env.e2e
-          echo "SANDBOX_USER_SAISON_ID=${{ secrets.E2E_SANDBOX_USER_SAISON_ID }}" >> .env.e2e
           echo "TWILIO_ACCOUNT_ID=${{ secrets.E2E_TWILIO_ACCOUNT_ID }}" >> .env.e2e
           echo "TWILIO_AUTH_TOKEN=${{ secrets.E2E_TWILIO_AUTH_TOKEN }}" >> .env.e2e
           echo "WEBHOOK_SITE_API_KEY=${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}" >> .env.e2e

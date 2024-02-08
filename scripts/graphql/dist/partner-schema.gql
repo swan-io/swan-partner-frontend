@@ -141,35 +141,45 @@ type Account {
   balances: AccountBalances
 
   """
-  A list of statements of an account.
-  The list is ordered by lastUpdateAt
+  List of statements of an account.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  *For a Project access token, this is all the transactions of the project (only available with project access token)*
   """
   statements(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: StatementFiltersInput
   ): StatementConnection
 
-  """A list of transactions of an account."""
+  """
+  A list of transactions of an account.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
-    filters: TransactionsFiltersInput
-
     """
-    When the list of elements needs to be sorted (default value UpdatedAt desc)
+    an order you can apply to your list of connections (default value UpdatedAt desc)
     """
     orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
   ): TransactionConnection
 
   """
@@ -188,18 +198,26 @@ type Account {
     after: String
   ): InvoiceConnection
 
-  """A list of receive Direct Mandates of an account."""
+  """
+  A list of receive Direct Mandates of an account.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   receivedDirectDebitMandates(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be ordered"""
+    """
+    an order you can apply to your list of connections (default value updatedAt desc)
+    """
     orderBy: AccountReceivedDirectDebitOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: AccountReceivedDirectDebitMandateFiltersInput
   ): ReceivedDirectDebitMandateConnection
 
@@ -218,38 +236,68 @@ type Account {
     filters: MerchantProfileFiltersInput
   ): MerchantProfileConnection
 
-  """A list of standing orders regarding an account."""
+  """
+  A list of standing orders regarding an account.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   standingOrders(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to start at a specific offset"""
+    """an offset to start at"""
     offset: Int
 
-    """When the list of elements needs to be ordered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
     orderBy: AccountStandingOrderOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: AccountStandingOrderFiltersInput
   ): StandingOrderConnection!
 
-  """List of funding source created on the account"""
+  """
+  List of funding source created on the account
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   fundingSources(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be ordered"""
+    """an offset to start at"""
+    offset: Int
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
     orderBy: FundingSourceOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: FundingSourceFiltersInput
   ): FundingSourceConnection
+}
+
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
 }
 
 """A list of balances regarding an account."""
@@ -489,20 +537,26 @@ type AccountHolder {
     after: String
   ): ExternalAccountConnection!
 
-  """A list of Payment Mandates for an account holder."""
+  """
+  A list of Payment Mandates for an account holder.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   paymentMandates(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
     """
-    When the list of elements needs to be ordered, by default, the list will be ordered by the latest updated Payment Mandate
+    an order you can apply to your list of connections (default value updatedAt desc)
     """
     orderBy: PaymentMandateOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: PaymentMandateFiltersInput
   ): PaymentMandateConnection
 
@@ -1224,6 +1278,10 @@ interface AccountVerificationStatusInfo {
 Rejection returned when the Account Verification is not in the expected status
 """
 type AccountVerificationWrongStatusRejection implements Rejection {
+  message: String!
+}
+
+type ActionNotAllowedRejection implements Rejection {
   message: String!
 }
 
@@ -2127,6 +2185,72 @@ interface Beneficiary {
   isMyOwnIban: Boolean!
 }
 
+"""BeneficiaryAccountHolderType"""
+enum BeneficiaryAccountHolderType {
+  Individual
+  Company
+
+  """Beneficiary's bank did not disclose account holder type"""
+  Unknown
+}
+
+"""BeneficiaryAccountStatus"""
+enum BeneficiaryAccountStatus {
+  Active
+  Inactive
+
+  """Beneficiary's bank did not disclose account status"""
+  Unknown
+}
+
+"""Beneficiary name and IBAN match"""
+type BeneficiaryMatch {
+  accountStatus: BeneficiaryAccountStatus!
+  accountHolderType: BeneficiaryAccountHolderType!
+}
+
+"""Beneficiary name and IBAN did not match"""
+type BeneficiaryMismatch {
+  accountStatus: BeneficiaryAccountStatus!
+  accountHolderType: BeneficiaryAccountHolderType!
+
+  """
+  Only returned if accountHolderType is Company and if the information is provided by the beneficiary's bank
+  """
+  nameSuggestion: String
+
+  """
+  Only returned if accountHolderType is Company and if the information is provided by the beneficiary's bank
+  """
+  accountHolderResidencyCity: String
+}
+
+"""
+Beneficiary name and IBAN did not match entirely possibly caused by a mistype
+"""
+type BeneficiaryTypo {
+  accountStatus: BeneficiaryAccountStatus!
+  accountHolderType: BeneficiaryAccountHolderType!
+
+  """Only returned if the information is provided by the beneficiary's bank"""
+  nameSuggestion: String
+}
+
+"""BeneficiaryVerification input"""
+input BeneficiaryVerificationInput {
+  """IBAN to verify"""
+  iban: IBAN!
+
+  """Name to correlate"""
+  name: String!
+
+  """AccountId of the initiator of the payment"""
+  debtorAccountId: String!
+}
+
+"""BeneficiaryVerificationResult"""
+union BeneficiaryVerificationResult = BeneficiaryMatch | BeneficiaryTypo | BeneficiaryMismatch | InvalidBeneficiaryVerification | ValidationRejection | IbanValidationRejection | AccountNotFoundRejection | InternalErrorRejection | ForbiddenRejection | ActionNotAllowedRejection
+
 """Bank Identifier Code"""
 scalar BIC
 
@@ -2701,15 +2825,26 @@ type Card {
     filters: DigitalCardFiltersInput
   ): DigitalCardConnection!
 
-  """List of transactions of a card."""
+  """
+  List of transactions of a card.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -3038,6 +3173,17 @@ input CardOrderByInput {
   direction: OrderByDirection
 }
 
+input CardPaymentMethodInput {
+  """Determine whether the payment method must be activated or not"""
+  activate: Boolean = false
+}
+
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -3057,7 +3203,12 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
+
+union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
 
 """Card design of a Card Product"""
 type CardProductDesign {
@@ -3213,6 +3364,10 @@ enum CardSettingsBackgroundType {
 
   """when Card background is customized"""
   Custom
+}
+
+input CardSettingsByProjectIdInput {
+  projectId: ID!
 }
 
 """Card Status"""
@@ -3490,27 +3645,14 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   rollingReserve: RollingReserve
 }
 
-input CheckPaymentCollectionInput {
-  """ID of the Merchant profile associated to the Swan creditor account"""
-  merchantProfileId: ID!
-
-  """
-  31-caracter unique identifier located at the bottom of the check.
-  CMC7 is composed of 3 sections (check number (7 char.), check issuing bank code (12 char.), check holder account number (12 char.)).
-  Combined with RLMC key, it  allows the check traceability.
-  """
-  cmc7: String!
-
-  """
-  2-digit key used to check the integrity of the CMC7 line, located at the bottom right of the check.
-  Combined with CMC7 line, it allows the check traceability.
-  """
-  rlmcKey: String!
-}
-
 input CheckPaymentMethodInput {
   """Determine whether the payment method must be activated or not"""
   activate: Boolean = false
+}
+
+type CheckRejection implements Rejection {
+  message: String!
+  fnciInfo: FnciInfo!
 }
 
 """Check transaction"""
@@ -3782,6 +3924,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -3815,6 +3963,25 @@ type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatus
 
   """The time when the customer completed the payment."""
   completedAt: DateTime!
+}
+
+"""Inputs to confirm physical card renewal"""
+input ConfirmPhysicalCardRenewalInput {
+  """Unique identifier of a card"""
+  cardId: ID!
+
+  """Address to deliver the physical card"""
+  address: CompleteAddressInput!
+
+  """Custom Options"""
+  customOptions: PhysicalCardCustomOptionsInput
+}
+
+union ConfirmPhysicalCardRenewalPayload = ConfirmPhysicalCardRenewalSuccessPayload | ForbiddenRejection | CardNotFoundRejection | ValidationRejection | PhysicalCardWrongStatusRejection
+
+type ConfirmPhysicalCardRenewalSuccessPayload {
+  """Physical card has been updated"""
+  physicalCard: PhysicalCard!
 }
 
 """
@@ -4079,10 +4246,23 @@ input CreateCapitalDepositCaseInput {
   onboardingCapitalDepositCompany: OnboardCompanyAccountHolderInput!
 }
 
-union CreateCapitalDepositCasePayload = CreateCapitalDepositCaseSuccessPayload | ForbiddenRejection | BadRequestRejection | InternalErrorRejection
+union CreateCapitalDepositCasePayload = CreateCapitalDepositCaseSuccessPayload | ForbiddenRejection | BadRequestRejection | ValidationRejection | InternalErrorRejection
 
 type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
+}
+
+"""Inputs to create a new card product"""
+input CreateCardProductInput {
+  projectId: ID!
+  name: String
+  applicableToPhysicalCards: Boolean
+}
+
+union CreateCardProductPayload = CreateCardProductSuccessPayload | ProjectNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CreateCardProductSuccessPayload {
+  cardProduct: CardProduct!
 }
 
 input CreateMerchantPaymentLinkInput {
@@ -4099,6 +4279,9 @@ input CreateMerchantPaymentLinkInput {
 
   """URL to redirect the user to if they cancel their payment"""
   cancelRedirectUrl: URL!
+
+  """URL to redirect the user to if their payment fails"""
+  failRedirectUrl: URL
 
   """
   The customer billing Address
@@ -4303,6 +4486,17 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+"""Inputs to delete a card product"""
+input DeleteCardProductInput {
+  id: ID!
+}
+
+union DeleteCardProductPayload = DeleteCardProductSuccessPayload | CardProductNotFoundRejection | CardProductUsedRejection | ForbiddenRejection | ValidationRejection
+
+type DeleteCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 input DeleteSupportingDocumentInput {
   """Id of the supporting document to delete"""
   id: ID!
@@ -4365,6 +4559,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -5323,6 +5523,15 @@ type FinancialInstitution {
   country: CCA3!
 }
 
+type FnciInfo {
+  colorCode: String!
+  cpt1: Int!
+  cpt2: Int!
+  cpt3: Int!
+  holderEstablishment: String!
+  responseCode: Int!
+}
+
 type ForbiddenRejection implements Rejection {
   message: String!
 }
@@ -6259,6 +6468,49 @@ type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBen
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 }
 
+input InitiateCheckMerchantPaymentInput {
+  """
+  Amount of the concerned payment collection. For check deposit, the amount should not exceed 10 000€.
+  """
+  amount: AmountInput!
+
+  """
+  Label of the concerned payment collection, which will be displayed on Swan bank statement.
+  If empty, default label will be set as "Check N° [1st 7 characters of CMC7]
+  """
+  label: String
+
+  """End-to-end reference of the concerned payment collection."""
+  reference: String
+
+  """ID of the merchant profile associated to the Swan creditor account."""
+  merchantProfileId: ID!
+
+  """
+  31-character unique identifier located at the bottom of the check.
+  CMC7 is composed of 3 sections (check number (7 characters), check issuing bank code (12 characters), check holder account number (12 characters)).
+  Combined with RLMC key, it  allows the check to be traced.
+  """
+  cmc7: String!
+
+  """
+  2-digit key used to check the integrity of the CMC7 line, located at the bottom right of the check.
+  Combined with CMC7 line, it allows the check to be traced.
+  """
+  rlmcKey: String!
+}
+
+union InitiateCheckMerchantPaymentPayload = InitiateCheckMerchantPaymentSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | CheckRejection
+
+type InitiateCheckMerchantPaymentSuccessPayload {
+  merchantPayment: Payment!
+
+  """
+  Details of the FNCI (Fichier national des chèques irréguliers) response
+  """
+  fnciInfo: FnciInfo!
+}
+
 """Initiate credit transfers"""
 input InitiateCreditTransfersInput {
   """account to be debited identified by number"""
@@ -6267,14 +6519,14 @@ input InitiateCreditTransfersInput {
   """account id to be debited identified by id"""
   accountId: ID
 
-  """credit transfers (max 250 records)"""
+  """credit transfers (max 2500 records)"""
   creditTransfers: [CreditTransferInput!]!
 
   """URL the user is redirected to after consent has been given"""
   consentRedirectUrl: String!
 }
 
-union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | ForbiddenRejection
+union InitiateCreditTransfersPayload = InitiateCreditTransfersSuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection
 
 type InitiateCreditTransfersSuccessPayload {
   payment: Payment!
@@ -6394,9 +6646,6 @@ input InitiateMerchantPaymentCollectionInput {
 
   """Internal direct debit type of payment collection"""
   internalDirectDebit: InternalDirectDebitPaymentCollectionInput
-
-  """Check type of payment collection"""
-  check: CheckPaymentCollectionInput
 
   """Sepa Direct Debit type of payment collection"""
   sepaDirectDebit: SepaDirectDebitPaymentCollectionInput
@@ -6798,15 +7047,24 @@ type InternalPaymentDirectDebitMandate implements InternalDirectDebitMandate & P
 
   """
   List of transactions associated with the Internal Payment Direct Debit Mandate.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -6929,15 +7187,19 @@ type InternalReceivedDirectDebitMandate implements InternalDirectDebitMandate & 
 
   """
   List of transactions associated with the Internal Receive Direct Debit Mandate.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """the list of elements needs to be filtered"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -7583,6 +7845,9 @@ type InternationalCreditTransferTransaction implements Transaction {
   """
   requestedExecutionAt: DateTime
 
+  """return reason"""
+  returnReason: TransactionReasonCode
+
   """side (Credit or Debit)"""
   side: TransactionSide!
 
@@ -7610,6 +7875,11 @@ enum InvalidArgumentRejectionCode {
 type InvalidArgumentRejectionField {
   name: String!
   errors: [String!]!
+}
+
+"""InvalidVerification"""
+type InvalidBeneficiaryVerification {
+  message: String!
 }
 
 """Information about the invalidity of the IBAN"""
@@ -8268,6 +8538,9 @@ type MerchantPaymentLink {
   """URL to redirect the user to if they cancel their payment"""
   cancelRedirectUrl: String!
 
+  """URL to redirect the user to if their payment fails"""
+  failRedirectUrl: URL
+
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
   This is applicable for card and SEPA Direct Debit payment methods only.
@@ -8692,6 +8965,9 @@ type Mutation {
   """
   closeAccount(input: CloseAccountInput!): CloseAccountPayload!
 
+  """Confirm Physical Card Renewal"""
+  confirmPhysicalCardRenewal(input: ConfirmPhysicalCardRenewalInput!): ConfirmPhysicalCardRenewalPayload!
+
   """
   Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
   
@@ -8865,6 +9141,17 @@ type Mutation {
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
 
+  """Add a new card product for project."""
+  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
+
+  """Delete a card product."""
+  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
+  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
+
+  """Suspend a card product for a project."""
+  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
+  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
+
   """Cancels a consent."""
   cancelConsent(input: CancelConsentInput!): CancelConsentPayload!
 
@@ -8935,6 +9222,7 @@ type Mutation {
   """Add a merchant profile to a company account holder"""
   addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
   addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
+  initiateCheckMerchantPayment(input: InitiateCheckMerchantPaymentInput!): InitiateCheckMerchantPaymentPayload
 
   """Create a unique URL for a merchant to collect payment from a customer"""
   createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
@@ -8990,9 +9278,12 @@ type Mutation {
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
 
+  """Initiate several credit transfers (payment-v2)"""
+  initiateCreditTransfersV2(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload! @deprecated(reason: "Do not use. Use initiateCreditTransfers instead")
+
   """
   Initiate a funding request.
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)).
   The user must have an account membership for this account with the attribute `canInitiateCreditTransfer=true`.
   """
   initiateFundingRequest(input: InitiateFundingRequestInput!): InitiateFundingRequestPayload
@@ -9723,15 +10014,26 @@ type Payment {
   """status information"""
   statusInfo: PaymentStatusInfo!
 
-  """list of transactions associated to this payment"""
+  """
+  list of transactions associated to this payment
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -9804,6 +10106,41 @@ enum PaymentLinkSequenceType {
 interface PaymentMandate {
   """Unique identifier of the Payment Mandate"""
   id: ID!
+
+  """List of transactions associated with the Payment Mandate."""
+  transactions(
+    """number of elements in the list (default value 50)"""
+    first: Int! = 50
+
+    """When the list of elements needs to start after a element"""
+    after: String
+
+    """When the list of elements needs to be filtered"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
+  """Custom name of the mandate"""
+  name: String
+
+  """Account Holder information"""
+  accountHolder: AccountHolder!
+
+  """Creation date of the Payment Mandate"""
+  createdAt: DateTime!
+
+  """Last Update date of the Payment Mandate"""
+  updatedAt: DateTime!
+
+  """
+  Date of the the last transaction executed for the concerned Payment Mandate
+  """
+  executedAt: DateTime
+
+  """Expiry date of the Payment Mandate"""
+  expiredAt: Date
+
+  """Payment Mandate status information"""
+  statusInfo: PaymentMandateStatusInfo!
 }
 
 enum PaymentMandateCanceledReason {
@@ -10107,6 +10444,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -10250,6 +10593,9 @@ input PhysicalCardConfigInput {
 
   """Custom options to use for physical cards."""
   physicalCardCustomOptions: PhysicalCardCustomOptionsInput
+
+  """`true` if the user must choose their PIN"""
+  choosePin: Boolean
 }
 
 """when the user has to authorize production of the physical card"""
@@ -10295,7 +10641,7 @@ input PhysicalCardCustomOptionsForPrintInput {
 
 input PhysicalCardCustomOptionsInput {
   """
-  Additional line to be embossed on the card. 
+  Additional line to be embossed on the card.
   
   This field will only be taken into account for custom card design that include it. ([Learn More](https://docs.swan.io/guide/issue-cards#order-cards-with-additional-line))
   
@@ -10794,6 +11140,11 @@ type Query {
     orderBy: AccountOrderByInput
   ): AccountConnection!
 
+  """
+  Allows to verify the consistency between a beneficiary name and an IBAN.
+  """
+  beneficiaryVerification(input: BeneficiaryVerificationInput): BeneficiaryVerificationResult
+
   """Returns a card from its id."""
   card(cardId: ID!): Card
 
@@ -10874,24 +11225,31 @@ type Query {
   payment(id: ID!): Payment!
 
   """
-  Returns the list of payments.
+  List of payments.
   
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   *For a Project access token, this is all the payments of the project and for an User access token, these are the payments initiated by the user*
   """
   payments(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
-    after: String
-
-    """When the list of elements needs to end before a element"""
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
     before: String
 
-    """When the list of elements needs to be ordered"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
     orderBy: PaymentOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: PaymentFiltersInput
   ): PaymentConnection!
 
@@ -10903,24 +11261,27 @@ type Query {
   transaction(id: ID!): Transaction!
 
   """
-  A list of transactions of a project.
+  List of transactions of a project.
   
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   *For a Project access token, this is all the transactions of the project (only available with project access token)*
   """
   transactions(
-    """When the list of elements needs to start after a element"""
-    after: String
-
-    """When the list of elements needs to be filtered"""
-    filters: TransactionsFiltersInput
-
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
     """
-    When the list of elements needs to be sorted (default value UpdatedAt desc)
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
     """
     orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
   ): TransactionConnection!
   accountInvoice(invoiceId: ID!): Invoice
 
@@ -10960,6 +11321,8 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
+  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
+  cardProductById(id: ID): CardProductByIdResultPayload
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -11023,6 +11386,9 @@ type Query {
 
   """Returns standing order from its id."""
   standingOrder(standingOrderId: ID!): StandingOrder
+
+  """A single webhook eventLog, queried by its id"""
+  webhookEventLog(id: ID!): WebhookEventLog
 }
 
 type RadioField implements Field {
@@ -11664,6 +12030,9 @@ input RequestMerchantPaymentMethodsInput {
 
   """Input for Check payment method"""
   check: CheckPaymentMethodInput
+
+  """Input for Card payment method"""
+  card: CardPaymentMethodInput
 }
 
 union RequestMerchantPaymentMethodsPayload = RequestMerchantPaymentMethodsSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
@@ -11899,6 +12268,20 @@ type ResumePhysicalCardSuccessPayload {
 
   """The consent required to resume a physical card"""
   consent: Consent!
+}
+
+input ReviewProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+}
+
+union ReviewProjectCardSettingsPayload = ReviewProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type ReviewProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  cardSettings: CardSettings!
 }
 
 """
@@ -12638,15 +13021,24 @@ type SEPAPaymentDirectDebitMandate implements SEPADirectDebitMandate & PaymentDi
 
   """
   List of transactions associated with the SEPA Payment Direct Debit Mandate.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -12768,15 +13160,24 @@ type SEPAReceivedDirectDebitMandate implements SEPADirectDebitMandate & Received
 
   """
   List of transactions associated with the SEPA Receive Direct Debit Mandate.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   """
   transactions(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be filtered"""
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
     filters: TransactionsFiltersInput
   ): TransactionConnection
 
@@ -13081,21 +13482,29 @@ type StandingOrder {
   """Standing Order unique identifier"""
   id: ID!
 
-  """A list of payments of an standing order."""
+  """
+  List of payments of an standing order.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
   payments(
-    """number of elements in the list (default value 50)"""
+    """the number of elements to load (default value 50, maximum: 100)"""
     first: Int! = 50
 
-    """When the list of elements needs to start at a specific offset"""
-    offset: Int
-
-    """When the list of elements needs to start after a element"""
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
     after: String
 
-    """When the list of elements needs to be ordered"""
+    """a filtering table you can apply to your list of connections"""
+    offset: Int
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
     orderBy: PaymentOrderByInput
 
-    """When the list of elements needs to be filtered"""
+    """a filtering table you can apply to your list of connections"""
     filters: PaymentFiltersInput
   ): PaymentConnection!
 
@@ -13306,6 +13715,11 @@ The different type of statement actually available
 enum StatementType {
   PDF
   CSV
+}
+
+enum StatusText {
+  Success
+  Failure
 }
 
 """Supporting document used for compliance"""
@@ -13865,6 +14279,17 @@ enum SuspendAccountReasonType {
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
 
+"""Inputs to suspend a card product"""
+input SuspendCardProductInput {
+  id: ID!
+}
+
+union SuspendCardProductPayload = SuspendCardProductSuccessPayload | CardProductNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type SuspendCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 """StatusInfo when funding limit settings has been suspended"""
 type SuspendedFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
   status: FundingLimitSettingsStatus!
@@ -14134,6 +14559,11 @@ enum TransactionReasonCode {
   """Rejected because the account holder is deceased"""
   AccountHolderDeceased
 
+  """
+  Rejected because the beneficiary account has a limit that can be unblocked
+  """
+  AccountLimited
+
   """Rejected because the account is suspended"""
   AccountSuspended
 
@@ -14154,6 +14584,34 @@ enum TransactionReasonCode {
 
   """Creditor account number does not exist"""
   BeneficiaryAccountUnknown
+
+  """The account number matches, but the creditor’s name does not"""
+  BeneficiaryBankBicInvalid
+
+  """The account number matches, but the creditor's name does not"""
+  BeneficiaryBranchCodeInvalid
+
+  """Recipient phone number is incorrect"""
+  BeneficiaryPhoneNumberInvalid
+
+  """The recipient's ID document number is invalid"""
+  BeneficiaryIdNumberInvalid
+
+  """
+  The recipient’s account currency is different than the transfer currency
+  """
+  BeneficiaryRutNumberInvalid
+
+  """Tax ID doesn't match recipient's name"""
+  BeneficiaryTaxIdInvalid
+
+  """Tax ID is suspended"""
+  BeneficiaryTaxIdSuspended
+
+  """
+  The recipient’s account currency is different than the transfer currency
+  """
+  BeneficiaryCurrencyInvalid
 
   """Rejected because the creditor bank is not reachable"""
   BeneficiaryBankNotReachable
@@ -14219,6 +14677,9 @@ enum TransactionReasonCode {
 
   """Rejected because of insufficient funds on the account"""
   InsufficientFunds
+
+  """The account number matches, but the creditor’s name does not"""
+  InvalidCreditorName
 
   """
   Rejected because the expiration date entered does not match the one on the card
@@ -14294,6 +14755,9 @@ enum TransactionReasonCode {
   """Refund requested by end customer"""
   RefundRequestedByDebtor
 
+  """The creditor requested the transaction to be refunded"""
+  RefundRequestedByCreditor
+
   """Rejected by bank for regulatory reason"""
   RegulatoryReason
 
@@ -14326,11 +14790,25 @@ enum TransactionReasonCode {
   """
   TransactionAmountLimitExceeded
 
+  """Recipient bank can't accept the payments from 3rd party"""
+  TargetCurrencyNotAvailable
+
   """Rejected by bank because this transaction is duplicated"""
   TransactionDuplicated
 
   """Rejected because the transaction is forbidden on this type of account"""
   TransactionOnAccountTypeNotAllowed
+
+  """Recipient account doesn't support payments to this card type"""
+  TransactionOnCardTypeNotAllowed
+
+  """
+  The recipient’s account currency is different than the transfer currency
+  """
+  TransactionPurposeInvalid
+
+  """Invalid payment reference"""
+  TransactionReferenceInvalid
 
   """Rejected because the type of transaction is forbidden on the account"""
   TransactionTypeNotAllowed
@@ -14990,6 +15468,21 @@ type UpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
 }
 
+input UpdateProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+  status: ProjectCardStatus
+}
+
+union UpdateProjectCardSettingsPayload = UpdateProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type UpdateProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  projectCardSettings: CardSettings!
+}
+
 """Inputs to update a received sepa direct debit mandate B2b."""
 input UpdateReceivedSepaDirectDebitB2bMandateInput {
   """The unique mandate id"""
@@ -15477,6 +15970,164 @@ type WebBankingSettings {
   canOrderPhysicalCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
+}
+
+"""
+A WebhookEvent Log for webhooks service.
+It describes the response and call context for webhook endpoints
+for a specific event.
+"""
+type WebhookEventLog {
+  """Unique identifier of the EventLog"""
+  id: ID!
+
+  """Date the EventLog has been created"""
+  createdAt: DateTime!
+
+  """Unique identifier of the event that triggered this eventLog"""
+  eventId: ID!
+
+  """Date the Event has been generated"""
+  eventDate: DateTime!
+
+  """The type of the triggering event"""
+  eventType: String!
+
+  """Unique identifier linked of the resource carried by the Event"""
+  resourceId: ID!
+
+  """Duration of the callback in MS"""
+  duration: Int!
+
+  """Request payload send to callback in string format, jsonable."""
+  requestPayload: String!
+
+  """Response payload get by the callback in string format, jsonable."""
+  responsePayload: String
+
+  """The callback response status in number format."""
+  statusCode: Int
+
+  """The callback response status in text format."""
+  statusText: StatusText
+
+  """The webhook that triggered the event."""
+  webhookSubscription: WebhookSubscription
+
+  """Rank of this retry"""
+  retryCount: Int
+
+  """
+  Label of the associated subscription (inherited)
+  This holds the label value of when the log was created, whereas
+  webhookSubscription.label holds the current value of the label
+  (it may have changed).
+  """
+  webhookSubscriptionLabel: String
+
+  """
+  Endpoint of the associated subscription (inherited)
+  This holds the endpoint value of when the log was created, whereas
+  webhookSubscription.endpoint holds the current value of the endpoint
+  (it may have changed).
+  """
+  webhookSubscriptionEndpoint: String
+}
+
+"""Filters that can be applied when listing eventLog"""
+input WebhookEventLogFiltersInput {
+  statusCode: Int
+  statusText: StatusText
+  startDate: DateTime
+  endDate: DateTime
+  eventType: String
+  eventId: ID
+  resourceId: ID
+  webhookSubscriptionId: ID
+}
+
+"""
+A Subscription to the webhooks service.
+It describes the registration of a callback url (the endpoint)
+and a list of event types the client wants to be notified of.
+"""
+type WebhookSubscription {
+  """Unique identifier of the Subscription"""
+  id: ID!
+
+  """A client provided short description of the Subscription"""
+  label: String!
+
+  """The callback URL to be used for POSTing events"""
+  endpoint: String!
+
+  """
+  The optional secret to secure incoming webhook calls. We recommend a UUID-4 to be future proof.
+  (max 36 characters)
+  """
+  secret: String
+
+  """
+  The types of subscribed events
+  A simple list of unique IDs
+  """
+  eventTypes: [ID!]!
+
+  """Date the Subscription has been created"""
+  createdAt: DateTime!
+
+  """
+    Last date the Subscription has been updated,
+  except for state changes
+  """
+  updatedAt: DateTime!
+
+  """The current state of the Subscription"""
+  statusInfo: WebhookSubscriptionStatusInfo!
+
+  """KPI data about the subscription (7 last days)"""
+  kpi: WebhookSubscriptionKpi
+}
+
+type WebhookSubscriptionBrokenStatusInfo implements WebhookSubscriptionStatusInfo {
+  status: WebhookSubscriptionStatus!
+  brokenAt: DateTime!
+}
+
+type WebhookSubscriptionDisabledStatusInfo implements WebhookSubscriptionStatusInfo {
+  status: WebhookSubscriptionStatus!
+  disabledAt: DateTime!
+}
+
+type WebhookSubscriptionEnabledStatusInfo implements WebhookSubscriptionStatusInfo {
+  status: WebhookSubscriptionStatus!
+  enabledAt: DateTime!
+}
+
+type WebhookSubscriptionKpi {
+  """Total number of eventLogs associated to this subscription"""
+  totalHits: Int!
+
+  """
+  Total number of eventLogs that failed associated to this subscription
+  errorRate = (errorRate/totalHits) * 100, rounded
+  """
+  errorRate: Float!
+}
+
+"""
+State of a Webhook Subscription
+It is either Enabled or Disabled by the owner,
+ot set to Broken when delivery fails repeatedly.
+"""
+enum WebhookSubscriptionStatus {
+  Enabled
+  Disabled
+  Broken
+}
+
+interface WebhookSubscriptionStatusInfo {
+  status: WebhookSubscriptionStatus!
 }
 
 """Rejection returned when a parameter has a wrong value"""

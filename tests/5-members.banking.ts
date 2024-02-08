@@ -9,12 +9,14 @@ import { getSession } from "./utils/session";
 
 test.beforeEach(async ({ request }) => {
   const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
+
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 });
@@ -63,7 +65,7 @@ test("Members - create french", async ({ browser, page, request }) => {
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_SAISON_ID,
+      id: saison.id,
     },
   });
 
@@ -81,7 +83,7 @@ test("Members - create french", async ({ browser, page, request }) => {
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 
@@ -143,7 +145,7 @@ test("Members - create german", async ({ browser, page, request }) => {
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_SAISON_ID,
+      id: saison.id,
     },
   });
 
@@ -161,7 +163,7 @@ test("Members - create german", async ({ browser, page, request }) => {
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 

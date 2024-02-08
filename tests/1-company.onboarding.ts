@@ -75,13 +75,14 @@ const saveAccountMembership = async (
 
 test.beforeAll(async ({ request }) => {
   const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
 
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 });
@@ -106,7 +107,9 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered to RCS?");
+  await waitForText(page, "Are you registered with Registre du Commerce et des Sociétés (RCS)?");
+  await page.getByText("Yes").click();
+
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
@@ -198,7 +201,6 @@ test("German company onboarding", async ({ browser, page, request }) => {
     "Germany",
   );
 
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page
     .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
     .fill("Pariser Platz 5");
@@ -209,14 +211,14 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered to Handelsregister?");
+  await waitForText(page, "Are you registered with Handelsregister?");
+  await page.getByText("Yes").click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
   await page.getByLabel("What’s your registration number").fill("HRA 12345");
 
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page
     .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
     .fill("Mariendorfer Damm 342-358");
@@ -262,7 +264,6 @@ test("German company onboarding", async ({ browser, page, request }) => {
     .click();
   await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await modal.getByLabel(t("shared.beneficiaryForm.beneficiary.address")).fill("Pariser Platz 5");
   await modal.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
   await modal.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
@@ -308,7 +309,8 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, t("onboarding.company.step.organisation1.isRegisteredLabel"));
+  await waitForText(page, "Are you registered with Registradores de España?");
+  await page.getByText("Yes").click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
@@ -317,8 +319,6 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await page
     .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
     .fill("xxxxxxxxx");
-
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
@@ -365,7 +365,6 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
     .click();
   await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await modal.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await modal
     .getByLabel(t("shared.beneficiaryForm.beneficiary.address"))
     .fill("Carrer de la Riera de Sant Miquel");
@@ -427,7 +426,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
     "Netherlands",
   );
 
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page
     .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
     .fill("Anna Paulownastraat 76");
@@ -436,14 +434,14 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered to Handelsregister?");
+  await waitForText(page, "Are you registered with Handelsregister?");
+  await page.getByText("Yes").click();
 
   await page
     .getByLabel(t("onboarding.company.step.organisation1.organisationLabel"), { exact: true })
     .fill("Swan");
   await page.getByLabel("What’s your registration number").fill("HRA 12345");
 
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page
     .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
     .fill("Anna Paulownastraat 76");

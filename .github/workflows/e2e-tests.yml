@@ -55,7 +55,7 @@ jobs:
 
       - name: Cache playwright
         id: cache-playwright
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ env.PLAYWRIGHT_VERSION }}
@@ -70,7 +70,7 @@ jobs:
       - name: Run E2E tests
         run: CI=true yarn test-e2e
 
-      - uses: actions/upload-artifact@v3
+      - uses: actions/upload-artifact@v4
         if: ${{ failure() }}
         with:
           name: tests-results

@@ -78,6 +78,7 @@ test("Transfer - instant", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
   await waitForText(page, t("banking.transfer.consent.success.title"));
+  await page.getByLabel(t("banking.common.refresh")).click();
 
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
 });
@@ -102,6 +103,7 @@ test("Transfer - not instant", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
   await waitForText(page, t("banking.transfer.consent.success.title"));
+  await page.getByLabel(t("banking.common.refresh")).click();
 
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
 });

@@ -90,7 +90,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "💥 End to End tests failed"
+                    "text": "💥 End to End tests failed on main branch"
                   },
                   "accessory": {
                     "type": "button",

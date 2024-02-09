@@ -937,6 +937,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                   identificationStatusInfo={lastRelevantIdentification.map(
                     getIdentificationLevelStatusInfo,
                   )}
+                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                   accountMembershipId={accountMembershipId}
                   hasMultipleMemberships={hasMultipleMemberships}
                   activationTag={activationTag}

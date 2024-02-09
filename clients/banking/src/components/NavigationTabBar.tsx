@@ -143,6 +143,7 @@ type Props = {
   shouldDisplayIdVerification: boolean;
   isScrolled: boolean;
   onScrollToTop: () => void;
+  hasRequiredIdentificationLevel: boolean | undefined;
 };
 
 export const NavigationTabBar = ({
@@ -156,6 +157,7 @@ export const NavigationTabBar = ({
   identificationStatusInfo,
   shouldDisplayIdVerification,
   isScrolled,
+  hasRequiredIdentificationLevel,
   onScrollToTop,
 }: Props) => {
   const [screen, setScreen] = useState<null | "menu" | "memberships">(null);
@@ -240,7 +242,7 @@ export const NavigationTabBar = ({
 
           <Icon name="lake-menu" size={22} style={styles.menuIcon} />
 
-          {shouldDisplayIdVerification
+          {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
             ? match({
                 identificationStatusInfo,
                 hasNotifications: entries.some(item => item.hasNotifications),
@@ -318,7 +320,7 @@ export const NavigationTabBar = ({
                               {fullName}
                             </LakeText>
 
-                            {shouldDisplayIdVerification
+                            {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
                               ? match(identificationStatusInfo)
                                   .with(
                                     Option.P.None,

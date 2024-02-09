@@ -90,10 +90,11 @@ test("Members - create german", async ({ browser, page, request }) => {
     .check();
 
   await clickOnButton(modal, t("banking.membershipList.newMember.next"));
-  await page
-    .getByLabel(t("banking.cardWizard.address.line1"))
-    .type("Pariser Platz 5 Berlin", { delay: 100 });
-  await page.getByText("Pariser Platz 5").click();
+
+  await page.getByLabel(t("banking.cardWizard.address.line1")).fill("Pariser Platz 5");
+  await page.getByLabel(t("banking.membershipDetail.edit.city")).fill("Berlin");
+  await page.getByLabel(t("banking.membershipDetail.edit.postalCode")).fill("10117");
+
   await page
     .getByLabel(t("shared.beneficiaryForm.beneficiary.taxIdentificationNumber"))
     .fill("00000000000");

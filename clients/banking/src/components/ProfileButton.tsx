@@ -54,6 +54,7 @@ type Props = {
   identificationStatusInfo: Option<IdentificationLevelFragment>;
   accountMembershipId: string;
   shouldDisplayIdVerification: boolean;
+  hasRequiredIdentificationLevel: boolean | undefined;
 };
 
 export const ProfileButton = memo<Props>(
@@ -63,6 +64,7 @@ export const ProfileButton = memo<Props>(
     identificationStatusInfo,
     accountMembershipId,
     shouldDisplayIdVerification,
+    hasRequiredIdentificationLevel,
   }) => {
     const names = [firstName, lastName].filter(isNotEmpty);
     const fullName = names.join(" ");
@@ -88,7 +90,7 @@ export const ProfileButton = memo<Props>(
                     {fullName}
                   </LakeText>
 
-                  {shouldDisplayIdVerification
+                  {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
                     ? match(identificationStatusInfo)
                         .with(
                           Option.P.None,

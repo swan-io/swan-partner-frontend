@@ -677,6 +677,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                         lastName={lastName}
                         accountMembershipId={accountMembershipId}
                         shouldDisplayIdVerification={shouldDisplayIdVerification}
+                        hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                       />
                     </>
                   ),

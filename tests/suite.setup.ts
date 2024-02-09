@@ -10,7 +10,7 @@ import { saveSession } from "./utils/session";
 import { getProjectAccessToken } from "./utils/tokens";
 import { createEmailAddress } from "./utils/webhook";
 
-const SHOULD_RECREATE = false;
+const SHOULD_RECREATE = true;
 
 test("Test suite setup", async ({ browser, page, request }) => {
   const requestApi = getApiRequester(request);

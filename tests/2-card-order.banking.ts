@@ -1,6 +1,8 @@
 import { Page, expect, test } from "@playwright/test";
 import { randomUUID } from "node:crypto";
 import { match } from "ts-pattern";
+import { CreateSandboxIdentificationDocument } from "./graphql/partner-admin";
+import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { t } from "./utils/i18n";
 import { clickOnButton, clickOnLink, clickOnText, getByText, waitForText } from "./utils/selectors";
@@ -12,6 +14,19 @@ type Options = {
   | { kind: "virtual" | "virtualAndPhysical" }
   | { kind: "singleUse"; variant: "oneOff" | "recurring" }
 );
+
+test.beforeAll(async ({ request }) => {
+  const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
+  await requestApi({
+    query: CreateSandboxIdentificationDocument,
+    as: "user",
+    api: "partner-admin",
+    variables: {
+      userId: benady.id,
+    },
+  });
+});
 
 const create = async (page: Page, options: Options) => {
   const { benady } = await getSession();
@@ -56,12 +71,7 @@ const create = async (page: Page, options: Options) => {
   await layer.waitFor({ state: "detached" });
 
   const title = t("banking.cardList.fullNameAndCardType");
-  await waitForText(
-    main,
-    new RegExp(
-      `${title}|Reveal card numbers|Card payments are not available until you finish proving your identity`,
-    ),
-  );
+  await waitForText(main, new RegExp(`${title}|Reveal card numbers`));
 
   if (await getByText(main, title).isVisible()) {
     const cards = main.getByTestId("user-card-item");

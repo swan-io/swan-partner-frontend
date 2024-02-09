@@ -16,6 +16,18 @@ mutation CreateSandboxUser($firstName: String!, $lastName: String!) {
   }
 }
 
+mutation CreateSandboxIdentification($userId: String!) {
+  createSandboxIdentification(
+    input: { userId: $userId, process: PVID, levels: { expert: Valid, pvid: Valid } }
+  ) {
+    ... on CreateSandboxIdentificationSuccessPayload {
+      sandboxIdentification {
+        id
+      }
+    }
+  }
+}
+
 mutation EndorseSandboxUser($id: String!) {
   endorseSandboxUser(input: { id: $id }) {
     ... on EndorseSandboxUserSuccessPayload {

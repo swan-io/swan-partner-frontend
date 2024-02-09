@@ -1,16 +1,14 @@
-mutation ResetSandboxUser($id: ID!, $firstName: String!, $lastName: String!) {
-  updateSandboxUser(
+mutation CreateSandboxUser($firstName: String!, $lastName: String!) {
+  createSandboxUser(
     input: {
-      id: $id
       autoConsent: true
       birthDate: "01/01/1070"
       firstName: $firstName
-      identificationStatus: Uninitiated
       lastName: $lastName
       nationalityCCA3: "FRA"
     }
   ) {
-    ... on UpdateSandboxUserSuccessPayload {
+    ... on CreateSandboxUserSuccessPayload {
       sandboxUser {
         id
       }

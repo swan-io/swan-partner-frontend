@@ -70,7 +70,7 @@ const loginWithButtonClick = async (browser: Browser, button: Locator) => {
   await input.fill(env.PHONE_NUMBER);
 
   const startDate = new Date();
-  await clickOnButton(popup, "Next");
+  await clickOnButton(popup, "Continue");
 
   const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);

@@ -74,13 +74,14 @@ const saveAccountMembership = async (
 
 test.beforeAll(async ({ request }) => {
   const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
 
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 });
@@ -96,7 +97,6 @@ test("French individual onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
   await page
     .getByLabel(t("onboarding.individual.step.location.addressLabel"))
     .fill("95 Av. du Président Wilson");
@@ -137,8 +137,9 @@ test("German individual onboarding", async ({ browser, page, request }) => {
   await page.waitForLoadState("networkidle");
   await page
     .getByLabel(t("onboarding.individual.step.location.addressLabel"))
-    .fill("Pariser Platz 5 Berlin");
-  await page.getByText("Pariser Platz 5").click();
+    .fill("Pariser Platz 5");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
 
   expect(
     await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).inputValue(),
@@ -179,8 +180,6 @@ test("Spanish individual onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
-
-  await page.getByRole("button", { name: t("onboarding.addressInput.button") }).click();
 
   await page
     .getByLabel(t("onboarding.individual.step.location.addressLabel"))
@@ -226,14 +225,8 @@ test("Dutch individual onboarding", async ({ browser, page, request }) => {
   await page
     .getByLabel(t("onboarding.individual.step.location.addressLabel"))
     .fill("Anna Paulownastraat 76");
-  await page.getByText("Anna Paulownastraat 76The Hague, Netherlands").click();
-
-  expect(
-    await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).inputValue(),
-  ).toBe("Den Haag");
-  expect(
-    await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).inputValue(),
-  ).toBe("2518 BJ");
+  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
+  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

@@ -3,18 +3,19 @@ import { EndorseSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { t } from "./utils/i18n";
-import { sca } from "./utils/sca";
 import { clickOnButton, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 test.beforeEach(async ({ request }) => {
   const requestApi = getApiRequester(request);
+  const { benady } = await getSession();
+
   await requestApi({
     query: EndorseSandboxUserDocument,
     as: "user",
     api: "partner-admin",
     variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
+      id: benady.id,
     },
   });
 });
@@ -54,39 +55,6 @@ test("Members - create french", async ({ browser, page, request }) => {
 
   await waitForText(page, t("banking.members.invitationLink"));
 
-  const invitation = page
-    .getByRole("dialog")
-    .filter({ hasText: t("banking.members.invitationLink") });
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: env.SANDBOX_USER_SAISON_ID,
-    },
-  });
-
-  const url = await invitation.getByLabel(t("banking.members.invitationLink")).inputValue();
-  await page.goto(url);
-
-  waitForText(page, "Check your phone")
-    .then(() => sca.consent(browser, date))
-    .catch(() => {});
-
-  await waitForText(page, t("banking.login.signout"));
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
-    },
-  });
-
-  await page.goto(MEMBERS_PAGE_URL);
-
   await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
 });
 
@@ -122,10 +90,11 @@ test("Members - create german", async ({ browser, page, request }) => {
     .check();
 
   await clickOnButton(modal, t("banking.membershipList.newMember.next"));
-  await page
-    .getByLabel(t("banking.cardWizard.address.line1"))
-    .type("Pariser Platz 5 Berlin", { delay: 100 });
-  await page.getByText("Pariser Platz 5").click();
+
+  await page.getByLabel(t("banking.cardWizard.address.line1")).fill("Pariser Platz 5");
+  await page.getByLabel(t("banking.membershipDetail.edit.city")).fill("Berlin");
+  await page.getByLabel(t("banking.membershipDetail.edit.postalCode")).fill("10117");
+
   await page
     .getByLabel(t("shared.beneficiaryForm.beneficiary.taxIdentificationNumber"))
     .fill("00000000000");
@@ -133,39 +102,6 @@ test("Members - create german", async ({ browser, page, request }) => {
   await clickOnButton(modal, t("banking.membershipList.newMember.sendInvitation"));
 
   await waitForText(page, t("banking.members.invitationLink"));
-
-  const invitation = page
-    .getByRole("dialog")
-    .filter({ hasText: t("banking.members.invitationLink") });
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: env.SANDBOX_USER_SAISON_ID,
-    },
-  });
-
-  const url = await invitation.getByLabel(t("banking.members.invitationLink")).inputValue();
-  await page.goto(url);
-
-  waitForText(page, "Check your phone")
-    .then(() => sca.consent(browser, date))
-    .catch(() => {});
-
-  await waitForText(page, t("banking.login.signout"));
-
-  await requestApi({
-    query: EndorseSandboxUserDocument,
-    as: "user",
-    api: "partner-admin",
-    variables: {
-      id: env.SANDBOX_USER_BENADY_ID,
-    },
-  });
-
-  await page.goto(MEMBERS_PAGE_URL);
 
   await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
 });

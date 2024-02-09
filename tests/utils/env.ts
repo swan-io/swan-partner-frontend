@@ -37,9 +37,6 @@ export const env = validate({
     PHONE_NUMBER: string,
     PASSCODE: string,
 
-    SANDBOX_USER_BENADY_ID: string,
-    SANDBOX_USER_SAISON_ID: string,
-
     TWILIO_ACCOUNT_ID: string,
     TWILIO_AUTH_TOKEN: string,
     WEBHOOK_SITE_API_KEY: string,

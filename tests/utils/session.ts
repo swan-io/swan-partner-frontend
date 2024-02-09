@@ -24,6 +24,7 @@ type Session = {
     refreshToken: string;
   };
   benady: {
+    id: string;
     email: string;
 
     memberships: {
@@ -42,6 +43,7 @@ type Session = {
     };
   };
   saison: {
+    id: string;
     email: string;
   };
 };

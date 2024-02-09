@@ -155,7 +155,7 @@ test("Standing order - standard", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
 
-  await waitForText(page, t("banking.recurringTransfer.consent.success.title"));
+  await waitForText(page, beneficiary);
   await expect(page.getByRole("heading", { name: beneficiary })).toBeAttached();
 });
 
@@ -186,7 +186,7 @@ test("Standing order - with end date", async ({ page }) => {
   await layer.getByLabel(t("banking.recurringTransfer.new.lastExecutionTime.label")).fill("13:13");
 
   await clickOnButton(layer, t("banking.common.continue"));
-  await waitForText(page, t("banking.recurringTransfer.consent.success.title"));
+  await waitForText(page, beneficiary);
   await expect(page.getByRole("heading", { name: beneficiary })).toBeAttached();
 });
 
@@ -215,7 +215,7 @@ test("Standing order - standard full balance", async ({ page }) => {
   await layer.getByLabel(t("banking.recurringTransfer.new.firstExecutionTime.label")).fill("12:12");
 
   await clickOnButton(layer, t("banking.common.continue"));
-  await waitForText(page, t("banking.recurringTransfer.consent.success.title"));
+  await waitForText(page, beneficiary);
   await expect(page.getByRole("heading", { name: beneficiary })).toBeAttached();
 });
 
@@ -251,6 +251,6 @@ test("Standing order - full balance with end date", async ({ page }) => {
   await layer.getByLabel(t("banking.recurringTransfer.new.lastExecutionTime.label")).fill("13:13");
 
   await clickOnButton(layer, t("banking.common.continue"));
-  await waitForText(page, t("banking.recurringTransfer.consent.success.title"));
+  await waitForText(page, beneficiary);
   await expect(page.getByRole("heading", { name: beneficiary })).toBeAttached();
 });

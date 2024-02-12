@@ -11,6 +11,17 @@
 
     <link rel="shortcut icon" href="/favicon.ico" />
     <title>Payment - Swan</title>
+
+    <!-- We need this style tag to remove the default style provided by Checkout -->
+
+    <style>
+      .card-number-frame,
+      .expiry-date-frame,
+      .cvv-frame,
+      iframe {
+        height: 62px !important;
+      }
+    </style>
   </head>
 
   <body>

@@ -15,12 +15,15 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  printIbanFormat,
+  validateIban,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
-import { validateIban } from "../../../banking/src/utils/iban";
 import { SepaLogo } from "../components/SepaLogo";
 import {
   AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
@@ -256,7 +259,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
             label={t("paymentLink.iban")}
             render={() => (
               <LakeTextInput
-                value={value}
+                value={printIbanFormat(value)}
                 valid={valid}
                 error={error}
                 onBlur={onBlur}

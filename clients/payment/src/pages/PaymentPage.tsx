@@ -20,6 +20,7 @@ import {
   validateIban,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { electronicFormat } from "iban";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
@@ -29,8 +30,9 @@ import {
   AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   GetMerchantPaymentLinkQuery,
   InitiateSddPaymentCollectionDocument,
+  Language,
 } from "../graphql/unauthenticated";
-import { t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   segmentedControlDesktop: {
@@ -150,7 +152,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
           input: {
             paymentLinkId: paymentLink.id,
             debtor: {
-              iban,
+              iban: electronicFormat(iban),
               name,
               address: {
                 addressLine1,
@@ -159,6 +161,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
                 postalCode,
               },
             },
+            language: locale.language as Language,
           },
         })
           .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)

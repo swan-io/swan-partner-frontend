@@ -9,12 +9,10 @@ import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import fastify, { FastifyReply } from "fastify";
 import mustache from "mustache";
-import { Http2SecureServer } from "node:http2";
-// @ts-expect-error
-import languageParser from "fastify-language-parser";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
+import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { P, match } from "ts-pattern";
 import {
@@ -42,6 +40,7 @@ import { HttpsConfig, startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import { findBestLanguage } from "./utils/language";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
@@ -51,8 +50,8 @@ const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (ex
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 export type InvitationConfig = {
+  acceptLanguage: string | undefined;
   accessToken: string;
-  requestLanguage: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
 };
@@ -77,14 +76,13 @@ declare module "@fastify/secure-session" {
 declare module "fastify" {
   // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface FastifyRequest {
+    accessToken: string | undefined;
     config: {
       unauthenticatedApiUrl: string;
       partnerApiUrl: string;
       clientId: string;
       clientSecret: string;
     };
-    accessToken: string | undefined;
-    detectedLng: string;
   }
 }
 
@@ -238,13 +236,6 @@ export const start = async ({
     engine: {
       mustache,
     },
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-unsafe-argument
-  await app.register(languageParser, {
-    order: ["query"],
-    fallbackLng: "en",
-    supportedLngs: ["en", "fr"],
   });
 
   /**
@@ -471,8 +462,8 @@ export const start = async ({
 
       try {
         const result = await sendAccountMembershipInvitation({
+          acceptLanguage: request.headers["accept-language"],
           accessToken,
-          requestLanguage: request.detectedLng,
           inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
           inviterAccountMembershipId,
         });

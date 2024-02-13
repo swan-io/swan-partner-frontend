@@ -23,6 +23,7 @@ import { InvitationConfig, start } from "./app";
 import { env, url as validateUrl } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
+import { findBestLanguage } from "./utils/language";
 
 const keysPath = path.join(__dirname, "../keys");
 
@@ -138,7 +139,10 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     inviterAccountMembershipId: invitationConfig.inviterAccountMembershipId,
   })
     .mapOkToResult(invitationData =>
-      getMailjetInput({ invitationData, requestLanguage: invitationConfig.requestLanguage }),
+      getMailjetInput({
+        invitationData,
+        requestLanguage: findBestLanguage(invitationConfig.acceptLanguage),
+      }),
     )
     .flatMapOk(data => {
       return Future.fromPromise(mailjet.post("send", { version: "v3.1" }).request(data));
@@ -222,8 +226,8 @@ start({
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({
+                  acceptLanguage: request.headers["accept-language"],
                   accessToken,
-                  requestLanguage: request.detectedLng,
                   inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
                   inviterAccountMembershipId,
                 }),
@@ -280,7 +284,7 @@ start({
 
             return replyWithError(app, request, reply, {
               status: 400,
-              requestId: request.id as string,
+              requestId: request.id,
             });
           })
           .map(() => undefined);
@@ -315,7 +319,7 @@ start({
 
             return replyWithError(app, request, reply, {
               status: 400,
-              requestId: request.id as string,
+              requestId: request.id,
             });
           })
           .map(() => undefined);

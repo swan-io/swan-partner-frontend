@@ -16,6 +16,7 @@ import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -23,8 +24,6 @@ import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";
 import { AccountDetailsIbanPageDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
-
-import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { isUnauthorizedError } from "../utils/urql";
 import { NotFoundPage } from "./NotFoundPage";
 

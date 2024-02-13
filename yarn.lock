@@ -2140,10 +2140,10 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.8.1":
-  version "4.8.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.8.1.tgz#8c2164b31c4b3613c741428d53843ca315671bef"
-  integrity sha512-+c8irj3JaKdWCqyyJb0PA/BMWxanve8DzHnVdc0Q9lW2h77sd1TClbS4gKQQcWOZN6riLDlnQDjfxaKt5rFmUQ==
+"@swan-io/lake@4.9.0":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.9.0.tgz#922f2dcc1330af9e06c332f2e1a13be648467303"
+  integrity sha512-58TwzzDly/ui2sVShi915leDToYsDT73Xw6c8ZgxongrYvGstdOjuvIyCUAU37rnZQCa7Es3uGNbcHToLUDzOA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.97.5"
@@ -2166,16 +2166,17 @@
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.8.1":
-  version "4.8.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.8.1.tgz#2b96641973f44604302b430cb939686cbde97438"
-  integrity sha512-VxmEGjeVQRJv+5/c/WI3hH8f5sn0918rPJiluB73/BHyiCsEuyx+u8D7BL9eGvv7WCk8Xqywhg+thuwCf05p9g==
+"@swan-io/shared-business@4.9.0":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.9.0.tgz#dfbd575b284d87850748c4847497fc4f3cdb7434"
+  integrity sha512-GRZ+zdViSCLhpCNTvwkC9mssjSO3/no9fhT8WZye5v17Il6iGXBsONywo3F7dIYvQrq2Ym81KqOlOEk9ZH7ssg==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@googlemaps/js-api-loader" "1.16.2"
     "@placekit/client-js" "^2.2.0"
     "@swan-io/boxed" "^2.0.0"
     dayjs "^1.11.10"
+    iban "^0.0.14"
     react "^18.2.0"
     react-atomic-state "^2.0.0"
     react-dom "^18.2.0"
@@ -4903,7 +4904,7 @@ hyphenate-style-name@^1.0.3:
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.4.tgz#691879af8e220aea5750e8827db4ef62a54e361d"
   integrity sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==
 
-iban@0.0.14:
+iban@0.0.14, iban@^0.0.14:
   version "0.0.14"
   resolved "https://registry.yarnpkg.com/iban/-/iban-0.0.14.tgz#fd8a65ac50c8b770682634b20dc5c5c9feba5c24"
   integrity sha512-+rocNKk+Ga9m8Lr9fTMWd+87JnsBrucm0ZsIx5ROOarZlaDLmd+FKdbtvb0XyoBw9GAFOYG2GuLqoNB16d+p3w==

@@ -11,6 +11,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { electronicFormat } from "iban";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -18,7 +19,6 @@ import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { GetIbanValidationDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { printIbanFormat, validateIban } from "../utils/iban";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
 export type Beneficiary = {

@@ -23,6 +23,7 @@ import { GetEdge } from "@swan-io/lake/src/utils/types";
 import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -35,7 +36,6 @@ import {
   CancelVirtualIbanDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { printIbanFormat } from "../utils/iban";
 
 const styles = StyleSheet.create({
   root: {

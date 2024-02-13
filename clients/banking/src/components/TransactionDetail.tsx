@@ -14,11 +14,11 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
+import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDetailsFragment } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
-import { printIbanFormat } from "../utils/iban";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,

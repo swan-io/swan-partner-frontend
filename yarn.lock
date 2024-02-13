@@ -918,7 +918,7 @@
     intl-messageformat "10.5.10"
     tslib "^2.4.0"
 
-"@formatjs/intl@^2.9.11":
+"@formatjs/intl@^2.10.0":
   version "2.10.0"
   resolved "https://registry.yarnpkg.com/@formatjs/intl/-/intl-2.10.0.tgz#d7bb557e172ceb0bb0be9298b61e9de957119985"
   integrity sha512-X3xT9guVkKDS86EKV80lS0KxoazUglkJTGZO66sKY7otgl0VeStPA8B3u8UkKT47PexVV98fUzjpkchYmbe9nw==
@@ -1859,10 +1859,10 @@
   resolved "https://registry.yarnpkg.com/@react-spring/types/-/types-9.6.1.tgz#913d3a68c5cbc1124fdb18eff919432f7b6abdde"
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
-"@react-three/drei@^9.94.1":
-  version "9.97.1"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.97.1.tgz#455b9e95fb736d7f55f8c2a1efb58bd514a9e1eb"
-  integrity sha512-n5XqoEN0YuEY+Hu6H18p1Y+yfJHsF8BB9llKZ6qEvBByHiuN/BpQtzc5xB8asrj8+dTtdw37PrMgKxjzX0jAQg==
+"@react-three/drei@^9.97.5":
+  version "9.97.5"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.97.5.tgz#76cdd3a11d48fcb9f817bdbaf0c2509e3d71aaf3"
+  integrity sha512-+l8I8xht1jAQ7SRFA1hVzASL5zqrbKt+DztBW+/EPNN6ELg7DJiZpL+ImE6V7cfAA7hKsyYdtGR5k5QJ195jfg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@mediapipe/tasks-vision" "0.10.8"
@@ -1887,7 +1887,7 @@
     uuid "^9.0.1"
     zustand "^3.7.1"
 
-"@react-three/fiber@^8.15.14":
+"@react-three/fiber@^8.15.16":
   version "8.15.16"
   resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.15.16.tgz#eadaa9432dd55a7d7334c42880470c7ac3c30e83"
   integrity sha512-4f47K9e2mP8W/guNtu3e2J/Nt6GwKTsX/YP2dktPZRcpHYEsqfXCO8kSfvVMb+lQ8wR0HoFzggqdnGuhZaui0g==
@@ -2146,18 +2146,18 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.8.0":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.8.0.tgz#5e98c20aabcaa0de4ccaf92921165f4ae004267e"
-  integrity sha512-l1hnXurOrvZ4KuOKEmOxTDCc3SDSAA+hfMROlm5ymaLqXbFF5eKtuMMKT7VrwKzgcbliT+OG7MsSaiMCX/cAsg==
+"@swan-io/lake@4.9.0":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.9.0.tgz#922f2dcc1330af9e06c332f2e1a13be648467303"
+  integrity sha512-58TwzzDly/ui2sVShi915leDToYsDT73Xw6c8ZgxongrYvGstdOjuvIyCUAU37rnZQCa7Es3uGNbcHToLUDzOA==
   dependencies:
     "@popperjs/core" "^2.11.8"
-    "@react-three/drei" "^9.94.1"
-    "@react-three/fiber" "^8.15.14"
+    "@react-three/drei" "^9.97.5"
+    "@react-three/fiber" "^8.15.16"
     "@swan-io/boxed" "^2.0.0"
     "@swan-io/chicane" "^1.4.1"
     dayjs "^1.11.10"
-    polished "^4.2.2"
+    polished "^4.3.1"
     prism-react-renderer "^2.3.1"
     react "^18.2.0"
     react-atomic-state "^2.0.0"
@@ -2166,22 +2166,23 @@
     react-popper "^2.3.0"
     react-ux-form "^1.5.0"
     rifm "^0.12.1"
-    three "^0.160.0"
+    three "^0.161.0"
     ts-dedent "^2.2.0"
     ts-pattern "^5.0.6"
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.8.0":
-  version "4.8.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.8.0.tgz#f5df5ad83a7daaef0ca724f94a6fe94c358aa3c9"
-  integrity sha512-HYL3wpNqzAm1y/aKLw3bwqgcbo/RYIOMVBtMG5Zgt0sN03eGTmAJ8B3sz4wTILOj0Zf4+gsQW4zy7Y+cX98cfA==
+"@swan-io/shared-business@4.9.0":
+  version "4.9.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.9.0.tgz#dfbd575b284d87850748c4847497fc4f3cdb7434"
+  integrity sha512-GRZ+zdViSCLhpCNTvwkC9mssjSO3/no9fhT8WZye5v17Il6iGXBsONywo3F7dIYvQrq2Ym81KqOlOEk9ZH7ssg==
   dependencies:
-    "@formatjs/intl" "^2.9.11"
+    "@formatjs/intl" "^2.10.0"
     "@googlemaps/js-api-loader" "1.16.2"
     "@placekit/client-js" "^2.2.0"
     "@swan-io/boxed" "^2.0.0"
     dayjs "^1.11.10"
+    iban "^0.0.14"
     react "^18.2.0"
     react-atomic-state "^2.0.0"
     react-dom "^18.2.0"
@@ -4941,7 +4942,7 @@ hyphenate-style-name@^1.0.3:
   resolved "https://registry.yarnpkg.com/hyphenate-style-name/-/hyphenate-style-name-1.0.4.tgz#691879af8e220aea5750e8827db4ef62a54e361d"
   integrity sha512-ygGZLjmXfPHj+ZWh6LwbC37l43MhfztxetbFCoYTM2VjkIUpeHgSNn7QIyVFj7YQ1Wl9Cbw5sholVJPzWvC2MQ==
 
-iban@0.0.14:
+iban@0.0.14, iban@^0.0.14:
   version "0.0.14"
   resolved "https://registry.yarnpkg.com/iban/-/iban-0.0.14.tgz#fd8a65ac50c8b770682634b20dc5c5c9feba5c24"
   integrity sha512-+rocNKk+Ga9m8Lr9fTMWd+87JnsBrucm0ZsIx5ROOarZlaDLmd+FKdbtvb0XyoBw9GAFOYG2GuLqoNB16d+p3w==
@@ -6642,7 +6643,7 @@ playwright@1.41.0:
   optionalDependencies:
     fsevents "2.3.2"
 
-polished@^4.2.2:
+polished@^4.3.1:
   version "4.3.1"
   resolved "https://registry.yarnpkg.com/polished/-/polished-4.3.1.tgz#5a00ae32715609f83d89f6f31d0f0261c6170548"
   integrity sha512-OBatVyC/N7SCW/FaDHrSd+vn0o5cS855TOmYi4OkdWUMSJCET/xip//ch8xGUvtr3i44X9LVyWwQlRMTN3pwSA==
@@ -7760,10 +7761,10 @@ three-stdlib@^2.29.4:
     fflate "^0.6.9"
     potpack "^1.0.1"
 
-three@^0.160.0:
-  version "0.160.1"
-  resolved "https://registry.yarnpkg.com/three/-/three-0.160.1.tgz#61fe2907312e8604b1f64187f58e047503847413"
-  integrity sha512-Bgl2wPJypDOZ1stAxwfWAcJ0WQf7QzlptsxkjYiURPz+n5k4RBDLsq+6f9Y75TYxn6aHLcWz+JNmwTOXWrQTBQ==
+three@^0.161.0:
+  version "0.161.0"
+  resolved "https://registry.yarnpkg.com/three/-/three-0.161.0.tgz#38aafaa82fe5467fde2e33933515d1b6beb17d91"
+  integrity sha512-LC28VFtjbOyEu5b93K0bNRLw1rQlMJ85lilKsYj6dgTu+7i17W+JCCEbvrpmNHF1F3NAUqDSWq50UD7w9H2xQw==
 
 thriftrw@^3.5.0:
   version "3.11.4"

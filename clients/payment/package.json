@@ -12,16 +12,16 @@
   },
   "dependencies": {
     "@0no-co/graphql.web": "1.0.4",
-    "@formatjs/intl": "2.9.11",
+    "@formatjs/intl": "2.10.0",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/react": "7.98.0",
+    "@sentry/react": "7.100.1",
     "@swan-io/boxed": "2.0.0",
     "@swan-io/chicane": "1.4.1",
     "@swan-io/lake": "4.9.0",
     "@swan-io/shared-business": "4.9.0",
-    "core-js": "3.35.0",
+    "core-js": "3.35.1",
     "dayjs": "1.11.10",
-    "nanoid": "5.0.4",
+    "nanoid": "5.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.10",
@@ -31,13 +31,13 @@
     "wonka": "6.3.4"
   },
   "devDependencies": {
-    "@types/react": "18.2.48",
-    "@types/react-dom": "18.2.18",
+    "@types/react": "18.2.55",
+    "@types/react-dom": "18.2.19",
     "@types/react-native": "0.72.8",
-    "@vitejs/plugin-react-swc": "3.5.0",
+    "@vitejs/plugin-react-swc": "3.6.0",
     "jsdom": "23.2.0",
-    "type-fest": "4.9.0",
-    "vite": "5.0.11",
-    "vitest": "1.2.1"
+    "type-fest": "4.10.2",
+    "vite": "5.1.1",
+    "vitest": "1.2.2"
   }
 }

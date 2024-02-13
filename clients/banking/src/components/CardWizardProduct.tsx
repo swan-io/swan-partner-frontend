@@ -67,11 +67,14 @@ export const CardWizardProduct = forwardRef<CardWizardProductRef, Props>(
       [currentCardProduct, onSubmit],
     );
 
+    const firstCardProduct = cardProducts[0];
+    const hasMaxOneCardProduct = cardProducts.length <= 1;
+
     useEffect(() => {
-      if (cardProducts.length <= 1 && cardProducts[0] != null) {
-        onSubmit(cardProducts[0]);
+      if (hasMaxOneCardProduct && firstCardProduct != null) {
+        onSubmit(firstCardProduct);
       }
-    }, [cardProducts, onSubmit]);
+    }, [firstCardProduct, hasMaxOneCardProduct, onSubmit]);
 
     return (
       <ChoicePicker
@@ -87,7 +90,7 @@ export const CardWizardProduct = forwardRef<CardWizardProductRef, Props>(
 
                 {cardDesignUrl != null ? (
                   <View style={styles.cardDesignContainer}>
-                    <img src={cardDesignUrl} style={IMAGE_STYLE} />
+                    <img alt="Card design" src={cardDesignUrl} style={IMAGE_STYLE} />
                   </View>
                 ) : null}
               </View>

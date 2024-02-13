@@ -325,7 +325,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
         Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Infinity),
         0,
       );
-      const value = isNaN(cleanValue) ? 0 : cleanValue;
+      const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
       setDirtyValue(String(value));
       setCurrentSettings({
         ...currentSettings,
@@ -523,7 +523,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       <Box alignItems="center">
                         <Icon
                           color={
-                            currentSettings.spendingLimit.period == period
+                            currentSettings.spendingLimit.period === period
                               ? colors.swan[300]
                               : colors.swan[200]
                           }

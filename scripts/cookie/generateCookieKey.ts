@@ -13,5 +13,3 @@ console.log("you can paste the following key in the root .env file:");
 console.log(``);
 console.log(hexKey);
 console.log(`${pc.white("---")}`);
-
-export {};

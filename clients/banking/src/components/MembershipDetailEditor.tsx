@@ -227,7 +227,7 @@ export const MembershipDetailEditor = ({
       const restrictedTo = match({
         values,
         editingAccountMembership,
-        isEditingCurrentUser: currentUserAccountMembership.id == editingAccountMembership.id,
+        isEditingCurrentUser: currentUserAccountMembership.id === editingAccountMembership.id,
       })
         .with(
           {

@@ -353,9 +353,15 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
     if (userId) {
       const sentryUser: Record<string, unknown> = { id: userId };
 
-      firstName && (sentryUser["firstName"] = firstName);
-      lastName && (sentryUser["lastName"] = lastName);
-      phoneNumber && (sentryUser["phoneNumber"] = phoneNumber);
+      if (firstName) {
+        sentryUser["firstName"] = firstName;
+      }
+      if (lastName) {
+        sentryUser["lastName"] = lastName;
+      }
+      if (phoneNumber) {
+        sentryUser["phoneNumber"] = phoneNumber;
+      }
 
       setSentryUser(sentryUser);
     } else {

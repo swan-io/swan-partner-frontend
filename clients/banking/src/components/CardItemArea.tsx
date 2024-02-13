@@ -97,7 +97,7 @@ export const CardItemArea = ({
   // This is acceptable because it only triggers the query if necessary.
   const [{ data: lastRelevantIdentificationData }] = useQuery({
     query: LastRelevantIdentificationDocument,
-    pause: cardAccountMembershipId == undefined || hasRequiredIdentificationLevel !== false,
+    pause: cardAccountMembershipId == null || hasRequiredIdentificationLevel !== false,
     variables: {
       // we can case given the query is paused otherwise
       accountMembershipId: cardAccountMembershipId as string,

@@ -287,7 +287,7 @@ export const CardWizard = ({
 
     const card = input.cards[0];
 
-    if (input.cards.length === 1 && card != undefined) {
+    if (input.cards.length === 1 && card != null) {
       return addSingleUseCard({
         input: {
           name: card.name,

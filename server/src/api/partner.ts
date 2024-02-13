@@ -21,7 +21,7 @@ let projectId: Future<
 >;
 
 export const getProjectId = () => {
-  if (projectId != undefined) {
+  if (projectId != null) {
     return projectId;
   }
   projectId = getClientAccessToken()

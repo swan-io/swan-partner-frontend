@@ -9,7 +9,11 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
@@ -132,17 +136,20 @@ export const TransferInternationalWizardBeneficiary = ({
     setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
   }, 1000);
 
+  const firstRouteValue = routes[0]?.value;
+  const initialBeneficiaryRoute = initialBeneficiary?.route;
+
   useEffect(() => {
     const { value } = getFieldState("route");
 
     if (value && isNullishOrEmpty(route)) {
       setRoute(value);
     }
-    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value && routes[0]) {
-      setFieldValue("route", routes[0].value);
-      setRoute(routes[0].value);
+    if (isNotNullish(firstRouteValue) && isNullishOrEmpty(initialBeneficiaryRoute) && !value) {
+      setFieldValue("route", firstRouteValue);
+      setRoute(firstRouteValue);
     }
-  }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldState]);
+  }, [route, firstRouteValue, initialBeneficiaryRoute, getFieldState, setFieldValue]);
 
   useEffect(() => {
     const removeRouteListener = listenFields(["route"], ({ route: { value } }) => setRoute(value));

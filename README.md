@@ -135,7 +135,6 @@ We recommend the following setup for an optimal developer experience:
 
 - [VS Code](https://code.visualstudio.com)
 - [VS Code EditorConfig](https://marketplace.visualstudio.com/items?itemName=editorconfig.editorconfig)
-- [VS Code ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
 - [VS Code Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [VS Code GraphQL language support](https://marketplace.visualstudio.com/items?itemName=graphql.vscode-graphql) and [syntax highlighting](https://marketplace.visualstudio.com/items?itemName=graphql.vscode-graphql-syntax)
 
@@ -143,7 +142,7 @@ By default, the VS Code TypeScript extension only checks the types in open files
 
 For better performance (and confort!), it's recommended to set:
 
-- `eslint.run` to `"onSave"`.
+<!-- - `eslint.run` to `"onSave"`. -->
 
 ## Linting
 

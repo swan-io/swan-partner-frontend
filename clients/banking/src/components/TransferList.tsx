@@ -158,7 +158,7 @@ export const TransferList = ({
                   ),
                 },
               }}
-            ></TransactionListFilter>
+            />
           </Box>
 
           {data.match({

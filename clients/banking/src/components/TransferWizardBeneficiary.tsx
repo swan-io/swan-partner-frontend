@@ -42,7 +42,7 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
   const { data } = useUrqlQuery(
     {
       query: GetIbanValidationDocument,
-      pause: iban == undefined,
+      pause: iban == null,
       variables: {
         // `pause` gives us the guarantee we get a valid iban
         iban: iban as string,

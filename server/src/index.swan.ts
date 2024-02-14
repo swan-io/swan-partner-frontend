@@ -104,7 +104,7 @@ const getMailjetInput = ({
                 },
               ],
               TemplateID: match(requestLanguage)
-                .with("fr", () => 2847188)
+                .with("fr", () => 2725624)
                 .otherwise(() => 2850442), // "english"
               Subject: match(requestLanguage)
                 .with("fr", () => `Rejoignez votre espace bancaire sur ${projectInfo.name}`)

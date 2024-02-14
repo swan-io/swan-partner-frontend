@@ -15,7 +15,6 @@
   "paymentLink.name": "Name",
   "paymentLink.paymentMethod": "Payment method",
   "paymentLink.postalCode": "Postal code",
-  "paymentLink.poweredBySwan": "Powered by",
   "paymentLink.state": "State",
   "paymentLink.success.subtitle": "Your payment setup was successful.\nYou can close this window.",
   "paymentLink.success.title": "Thanks!",

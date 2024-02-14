@@ -180,7 +180,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                   alignItems="baseline"
                   style={route?.name !== "PaymentForm" && styles.centered}
                 >
-                  <LakeText variant="smallRegular">{t("paymentLink.poweredBySwan")}</LakeText>
+                  <LakeText variant="smallRegular">Powered by</LakeText>
                   <Space width={4} />
                   <SwanLogo color={colors.swan[500]} style={styles.swanLogo} />
                 </Box>

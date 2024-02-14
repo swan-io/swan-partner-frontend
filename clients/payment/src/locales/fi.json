@@ -15,7 +15,6 @@
   "paymentLink.name": "Nimi",
   "paymentLink.paymentMethod": "Maksutapa",
   "paymentLink.postalCode": "Postinumero",
-  "paymentLink.poweredBySwan": "Powered by",
   "paymentLink.state": "Osavaltio",
   "paymentLink.success.subtitle": "Maksun asetus onnistui.\nVoit sulkea tämän ikkunan.",
   "paymentLink.success.title": "Kiitos!",

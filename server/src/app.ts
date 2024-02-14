@@ -40,7 +40,6 @@ import { HttpsConfig, startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
-import { findBestLanguage } from "./utils/language";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),

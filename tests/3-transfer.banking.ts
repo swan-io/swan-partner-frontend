@@ -77,7 +77,7 @@ test("Transfer - instant", async ({ page }) => {
     .check();
 
   await clickOnButton(layer, t("banking.common.continue"));
-  await waitForText(page, label);
+  await waitForText(page, t("banking.common.refresh"));
   await page.getByLabel(t("banking.common.refresh")).click();
 
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
@@ -102,7 +102,7 @@ test("Transfer - not instant", async ({ page }) => {
     .uncheck();
 
   await clickOnButton(layer, t("banking.common.continue"));
-  await waitForText(page, label);
+  await waitForText(page, t("banking.common.refresh"));
   await page.getByLabel(t("banking.common.refresh")).click();
 
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
@@ -130,7 +130,7 @@ test("Transfer - differed", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
 
-  await waitForText(page, t("banking.transactions.upcoming"));
+  await waitForText(page, t("banking.common.refresh"));
   await clickOnLink(page, t("banking.transactions.upcoming"), { exact: false });
 
   await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();

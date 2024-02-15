@@ -49,10 +49,10 @@ const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (ex
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
 
 export type InvitationConfig = {
-  acceptLanguage: string | undefined;
   accessToken: string;
   inviteeAccountMembershipId: string;
   inviterAccountMembershipId: string;
+  language: string;
 };
 
 type AppConfig = {
@@ -441,42 +441,42 @@ export const start = async ({
    * Send an account membership invitation
    * e.g. /api/invitation/:id/send?inviterAccountMembershipId=1234
    */
-  app.post<{ Querystring: Record<string, string>; Params: { inviteeAccountMembershipId: string } }>(
-    "/api/invitation/:inviteeAccountMembershipId/send",
-    async (request, reply) => {
-      const accessToken = request.accessToken;
+  app.post<{
+    Querystring: Record<string, string>;
+    Params: { inviteeAccountMembershipId: string; lang: string };
+  }>("/api/invitation/:inviteeAccountMembershipId/send", async (request, reply) => {
+    const accessToken = request.accessToken;
 
-      if (accessToken == null) {
-        return reply.status(401).send("Unauthorized");
-      }
-      if (sendAccountMembershipInvitation == null) {
-        return reply.status(400).send("Not implemented");
-      }
+    if (accessToken == null) {
+      return reply.status(401).send("Unauthorized");
+    }
+    if (sendAccountMembershipInvitation == null) {
+      return reply.status(400).send("Not implemented");
+    }
 
-      const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
+    const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
 
-      if (inviterAccountMembershipId == null) {
-        return reply.status(400).send("Missing inviterAccountMembershipId");
-      }
+    if (inviterAccountMembershipId == null) {
+      return reply.status(400).send("Missing inviterAccountMembershipId");
+    }
 
-      try {
-        const result = await sendAccountMembershipInvitation({
-          acceptLanguage: request.headers["accept-language"],
-          accessToken,
-          inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
-          inviterAccountMembershipId,
-        });
-        return reply.send({ success: result });
-      } catch (err) {
-        request.log.error(err);
+    try {
+      const result = await sendAccountMembershipInvitation({
+        accessToken,
+        inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
+        inviterAccountMembershipId,
+        language: request.params.lang,
+      });
+      return reply.send({ success: result });
+    } catch (err) {
+      request.log.error(err);
 
-        return replyWithError(app, request, reply, {
-          status: 400,
-          requestId: String(request.id),
-        });
-      }
-    },
-  );
+      return replyWithError(app, request, reply, {
+        status: 400,
+        requestId: String(request.id),
+      });
+    }
+  });
 
   /**
    * Builds a OAuth2 auth link and redirects to it.

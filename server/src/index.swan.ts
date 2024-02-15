@@ -23,7 +23,6 @@ import { InvitationConfig, start } from "./app";
 import { env, url as validateUrl } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
-import { findBestLanguage } from "./utils/language";
 
 const keysPath = path.join(__dirname, "../keys");
 
@@ -59,10 +58,10 @@ const swanColorHex = "#6240B5";
 
 const getMailjetInput = ({
   invitationData,
-  requestLanguage,
+  language,
 }: {
   invitationData: GetAccountMembershipInvitationDataQuery;
-  requestLanguage: string;
+  language: string;
 }) =>
   match(invitationData)
     .with(
@@ -103,10 +102,10 @@ const getMailjetInput = ({
                   Email: inviteeAccountMembership.email,
                 },
               ],
-              TemplateID: match(requestLanguage)
+              TemplateID: match(language)
                 .with("fr", () => 2725624)
                 .otherwise(() => 2850442), // "english"
-              Subject: match(requestLanguage)
+              Subject: match(language)
                 .with("fr", () => `Rejoignez votre espace bancaire sur ${projectInfo.name}`)
                 .otherwise(() => `Join your banking space on ${projectInfo.name}`),
               TemplateLanguage: true,
@@ -141,7 +140,7 @@ const sendAccountMembershipInvitation = (invitationConfig: InvitationConfig) => 
     .mapOkToResult(invitationData =>
       getMailjetInput({
         invitationData,
-        requestLanguage: findBestLanguage(invitationConfig.acceptLanguage),
+        language: invitationConfig.language,
       }),
     )
     .flatMapOk(data => {
@@ -207,7 +206,7 @@ start({
      */
     app.post<{
       Querystring: Record<string, string>;
-      Params: { inviteeAccountMembershipId: string; projectId: string };
+      Params: { inviteeAccountMembershipId: string; lang: string; projectId: string };
     }>(
       "/api/projects/:projectId/invitation/:inviteeAccountMembershipId/send",
       async (request, reply) => {
@@ -226,10 +225,10 @@ start({
             .flatMapOk(accessToken =>
               Future.fromPromise(
                 sendAccountMembershipInvitation({
-                  acceptLanguage: request.headers["accept-language"],
                   accessToken,
                   inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
                   inviterAccountMembershipId,
+                  language: request.params.lang,
                 }),
               ),
             )

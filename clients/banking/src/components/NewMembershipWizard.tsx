@@ -354,9 +354,12 @@ export const NewMembershipWizard = ({
   }) => {
     const request = Future.make<Result<undefined, undefined>>(resolve => {
       const xhr = new XMLHttpRequest();
+
       // TODO: oauth2
       const query = new URLSearchParams();
       query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
+      query.append("lang", locale.language);
+
       xhr.open(
         "POST",
         match(projectConfiguration)

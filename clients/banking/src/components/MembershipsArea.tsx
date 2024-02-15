@@ -18,7 +18,7 @@ import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router, membershipsRoutes } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
@@ -209,18 +209,20 @@ export const MembershipsArea = ({
         },
         ({ params: { resourceId } }) => {
           const xhr = new XMLHttpRequest();
+          const query = new URLSearchParams();
+
+          query.append("inviterAccountMembershipId", accountMembershipId);
+          query.append("lang", locale.language);
+
           xhr.open(
             "POST",
             match(projectConfiguration)
               .with(
                 Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
                 projectId =>
-                  `/api/projects/${projectId}/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
               )
-              .otherwise(
-                () =>
-                  `/api/invitation/${resourceId}/send?inviterAccountMembershipId=${accountMembershipId}`,
-              ),
+              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`),
             true,
           );
           xhr.addEventListener("load", () => {

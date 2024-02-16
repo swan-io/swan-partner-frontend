@@ -809,6 +809,7 @@ query CardPage($cardId: ID!) {
       canViewAccount
       canManageBeneficiaries
       canInitiatePayments
+      canManageCards
       statusInfo {
         __typename
         status

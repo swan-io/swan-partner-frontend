@@ -781,6 +781,7 @@ fragment DigitalCard on DigitalCard {
 query CardPage($cardId: ID!) {
   projectInfo {
     id
+    B2BMembershipIDVerification
   }
   card(cardId: $cardId) {
     id

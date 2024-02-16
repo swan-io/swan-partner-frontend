@@ -139,7 +139,12 @@ export const CardItemArea = ({
   const membershipStatus = card?.accountMembership.statusInfo;
 
   const cardRequiresIdentityVerification =
-    shouldDisplayIdVerification && card?.accountMembership?.hasRequiredIdentificationLevel !== true;
+    shouldDisplayIdVerification &&
+    card?.accountMembership?.canManageAccountMembership === false &&
+    card?.accountMembership?.canInitiatePayments === false &&
+    card?.accountMembership?.canManageBeneficiaries === false &&
+    card?.accountMembership?.canViewAccount === false &&
+    card?.accountMembership?.canManageCards === false;
 
   const hasBindingUserError =
     shouldDisplayIdVerification &&

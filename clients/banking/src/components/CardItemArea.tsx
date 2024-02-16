@@ -48,7 +48,6 @@ type Props = {
   canViewAccount: boolean;
   canManageCards: boolean;
   large?: boolean;
-  shouldDisplayIdVerification: boolean;
 };
 
 export const CardItemArea = ({
@@ -60,7 +59,6 @@ export const CardItemArea = ({
   physicalCardOrderVisible,
   canViewAccount,
   canManageCards,
-  shouldDisplayIdVerification,
   large = true,
 }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
@@ -80,7 +78,7 @@ export const CardItemArea = ({
     {
       data: {
         card,
-        projectInfo: { id: projectId },
+        projectInfo: { id: projectId, B2BMembershipIDVerification },
       },
     },
     reexecuteQuery,
@@ -138,16 +136,19 @@ export const CardItemArea = ({
 
   const membershipStatus = card?.accountMembership.statusInfo;
 
-  const cardRequiresIdentityVerification =
-    shouldDisplayIdVerification &&
+  const hasStrictlyNoPermission =
     card?.accountMembership?.canManageAccountMembership === false &&
     card?.accountMembership?.canInitiatePayments === false &&
     card?.accountMembership?.canManageBeneficiaries === false &&
     card?.accountMembership?.canViewAccount === false &&
     card?.accountMembership?.canManageCards === false;
 
+  const cardRequiresIdentityVerification =
+    B2BMembershipIDVerification === false && hasStrictlyNoPermission
+      ? false
+      : card?.accountMembership.hasRequiredIdentificationLevel === false;
+
   const hasBindingUserError =
-    shouldDisplayIdVerification &&
     membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
     (membershipStatus.birthDateMatchError ||
       membershipStatus.firstNameMatchError ||

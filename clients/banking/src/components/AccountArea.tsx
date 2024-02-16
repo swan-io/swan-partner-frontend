@@ -862,7 +862,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                 canManageCards={canManageCards}
                                 accountMembership={accountMembership}
                                 canManageAccountMembership={canManageAccountMembership}
-                                shouldDisplayIdVerification={B2BMembershipIDVerification !== false}
                                 cardOrderVisible={cardOrderVisible}
                                 physicalCardOrderVisible={physicalCardOrderVisible}
                               />

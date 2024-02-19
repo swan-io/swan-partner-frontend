@@ -140,7 +140,6 @@ export const CardItemArea = ({
     card?.accountMembership?.canManageAccountMembership === false &&
     card?.accountMembership?.canInitiatePayments === false &&
     card?.accountMembership?.canManageBeneficiaries === false &&
-    card?.accountMembership?.canViewAccount === false &&
     card?.accountMembership?.canManageCards === false;
 
   const cardRequiresIdentityVerification =

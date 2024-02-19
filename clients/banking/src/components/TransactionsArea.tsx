@@ -5,6 +5,7 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
@@ -60,12 +61,15 @@ const styles = StyleSheet.create({
     alignItems: "flex-end",
     flexDirection: "row",
     paddingLeft: spacings[16],
+    paddingTop: spacings[8],
   },
   balanceDetailDesktopOperator: {
+    height: "100%",
     alignSelf: "center",
     paddingBottom: spacings[12],
   },
   balanceDetailDesktopItem: {
+    height: "100%",
     paddingHorizontal: spacings[24],
   },
   balanceDetailDesktopText: {
@@ -77,21 +81,15 @@ const styles = StyleSheet.create({
   bottomPanelItem: {
     paddingBottom: spacings[4],
   },
-  // link: {
-  //   display: "flex",
-  //   transitionProperty: "opacity",
-  //   transitionDuration: "150ms",
-  //   alignItems: "center",
-  // },
-  // linkPressed: {
-  //   opacity: 0.7,
-  // },
-  // linkContainer: {
-  //   paddingLeft: spacings[24],
-  // },
-  // linkContainerLarge: {
-  //   paddingLeft: spacings[40],
-  // },
+  link: {
+    display: "flex",
+    transitionProperty: "opacity",
+    transitionDuration: "150ms",
+    alignItems: "center",
+  },
+  linkPressed: {
+    opacity: 0.7,
+  },
   statements: {
     marginHorizontal: negativeSpacings[24],
   },
@@ -249,6 +247,25 @@ export const TransactionsArea = ({
                             {t("transactions.reservedBalance")}
                           </LakeText>
                         </Box>
+
+                        <Box
+                          direction="row"
+                          style={styles.balanceDetailDesktopItem}
+                          alignItems="baseline"
+                        >
+                          <Link
+                            target="blank"
+                            to="https://support.swan.io/hc/en-150/articles/16464971717277-Account-balances"
+                            style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
+                          >
+                            <LakeText variant="smallRegular" color={colors.current.primary}>
+                              {t("common.learnMore")}
+                            </LakeText>
+
+                            <Space width={4} />
+                            <Icon color={colors.current.primary} name="open-filled" size={16} />
+                          </Link>
+                        </Box>
                       </>
                     ) : null}
                   </TransitionView>
@@ -273,12 +290,10 @@ export const TransactionsArea = ({
                         {t("transactions.availableBalance")}
                       </LakeHeading>
 
-                      {/* 
-                      WAITING FOR DOC LINK
                       <Box direction="row">
                         <Link
                           target="blank"
-                          to={``}
+                          to="https://support.swan.io/hc/en-150/articles/16464971717277-Account-balances"
                           style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
                         >
                           <LakeText color={colors.current.primary}>
@@ -288,7 +303,7 @@ export const TransactionsArea = ({
                           <Space width={4} />
                           <Icon color={colors.current.primary} name="open-filled" size={16} />
                         </Link>
-                      </Box> */}
+                      </Box>
 
                       <Space height={24} />
 
@@ -345,27 +360,6 @@ export const TransactionsArea = ({
                   </BottomPanel>
                 )}
               </Box>
-
-              {/*  WAITING FOR DOC LINK
-              {shouldShowDetailedBalance && (
-                <Box
-                  direction="row"
-                  style={large ? styles.linkContainerLarge : styles.linkContainer}
-                >
-                  <Link
-                    target="blank"
-                    to={``}
-                    style={({ pressed }) => [pressed && styles.linkPressed, styles.link]}
-                  >
-                    <LakeText variant="smallRegular" color={colors.current.primary}>
-                      {t("balances.learnMore")}
-                    </LakeText>
-
-                    <Space width={4} />
-                    <Icon color={colors.current.primary} name="open-filled" size={16} />
-                  </Link>
-                </Box>
-              )} */}
 
               <Space height={24} />
             </>

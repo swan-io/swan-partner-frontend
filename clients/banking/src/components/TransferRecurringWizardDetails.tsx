@@ -74,7 +74,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
       validate: value => {
         const amount = Number(value);
 
-        if (Number.isNaN(amount) || value === "" || amount <= 0) {
+        if (Number.isNaN(amount) || value === "" || amount < 0) {
           return t("error.invalidTransferAmount");
         }
       },

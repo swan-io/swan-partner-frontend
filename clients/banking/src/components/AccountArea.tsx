@@ -398,7 +398,6 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
           accountMembership.canManageAccountMembership === false &&
           accountMembership.canInitiatePayments === false &&
           accountMembership.canManageBeneficiaries === false &&
-          accountMembership.canViewAccount === false &&
           accountMembership.canManageCards === false
         );
 

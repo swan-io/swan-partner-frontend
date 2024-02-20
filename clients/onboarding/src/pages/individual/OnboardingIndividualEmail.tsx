@@ -42,6 +42,8 @@ const styles = StyleSheet.create({
   },
   tcuCheckbox: {
     top: 3, // center checkbox with text
+    flexDirection: "row",
+    alignItems: "center",
   },
   link: {
     color: colors.partner[500],
@@ -194,33 +196,31 @@ export const OnboardingIndividualEmail = ({
                             onPress={() => onChange(!value)}
                             style={styles.tcuCheckbox}
                           >
-                            <Box direction="row" alignItems="center">
-                              <LakeCheckbox value={value} isError={isNotNullish(error)} />
-                              <Space width={8} />
+                            <LakeCheckbox value={value} isError={isNotNullish(error)} />
+                            <Space width={8} />
 
-                              <LakeText>
-                                {formatNestedMessage("step.finalize.terms", {
-                                  firstLink: (
-                                    <Link target="blank" to={tcuUrl} style={styles.link}>
-                                      {t("emailPage.firstLink")}
+                            <LakeText>
+                              {formatNestedMessage("step.finalize.terms", {
+                                firstLink: (
+                                  <Link target="blank" to={tcuUrl} style={styles.link}>
+                                    {t("emailPage.firstLink")}
 
-                                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                    </Link>
-                                  ),
-                                  secondLink: (
-                                    <Link
-                                      target="blank"
-                                      to={tcuDocumentUri ?? "#"}
-                                      style={styles.link}
-                                    >
-                                      {t("emailPage.secondLink", { partner: projectName })}
+                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                  </Link>
+                                ),
+                                secondLink: (
+                                  <Link
+                                    target="blank"
+                                    to={tcuDocumentUri ?? "#"}
+                                    style={styles.link}
+                                  >
+                                    {t("emailPage.secondLink", { partner: projectName })}
 
-                                      <Icon name="open-filled" size={16} style={styles.linkIcon} />
-                                    </Link>
-                                  ),
-                                })}
-                              </LakeText>
-                            </Box>
+                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                  </Link>
+                                ),
+                              })}
+                            </LakeText>
                           </Pressable>
                         )}
                       </Field>

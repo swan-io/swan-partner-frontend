@@ -209,7 +209,7 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
   await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
 
-  await page.getByRole("checkbox").check();
+  await page.getByRole("checkbox").click();
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

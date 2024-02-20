@@ -42,6 +42,8 @@ const styles = StyleSheet.create({
   },
   tcuCheckbox: {
     top: 3, // center checkbox with text
+    flexDirection: "row",
+    alignItems: "center",
   },
   link: {
     color: colors.partner[500],
@@ -195,6 +197,30 @@ export const OnboardingIndividualEmail = ({
                             style={styles.tcuCheckbox}
                           >
                             <LakeCheckbox value={value} isError={isNotNullish(error)} />
+                            <Space width={8} />
+
+                            <LakeText>
+                              {formatNestedMessage("step.finalize.terms", {
+                                firstLink: (
+                                  <Link target="blank" to={tcuUrl} style={styles.link}>
+                                    {t("emailPage.firstLink")}
+
+                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                  </Link>
+                                ),
+                                secondLink: (
+                                  <Link
+                                    target="blank"
+                                    to={tcuDocumentUri ?? "#"}
+                                    style={styles.link}
+                                  >
+                                    {t("emailPage.secondLink", { partner: projectName })}
+
+                                    <Icon name="open-filled" size={16} style={styles.linkIcon} />
+                                  </Link>
+                                ),
+                              })}
+                            </LakeText>
                           </Pressable>
                         )}
                       </Field>
@@ -203,10 +229,9 @@ export const OnboardingIndividualEmail = ({
                     </>
                   )}
 
-                  <LakeText>
-                    {formatNestedMessage(
-                      haveToAcceptTcu ? "step.finalize.terms" : "emailPage.terms",
-                      {
+                  {!haveToAcceptTcu && (
+                    <LakeText>
+                      {formatNestedMessage("emailPage.terms", {
                         firstLink: (
                           <Link target="blank" to={tcuUrl} style={styles.link}>
                             {t("emailPage.firstLink")}
@@ -221,9 +246,9 @@ export const OnboardingIndividualEmail = ({
                             <Icon name="open-filled" size={16} style={styles.linkIcon} />
                           </Link>
                         ),
-                      },
-                    )}
-                  </LakeText>
+                      })}
+                    </LakeText>
+                  )}
                 </Box>
 
                 {haveToAcceptTcu && (

@@ -1,6 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { lowerCase } from "@swan-io/lake/src/utils/string";
+import { useMemo } from "react";
 import { atom, useAtomWithSelector } from "react-atomic-state";
 import { TgglFlags as RawFlags, TgglClient, TgglContext } from "tggl-client";
 import { P, match } from "ts-pattern";
@@ -23,8 +24,10 @@ export const updateTgglContext = (context: Partial<TgglContext>) => {
   void client?.setContext(savedContext);
 };
 
-export const useTgglFlag = <K extends keyof Flags>(key: K) =>
-  useAtomWithSelector(flagsAtom, flags => Option.fromNullable<Flags[K]>(flags[key]));
+export const useTgglFlag = <K extends keyof Flags>(key: K) => {
+  const value = useAtomWithSelector(flagsAtom, flags => flags[key]);
+  return useMemo(() => Option.fromNullable<Flags[K]>(value), [value]);
+};
 
 // Initial updateTgglContext call to fire onResultChange callback
 updateTgglContext({

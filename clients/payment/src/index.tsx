@@ -7,9 +7,9 @@ import "core-js/actual/array/flat";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";
 import { App } from "./App";
-import { initSentry } from "./utils/logger";
 
-initSentry();
+// TODO: Enable Sentry when going in production
+// initSentry();
 
 if (isNullish(window.ResizeObserver)) {
   window.ResizeObserver = ResizeObserver;

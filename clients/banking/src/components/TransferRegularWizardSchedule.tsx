@@ -15,7 +15,6 @@ import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
 import dayjs from "dayjs";
-import { electronicFormat } from "iban";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { combineValidators, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
@@ -75,7 +74,7 @@ export const TransferRegularWizardSchedule = ({
     {
       query: GetIbanValidationDocument,
       variables: {
-        iban: electronicFormat(beneficiary.iban),
+        iban: beneficiary.iban,
       },
     },
     [beneficiary.iban],

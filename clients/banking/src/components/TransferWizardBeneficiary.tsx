@@ -59,13 +59,14 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
     iban: {
       initialValue: initialBeneficiary?.iban ?? "",
       validate: combineValidators(validateRequired, validateIban),
+      sanitize: electronicFormat,
     },
   });
 
   useEffect(() => {
     return listenFields(["iban"], ({ iban }) => {
       if (iban.valid) {
-        setIban(electronicFormat(iban.value));
+        setIban(iban.value);
       } else {
         setIban(undefined);
       }

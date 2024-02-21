@@ -88,16 +88,20 @@ type Props = {
 };
 
 const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
-  FRA: "RCS/JOAFE",
+  FRA: "Journal officiel des associations JOAFE",
+};
+
+const selfEmployedRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
+  FRA: "Registre du Commerce et des Sociétés (RCS) or INSEE",
 };
 
 const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
-  BEL: "“Code des sociétés”",
+  BEL: "Code des Sociétés et des Associations (CSA)",
   DEU: "Handelsregister",
   FRA: "Registre du Commerce et des Sociétés (RCS)",
   ITA: "Registro Imprese",
   NLD: "Handelsregister",
-  ESP: "Registradores de España",
+  ESP: "Registrado Mercantil",
 };
 
 export const OnboardingCompanyOrganisation1 = ({
@@ -303,6 +307,7 @@ export const OnboardingCompanyOrganisation1 = ({
 
   const countryRegisterName = match(companyType)
     .with("Association", () => associationRegisterNamePerCountry[country])
+    .with("SelfEmployed", () => selfEmployedRegisterNamePerCountry[country])
     .otherwise(() => registerNamePerCountry[country]);
 
   return (

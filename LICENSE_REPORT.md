@@ -29,7 +29,6 @@ core-js | 3.35.1 | MIT | https://github.com/zloirock/core-js.git | http://zloiro
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
 fast-proxy | 2.2.0 | MIT | git@github.com:fastify/fast-proxy.git | https://github.com/fastify/fast-proxy | Rolando Santamaria Maso
 fastify | 4.26.1 | MIT | https://github.com/fastify/fastify.git | https://fastify.dev/ | Matteo Collina
-fastify-language-parser | 3.0.0 | MIT | https://github.com/lependu/fastify-language-parser.git | https://github.com/lependu/fastify-language-parser#readme | Akos Kovács
 get-port | 5.1.1 | MIT | https://github.com/sindresorhus/get-port.git | sindresorhus.com | Sindre Sorhus
 graphql | 16.8.1 | MIT | https://github.com/graphql/graphql-js.git | https://github.com/graphql/graphql-js | Unknown
 graphql-request | 6.1.0 | MIT | https://github.com/jasonkuhrt/graphql-request.git | https://github.com/jasonkuhrt/graphql-request | Jason Kuhrt
@@ -72,7 +71,7 @@ wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @opentelemetry/sdk-trace-node | 1.21.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node | OpenTelemetry Authors
 @opentelemetry/semantic-conventions | 1.21.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
 picocolors | 1.0.0 | ISC | https://github.com/alexeyraspopov/picocolors.git | Unknown | Alexey Raspopov
-react-tggl-client | 1.6.0 | ISC | Unknown | Unknown | Nicolas Keller
+tggl-client | 1.13.0 | ISC | Unknown | Unknown | Nicolas Keller
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 3.13.1 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

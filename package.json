@@ -42,7 +42,7 @@
     "match-e2e-translations": "tsx scripts/tests/matchTranslations.ts",
     "configure-hooks": "git config --local core.hooksPath .hooks",
     "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts",
-    "tggl-gen-type": "tggl typing -k $TGGL_SERVER_KEY -o types/tggl/index.d.ts -p react-tggl-client"
+    "tggl-gen-type": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY"
   },
   "workspaces": {
     "packages": [

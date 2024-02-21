@@ -58,15 +58,15 @@ export const getUpdateOnboardingError = (
 export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
-    .with("BEL", () => "Numéro d'entreprise / Vestigingseenheidsnummer")
+    .with("BEL", () => "CBE or Ondernemingsnummer")
     .with("HRV", () => "Matični broj poslovnog subjekta [MBS]")
     .with("CYP", () => "Αριθμός Μητρώου Εταιρίας Şirket kayıt numarası")
     .with("CZE", () => "Identifikační číslo")
     .with("DNK", () => "CVR-nummer")
     .with("EST", () => "Kood")
     .with("FIN", () => "Y-tunnus")
-    .with("FRA", () => (companyType === "Association" ? "RNA" : "Numéro SIREN"))
-    .with("DEU", () => "Nummer der Firma Registernummer")
+    .with("FRA", () => (companyType === "Association" ? "SIREN or RNA" : "Numéro SIREN"))
+    .with("DEU", () => "Registernummer")
     .with(
       "GRC",
       () => "τον Αριθμό Γενικού Εμπορικού Μητρώου τον Αριθμό Φορολογικού Μητρώου [Α.Φ.Μ.]",
@@ -74,20 +74,20 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("HUN", () => "Cégjegyzékszáma")
     .with("IRL", () => "Company Number")
     .with("ISL", () => "TIN")
-    .with("ITA", () => "Codice fiscale")
+    .with("ITA", () => "REA number")
     .with("LVA", () => "Reģistrācijas numurs")
     .with("LIE", () => "UID")
     .with("LTU", () => "Juridinio asmens kodas")
     .with("LUX", () => "Numéro d'immatriculation")
     .with("MLT", () => "Registration Number")
-    .with("NLD", () => "KvK-nummer")
+    .with("NLD", () => "KVK number")
     .with("NOR", () => "TIN")
     .with("POL", () => "Numer w Krajowym Rejestrze Sądowym [numer KRS]")
     .with("PRT", () => "Número de Identificação Pessoa Coletiva [NIPC]")
     .with("ROU", () => "Număr de ordine în Registrul Comerţului")
     .with("SVK", () => "Identifikačného čísla Identification number")
     .with("SVN", () => "Matična številka")
-    .with("ESP", () => "Número de identificación fiscal [NIF]")
+    .with("ESP", () => "NIF number")
     .with("SWE", () => "Registreringsnummer")
     .otherwise(() => null);
 

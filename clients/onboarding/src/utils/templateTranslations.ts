@@ -80,14 +80,14 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
     .with("LTU", () => "Juridinio asmens kodas")
     .with("LUX", () => "Numéro d'immatriculation")
     .with("MLT", () => "Registration Number")
-    .with("NLD", () => "KVK number")
+    .with("NLD", () => "KvK-nummer")
     .with("NOR", () => "TIN")
     .with("POL", () => "Numer w Krajowym Rejestrze Sądowym [numer KRS]")
     .with("PRT", () => "Número de Identificação Pessoa Coletiva [NIPC]")
     .with("ROU", () => "Număr de ordine în Registrul Comerţului")
     .with("SVK", () => "Identifikačného čísla Identification number")
     .with("SVN", () => "Matična številka")
-    .with("ESP", () => "NIF number")
+    .with("ESP", () => "Número de identificación fiscal [NIF]")
     .with("SWE", () => "Registreringsnummer")
     .otherwise(() => null);
 

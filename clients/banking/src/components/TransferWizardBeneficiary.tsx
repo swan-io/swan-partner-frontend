@@ -59,6 +59,7 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
     iban: {
       initialValue: initialBeneficiary?.iban ?? "",
       validate: combineValidators(validateRequired, validateIban),
+      sanitize: electronicFormat,
     },
   });
 

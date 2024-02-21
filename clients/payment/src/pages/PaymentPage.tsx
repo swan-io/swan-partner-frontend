@@ -81,7 +81,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     },
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",
-      sanitize: value => value.trim(),
+      sanitize: electronicFormat,
       validate: combineValidators(validateRequired, validateIban),
     },
     country: {

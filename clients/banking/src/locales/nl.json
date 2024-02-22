@@ -870,6 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Volledige saldo-overdracht",
   "transfer.new.reference.label": "Referentie",
   "transfer.new.reference.labelDetails": "Alleen 0-9 en a-z; max {count} tekens",
+  "transfer.new.regularTransferDescription": "Regelmatige overschrijvingen komen meestal op dezelfde dag aan, maar kunnen tot 2 werkdagen duren.",
   "transfer.new.schedule": "Planning",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Directe overboeking niet beschikbaar",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "De rekening van de begunstigde kan geen directe overboekingen ontvangen.",

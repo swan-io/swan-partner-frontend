@@ -798,6 +798,7 @@
   "transfer.new.iban.label": "IBAN",
   "transfer.new.iban.placeholder": "Example : FRXX XXXX XXXX XXXX XXX",
   "transfer.new.instantTransfer": "Instant transfer",
+  "transfer.new.regularTransferDescription": "Regular transfers usually arrive the same day, but might take up to 2 business days.",
   "transfer.new.insufisantBalance.description": "Please add funds to your account before trying again.",
   "transfer.new.insufisantBalance.title": "Insufficient balance",
   "transfer.new.insufisantBalance.yourIban": "Your IBAN",

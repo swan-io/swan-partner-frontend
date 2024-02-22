@@ -870,6 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Transferência de saldo completo",
   "transfer.new.reference.label": "Referência",
   "transfer.new.reference.labelDetails": "0-9 e a-z apenas; máximo de {count} caracteres",
+  "transfer.new.regularTransferDescription": "As transferências regulares geralmente chegam no mesmo dia, mas podem demorar até 2 dias úteis.",
   "transfer.new.schedule": "Agendar",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Transferência instantânea não disponível",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "A conta do beneficiário não pode receber transferências instantâneas.",

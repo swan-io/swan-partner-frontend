@@ -870,6 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Virement du solde complet",
   "transfer.new.reference.label": "Référence",
   "transfer.new.reference.labelDetails": "0-9 et a-z uniquement ; max {count} caractères",
+  "transfer.new.regularTransferDescription": "Les virements réguliers arrivent généralement le même jour, mais peuvent prendre jusqu'à 2 jours ouvrables.",
   "transfer.new.schedule": "Planification",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Virement instantané non disponible",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "Le compte du bénéficiaire ne peut pas recevoir de virements instantanés.",

@@ -870,6 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Überweisung des gesamten Kontostands",
   "transfer.new.reference.label": "Kundenreferenz",
   "transfer.new.reference.labelDetails": "Nur 0 9 und a - z; max. {count} Zeichen",
+  "transfer.new.regularTransferDescription": "Regelmäßige Überweisungen kommen normalerweise am selben Tag an, können aber bis zu 2 Werktage dauern.",
   "transfer.new.schedule": "Zeitplan",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Sofortige Überweisung nicht verfügbar",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "Das Konto des Empfängers kann keine Sofortüberweisungen empfangen",

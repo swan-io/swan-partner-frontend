@@ -870,6 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Koko tilin saldon siirto",
   "transfer.new.reference.label": "Viite",
   "transfer.new.reference.labelDetails": "Vain 0–9 ja a–z, enintään {count} merkkiä",
+  "transfer.new.regularTransferDescription": "Säännölliset siirrot saapuvat yleensä samana päivänä, mutta ne voivat kestää enintään 2 arkipäivää.",
   "transfer.new.schedule": "Ajoitus",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Pikasiirto ei ole saatavilla",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "Vastaanottajan tilille ei voi tehdä pikasiirtoja.",

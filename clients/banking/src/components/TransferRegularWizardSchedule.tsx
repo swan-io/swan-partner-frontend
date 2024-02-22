@@ -251,6 +251,20 @@ export const TransferRegularWizardSchedule = ({
                                     />
                                   )}
                                 </Field>
+
+                                <FieldsListener names={["isInstant"]}>
+                                  {({ isInstant }) =>
+                                    isInstant.value === false ? (
+                                      <>
+                                        <Space height={4} />
+
+                                        <LakeText>
+                                          {t("transfer.new.regularTransferDescription")}
+                                        </LakeText>
+                                      </>
+                                    ) : null
+                                  }
+                                </FieldsListener>
                               </>
                             ))
                             .otherwise(() => null)

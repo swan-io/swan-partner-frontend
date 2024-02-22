@@ -130,7 +130,7 @@ test("German individual onboarding", async ({ browser, page, request }) => {
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
   await page.getByLabel(t("onboarding.company.step.registration.emailLabel")).fill(benady.email);
-  await page.getByRole("checkbox").click();
+  await page.getByRole("checkbox").click({ position: { x: 0, y: 0 } });
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

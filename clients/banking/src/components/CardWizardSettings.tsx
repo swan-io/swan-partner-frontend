@@ -20,7 +20,7 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { emptyToUndefined, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -358,7 +358,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     onBlur={() =>
                       setCurrentSettings(settings => ({
                         ...settings,
-                        cardName: emptyToUndefined(settings?.cardName?.trim() ?? ""),
+                        cardName: settings?.cardName?.trim() ?? "",
                       }))
                     }
                   />

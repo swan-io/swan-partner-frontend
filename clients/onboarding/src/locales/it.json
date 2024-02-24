@@ -48,7 +48,7 @@
   "company.step.organisation2.title": "Dettagli dell'azienda",
   "company.step.owners.addAnother": "Aggiungi un beneficiario effettivo",
   "company.step.owners.addTitle": "Aggiungi un beneficiario",
-  "company.step.owners.additionalDescription": "Un UBO è una persona fisica o giuridica che detiene più del 25% delle azioni, controlla più del 25% dei diritti di voto o che in altro modo ha un controllo significativo sull'organizzazione.",
+  "company.step.owners.additionalDescription": "Un UBO è una persona fisica che detiene più del 25% delle azioni, controlla più del 25% dei diritti di voto o che in altro modo ha un controllo significativo sull'organizzazione.",
   "company.step.owners.confirmModal.add": "Aggiungi un proprietario",
   "company.step.owners.confirmModal.description": "Se scegli di non fornire informazioni sulla proprietà della tua organizzazione in questo momento, Swan ti contatterà a breve per ottenere queste informazioni. Il tuo account non sarà attivato fino a quando tutte le informazioni sui Beneficiari Effettivi Ultimi non saranno ricevute e verificate.\n\nSe la tua organizzazione non ha Beneficiari Effettivi Ultimi, clicca su \"Avanti\" per continuare.",
   "company.step.owners.confirmModal.next": "Avanti",

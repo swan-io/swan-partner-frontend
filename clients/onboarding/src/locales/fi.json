@@ -48,7 +48,7 @@
   "company.step.organisation2.title": "Yrityksen tiedot",
   "company.step.owners.addAnother": "Lisää toinen omistaja",
   "company.step.owners.addTitle": "Lisää omistaja",
-  "company.step.owners.additionalDescription": "Lopullinen edunsaaja (UBO) on luonnollinen tai oikeushenkilö, jolla on yli 25% osakkeista, yli 25% äänioikeudesta tai muulla tavalla merkittävä hallinta organisaatiossa.",
+  "company.step.owners.additionalDescription": "Lopullinen edunsaaja (UBO) on luonnollinen, jolla on yli 25% osakkeista, yli 25% äänioikeudesta tai muulla tavalla merkittävä hallinta organisaatiossa.",
   "company.step.owners.confirmModal.add": "Lisää omistaja",
   "company.step.owners.confirmModal.description": "Jos päätät olla antamatta tietoja organisaatiosi omistuksesta nyt, Swan ottaa sinuun yhteyttä tiedonkeruuta varten. Tiliäsi ei aktivoida ennen kuin kaikki lopullisten edunsaajien tiedot on vastaanotettu ja varmennettu.\n\nJos organisaatiollasi ei ole lopullisia edunsaajia, napsauta \"Seuraava\" jatkaaksesi.",
   "company.step.owners.confirmModal.next": "Seuraava",

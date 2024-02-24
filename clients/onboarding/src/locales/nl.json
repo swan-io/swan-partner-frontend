@@ -48,7 +48,7 @@
   "company.step.organisation2.title": "Bedrijfsgegevens",
   "company.step.owners.addAnother": "Nog een begunstigde toevoegen",
   "company.step.owners.addTitle": "Een begunstigde toevoegen",
-  "company.step.owners.additionalDescription": "Een UBO is elke natuurlijke of rechtspersoon die meer dan 25% van de aandelen bezit, meer dan 25% van de stemrechten controleert, of op andere wijze aanzienlijke controle heeft over de organisatie.",
+  "company.step.owners.additionalDescription": "Een UBO is elke natuurlijke die meer dan 25% van de aandelen bezit, meer dan 25% van de stemrechten controleert, of op andere wijze aanzienlijke controle heeft over de organisatie.",
   "company.step.owners.confirmModal.add": "Eigenaar toevoegen",
   "company.step.owners.confirmModal.description": "Als je ervoor kiest om nu geen informatie te verstrekken over het eigendom van jouw organisatie, zal Swan binnenkort contact met je opnemen voor deze informatie. Jouw account wordt pas geactiveerd nadat alle UBO-informatie is ontvangen en geverifieerd.\n\nAls jouw organisatie geen UBO's heeft, klik dan op \"Volgende\" om door te gaan.",
   "company.step.owners.confirmModal.next": "Volgende",

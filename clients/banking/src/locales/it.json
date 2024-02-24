@@ -870,7 +870,7 @@
   "transfer.new.recurring.targetAccountBalance.title": "Bonifico dell'intero saldo",
   "transfer.new.reference.label": "Riferimento",
   "transfer.new.reference.labelDetails": "solo 0-9 e a-z; massimo {count} caratteri",
-  "transfer.new.regularTransferDescription": "I bonifici regolari di solito arrivano lo stesso giorno, ma potrebbero impiegare fino a 2 giorni lavorativi.",
+  "transfer.new.regularTransferDescription": "Regular transfers usually arrive the same day, but might take up to 2 business days.",
   "transfer.new.schedule": "Programma",
   "transfer.new.schedule.instantCreditTransfer.notAvailable": "Bonifico istantaneo non disponibile",
   "transfer.new.schedule.instantCreditTransfer.notAvailableDescription": "Il conto del beneficiario non può ricevere bonifici istantanei.",

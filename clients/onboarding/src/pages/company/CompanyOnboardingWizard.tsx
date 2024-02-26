@@ -12,11 +12,7 @@ import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import {
-  Document,
-  SupportingDocumentPurpose,
-  uploadableDocumentTypes,
-} from "@swan-io/shared-business/src/components/SupportingDocument";
+import { Document } from "@swan-io/shared-business/src/components/SupportingDocument";
 import {
   companyFallbackCountry,
   isCompanyCountryCCA3,
@@ -93,8 +89,6 @@ const getPreviousStep = (
     .getWithDefault(currentStep);
 };
 
-const uploadableDocuments: SupportingDocumentPurposeEnum[] = uploadableDocumentTypes;
-
 export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Props) => {
   const route = Router.useRoute(companyOnboardingRoutes);
 
@@ -133,12 +127,11 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const companyType = holder.companyType ?? "Company";
   const isRegistered = holder.isRegistered;
 
-  const requiredDocuments =
-    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes
-      .map(d => d.name)
-      .filter(name => uploadableDocuments.includes(name)) ?? [];
+  const requiredDocumentsPurposes =
+    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
+    [];
 
-  const documents: Document[] =
+  const documents: Document<SupportingDocumentPurposeEnum>[] =
     onboarding?.supportingDocumentCollection.supportingDocuments.filter(isNotNullish).map(doc => ({
       id: doc.id,
       name: match(doc.statusInfo)
@@ -149,7 +142,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
           ({ filename }) => filename,
         )
         .otherwise(() => t("supportingDocument.noFilename")),
-      purpose: doc.supportingDocumentPurpose as SupportingDocumentPurpose,
+      purpose: doc.supportingDocumentPurpose,
     })) ?? [];
 
   const [currentDocuments, setCurrentDocuments] = useState(documents);
@@ -162,7 +155,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
       )
       .otherwise(() => false);
-  const hasDocumentsStep = requiredDocuments.length > 0;
+  const hasDocumentsStep = requiredDocumentsPurposes.length > 0;
 
   const [finalized, setFinalized] = useBoolean(false);
 
@@ -436,7 +429,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               onboardingId={params.onboardingId}
               documents={currentDocuments}
               onDocumentsChange={setCurrentDocuments}
-              requiredDocumentTypes={requiredDocuments}
+              requiredDocumentsPurposes={requiredDocumentsPurposes}
               supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
               onboardingLanguage={onboarding.language ?? "en"}
             />

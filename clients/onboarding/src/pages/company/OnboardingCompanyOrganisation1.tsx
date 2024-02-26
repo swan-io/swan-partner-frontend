@@ -343,7 +343,12 @@ export const OnboardingCompanyOrganisation1 = ({
                       render={() => (
                         <>
                           <LakeText variant="smallRegular" style={styles.registrationHelp}>
-                            {t("company.step.organisation1.isRegisteredLabel.description")}
+                            {t("company.step.organisation1.isRegisteredLabel.description", {
+                              registrationNumberLegalName: getRegistrationNumberName(
+                                country,
+                                companyType,
+                              ),
+                            })}
                           </LakeText>
 
                           <Space height={8} />

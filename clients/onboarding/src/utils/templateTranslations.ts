@@ -94,5 +94,5 @@ export const getRegistrationNumberName = (country: CountryCCA3, companyType: Com
   if (name == null) {
     return "";
   }
-  return ` (${name})`;
+  return `${name}`;
 };

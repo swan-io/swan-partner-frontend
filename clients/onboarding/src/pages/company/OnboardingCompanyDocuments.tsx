@@ -10,7 +10,6 @@ import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmMod
 import {
   Document,
   SupportingDocument,
-  SupportingDocumentPurpose,
 } from "@swan-io/shared-business/src/components/SupportingDocument";
 import { ReactNode } from "react";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -27,11 +26,11 @@ type Props = {
   previousStep: CompanyOnboardingRoute;
   nextStep: CompanyOnboardingRoute;
   onboardingId: string;
-  documents: Document[];
-  requiredDocumentTypes: SupportingDocumentPurposeEnum[];
+  documents: Document<SupportingDocumentPurposeEnum>[];
+  requiredDocumentsPurposes: SupportingDocumentPurposeEnum[];
   supportingDocumentCollectionId: string;
   onboardingLanguage: string;
-  onDocumentsChange: (documents: Document[]) => void;
+  onDocumentsChange: (documents: Document<SupportingDocumentPurposeEnum>[]) => void;
 };
 
 const DocumentsStepTile = ({ small, children }: { small: boolean; children: ReactNode }) => {
@@ -46,7 +45,7 @@ export const OnboardingCompanyDocuments = ({
   nextStep,
   onboardingId,
   documents,
-  requiredDocumentTypes,
+  requiredDocumentsPurposes,
   supportingDocumentCollectionId,
   onboardingLanguage,
   onDocumentsChange,
@@ -65,8 +64,8 @@ export const OnboardingCompanyDocuments = ({
   };
 
   const onPressNext = () => {
-    const requiredTypeAreCompleted = requiredDocumentTypes.every(requiredType =>
-      documents.some(({ purpose }) => purpose === requiredType),
+    const requiredTypeAreCompleted = requiredDocumentsPurposes.every(requiredPurpose =>
+      documents.some(({ purpose }) => purpose === requiredPurpose),
     );
 
     if (requiredTypeAreCompleted) {
@@ -78,7 +77,7 @@ export const OnboardingCompanyDocuments = ({
 
   const getAwsUrl = (
     file: File,
-    purpose: SupportingDocumentPurpose,
+    purpose: SupportingDocumentPurposeEnum,
   ): Promise<{ upload: { url: string; fields: { key: string; value: string }[] }; id: string }> => {
     return generateSupportingDocumentUploadUrl({
       input: {
@@ -115,7 +114,7 @@ export const OnboardingCompanyDocuments = ({
               <DocumentsStepTile small={small}>
                 <SupportingDocument
                   documents={documents}
-                  requiredDocumentTypes={requiredDocumentTypes}
+                  requiredDocumentPurposes={requiredDocumentsPurposes}
                   onChange={onDocumentsChange}
                   getAwsUrl={getAwsUrl}
                   onboardingLanguage={onboardingLanguage}

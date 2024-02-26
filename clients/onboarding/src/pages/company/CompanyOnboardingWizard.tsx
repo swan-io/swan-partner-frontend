@@ -148,7 +148,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const [currentDocuments, setCurrentDocuments] = useState(documents);
 
   const hasOwnershipStep =
-    ["Company", "HomeOwnerAssociation", "Other"].includes(companyType) ||
+    ["Company", "Other"].includes(companyType) ||
     match(onboarding.info)
       .with(
         { __typename: "OnboardingCompanyAccountHolderInfo" },

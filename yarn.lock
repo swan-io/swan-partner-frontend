@@ -2133,10 +2133,10 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.9.2":
-  version "4.9.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.9.2.tgz#eb14215689bfa9354808d2dd97f5ced22b1e0ffc"
-  integrity sha512-2YLynfYq/NCBUw+psvsHGCAEAX+rMbZQW2ZYmk6lsWDm+RTkT+DOZGLw/MDEM/5xdSO2JVzwt+MFwugC9caNNA==
+"@swan-io/lake@4.10.0":
+  version "4.10.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.10.0.tgz#7ebbe30b8e32786e157288199f748e74b8fb9621"
+  integrity sha512-dQtrwRDWkxSVvNHjTUH4/YLY04bpKFiO7cdQ6OHeVYfPUi1jI20tulyr1cZuTvYmIU9CtNcc+e7vZF/Lz1LrmA==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.97.5"
@@ -2155,14 +2155,14 @@
     rifm "^0.12.1"
     three "^0.161.0"
     ts-dedent "^2.2.0"
-    ts-pattern "^5.0.6"
+    ts-pattern "^5.0.8"
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.9.2":
-  version "4.9.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.9.2.tgz#390d0b70326bdff088a41e0be1758043327ca6b1"
-  integrity sha512-p0042YFRwjUf3MSQDfzmPi3kCPMWl7skQqPD/F/dh738FBhMxT4PTKv7EsxWp/7CI1Pqth87og9ExNBM3E/t4Q==
+"@swan-io/shared-business@4.10.0":
+  version "4.10.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.10.0.tgz#2abebe8a93f0d258a88ef4f40f120f6718c6e4aa"
+  integrity sha512-EJ81bIxzkPjCbQYw1OtBD4q1GPyR0gRrxoB95Jayh3LrUsFKqO4YPtv5ts29wQ+8Op9cPgL+PBXxciUNkfLOdA==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@placekit/client-js" "^2.2.0"
@@ -2176,7 +2176,7 @@
     react-native-web "^0.19.10"
     react-ux-form "^1.5.0"
     rifm "^0.12.1"
-    ts-pattern "^5.0.6"
+    ts-pattern "^5.0.8"
     urql "^4.0.6"
     uuid "^9.0.1"
 
@@ -7837,10 +7837,10 @@ ts-morph@^13.0.1:
     "@ts-morph/common" "~0.12.3"
     code-block-writer "^11.0.0"
 
-ts-pattern@5.0.6, ts-pattern@^5.0.6:
-  version "5.0.6"
-  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.0.6.tgz#53af94065c761ec9f87b9113e52e6b884f81d60d"
-  integrity sha512-Y+jOjihlFriWzcBjncPCf2/am+Hgz7LtsWs77pWg5vQQKLQj07oNrJryo/wK2G0ndNaoVn2ownFMeoeAuReu3Q==
+ts-pattern@5.0.8, ts-pattern@^5.0.8:
+  version "5.0.8"
+  resolved "https://registry.yarnpkg.com/ts-pattern/-/ts-pattern-5.0.8.tgz#47fa76776350bfbffaa6252a69ce5990ae05db95"
+  integrity sha512-aafbuAQOTEeWmA7wtcL94w6I89EgLD7F+IlWkr596wYxeb0oveWDO5dQpv85YP0CGbxXT/qXBIeV6IYLcoZ2uA==
 
 ts-prune@0.10.3:
   version "0.10.3"

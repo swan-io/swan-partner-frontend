@@ -10,7 +10,7 @@ import Mailjet from "node-mailjet";
 import path from "pathe";
 import pc from "picocolors";
 import { P, match } from "ts-pattern";
-import { string, validate } from "valienv";
+import { string, validate, url as validateUrl } from "valienv";
 import { exchangeToken } from "./api/oauth2.swan";
 import { UnsupportedAccountCountryError, parseAccountCountry } from "./api/partner";
 import { getAccountMembershipInvitationData } from "./api/partner.swan";
@@ -20,7 +20,7 @@ import {
   onboardIndividualAccountHolder,
 } from "./api/unauthenticated";
 import { InvitationConfig, start } from "./app";
-import { env, url as validateUrl } from "./env";
+import { env } from "./env";
 import { replyWithError } from "./error";
 import { AccountCountry, GetAccountMembershipInvitationDataQuery } from "./graphql/partner";
 

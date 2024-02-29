@@ -1,13 +1,6 @@
-import { oneOf, string, validate, Validator } from "valienv";
+import { Validator, oneOf, string, url, validate } from "valienv";
 
 const buffer: Validator<Buffer> = (value = "") => Buffer.from(value, "hex");
-
-export const url: Validator<string> = (value = "") => {
-  try {
-    new URL(value);
-    return value;
-  } catch {} // eslint-disable-line no-empty
-};
 
 export const env = validate({
   env: process.env,

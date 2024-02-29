@@ -1,17 +1,10 @@
 import dotenv from "dotenv";
 import path from "pathe";
-import { Validator, boolean, string, validate } from "valienv";
+import { boolean, string, url, validate } from "valienv";
 
 dotenv.config({
   path: path.resolve(__dirname, "../../.env.e2e"),
 });
-
-const url: Validator<string> = (value = "") => {
-  try {
-    new URL(value);
-    return value;
-  } catch {} // eslint-disable-line no-empty
-};
 
 export const env = validate({
   env: {

@@ -62,7 +62,12 @@ const waitForConfirm = async (page: Page) => {
 };
 
 const loginWithButtonClick = async (browser: Browser, button: Locator) => {
-  const [popup] = await Promise.all([button.page().waitForEvent("popup"), button.click()]);
+  const popupEventPromise = button.page().waitForEvent("popup");
+  await button.click();
+
+  const popup = await popupEventPromise;
+  await popup.waitForLoadState();
+
   await injectTestKey(popup);
 
   const input = popup.locator('[type="tel"]');

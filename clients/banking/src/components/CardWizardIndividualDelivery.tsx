@@ -6,6 +6,7 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
@@ -93,7 +94,7 @@ export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliv
                   <Avatar size={28} initials={initials} />
                   <Space width={24} />
 
-                  <View>
+                  <View style={commonStyles.fill}>
                     <LakeText variant="semibold" color={colors.gray[900]}>
                       {getMemberName({ accountMembership: config.member })}
                     </LakeText>

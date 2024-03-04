@@ -20,7 +20,7 @@
     "@swan-io/lake": "4.10.1",
     "@swan-io/shared-business": "4.10.1",
     "@urql/devtools": "2.0.3",
-    "@urql/exchange-graphcache": "6.4.1",
+    "@urql/exchange-graphcache": "6.5.0",
     "core-js": "3.36.0",
     "dayjs": "1.11.10",
     "iban": "0.0.14",

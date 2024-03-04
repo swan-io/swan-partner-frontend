@@ -1847,9 +1847,9 @@
   integrity sha512-POu8Mk0hIU3lRXB3bGIGe4VHIwwDsQyoD1F394OK7STTiX9w4dG3cTLljjYswkQN+hDSHRrj4O36kuVa7KPU8Q==
 
 "@react-three/drei@^9.99.4":
-  version "9.99.4"
-  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.99.4.tgz#ea34f7f30672cc0d1105a2e66341c0226d8c532f"
-  integrity sha512-Dig6SmsOIF1LiGAatU0WjFAgNqCixfHhO6BGlvb16E0vVi+t3S5WJbyEQO6msRgYu7pGQLCy9m0iBcfLUz8vkw==
+  version "9.99.5"
+  resolved "https://registry.yarnpkg.com/@react-three/drei/-/drei-9.99.5.tgz#20021a2f8db8bfd2dc1508d057c5e6d0dee919c8"
+  integrity sha512-9gqzYvuyd1Wtvv/+s+FdSogQdehDXUvZmhqKXw8EeBbqZaySpjvMcTf1B2hHNVVkgKl/zQHRf2z+240UsrrPXg==
   dependencies:
     "@babel/runtime" "^7.11.2"
     "@mediapipe/tasks-vision" "0.10.8"
@@ -1874,9 +1874,9 @@
     zustand "^3.7.1"
 
 "@react-three/fiber@^8.15.16":
-  version "8.15.16"
-  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.15.16.tgz#eadaa9432dd55a7d7334c42880470c7ac3c30e83"
-  integrity sha512-4f47K9e2mP8W/guNtu3e2J/Nt6GwKTsX/YP2dktPZRcpHYEsqfXCO8kSfvVMb+lQ8wR0HoFzggqdnGuhZaui0g==
+  version "8.15.19"
+  resolved "https://registry.yarnpkg.com/@react-three/fiber/-/fiber-8.15.19.tgz#7b0ebf204e67c46a7028bc2ad197133b3b808c4a"
+  integrity sha512-WbFU7T6485v8Onnp+JJnrzKFvvGP7OFyJmHlqXiXc2RcXl9Sax+ykJxiNwEXWjGjcgF9/KTfv0+pAVkP0vZlKg==
   dependencies:
     "@babel/runtime" "^7.17.8"
     "@types/react-reconciler" "^0.26.7"
@@ -2569,10 +2569,10 @@
   resolved "https://registry.yarnpkg.com/@ungap/structured-clone/-/structured-clone-1.2.0.tgz#756641adb587851b5ccb3e095daf27ae581c8406"
   integrity sha512-zuVdFrMJiuCDQUMCzQaD6KL28MjnqqN8XnAqiEq9PNm/hCPTSGfrXCOfwj1ow4LFb/tNymJPwsNbVePc1xFqrQ==
 
-"@urql/core@>=4.2.0", "@urql/core@^4.2.0":
-  version "4.2.3"
-  resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.2.3.tgz#f956e8a33c4bd055c0c5151491843dd46d737f0f"
-  integrity sha512-DJ9q9+lcs5JL8DcU2J3NqsgeXYJva+1+Qt8HU94kzTPqVOIRRA7ouvy4ksUfPY+B5G2PQ+vLh+JJGyZCNXv0cg==
+"@urql/core@>=4.3.0", "@urql/core@^4.2.0":
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/@urql/core/-/core-4.3.0.tgz#5e150412ed08d167861b05ceed417abbd048553f"
+  integrity sha512-wT+FeL8DG4x5o6RfHEnONNFVDM3616ouzATMYUClB6CB+iIu2mwfBKd7xSUxYOZmwtxna5/hDRQdMl3nbQZlnw==
   dependencies:
     "@0no-co/graphql.web" "^1.0.1"
     wonka "^6.3.2"
@@ -2584,13 +2584,13 @@
   dependencies:
     wonka ">= 4.0.9"
 
-"@urql/exchange-graphcache@6.4.1":
-  version "6.4.1"
-  resolved "https://registry.yarnpkg.com/@urql/exchange-graphcache/-/exchange-graphcache-6.4.1.tgz#56c705979cd56abe9ce3ced5a708fd1063134720"
-  integrity sha512-hWa4/5B7Op93oA6yWvffPU3L0XH55tlluEaq6aoFE9zsiNhktFjhp/SU2CKvSD8iD0Tfreoo63drv64Ad0+Gxw==
+"@urql/exchange-graphcache@6.5.0":
+  version "6.5.0"
+  resolved "https://registry.yarnpkg.com/@urql/exchange-graphcache/-/exchange-graphcache-6.5.0.tgz#718cdc421bbfbcfa661c53acb8d288e58ddd27be"
+  integrity sha512-+eR9ErKwmmrBjPXgV6TJqAAxmIcuc87s8dbMv962xsRzmyDI6lTDZ5FfGwJs3Jl6LEPEWx40en8/Qm8awK03LA==
   dependencies:
     "@0no-co/graphql.web" "^1.0.1"
-    "@urql/core" ">=4.2.0"
+    "@urql/core" ">=4.3.0"
     wonka "^6.3.2"
 
 "@urql/introspection@1.0.3":
@@ -7657,9 +7657,9 @@ three-mesh-bvh@^0.7.0:
   integrity sha512-3W6KjzmupjfE89GuHPT31kxKWZ4YGZPEZJNysJpiOZfQRsBQQgmK7v/VJPpjG6syhAvTnY+5Fr77EvIkTLpGSw==
 
 three-stdlib@^2.29.4:
-  version "2.29.4"
-  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.29.4.tgz#6e8741f6a2d435d15ed73f3a14dd149660d4ce51"
-  integrity sha512-XNzGCrz/uAk9XoLwd35eN7dQyI4ggXZTeqjcN034YdYBpBlNO9kmLHehl/0Nw9jCelblB7jla+unHAOIyLyV6Q==
+  version "2.29.5"
+  resolved "https://registry.yarnpkg.com/three-stdlib/-/three-stdlib-2.29.5.tgz#94e8d15c1b6ffe548908718f3a885e62d045032d"
+  integrity sha512-p9IQsH7gT9wVqAuMsimX2JTtEoCGHlwgm3HsAeXwWqP/PWV9DjYldbggLCr0B1TMzofi/58GG1X5KTQnG6ijpw==
   dependencies:
     "@types/draco3d" "^1.4.0"
     "@types/offscreencanvas" "^2019.6.4"
@@ -8564,9 +8564,9 @@ zustand@^3.7.1:
   integrity sha512-PIJDIZKtokhof+9+60cpockVOq05sJzHCriyvaLBmEJixseQ1a5Kdov6fWZfWOu5SK9c+FhH1jU0tntLxRJYMA==
 
 zustand@^4.3.2:
-  version "4.5.1"
-  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.1.tgz#2088956ee454759fb8b866ca335a2373e76736c5"
-  integrity sha512-XlauQmH64xXSC1qGYNv00ODaQ3B+tNPoy22jv2diYiP4eoDKr9LA+Bh5Bc3gplTrFdb6JVI+N4kc1DZ/tbtfPg==
+  version "4.5.2"
+  resolved "https://registry.yarnpkg.com/zustand/-/zustand-4.5.2.tgz#fddbe7cac1e71d45413b3682cdb47b48034c3848"
+  integrity sha512-2cN1tPkDVkwCy5ickKrI7vijSjPksFRfqS6237NzT0vqSsztTNnQdHw9mmN7uBdk3gceVXU0a+21jFzFzAc9+g==
   dependencies:
     use-sync-external-store "1.2.0"
 

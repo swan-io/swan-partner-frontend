@@ -14,7 +14,10 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult, parseOperationResult } from "@swan-io/lake/src/utils/urql";
-import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
+import {
+  AddressDetail,
+  PlacekitAddressSearchInput,
+} from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
@@ -131,57 +134,55 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .otherwise(() => false);
 
-  const { Field, FieldsListener, submitForm, setFieldValue, listenFields, setFieldError } = useForm(
-    {
-      isRegistered: {
-        initialValue: initialIsRegistered,
-        validate: validateRequiredBoolean,
-      },
-      name: {
-        initialValue: initialName,
-        validate: validateRequired,
-        sanitize: value => value.trim(),
-      },
-      registrationNumber: {
-        initialValue: initialRegistrationNumber,
-        validate: (value, { getFieldState }) => {
-          const isRegistered = getFieldState("isRegistered").value;
-          return isRegistered === true ? validateRequired(value) : undefined;
-        },
-        sanitize: value => value.trim(),
-      },
-      vatNumber: {
-        initialValue: initialVatNumber,
-        validate: validateVatNumber,
-        sanitize: value => value.trim(),
-      },
-      taxIdentificationNumber: {
-        initialValue: initialTaxIdentificationNumber,
-        validate: canSetTaxIdentification
-          ? combineValidators(
-              isTaxIdentificationRequired && validateRequired,
-              validateCompanyTaxNumber(accountCountry),
-            )
-          : undefined,
-        sanitize: value => value.trim(),
-      },
-      address: {
-        initialValue: initialAddressLine1,
-        validate: validateRequired,
-        sanitize: value => value.trim(),
-      },
-      city: {
-        initialValue: initialCity,
-        validate: validateRequired,
-        sanitize: value => value.trim(),
-      },
-      postalCode: {
-        initialValue: initialPostalCode,
-        validate: validateRequired,
-        sanitize: value => value.trim(),
-      },
+  const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
+    isRegistered: {
+      initialValue: initialIsRegistered,
+      validate: validateRequiredBoolean,
     },
-  );
+    name: {
+      initialValue: initialName,
+      validate: validateRequired,
+      sanitize: value => value.trim(),
+    },
+    registrationNumber: {
+      initialValue: initialRegistrationNumber,
+      validate: (value, { getFieldState }) => {
+        const isRegistered = getFieldState("isRegistered").value;
+        return isRegistered === true ? validateRequired(value) : undefined;
+      },
+      sanitize: value => value.trim(),
+    },
+    vatNumber: {
+      initialValue: initialVatNumber,
+      validate: validateVatNumber,
+      sanitize: value => value.trim(),
+    },
+    taxIdentificationNumber: {
+      initialValue: initialTaxIdentificationNumber,
+      validate: canSetTaxIdentification
+        ? combineValidators(
+            isTaxIdentificationRequired && validateRequired,
+            validateCompanyTaxNumber(accountCountry),
+          )
+        : undefined,
+      sanitize: value => value.trim(),
+    },
+    address: {
+      initialValue: initialAddressLine1,
+      validate: validateRequired,
+      sanitize: value => value.trim(),
+    },
+    city: {
+      initialValue: initialCity,
+      validate: validateRequired,
+      sanitize: value => value.trim(),
+    },
+    postalCode: {
+      initialValue: initialPostalCode,
+      validate: validateRequired,
+      sanitize: value => value.trim(),
+    },
+  });
 
   useEffect(() => {
     if (isFirstMount) {
@@ -310,11 +311,22 @@ export const OnboardingCompanyOrganisation1 = ({
     .with("SelfEmployed", () => selfEmployedRegisterNamePerCountry[country])
     .otherwise(() => registerNamePerCountry[country]);
 
+  const onSuggestion = useCallback(
+    (place: AddressDetail) => {
+      setFieldValue("address", place.completeAddress);
+      setFieldValue("city", place.city);
+      if (place.postalCode != null) {
+        setFieldValue("postalCode", place.postalCode);
+      }
+    },
+    [setFieldValue],
+  );
+
   return (
     <>
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
-          {({ small, large }) => (
+          {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.organisation1.title")}</StepTitle>
               <Space height={small ? 24 : 32} />
@@ -489,18 +501,68 @@ export const OnboardingCompanyOrganisation1 = ({
               <Space height={small ? 24 : 32} />
 
               <Tile>
-                <AddressFormPart
-                  initialAddress={initialAddressLine1}
-                  initialCity={initialCity}
-                  initialPostalCode={initialPostalCode}
-                  country={country}
-                  label={t("company.step.organisation1.addressLabel")}
-                  Field={Field}
-                  setFieldValue={setFieldValue}
-                  listenFields={listenFields}
-                  isLarge={large}
-                  apiKey={env.PLACEKIT_API_KEY}
-                />
+                <Field name="address">
+                  {({ ref, value, onChange, error }) => (
+                    <LakeLabel
+                      label={t("company.step.organisation1.addressLabel")}
+                      render={id => (
+                        <PlacekitAddressSearchInput
+                          inputRef={ref}
+                          apiKey={env.PLACEKIT_API_KEY}
+                          emptyResultText={t("common.noResult")}
+                          placeholder={t("company.step.organisation1.addressPlaceholder")}
+                          language={locale.language}
+                          id={id}
+                          country={country}
+                          value={value}
+                          error={error}
+                          onValueChange={onChange}
+                          onSuggestion={onSuggestion}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+
+                <Space height={12} />
+
+                <Field name="city">
+                  {({ ref, value, valid, error, onChange }) => (
+                    <LakeLabel
+                      label={t("company.step.organisation1.cityLabel")}
+                      render={id => (
+                        <LakeTextInput
+                          ref={ref}
+                          id={id}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+
+                <Space height={12} />
+
+                <Field name="postalCode">
+                  {({ ref, value, valid, error, onChange }) => (
+                    <LakeLabel
+                      label={t("company.step.organisation1.postCodeLabel")}
+                      render={id => (
+                        <LakeTextInput
+                          ref={ref}
+                          id={id}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
               </Tile>
             </>
           )}

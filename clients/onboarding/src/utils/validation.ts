@@ -1,7 +1,7 @@
 import { Array, Option } from "@swan-io/boxed";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
-import { Validator } from "react-ux-form";
+import { Validator } from "@swan-io/use-form";
 import { match } from "ts-pattern";
 import {
   OnboardingInvalidInfoFragment,

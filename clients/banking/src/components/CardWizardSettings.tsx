@@ -76,7 +76,6 @@ const styles = StyleSheet.create({
     zIndex: 1,
   },
   sliderContainerLarge: {
-    marginTop: negativeSpacings[48],
     zIndex: 1,
   },
   item: {
@@ -89,6 +88,14 @@ const styles = StyleSheet.create({
   description: {
     width: 1,
     flexGrow: 1,
+  },
+  sliderInput: {
+    marginTop: negativeSpacings[40],
+  },
+  input: {
+    maxWidth: 120,
+    zIndex: 1,
+    position: "relative",
   },
 });
 
@@ -373,23 +380,68 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                 {cardFormat !== "SingleUseVirtual" ? (
                   <Tile title={large ? t("card.settings.spendingLimit") : undefined}>
                     <View style={large ? styles.sliderContainerLarge : styles.sliderContainer}>
-                      <LakeSlider
+                      <LakeLabel
                         label={t("card.settings.spendingLimit")}
-                        value={Number(currentSettings.spendingLimit.amount.value)}
-                        min={0}
-                        max={spendingLimitMaxValue}
-                        step={1}
-                        unit="€"
-                        disabled={!canManageCards}
-                        onChange={value =>
-                          setCurrentSettings(settings => ({
-                            ...settings,
-                            spendingLimit: {
-                              ...settings.spendingLimit,
-                              amount: { ...settings.spendingLimit.amount, value: String(value) },
-                            },
-                          }))
-                        }
+                        render={id => (
+                          <ResponsiveContainer
+                            breakpoint={breakpoints.tiny}
+                            style={styles.container}
+                          >
+                            {({ large }) =>
+                              large ? (
+                                <>
+                                  <Box
+                                    direction="row"
+                                    justifyContent="end"
+                                    style={styles.sliderInput}
+                                  >
+                                    <View>
+                                      <LakeTextInput
+                                        style={styles.input}
+                                        unit={"€"}
+                                        value={dirtyValue}
+                                        onChangeText={setDirtyValue}
+                                        onBlur={sanitizeInput}
+                                        inputMode="decimal"
+                                        disabled={!canManageCards}
+                                      />
+                                    </View>
+                                  </Box>
+
+                                  <LakeSlider
+                                    value={Number(currentSettings.spendingLimit.amount.value)}
+                                    min={0}
+                                    max={spendingLimitMaxValue}
+                                    step={1}
+                                    disabled={!canManageCards}
+                                    onChange={value =>
+                                      setCurrentSettings(settings => ({
+                                        ...settings,
+                                        spendingLimit: {
+                                          ...settings.spendingLimit,
+                                          amount: {
+                                            ...settings.spendingLimit.amount,
+                                            value: String(value),
+                                          },
+                                        },
+                                      }))
+                                    }
+                                  />
+                                </>
+                              ) : (
+                                <LakeTextInput
+                                  id={id}
+                                  unit={"€"}
+                                  value={dirtyValue}
+                                  onChangeText={setDirtyValue}
+                                  onBlur={sanitizeInput}
+                                  inputMode="decimal"
+                                  disabled={!canManageCards}
+                                />
+                              )
+                            }
+                          </ResponsiveContainer>
+                        )}
                       />
                     </View>
 

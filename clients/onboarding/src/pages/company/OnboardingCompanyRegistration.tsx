@@ -18,9 +18,12 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
-import { AddressFormPart } from "@swan-io/shared-business/src/components/AddressFormPart";
+import {
+  AddressDetail,
+  PlacekitAddressSearchInput,
+} from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
@@ -112,42 +115,40 @@ export const OnboardingCompanyRegistration = ({
     .with("DEU", "NLD", () => true)
     .otherwise(() => false);
 
-  const { Field, submitForm, setFieldValue, setFieldError, FieldsListener, listenFields } = useForm(
-    {
-      email: {
-        initialValue: initialEmail,
-        validate: combineValidators(validateRequired, validateEmail),
-        sanitize: value => value.trim(),
-      },
-      address: {
-        initialValue: initialAddressLine1,
-        validate: isAddressRequired ? validateRequired : undefined,
-        sanitize: value => value.trim(),
-      },
-      city: {
-        initialValue: initialCity,
-        validate: isAddressRequired ? validateRequired : undefined,
-        sanitize: value => value.trim(),
-      },
-      postalCode: {
-        initialValue: initialPostalCode,
-        validate: isAddressRequired ? validateRequired : undefined,
-        sanitize: value => value.trim(),
-      },
-      country: {
-        initialValue: initialCountry,
-        validate: isAddressRequired ? validateRequired : undefined,
-      },
-      tcuAccepted: {
-        initialValue: !haveToAcceptTcu, // initialize as accepted if not required
-        validate: value => {
-          if (value === false) {
-            return t("step.finalize.termsError");
-          }
-        },
+  const { Field, submitForm, setFieldValue, setFieldError, FieldsListener } = useForm({
+    email: {
+      initialValue: initialEmail,
+      validate: combineValidators(validateRequired, validateEmail),
+      sanitize: value => value.trim(),
+    },
+    address: {
+      initialValue: initialAddressLine1,
+      validate: isAddressRequired ? validateRequired : undefined,
+      sanitize: value => value.trim(),
+    },
+    city: {
+      initialValue: initialCity,
+      validate: isAddressRequired ? validateRequired : undefined,
+      sanitize: value => value.trim(),
+    },
+    postalCode: {
+      initialValue: initialPostalCode,
+      validate: isAddressRequired ? validateRequired : undefined,
+      sanitize: value => value.trim(),
+    },
+    country: {
+      initialValue: initialCountry,
+      validate: isAddressRequired ? validateRequired : undefined,
+    },
+    tcuAccepted: {
+      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      validate: value => {
+        if (value === false) {
+          return t("step.finalize.termsError");
+        }
       },
     },
-  );
+  });
 
   useEffect(() => {
     if (isFirstMount) {
@@ -232,11 +233,22 @@ export const OnboardingCompanyRegistration = ({
     });
   };
 
+  const onSuggestion = useCallback(
+    (place: AddressDetail) => {
+      setFieldValue("address", place.completeAddress);
+      setFieldValue("city", place.city);
+      if (place.postalCode != null) {
+        setFieldValue("postalCode", place.postalCode);
+      }
+    },
+    [setFieldValue],
+  );
+
   return (
     <>
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
-          {({ small, large }) => (
+          {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.registration.title")}</StepTitle>
               <Space height={small ? 8 : 12} />
@@ -292,20 +304,75 @@ export const OnboardingCompanyRegistration = ({
 
                     <FieldsListener names={["country"]}>
                       {({ country }) => (
-                        <AddressFormPart
-                          initialAddress={initialAddressLine1}
-                          initialCity={initialCity}
-                          initialPostalCode={initialPostalCode}
-                          country={country.value}
-                          label={t("company.step.registration.searchAddressLabel")}
-                          optionalLabel={t("company.step.registration.searchAddressLabelDetail")}
-                          placeholder={t("company.step.registration.searchAddressPlaceholder")}
-                          Field={Field}
-                          setFieldValue={setFieldValue}
-                          listenFields={listenFields}
-                          isLarge={large}
-                          apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                        />
+                        <>
+                          <Field name="address">
+                            {({ ref, value, onChange, error }) => (
+                              <LakeLabel
+                                label={t("company.step.registration.searchAddressLabel")}
+                                optionalLabel={t(
+                                  "company.step.registration.searchAddressLabelDetail",
+                                )}
+                                render={id => (
+                                  <PlacekitAddressSearchInput
+                                    inputRef={ref}
+                                    apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                                    emptyResultText={t("common.noResult")}
+                                    placeholder={t(
+                                      "company.step.registration.searchAddressPlaceholder",
+                                    )}
+                                    language={locale.language}
+                                    id={id}
+                                    country={country.value}
+                                    value={value}
+                                    error={error}
+                                    onValueChange={onChange}
+                                    onSuggestion={onSuggestion}
+                                  />
+                                )}
+                              />
+                            )}
+                          </Field>
+
+                          <Space height={12} />
+
+                          <Field name="city">
+                            {({ ref, value, valid, error, onChange }) => (
+                              <LakeLabel
+                                label={t("company.step.registration.cityLabel")}
+                                render={id => (
+                                  <LakeTextInput
+                                    ref={ref}
+                                    id={id}
+                                    value={value}
+                                    valid={valid}
+                                    error={error}
+                                    onChangeText={onChange}
+                                  />
+                                )}
+                              />
+                            )}
+                          </Field>
+
+                          <Space height={12} />
+
+                          <Field name="postalCode">
+                            {({ ref, value, valid, error, onChange }) => (
+                              <LakeLabel
+                                label={t("company.step.registration.postalCodeLabel")}
+                                render={id => (
+                                  <LakeTextInput
+                                    ref={ref}
+                                    id={id}
+                                    value={value}
+                                    valid={valid}
+                                    error={error}
+                                    onChangeText={onChange}
+                                  />
+                                )}
+                              />
+                            )}
+                          </Field>
+                        </>
                       )}
                     </FieldsListener>
                   </Tile>

@@ -1,8 +1,8 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
+import { Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
-import { Validator } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { locale, t } from "./i18n";
 

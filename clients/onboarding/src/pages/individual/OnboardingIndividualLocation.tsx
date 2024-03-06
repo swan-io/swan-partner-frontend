@@ -1,4 +1,3 @@
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -6,12 +5,10 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
@@ -23,7 +20,6 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import { UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
-import { env } from "../../utils/env";
 import { locale, t } from "../../utils/i18n";
 import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -59,13 +55,6 @@ export const OnboardingIndividualLocation = ({
   const [updateResult, updateOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
-  const [manualModeEnabled, setManualMode] = useBoolean(
-    initialAddressLine1 !== "" ||
-      initialCity !== "" ||
-      initialPostalCode !== "" ||
-      isNullish(env.PLACEKIT_API_KEY),
-  );
-
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
       initialValue: initialAddressLine1,
@@ -90,15 +79,12 @@ export const OnboardingIndividualLocation = ({
 
   useEffect(() => {
     if (isFirstMount) {
-      if (serverValidationErrors.length > 0) {
-        setManualMode.on();
-      }
       serverValidationErrors.forEach(({ fieldName, code }) => {
         const message = getValidationErrorMessage(code);
         setFieldError(fieldName, message);
       });
     }
-  }, [serverValidationErrors, isFirstMount, setFieldError, setManualMode]);
+  }, [serverValidationErrors, isFirstMount, setFieldError]);
 
   const onPressPrevious = () => {
     Router.push("Email", { onboardingId });
@@ -107,12 +93,6 @@ export const OnboardingIndividualLocation = ({
   const onPressNext = () => {
     // If we submit the form and the manual mode is disabled
     // we enable it to show the errors
-    if (!manualModeEnabled) {
-      setManualMode.on();
-      setFieldError("address", t("error.requiredField"));
-      setFieldError("city", t("error.requiredField"));
-      setFieldError("postalCode", t("error.requiredField"));
-    }
 
     submitForm(values => {
       if (hasDefinedKeys(values, ["address", "city", "postalCode", "country"])) {
@@ -166,7 +146,7 @@ export const OnboardingIndividualLocation = ({
     <>
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
-          {({ small, large }) => (
+          {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("individual.step.location.title")}</StepTitle>
               <Space height={small ? 24 : 32} />
@@ -195,7 +175,6 @@ export const OnboardingIndividualLocation = ({
                           label={t("individual.step.location.addressLabel")}
                           render={id => (
                             <PlacekitAddressSearchInput
-                              shouldDisplaySuggestions={!manualModeEnabled}
                               id={id}
                               apiKey={__env.CLIENT_PLACEKIT_API_KEY}
                               country={country.value}
@@ -205,7 +184,6 @@ export const OnboardingIndividualLocation = ({
                                 setFieldValue("address", suggestion.completeAddress);
                                 setFieldValue("city", suggestion.city);
                                 setFieldValue("postalCode", suggestion.postalCode ?? "");
-                                setManualMode.on();
                               }}
                               language={locale.language}
                               placeholder={t("addressInput.placeholder")}
@@ -213,68 +191,51 @@ export const OnboardingIndividualLocation = ({
                               error={error}
                             />
                           )}
-                          actions={
-                            !manualModeEnabled && large ? (
-                              <LakeButton mode="secondary" size="small" onPress={setManualMode.on}>
-                                {t("addressInput.button")}
-                              </LakeButton>
-                            ) : null
-                          }
                         />
                       )}
                     </Field>
                   )}
                 </FieldsListener>
 
-                {!manualModeEnabled && small ? (
-                  <LakeButton mode="secondary" size="small" onPress={setManualMode.on}>
-                    {t("addressInput.button")}
-                  </LakeButton>
-                ) : null}
+                <Space height={12} />
 
-                {manualModeEnabled ? (
-                  <>
-                    <Space height={12} />
-
-                    <Field name="city">
-                      {({ value, valid, error, onChange, ref }) => (
-                        <LakeLabel
-                          label={t("individual.step.location.cityLabel")}
-                          render={id => (
-                            <LakeTextInput
-                              id={id}
-                              ref={ref}
-                              value={value}
-                              valid={valid}
-                              error={error}
-                              onChangeText={onChange}
-                            />
-                          )}
+                <Field name="city">
+                  {({ value, valid, error, onChange, ref }) => (
+                    <LakeLabel
+                      label={t("individual.step.location.cityLabel")}
+                      render={id => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
                         />
                       )}
-                    </Field>
+                    />
+                  )}
+                </Field>
 
-                    <Space height={12} />
+                <Space height={12} />
 
-                    <Field name="postalCode">
-                      {({ value, valid, error, onChange, ref }) => (
-                        <LakeLabel
-                          label={t("individual.step.location.postCodeLabel")}
-                          render={id => (
-                            <LakeTextInput
-                              id={id}
-                              ref={ref}
-                              value={value}
-                              valid={valid}
-                              error={error}
-                              onChangeText={onChange}
-                            />
-                          )}
+                <Field name="postalCode">
+                  {({ value, valid, error, onChange, ref }) => (
+                    <LakeLabel
+                      label={t("individual.step.location.postCodeLabel")}
+                      render={id => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
                         />
                       )}
-                    </Field>
-                  </>
-                ) : null}
+                    />
+                  )}
+                </Field>
               </Tile>
             </>
           )}

@@ -2101,7 +2101,7 @@
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
 
-"@swan-io/boxed@2.0.1", "@swan-io/boxed@^2.0.1":
+"@swan-io/boxed@2.0.1", "@swan-io/boxed@^2.0.0", "@swan-io/boxed@^2.0.1":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.0.1.tgz#7b71f6beeae378ecba7d96766f2595f9e48dc76a"
   integrity sha512-Jc6PSzygUqMVlqpm4sYlFDz2CFs3gs98Qi1LBGuvb1oo6232ZVcknhcdxI3XORT0GnsMuKpsfMmvday8iU2lJw==
@@ -2115,16 +2115,17 @@
     history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@4.10.1":
-  version "4.10.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-4.10.1.tgz#d046da5017d30eac8409ec913b07ddfa2fe8f3f3"
-  integrity sha512-tgpbUEYEVvaqJCXQ9Cw2+gBK2gaH6mE6QaKDf3a5d2ns+apOUBfOFXnmmwZkJVVMntcLn4De/B1DQHAF1igiYg==
+"@swan-io/lake@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-5.0.0.tgz#bc8677b5edda40292a8fc27d61bd3237a2f1b601"
+  integrity sha512-M3BgJvslJOlcLjBARKhiJ+7Zvx96mlNNJ0ueMyFEFcrJnFARSxEWfP+Mr4eGDjw+hwqzByp5eflRor/u0XyuYw==
   dependencies:
     "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.99.4"
     "@react-three/fiber" "^8.15.16"
     "@swan-io/boxed" "^2.0.1"
     "@swan-io/chicane" "^1.4.1"
+    "@swan-io/use-form" "^2.0.0-rc.2"
     dayjs "^1.11.10"
     polished "^4.3.1"
     prism-react-renderer "^2.3.1"
@@ -2133,7 +2134,6 @@
     react-dom "^18.2.0"
     react-native-web "^0.19.10"
     react-popper "^2.3.0"
-    react-ux-form "^1.5.0"
     rifm "^0.12.1"
     three "^0.161.0"
     ts-dedent "^2.2.0"
@@ -2141,14 +2141,15 @@
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@4.10.1":
-  version "4.10.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-4.10.1.tgz#2fd62d0ad5d7c4fe018d98b22c7e9ecd0eb4bf0a"
-  integrity sha512-eZW8hjxFm8ouc0lB/noz0k7mutQFq559e7CAWCgMwmlzhIFHgOG2owVV02ZFINCHcUqROV8CKJO8OlKzxfM60w==
+"@swan-io/shared-business@5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-5.0.0.tgz#4324f64201839a584e7f00208fcb45a9ee344b0d"
+  integrity sha512-stCPPt/UyVoFxYsWeX7qJk9FP8H6iD+SDrqOpSUzeGYhRHlxyn/hkADFTtgYsAbVXGWG2mxc9LiCq60trt97pQ==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@placekit/client-js" "^2.3.0"
     "@swan-io/boxed" "^2.0.1"
+    "@swan-io/use-form" "^2.0.0-rc.2"
     dayjs "^1.11.10"
     iban "^0.0.14"
     react "^18.2.0"
@@ -2156,11 +2157,17 @@
     react-dom "^18.2.0"
     react-dropzone "^14.2.3"
     react-native-web "^0.19.10"
-    react-ux-form "^1.5.0"
     rifm "^0.12.1"
     ts-pattern "^5.0.8"
     urql "^4.0.6"
     uuid "^9.0.1"
+
+"@swan-io/use-form@2.0.0-rc.2", "@swan-io/use-form@^2.0.0-rc.2":
+  version "2.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.0-rc.2.tgz#8e7aad0257e16df2bbf5603f5e16b14820e399ee"
+  integrity sha512-F7uX/7dSbPgO4PhOk5IRKIIrKfSv7WcBRFd4UKaYrrFhvJbNg8pojNI2H8/1H8SyYwp8gCMJ3AcDUmuzovpJNg==
+  dependencies:
+    "@swan-io/boxed" "^2.0.0"
 
 "@swc/core-darwin-arm64@1.4.2":
   version "1.4.2"
@@ -6839,7 +6846,7 @@ react-use-measure@^2.1.1:
   dependencies:
     debounce "^1.2.1"
 
-react-ux-form@1.5.0, react-ux-form@^1.5.0:
+react-ux-form@1.5.0:
   version "1.5.0"
   resolved "https://registry.yarnpkg.com/react-ux-form/-/react-ux-form-1.5.0.tgz#a00a2fb903fa532dd8a868228261dbe991cf0b53"
   integrity sha512-hUOmgcFXWqHYFDuKCuyEgQSh63KujFHjAEAKpanYa5lWfhO2JKlLqORnGyRpvw5wc+xIAJ/67KKauv2pbswxww==

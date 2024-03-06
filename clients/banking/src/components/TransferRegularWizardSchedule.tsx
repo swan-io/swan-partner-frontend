@@ -74,7 +74,7 @@ export const TransferRegularWizardSchedule = ({
     {
       query: GetIbanValidationDocument,
       variables: {
-        iban: beneficiary.iban,
+        iban: beneficiary.iban.replaceAll(" ", ""),
       },
     },
     [beneficiary.iban],

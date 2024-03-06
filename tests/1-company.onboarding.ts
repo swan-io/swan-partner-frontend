@@ -124,12 +124,12 @@ test("French company onboarding", async ({ browser, page, request }) => {
     page.getByLabel(t("onboarding.company.step.organisation1.addressLabel")),
   ).toHaveValue("95 AV DU PRESIDENT WILSON");
 
-  await expect(page.getByLabel(t("onboarding.individual.step.location.cityLabel"))).toHaveValue(
+  await expect(page.getByLabel(t("onboarding.company.step.registration.cityLabel"))).toHaveValue(
     "MONTREUIL",
   );
-  await expect(page.getByLabel(t("onboarding.individual.step.location.postCodeLabel"))).toHaveValue(
-    "93100",
-  );
+  await expect(
+    page.getByLabel(t("onboarding.company.step.registration.postalCodeLabel")),
+  ).toHaveValue("93100");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
@@ -204,8 +204,8 @@ test("German company onboarding", async ({ browser, page, request }) => {
   await page
     .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
     .fill("Pariser Platz 5");
-  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Berlin");
-  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("10117");
+  await page.getByLabel(t("onboarding.company.step.registration.cityLabel")).fill("Berlin");
+  await page.getByLabel(t("onboarding.company.step.registration.postalCodeLabel")).fill("10117");
 
   await page.getByRole("checkbox").click({ position: { x: 0, y: 0 } });
 
@@ -323,8 +323,8 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
   await page
     .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
     .fill("C/ de Mallorca, 401");
-  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Barcelona");
-  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("08013");
+  await page.getByLabel(t("onboarding.company.step.registration.cityLabel")).fill("Barcelona");
+  await page.getByLabel(t("onboarding.company.step.registration.postalCodeLabel")).fill("08013");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
@@ -429,8 +429,8 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
   await page
     .getByLabel(t("onboarding.company.step.registration.searchAddressLabel"))
     .fill("Anna Paulownastraat 76");
-  await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
-  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
+  await page.getByLabel(t("onboarding.company.step.registration.cityLabel")).fill("Den Haag");
+  await page.getByLabel(t("onboarding.company.step.registration.postalCodeLabel")).fill("2518 BJ");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
@@ -446,7 +446,7 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
     .getByLabel(t("onboarding.company.step.organisation1.addressLabel"))
     .fill("Anna Paulownastraat 76");
   await page.getByLabel(t("onboarding.individual.step.location.cityLabel")).fill("Den Haag");
-  await page.getByLabel(t("onboarding.individual.step.location.postCodeLabel")).fill("2518 BJ");
+  await page.getByLabel(t("onboarding.individual.step")).fill("2518 BJ");
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

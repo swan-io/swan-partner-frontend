@@ -16,15 +16,8 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
-import {
-  BeneficiaryForm,
-  BeneficiaryFormRef,
-  EditorState as BeneficiaryFormState,
-  BeneficiaryFormStep,
-  validateUbo,
-} from "@swan-io/shared-business/src/components/BeneficiaryForm";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
@@ -49,9 +42,17 @@ import {
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { TranslationKey, locale, t } from "../../utils/i18n";
-import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
+import {
+  BeneficiaryFormStep,
+  Input,
+  OnboardingCompanyOwnershipBeneficiaryForm,
+  OnboardingCompanyOwnershipBeneficiaryFormRef,
+  REFERENCE_SYMBOL,
+  SaveValue,
+  validateUbo,
+} from "./ownership-beneficiary/OnboardingCompanyOwnershipBeneficiaryForm";
 
 const styles = StyleSheet.create({
   uboInfo: {
@@ -91,7 +92,7 @@ type PageState =
     }
   | {
       type: "edit";
-      ubo: BeneficiaryFormState;
+      ubo: SaveValue;
       step: BeneficiaryFormStep;
       withAddressPart: boolean;
     };
@@ -106,7 +107,7 @@ type Props = {
   ubos: UboFragment[];
 };
 
-type LocalStateUbo = BeneficiaryFormState & {
+type LocalStateUbo = SaveValue & {
   errors: ReturnType<typeof validateUbo>;
 };
 
@@ -133,16 +134,18 @@ const convertFetchUboToInput = (
     )
     .otherwise(() => ({}));
 
+  const birthCountryCode = isCountryCCA3(fetchedUbo.birthCountryCode)
+    ? fetchedUbo.birthCountryCode
+    : isCountryCCA2(fetchedUbo.birthCountryCode)
+      ? getCCA3forCCA2(fetchedUbo.birthCountryCode) ?? accountCountry
+      : accountCountry;
+
   const ubo = {
-    reference: uuid(),
+    [REFERENCE_SYMBOL]: uuid(),
     type: fetchedUbo.info.type,
     firstName: fetchedUbo.firstName ?? "",
     lastName: fetchedUbo.lastName ?? "",
-    birthCountryCode: isCountryCCA3(fetchedUbo.birthCountryCode)
-      ? fetchedUbo.birthCountryCode
-      : isCountryCCA2(fetchedUbo.birthCountryCode)
-        ? getCCA3forCCA2(fetchedUbo.birthCountryCode)
-        : undefined,
+    birthCountryCode,
     birthCity: fetchedUbo.birthCity ?? "",
     birthCityPostalCode: fetchedUbo.birthCityPostalCode ?? "",
     // Slice to remove the time part because the backend sends a DateTime instead of a Date
@@ -151,12 +154,12 @@ const convertFetchUboToInput = (
     direct: direct ?? false,
     indirect: indirect ?? false,
     totalCapitalPercentage: totalCapitalPercentage ?? undefined,
-    residencyAddressLine1: fetchedUbo.residencyAddress?.addressLine1,
-    residencyAddressCity: fetchedUbo.residencyAddress?.city,
-    residencyAddressCountry: fetchedUbo.residencyAddress?.country,
-    residencyAddressPostalCode: fetchedUbo.residencyAddress?.postalCode,
+    residencyAddressLine1: fetchedUbo.residencyAddress?.addressLine1 ?? "",
+    residencyAddressCity: fetchedUbo.residencyAddress?.city ?? "",
+    residencyAddressCountry: fetchedUbo.residencyAddress?.country as CountryCCA3,
+    residencyAddressPostalCode: fetchedUbo.residencyAddress?.postalCode ?? "",
     taxIdentificationNumber: fetchedUbo.taxIdentificationNumber ?? undefined,
-  } satisfies BeneficiaryFormState;
+  } satisfies Partial<Input>;
 
   const errors = validateUbo(ubo, accountCountry);
 
@@ -170,11 +173,7 @@ const isUboInvalid = (ubo: LocalStateUbo) => {
   return Object.values(ubo.errors).some(error => error != null);
 };
 
-const formatUboMainInfo = (
-  ubo: BeneficiaryFormState,
-  companyName: string,
-  country: CountryCCA3,
-) => {
+const formatUboMainInfo = (ubo: SaveValue, companyName: string, country: CountryCCA3) => {
   const key = match(ubo)
     .returnType<TranslationKey>()
     .with({ type: P.nullish }, () => "ownersPage.other")
@@ -228,7 +227,7 @@ type UboTileProps = {
 const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: UboTileProps) => {
   return (
     <Tile
-      key={ubo.reference}
+      key={ubo[REFERENCE_SYMBOL]}
       style={[styles.uboTile, isUboInvalid(ubo) && shakeError && animations.shake.enter]}
     >
       <ResponsiveContainer breakpoint={400}>
@@ -349,7 +348,7 @@ export const OnboardingCompanyOwnership = ({
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
   const [showConfirmNoUboModal, setShowConfirmNoUboModal] = useBoolean(false);
-  const beneficiaryFormRef = useRef<BeneficiaryFormRef>();
+  const beneficiaryFormRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormRef>(null);
 
   const withAddressPart = match(accountCountry)
     .with("DEU", "ESP", () => true)
@@ -365,7 +364,7 @@ export const OnboardingCompanyOwnership = ({
   }, [shakeError, setShakeError]);
 
   const openNewUbo = () => {
-    setPageState({ type: "add", step: "common", withAddressPart });
+    setPageState({ type: "add", step: "Common", withAddressPart });
   };
 
   const resetPageState = () => {
@@ -379,16 +378,16 @@ export const OnboardingCompanyOwnership = ({
     }));
   };
 
-  const addUbo = (newUbo: BeneficiaryFormState) => {
+  const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
     setEditableUbos(ubos => [...ubos, { ...newUbo, errors: {} }]);
     resetPageState();
   };
 
-  const updateUbo = (ubo: BeneficiaryFormState) => {
+  const updateUbo = (ubo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
     setEditableUbos(ubos =>
-      ubos.map(u => (u.reference === ubo.reference ? { ...ubo, errors: {} } : u)),
+      ubos.map(u => (u[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : u)),
     );
     resetPageState();
   };
@@ -396,7 +395,7 @@ export const OnboardingCompanyOwnership = ({
   const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
     setPageState({
       type: "deleting",
-      reference: ubo.reference,
+      reference: ubo[REFERENCE_SYMBOL],
       name: [ubo.firstName, ubo.lastName].filter(Boolean).join(" "),
     });
   };
@@ -404,7 +403,7 @@ export const OnboardingCompanyOwnership = ({
   const deleteUbo = () => {
     // Should be always true because we only open the modal when the pageState is deleting
     if (pageState.type === "deleting") {
-      setEditableUbos(ubos => ubos.filter(u => u.reference !== pageState.reference));
+      setEditableUbos(ubos => ubos.filter(u => u[REFERENCE_SYMBOL] !== pageState.reference));
     }
     resetPageState();
   };
@@ -422,7 +421,6 @@ export const OnboardingCompanyOwnership = ({
 
     const individualUltimateBeneficialOwners = editableUbos.map(
       ({
-        reference,
         residencyAddressCountry,
         residencyAddressLine1,
         residencyAddressCity,
@@ -430,19 +428,32 @@ export const OnboardingCompanyOwnership = ({
         errors,
         ...ubo
       }) => {
-        const residencyAddress = [
+        const residencyAddress = match({
           residencyAddressCountry,
           residencyAddressLine1,
           residencyAddressCity,
           residencyAddressPostalCode,
-        ].every(isNotNullish)
-          ? {
-              country: residencyAddressCountry as string,
-              addressLine1: residencyAddressLine1 as string,
-              city: residencyAddressCity as string,
-              postalCode: residencyAddressPostalCode as string,
-            }
-          : undefined;
+        })
+          .with(
+            {
+              residencyAddressCountry: P.not(P.nullish),
+              residencyAddressLine1: P.not(P.nullish),
+              residencyAddressCity: P.not(P.nullish),
+              residencyAddressPostalCode: P.not(P.nullish),
+            },
+            ({
+              residencyAddressCountry,
+              residencyAddressLine1,
+              residencyAddressCity,
+              residencyAddressPostalCode,
+            }) => ({
+              country: residencyAddressCountry,
+              addressLine1: residencyAddressLine1,
+              city: residencyAddressCity,
+              postalCode: residencyAddressPostalCode,
+            }),
+          )
+          .otherwise(() => undefined);
 
         return {
           ...ubo,
@@ -524,13 +535,13 @@ export const OnboardingCompanyOwnership = ({
 
                   {editableUbos.map(ubo => (
                     <UboTile
-                      key={ubo.reference}
+                      key={ubo[REFERENCE_SYMBOL]}
                       ubo={ubo}
                       companyName={companyName}
                       country={country}
                       shakeError={shakeError}
                       onEdit={() =>
-                        setPageState({ type: "edit", step: "common", ubo, withAddressPart })
+                        setPageState({ type: "edit", step: "Common", ubo, withAddressPart })
                       }
                       onDelete={() => openRemoveUboConfirmation(ubo)}
                     />
@@ -583,29 +594,28 @@ export const OnboardingCompanyOwnership = ({
           .with({ type: "add" }, { type: "edit" }, () => true)
           .otherwise(() => false)}
         title={match(pageState)
-          .with({ step: "address" }, () => t("company.step.owners.fillAddress"))
+          .with({ step: "Address" }, () => t("company.step.owners.fillAddress"))
           .with({ type: "add" }, () => t("company.step.owners.addTitle"))
           .with({ type: "edit" }, () => t("company.step.owners.editTitle"))
           .otherwise(() => undefined)}
         maxWidth={850}
       >
-        <BeneficiaryForm
+        <OnboardingCompanyOwnershipBeneficiaryForm
           ref={beneficiaryFormRef}
           placekitApiKey={__env.CLIENT_PLACEKIT_API_KEY}
-          initialState={match(pageState)
+          initialValues={match(pageState)
             .with({ type: "edit" }, ({ ubo }) => ubo)
             .otherwise(() => undefined)}
           accountCountry={accountCountry}
           step={match(pageState)
-            .with({ step: "address" }, ({ step }) => step)
-            .otherwise(() => "common" as const)}
+            .with({ step: "Address" }, ({ step }) => step)
+            .otherwise(() => "Common" as const)}
           onStepChange={setFormStep}
           onSave={match(pageState)
             .with({ type: "add" }, () => addUbo)
             .with({ type: "edit" }, () => updateUbo)
             .otherwise(() => noop)}
           onClose={resetPageState}
-          onCityLoadError={logFrontendError}
         />
 
         <Space height={24} />
@@ -617,7 +627,7 @@ export const OnboardingCompanyOwnership = ({
             grow={true}
           >
             {match(pageState)
-              .with({ step: "address" }, () => t("common.back"))
+              .with({ step: "Address" }, () => t("common.back"))
               .otherwise(() => t("common.cancel"))}
           </LakeButton>
 
@@ -628,7 +638,7 @@ export const OnboardingCompanyOwnership = ({
             loading={updateResult.isLoading()}
           >
             {match(pageState)
-              .with({ withAddressPart: true, step: "common" }, () => t("common.next"))
+              .with({ withAddressPart: true, step: "Common" }, () => t("common.next"))
               .otherwise(() => t("common.save"))}
           </LakeButton>
         </LakeButtonGroup>

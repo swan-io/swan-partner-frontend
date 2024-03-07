@@ -30,7 +30,7 @@
   "company.step.organisation1.addressLabel": "Etsi organisaatiosi osoite",
   "company.step.organisation1.addressTitle": "Organisaation osoite",
   "company.step.organisation1.isRegisteredLabel": "Onko yrityksesi rekisteröity?",
-  "company.step.organisation1.isRegisteredLabel.description": "Jos olet, sinulta pyydetään rekisteröintinumeroa",
+  "company.step.organisation1.isRegisteredLabel.description": "Jos olet, sinulta pyydetään {registrationNumberLegalName}",
   "company.step.organisation1.isRegisteredWithNameLabel": "Onko yrityksesi rekisteröity maahan {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Organisaatiosi",
   "company.step.organisation1.organisationPlaceholder": "Kirjoita organisaatiosi nimi...",

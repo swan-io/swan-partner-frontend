@@ -34,7 +34,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "Onko yrityksesi rekisteröity maahan {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Organisaatiosi",
   "company.step.organisation1.organisationPlaceholder": "Kirjoita organisaatiosi nimi...",
-  "company.step.organisation1.registrationNumberLabel": "Mikä on yrityksesi rekisteröintinumero {registrationNumberLegalName}?",
+  "company.step.organisation1.registrationNumberLabel": "Mikä on yrityksesi rekisteröintinumero ({registrationNumberLegalName})?",
   "company.step.organisation1.registrationNumberPlaceholder": "Syötä rekisteröintinumero...",
   "company.step.organisation1.title": "Lakisääteiset tiedot",
   "company.step.organisation1.vatLabel": "Mikä on ALV-numerosi?",

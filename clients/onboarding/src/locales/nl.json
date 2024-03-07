@@ -34,7 +34,7 @@
   "company.step.organisation1.isRegisteredWithNameLabel": "Ben je geregistreerd bij {countryRegisterName}?",
   "company.step.organisation1.organisationLabel": "Jouw organisatie",
   "company.step.organisation1.organisationPlaceholder": "Typ de naam van je organisatie...",
-  "company.step.organisation1.registrationNumberLabel": "Wat is je registratienummer{registrationNumberLegalName}?",
+  "company.step.organisation1.registrationNumberLabel": "Wat is je registratienummer ({registrationNumberLegalName})?",
   "company.step.organisation1.registrationNumberPlaceholder": "Typ je nummer...",
   "company.step.organisation1.title": "Juridische informatie",
   "company.step.organisation1.vatLabel": "Wat is je BTW-nummer?",

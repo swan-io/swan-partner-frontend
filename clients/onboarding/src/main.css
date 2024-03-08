@@ -1,0 +1,22 @@
+html {
+  display: block;
+  height: auto;
+}
+
+body {
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  min-height: 100vh;
+  background-color: var(--color-background-default);
+  scroll-behavior: smooth;
+}
+
+#app-root,
+#root {
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  height: auto;
+}

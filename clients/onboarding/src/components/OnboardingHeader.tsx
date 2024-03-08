@@ -5,6 +5,7 @@ import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { env } from "../utils/env";
@@ -20,7 +21,7 @@ const styles = StyleSheet.create({
   },
   containerDesktop: {
     paddingHorizontal: 40,
-    paddingVertical: 40,
+    paddingVertical: spacings[24],
   },
   logo: {
     maxWidth: "120px",

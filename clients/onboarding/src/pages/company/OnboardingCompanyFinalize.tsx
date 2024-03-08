@@ -1,8 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Space } from "@swan-io/lake/src/components/Space";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
@@ -88,11 +86,11 @@ export const OnboardingCompanyFinalize = ({
   };
 
   return (
-    <>
-      <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fill}>
+    <OnboardingStepContent>
+      <Box justifyContent="center" grow={1}>
+        <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
-            <Box alignItems="center" justifyContent="center" style={commonStyles.fillNoShrink}>
+            <Box alignItems="center" justifyContent="center">
               {containsErrors && alreadySubmitted ? (
                 <FinalizeInvalidSteps
                   onboardingId={onboardingId}
@@ -103,8 +101,6 @@ export const OnboardingCompanyFinalize = ({
               ) : (
                 <FinalizeBlock isMobile={small} />
               )}
-
-              <Space height={12} />
             </Box>
           )}
         </ResponsiveContainer>
@@ -113,8 +109,9 @@ export const OnboardingCompanyFinalize = ({
           nextLabel="wizard.finalize"
           onPrevious={onPressPrevious}
           onNext={onPressNext}
+          justifyContent="center"
         />
-      </OnboardingStepContent>
-    </>
+      </Box>
+    </OnboardingStepContent>
   );
 };

@@ -10,7 +10,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -492,7 +491,7 @@ export const OnboardingCompanyOwnership = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
+        <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) =>
             editableUbos.length === 0 ? (
               <Box>
@@ -551,8 +550,6 @@ export const OnboardingCompanyOwnership = ({
             )
           }
         </ResponsiveContainer>
-
-        <Space height={24} />
 
         <OnboardingFooter
           onPrevious={onPressPrevious}

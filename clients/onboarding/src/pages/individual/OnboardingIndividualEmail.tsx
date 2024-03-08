@@ -9,7 +9,6 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -37,9 +36,6 @@ import {
 } from "../../utils/validation";
 
 const styles = StyleSheet.create({
-  tcu: {
-    marginHorizontal: "auto",
-  },
   tcuCheckbox: {
     top: 3, // center checkbox with text
     flexDirection: "row",
@@ -151,7 +147,7 @@ export const OnboardingIndividualEmail = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
+        <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("individual.step.email.title")}</StepTitle>
@@ -183,8 +179,8 @@ export const OnboardingIndividualEmail = ({
 
               <Space height={small ? 24 : 32} />
 
-              <Box alignItems="start" style={styles.tcu}>
-                <Box direction="row">
+              <Box alignItems="start">
+                <Box direction="row" justifyContent="start">
                   {haveToAcceptTcu && (
                     <>
                       <Field name="tcuAccepted">

@@ -6,7 +6,6 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
@@ -325,7 +324,7 @@ export const OnboardingCompanyOrganisation1 = ({
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
+        <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
               <StepTitle isMobile={small}>{t("company.step.organisation1.title")}</StepTitle>
@@ -567,8 +566,6 @@ export const OnboardingCompanyOrganisation1 = ({
             </>
           )}
         </ResponsiveContainer>
-
-        <Space height={24} />
 
         <OnboardingFooter
           onPrevious={onPressPrevious}

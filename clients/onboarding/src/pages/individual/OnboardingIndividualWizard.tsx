@@ -1,11 +1,9 @@
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
-import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
+import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   individualFallbackCountry,
@@ -16,12 +14,8 @@ import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import {
-  GetOnboardingQuery,
-  IndividualAccountHolderFragment,
-  UpdateIndividualOnboardingDocument,
-} from "../../graphql/unauthenticated";
-import { locale, t } from "../../utils/i18n";
+import { GetOnboardingQuery, IndividualAccountHolderFragment } from "../../graphql/unauthenticated";
+import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
@@ -33,14 +27,17 @@ import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
 import { LocationFieldName, OnboardingIndividualLocation } from "./OnboardingIndividualLocation";
 
 const styles = StyleSheet.create({
-  container: {
-    ...StyleSheet.absoluteFillObject,
-    backgroundColor: backgroundColor.default,
-  },
   stepper: {
     width: "100%",
     maxWidth: 1280,
     paddingHorizontal: 40,
+  },
+  sticky: {
+    position: "sticky",
+    top: 0,
+    backgroundColor: backgroundColor.default90Transparency,
+    backdropFilter: "blur(4px)",
+    zIndex: 10,
   },
 });
 
@@ -138,34 +135,21 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
     [onboardingId, steps, finalized],
   );
 
-  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
-
   useEffect(() => {
-    updateOnboarding({
-      input: { onboardingId, language: locale.language },
-      language: locale.language,
-    });
-  }, [onboarding.language, onboardingId, updateOnboarding]);
-
-  if (!updateResult.isDone()) {
-    return <LoadingView color={colors.gray[400]} />;
-  }
+    window.scrollTo(0, 0);
+  }, [route?.name]);
 
   return (
-    <Box style={styles.container}>
-      <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
-      <Space height={12} />
+    <Box grow={1}>
+      <Box style={styles.sticky}>
+        <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
 
-      {isStepperDisplayed ? (
-        <ResponsiveContainer>
-          {({ small }) =>
-            small ? (
-              <>
+        {isStepperDisplayed ? (
+          <ResponsiveContainer>
+            {({ small }) =>
+              small ? (
                 <MobileStepTitle activeStepId={route.name} steps={stepperSteps} />
-                <Space height={24} />
-              </>
-            ) : (
-              <>
+              ) : (
                 <Box alignItems="center">
                   <LakeStepper
                     activeStepId={route.name}
@@ -173,11 +157,15 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
                     style={styles.stepper}
                   />
                 </Box>
+              )
+            }
+          </ResponsiveContainer>
+        ) : null}
+      </Box>
 
-                <Space height={48} />
-              </>
-            )
-          }
+      {isStepperDisplayed ? (
+        <ResponsiveContainer>
+          {({ small }) => <Space height={small ? 24 : 48} />}
         </ResponsiveContainer>
       ) : null}
 

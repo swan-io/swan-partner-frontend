@@ -20,6 +20,9 @@ const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
     OnboardingInvalidStatusInfo: _data => null,
     OnboardingValidStatusInfo: _data => null,
     ValidationError: _data => null,
+    CompanyInfoBySirenSuccessPayload: _data => null,
+    IndividualUltimateBeneficialOwner: _data => null,
+    IndividualUltimateBeneficialOwnerTypeLegalRepresentative: _data => null,
   },
 });
 

@@ -1,4 +1,3 @@
-import { LakeScrollView } from "@swan-io/lake/src/components/LakeScrollView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { ReactNode } from "react";
@@ -23,12 +22,10 @@ type Props = {
 
 export const OnboardingStepContent = ({ children }: Props) => {
   return (
-    <LakeScrollView contentContainerStyle={commonStyles.fill}>
-      <ResponsiveContainer style={commonStyles.fill}>
-        {({ large }) => (
-          <View style={[styles.content, large && styles.contentDesktop]}>{children}</View>
-        )}
-      </ResponsiveContainer>
-    </LakeScrollView>
+    <ResponsiveContainer style={commonStyles.fill}>
+      {({ large }) => (
+        <View style={[styles.content, large && styles.contentDesktop]}>{children}</View>
+      )}
+    </ResponsiveContainer>
   );
 };

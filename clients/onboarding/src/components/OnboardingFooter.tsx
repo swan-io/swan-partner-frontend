@@ -2,37 +2,24 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { colors } from "@swan-io/lake/src/constants/design";
-import { StyleSheet, View } from "react-native";
+import { spacings } from "@swan-io/lake/src/constants/design";
+import { StyleSheet } from "react-native";
 import { TranslationKey, t } from "../utils/i18n";
 import { TrackPressable } from "./TrackPressable";
 
 const styles = StyleSheet.create({
-  topBorder: {
-    borderTopWidth: 1,
-    borderTopColor: colors.gray[100],
-    alignSelf: "center",
-    height: 1,
-    position: "absolute",
-    top: 0,
-    width: "100vw",
+  root: {
+    alignSelf: "stretch",
   },
   container: {
     paddingVertical: 16,
   },
   containerDesktop: {
-    paddingVertical: 20,
+    paddingVertical: spacings[32],
   },
   buttons: {
     flex: 1,
-    maxWidth: 1200,
-  },
-  button: {
-    flex: 1,
-  },
-  emptySpace: {
-    flex: 1,
-    paddingHorizontal: 26,
+    maxWidth: 1280,
   },
 });
 
@@ -41,6 +28,7 @@ type Props = {
   onNext: () => void;
   nextLabel?: TranslationKey;
   loading?: boolean;
+  justifyContent?: "start" | "center" | "end";
 };
 
 export const OnboardingFooter = ({
@@ -48,44 +36,48 @@ export const OnboardingFooter = ({
   onNext,
   nextLabel = "wizard.next",
   loading,
+  justifyContent = "start",
 }: Props) => {
   return (
-    <ResponsiveContainer>
-      {({ large }) => (
+    <ResponsiveContainer style={styles.root}>
+      {({ large, small }) => (
         <>
-          <View style={styles.topBorder} />
-
           <Box
             direction="row"
             justifyContent="center"
             style={[styles.container, large && styles.containerDesktop]}
           >
-            <Box style={styles.buttons} direction="row" alignItems="center">
+            <Box
+              style={styles.buttons}
+              direction="row"
+              alignItems="center"
+              justifyContent={justifyContent}
+            >
               {onPrevious ? (
-                <TrackPressable action="Go back">
-                  <LakeButton
-                    color="gray"
-                    mode="secondary"
-                    size={large ? "large" : "small"}
-                    style={styles.button}
-                    onPress={onPrevious}
-                  >
-                    {t("wizard.back")}
-                  </LakeButton>
-                </TrackPressable>
-              ) : (
-                <View style={styles.emptySpace} />
-              )}
+                <>
+                  <TrackPressable action="Go back">
+                    <LakeButton
+                      color="gray"
+                      mode="secondary"
+                      size={large ? "large" : "small"}
+                      onPress={onPrevious}
+                      grow={small}
+                    >
+                      {t("wizard.back")}
+                    </LakeButton>
+                  </TrackPressable>
 
-              <Space width={16} />
+                  <Space width={16} />
+                </>
+              ) : null}
 
               <TrackPressable action="Go next">
                 <LakeButton
                   loading={loading}
                   color="partner"
                   size={large ? "large" : "small"}
-                  style={styles.button}
                   onPress={onNext}
+                  grow={small}
                 >
                   {t(nextLabel)}
                 </LakeButton>

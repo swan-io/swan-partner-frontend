@@ -124,7 +124,6 @@ export const OnboardingCompanyDocuments = ({
           )}
         </ResponsiveContainer>
 
-        <Space height={24} />
         <OnboardingFooter onPrevious={onPressPrevious} onNext={onPressNext} />
       </OnboardingStepContent>
 

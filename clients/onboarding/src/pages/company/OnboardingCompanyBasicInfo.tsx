@@ -5,7 +5,6 @@ import { RadioGroup, RadioGroupItem } from "@swan-io/lake/src/components/RadioGr
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -150,7 +149,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
   return (
     <>
       <OnboardingStepContent>
-        <ResponsiveContainer breakpoint={breakpoints.medium} style={commonStyles.fillNoShrink}>
+        <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
               <LakeHeading level={1}>{t("company.step.basicInfo.title")}</LakeHeading>
@@ -212,7 +211,6 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
           )}
         </ResponsiveContainer>
 
-        <Space height={24} />
         <OnboardingFooter onNext={onPressNext} loading={updateResult.isLoading()} />
       </OnboardingStepContent>
     </>

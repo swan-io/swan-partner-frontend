@@ -219,15 +219,6 @@ mutation UpdateCompanyOnboarding(
   }
 }
 
-# TODO Remove this query once onboarding v2 is released
-query GetCompanyUBO($input: CompanyUboByCompanyRefAndHeadquarterCountryInput!) {
-  companyUboByCompanyRefAndHeadquarterCountry(input: $input) {
-    individualUltimateBeneficialOwners {
-      ...UBO
-    }
-  }
-}
-
 mutation generateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentUploadUrlInput!) {
   generateSupportingDocumentUploadUrl(input: $input) {
     __typename

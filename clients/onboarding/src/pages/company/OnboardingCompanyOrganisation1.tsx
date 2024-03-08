@@ -9,10 +9,11 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToResult, parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,
@@ -20,7 +21,7 @@ import {
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
@@ -43,7 +44,6 @@ import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
 } from "../../utils/templateTranslations";
-import { unauthenticatedClient } from "../../utils/urql";
 import {
   ServerInvalidFieldCode,
   extractServerValidationErrors,
@@ -272,38 +272,41 @@ export const OnboardingCompanyOrganisation1 = ({
     });
   };
 
-  const onSelectCompany = useCallback(
-    (suggestion: CompanySuggestion) => {
-      // once a company is selected from auto-completion, we query our API to get some information not available with auto-completion
-      unauthenticatedClient
-        .query(
-          GetCompanyInfoDocument,
-          { siren: suggestion.siren },
-          { requestPolicy: "network-only" },
-        )
-        .toPromise()
-        .then(parseOperationResult)
-        .then(({ companyInfoBySiren }) => {
-          if (companyInfoBySiren.__typename !== "CompanyInfoBySirenSuccessPayload") {
-            throw new Error(companyInfoBySiren.__typename);
-          }
+  const [siren, setSiren] = useState<string>();
 
-          const { companyName, siren, headquarters, vatNumber } = companyInfoBySiren.companyInfo;
-
-          setFieldValue("name", companyName);
-          setFieldValue("registrationNumber", siren);
-          setFieldValue("vatNumber", vatNumber ?? "");
-          setFieldValue("address", headquarters.address);
-          setFieldValue("city", headquarters.town);
-          setFieldValue("postalCode", headquarters.zipCode);
-        })
-        .catch(() => {
-          // if request to get company info fail, we fill with info from auto completion
-          setFieldValue("registrationNumber", suggestion.siren);
-        });
-    },
-    [setFieldValue],
+  const { data } = useUrqlQuery(
+    { query: GetCompanyInfoDocument, variables: { siren: siren as string }, pause: siren == null },
+    [siren],
   );
+
+  const companyInfo = data
+    .toOption()
+    .flatMap(result => result.toOption())
+    .map(companyInfo => companyInfo.companyInfoBySiren)
+    .toUndefined();
+
+  useEffect(() => {
+    match(companyInfo)
+      .with({ __typename: "CompanyInfoBySirenSuccessPayload" }, ({ companyInfo }) => {
+        const { companyName, siren, headquarters, vatNumber } = companyInfo;
+
+        setFieldValue("name", companyName);
+        setFieldValue("registrationNumber", siren);
+        setFieldValue("vatNumber", vatNumber ?? "");
+        setFieldValue("address", headquarters.address);
+        setFieldValue("city", headquarters.town);
+        setFieldValue("postalCode", headquarters.zipCode);
+      })
+      .otherwise(() => {
+        if (siren != null) {
+          setFieldValue("registrationNumber", siren);
+        }
+      });
+  }, [companyInfo, setFieldValue, siren]);
+
+  const onSelectCompany = useCallback(({ siren }: CompanySuggestion) => {
+    setSiren(siren);
+  }, []);
 
   const countryRegisterName = match(companyType)
     .with("Association", () => associationRegisterNamePerCountry[country])

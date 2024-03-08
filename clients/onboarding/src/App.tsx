@@ -80,10 +80,19 @@ const FlowPicker = ({ onboardingId }: Props) => {
   // Set the onboarding language based on the browser locale
   // We do this here to avoid having the loader jump
   useEffect(() => {
+    // Already tried updating, if the language is still not matching, don't retry
+    if (isReadyToRender) {
+      return;
+    }
+
+    // Bail out if the onboarding language is already matching the browser one
     if (onboardingLanguage === locale.language) {
       setIsReadyToRender.on();
-    } else {
-      match(accountHolderType)
+      return;
+    }
+
+    if (accountHolderType != null) {
+      const languageUpdate = match(accountHolderType)
         .with("OnboardingCompanyAccountHolderInfo", () =>
           updateCompanyOnboarding({
             input: { onboardingId, language: locale.language },
@@ -96,7 +105,9 @@ const FlowPicker = ({ onboardingId }: Props) => {
             language: locale.language,
           }).tap(() => setIsReadyToRender.on()),
         )
-        .otherwise(() => {});
+        .exhaustive();
+
+      return () => languageUpdate.cancel();
     }
   }, [
     onboardingId,
@@ -105,6 +116,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
     updateIndividualOnboarding,
     updateCompanyOnboarding,
     setIsReadyToRender,
+    isReadyToRender,
   ]);
 
   return match(isReadyToRender ? data : AsyncData.Loading())

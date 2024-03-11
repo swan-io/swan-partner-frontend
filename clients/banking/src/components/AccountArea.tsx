@@ -24,9 +24,9 @@ import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { noop } from "@swan-io/lake/src/utils/function";
 import { isEmpty, isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
+import { Request } from "@swan-io/request";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -170,7 +170,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
   // Call API to extend cookie TTL
   useEffect(() => {
     const intervalId = setInterval(() => {
-      fetch("/api/ping", { method: "POST" }).catch(noop);
+      Request.make({ url: "/api/ping", method: "POST", withCredentials: true });
     }, COOKIE_REFRESH_INTERVAL);
 
     return () => clearInterval(intervalId);

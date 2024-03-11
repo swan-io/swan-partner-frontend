@@ -25,7 +25,7 @@ import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
-import { ReactNode, useCallback, useMemo, useRef } from "react";
+import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
@@ -346,6 +346,8 @@ export const AccountActivationPage = ({
     .filter(isNotNullishOrEmpty)
     .join("");
 
+  const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
+
   const formattedBirthDate = useMemo(
     () => (isNotNullishOrEmpty(birthDate) ? dayjs(birthDate).format("LL") : undefined),
     [birthDate],
@@ -585,7 +587,18 @@ export const AccountActivationPage = ({
         <Space height={96} />
 
         <Box alignItems="start" style={styles.submitSupportedDocs}>
-          <LakeButton color="partner" onPress={documentsFormRef.current?.submit}>
+          <LakeButton
+            color="partner"
+            loading={isSendingDocumentCollection}
+            onPress={() => {
+              const ref = documentsFormRef.current;
+              if (ref == null) {
+                return;
+              }
+              setIsSendingDocumentCollection(true);
+              ref.submit().tap(() => setIsSendingDocumentCollection(false));
+            }}
+          >
             {t("accountActivation.documents.button.submit")}
           </LakeButton>
         </Box>

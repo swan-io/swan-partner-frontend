@@ -174,7 +174,7 @@ export const AccountDetailsIbanPage = ({ accountId, largeBreakpoint }: Props) =>
                         actions={
                           <LakeTooltip
                             content={t("accountDetails.iban.ibanUnavailableTooltip")}
-                            placement="top"
+                            placement="right"
                             togglableOnFocus={true}
                             hideArrow={true}
                           >
@@ -197,7 +197,7 @@ export const AccountDetailsIbanPage = ({ accountId, largeBreakpoint }: Props) =>
                     actions={
                       <LakeTooltip
                         content={t("accountDetails.iban.bicUnavailableTooltip")}
-                        placement="top"
+                        placement="right"
                         togglableOnFocus={true}
                         hideArrow={true}
                       >

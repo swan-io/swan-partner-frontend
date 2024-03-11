@@ -104,7 +104,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
             <CellAction>
               <LakeTooltip
                 content={t("accountDetails.billing.noDocumentTooltip")}
-                placement="top"
+                placement="right"
                 togglableOnFocus={true}
                 hideArrow={true}
               >
@@ -177,7 +177,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
             <CellAction>
               <LakeTooltip
                 content={t("accountDetails.billing.noDocumentTooltip")}
-                placement="top"
+                placement="right"
                 togglableOnFocus={true}
                 hideArrow={true}
               >

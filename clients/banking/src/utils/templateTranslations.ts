@@ -1,5 +1,4 @@
 import { P, match } from "ts-pattern";
-import { UploadedFile } from "../components/SupportingDocumentsForm";
 import {
   FeesTypeEnum,
   RejectedReasonCode,
@@ -38,11 +37,6 @@ export const getSupportingDocumentPurposeDescriptionLabel = (
     return purpose;
   }
 };
-
-export const getSupportingDocumentStatusLabel = (status: UploadedFile["status"]) =>
-  match(`supportingDocuments.alert.${status}`)
-    .with(P.when(isTranslationKey), key => t(key))
-    .exhaustive();
 
 export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) => {
   try {

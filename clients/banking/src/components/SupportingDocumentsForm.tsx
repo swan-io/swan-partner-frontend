@@ -1,28 +1,18 @@
-import { Dict } from "@swan-io/boxed";
-import { Form } from "@swan-io/lake/src/components/Form";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
-import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
-import { Space } from "@swan-io/lake/src/components/Space";
-import { Stack } from "@swan-io/lake/src/components/Stack";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { Array, Future, Option } from "@swan-io/boxed";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
-import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
-import { FileTile } from "@swan-io/shared-business/src/components/FileTile";
-import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { UploadArea, UploadFileStatus } from "@swan-io/shared-business/src/components/UploadArea";
-import { MAX_SUPPORTING_DOCUMENT_UPLOAD_SIZE } from "@swan-io/shared-business/src/constants/uploads";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
+import {
+  Document,
+  SupportingDocumentCollection,
+  SupportingDocumentCollectionRef,
+} from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { Fragment, forwardRef, useCallback, useImperativeHandle, useMemo, useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
-import { match } from "ts-pattern";
-import { useMutation } from "urql";
+import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
+import { P, match } from "ts-pattern";
 import {
   AccountActivationPageQuery,
   GenerateSupportingDocumentUploadUrlDocument,
@@ -30,82 +20,11 @@ import {
   SupportingDocumentPurposeEnum,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import {
-  getSupportingDocumentPurposeDescriptionLabel,
-  getSupportingDocumentPurposeLabel,
-  getSupportingDocumentStatusLabel,
-} from "../utils/templateTranslations";
-
-const ACCEPTED_FORMATS = ["application/pdf", "image/png", "image/jpeg"];
-
-const styles = StyleSheet.create({
-  help: {
-    alignItems: "center",
-    flexDirection: "row",
-  },
-});
-
-type HelpProps = {
-  onPress?: () => void;
-  text: string | undefined;
-  width?: number;
-};
-
-const Help = ({ onPress, text, width }: HelpProps) => {
-  const { desktop } = useResponsive();
-
-  const content = (
-    <Pressable role="button" disabled={isNullish(onPress)} onPress={onPress} style={styles.help}>
-      <Icon color={colors.gray[600]} name="question-circle-regular" size={desktop ? 16 : 20} />
-
-      {desktop && (
-        <>
-          <Space width={8} />
-
-          <LakeText color={colors.gray[600]} variant="smallMedium">
-            {t("supportingDocuments.button.whatIsThis")}
-          </LakeText>
-        </>
-      )}
-    </Pressable>
-  );
-
-  if (isNullish(text)) {
-    return content;
-  }
-
-  return (
-    <LakeTooltip content={text} placement="top" togglableOnFocus={true} width={width}>
-      {content}
-    </LakeTooltip>
-  );
-};
-
-export type UploadedFile = { id: string; name: string; url: string } & (
-  | { status: "pending" }
-  | { status: "refused"; reason: string }
-  | { status: "verified" }
-);
 
 type Collection = GetNode<
   NonNullable<
     NonNullable<AccountActivationPageQuery["accountMembership"]>["account"]
   >["holder"]["supportingDocumentCollections"]
->;
-
-type LocalDocument = UploadFileStatus & {
-  purpose: SupportingDocumentPurposeEnum;
-};
-
-type Documents = Partial<
-  Record<
-    SupportingDocumentPurposeEnum,
-    {
-      errorVisible: boolean;
-      local: UploadFileStatus[];
-      uploaded: UploadedFile[];
-    }
-  >
 >;
 
 type Props = {
@@ -115,309 +34,138 @@ type Props = {
 };
 
 export type SupportingDocumentsFormRef = {
-  submit: () => void;
+  submit: () => Future<unknown>;
 };
 
 export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Props>(
   ({ templateLanguage, collection, refetchCollection }, forwardedRef) => {
-    const [powerOfAttorneyModalVisible, setPowerOfAttorneyModalVisible] = useBoolean(false);
-    const [swornStatementModalVisible, setSwornStatementModalVisible] = useBoolean(false);
-    const [feedbackEnabled, setFeedbackEnabled] = useBoolean(false);
-    const [localDocuments, setLocalDocuments] = useState<LocalDocument[]>([]);
-
-    const [, generateSupportingDocumentUploadUrl] = useMutation(
+    const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
+    const [, generateSupportingDocumentUploadUrl] = useUrqlMutation(
       GenerateSupportingDocumentUploadUrlDocument,
     );
 
-    const [, requestSupportingDocumentCollectionReview] = useMutation(
+    const [reviewRequest, requestSupportingDocumentCollectionReview] = useUrqlMutation(
       RequestSupportingDocumentCollectionReviewDocument,
     );
 
-    const documentsByPurpose = useMemo(() => {
-      const supportingDocuments = collection.supportingDocuments.filter(isNotNullish);
+    const supportingDocumentCollectionRef = useRef<SupportingDocumentCollectionRef>(null);
 
-      return collection.requiredSupportingDocumentPurposes.reduce<Documents>((acc, { name }) => {
-        const localDocumentsForPurpose = localDocuments.filter(item => item.purpose === name);
-        const localDocumentsForPurposeIds = localDocuments.map(item => item.id);
-
-        const supportingDocumentsForPurpose = supportingDocuments.filter(
-          item =>
-            item.supportingDocumentPurpose === name &&
-            !localDocumentsForPurposeIds.includes(item.id),
-        );
-
-        const notRefused = supportingDocumentsForPurpose.filter(
-          item => item.statusInfo.__typename !== "SupportingDocumentRefusedStatusInfo",
-        );
-
-        const errorVisible =
-          feedbackEnabled && localDocumentsForPurpose.length === 0 && notRefused.length === 0;
-
-        const uploaded = supportingDocumentsForPurpose.reduce<UploadedFile[]>((acc, item) => {
-          if (
-            item.statusInfo.__typename === "SupportingDocumentNotUploadedStatusInfo" ||
-            item.statusInfo.__typename === "SupportingDocumentWaitingForUploadStatusInfo"
-          ) {
-            return acc;
-          }
-
-          const file: UploadedFile = {
-            id: item.id,
-            name: item.statusInfo.filename,
-            url: item.statusInfo.downloadUrl,
-
-            ...match(item.statusInfo)
-              .with({ __typename: "SupportingDocumentUploadedStatusInfo" }, () => ({
-                status: "pending" as const,
-              }))
-              .with({ __typename: "SupportingDocumentValidatedStatusInfo" }, () => ({
-                status: "verified" as const,
-              }))
-              .with({ __typename: "SupportingDocumentRefusedStatusInfo" }, ({ reason }) => ({
-                status: "refused" as const,
-                reason,
-              }))
-              .exhaustive(),
-          };
-
-          return [...acc, file];
-        }, [] as UploadedFile[]);
-
-        return {
-          ...acc,
-          [name]: {
-            errorVisible,
-            local: localDocumentsForPurpose,
-            uploaded,
-          },
-        };
-      }, {} as Documents);
-    }, [collection, feedbackEnabled, localDocuments]);
+    const requestReview = () => {
+      return requestSupportingDocumentCollectionReview({
+        input: { supportingDocumentCollectionId: collection.id },
+      })
+        .mapOk(data => data.requestSupportingDocumentCollectionReview)
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(refetchCollection)
+        .tapError(error => showToast({ variant: "error", title: translateError(error) }));
+    };
 
     useImperativeHandle(forwardedRef, () => ({
-      submit: () => {
-        const hasNoError = Dict.values(documentsByPurpose).every(
-          item => isNotNullish(item) && !item.errorVisible,
-        );
+      submit: (): Future<unknown> => {
+        const supportingDocumentCollection = supportingDocumentCollectionRef.current;
 
-        if (hasNoError) {
-          requestSupportingDocumentCollectionReview({
-            input: { supportingDocumentCollectionId: collection.id },
-          })
-            .then(parseOperationResult)
-            .then(data => data.requestSupportingDocumentCollectionReview)
-            .then(filterRejectionsToPromise)
-            .then(refetchCollection)
-            .catch(error => {
-              showToast({ variant: "error", title: translateError(error) });
-            });
+        if (supportingDocumentCollection == null) {
+          return Future.value(undefined);
+        }
+        if (supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
+          return requestReview();
         } else {
-          setFeedbackEnabled.on();
+          setShowConfirmModal.on();
+          return Future.value(undefined);
         }
       },
     }));
 
-    const getAwsUrl = useCallback(
-      (file: File, purpose: SupportingDocumentPurposeEnum) =>
+    const generateUpload = useCallback(
+      ({ fileName, purpose }: { fileName: string; purpose: SupportingDocumentPurposeEnum }) =>
         generateSupportingDocumentUploadUrl({
           input: {
-            filename: file.name,
+            filename: fileName,
             supportingDocumentCollectionId: collection.id,
             supportingDocumentPurpose: purpose,
           },
         })
-          .then(parseOperationResult)
-          .then(data => data.generateSupportingDocumentUploadUrl)
-          .then(filterRejectionsToPromise),
+          .mapOk(data => data.generateSupportingDocumentUploadUrl)
+          .mapOkToResult(filterRejectionsToResult)
+          .mapOk(({ upload, supportingDocumentId }) => ({ upload, id: supportingDocumentId })),
       [generateSupportingDocumentUploadUrl, collection.id],
     );
 
-    const handleUpload = (files: File[], purpose: SupportingDocumentPurposeEnum) => {
-      const file = files[0];
-
-      if (isNullish(file)) {
-        return;
-      }
-
-      getAwsUrl(file, purpose)
-        .then(({ supportingDocumentId, upload: { url, fields } }) => {
-          const xhr = new XMLHttpRequest();
-          xhr.open("POST", url, true);
-
-          const initialState: LocalDocument = {
-            purpose,
-            id: supportingDocumentId,
-            name: file.name,
-            progress: 0,
-            status: "uploading",
-          };
-
-          setLocalDocuments(prevState => [...prevState, initialState]);
-
-          xhr.upload.onprogress = event => {
-            const progress = (event.loaded / event.total) * 100;
-
-            setLocalDocuments(prevState => {
-              const clone = [...prevState];
-              const index = clone.findIndex(item => item.id === supportingDocumentId);
-              const item = clone[index];
-
-              if (item?.status === "uploading") {
-                clone[index] = { ...item, progress };
-              } else {
-                clone.push(initialState);
-              }
-
-              return clone;
-            });
-          };
-
-          xhr.onload = () => {
-            const uploadFailed = xhr.status !== 200 && xhr.status !== 204;
-
-            const finishedState: LocalDocument = {
-              purpose,
-              id: supportingDocumentId,
-              name: file.name,
-              status: "finished",
-            };
-
-            setLocalDocuments(prevState => {
-              const clone = [...prevState];
-              const index = clone.findIndex(item => item.id === supportingDocumentId);
-              const item = clone[index];
-
-              if (isNullish(item)) {
-                clone.push(finishedState);
-                return clone;
-              }
-
-              if (!uploadFailed) {
-                clone[index] = finishedState;
-                return clone;
-              }
-
-              clone[index] = {
-                purpose,
-                id: supportingDocumentId,
-                name: file.name,
-                error: t("error.generic"),
-                status: "failed",
-              };
-
-              return clone;
-            });
-          };
-
-          const formData = new FormData();
-          fields.forEach(({ key, value }) => formData.append(key, value));
-          formData.append("file", file);
-
-          xhr.send(formData);
-        })
-        .catch(error => {
-          showToast({ variant: "error", title: translateError(error) });
-        });
-    };
+    const docs = Array.filterMap(collection.supportingDocuments, document =>
+      match(document)
+        .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
+        .with(P.nullish, () => Option.None())
+        .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
+          Option.None(),
+        )
+        .with(
+          {
+            statusInfo: {
+              __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+            },
+          },
+          () => Option.None(),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              url: document.statusInfo.downloadUrl,
+              statusInfo: { status: "Validated" },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              url: document.statusInfo.downloadUrl,
+              statusInfo: { status: "Refused", reason: document.statusInfo.reason },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              url: document.statusInfo.downloadUrl,
+              statusInfo: { status: "Uploaded" },
+            },
+          }),
+        )
+        .exhaustive(),
+    );
 
     return (
-      <Form>
-        <Stack direction="column" space={40}>
-          {Dict.entries(documentsByPurpose).map(([purpose, documents]) => {
-            if (isNullish(documents)) {
-              return null;
-            }
+      <>
+        <SupportingDocumentCollection
+          ref={supportingDocumentCollectionRef}
+          documents={docs}
+          requiredDocumentPurposes={collection.requiredSupportingDocumentPurposes.map(
+            item => item.name,
+          )}
+          generateUpload={generateUpload}
+          status={collection.statusInfo.status}
+          templateLanguage={templateLanguage}
+        />
 
-            return (
-              <LakeLabel
-                key={`label-${purpose}`}
-                type="form"
-                label={getSupportingDocumentPurposeLabel(purpose)}
-                help={
-                  <Help
-                    text={getSupportingDocumentPurposeDescriptionLabel(purpose)}
-                    onPress={match(purpose)
-                      .with("PowerOfAttorney", () => setPowerOfAttorneyModalVisible.on)
-                      .with("SwornStatement", () => setSwornStatementModalVisible.on)
-                      .otherwise(() => undefined)}
-                  />
-                }
-                render={() => (
-                  <>
-                    <UploadArea
-                      layout="horizontal"
-                      icon="document-regular"
-                      description={t("supportingDocuments.documentTypes")}
-                      documents={documents.local}
-                      accept={ACCEPTED_FORMATS}
-                      maxSize={MAX_SUPPORTING_DOCUMENT_UPLOAD_SIZE}
-                      error={documents.errorVisible ? t("common.form.required") : undefined}
-                      onDropAccepted={files => {
-                        handleUpload(files, purpose);
-                      }}
-                    />
-
-                    {documents.uploaded.map(document => (
-                      <Fragment key={document.id}>
-                        <Space height={12} />
-
-                        <FileTile
-                          key={document.id}
-                          name={document.name}
-                          url={document.url}
-                          variant={document.status}
-                          title={getSupportingDocumentStatusLabel(document.status)}
-                          description={document.status === "refused" ? document.reason : undefined}
-                        />
-                      </Fragment>
-                    ))}
-                  </>
-                )}
-              />
-            );
-          })}
-        </Stack>
-
-        <LakeModal
-          visible={powerOfAttorneyModalVisible}
-          title={t("supportingDocuments.powerAttorneyModal.title")}
+        <ConfirmModal
+          visible={showConfirmModal}
+          title={t("accountActivation.documents.confirmModal.title")}
+          message={t("accountActivation.documents.confirmModal.message")}
           icon="document-regular"
-          onPressClose={setPowerOfAttorneyModalVisible.off}
-        >
-          <LakeText>{t("supportingDocuments.powerAttorneyModal.text")}</LakeText>
-          <Space height={16} />
-
-          <LakeButtonGroup paddingBottom={0}>
-            <LakeButton
-              grow={true}
-              color="current"
-              onPress={() => window.open(`/power-of-attorney-template/${templateLanguage}.pdf`)}
-            >
-              {t("supportingDocuments.powerAttorneyModal.downloadButton")}
-            </LakeButton>
-          </LakeButtonGroup>
-        </LakeModal>
-
-        <LakeModal
-          visible={swornStatementModalVisible}
-          title={t("supportingDocuments.swornStatementModal.title")}
-          icon="document-regular"
-          onPressClose={setSwornStatementModalVisible.off}
-        >
-          <LakeText>{t("supportingDocuments.swornStatementModal.text")}</LakeText>
-          <Space height={16} />
-
-          <LakeButtonGroup paddingBottom={0}>
-            <LakeButton
-              grow={true}
-              color="current"
-              onPress={() => window.open(`/sworn-statement-template/es.pdf`)}
-            >
-              {t("supportingDocuments.swornStatementModal.downloadButton")}
-            </LakeButton>
-          </LakeButtonGroup>
-        </LakeModal>
-      </Form>
+          confirmText={t("accountActivation.documents.confirmModal.confirm")}
+          onConfirm={() => void requestReview()}
+          loading={reviewRequest.isLoading()}
+          onCancel={setShowConfirmModal.off}
+        />
+      </>
     );
   },
 );

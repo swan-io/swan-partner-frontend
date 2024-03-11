@@ -717,7 +717,7 @@ export const CardItemPhysicalDetails = ({
 
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
-                        placement="bottom"
+                        placement="center"
                         disabled={!hasBindingUserError}
                       >
                         <LakeButton
@@ -753,7 +753,7 @@ export const CardItemPhysicalDetails = ({
                     <>
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
-                        placement="bottom"
+                        placement="center"
                         disabled={!hasBindingUserError}
                       >
                         <LakeButton
@@ -1099,7 +1099,7 @@ export const CardItemPhysicalDetails = ({
 
                       <LakeTooltip
                         content={t("card.tooltipConflict")}
-                        placement="bottom"
+                        placement="center"
                         disabled={!hasBindingUserError}
                       >
                         <LakeButton

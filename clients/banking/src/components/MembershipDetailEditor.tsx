@@ -1,4 +1,4 @@
-import { AsyncData, Future, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -8,6 +8,7 @@ import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -342,47 +343,31 @@ export const MembershipDetailEditor = ({
 
   const sendInvitation = () => {
     setInvitationSending(AsyncData.Loading());
-    const request = Future.make<Result<undefined, undefined>>(resolve => {
-      const xhr = new XMLHttpRequest();
+    const query = new URLSearchParams();
+    query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
+    query.append("lang", locale.language);
 
-      // TODO: oauth2
-      const query = new URLSearchParams();
-      query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
-      query.append("lang", locale.language);
+    const url = match(projectConfiguration)
+      .with(
+        Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+        projectId =>
+          `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
+      )
+      .otherwise(() => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`);
 
-      xhr.open(
-        "POST",
-        match(projectConfiguration)
-          .with(
-            Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-            projectId =>
-              `/api/projects/${projectId}/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
-          )
-          .otherwise(
-            () => `/api/invitation/${editingAccountMembershipId}/send?${query.toString()}`,
-          ),
-        true,
-      );
-
-      xhr.withCredentials = true;
-      xhr.responseType = "json";
-      xhr.addEventListener("load", () => {
-        if ((xhr.status >= 200 && xhr.status < 300) || xhr.status === 304) {
-          resolve(Result.Ok(undefined));
-        } else {
-          resolve(Result.Error(undefined));
-        }
-      });
-      xhr.send(
-        JSON.stringify({
-          inviteeAccountMembershipId: editingAccountMembershipId,
-          inviterAccountMembershipId: currentUserAccountMembershipId,
-        }),
-      );
-      return () => {
-        xhr.abort();
-      };
-    });
+    const request = Request.make({
+      url,
+      method: "POST",
+      withCredentials: true,
+      responseType: "json",
+      body: JSON.stringify({
+        inviteeAccountMembershipId: editingAccountMembershipId,
+        inviterAccountMembershipId: currentUserAccountMembershipId,
+      }),
+    })
+      .mapOkToResult(badStatusToError)
+      .mapOk(() => undefined)
+      .mapError(() => undefined);
 
     request
       .tapError(() => {

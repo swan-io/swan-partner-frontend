@@ -1,5 +1,6 @@
 import { Future, Result } from "@swan-io/boxed";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 
 // We set all fields optional because values comes from a free external service we can't trust at 100%
 // https://www.pappers.fr/api/documentation
@@ -26,51 +27,36 @@ export type CompanySuggestion = {
   value: string;
 };
 
-export const queryCompanies = (query: string): Future<Result<Array<CompanySuggestion>, Error>> =>
-  Future.make<Result<PappersResults, Error>>(resolve => {
-    const xhr = new XMLHttpRequest();
-    xhr.responseType = "json";
+export const queryCompanies = (query: string): Future<Result<Array<CompanySuggestion>, Error>> => {
+  const params = new URLSearchParams({
+    cibles: "nom_entreprise,denomination,siren",
+    q: query,
+  });
+  const url = `https://suggestions.pappers.fr/v2?${params.toString()}`;
+  return Request.make({
+    url,
+    method: "GET",
+    responseType: "json",
+  })
+    .mapOkToResult(badStatusToError)
+    .mapOkToResult(emptyToError)
+    .mapOk(value => value as PappersResults)
+    .mapOk(
+      ({ resultats_siren = [], resultats_nom_entreprise = [], resultats_denomination = [] }) => {
+        return [...resultats_siren, ...resultats_nom_entreprise, ...resultats_denomination]
+          .filter(isNotNullish)
+          .reduce<CompanySuggestion[]>((acc, result) => {
+            const { denomination, nom_entreprise, siege, siren = "" } = result;
 
-    const params = new URLSearchParams({
-      cibles: "nom_entreprise,denomination,siren",
-      q: query,
-    });
+            const name = nom_entreprise ?? denomination ?? "";
+            const city = [siege?.code_postal, siege?.ville].filter(isNotNullish).join(" ");
 
-    xhr.open("GET", `https://suggestions.pappers.fr/v2?${params.toString()}`, true);
-
-    xhr.addEventListener("load", () => {
-      resolve(
-        (xhr.status >= 200 && xhr.status < 300) || xhr.status === 304
-          ? Result.Ok(xhr.response as PappersResults)
-          : Result.Error(new Error(xhr.statusText)),
-      );
-    });
-
-    xhr.addEventListener("error", () => {
-      resolve(Result.Error(new Error("Failed to fetch companies")));
-    });
-
-    const timeoutId = setTimeout(() => xhr.send(), 250);
-
-    return () => {
-      xhr.abort();
-      clearTimeout(timeoutId);
-    };
-  }).mapOk(
-    ({ resultats_siren = [], resultats_nom_entreprise = [], resultats_denomination = [] }) => {
-      return [...resultats_siren, ...resultats_nom_entreprise, ...resultats_denomination]
-        .filter(isNotNullish)
-        .reduce<CompanySuggestion[]>((acc, result) => {
-          const { denomination, nom_entreprise, siege, siren = "" } = result;
-
-          const name = nom_entreprise ?? denomination ?? "";
-          const city = [siege?.code_postal, siege?.ville].filter(isNotNullish).join(" ");
-
-          // we don't display result without name, without siren or already displayed
-          return name === "" || siren === "" || acc.some(suggestion => suggestion.siren === siren)
-            ? acc
-            : [...acc, { value: siren, siren, name, city }];
-        }, []);
-    },
-    true,
-  );
+            // we don't display result without name, without siren or already displayed
+            return name === "" || siren === "" || acc.some(suggestion => suggestion.siren === siren)
+              ? acc
+              : [...acc, { value: siren, siren, name, city }];
+          }, []);
+      },
+      true,
+    );
+};

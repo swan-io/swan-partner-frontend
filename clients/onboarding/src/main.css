@@ -8,17 +8,6 @@ html {
 }
 
 body {
-  min-height: 100vh;
-}
-
-/* Only on Safari */
-@supports (-webkit-touch-callout: none) {
-  body {
-    min-height: -webkit-fill-available;
-  }
-}
-
-body {
   height: auto;
   display: flex;
   flex-direction: column;
@@ -26,6 +15,13 @@ body {
   min-height: 100vh;
   background-color: var(--color-background-default);
   scroll-behavior: smooth;
+}
+
+/* Only on Safari */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
 }
 
 #app-root,

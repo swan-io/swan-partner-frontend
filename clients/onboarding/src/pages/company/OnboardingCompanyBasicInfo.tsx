@@ -152,9 +152,20 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <>
-              <LakeHeading level={1}>{t("company.step.basicInfo.title")}</LakeHeading>
+              <LakeHeading
+                level={1}
+                variant={small ? "h3" : "h1"}
+                align={small ? "center" : "left"}
+              >
+                {t("company.step.basicInfo.title")}
+              </LakeHeading>
+
               <Space height={small ? 8 : 12} />
-              <LakeText>{t("company.step.basicInfo.description")}</LakeText>
+
+              <LakeText align={small ? "center" : "left"}>
+                {t("company.step.basicInfo.description")}
+              </LakeText>
+
               <Space height={small ? 24 : 32} />
 
               <Tile>

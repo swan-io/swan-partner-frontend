@@ -3,6 +3,21 @@ html {
   height: auto;
 }
 
+html {
+  height: -webkit-fill-available;
+}
+
+body {
+  min-height: 100vh;
+}
+
+/* Only on Safari */
+@supports (-webkit-touch-callout: none) {
+  body {
+    min-height: -webkit-fill-available;
+  }
+}
+
 body {
   height: auto;
   display: flex;

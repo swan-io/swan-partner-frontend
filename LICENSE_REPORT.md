@@ -12,30 +12,30 @@ Name | Version | License | URL | VendorUrl | VendorName
 @fastify/static | 6.12.0 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
 @fastify/view | 8.2.0 | MIT | https://github.com/fastify/point-of-view.git | https://github.com/fastify/point-of-view#readme | Tomas Della Vedova - @delvedor
 @formatjs/intl | 2.10.0 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
-@sentry/react | 7.103.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
+@sentry/react | 7.106.1 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
 @testing-library/react | 14.2.1 | MIT | https://github.com/testing-library/react-testing-library | https://github.com/testing-library/react-testing-library#readme | Kent C. Dodds
 @testing-library/user-event | 14.5.2 | MIT | https://github.com/testing-library/user-event | https://github.com/testing-library/user-event#readme | Giorgio Polvara
 @types/accepts | 1.3.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/accepts | Unknown
 @types/iban | 0.0.35 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/iban | Unknown
 @types/mustache | 4.2.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
-@types/react | 18.2.60 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
-@types/react-dom | 18.2.19 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
+@types/react | 18.2.65 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
+@types/react-dom | 18.2.21 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
 @urql/devtools | 2.0.3 | MIT | https://github.com/FormidableLabs/urql-devtools-exchange.git | https://github.com/FormidableLabs/urql-devtools-exchange#readme | Formidable
-@urql/exchange-graphcache | 6.4.1 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
+@urql/exchange-graphcache | 6.5.0 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
 @vitejs/plugin-react-swc | 3.6.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
 core-js | 3.36.0 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
 fast-proxy | 2.2.0 | MIT | git@github.com:fastify/fast-proxy.git | https://github.com/fastify/fast-proxy | Rolando Santamaria Maso
-fastify | 4.26.1 | MIT | https://github.com/fastify/fastify.git | https://fastify.dev/ | Matteo Collina
+fastify | 4.26.2 | MIT | https://github.com/fastify/fastify.git | https://fastify.dev/ | Matteo Collina
 get-port | 5.1.1 | MIT | https://github.com/sindresorhus/get-port.git | sindresorhus.com | Sindre Sorhus
 graphql | 16.8.1 | MIT | https://github.com/graphql/graphql-js.git | https://github.com/graphql/graphql-js | Unknown
 graphql-request | 6.1.0 | MIT | https://github.com/jasonkuhrt/graphql-request.git | https://github.com/jasonkuhrt/graphql-request | Jason Kuhrt
 graphql-tag | 2.12.6 | MIT | https://github.com/apollographql/graphql-tag.git | https://github.com/apollographql/graphql-tag#readme | Unknown
 iban | 0.0.14 | MIT | https://github.com/arhs/iban.js | Unknown | Laurent VB
 jsdom | 24.0.0 | MIT | https://github.com/jsdom/jsdom.git | Unknown | Unknown
-libphonenumber-js | 1.10.57 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
+libphonenumber-js | 1.10.58 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
 mustache | 4.2.0 | MIT | https://github.com/janl/mustache.js.git | https://github.com/janl/mustache.js | mustache.js Authors
 nanoid | 3.3.7 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
 nanoid | 5.0.6 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
@@ -54,26 +54,25 @@ urql | 4.0.6 | MIT | https://github.com/urql-graphql/urql.git | https://formidab
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 9.0.1 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 valienv | 0.6.0 | MIT | https://github.com/zoontek/valienv.git | https://github.com/zoontek/valienv#readme | Mathieu Acthernoene
-vite | 5.1.4 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
+vite | 5.1.6 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
 vitest | 1.3.1 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
 wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
 @opentelemetry/api | 1.8.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/api | OpenTelemetry Authors
 @opentelemetry/core | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-core | OpenTelemetry Authors
 @opentelemetry/exporter-jaeger | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-exporter-jaeger | OpenTelemetry Authors
-@opentelemetry/instrumentation | 0.49.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation | OpenTelemetry Authors
-@opentelemetry/instrumentation | 0.48.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation | OpenTelemetry Authors
-@opentelemetry/instrumentation-fastify | 0.33.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme | OpenTelemetry Authors
-@opentelemetry/instrumentation-http | 0.49.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http | OpenTelemetry Authors
-@opentelemetry/instrumentation-pino | 0.35.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-pino#readme | OpenTelemetry Authors
+@opentelemetry/instrumentation | 0.49.1 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation | OpenTelemetry Authors
+@opentelemetry/instrumentation-fastify | 0.34.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify#readme | OpenTelemetry Authors
+@opentelemetry/instrumentation-http | 0.49.1 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/experimental/packages/opentelemetry-instrumentation-http | OpenTelemetry Authors
+@opentelemetry/instrumentation-pino | 0.36.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js-contrib.git | https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-pino#readme | OpenTelemetry Authors
 @opentelemetry/propagator-jaeger | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-propagator-jaeger | OpenTelemetry Authors
 @opentelemetry/resources | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-resources | OpenTelemetry Authors
 @opentelemetry/sdk-trace-base | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-base | OpenTelemetry Authors
 @opentelemetry/sdk-trace-node | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node | OpenTelemetry Authors
 @opentelemetry/semantic-conventions | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
 picocolors | 1.0.0 | ISC | https://github.com/alexeyraspopov/picocolors.git | Unknown | Alexey Raspopov
-tggl-client | 1.13.0 | ISC | Unknown | Unknown | Nicolas Keller
+tggl-client | 1.13.1 | ISC | Unknown | Unknown | Nicolas Keller
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 3.13.1 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
-type-fest | 4.10.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
+type-fest | 4.12.0 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

@@ -9,22 +9,17 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { Document } from "@swan-io/shared-business/src/components/SupportingDocument";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import {
   companyFallbackCountry,
   isCompanyCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../../assets/imgs/logo-swan.svg";
 import { OnboardingHeader } from "../../components/OnboardingHeader";
-import {
-  CompanyAccountHolderFragment,
-  GetOnboardingQuery,
-  SupportingDocumentPurposeEnum,
-} from "../../graphql/unauthenticated";
+import { CompanyAccountHolderFragment, GetOnboardingQuery } from "../../graphql/unauthenticated";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
@@ -130,22 +125,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const requiredDocumentsPurposes =
     onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
     [];
-
-  const documents: Document<SupportingDocumentPurposeEnum>[] =
-    onboarding?.supportingDocumentCollection.supportingDocuments.filter(isNotNullish).map(doc => ({
-      id: doc.id,
-      name: match(doc.statusInfo)
-        .with(
-          { __typename: "SupportingDocumentRefusedStatusInfo" },
-          { __typename: "SupportingDocumentUploadedStatusInfo" },
-          { __typename: "SupportingDocumentValidatedStatusInfo" },
-          ({ filename }) => filename,
-        )
-        .otherwise(() => t("supportingDocument.noFilename")),
-      purpose: doc.supportingDocumentPurpose,
-    })) ?? [];
-
-  const [currentDocuments, setCurrentDocuments] = useState(documents);
 
   const hasOwnershipStep =
     ["Company", "Other"].includes(companyType) ||
@@ -418,11 +397,16 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               previousStep={getPreviousStep("Documents", steps)}
               nextStep="Finalize"
               onboardingId={params.onboardingId}
-              documents={currentDocuments}
-              onDocumentsChange={setCurrentDocuments}
+              documents={Array.filterMap(
+                onboarding?.supportingDocumentCollection.supportingDocuments ?? [],
+                Option.fromNullable,
+              )}
               requiredDocumentsPurposes={requiredDocumentsPurposes}
-              supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id ?? ""}
-              onboardingLanguage={onboarding.language ?? "en"}
+              supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id}
+              supportingDocumentCollectionStatus={
+                onboarding?.supportingDocumentCollection.statusInfo.status
+              }
+              templateLanguage={onboarding.language ?? "en"}
             />
           </TrackingProvider>
         ))

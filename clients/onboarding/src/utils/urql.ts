@@ -23,6 +23,9 @@ const unauthenticatedCache = cacheExchange<GraphCacheConfig>({
     CompanyInfoBySirenSuccessPayload: _data => null,
     IndividualUltimateBeneficialOwner: _data => null,
     IndividualUltimateBeneficialOwnerTypeLegalRepresentative: _data => null,
+    SupportingDocumentPurpose: _data => null,
+    SupportingDocumentCollectionWaitingForDocumentStatusInfo: _data => null,
+    SupportingDocumentWaitingForUploadStatusInfo: _data => null,
   },
 });
 

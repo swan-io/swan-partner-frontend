@@ -91,6 +91,30 @@ fragment OnboardingInvalidInfo on OnboardingStatusInfo {
   }
 }
 
+fragment SupportingDocument on SupportingDocument {
+  id
+  supportingDocumentPurpose
+  supportingDocumentType
+  updatedAt
+  statusInfo {
+    __typename
+    status
+    ... on SupportingDocumentUploadedStatusInfo {
+      downloadUrl
+      filename
+    }
+    ... on SupportingDocumentValidatedStatusInfo {
+      downloadUrl
+      filename
+    }
+    ... on SupportingDocumentRefusedStatusInfo {
+      downloadUrl
+      reason
+      filename
+    }
+  }
+}
+
 fragment OnboardingData on OnboardingInfo {
   __typename
   id
@@ -116,26 +140,11 @@ fragment OnboardingData on OnboardingInfo {
     requiredSupportingDocumentPurposes {
       name
     }
+    statusInfo {
+      status
+    }
     supportingDocuments {
-      id
-      supportingDocumentPurpose
-      supportingDocumentType
-      updatedAt
-      statusInfo {
-        __typename
-        status
-        ... on SupportingDocumentUploadedStatusInfo {
-          downloadUrl
-          filename
-        }
-        ... on SupportingDocumentValidatedStatusInfo {
-          downloadUrl
-          filename
-        }
-        ... on SupportingDocumentRefusedStatusInfo {
-          filename
-        }
-      }
+      ...SupportingDocument
     }
   }
   info {

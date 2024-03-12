@@ -1,7 +1,8 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LakeCombobox } from "@swan-io/lake/src/components/LakeCombobox";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
-import { RefObject, forwardRef, useEffect, useState } from "react";
+import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
+import { RefObject, forwardRef, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TextInput } from "react-native";
 import { CompanySuggestion, queryCompanies } from "../utils/Pappers";
 import { t } from "../utils/i18n";
@@ -40,19 +41,25 @@ export const LakeCompanyInput = forwardRef<TextInput, Props>(
       onSuggestion?.(suggestion);
     };
 
+    const query = useCallback(
+      (search: string) => {
+        queryCompanies(search)
+          .tapError(onLoadError)
+          .onResolve(value => setState(AsyncData.Done(value)));
+      },
+      [onLoadError],
+    );
+
+    const debouncedQueryCompanies = useDebounce(query, 500);
+
     useEffect(() => {
       if (value.length <= 3) {
         return setState(AsyncData.NotAsked());
       }
 
       setState(AsyncData.Loading());
-
-      const request = queryCompanies(value);
-
-      request.tapError(onLoadError).onResolve(value => setState(AsyncData.Done(value)));
-
-      return () => request.cancel();
-    }, [value, onLoadError]);
+      debouncedQueryCompanies(value);
+    }, [value, debouncedQueryCompanies]);
 
     return (
       <LakeCombobox

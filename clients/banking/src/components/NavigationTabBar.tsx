@@ -24,6 +24,7 @@ import {
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { Request, badStatusToError } from "@swan-io/request";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
@@ -167,19 +168,10 @@ export const NavigationTabBar = ({
     entries.find(item => item.matchRoutes.some(name => name === route?.name)) ?? entries[0];
 
   const signout = () => {
-    fetch(`/auth/logout`, {
-      method: "post",
-      credentials: "include",
-    })
-      .then(async response => {
-        if (response.status >= 200 && response.status < 300) {
-          window.location.replace(Router.ProjectLogin());
-        } else {
-          const message = await response.text();
-          throw new Error(message);
-        }
-      })
-      .catch((error: Error) => {
+    Request.make({ url: "/auth/logout", method: "POST", withCredentials: true })
+      .mapOkToResult(badStatusToError)
+      .tapOk(() => window.location.replace(Router.ProjectLogin()))
+      .tapError(error => {
         showToast({ variant: "error", title: translateError(error) });
         logFrontendError(error);
       });

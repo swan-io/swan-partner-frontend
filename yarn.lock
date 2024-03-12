@@ -492,7 +492,7 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.22.5"
 
-"@babel/runtime@^7.0.0", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.17.8", "@babel/runtime@^7.18.6", "@babel/runtime@^7.7.6":
+"@babel/runtime@^7.0.0", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.17.8", "@babel/runtime@^7.18.6":
   version "7.24.0"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.24.0.tgz#584c450063ffda59697021430cb47101b085951e"
   integrity sha512-Chk32uHMg6TnQdvw2e9IlqPpFX/6NLuK0Ys2PqLb7/gL5uFn9mXvK715FGLlOLQrcO4qIkNHkvPGktzzXexsFw==
@@ -1782,11 +1782,6 @@
   dependencies:
     playwright "1.41.2"
 
-"@popperjs/core@^2.11.8":
-  version "2.11.8"
-  resolved "https://registry.yarnpkg.com/@popperjs/core/-/core-2.11.8.tgz#6b79032e760a0899cd4204710beede972a3a185f"
-  integrity sha512-P1st0aksCrn9sGZhp8GMYwBnQsbvAWsZAX44oXNNvLHGqAOcoVxmjZiohstwQ7SqKnbR47akdNi+uleWD8+g6A==
-
 "@react-native/normalize-color@^2.1.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@react-native/normalize-color/-/normalize-color-2.1.0.tgz#939b87a9849e81687d3640c5efa2a486ac266f91"
@@ -2101,30 +2096,28 @@
   resolved "https://registry.yarnpkg.com/@sinclair/typebox/-/typebox-0.27.8.tgz#6667fac16c436b5434a387a34dedb013198f6e6e"
   integrity sha512-+Fj43pSMwJs4KRrH/938Uf+uAELIgVBmQzg/q1YG10djyfA3TnrU8N8XzqCh/okZdszqBQTZf96idMfE5lnwTA==
 
-"@swan-io/boxed@2.0.1", "@swan-io/boxed@^2.0.0", "@swan-io/boxed@^2.0.1":
-  version "2.0.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.0.1.tgz#7b71f6beeae378ecba7d96766f2595f9e48dc76a"
-  integrity sha512-Jc6PSzygUqMVlqpm4sYlFDz2CFs3gs98Qi1LBGuvb1oo6232ZVcknhcdxI3XORT0GnsMuKpsfMmvday8iU2lJw==
+"@swan-io/boxed@2.1.0", "@swan-io/boxed@^2.0.0", "@swan-io/boxed@^2.1.0":
+  version "2.1.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.1.0.tgz#c6ba85f576a8042e6c9f5a7552fba9b8dd4170e5"
+  integrity sha512-uoDYMIyP18290829n4xNk+I3ioNrmmxHPXArc0ZiBOsHBtnDLXLE4/F9x7piEA8ooO1V1L6A0v+LRnJsu/8eDA==
 
-"@swan-io/chicane@1.4.1", "@swan-io/chicane@^1.4.1":
-  version "1.4.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-1.4.1.tgz#2b3decb510f21bcdaaa32bc5a7f151ace983ba1d"
-  integrity sha512-VAP0WMdh/k4pprmj/vLdQYRg9MXMH0l1UiPugaWygZCMHv+6ISy+UJQGjM/MwjqF7FdhcJ4X7BYAAPB5nczBmg==
+"@swan-io/chicane@2.0.0-rc.0", "@swan-io/chicane@^2.0.0-rc.0":
+  version "2.0.0-rc.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-2.0.0-rc.0.tgz#aab88e24e27054d986a288dc395adbc89e4bd689"
+  integrity sha512-GfJVXkBdnvR8CLWY1k4L0/rCixtdiPZ/hB4mKLmWJ9tGX4unc+R5+2zeTXjLxuLsZgC8kAysdmA7kPa4Qm/HhQ==
   dependencies:
     "@emotion/hash" "^0.9.1"
-    history "^5.3.0"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-6.0.0.tgz#a44e6d131072ed34496c9cdf3b031dfac3b73dcc"
-  integrity sha512-LsLVukHgvCvD/iMBPELnfmtIBerKcindKQeO5EYxTgLy8AaIHIsVSZ/Guzba9nyr6oW7jdGTeurazAtT+0jA6w==
+"@swan-io/lake@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.0.2.tgz#fc5672bc097e72018344341e8b24e23b153b26e3"
+  integrity sha512-TEX5z4y7GEbX6bGqcD1Ol/4bFKvCZ3q3JZywiTI4G9hClFifd6ARPgJy34vTtWncIZu6BIHIfQuTrg73EYPE9g==
   dependencies:
-    "@popperjs/core" "^2.11.8"
     "@react-three/drei" "^9.99.4"
     "@react-three/fiber" "^8.15.16"
-    "@swan-io/boxed" "^2.0.1"
-    "@swan-io/chicane" "^1.4.1"
+    "@swan-io/boxed" "^2.1.0"
+    "@swan-io/chicane" "^2.0.0-rc.0"
     "@swan-io/use-form" "^2.0.0-rc.2"
     dayjs "^1.11.10"
     polished "^4.3.1"
@@ -2133,7 +2126,6 @@
     react-atomic-state "^2.0.0"
     react-dom "^18.2.0"
     react-native-web "^0.19.10"
-    react-popper "^2.3.0"
     rifm "^0.12.1"
     three "^0.161.0"
     ts-dedent "^2.2.0"
@@ -2141,14 +2133,20 @@
     urql "^4.0.6"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@6.0.0":
-  version "6.0.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-6.0.0.tgz#7b98e4405e64d7d5a993f62a517b69c531a9dd67"
-  integrity sha512-9zmYCW4LjCEM4ndn9/iIQ9TpBCv63ZiyFCocTCZwMO31EM+lf2ZFPEPUd+1Ey3aEB+rIql8IeMB5yWTavD+sdg==
+"@swan-io/request@1.0.1", "@swan-io/request@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.1.tgz#54a0a0d87ba609e81d31f6280d66b650818687d6"
+  integrity sha512-CbfliPNRYfeg/aBCcCVnuhMX7sjztH7nK3odmGJO1ua2BuhnUWOy2XeIsFEK8+1KzYIf5k0Uew9JKPHwknlGwA==
+
+"@swan-io/shared-business@7.0.2":
+  version "7.0.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.0.2.tgz#450ddc6e8db225aae96c20c5821e8264046b4bc0"
+  integrity sha512-dftkJvHCk4b63jbDAU3tq2LTAyrpcfiDnt9UVwYnxy5P1dJlH6on4YyPRc/+4yT4SoLaP915XbbMmEZ49V/zAA==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@placekit/client-js" "^2.3.0"
-    "@swan-io/boxed" "^2.0.1"
+    "@swan-io/boxed" "^2.1.0"
+    "@swan-io/request" "^1.0.1"
     "@swan-io/use-form" "^2.0.0-rc.2"
     dayjs "^1.11.10"
     iban "^0.0.14"
@@ -4810,13 +4808,6 @@ hexer@^1.5.0:
     process "^0.10.0"
     xtend "^4.0.0"
 
-history@^5.3.0:
-  version "5.3.0"
-  resolved "https://registry.yarnpkg.com/history/-/history-5.3.0.tgz#1548abaa245ba47992f063a0783db91ef201c73b"
-  integrity sha512-ZqaKwjjrAYUYfLG+htGaIIZ4nioX2L70ZUMIFysS3xvBsSG4x/n1V6TXV3N8ZYNuFGlDirFg32T7B6WOUPDYcQ==
-  dependencies:
-    "@babel/runtime" "^7.7.6"
-
 hoist-non-react-statics@^3.3.2:
   version "3.3.2"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-3.3.2.tgz#ece0acaf71d62c2969c2ec59feff42a4b1a85b45"
@@ -6789,11 +6780,6 @@ react-dropzone@^14.2.3:
     file-selector "^0.6.0"
     prop-types "^15.8.1"
 
-react-fast-compare@^3.0.1:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/react-fast-compare/-/react-fast-compare-3.2.2.tgz#929a97a532304ce9fee4bcae44234f1ce2c21d49"
-  integrity sha512-nsO+KSNgo1SbJqJEYRE9ERzo7YtYbou/OqjSQKxV7jcKox7+usiUVZOAC+XnDOABXggQTno0Y1CpVnuWEc1boQ==
-
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
@@ -6822,14 +6808,6 @@ react-native-web@0.19.10, react-native-web@^0.19.10:
     nullthrows "^1.1.1"
     postcss-value-parser "^4.2.0"
     styleq "^0.1.3"
-
-react-popper@^2.3.0:
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/react-popper/-/react-popper-2.3.0.tgz#17891c620e1320dce318bad9fede46a5f71c70ba"
-  integrity sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q==
-  dependencies:
-    react-fast-compare "^3.0.1"
-    warning "^4.0.2"
 
 react-reconciler@^0.27.0:
   version "0.27.0"
@@ -8242,13 +8220,6 @@ w3c-xmlserializer@^5.0.0:
   integrity sha512-o8qghlI8NZHU1lLPrpi2+Uq7abh4GGPpYANlalzWxyWteJOCsr/P+oPBA49TOLu5FTZO4d3F9MnWJfiMo4BkmA==
   dependencies:
     xml-name-validator "^5.0.0"
-
-warning@^4.0.2:
-  version "4.0.3"
-  resolved "https://registry.yarnpkg.com/warning/-/warning-4.0.3.tgz#16e9e077eb8a86d6af7d64aa1e05fd85b4678ca3"
-  integrity sha512-rpJyN222KWIvHJ/F53XSZv0Zl/accqHR8et1kpaMTD/fLCRxtV8iX8czMzY7sVZupTI3zcUTg8eycS2kNF9l6w==
-  dependencies:
-    loose-envify "^1.0.0"
 
 wcwidth@^1.0.1:
   version "1.0.1"

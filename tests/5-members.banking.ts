@@ -96,7 +96,7 @@ test("Members - create german", async ({ browser, page, request }) => {
   await page.getByLabel(t("banking.membershipDetail.edit.postalCode")).fill("10117");
 
   await page
-    .getByLabel(t("shared.beneficiaryForm.beneficiary.taxIdentificationNumber"))
+    .getByLabel(t("onboarding.company.step.owners.beneficiary.taxIdentificationNumber"))
     .fill("00000000000");
 
   await clickOnButton(modal, t("banking.membershipList.newMember.sendInvitation"));

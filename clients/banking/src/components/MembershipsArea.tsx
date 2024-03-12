@@ -13,6 +13,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
@@ -208,24 +209,23 @@ export const MembershipsArea = ({
           accountMembershipInvitationMode: "EMAIL",
         },
         ({ params: { resourceId } }) => {
-          const xhr = new XMLHttpRequest();
           const query = new URLSearchParams();
 
           query.append("inviterAccountMembershipId", accountMembershipId);
           query.append("lang", locale.language);
 
-          xhr.open(
-            "POST",
-            match(projectConfiguration)
-              .with(
-                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-                projectId =>
-                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-              )
-              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`),
-            true,
-          );
-          xhr.addEventListener("load", () => {
+          const url = match(projectConfiguration)
+            .with(
+              Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+              projectId =>
+                `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+            )
+            .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+
+          const request = Request.make({
+            url,
+            method: "POST",
+          }).tap(() => {
             Router.replace("AccountMembersList", {
               ...params,
               accountMembershipId,
@@ -233,8 +233,8 @@ export const MembershipsArea = ({
               status: undefined,
             });
           });
-          xhr.send(null);
-          return () => xhr.abort();
+
+          return () => request.cancel();
         },
       )
       .otherwise(() => {});

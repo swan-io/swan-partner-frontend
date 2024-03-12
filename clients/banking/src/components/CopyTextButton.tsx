@@ -15,7 +15,7 @@ export const CopyTextButton = ({
   return (
     <LakeTooltip
       describedBy="copy"
-      placement="top"
+      placement="right"
       onHide={() => setVisibleState("copy")}
       togglableOnFocus={true}
       content={

@@ -820,14 +820,15 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                             .with(
                               { name: "AccountPaymentsArea" },
                               ({ params: { consentId, standingOrder, status: consentStatus } }) =>
-                                isNullish(accountId) ? (
+                                isNullish(accountId) || isNullish(accountCountry) ? (
                                   <ErrorView />
                                 ) : (
                                   <TransferArea
+                                    accountCountry={accountCountry}
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
-                                    transferCreationVisible={transferCreationVisible}
                                     canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                    canViewAccount={accountMembership.canViewAccount}
                                     transferConsent={
                                       consentId != null && consentStatus != null
                                         ? Option.Some({
@@ -836,7 +837,7 @@ export const AccountArea = ({ accountMembershipId }: Props) => {
                                           })
                                         : Option.None()
                                     }
-                                    canViewAccount={accountMembership.canViewAccount}
+                                    transferCreationVisible={transferCreationVisible}
                                   />
                                 ),
                             )

@@ -5,6 +5,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { useMemo } from "react";
 import { View } from "react-native";
 import { match } from "ts-pattern";
+import { AccountCountry } from "../graphql/partner";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { TransferPage } from "../pages/TransferPage";
@@ -16,21 +17,23 @@ import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
 
 type Props = {
+  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
-  transferCreationVisible: boolean;
   canQueryCardOnTransaction: boolean;
   canViewAccount: boolean;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
+  transferCreationVisible: boolean;
 };
 
 export const TransferArea = ({
+  accountCountry,
   accountId,
   accountMembershipId,
-  transferCreationVisible,
   canQueryCardOnTransaction,
-  transferConsent,
   canViewAccount,
+  transferConsent,
+  transferCreationVisible,
 }: Props) => {
   const route = Router.useRoute(paymentRoutes);
 
@@ -77,6 +80,7 @@ export const TransferArea = ({
 
                 <FullViewportLayer visible={type === "transfer"}>
                   <TransferRegularWizard
+                    accountCountry={accountCountry}
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
@@ -85,6 +89,7 @@ export const TransferArea = ({
 
                 <FullViewportLayer visible={type === "recurring"}>
                   <TransferRecurringWizard
+                    accountCountry={accountCountry}
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}

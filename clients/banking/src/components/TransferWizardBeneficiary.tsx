@@ -1,4 +1,4 @@
-import { AsyncData, Future } from "@swan-io/boxed";
+import { AsyncData, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -10,23 +10,20 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { electronicFormat } from "iban";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
   GetBeneficiaryVerificationDocument,
-  GetBeneficiaryVerificationQuery,
   GetIbanValidationDocument,
-  GetIbanValidationQuery,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { partnerClient } from "../utils/urql";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
 export type Beneficiary = {
@@ -53,18 +50,16 @@ export const TransferWizardBeneficiary = ({
   initialBeneficiary,
   onSave,
 }: Props) => {
-  const [ibanState, setIbanState] = useState<
-    AsyncData<
-      | {
-          type: "ibanValidation";
-          data: GetIbanValidationQuery["ibanValidation"];
-        }
-      | {
-          type: "beneficiaryVerification";
-          data: GetBeneficiaryVerificationQuery["beneficiaryVerification"];
-        }
-    >
-  >(AsyncData.NotAsked());
+  const {
+    data: ibanVerification,
+    query: queryIbanVerification,
+    reset: resetIbanVerification,
+  } = useDeferredUrqlQuery(GetIbanValidationDocument);
+  const {
+    data: beneficiaryVerification,
+    query: queryBeneficiaryVerification,
+    reset: resetBeneficiaryVerification,
+  } = useDeferredUrqlQuery(GetBeneficiaryVerificationDocument);
 
   const { Field, listenFields, submitForm, FieldsListener } = useForm({
     name: {
@@ -81,46 +76,37 @@ export const TransferWizardBeneficiary = ({
   useEffect(() => {
     return listenFields(["iban", "name"], ({ iban, name }) => {
       if (!iban.valid) {
-        setIbanState(AsyncData.NotAsked());
+        resetBeneficiaryVerification();
+        resetIbanVerification();
+        return;
       }
-
-      setIbanState(AsyncData.Loading());
 
       const isTransferFromDutchAccountToDutchIBAN =
         accountCountry === "NLD" && iban.value.startsWith("NL");
 
       if (isTransferFromDutchAccountToDutchIBAN) {
-        Future.fromPromise(
-          partnerClient
-            .query(GetBeneficiaryVerificationDocument, {
-              // query needed only for NLD accounts
-              input: {
-                debtorAccountId: accountId,
-                iban: iban.value,
-                name: name.value,
-              },
-            })
-            .toPromise()
-            .then(parseOperationResult),
-        )
-          .mapOk(data => data.beneficiaryVerification)
-          .tapOk(data => setIbanState(AsyncData.Done({ type: "beneficiaryVerification", data })))
-          .tapError(() => setIbanState(AsyncData.NotAsked()));
+        queryBeneficiaryVerification({
+          input: {
+            debtorAccountId: accountId,
+            iban: electronicFormat(iban.value),
+            name: name.value,
+          },
+        });
       } else {
-        Future.fromPromise(
-          partnerClient
-            .query(GetIbanValidationDocument, {
-              iban: iban.value,
-            })
-            .toPromise()
-            .then(parseOperationResult),
-        )
-          .mapOk(data => data.ibanValidation)
-          .tapOk(data => setIbanState(AsyncData.Done({ type: "ibanValidation", data })))
-          .tapError(() => setIbanState(AsyncData.NotAsked()));
+        queryIbanVerification({
+          iban: electronicFormat(iban.value),
+        });
       }
     });
-  }, [accountCountry, accountId, listenFields]);
+  }, [
+    accountCountry,
+    accountId,
+    listenFields,
+    queryBeneficiaryVerification,
+    queryIbanVerification,
+    resetBeneficiaryVerification,
+    resetIbanVerification,
+  ]);
 
   const onPressSubmit = () => {
     submitForm(values => {
@@ -139,20 +125,30 @@ export const TransferWizardBeneficiary = ({
         {({ name: beneficiaryName }) => (
           <Tile
             style={animations.fadeAndSlideInFromBottom.enter}
-            footer={match(ibanState)
-              .with(AsyncData.P.Loading, () => (
-                <LakeAlert anchored={true} variant="neutral" title="">
-                  <ActivityIndicator color={colors.gray[700]} />
-                </LakeAlert>
-              ))
+            footer={match({
+              beneficiaryVerification: beneficiaryVerification.mapOk(
+                query => query.beneficiaryVerification,
+              ),
+              ibanVerification: ibanVerification.mapOk(query => query.ibanValidation),
+            })
               .with(
-                AsyncData.P.Done({
-                  type: "ibanValidation",
-                  data: {
-                    __typename: "ValidIban",
-                    bank: P.select(),
-                  },
-                }),
+                { beneficiaryVerification: AsyncData.P.Loading },
+                { ibanVerification: AsyncData.P.Loading },
+                () => (
+                  <LakeAlert anchored={true} variant="neutral" title="">
+                    <ActivityIndicator color={colors.gray[700]} />
+                  </LakeAlert>
+                ),
+              )
+              .with(
+                {
+                  ibanVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "ValidIban",
+                      bank: P.select(),
+                    }),
+                  ),
+                },
                 ({ name, address }) => (
                   <LakeAlert
                     anchored={true}
@@ -177,12 +173,13 @@ export const TransferWizardBeneficiary = ({
                 ),
               )
               .with(
-                AsyncData.P.Done({
-                  type: "beneficiaryVerification",
-                  data: {
-                    __typename: "BeneficiaryMatch",
-                  },
-                }),
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "BeneficiaryMatch",
+                    }),
+                  ),
+                },
                 () => (
                   <LakeAlert
                     anchored={true}
@@ -194,13 +191,14 @@ export const TransferWizardBeneficiary = ({
                 ),
               )
               .with(
-                AsyncData.P.Done({
-                  type: "beneficiaryVerification",
-                  data: {
-                    __typename: "BeneficiaryMismatch",
-                    nameSuggestion: P.select(),
-                  },
-                }),
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "BeneficiaryMismatch",
+                      nameSuggestion: P.select(),
+                    }),
+                  ),
+                },
                 nameSuggestion => (
                   <LakeAlert
                     anchored={true}
@@ -224,13 +222,14 @@ export const TransferWizardBeneficiary = ({
                 ),
               )
               .with(
-                AsyncData.P.Done({
-                  type: "beneficiaryVerification",
-                  data: {
-                    __typename: "InvalidBeneficiaryVerification",
-                    message: P.select(),
-                  },
-                }),
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "InvalidBeneficiaryVerification",
+                      message: P.select(),
+                    }),
+                  ),
+                },
                 message => (
                   <LakeAlert
                     anchored={true}
@@ -242,13 +241,14 @@ export const TransferWizardBeneficiary = ({
                 ),
               )
               .with(
-                AsyncData.P.Done({
-                  type: "beneficiaryVerification",
-                  data: {
-                    __typename: "BeneficiaryTypo",
-                    nameSuggestion: P.select(),
-                  },
-                }),
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "BeneficiaryTypo",
+                      nameSuggestion: P.select(),
+                    }),
+                  ),
+                },
                 nameSuggestion =>
                   isNotNullish(nameSuggestion) ? (
                     <LakeAlert

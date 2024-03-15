@@ -2106,10 +2106,10 @@
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.0.3.tgz#668e0888bb56c633aefb18a40d4774a2ed4441f7"
-  integrity sha512-EUHjWZ236EWuNFFi1L0bsC0WoiHxn6ZsNIaxop2ekqc0kFP02CJLOS152NqSL+tc6o/dSv/E9a+rBolb6lysYg==
+"@swan-io/lake@7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.1.2.tgz#4675c47a4f68742d9aeb00f860593a0be63a67d2"
+  integrity sha512-esLmdBV8i+412udj0QIAKPx90hFkE7qiOYJ8uXZSNl8joB9dsJLltJ5uoJcTQB4KBUBLRwfCjq4upvB2h1l0Xw==
   dependencies:
     "@react-three/drei" "^9.102.3"
     "@react-three/fiber" "^8.15.19"
@@ -2135,10 +2135,10 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.1.tgz#54a0a0d87ba609e81d31f6280d66b650818687d6"
   integrity sha512-CbfliPNRYfeg/aBCcCVnuhMX7sjztH7nK3odmGJO1ua2BuhnUWOy2XeIsFEK8+1KzYIf5k0Uew9JKPHwknlGwA==
 
-"@swan-io/shared-business@7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.0.3.tgz#8ace4ab08d2c79e4abb7e40f2a0cdadaf9901923"
-  integrity sha512-/xCbFbZ+f58RuR/NLp/juIH6jWBPxx5lramt5Ro/oPT4mCcUsJjqfK3S1mHmTXy3XCiR8PBftYicaBJKhULqmQ==
+"@swan-io/shared-business@7.1.2":
+  version "7.1.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.1.2.tgz#e12b61c977790bcbd42b912b03f665d47957d003"
+  integrity sha512-VcusgftbTmpYuDS7aEIbp8T/MtLapGg9Mye/DzeKDI5VXGkrNSSL+WwZ5NrGT5REKqgJePzdhHRJXrmEWGa+pA==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@placekit/client-js" "^2.3.0"
@@ -7956,10 +7956,10 @@ typed-array-length@^1.0.5:
     is-typed-array "^1.1.13"
     possible-typed-array-names "^1.0.0"
 
-typescript@5.4.2:
-  version "5.4.2"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.4.2.tgz#0ae9cebcfae970718474fe0da2c090cad6577372"
-  integrity sha512-+2/g0Fds1ERlP6JsakQQDXjZdZMM+rqpamFZJEKh4kwTIn3iDkgKtby0CeNd5ATNZ4Ry1ax15TMx0W2V+miizQ==
+typescript@5.3.3:
+  version "5.3.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.3.3.tgz#b3ce6ba258e72e6305ba66f5c9b452aaee3ffe37"
+  integrity sha512-pXWcraxM0uxAS+tN0AG/BF2TyqmHO014Z070UsJ+pFvYuRSq8KH8DmWpnbXe0pEPDHXZV3FcAbJkijJ5oNEnWw==
 
 ua-parser-js@^1.0.35:
   version "1.0.37"

@@ -183,68 +183,19 @@ export const TransferWizardBeneficiary = ({
                 () => (
                   <LakeAlert
                     anchored={true}
-                    variant="neutral"
-                    title={t("transfer.new.bankInformation")}
-                  >
-                    <LakeText>{t("transfer.new.nldValidBankInformation")}</LakeText>
-                  </LakeAlert>
+                    variant="info"
+                    title={t("transfer.new.nldValidBankInformation")}
+                  />
                 ),
               )
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok({
-                      __typename: "BeneficiaryMismatch",
-                      nameSuggestion: P.select(),
-                    }),
-                  ),
-                },
-                nameSuggestion => (
-                  <LakeAlert
-                    anchored={true}
-                    variant="neutral"
-                    title={t("transfer.new.bankInformation")}
-                  >
-                    {isNotNullish(nameSuggestion) ? (
-                      <LakeText>
-                        {t("transfer.new.nldInvalidBeneficiaryVerification.withSuggestion", {
-                          nameSuggestion,
-                        })}
-                      </LakeText>
-                    ) : (
-                      <LakeText>
-                        {t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
-                          name: beneficiaryName.value,
-                        })}
-                      </LakeText>
-                    )}
-                  </LakeAlert>
-                ),
-              )
-              .with(
-                {
-                  beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "InvalidBeneficiaryVerification",
-                      message: P.select(),
-                    }),
-                  ),
-                },
-                message => (
-                  <LakeAlert
-                    anchored={true}
-                    variant="neutral"
-                    title={t("transfer.new.bankInformation")}
-                  >
-                    <LakeText>{message}</LakeText>
-                  </LakeAlert>
-                ),
-              )
-              .with(
-                {
-                  beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "BeneficiaryTypo",
+                      __typename:
+                        "BeneficiaryMismatch" ||
+                        "InvalidBeneficiaryVerification" ||
+                        "BeneficiaryTypo",
                       nameSuggestion: P.select(),
                     }),
                   ),
@@ -253,26 +204,27 @@ export const TransferWizardBeneficiary = ({
                   isNotNullish(nameSuggestion) ? (
                     <LakeAlert
                       anchored={true}
-                      variant="neutral"
-                      title={t("transfer.new.bankInformation")}
+                      variant="warning"
+                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withSuggestion", {
+                        nameSuggestion,
+                      })}
                     >
                       <LakeText>
-                        {t("transfer.new.nldInvalidBeneficiaryVerification.withSuggestion", {
-                          nameSuggestion,
-                        })}
+                        {t(
+                          "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.description",
+                        )}
                       </LakeText>
                     </LakeAlert>
                   ) : (
                     <LakeAlert
                       anchored={true}
-                      variant="neutral"
-                      title={t("transfer.new.bankInformation")}
-                    >
-                      <LakeText>{t("transfer.new.nldBeneficiaryTypo")}</LakeText>
-                    </LakeAlert>
+                      variant="error"
+                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
+                        name: beneficiaryName.value,
+                      })}
+                    />
                   ),
               )
-
               .otherwise(() => null)}
           >
             <LakeLabel

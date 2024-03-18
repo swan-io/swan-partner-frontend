@@ -68,7 +68,7 @@ const resetGitBranch = (branch: string, remote: string) =>
   exec(`git switch -C ${branch} ${remote}/${branch}`);
 
 const getGitChangelogEntries = (from: string | undefined, to: string) =>
-  exec(`git log ${from != null ? `${from}..${to}` : ""} --pretty="format:%s (%h)"`)
+  exec(`git log ${from != null ? `${from}..${to}` : ""} --pretty="format:%s"`)
     .then(_ => _.split("\n"))
     .then(entries =>
       entries

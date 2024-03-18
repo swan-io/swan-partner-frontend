@@ -48,7 +48,8 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
       RequestSupportingDocumentCollectionReviewDocument,
     );
 
-    const supportingDocumentCollectionRef = useRef<SupportingDocumentCollectionRef>(null);
+    const supportingDocumentCollectionRef =
+      useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
     const requestReview = () => {
       return requestSupportingDocumentCollectionReview({

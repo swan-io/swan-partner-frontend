@@ -2098,23 +2098,23 @@
   resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.1.0.tgz#c6ba85f576a8042e6c9f5a7552fba9b8dd4170e5"
   integrity sha512-uoDYMIyP18290829n4xNk+I3ioNrmmxHPXArc0ZiBOsHBtnDLXLE4/F9x7piEA8ooO1V1L6A0v+LRnJsu/8eDA==
 
-"@swan-io/chicane@2.0.0-rc.1", "@swan-io/chicane@^2.0.0-rc.1":
-  version "2.0.0-rc.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-2.0.0-rc.1.tgz#9fa4c003e296669d52a4e66288339ed73d17ffce"
-  integrity sha512-Euht28F3YaQDKlngjX1RxO6+hR6JQXEwb4ru3ZVga2aBKk00mD9clGQW21Gat2HxmIBfz4/YV5xcY0hxDEn49Q==
+"@swan-io/chicane@2.0.0-rc.2", "@swan-io/chicane@^2.0.0-rc.2":
+  version "2.0.0-rc.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-2.0.0-rc.2.tgz#fe98f4c10c385fcac003303bff75b5de286940fa"
+  integrity sha512-SWE0q8Yql8pjBN6o2SmKKkD3CP0R8cTD5vcmxC19CBDAkosSR6JlOlSgPkq9zHiuGtDtrBwT5vrdJQxLr4Ix+A==
   dependencies:
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.0.3.tgz#668e0888bb56c633aefb18a40d4774a2ed4441f7"
-  integrity sha512-EUHjWZ236EWuNFFi1L0bsC0WoiHxn6ZsNIaxop2ekqc0kFP02CJLOS152NqSL+tc6o/dSv/E9a+rBolb6lysYg==
+"@swan-io/lake@7.1.3":
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.1.3.tgz#ab6ddb8395ae303d63f2434f8a0c0d8ca2d8540a"
+  integrity sha512-b0pV1d8mSSm2ZwO0r42BnmP7+LLTBehgsPpVD/ImdbDL8PRzgbOzug7S9vFT85+mhGW0/DbbS0ZTa08BNJdUtw==
   dependencies:
     "@react-three/drei" "^9.102.3"
     "@react-three/fiber" "^8.15.19"
     "@swan-io/boxed" "^2.1.0"
-    "@swan-io/chicane" "^2.0.0-rc.1"
+    "@swan-io/chicane" "^2.0.0-rc.2"
     "@swan-io/use-form" "^2.0.0-rc.2"
     dayjs "^1.11.10"
     polished "^4.3.1"
@@ -2135,10 +2135,10 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.1.tgz#54a0a0d87ba609e81d31f6280d66b650818687d6"
   integrity sha512-CbfliPNRYfeg/aBCcCVnuhMX7sjztH7nK3odmGJO1ua2BuhnUWOy2XeIsFEK8+1KzYIf5k0Uew9JKPHwknlGwA==
 
-"@swan-io/shared-business@7.0.3":
-  version "7.0.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.0.3.tgz#8ace4ab08d2c79e4abb7e40f2a0cdadaf9901923"
-  integrity sha512-/xCbFbZ+f58RuR/NLp/juIH6jWBPxx5lramt5Ro/oPT4mCcUsJjqfK3S1mHmTXy3XCiR8PBftYicaBJKhULqmQ==
+"@swan-io/shared-business@7.1.3":
+  version "7.1.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.1.3.tgz#a727c44783703206289d58cdb7df018b4ffbf252"
+  integrity sha512-cJLy+nmSj2UpjHfijm06qqG35xmB7CAXQqUEZwx/uhMqixHA+OBSx9aQ2XXAdzMppw/IFzgSSZ05uKQOKPKY7g==
   dependencies:
     "@formatjs/intl" "^2.10.0"
     "@placekit/client-js" "^2.3.0"

@@ -61,7 +61,8 @@ export const OnboardingCompanyDocuments = ({
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
-  const supportingDocumentCollectionRef = useRef<SupportingDocumentCollectionRef>(null);
+  const supportingDocumentCollectionRef =
+    useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
   const onPressPrevious = () => {
     Router.push(previousStep, { onboardingId });

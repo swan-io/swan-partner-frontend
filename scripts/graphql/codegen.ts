@@ -78,7 +78,6 @@ const frontendConfig = {
   enumsAsTypes: true,
   nonOptionalTypename: true,
   defaultScalarType: "unknown",
-  inlineFragmentTypes: "combine",
 };
 
 const backendConfig = {

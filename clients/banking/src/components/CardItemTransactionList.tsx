@@ -267,7 +267,12 @@ export const CardItemTransactionList = ({
             onClose={() => setActiveTransactionId(null)}
             items={transactions}
             render={(transaction, large) => (
-              <TransactionDetail large={large} transaction={transaction} />
+              <TransactionDetail
+                large={large}
+                transactionId={transaction.id}
+                canQueryCardOnTransaction={true}
+                canViewAccount={canViewAccount}
+              />
             )}
             closeLabel={t("common.closeButton")}
             previousLabel={t("common.previous")}

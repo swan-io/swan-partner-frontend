@@ -6,18 +6,20 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { TransactionDetailsFragment } from "../graphql/partner";
+import { TransactionDocument } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import {
   getFeesDescription,
@@ -86,11 +88,38 @@ const CopiableLine = ({ label, text }: { label: string; text: string }) => (
 );
 
 type Props = {
-  transaction: TransactionDetailsFragment;
+  transactionId: string;
   large: boolean;
+  canQueryCardOnTransaction: boolean;
+  canViewAccount: boolean;
 };
 
-export const TransactionDetail = ({ transaction, large }: Props) => {
+export const TransactionDetail = ({
+  transactionId,
+  large,
+  canQueryCardOnTransaction,
+  canViewAccount,
+}: Props) => {
+  const { data } = useUrqlQuery(
+    {
+      query: TransactionDocument,
+      variables: { id: transactionId, canViewAccount, canQueryCardOnTransaction },
+    },
+    [transactionId],
+  );
+
+  if (data.isNotAsked() || data.isLoading()) {
+    return <LoadingView />;
+  }
+
+  const result = data.get();
+
+  if (result.isError()) {
+    return <ErrorView error={result.getError()} />;
+  }
+
+  const transaction = result.get().transaction;
+
   if (transaction == null) {
     return <ErrorView />;
   }
@@ -164,7 +193,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
     )
     .otherwise(() => null);
 
-  const transactionId = (
+  const transactionIdLine = (
     <CopiableLine label={t("transaction.id")} text={truncateTransactionId(transaction.id)} />
   );
 
@@ -362,7 +391,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                       .otherwise(() => null)}
 
                     {reference}
-                    {transactionId}
+                    {transactionIdLine}
                   </ReadOnlyFieldList>
                 );
               },
@@ -420,7 +449,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {rejectedDateTime}
                     {rejectedReason}
                     {reference}
-                    {transactionId}
+                    {transactionIdLine}
                   </ReadOnlyFieldList>
                 );
               },
@@ -500,7 +529,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {rejectedDateTime}
                     {rejectedReason}
                     {reference}
-                    {transactionId}
+                    {transactionIdLine}
                   </ReadOnlyFieldList>
                 );
               },
@@ -547,7 +576,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {rejectedDateTime}
                   {rejectedReason}
                   {reference}
-                  {transactionId}
+                  {transactionIdLine}
                 </ReadOnlyFieldList>
               ),
             )
@@ -566,7 +595,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {rejectedDateTime}
                 {rejectedReason}
                 {reference}
-                {transactionId}
+                {transactionIdLine}
               </ReadOnlyFieldList>
             ))
             .with(
@@ -586,7 +615,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   {rejectedDateTime}
                   {rejectedReason}
                   {reference}
-                  {transactionId}
+                  {transactionIdLine}
 
                   {originTransaction != null && (
                     <ReadOnlyFieldList>
@@ -724,7 +753,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     {rejectedDateTime}
                     {rejectedReason}
                     {reference}
-                    {transactionId}
+                    {transactionIdLine}
 
                     <CopiableLine label={t("transaction.cmc7")} text={cmc7} />
                     <CopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
@@ -793,7 +822,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                   {rejectedReason}
                   {reference}
-                  {transactionId}
+                  {transactionIdLine}
                 </ReadOnlyFieldList>
               ),
             )
@@ -806,7 +835,7 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 {rejectedDateTime}
                 {rejectedReason}
                 {reference}
-                {transactionId}
+                {transactionIdLine}
               </ReadOnlyFieldList>
             ))}
         </ScrollView>

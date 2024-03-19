@@ -1695,6 +1695,12 @@ query TransactionListPage(
   }
 }
 
+query Transaction($id: ID!, $canViewAccount: Boolean!, $canQueryCardOnTransaction: Boolean!) {
+  transaction(id: $id) {
+    ...TransactionDetails
+  }
+}
+
 query UpcomingTransactionListPage(
   $accountId: ID!
   $first: Int!

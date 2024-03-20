@@ -61,7 +61,7 @@ export const TransferWizardBeneficiary = ({
     reset: resetBeneficiaryVerification,
   } = useDeferredUrqlQuery(GetBeneficiaryVerificationDocument);
 
-  const { Field, listenFields, submitForm, FieldsListener } = useForm({
+  const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
       validate: validateBeneficiaryName,
@@ -183,7 +183,7 @@ export const TransferWizardBeneficiary = ({
                 () => (
                   <LakeAlert
                     anchored={true}
-                    variant="info"
+                    variant="success"
                     title={t("transfer.new.nldValidBankInformation")}
                   />
                 ),
@@ -192,10 +192,7 @@ export const TransferWizardBeneficiary = ({
                 {
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok({
-                      __typename:
-                        "BeneficiaryMismatch" ||
-                        "InvalidBeneficiaryVerification" ||
-                        "BeneficiaryTypo",
+                      __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
                       nameSuggestion: P.select(),
                     }),
                   ),
@@ -214,6 +211,22 @@ export const TransferWizardBeneficiary = ({
                           "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.description",
                         )}
                       </LakeText>
+
+                      <Space height={12} />
+
+                      <Box alignItems="start">
+                        <LakeButton
+                          mode="secondary"
+                          icon="edit-filled"
+                          onPress={() =>
+                            setFieldValue("name", nameSuggestion.replaceAll(/[^a-zA-Z ]/g, ""))
+                          }
+                        >
+                          {t(
+                            "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.updateButton",
+                          )}
+                        </LakeButton>
+                      </Box>
                     </LakeAlert>
                   ) : (
                     <LakeAlert
@@ -224,6 +237,24 @@ export const TransferWizardBeneficiary = ({
                       })}
                     />
                   ),
+              )
+              .with(
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "InvalidBeneficiaryVerification",
+                    }),
+                  ),
+                },
+                () => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="error"
+                    title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
+                      name: beneficiaryName.value,
+                    })}
+                  />
+                ),
               )
               .otherwise(() => null)}
           >

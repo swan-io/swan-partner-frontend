@@ -45,7 +45,7 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
       pause: iban == undefined,
       variables: {
         // `pause` gives us the guarantee we get a valid iban
-        iban: (iban as string)?.replaceAll(" ", ""),
+        iban: electronicFormat(iban as string),
       },
     },
     [iban],

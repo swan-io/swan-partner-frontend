@@ -146,18 +146,6 @@ export const TransactionDetail = ({
     )
     .otherwise(() => null);
 
-  // <<<<<<< HEAD
-  // const transactionIdLine = (
-  //   <CopiableLine label={t("transaction.id")} text={truncateTransactionId(transaction.id)} />
-  // );
-
-  // const reference = (
-  //   <CopiableLine
-  //     label={t("transaction.reference")}
-  //     text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
-  //   />
-  // );
-
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -353,7 +341,10 @@ export const TransactionDetail = ({
 
                     {match(merchantCountryName)
                       .with(P.string, name => (
-                        <Line label={t("transaction.place")} text={`${merchantCity} - ${name}`} />
+                        <Line
+                          label={t("transaction.place")}
+                          text={isNotEmpty(merchantCity) ? `${merchantCity} - ${name}` : name}
+                        />
                       ))
                       .otherwise(() => null)}
 
@@ -679,6 +670,8 @@ export const TransactionDetail = ({
             )
 
             .otherwise(() => null)}
+
+          <Separator space={8} />
 
           <ReadOnlyFieldList>
             <CopiableLine

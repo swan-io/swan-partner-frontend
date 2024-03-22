@@ -166,7 +166,7 @@ const UpdateAccountForm = ({
   const shouldEditTaxIdentificationNumber =
     account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
 
-  const legalDocument = account.legalDocuments?.edges[0]?.node.url;
+  const legalDocuments = account.legalDocuments?.edges.map(value => value.node.url);
 
   return (
     <View>
@@ -304,20 +304,23 @@ const UpdateAccountForm = ({
 
       <Space height={32} />
 
-      <LakeHeading level={2} variant="h4">
-        {t("accountDetails.title.contracts")}
-      </LakeHeading>
+      {isNotNullish(legalDocuments) && legalDocuments.length > 0 ? (
+        <>
+          <LakeHeading level={2} variant="h4">
+            {t("accountDetails.title.contracts")}
+          </LakeHeading>
 
-      <Space height={12} />
-      <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
-      <Space height={12} />
+          <Space height={12} />
+          <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
+          <Space height={12} />
 
-      {isNotNullish(legalDocument) ? (
-        <TileGrid>
-          <Contract to={legalDocument}>{t("accountDetails.swanTermsAndConditions")}</Contract>
-
-          {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
-        </TileGrid>
+          <TileGrid>
+            {legalDocuments.map(legalDocument => (
+              <Contract to={legalDocument}>{t("accountDetails.swanTermsAndConditions")}</Contract>
+            ))}
+            {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
+          </TileGrid>
+        </>
       ) : null}
 
       {!formDisabled && (

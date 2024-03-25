@@ -10,6 +10,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
@@ -61,6 +62,11 @@ export const TransferWizardBeneficiary = ({
     reset: resetBeneficiaryVerification,
   } = useDeferredUrqlQuery(GetBeneficiaryVerificationDocument);
 
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  const debouncedQueryIbanVerification = useDebounce(queryIbanVerification, 500);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  const debouncedQueryBeneficiaryVerification = useDebounce(queryBeneficiaryVerification, 500);
+
   const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
@@ -74,6 +80,31 @@ export const TransferWizardBeneficiary = ({
   });
 
   useEffect(() => {
+    return listenFields(["iban"], ({ iban }) => {
+      if (!iban.valid) {
+        resetBeneficiaryVerification();
+        resetIbanVerification();
+        return;
+      }
+
+      const isTransferFromDutchAccountToDutchIBAN =
+        accountCountry === "NLD" && iban.value.startsWith("NL");
+
+      if (!isTransferFromDutchAccountToDutchIBAN) {
+        debouncedQueryIbanVerification({
+          iban: electronicFormat(iban.value),
+        });
+      }
+    });
+  }, [
+    accountCountry,
+    listenFields,
+    debouncedQueryIbanVerification,
+    resetBeneficiaryVerification,
+    resetIbanVerification,
+  ]);
+
+  useEffect(() => {
     return listenFields(["iban", "name"], ({ iban, name }) => {
       if (!iban.valid) {
         resetBeneficiaryVerification();
@@ -85,16 +116,12 @@ export const TransferWizardBeneficiary = ({
         accountCountry === "NLD" && iban.value.startsWith("NL");
 
       if (isTransferFromDutchAccountToDutchIBAN) {
-        queryBeneficiaryVerification({
+        debouncedQueryBeneficiaryVerification({
           input: {
             debtorAccountId: accountId,
             iban: electronicFormat(iban.value),
             name: name.value,
           },
-        });
-      } else {
-        queryIbanVerification({
-          iban: electronicFormat(iban.value),
         });
       }
     });
@@ -102,8 +129,7 @@ export const TransferWizardBeneficiary = ({
     accountCountry,
     accountId,
     listenFields,
-    queryBeneficiaryVerification,
-    queryIbanVerification,
+    debouncedQueryBeneficiaryVerification,
     resetBeneficiaryVerification,
     resetIbanVerification,
   ]);

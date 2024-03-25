@@ -482,21 +482,29 @@ query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
   }
 }
 
-query AccountDetailsSettingsPage($accountId: ID!) {
+query AccountDetailsSettingsPage($accountId: ID!, $filters: LegalDocumentsFilterInput) {
   account(accountId: $accountId) {
     id
     country
     language
     name
+    legalDocuments(first: 1, filters: $filters) {
+      edges {
+        node {
+          id
+          type
+          url
+          statusInfo {
+            status
+          }
+        }
+      }
+    }
     statusInfo {
       status
     }
     holder {
       id
-      onboarding {
-        id
-        tcuUrl
-      }
       info {
         __typename
         ... on AccountHolderCompanyInfo {

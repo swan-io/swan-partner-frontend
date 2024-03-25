@@ -166,7 +166,7 @@ const UpdateAccountForm = ({
   const shouldEditTaxIdentificationNumber =
     account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
 
-  const tcuUrl = account.holder.onboarding?.tcuUrl;
+  const legalDocuments = account.legalDocuments?.edges.map(value => value.node.url);
 
   return (
     <View>
@@ -304,20 +304,22 @@ const UpdateAccountForm = ({
 
       <Space height={32} />
 
-      <LakeHeading level={2} variant="h4">
-        {t("accountDetails.title.contracts")}
-      </LakeHeading>
+      {isNotNullish(legalDocuments) && legalDocuments.length > 0 ? (
+        <>
+          <LakeHeading level={2} variant="h4">
+            {t("accountDetails.title.contracts")}
+          </LakeHeading>
 
-      <Space height={12} />
-      <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
-      <Space height={12} />
+          <Space height={12} />
+          <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
+          <Space height={12} />
 
-      {isNotNullish(tcuUrl) ? (
-        <TileGrid>
-          <Contract to={tcuUrl}>{t("accountDetails.swanTermsAndConditions")}</Contract>
-
-          {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
-        </TileGrid>
+          <TileGrid>
+            {legalDocuments.map(legalDocument => (
+              <Contract to={legalDocument}>{t("accountDetails.swanTermsAndConditions")}</Contract>
+            ))}
+          </TileGrid>
+        </>
       ) : null}
 
       {!formDisabled && (
@@ -382,7 +384,13 @@ export const AccountDetailsSettingsPage = ({
   largeBreakpoint,
 }: Props) => {
   const { data } = useUrqlQuery(
-    { query: AccountDetailsSettingsPageDocument, variables: { accountId } },
+    {
+      query: AccountDetailsSettingsPageDocument,
+      variables: {
+        accountId,
+        filters: { status: "Active", type: "SwanTCU" },
+      },
+    },
     [],
   );
 

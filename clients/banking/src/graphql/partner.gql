@@ -505,10 +505,6 @@ query AccountDetailsSettingsPage($accountId: ID!, $filters: LegalDocumentsFilter
     }
     holder {
       id
-      onboarding {
-        id
-        tcuUrl
-      }
       info {
         __typename
         ... on AccountHolderCompanyInfo {

@@ -318,7 +318,6 @@ const UpdateAccountForm = ({
             {legalDocuments.map(legalDocument => (
               <Contract to={legalDocument}>{t("accountDetails.swanTermsAndConditions")}</Contract>
             ))}
-            {/* <Contract to="#">{t("accountDetails.settings.partnershipConditions", { projectName })}</Contract> */}
           </TileGrid>
         </>
       ) : null}

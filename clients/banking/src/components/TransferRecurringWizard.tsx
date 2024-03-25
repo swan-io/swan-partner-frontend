@@ -13,7 +13,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { ScheduleStandingOrderDocument } from "../graphql/partner";
+import { AccountCountry, ScheduleStandingOrderDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -81,12 +81,14 @@ type Step =
 
 type Props = {
   onPressClose?: () => void;
+  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
 };
 
 export const TransferRecurringWizard = ({
   onPressClose,
+  accountCountry,
   accountId,
   accountMembershipId,
 }: Props) => {
@@ -210,6 +212,8 @@ export const TransferRecurringWizard = ({
                     <Space height={32} />
 
                     <TransferWizardBeneficiary
+                      accountCountry={accountCountry}
+                      accountId={accountId}
                       initialBeneficiary={beneficiary}
                       onSave={beneficiary => setStep({ name: "Details", beneficiary })}
                     />

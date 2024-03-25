@@ -10,14 +10,20 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
+import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { electronicFormat } from "iban";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
-import { GetIbanValidationDocument } from "../graphql/partner";
+import {
+  AccountCountry,
+  GetBeneficiaryVerificationDocument,
+  GetIbanValidationDocument,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
@@ -33,45 +39,100 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  accountCountry: AccountCountry;
+  accountId: string;
   initialBeneficiary?: Beneficiary;
   onSave: (beneficiary: Beneficiary) => void;
 };
 
-export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props) => {
-  const [iban, setIban] = useState<string | undefined>(undefined);
-  const { data } = useUrqlQuery(
-    {
-      query: GetIbanValidationDocument,
-      pause: iban == undefined,
-      variables: {
-        // `pause` gives us the guarantee we get a valid iban
-        iban: iban as string,
-      },
-    },
-    [iban],
-  );
+export const TransferWizardBeneficiary = ({
+  accountCountry,
+  accountId,
+  initialBeneficiary,
+  onSave,
+}: Props) => {
+  const {
+    data: ibanVerification,
+    query: queryIbanVerification,
+    reset: resetIbanVerification,
+  } = useDeferredUrqlQuery(GetIbanValidationDocument);
+  const {
+    data: beneficiaryVerification,
+    query: queryBeneficiaryVerification,
+    reset: resetBeneficiaryVerification,
+  } = useDeferredUrqlQuery(GetBeneficiaryVerificationDocument);
 
-  const { Field, listenFields, submitForm } = useForm({
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  const debouncedQueryIbanVerification = useDebounce(queryIbanVerification, 500);
+  // eslint-disable-next-line @typescript-eslint/no-misused-promises
+  const debouncedQueryBeneficiaryVerification = useDebounce(queryBeneficiaryVerification, 500);
+
+  const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
       initialValue: initialBeneficiary?.name ?? "",
       validate: validateBeneficiaryName,
     },
     iban: {
       initialValue: initialBeneficiary?.iban ?? "",
-      validate: combineValidators(validateRequired, validateIban),
       sanitize: electronicFormat,
+      validate: combineValidators(validateRequired, validateIban),
     },
   });
 
   useEffect(() => {
     return listenFields(["iban"], ({ iban }) => {
-      if (iban.valid) {
-        setIban(iban.value);
-      } else {
-        setIban(undefined);
+      if (!iban.valid) {
+        resetBeneficiaryVerification();
+        resetIbanVerification();
+        return;
+      }
+
+      const isTransferFromDutchAccountToDutchIBAN =
+        accountCountry === "NLD" && iban.value.startsWith("NL");
+
+      if (!isTransferFromDutchAccountToDutchIBAN) {
+        debouncedQueryIbanVerification({
+          iban: electronicFormat(iban.value),
+        });
       }
     });
-  }, [listenFields]);
+  }, [
+    accountCountry,
+    listenFields,
+    debouncedQueryIbanVerification,
+    resetBeneficiaryVerification,
+    resetIbanVerification,
+  ]);
+
+  useEffect(() => {
+    return listenFields(["iban", "name"], ({ iban, name }) => {
+      if (!iban.valid) {
+        resetBeneficiaryVerification();
+        resetIbanVerification();
+        return;
+      }
+
+      const isTransferFromDutchAccountToDutchIBAN =
+        accountCountry === "NLD" && iban.value.startsWith("NL");
+
+      if (isTransferFromDutchAccountToDutchIBAN) {
+        debouncedQueryBeneficiaryVerification({
+          input: {
+            debtorAccountId: accountId,
+            iban: electronicFormat(iban.value),
+            name: name.value,
+          },
+        });
+      }
+    });
+  }, [
+    accountCountry,
+    accountId,
+    listenFields,
+    debouncedQueryBeneficiaryVerification,
+    resetBeneficiaryVerification,
+    resetIbanVerification,
+  ]);
 
   const onPressSubmit = () => {
     submitForm(values => {
@@ -86,87 +147,185 @@ export const TransferWizardBeneficiary = ({ initialBeneficiary, onSave }: Props)
 
   return (
     <>
-      <Tile
-        style={animations.fadeAndSlideInFromBottom.enter}
-        footer={match(data)
-          .with(AsyncData.P.Loading, () => {
-            return (
-              <LakeAlert anchored={true} variant="neutral" title="">
-                <ActivityIndicator color={colors.gray[700]} />
-              </LakeAlert>
-            );
-          })
-          .with(
-            AsyncData.P.Done(
-              Result.P.Ok({ ibanValidation: { __typename: "ValidIban", bank: P.select() } }),
-            ),
-            ({ name, address }) => {
-              return (
-                <LakeAlert
-                  anchored={true}
-                  variant="neutral"
-                  title={t("transfer.new.bankInformation")}
-                >
-                  <>
-                    <LakeText>{name}</LakeText>
+      <FieldsListener names={["name"]}>
+        {({ name: beneficiaryName }) => (
+          <Tile
+            style={animations.fadeAndSlideInFromBottom.enter}
+            footer={match({
+              beneficiaryVerification: beneficiaryVerification.mapOk(
+                query => query.beneficiaryVerification,
+              ),
+              ibanVerification: ibanVerification.mapOk(query => query.ibanValidation),
+            })
+              .with(
+                { beneficiaryVerification: AsyncData.P.Loading },
+                { ibanVerification: AsyncData.P.Loading },
+                () => (
+                  <LakeAlert anchored={true} variant="neutral" title="">
+                    <ActivityIndicator color={colors.gray[700]} />
+                  </LakeAlert>
+                ),
+              )
+              .with(
+                {
+                  ibanVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "ValidIban",
+                      bank: P.select(),
+                    }),
+                  ),
+                },
+                ({ name, address }) => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="neutral"
+                    title={t("transfer.new.bankInformation")}
+                  >
+                    <>
+                      <LakeText>{name}</LakeText>
 
-                    {match(address)
-                      .with(
-                        { addressLine1: P.string, postalCode: P.string, city: P.string },
-                        ({ addressLine1, postalCode, city }) => (
-                          <LakeText>
-                            {addressLine1}, {postalCode} {city}
-                          </LakeText>
-                        ),
-                      )
-                      .otherwise(() => null)}
-                  </>
-                </LakeAlert>
-              );
-            },
-          )
-          .otherwise(() => null)}
-      >
-        <LakeLabel
-          label={t("transfer.new.beneficiary.name")}
-          render={id => (
-            <Field name="name">
-              {({ value, onChange, onBlur, error, valid, ref }) => (
-                <LakeTextInput
-                  id={id}
-                  ref={ref}
-                  value={value}
-                  error={error}
-                  valid={valid}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
-              )}
-            </Field>
-          )}
-        />
+                      {match(address)
+                        .with(
+                          { addressLine1: P.string, postalCode: P.string, city: P.string },
+                          ({ addressLine1, postalCode, city }) => (
+                            <LakeText>
+                              {addressLine1}, {postalCode} {city}
+                            </LakeText>
+                          ),
+                        )
+                        .otherwise(() => null)}
+                    </>
+                  </LakeAlert>
+                ),
+              )
+              .with(
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "BeneficiaryMatch",
+                    }),
+                  ),
+                },
+                () => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="success"
+                    title={t("transfer.new.nldValidBankInformation")}
+                  />
+                ),
+              )
+              .with(
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
+                      nameSuggestion: P.select(),
+                    }),
+                  ),
+                },
+                nameSuggestion =>
+                  isNotNullish(nameSuggestion) ? (
+                    <LakeAlert
+                      anchored={true}
+                      variant="warning"
+                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withSuggestion", {
+                        nameSuggestion,
+                      })}
+                    >
+                      <LakeText>
+                        {t(
+                          "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.description",
+                        )}
+                      </LakeText>
 
-        <LakeLabel
-          label={t("transfer.new.iban.label")}
-          render={id => (
-            <Field name="iban">
-              {({ value, onChange, onBlur, error, validating, valid, ref }) => (
-                <LakeTextInput
-                  id={id}
-                  ref={ref}
-                  placeholder={t("transfer.new.iban.placeholder")}
-                  value={printIbanFormat(value)}
-                  validating={validating}
-                  error={error}
-                  valid={valid}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                />
+                      <Space height={12} />
+
+                      <Box alignItems="start">
+                        <LakeButton
+                          mode="secondary"
+                          icon="edit-filled"
+                          onPress={() =>
+                            setFieldValue("name", nameSuggestion.replaceAll(/[^a-zA-Z ]/g, ""))
+                          }
+                        >
+                          {t(
+                            "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.updateButton",
+                          )}
+                        </LakeButton>
+                      </Box>
+                    </LakeAlert>
+                  ) : (
+                    <LakeAlert
+                      anchored={true}
+                      variant="error"
+                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
+                        name: beneficiaryName.value,
+                      })}
+                    />
+                  ),
+              )
+              .with(
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok({
+                      __typename: "InvalidBeneficiaryVerification",
+                    }),
+                  ),
+                },
+                () => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="error"
+                    title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
+                      name: beneficiaryName.value,
+                    })}
+                  />
+                ),
+              )
+              .otherwise(() => null)}
+          >
+            <LakeLabel
+              label={t("transfer.new.beneficiary.name")}
+              render={id => (
+                <Field name="name">
+                  {({ value, onChange, onBlur, error, valid, ref }) => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      value={value}
+                      error={error}
+                      valid={valid}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                    />
+                  )}
+                </Field>
               )}
-            </Field>
-          )}
-        />
-      </Tile>
+            />
+
+            <LakeLabel
+              label={t("transfer.new.iban.label")}
+              render={id => (
+                <Field name="iban">
+                  {({ value, onChange, onBlur, error, validating, valid, ref }) => (
+                    <LakeTextInput
+                      id={id}
+                      ref={ref}
+                      placeholder={t("transfer.new.iban.placeholder")}
+                      value={printIbanFormat(value)}
+                      validating={validating}
+                      error={error}
+                      valid={valid}
+                      onChangeText={onChange}
+                      onBlur={onBlur}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+          </Tile>
+        )}
+      </FieldsListener>
 
       <Space height={32} />
 

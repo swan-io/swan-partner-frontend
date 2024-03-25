@@ -2008,6 +2008,21 @@ query getIbanValidation($iban: IBAN!) {
   }
 }
 
+query GetBeneficiaryVerification($input: BeneficiaryVerificationInput!) {
+  beneficiaryVerification(input: $input) {
+    __typename
+    ... on BeneficiaryTypo {
+      nameSuggestion
+    }
+    ... on BeneficiaryMismatch {
+      nameSuggestion
+    }
+    ... on InvalidBeneficiaryVerification {
+      message
+    }
+  }
+}
+
 query GetAvailableAccountBalance($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id

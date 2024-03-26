@@ -2024,6 +2024,7 @@ query GetBeneficiaryVerification($input: BeneficiaryVerificationInput!) {
     }
     ... on BeneficiaryMismatch {
       nameSuggestion
+      accountStatus
     }
     ... on InvalidBeneficiaryVerification {
       message

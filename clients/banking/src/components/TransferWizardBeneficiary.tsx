@@ -12,7 +12,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { electronicFormat } from "iban";
 import { useEffect } from "react";
@@ -210,8 +209,33 @@ export const TransferWizardBeneficiary = ({
                   <LakeAlert
                     anchored={true}
                     variant="success"
-                    title={t("transfer.new.nldValidBankInformation")}
+                    title={t("transfer.new.beneficiaryVerification.beneficiaryMatch")}
                   />
+                ),
+              )
+              .with(
+                {
+                  beneficiaryVerification: AsyncData.P.Done(
+                    Result.P.Ok(
+                      P.union(
+                        {
+                          __typename: "InvalidBeneficiaryVerification",
+                        },
+                        { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
+                      ),
+                    ),
+                  ),
+                },
+                () => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="warning"
+                    title={t("transfer.new.beneficiaryVerification.invalidBeneficiary", {
+                      name: beneficiaryName.value,
+                    })}
+                  >
+                    {t("transfer.new.beneficiaryVerification.invalidBeneficiary.description")}
+                  </LakeAlert>
                 ),
               )
               .with(
@@ -219,56 +243,47 @@ export const TransferWizardBeneficiary = ({
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok({
                       __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
-                      nameSuggestion: P.select(),
+                      nameSuggestion: P.select(P.not(P.nullish)),
                     }),
                   ),
                 },
-                nameSuggestion =>
-                  isNotNullish(nameSuggestion) ? (
-                    <LakeAlert
-                      anchored={true}
-                      variant="warning"
-                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withSuggestion", {
-                        nameSuggestion,
-                      })}
-                    >
-                      <LakeText>
+                nameSuggestion => (
+                  <LakeAlert
+                    anchored={true}
+                    variant="warning"
+                    title={t("transfer.new.beneficiaryVerification.mismatchOrTypo.withSuggestion", {
+                      nameSuggestion,
+                    })}
+                  >
+                    <LakeText>
+                      {t(
+                        "transfer.new.beneficiaryVerification.mismatchOrTypo.withSuggestion.description",
+                      )}
+                    </LakeText>
+
+                    <Space height={12} />
+
+                    <Box alignItems="start">
+                      <LakeButton
+                        mode="secondary"
+                        icon="edit-filled"
+                        onPress={() =>
+                          setFieldValue("name", nameSuggestion.replaceAll(/[^a-zA-Z ]/g, ""))
+                        }
+                      >
                         {t(
-                          "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.description",
+                          "transfer.new.beneficiaryVerification.mismatchOrTypo.withSuggestion.updateButton",
                         )}
-                      </LakeText>
-
-                      <Space height={12} />
-
-                      <Box alignItems="start">
-                        <LakeButton
-                          mode="secondary"
-                          icon="edit-filled"
-                          onPress={() =>
-                            setFieldValue("name", nameSuggestion.replaceAll(/[^a-zA-Z ]/g, ""))
-                          }
-                        >
-                          {t(
-                            "transfer.new.nldInvalidBeneficiaryVerification.withSuggestion.updateButton",
-                          )}
-                        </LakeButton>
-                      </Box>
-                    </LakeAlert>
-                  ) : (
-                    <LakeAlert
-                      anchored={true}
-                      variant="error"
-                      title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
-                        name: beneficiaryName.value,
-                      })}
-                    />
-                  ),
+                      </LakeButton>
+                    </Box>
+                  </LakeAlert>
+                ),
               )
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok({
-                      __typename: "InvalidBeneficiaryVerification",
+                      __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
                     }),
                   ),
                 },
@@ -276,9 +291,12 @@ export const TransferWizardBeneficiary = ({
                   <LakeAlert
                     anchored={true}
                     variant="error"
-                    title={t("transfer.new.nldInvalidBeneficiaryVerification.withoutSuggestion", {
-                      name: beneficiaryName.value,
-                    })}
+                    title={t(
+                      "transfer.new.beneficiaryVerification.mismatchOrTypo.withoutSuggestion",
+                      {
+                        name: beneficiaryName.value,
+                      },
+                    )}
                   />
                 ),
               )

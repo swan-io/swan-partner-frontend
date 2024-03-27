@@ -456,6 +456,7 @@ export const TransactionsArea = ({
               return (
                 <UpcomingTransactionListPage
                   accountId={accountId}
+                  accountMembershipId={accountMembershipId}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
                   onUpcomingTransactionCountUpdated={setUpdatedUpcommingTransactionCount}
                   canViewAccount={canViewAccount}

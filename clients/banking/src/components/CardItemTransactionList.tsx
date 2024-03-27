@@ -268,6 +268,7 @@ export const CardItemTransactionList = ({
             items={transactions}
             render={(transaction, large) => (
               <TransactionDetail
+                accountMembershipId={accountMembershipId}
                 large={large}
                 transactionId={transaction.id}
                 canQueryCardOnTransaction={true}

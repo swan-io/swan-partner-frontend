@@ -18,6 +18,7 @@ const NUM_TO_RENDER = 20;
 
 type Props = {
   accountId: string;
+  accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
   onUpcomingTransactionCountUpdated?: (count: number | undefined) => void;
   canViewAccount: boolean;
@@ -25,6 +26,7 @@ type Props = {
 
 export const UpcomingTransactionListPage = ({
   accountId,
+  accountMembershipId,
   canQueryCardOnTransaction,
   onUpcomingTransactionCountUpdated,
   canViewAccount,
@@ -126,7 +128,13 @@ export const UpcomingTransactionListPage = ({
         onClose={() => setActiveTransactionId(null)}
         items={transactions}
         render={(transaction, large) => (
-          <TransactionDetail large={large} transaction={transaction} />
+          <TransactionDetail
+            accountMembershipId={accountMembershipId}
+            large={large}
+            transactionId={transaction.id}
+            canQueryCardOnTransaction={canQueryCardOnTransaction}
+            canViewAccount={canViewAccount}
+          />
         )}
         closeLabel={t("common.closeButton")}
         previousLabel={t("common.previous")}

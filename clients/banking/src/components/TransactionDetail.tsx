@@ -5,6 +5,7 @@ import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
@@ -22,6 +23,7 @@ import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDocument } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
@@ -91,6 +93,7 @@ const CopiableLine = ({ label, text }: { label: string; text: string }) => (
 );
 
 type Props = {
+  accountMembershipId: string;
   transactionId: string;
   large: boolean;
   canQueryCardOnTransaction: boolean;
@@ -98,6 +101,7 @@ type Props = {
 };
 
 export const TransactionDetail = ({
+  accountMembershipId,
   transactionId,
   large,
   canQueryCardOnTransaction,
@@ -456,7 +460,7 @@ export const TransactionDetail = ({
                     {isNotNullish(reservedAmountReleasedAt) && (
                       <Line
                         label={t("transaction.reservedUntil")}
-                        text={reservedAmountReleasedAt}
+                        text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                         icon={"calendar-ltr-regular"}
                       />
                     )}
@@ -480,7 +484,7 @@ export const TransactionDetail = ({
                   {isNotNullish(reservedAmountReleasedAt) && (
                     <Line
                       label={t("transaction.reservedUntil")}
-                      text={reservedAmountReleasedAt}
+                      text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                       icon={"calendar-ltr-regular"}
                     />
                   )}
@@ -512,14 +516,29 @@ export const TransactionDetail = ({
 
                   {originTransaction != null && (
                     <ReadOnlyFieldList>
-                      <Line
+                      <LakeLabel
+                        type="viewSmall"
                         label={t("transaction.originalTransactionId")}
-                        text={originTransaction.id}
+                        actions={
+                          <Link
+                            to={Router.AccountTransactionsListDetail({
+                              accountMembershipId,
+                              transactionId: originTransaction.id,
+                            })}
+                          >
+                            <Icon size={20} name="arrow-right-regular" color={colors.swan[900]} />
+                          </Link>
+                        }
+                        render={() => (
+                          <LakeText variant="regular" color={colors.gray[900]}>
+                            {originTransaction.id}
+                          </LakeText>
+                        )}
                       />
 
                       <Line
                         label={t("transaction.originalTransactionDate")}
-                        text={originTransaction.executionDate}
+                        text={formatDateTime(new Date(originTransaction.executionDate), "LLL")}
                         icon={"calendar-ltr-regular"}
                       />
 
@@ -597,7 +616,7 @@ export const TransactionDetail = ({
                     {isNotNullish(reservedAmountReleasedAt) && (
                       <Line
                         label={t("transaction.reservedUntil")}
-                        text={reservedAmountReleasedAt}
+                        text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                         icon={"calendar-ltr-regular"}
                       />
                     )}
@@ -607,7 +626,7 @@ export const TransactionDetail = ({
                     {status !== "Upcoming" && (
                       <Line
                         label={t("transaction.paymentDateTime")}
-                        text={createdAt}
+                        text={formatDateTime(new Date(createdAt), "LLL")}
                         icon={"calendar-ltr-regular"}
                       />
                     )}
@@ -625,7 +644,7 @@ export const TransactionDetail = ({
                 <ReadOnlyFieldList>
                   <Line
                     label={t("transaction.paymentDateTime")}
-                    text={createdAt}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
                     icon={"calendar-ltr-regular"}
                   />
 

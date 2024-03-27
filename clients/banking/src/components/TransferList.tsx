@@ -225,6 +225,7 @@ export const TransferList = ({
             items={transactions}
             render={(transaction, large) => (
               <TransactionDetail
+                accountMembershipId={accountMembershipId}
                 large={large}
                 transactionId={transaction.id}
                 canQueryCardOnTransaction={canQueryCardOnTransaction}

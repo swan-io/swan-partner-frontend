@@ -1,11 +1,10 @@
 import { cacheExchange } from "@urql/exchange-graphcache";
-import { Client, CombinedError, errorExchange, fetchExchange } from "urql";
+import { Client, CombinedError, fetchExchange } from "urql";
 import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/unauthenticated";
 import { env } from "./env";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
-import { logBackendError } from "./logger";
 
 export const isCombinedError = (error: unknown): error is CombinedError =>
   error instanceof CombinedError;
@@ -33,11 +32,5 @@ export const unauthenticatedClient = new Client({
   url: `${env.BANKING_URL}/api/unauthenticated`,
   requestPolicy: "network-only",
   suspense: true,
-  exchanges: [
-    suspenseDedupExchange,
-    unauthenticatedCache,
-    requestIdExchange,
-    errorExchange({ onError: logBackendError }),
-    fetchExchange,
-  ],
+  exchanges: [suspenseDedupExchange, unauthenticatedCache, requestIdExchange, fetchExchange],
 });

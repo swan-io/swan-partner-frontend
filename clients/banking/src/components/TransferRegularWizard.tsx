@@ -159,7 +159,7 @@ export const TransferRegularWizard = ({
           .exhaustive();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

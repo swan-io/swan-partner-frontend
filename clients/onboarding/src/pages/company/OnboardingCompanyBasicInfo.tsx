@@ -141,7 +141,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
           // No need to add specific message depending on validation
           // because all fields are select or radio (so we can't have syntax error)
           // and all fields have a default value (so we can't have missing value)
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     });
   };

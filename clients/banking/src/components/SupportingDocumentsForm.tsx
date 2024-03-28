@@ -58,7 +58,7 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
         .mapOk(data => data.requestSupportingDocumentCollectionReview)
         .mapOkToResult(filterRejectionsToResult)
         .tapOk(refetchCollection)
-        .tapError(error => showToast({ variant: "error", title: translateError(error) }));
+        .tapError(error => showToast({ variant: "error", error, title: translateError(error) }));
     };
 
     useImperativeHandle(forwardedRef, () => ({

@@ -137,7 +137,7 @@ export const CardItemMobilePayment = ({
         onRefreshRequest();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

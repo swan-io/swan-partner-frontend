@@ -471,12 +471,7 @@ export const OnboardingCompanyOwnership = ({
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => Router.push(nextStep, { onboardingId }))
       .tapError(error => {
-        const errorMessage = getUpdateOnboardingError(error);
-        showToast({
-          variant: "error",
-          title: errorMessage.title,
-          description: errorMessage.description,
-        });
+        showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
       });
   };
 

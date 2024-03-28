@@ -184,7 +184,9 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
       .then(data => data.cancelVirtualIbanEntry)
       .then(filterRejectionsToPromise)
       .then(onCancel)
-      .catch(error => showToast({ variant: "error", title: translateError(error) }))
+      .catch((error: unknown) =>
+        showToast({ variant: "error", error, title: translateError(error) }),
+      )
       .finally(setModalVisible.off);
   };
 
@@ -240,8 +242,8 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
       .then(data => data ?? Promise.reject())
       .then(filterRejectionsToPromise)
       .then(reload)
-      .catch(error => {
-        showToast({ variant: "error", title: translateError(error) });
+      .catch((error: unknown) => {
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

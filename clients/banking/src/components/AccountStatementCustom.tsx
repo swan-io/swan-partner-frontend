@@ -328,7 +328,7 @@ const NewStatementForm = ({
             reload();
           })
           .tapError(error => {
-            showToast({ variant: "error", title: translateError(error) });
+            showToast({ variant: "error", error, title: translateError(error) });
           })
           .toPromise();
       }

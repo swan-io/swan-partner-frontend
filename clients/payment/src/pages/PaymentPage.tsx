@@ -209,7 +209,9 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
                   }
                 },
               )
-              .otherwise(error => showToast({ variant: "error", title: translateError(error) }));
+              .otherwise(error =>
+                showToast({ variant: "error", error, title: translateError(error) }),
+              );
           });
       }
     });

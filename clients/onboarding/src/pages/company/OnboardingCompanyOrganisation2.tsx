@@ -159,12 +159,7 @@ export const OnboardingCompanyOrganisation2 = ({
             })
             .otherwise(noop);
 
-          const errorMessage = getUpdateOnboardingError(error);
-          showToast({
-            variant: "error",
-            title: errorMessage.title,
-            description: errorMessage.description,
-          });
+          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
         });
     });
   };

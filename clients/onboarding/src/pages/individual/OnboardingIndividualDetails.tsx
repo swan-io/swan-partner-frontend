@@ -132,12 +132,7 @@ export const OnboardingIndividualDetails = ({
         .mapOkToResult(filterRejectionsToResult)
         .tapOk(() => Router.push("Finalize", { onboardingId }))
         .tapError(error => {
-          const errorMessage = getUpdateOnboardingError(error);
-          showToast({
-            variant: "error",
-            title: errorMessage.title,
-            description: errorMessage.description,
-          });
+          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
         });
     });
   };

@@ -294,7 +294,7 @@ export const MembershipDetailEditor = ({
           window.location.replace(consentUrl);
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     });
   };
@@ -311,7 +311,7 @@ export const MembershipDetailEditor = ({
         onRefreshRequest();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -333,7 +333,7 @@ export const MembershipDetailEditor = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -370,8 +370,8 @@ export const MembershipDetailEditor = ({
       .mapError(() => undefined);
 
     request
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", error, title: t("error.generic") });
       })
       .onResolve(value => {
         showToast({

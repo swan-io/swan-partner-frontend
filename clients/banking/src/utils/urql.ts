@@ -1,6 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { CombinedError, Operation } from "@urql/core";
+import { CombinedError } from "@urql/core";
 import { cacheExchange } from "@urql/exchange-graphcache";
 import { relayPagination } from "@urql/exchange-graphcache/extras";
 import { P, match } from "ts-pattern";
@@ -10,7 +10,6 @@ import schema from "../graphql/introspection.json";
 import { GraphCacheConfig } from "../graphql/partner";
 import { requestIdExchange } from "./exchanges/requestIdExchange";
 import { suspenseDedupExchange } from "./exchanges/suspenseDedupExchange";
-import { logBackendError } from "./logger";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
 
@@ -45,13 +44,9 @@ export const isUnauthorizedError = (error: unknown) => {
   );
 };
 
-const onError = (error: CombinedError, operation: Operation) => {
-  if (isUnauthorizedError(error)) {
-    if (isNullish(Router.getRoute(["ProjectLogin"]))) {
-      window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
-    }
-  } else {
-    logBackendError(error, operation);
+const onError = (error: CombinedError) => {
+  if (isUnauthorizedError(error) && isNullish(Router.getRoute(["ProjectLogin"]))) {
+    window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
   }
 };
 

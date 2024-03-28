@@ -9,7 +9,7 @@ export const signout = () => {
     .mapOkToResult(badStatusToError)
     .tapOk(() => window.location.replace(Router.ProjectLogin()))
     .tapError(error => {
-      showToast({ variant: "error", title: translateError(error) });
+      showToast({ variant: "error", error, title: translateError(error) });
       logFrontendError(error);
     });
 };

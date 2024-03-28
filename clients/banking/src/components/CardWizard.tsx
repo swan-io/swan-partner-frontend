@@ -262,7 +262,7 @@ export const CardWizard = ({
           });
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     } else {
       return addCards({ input })
@@ -277,7 +277,7 @@ export const CardWizard = ({
           });
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     }
   };
@@ -314,7 +314,7 @@ export const CardWizard = ({
           });
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     } else {
       return addSingleUseCards({ input })
@@ -329,7 +329,7 @@ export const CardWizard = ({
           });
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     }
   };
@@ -820,7 +820,11 @@ export const CardWizard = ({
                                 });
                               })
                               .tapError(error => {
-                                showToast({ variant: "error", title: translateError(error) });
+                                showToast({
+                                  variant: "error",
+                                  error,
+                                  title: translateError(error),
+                                });
                               });
                           }}
                         />

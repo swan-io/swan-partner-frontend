@@ -94,7 +94,7 @@ export const CardItemVirtualDetails = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

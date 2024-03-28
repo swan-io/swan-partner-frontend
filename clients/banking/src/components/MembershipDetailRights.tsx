@@ -166,6 +166,7 @@ export const MembershipDetailRights = ({
 
         showToast({
           variant: "error",
+          error,
           title: match(error)
             .with(
               {
@@ -215,7 +216,7 @@ export const MembershipDetailRights = ({
         onRefreshRequest();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -237,7 +238,7 @@ export const MembershipDetailRights = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

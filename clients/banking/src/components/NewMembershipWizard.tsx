@@ -378,8 +378,8 @@ export const NewMembershipWizard = ({
       .mapOkToResult(badStatusToError)
       .mapOk(() => undefined)
       .mapError(() => undefined)
-      .tapError(() => {
-        showToast({ variant: "error", title: t("error.generic") });
+      .tapError(error => {
+        showToast({ variant: "error", error, title: t("error.generic") });
       });
   };
 
@@ -450,7 +450,7 @@ export const NewMembershipWizard = ({
             }),
           )
           .tapError(error => {
-            showToast({ variant: "error", title: translateError(error) });
+            showToast({ variant: "error", error, title: translateError(error) });
           });
       }
     });

@@ -499,7 +499,7 @@ export const CardItemPhysicalDetails = ({
           });
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -517,7 +517,7 @@ export const CardItemPhysicalDetails = ({
         onRefreshRequest();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -529,7 +529,7 @@ export const CardItemPhysicalDetails = ({
         onRefreshRequest();
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -548,7 +548,7 @@ export const CardItemPhysicalDetails = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -567,7 +567,7 @@ export const CardItemPhysicalDetails = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -586,7 +586,7 @@ export const CardItemPhysicalDetails = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 
@@ -604,7 +604,7 @@ export const CardItemPhysicalDetails = ({
         window.location.replace(consentUrl);
       })
       .tapError(error => {
-        showToast({ variant: "error", title: translateError(error) });
+        showToast({ variant: "error", error, title: translateError(error) });
       });
   };
 

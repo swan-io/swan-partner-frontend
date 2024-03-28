@@ -116,7 +116,7 @@ export const TransferInternationalWizardDetails = ({
                 onPressPrevious(messages);
               },
             )
-            .otherwise(() => showToast({ variant: "error", title: t("error.generic") }));
+            .otherwise(error => showToast({ variant: "error", error, title: t("error.generic") }));
         }
       })
       .otherwise(noop);

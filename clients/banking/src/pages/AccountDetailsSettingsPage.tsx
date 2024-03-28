@@ -351,8 +351,8 @@ const UpdateAccountForm = ({
                         filterRejectionsToPromise(updateAccountHolder),
                       ]),
                     )
-                    .catch(error => {
-                      showToast({ variant: "error", title: translateError(error) });
+                    .catch((error: unknown) => {
+                      showToast({ variant: "error", error, title: translateError(error) });
                     });
                 }
               });

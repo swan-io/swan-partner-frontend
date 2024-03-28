@@ -700,7 +700,7 @@ export const RecurringTransferList = ({
           reload();
         })
         .tapError(error => {
-          showToast({ variant: "error", title: translateError(error) });
+          showToast({ variant: "error", error, title: translateError(error) });
         });
     }
   };

@@ -131,25 +131,6 @@ export const TransactionDetail = ({
     return <ErrorView />;
   }
 
-  const paymentMethod = match(transaction.__typename)
-    .with(
-      "CheckTransaction",
-      "InternalDirectDebitTransaction",
-      "SEPADirectDebitTransaction",
-      type => (
-        <Line
-          label={t("transaction.paymentMethod")}
-          text={
-            type === "CheckTransaction"
-              ? t("transactions.method.Check")
-              : t("transactions.method.DirectDebit")
-          }
-          icon={"arrow-swap-regular"}
-        />
-      ),
-    )
-    .otherwise(() => null);
-
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
       <ListRightPanelContent large={large} style={styles.container}>
@@ -292,6 +273,7 @@ export const TransactionDetail = ({
                   />
                 ),
               )
+              //TODO in red?
               .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => {
                 const description = getTransactionRejectedReasonLabel(reason);
                 if (isNullish(description)) {
@@ -365,6 +347,12 @@ export const TransactionDetail = ({
                         ),
                       )
                       .otherwise(() => null)}
+
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Card")}
+                      icon="payment-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
@@ -408,22 +396,46 @@ export const TransactionDetail = ({
                         text={printIbanFormat(creditorIban)}
                       />
                     )}
+
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Transfer")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "SEPADirectDebitTransaction" },
-              ({ mandate, creditor, debtor, reservedAmount, reservedAmountReleasedAt }) => {
+              ({
+                mandate,
+                creditor,
+                debtor,
+                reservedAmount,
+                reservedAmountReleasedAt,
+                createdAt,
+              }) => {
                 const debtorIban = debtor.IBAN;
 
+                //TODO check if it works like this: should be ultimateCreditorName or creditor.IBAN
                 const creditorIban =
                   (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
                     ? mandate.ultimateCreditorName
                     : undefined) ?? creditor.IBAN;
 
+                // { __typename: "SEPACreditTransferTransaction" },
+                // ({ createdAt, debtor, creditor }) => {
+                //   const debtorIban = debtor.IBAN;
+                //   const creditorIban = creditor.IBAN;
                 return (
                   <ReadOnlyFieldList>
+                    <Line
+                      label={t("transaction.paymentDateTime")}
+                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      icon={"calendar-ltr-regular"}
+                    />
+
                     <Line
                       label={t("transaction.debtorName")}
                       text={debtor.name}
@@ -465,15 +477,25 @@ export const TransactionDetail = ({
                       />
                     )}
 
-                    {paymentMethod}
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.DirectDebit")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "InternalDirectDebitTransaction" },
-              ({ creditor, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ creditor, reservedAmount, reservedAmountReleasedAt, createdAt }) => (
                 <ReadOnlyFieldList>
+                  <Line
+                    label={t("transaction.paymentDateTime")}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
+                    icon={"calendar-ltr-regular"}
+                  />
+
                   {isNotNullish(reservedAmount) && (
                     <Line
                       label={t("transaction.reservedAmount")}
@@ -489,18 +511,34 @@ export const TransactionDetail = ({
                     />
                   )}
 
-                  {paymentMethod}
-
                   <Line label={t("transaction.creditorName")} text={creditor.accountId} />
+
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.DirectDebit")}
+                    icon="arrow-swap-regular"
+                  />
                 </ReadOnlyFieldList>
               ),
             )
-            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor, createdAt }) => (
               <ReadOnlyFieldList>
+                <Line
+                  label={t("transaction.paymentDateTime")}
+                  text={formatDateTime(new Date(createdAt), "LLL")}
+                  icon={"calendar-ltr-regular"}
+                />
+
                 <Line
                   label={t("transaction.creditorName")}
                   text={creditor.name}
                   icon={"person-regular"}
+                />
+
+                <Line
+                  label={t("transaction.paymentMethod")}
+                  text={t("transactions.method.Transfer")}
+                  icon="arrow-swap-regular"
                 />
               </ReadOnlyFieldList>
             ))
@@ -567,7 +605,8 @@ export const TransactionDetail = ({
                         .with(
                           {
                             __typename: "FeeTransaction",
-                            feesType: "DirectDebitRejection",
+                            //TODO check if this condition removed make reason available in other feestypes
+                            // feesType: "DirectDebitRejection",
                             originTransaction: {
                               statusInfo: {
                                 __typename: "RejectedTransactionStatusInfo",
@@ -581,11 +620,18 @@ export const TransactionDetail = ({
                             if (isNullish(description)) {
                               return null;
                             }
+                            //TODO in red?
 
                             return <Line label={t("transaction.feesReason")} text={description} />;
                           },
                         )
                         .otherwise(() => null)}
+
+                      <Line
+                        label={t("transaction.paymentMethod")}
+                        text={t("transactions.method.Fees")}
+                        icon="arrow-swap-regular"
+                      />
                     </ReadOnlyFieldList>
                   )}
                 </ReadOnlyFieldList>
@@ -593,19 +639,18 @@ export const TransactionDetail = ({
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({
-                cmc7,
-                createdAt,
-                reservedAmount,
-                reservedAmountReleasedAt,
-                rlmcKey,
-                statusInfo: { status },
-              }) => {
+              ({ cmc7, createdAt, reservedAmount, reservedAmountReleasedAt, rlmcKey }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
                 return (
                   <ReadOnlyFieldList>
+                    <Line
+                      label={t("transaction.paymentDateTime")}
+                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      icon={"calendar-ltr-regular"}
+                    />
+
                     {isNotNullish(reservedAmount) && (
                       <Line
                         label={t("transaction.reservedAmount")}
@@ -621,26 +666,22 @@ export const TransactionDetail = ({
                       />
                     )}
 
-                    {paymentMethod}
-
-                    {status !== "Upcoming" && (
-                      <Line
-                        label={t("transaction.paymentDateTime")}
-                        text={formatDateTime(new Date(createdAt), "LLL")}
-                        icon={"calendar-ltr-regular"}
-                      />
-                    )}
-
                     <CopiableLine label={t("transaction.cmc7")} text={cmc7} />
                     <CopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
                     <CopiableLine label={t("transaction.checkNumber")} text={checkNumber} />
+
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Check")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "InternationalCreditTransferTransaction" },
-              ({ createdAt, creditor, internationalCurrencyExchange, paymentProduct }) => (
+              ({ createdAt, creditor, internationalCurrencyExchange }) => (
                 <ReadOnlyFieldList>
                   <Line
                     label={t("transaction.paymentDateTime")}
@@ -676,14 +717,20 @@ export const TransactionDetail = ({
                     text={internationalCurrencyExchange.exchangeRate}
                   />
 
-                  {match(paymentProduct)
+                  {/* {match(paymentProduct)
                     .with("InternationalCreditTransfer", () => (
                       <Line
                         label={t("transactionDetail.internationalCreditTransfer.paymentProduct")}
                         text={t("transactionDetail.paymentProduct.InternationalCreditTransfer")}
                       />
                     ))
-                    .otherwise(() => null)}
+                    .otherwise(() => null)} */}
+                  {/* <= TODO check if it's a duplicate*/}
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.Transfer")}
+                    icon="arrow-swap-regular"
+                  />
                 </ReadOnlyFieldList>
               ),
             )
@@ -692,6 +739,7 @@ export const TransactionDetail = ({
 
           <Separator space={8} />
 
+          {/* common fields */}
           <ReadOnlyFieldList>
             <CopiableLine
               label={t("transaction.id")}

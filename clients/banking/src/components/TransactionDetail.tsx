@@ -16,7 +16,12 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
-import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotEmpty,
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullish,
+} from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { ScrollView, StyleSheet } from "react-native";
@@ -164,8 +169,12 @@ export const TransactionDetail = ({
               ),
             )
             .with(
-              { statusInfo: { __typename: "RejectedTransactionStatusInfo" } },
-              ({ statusInfo: { reason } }) => {
+              {
+                // We display the reason of a rejected transaction which isn't a fee because it has already an alert displayed
+                __typename: P.not("FeeTransaction"),
+                statusInfo: { __typename: "RejectedTransactionStatusInfo", reason: P.select() },
+              },
+              reason => {
                 const description = getTransactionRejectedReasonLabel(reason);
                 if (isNullish(description)) {
                   return null;
@@ -174,12 +183,19 @@ export const TransactionDetail = ({
               },
             )
             .with(
-              { statusInfo: { __typename: "PendingTransactionStatusInfo" } },
-              ({ statusInfo: { pendingEndDate } }) => (
+              {
+                statusInfo: {
+                  __typename: "PendingTransactionStatusInfo",
+                  pendingEndDate: P.select(P.string),
+                },
+              },
+              pendingEndDate => (
                 <LakeAlert
                   anchored={true}
                   variant="warning"
-                  title={t("transaction.pendingTransaction.description", pendingEndDate)}
+                  title={t("transaction.pendingTransaction.description", {
+                    executionDate: formatDateTime(new Date(pendingEndDate), "LL"),
+                  })}
                 />
               ),
             )
@@ -416,27 +432,15 @@ export const TransactionDetail = ({
                 reservedAmountReleasedAt,
                 createdAt,
               }) => {
-                // const debtorIban = debtor.IBAN;
-
-                // //TODO check if it works like this: should be ultimateCreditorName or creditor.IBAN
-                // const creditorIban =
-                //   (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
-                //     ? mandate.ultimateCreditorName
-                //     : undefined) ?? creditor.IBAN;
-
-                // // { __typename: "SEPACreditTransferTransaction" },
-                // // ({ createdAt, debtor, creditor }) => {
-                // //   const debtorIban = debtor.IBAN;
-                // //   const creditorIban = creditor.IBAN;
                 const ultimateCreditorName = match(mandate)
                   .with(
-                    { __typename: "SEPAReceivedDirectDebitMandate" },
-                    ({ ultimateCreditorName }) => ultimateCreditorName,
+                    {
+                      __typename: "SEPAReceivedDirectDebitMandate",
+                      ultimateCreditorName: P.select(P.string),
+                    },
+                    ultimateCreditorName => ultimateCreditorName,
                   )
                   .otherwise(() => null);
-                // (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
-                //   ? mandate.ultimateCreditorName
-                //   : creditor.name) ?? creditor.name;
 
                 return (
                   <ReadOnlyFieldList>
@@ -461,7 +465,11 @@ export const TransactionDetail = ({
 
                     <Line
                       label={t("transaction.creditorName")}
-                      text={isNotEmpty(ultimateCreditorName) ? ultimateCreditorName : creditor.name}
+                      text={
+                        isNotNullishOrEmpty(ultimateCreditorName)
+                          ? ultimateCreditorName
+                          : creditor.name
+                      }
                       icon={"person-regular"}
                     />
 

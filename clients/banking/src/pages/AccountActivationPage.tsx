@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -10,6 +10,7 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -20,12 +21,12 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { useQueryWithErrorBoundary } from "@swan-io/lake/src/utils/urql";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
-import { ReactNode, useCallback, useMemo, useRef, useState } from "react";
+import { ReactNode, useCallback, useRef, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
@@ -39,6 +40,7 @@ import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
+import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -301,137 +303,12 @@ export const AccountActivationPage = ({
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
-  const [
-    {
-      data: { accountMembership, projectInfo },
-    },
-    reexecuteQuery,
-  ] = useQueryWithErrorBoundary({
+  const { data, reload } = useUrqlQuery({
     query: AccountActivationPageDocument,
     variables: { accountMembershipId },
   });
 
-  const account = accountMembership?.account;
-  const emailAddress = account?.legalRepresentativeMembership.email;
-
-  const holder = account?.holder;
-  const holderName = holder?.info.name;
-  const isCompany = holder?.info.__typename === "AccountHolderCompanyInfo";
-  const country = holder?.residencyAddress.country;
-  const templateLanguage = match(country)
-    .with("FR", () => "fr" as const)
-    .with("DE", () => "de" as const)
-    .with("ES", () => "es" as const)
-    .otherwise(() => "en" as const);
-
-  const user = accountMembership?.user;
-  const firstName = user?.firstName;
-  const lastName = user?.lastName;
-  const phoneNumber = user?.mobilePhoneNumber;
-  const birthDate = user?.birthDate;
-  const fullName = [firstName, lastName].filter(isNotNullishOrEmpty).join(" ");
-
-  const { supportingDocumentSettings } = projectInfo;
-  const documentCollectMode = supportingDocumentSettings?.collectMode;
-  const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
-  const documentCollectionStatus = documentCollection?.statusInfo.status;
-
-  const IBAN = account?.IBAN;
-  const BIC = account?.BIC;
-  const hasIBAN = isNotNullish(IBAN);
-  const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
-
-  const initials = [firstName, lastName]
-    .map(name => name?.[0])
-    .filter(isNotNullishOrEmpty)
-    .join("");
-
   const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
-
-  const formattedBirthDate = useMemo(
-    () => (isNotNullishOrEmpty(birthDate) ? dayjs(birthDate).format("LL") : undefined),
-    [birthDate],
-  );
-
-  const step = useMemo<Step | undefined>(() => {
-    return (
-      match({
-        hasRequiredIdentificationLevel,
-        account,
-        requireFirstTransfer,
-      })
-        .returnType<Step | undefined>()
-        // Handle legacy account that didn't go through the new process
-        .with(
-          { account: { paymentLevel: "Unlimited", paymentAccountType: "PaymentService" } },
-          () => "Done",
-        )
-        // Case where the membership doesn't yet have a user, should occur
-        .with({ hasRequiredIdentificationLevel: undefined }, () => undefined)
-        .with(
-          {
-            hasRequiredIdentificationLevel: false,
-          },
-          () =>
-            match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
-              .returnType<Step | undefined>()
-              // this branch shouldn't occur but is required to typecheck
-              .with(Option.P.Some({ status: P.union("Valid", "NotSupported") }), () => undefined)
-              .with(
-                Option.P.None,
-                Option.P.Some({ status: P.union("NotStarted", "Started", "Canceled", "Expired") }),
-                () => "IdentityVerificationTodo",
-              )
-              .with(Option.P.Some({ status: "Pending" }), () => "IdentityVerificationPending")
-              .with(Option.P.Some({ status: "Invalid" }), () => "IdentityVerificationToRedo")
-              .exhaustive(),
-        )
-        .with({ hasRequiredIdentificationLevel: true }, ({ account }): Step | undefined => {
-          if (isCompany) {
-            return match(documentCollectionStatus)
-              .returnType<Step | undefined>()
-              .with(P.nullish, () => undefined)
-              .with("WaitingForDocument", "Canceled", "Rejected", () =>
-                documentCollectMode === "EndCustomer"
-                  ? "SupportingDocumentsEmailTodo"
-                  : "SupportingDocumentsFormTodo",
-              )
-              .with("PendingReview", () =>
-                documentCollectMode === "EndCustomer"
-                  ? "SupportingDocumentsEmailPending"
-                  : "SupportingDocumentsFormPending",
-              )
-              .with("Approved", () => "Done")
-              .exhaustive();
-          }
-
-          if (requireFirstTransfer && !hasTransactions) {
-            return accountVisible && hasIBAN
-              ? "AddMoneyToYourNewAccountViaIbanTodo"
-              : "AddMoneyToYourNewAccountIbanMissing";
-          }
-          if (!requireFirstTransfer) {
-            return match([account?.holder.verificationStatus, documentCollectMode])
-              .with([P.union("NotStarted", "Pending"), P._], () => "Done" as const)
-              .with([P.union("Pending", "WaitingForInformation"), "API"], () => "Done" as const)
-              .otherwise(() => "StepNotDisplayed" as const);
-          }
-          return "Done";
-        })
-        .exhaustive()
-    );
-  }, [
-    account,
-    requireFirstTransfer,
-    isCompany,
-    hasTransactions,
-    documentCollectionStatus,
-    documentCollectMode,
-    accountVisible,
-    hasIBAN,
-    hasRequiredIdentificationLevel,
-    lastRelevantIdentification,
-  ]);
 
   const [contentVisible, setContentVisible] = useBoolean(false);
   const { desktop } = useResponsive();
@@ -439,419 +316,549 @@ export const AccountActivationPage = ({
 
   const refetchQueries = useCallback(() => {
     refetchAccountAreaQuery();
-    reexecuteQuery({ requestPolicy: "network-only" });
-  }, [refetchAccountAreaQuery, reexecuteQuery]);
+    reload();
+  }, [refetchAccountAreaQuery, reload]);
 
-  const handleProveIdentity = useCallback(() => {
-    const identificationLevel = accountMembership?.recommendedIdentificationLevel ?? "Expert";
-    const params = new URLSearchParams();
-    params.set("projectId", projectInfo.id);
-    params.set("identificationLevel", identificationLevel);
-    params.set("redirectTo", Router.PopupCallback());
-
-    openPopup({
-      url: `/auth/login?${params.toString()}`,
-      onClose: refetchQueries,
-    });
-  }, [projectInfo, refetchQueries, accountMembership]);
-
-  if (isNullish(step)) {
-    return <ErrorView />;
-  }
-
-  if (holder?.verificationStatus === "Refused") {
-    return (
-      <Box alignItems="center" justifyContent="center" style={styles.errorContainer}>
-        <BorderedIcon name="lake-denied" size={100} padding={16} color="negative" />
-        <Space height={24} />
-
-        <LakeHeading variant="h1" level={1} align="center" color={colors.gray[900]}>
-          {t("accountActivation.refused.title")}
-        </LakeHeading>
-
-        <Space height={isMobile ? 4 : 12} />
-
-        <LakeText align="center">
-          {formatNestedMessage("accountActivation.refused.description", {
-            name: holder.info.name,
-            email: (
-              <Link to="mailto:support@swan.io">
-                <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
-              </Link>
-            ),
-          })}
-        </LakeText>
-      </Box>
-    );
-  }
-
-  const content = match(step)
+  return match(data)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(
-      "IdentityVerificationPending",
-      "SupportingDocumentsEmailPending",
-      "SupportingDocumentsFormPending",
-      () => null,
-    )
-    .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => (
-      <StepScrollView onClose={setContentVisible.off}>
-        <Box alignItems="center" justifyContent="center" style={styles.identityVerification}>
-          <Avatar initials={initials} size={96} />
-          <Space height={24} />
+      AsyncData.P.Done(
+        Result.P.Ok({
+          accountMembership: P.select("accountMembership", P.not(P.nullish)),
+          projectInfo: P.select("projectInfo", P.not(P.nullish)),
+        }),
+      ),
+      ({ accountMembership, projectInfo }) => {
+        const account = accountMembership?.account;
+        const emailAddress = account?.legalRepresentativeMembership.email;
 
-          <LakeHeading align="center" level={3} variant="h3">
-            {fullName}
-          </LakeHeading>
+        const holder = account?.holder;
+        const holderName = holder?.info.name;
+        const isCompany = holder?.info.__typename === "AccountHolderCompanyInfo";
+        const country = holder?.residencyAddress.country;
+        const templateLanguage = match(country)
+          .with("FR", () => "fr" as const)
+          .with("DE", () => "de" as const)
+          .with("ES", () => "es" as const)
+          .otherwise(() => "en" as const);
 
-          <Space height={24} />
+        const user = accountMembership?.user;
+        const firstName = user?.firstName;
+        const lastName = user?.lastName;
+        const phoneNumber = user?.mobilePhoneNumber;
+        const birthDate = user?.birthDate;
+        const fullName = [firstName, lastName].filter(isNotNullishOrEmpty).join(" ");
 
-          <Box direction={large ? "row" : "column"} alignItems="center">
-            {isNotNullishOrEmpty(emailAddress) && (
-              <>
-                <LakeText align="center">{emailAddress}</LakeText>
+        const { supportingDocumentSettings } = projectInfo;
+        const documentCollectMode = supportingDocumentSettings?.collectMode;
+        const documentCollection = holder?.supportingDocumentCollections.edges[0]?.node;
+        const documentCollectionStatus = documentCollection?.statusInfo.status;
 
-                {large && <Separator horizontal={true} space={12} />}
-              </>
-            )}
+        const IBAN = account?.IBAN;
+        const BIC = account?.BIC;
+        const hasIBAN = isNotNullish(IBAN);
+        const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-            {isNotNullishOrEmpty(phoneNumber) && (
-              <>
-                <LakeText align="center" style={styles.phoneNumber}>
-                  {phoneNumber}
-                </LakeText>
+        const initials = [firstName, lastName]
+          .map(name => name?.[0])
+          .filter(isNotNullishOrEmpty)
+          .join("");
 
-                {large && <Separator horizontal={true} space={12} />}
-              </>
-            )}
-
-            {isNotNullish(formattedBirthDate) && (
-              <LakeText align="center">{formattedBirthDate}</LakeText>
-            )}
-          </Box>
-
-          <Space height={32} />
-
-          <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
-            {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
-              ? t("accountActivation.identity.button.signVerification")
-              : t("accountActivation.identity.button.verifyMyIdentity")}
-          </LakeButton>
-        </Box>
-      </StepScrollView>
-    ))
-    .with("SupportingDocumentsEmailTodo", () => (
-      <StepScrollView onClose={setContentVisible.off}>
-        <LakeHeading level={3} variant="h3">
-          {t("accountActivation.documents.title")}
-        </LakeHeading>
-
-        <Space height={8} />
-        <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-        <Space height={32} />
-
-        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-          <BorderedIcon name="lake-email" />
-          <Space height={32} />
-
-          <LakeHeading align="center" level={5} variant="h5">
-            {isNotNullish(emailAddress)
-              ? t("accountActivation.documents.email.title", { emailAddress })
-              : t("accountActivation.documents.email.titleNoMail")}
-          </LakeHeading>
-
-          <Space height={12} />
-          <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
-        </Box>
-      </StepScrollView>
-    ))
-    .with("SupportingDocumentsFormTodo", () => (
-      <View style={styles.fill}>
-        <StepScrollView onClose={setContentVisible.off}>
-          <LakeHeading level={3} variant="h3">
-            {t("accountActivation.documents.title")}
-          </LakeHeading>
-
-          <Space height={8} />
-          <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-          <Space height={32} />
-
-          {isNotNullish(documentCollection) && (
-            <SupportingDocumentsForm
-              ref={documentsFormRef}
-              templateLanguage={templateLanguage}
-              collection={documentCollection}
-              refetchCollection={refetchQueries}
-            />
-          )}
-        </StepScrollView>
-
-        <Space height={96} />
-
-        <Box alignItems="start" style={styles.submitSupportedDocs}>
-          <LakeButton
-            color="partner"
-            loading={isSendingDocumentCollection}
-            onPress={() => {
-              const ref = documentsFormRef.current;
-              if (ref == null) {
-                return;
-              }
-              setIsSendingDocumentCollection(true);
-              ref.submit().tap(() => setIsSendingDocumentCollection(false));
-            }}
-          >
-            {t("accountActivation.documents.button.submit")}
-          </LakeButton>
-        </Box>
-      </View>
-    ))
-    .with("AddMoneyToYourNewAccountIbanMissing", () => (
-      <StepScrollView onClose={setContentVisible.off}>
-        <LakeHeading level={3} variant="h3">
-          {t("accountActivation.addMoney.title")}
-        </LakeHeading>
-
-        <Space height={8} />
-        <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
-        <Space height={32} />
-
-        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-          <BorderedIcon name="lake-email" />
-          <Space height={32} />
-
-          <LakeHeading align="center" level={5} variant="h5">
-            {t("accountActivation.addMoney.illustration.title")}
-          </LakeHeading>
-
-          <Space height={12} />
-
-          <LakeText align="center">
-            {t("accountActivation.addMoney.illustration.text", { projectName })}
-          </LakeText>
-        </Box>
-      </StepScrollView>
-    ))
-    .with("AddMoneyToYourNewAccountViaIbanTodo", () => (
-      <StepScrollView onClose={setContentVisible.off}>
-        <LakeHeading level={3} variant="h3">
-          {t("accountActivation.addMoney.title")}
-        </LakeHeading>
-
-        <Space height={8} />
-        <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
-        <Space height={40} />
-
-        <ReadOnlyFieldList>
-          {isNotNullishOrEmpty(holderName) && (
-            <LakeCopyTextLine
-              accented={true}
-              text={holderName}
-              label={t("accountDetails.iban.holderLabel")}
-            />
-          )}
-
-          {isNotNullishOrEmpty(IBAN) && (
-            <LakeCopyTextLine
-              accented={true}
-              text={IBAN}
-              label={t("accountDetails.iban.ibanLabel")}
-            />
-          )}
-
-          {isNotNullishOrEmpty(BIC) && (
-            <LakeCopyTextLine
-              accented={true}
-              text={BIC}
-              label={t("accountDetails.iban.bicLabel")}
-            />
-          )}
-        </ReadOnlyFieldList>
-      </StepScrollView>
-    ))
-    .with("Done", () => (
-      <StepScrollView onClose={setContentVisible.off}>
-        <LakeHeading level={3} variant="h3">
-          {t("accountActivation.done.title")}
-        </LakeHeading>
-
-        <Space height={8} />
-        <LakeText>{t("accountActivation.done.subtitle")}</LakeText>
-        <Space height={32} />
-
-        <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-          <BorderedIcon name="lake-clock" />
-          <Space height={32} />
-
-          <LakeHeading align="center" level={5} variant="h5">
-            {t("accountActivation.done.illustration.title")}
-          </LakeHeading>
-
-          <Space height={12} />
-          <LakeText align="center">{t("accountActivation.done.illustration.text")}</LakeText>
-        </Box>
-      </StepScrollView>
-    ))
-    .with("StepNotDisplayed", () => null)
-    .exhaustive();
-
-  return (
-    <Box
-      role="main"
-      direction="row"
-      style={[
-        styles.container,
-        // TODO: Remove this when the background layout is removed
-        { backgroundColor: backgroundColor.default },
-      ]}
-    >
-      <ScrollView
-        style={styles.fill}
-        contentContainerStyle={[
-          styles.listScrollViewContent,
-          desktop && styles.listScrollViewDesktopContent,
-        ]}
-      >
-        <LeftPanelItemWrapper>
-          <LakeHeading level={3} variant="h3">
-            {t("accountActivation.title")}
-          </LakeHeading>
-
-          <Space height={8} />
-
-          <Box direction="row" alignItems="center">
-            <Icon
-              name={isCompany ? "building-multiple-regular" : "person-regular"}
-              size={20}
-              color={colors.partner.primary}
-            />
-
-            {isNotNullishOrEmpty(holderName) && (
-              <>
-                <Space width={12} />
-
-                <LakeHeading level={5} variant="h5">
-                  {holderName}
-                </LakeHeading>
-              </>
-            )}
-          </Box>
-
-          <Space height={12} />
-          <LakeText>{t("accountActivation.description")}</LakeText>
-        </LeftPanelItemWrapper>
-
-        <Space height={32} />
-
-        <Stack space={desktop ? 32 : 24}>
-          <StepTile
-            title={t("accountActivation.identity.title")}
-            description={t("accountActivation.identity.description")}
-            onPress={setContentVisible.on}
-            variant={match(step)
-              .returnType<StepTileVariant>()
-              .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => "todo")
-              .with("IdentityVerificationPending", () => "inert")
-              .otherwise(() => "done")}
-            footer={match(step)
-              .with("IdentityVerificationPending", () => (
-                <LakeAlert
-                  anchored={true}
-                  variant="info"
-                  title={t("accountActivation.identity.alert.pending.title")}
-                >
-                  {t("accountActivation.identity.alert.pending.text")}
-                </LakeAlert>
-              ))
-              .with("IdentityVerificationToRedo", () => (
-                <LakeAlert
-                  anchored={true}
-                  variant="warning"
-                  title={t("accountActivation.identity.alert.error.title")}
-                >
-                  {t("accountActivation.identity.alert.error.text")}
-                </LakeAlert>
-              ))
-              .otherwise(() => null)}
-          />
-
-          {isCompany && STEP_INDEXES[step] >= STEP_INDEXES["SupportingDocumentsEmailTodo"] && (
-            <StepTile
-              title={t("accountActivation.documents.title")}
-              description={t("accountActivation.documents.description")}
-              onPress={setContentVisible.on}
-              variant={match(step)
-                .returnType<StepTileVariant>()
-                .with("SupportingDocumentsEmailTodo", "SupportingDocumentsFormTodo", () => "todo")
+        const step = match({
+          hasRequiredIdentificationLevel,
+          account,
+          requireFirstTransfer,
+        })
+          .returnType<Step | undefined>()
+          // Handle legacy account that didn't go through the new process
+          .with(
+            { account: { pantLevel: "Unlimited", paymentAccountType: "PaymentService" } },
+            () => "Done",
+          )
+          // Case where the membership doesn't yet have a user, should occur
+          .with({ hasRequiredIdentificationLevel: undefined }, () => undefined)
+          .with(
+            {
+              hasRequiredIdentificationLevel: false,
+            },
+            () =>
+              match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+                .returnType<Step | undefined>()
+                // this branch shouldn't occur but is required to typecheck
+                .with(Option.P.Some({ status: P.union("Valid", "NotSupported") }), () => undefined)
                 .with(
-                  "SupportingDocumentsEmailPending",
-                  "SupportingDocumentsFormPending",
-                  () => "inert",
+                  Option.P.None,
+                  Option.P.Some({
+                    status: P.union("NotStarted", "Started", "Canceled", "Expired"),
+                  }),
+                  () => "IdentityVerificationTodo",
                 )
-                .otherwise(() => "done")}
-              footer={match(step)
-                .with("SupportingDocumentsEmailPending", "SupportingDocumentsFormPending", () => (
-                  <LakeAlert
-                    anchored={true}
-                    variant="info"
-                    title={t("accountActivation.pendingDocuments.title")}
-                  >
-                    {t("accountActivation.pendingDocuments.text")}
-                  </LakeAlert>
-                ))
-                .otherwise(() => null)}
-            />
-          )}
+                .with(Option.P.Some({ status: "Pending" }), () => "IdentityVerificationPending")
+                .with(Option.P.Some({ status: "Invalid" }), () => "IdentityVerificationToRedo")
+                .exhaustive(),
+          )
+          .with({ hasRequiredIdentificationLevel: true }, ({ account }): Step | undefined => {
+            if (isCompany) {
+              return match(documentCollectionStatus)
+                .returnType<Step | undefined>()
+                .with(P.nullish, () => undefined)
+                .with("WaitingForDocument", "Canceled", "Rejected", () =>
+                  documentCollectMode === "EndCustomer"
+                    ? "SupportingDocumentsEmailTodo"
+                    : "SupportingDocumentsFormTodo",
+                )
+                .with("PendingReview", () =>
+                  documentCollectMode === "EndCustomer"
+                    ? "SupportingDocumentsEmailPending"
+                    : "SupportingDocumentsFormPending",
+                )
+                .with("Approved", () => "Done")
+                .exhaustive();
+            }
 
-          {!isCompany &&
-            requireFirstTransfer &&
-            STEP_INDEXES[step] >= STEP_INDEXES["AddMoneyToYourNewAccountViaIbanTodo"] && (
-              <StepTile
-                title={t("accountActivation.addMoney.title")}
-                description={t("accountActivation.addMoney.description")}
-                onPress={setContentVisible.on}
-                variant={step === "Done" ? "done" : "todo"}
-              />
-            )}
-        </Stack>
+            if (requireFirstTransfer && !hasTransactions) {
+              return accountVisible && hasIBAN
+                ? "AddMoneyToYourNewAccountViaIbanTodo"
+                : "AddMoneyToYourNewAccountIbanMissing";
+            }
+            if (!requireFirstTransfer) {
+              return match([account?.holder.verificationStatus, documentCollectMode])
+                .with([P.union("NotStarted", "Pending"), P._], () => "Done" as const)
+                .with([P.union("Pending", "WaitingForInformation"), "API"], () => "Done" as const)
+                .otherwise(() => "StepNotDisplayed" as const);
+            }
+            return "Done";
+          })
+          .exhaustive();
 
-        {env.APP_TYPE === "LIVE" && (
-          <>
-            <Fill minHeight={32} />
+        const handleProveIdentity = () => {
+          const identificationLevel = accountMembership?.recommendedIdentificationLevel ?? "Expert";
+          const params = new URLSearchParams();
+          match(projectConfiguration.map(({ projectId }) => projectId))
+            .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
+            .otherwise(() => {});
+          params.set("identificationLevel", identificationLevel);
+          params.set("redirectTo", Router.PopupCallback());
 
-            <LeftPanelItemWrapper isSupport={true}>
-              <SupportChat
-                type="end-user"
-                additionalInfo={additionalInfo}
-                accentColor={accentColor}
-              >
-                {({ onPressShow }) => (
-                  <LakeButton mode="tertiary" onPress={onPressShow} size="small">
-                    <Icon name="chat-help-filled" size={20} color={colors.partner.primary} />
-                    <Space width={8} />
+          openPopup({
+            url: `/auth/login?${params.toString()}`,
+            onClose: refetchQueries,
+          });
+        };
 
-                    <LakeText variant="smallMedium" color={colors.gray[900]} userSelect="none">
-                      {t("needHelpButton.text")}
-                    </LakeText>
-                  </LakeButton>
+        if (isNullish(step)) {
+          return <ErrorView />;
+        }
+
+        if (holder?.verificationStatus === "Refused") {
+          return (
+            <Box alignItems="center" justifyContent="center" style={styles.errorContainer}>
+              <BorderedIcon name="lake-denied" size={100} padding={16} color="negative" />
+              <Space height={24} />
+
+              <LakeHeading variant="h1" level={1} align="center" color={colors.gray[900]}>
+                {t("accountActivation.refused.title")}
+              </LakeHeading>
+
+              <Space height={isMobile ? 4 : 12} />
+
+              <LakeText align="center">
+                {formatNestedMessage("accountActivation.refused.description", {
+                  name: holder.info.name,
+                  email: (
+                    <Link to="mailto:support@swan.io">
+                      <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
+                    </Link>
+                  ),
+                })}
+              </LakeText>
+            </Box>
+          );
+        }
+
+        const content = match(step)
+          .with(
+            "IdentityVerificationPending",
+            "SupportingDocumentsEmailPending",
+            "SupportingDocumentsFormPending",
+            () => null,
+          )
+          .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => (
+            <StepScrollView onClose={setContentVisible.off}>
+              <Box alignItems="center" justifyContent="center" style={styles.identityVerification}>
+                <Avatar initials={initials} size={96} />
+                <Space height={24} />
+
+                <LakeHeading align="center" level={3} variant="h3">
+                  {fullName}
+                </LakeHeading>
+
+                <Space height={24} />
+
+                <Box direction={large ? "row" : "column"} alignItems="center">
+                  {isNotNullishOrEmpty(emailAddress) && (
+                    <>
+                      <LakeText align="center">{emailAddress}</LakeText>
+
+                      {large && <Separator horizontal={true} space={12} />}
+                    </>
+                  )}
+
+                  {isNotNullishOrEmpty(phoneNumber) && (
+                    <>
+                      <LakeText align="center" style={styles.phoneNumber}>
+                        {phoneNumber}
+                      </LakeText>
+
+                      {large && <Separator horizontal={true} space={12} />}
+                    </>
+                  )}
+
+                  {isNotNullish(birthDate) && (
+                    <LakeText align="center">{dayjs(birthDate).format("LL")}</LakeText>
+                  )}
+                </Box>
+
+                <Space height={32} />
+
+                <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
+                  {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+                    ? t("accountActivation.identity.button.signVerification")
+                    : t("accountActivation.identity.button.verifyMyIdentity")}
+                </LakeButton>
+              </Box>
+            </StepScrollView>
+          ))
+          .with("SupportingDocumentsEmailTodo", () => (
+            <StepScrollView onClose={setContentVisible.off}>
+              <LakeHeading level={3} variant="h3">
+                {t("accountActivation.documents.title")}
+              </LakeHeading>
+
+              <Space height={8} />
+              <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
+              <Space height={32} />
+
+              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
+                <BorderedIcon name="lake-email" />
+                <Space height={32} />
+
+                <LakeHeading align="center" level={5} variant="h5">
+                  {isNotNullish(emailAddress)
+                    ? t("accountActivation.documents.email.title", { emailAddress })
+                    : t("accountActivation.documents.email.titleNoMail")}
+                </LakeHeading>
+
+                <Space height={12} />
+                <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
+              </Box>
+            </StepScrollView>
+          ))
+          .with("SupportingDocumentsFormTodo", () => (
+            <View style={styles.fill}>
+              <StepScrollView onClose={setContentVisible.off}>
+                <LakeHeading level={3} variant="h3">
+                  {t("accountActivation.documents.title")}
+                </LakeHeading>
+
+                <Space height={8} />
+                <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
+                <Space height={32} />
+
+                {isNotNullish(documentCollection) && (
+                  <SupportingDocumentsForm
+                    ref={documentsFormRef}
+                    templateLanguage={templateLanguage}
+                    collection={documentCollection}
+                    refetchCollection={refetchQueries}
+                  />
                 )}
-              </SupportChat>
-            </LeftPanelItemWrapper>
-          </>
-        )}
-      </ScrollView>
+              </StepScrollView>
 
-      {isNotNullish(content) && (
-        <>
-          {desktop ? (
-            <>
-              <Separator horizontal={true} />
+              <Space height={96} />
 
-              {content}
-            </>
-          ) : (
-            <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
-          )}
-        </>
-      )}
-    </Box>
-  );
+              <Box alignItems="start" style={styles.submitSupportedDocs}>
+                <LakeButton
+                  color="partner"
+                  loading={isSendingDocumentCollection}
+                  onPress={() => {
+                    const ref = documentsFormRef.current;
+                    if (ref == null) {
+                      return;
+                    }
+                    setIsSendingDocumentCollection(true);
+                    ref.submit().tap(() => setIsSendingDocumentCollection(false));
+                  }}
+                >
+                  {t("accountActivation.documents.button.submit")}
+                </LakeButton>
+              </Box>
+            </View>
+          ))
+          .with("AddMoneyToYourNewAccountIbanMissing", () => (
+            <StepScrollView onClose={setContentVisible.off}>
+              <LakeHeading level={3} variant="h3">
+                {t("accountActivation.addMoney.title")}
+              </LakeHeading>
+
+              <Space height={8} />
+              <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+              <Space height={32} />
+
+              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
+                <BorderedIcon name="lake-email" />
+                <Space height={32} />
+
+                <LakeHeading align="center" level={5} variant="h5">
+                  {t("accountActivation.addMoney.illustration.title")}
+                </LakeHeading>
+
+                <Space height={12} />
+
+                <LakeText align="center">
+                  {t("accountActivation.addMoney.illustration.text", { projectName })}
+                </LakeText>
+              </Box>
+            </StepScrollView>
+          ))
+          .with("AddMoneyToYourNewAccountViaIbanTodo", () => (
+            <StepScrollView onClose={setContentVisible.off}>
+              <LakeHeading level={3} variant="h3">
+                {t("accountActivation.addMoney.title")}
+              </LakeHeading>
+
+              <Space height={8} />
+              <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+              <Space height={40} />
+
+              <ReadOnlyFieldList>
+                {isNotNullishOrEmpty(holderName) && (
+                  <LakeCopyTextLine
+                    accented={true}
+                    text={holderName}
+                    label={t("accountDetails.iban.holderLabel")}
+                  />
+                )}
+
+                {isNotNullishOrEmpty(IBAN) && (
+                  <LakeCopyTextLine
+                    accented={true}
+                    text={IBAN}
+                    label={t("accountDetails.iban.ibanLabel")}
+                  />
+                )}
+
+                {isNotNullishOrEmpty(BIC) && (
+                  <LakeCopyTextLine
+                    accented={true}
+                    text={BIC}
+                    label={t("accountDetails.iban.bicLabel")}
+                  />
+                )}
+              </ReadOnlyFieldList>
+            </StepScrollView>
+          ))
+          .with("Done", () => (
+            <StepScrollView onClose={setContentVisible.off}>
+              <LakeHeading level={3} variant="h3">
+                {t("accountActivation.done.title")}
+              </LakeHeading>
+
+              <Space height={8} />
+              <LakeText>{t("accountActivation.done.subtitle")}</LakeText>
+              <Space height={32} />
+
+              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
+                <BorderedIcon name="lake-clock" />
+                <Space height={32} />
+
+                <LakeHeading align="center" level={5} variant="h5">
+                  {t("accountActivation.done.illustration.title")}
+                </LakeHeading>
+
+                <Space height={12} />
+                <LakeText align="center">{t("accountActivation.done.illustration.text")}</LakeText>
+              </Box>
+            </StepScrollView>
+          ))
+          .with("StepNotDisplayed", () => null)
+          .exhaustive();
+
+        return (
+          <Box
+            role="main"
+            direction="row"
+            style={[
+              styles.container,
+              // TODO: Remove this when the background layout is removed
+              { backgroundColor: backgroundColor.default },
+            ]}
+          >
+            <ScrollView
+              style={styles.fill}
+              contentContainerStyle={[
+                styles.listScrollViewContent,
+                desktop && styles.listScrollViewDesktopContent,
+              ]}
+            >
+              <LeftPanelItemWrapper>
+                <LakeHeading level={3} variant="h3">
+                  {t("accountActivation.title")}
+                </LakeHeading>
+
+                <Space height={8} />
+
+                <Box direction="row" alignItems="center">
+                  <Icon
+                    name={isCompany ? "building-multiple-regular" : "person-regular"}
+                    size={20}
+                    color={colors.partner.primary}
+                  />
+
+                  {isNotNullishOrEmpty(holderName) && (
+                    <>
+                      <Space width={12} />
+
+                      <LakeHeading level={5} variant="h5">
+                        {holderName}
+                      </LakeHeading>
+                    </>
+                  )}
+                </Box>
+
+                <Space height={12} />
+                <LakeText>{t("accountActivation.description")}</LakeText>
+              </LeftPanelItemWrapper>
+
+              <Space height={32} />
+
+              <Stack space={desktop ? 32 : 24}>
+                <StepTile
+                  title={t("accountActivation.identity.title")}
+                  description={t("accountActivation.identity.description")}
+                  onPress={setContentVisible.on}
+                  variant={match(step)
+                    .returnType<StepTileVariant>()
+                    .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => "todo")
+                    .with("IdentityVerificationPending", () => "inert")
+                    .otherwise(() => "done")}
+                  footer={match(step)
+                    .with("IdentityVerificationPending", () => (
+                      <LakeAlert
+                        anchored={true}
+                        variant="info"
+                        title={t("accountActivation.identity.alert.pending.title")}
+                      >
+                        {t("accountActivation.identity.alert.pending.text")}
+                      </LakeAlert>
+                    ))
+                    .with("IdentityVerificationToRedo", () => (
+                      <LakeAlert
+                        anchored={true}
+                        variant="warning"
+                        title={t("accountActivation.identity.alert.error.title")}
+                      >
+                        {t("accountActivation.identity.alert.error.text")}
+                      </LakeAlert>
+                    ))
+                    .otherwise(() => null)}
+                />
+
+                {isCompany &&
+                  STEP_INDEXES[step] >= STEP_INDEXES["SupportingDocumentsEmailTodo"] && (
+                    <StepTile
+                      title={t("accountActivation.documents.title")}
+                      description={t("accountActivation.documents.description")}
+                      onPress={setContentVisible.on}
+                      variant={match(step)
+                        .returnType<StepTileVariant>()
+                        .with(
+                          "SupportingDocumentsEmailTodo",
+                          "SupportingDocumentsFormTodo",
+                          () => "todo",
+                        )
+                        .with(
+                          "SupportingDocumentsEmailPending",
+                          "SupportingDocumentsFormPending",
+                          () => "inert",
+                        )
+                        .otherwise(() => "done")}
+                      footer={match(step)
+                        .with(
+                          "SupportingDocumentsEmailPending",
+                          "SupportingDocumentsFormPending",
+                          () => (
+                            <LakeAlert
+                              anchored={true}
+                              variant="info"
+                              title={t("accountActivation.pendingDocuments.title")}
+                            >
+                              {t("accountActivation.pendingDocuments.text")}
+                            </LakeAlert>
+                          ),
+                        )
+                        .otherwise(() => null)}
+                    />
+                  )}
+
+                {!isCompany &&
+                  requireFirstTransfer &&
+                  STEP_INDEXES[step] >= STEP_INDEXES["AddMoneyToYourNewAccountViaIbanTodo"] && (
+                    <StepTile
+                      title={t("accountActivation.addMoney.title")}
+                      description={t("accountActivation.addMoney.description")}
+                      onPress={setContentVisible.on}
+                      variant={step === "Done" ? "done" : "todo"}
+                    />
+                  )}
+              </Stack>
+
+              {env.APP_TYPE === "LIVE" && (
+                <>
+                  <Fill minHeight={32} />
+
+                  <LeftPanelItemWrapper isSupport={true}>
+                    <SupportChat
+                      type="end-user"
+                      additionalInfo={additionalInfo}
+                      accentColor={accentColor}
+                    >
+                      {({ onPressShow }) => (
+                        <LakeButton mode="tertiary" onPress={onPressShow} size="small">
+                          <Icon name="chat-help-filled" size={20} color={colors.partner.primary} />
+                          <Space width={8} />
+
+                          <LakeText
+                            variant="smallMedium"
+                            color={colors.gray[900]}
+                            userSelect="none"
+                          >
+                            {t("needHelpButton.text")}
+                          </LakeText>
+                        </LakeButton>
+                      )}
+                    </SupportChat>
+                  </LeftPanelItemWrapper>
+                </>
+              )}
+            </ScrollView>
+
+            {isNotNullish(content) && (
+              <>
+                {desktop ? (
+                  <>
+                    <Separator horizontal={true} />
+
+                    {content}
+                  </>
+                ) : (
+                  <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
+                )}
+              </>
+            )}
+          </Box>
+        );
+      },
+    )
+    .otherwise(() => <ErrorView />);
 };

@@ -318,6 +318,9 @@ query AccountArea($accountMembershipId: ID!) {
       }
       holder {
         id
+        info {
+          type
+        }
         supportingDocumentCollections(first: 1) {
           edges {
             node {

@@ -7,7 +7,7 @@ import { Suspense } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { Provider as ClientProvider } from "urql";
-import { AccountArea } from "./components/AccountArea";
+import { AccountMembershipArea } from "./components/AccountMembershipArea";
 import { ErrorView } from "./components/ErrorView";
 import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { NotFoundPage } from "./pages/NotFoundPage";
@@ -59,7 +59,7 @@ export const App = () => {
             .with({ name: "AccountArea" }, { name: "ProjectRootRedirect" }, route =>
               match(route)
                 .with({ name: "AccountArea" }, ({ params: { accountMembershipId } }) => (
-                  <AccountArea accountMembershipId={accountMembershipId} />
+                  <AccountMembershipArea accountMembershipId={accountMembershipId} />
                 ))
                 .with({ name: "ProjectRootRedirect" }, ({ params: { to, source } }) => (
                   <ProjectRootRedirect to={to} source={source} />

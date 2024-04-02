@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "Alkuperäisen tapahtuman tunnus",
   "transaction.paymentDateTime": "Maksupäivä",
   "transaction.paymentMethod": "Maksutapa",
+  "transaction.pendingTransaction.description": "Palautetaan automaattisesti {executionDate} mennessä, jos kauppiaan ei lunasteta",
   "transaction.place": "Sijainti",
   "transaction.reference": "Viite",
   "transaction.rejectedAmount": "Hylätty summa",

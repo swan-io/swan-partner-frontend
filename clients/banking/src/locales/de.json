@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "Ursprüngliche Transaktions-ID",
   "transaction.paymentDateTime": "Zahlungsdatum",
   "transaction.paymentMethod": "Zahlungsmethode",
+  "transaction.pendingTransaction.description": "Wird automatisch am {executionDate} rückgängig gemacht, wenn nicht vom Händler beansprucht",
   "transaction.place": "Ort",
   "transaction.reference": "Kundenreferenz",
   "transaction.rejectedAmount": "Abgelehnter Betrag",

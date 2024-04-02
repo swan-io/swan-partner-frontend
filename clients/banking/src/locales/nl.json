@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "Oorspronkelijke transactie-ID",
   "transaction.paymentDateTime": "Datum betaling",
   "transaction.paymentMethod": "Betalingsmethode",
+  "transaction.pendingTransaction.description": "Wordt automatisch teruggedraaid op {executionDate} indien niet opgeëist door handelaar",
   "transaction.place": "Plaats",
   "transaction.reference": "Referentie",
   "transaction.rejectedAmount": "Afgewezen bedrag",

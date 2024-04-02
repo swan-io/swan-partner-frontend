@@ -163,6 +163,26 @@ export const TransactionDetail = ({
                 />
               ),
             )
+            .with(
+              { statusInfo: { __typename: "RejectedTransactionStatusInfo" } },
+              ({ statusInfo: { reason } }) => {
+                const description = getTransactionRejectedReasonLabel(reason);
+                if (isNullish(description)) {
+                  return null;
+                }
+                return <LakeAlert anchored={true} variant="error" title={description} />;
+              },
+            )
+            .with(
+              { statusInfo: { __typename: "PendingTransactionStatusInfo" } },
+              ({ statusInfo: { pendingEndDate } }) => (
+                <LakeAlert
+                  anchored={true}
+                  variant="warning"
+                  title={t("transaction.pendingTransaction.description", pendingEndDate)}
+                />
+              ),
+            )
             .otherwise(() => null)}
         >
           {match(transaction.statusInfo.__typename)
@@ -273,26 +293,6 @@ export const TransactionDetail = ({
                   />
                 ),
               )
-              //TODO in red?
-              .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => {
-                const description = getTransactionRejectedReasonLabel(reason);
-                if (isNullish(description)) {
-                  return null;
-                }
-                return (
-                  <>
-                    <Line
-                      label={t("transaction.rejectedDate")}
-                      text={formatDateTime(new Date(transaction.updatedAt), "LLL")}
-                      icon={"calendar-ltr-regular"}
-                    />
-
-                    <Separator space={8} />
-                    <Line label={t("transaction.rejectedReason")} text={description} />
-                  </>
-                );
-              })
-
               .otherwise(() => null)}
           </ReadOnlyFieldList>
 
@@ -416,18 +416,28 @@ export const TransactionDetail = ({
                 reservedAmountReleasedAt,
                 createdAt,
               }) => {
-                const debtorIban = debtor.IBAN;
+                // const debtorIban = debtor.IBAN;
 
-                //TODO check if it works like this: should be ultimateCreditorName or creditor.IBAN
-                const creditorIban =
-                  (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
-                    ? mandate.ultimateCreditorName
-                    : undefined) ?? creditor.IBAN;
+                // //TODO check if it works like this: should be ultimateCreditorName or creditor.IBAN
+                // const creditorIban =
+                //   (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
+                //     ? mandate.ultimateCreditorName
+                //     : undefined) ?? creditor.IBAN;
 
-                // { __typename: "SEPACreditTransferTransaction" },
-                // ({ createdAt, debtor, creditor }) => {
-                //   const debtorIban = debtor.IBAN;
-                //   const creditorIban = creditor.IBAN;
+                // // { __typename: "SEPACreditTransferTransaction" },
+                // // ({ createdAt, debtor, creditor }) => {
+                // //   const debtorIban = debtor.IBAN;
+                // //   const creditorIban = creditor.IBAN;
+                const ultimateCreditorName = match(mandate)
+                  .with(
+                    { __typename: "SEPAReceivedDirectDebitMandate" },
+                    ({ ultimateCreditorName }) => ultimateCreditorName,
+                  )
+                  .otherwise(() => null);
+                // (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
+                //   ? mandate.ultimateCreditorName
+                //   : creditor.name) ?? creditor.name;
+
                 return (
                   <ReadOnlyFieldList>
                     <Line
@@ -442,23 +452,23 @@ export const TransactionDetail = ({
                       icon={"person-regular"}
                     />
 
-                    {isNotNullish(debtorIban) && (
+                    {isNotNullish(debtor.IBAN) && (
                       <Line
                         label={t("transaction.debtorIban")}
-                        text={printIbanFormat(debtorIban)}
+                        text={printIbanFormat(debtor.IBAN)}
                       />
                     )}
 
                     <Line
                       label={t("transaction.creditorName")}
-                      text={creditor.name}
+                      text={isNotEmpty(ultimateCreditorName) ? ultimateCreditorName : creditor.name}
                       icon={"person-regular"}
                     />
 
-                    {isNotNullish(creditorIban) && (
+                    {isNotNullish(creditor.IBAN) && (
                       <Line
                         label={t("transaction.creditorIban")}
-                        text={printIbanFormat(creditorIban)}
+                        text={printIbanFormat(creditor.IBAN)}
                       />
                     )}
 
@@ -544,8 +554,14 @@ export const TransactionDetail = ({
             ))
             .with(
               { __typename: "FeeTransaction" },
-              ({ counterparty, feesType, originTransaction }) => (
+              ({ counterparty, feesType, originTransaction, createdAt }) => (
                 <ReadOnlyFieldList>
+                  <Line
+                    label={t("transaction.paymentDateTime")}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
+                    icon={"calendar-ltr-regular"}
+                  />
+
                   <Line
                     label={t("transaction.creditorName")}
                     text={counterparty}
@@ -600,40 +616,14 @@ export const TransactionDetail = ({
                           />
                         ))
                         .otherwise(() => null)}
-
-                      {match(transaction)
-                        .with(
-                          {
-                            __typename: "FeeTransaction",
-                            //TODO check if this condition removed make reason available in other feestypes
-                            // feesType: "DirectDebitRejection",
-                            originTransaction: {
-                              statusInfo: {
-                                __typename: "RejectedTransactionStatusInfo",
-                                reason: P.select(),
-                              },
-                            },
-                          },
-                          reason => {
-                            const description = getTransactionRejectedReasonLabel(reason);
-
-                            if (isNullish(description)) {
-                              return null;
-                            }
-                            //TODO in red?
-
-                            return <Line label={t("transaction.feesReason")} text={description} />;
-                          },
-                        )
-                        .otherwise(() => null)}
-
-                      <Line
-                        label={t("transaction.paymentMethod")}
-                        text={t("transactions.method.Fees")}
-                        icon="arrow-swap-regular"
-                      />
                     </ReadOnlyFieldList>
                   )}
+
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.Fees")}
+                    icon="arrow-swap-regular"
+                  />
                 </ReadOnlyFieldList>
               ),
             )
@@ -717,15 +707,6 @@ export const TransactionDetail = ({
                     text={internationalCurrencyExchange.exchangeRate}
                   />
 
-                  {/* {match(paymentProduct)
-                    .with("InternationalCreditTransfer", () => (
-                      <Line
-                        label={t("transactionDetail.internationalCreditTransfer.paymentProduct")}
-                        text={t("transactionDetail.paymentProduct.InternationalCreditTransfer")}
-                      />
-                    ))
-                    .otherwise(() => null)} */}
-                  {/* <= TODO check if it's a duplicate*/}
                   <Line
                     label={t("transaction.paymentMethod")}
                     text={t("transactions.method.Transfer")}

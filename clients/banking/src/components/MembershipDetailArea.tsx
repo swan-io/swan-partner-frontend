@@ -214,7 +214,7 @@ export const MembershipDetailArea = ({
                 __typename: "AccountMembershipBindingUserErrorStatusInfo",
                 idVerifiedMatchError: P.not(true),
               },
-              user: P.not(P.nullish),
+              user: P.nonNullable,
             },
             accountMembership => (
               <ListRightPanelContent large={large} style={styles.contents}>

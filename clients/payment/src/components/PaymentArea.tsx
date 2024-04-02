@@ -90,7 +90,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
           AsyncData.P.Done(
             Result.P.Ok({
               nonEEACountries: P.select("nonEEACountries"),
-              merchantPaymentLink: P.select("merchantPaymentLink", P.not(P.nullish)),
+              merchantPaymentLink: P.select("merchantPaymentLink", P.nonNullable),
             }),
           ),
           paymentLink => {

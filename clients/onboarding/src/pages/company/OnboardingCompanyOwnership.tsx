@@ -435,10 +435,10 @@ export const OnboardingCompanyOwnership = ({
         })
           .with(
             {
-              residencyAddressCountry: P.not(P.nullish),
-              residencyAddressLine1: P.not(P.nullish),
-              residencyAddressCity: P.not(P.nullish),
-              residencyAddressPostalCode: P.not(P.nullish),
+              residencyAddressCountry: P.nonNullable,
+              residencyAddressLine1: P.nonNullable,
+              residencyAddressCity: P.nonNullable,
+              residencyAddressPostalCode: P.nonNullable,
             },
             ({
               residencyAddressCountry,

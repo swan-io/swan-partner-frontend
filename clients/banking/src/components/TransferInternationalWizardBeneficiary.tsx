@@ -107,7 +107,7 @@ export const TransferInternationalWizardBeneficiary = ({
     match(data)
       .with(
         AsyncData.P.Done(
-          Result.P.Ok({ internationalBeneficiaryDynamicForms: P.select(P.not(P.nullish)) }),
+          Result.P.Ok({ internationalBeneficiaryDynamicForms: P.select(P.nonNullable) }),
         ),
         ({ schemes }) => setSchemes(schemes),
       )

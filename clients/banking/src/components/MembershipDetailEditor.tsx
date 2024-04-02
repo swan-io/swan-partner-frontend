@@ -396,7 +396,7 @@ export const MembershipDetailEditor = ({
                 "AccountMembershipSuspendedStatusInfo",
               ),
             },
-            user: P.not(P.nullish),
+            user: P.nonNullable,
           },
           accountMembership => (
             <>

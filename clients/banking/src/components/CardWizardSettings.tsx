@@ -247,7 +247,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
       accountHolderType: accountHolder?.info.__typename,
       maxSpendingLimit,
     })
-      .with({ maxSpendingLimit: P.not(P.nullish) }, ({ maxSpendingLimit }) =>
+      .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
         Number(maxSpendingLimit.amount.value),
       )
       .with({ accountHolderType: "AccountHolderCompanyInfo" }, () =>

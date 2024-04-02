@@ -138,9 +138,7 @@ export const TransferInternationalWizardAmount = ({
 
   const metadata = match(quote)
     .with(
-      AsyncData.P.Done(
-        Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
-      ),
+      AsyncData.P.Done(Result.P.Ok({ internationalCreditTransferQuote: P.select(P.nonNullable) })),
       quote => ({
         rate: quote.exchangeRate,
         total: quote.sourceAmount as Amount,
@@ -235,7 +233,7 @@ export const TransferInternationalWizardAmount = ({
               .with(AsyncData.P.Loading, () => <QuoteDetailsPlaceholder />)
               .with(
                 AsyncData.P.Done(
-                  Result.P.Ok({ internationalCreditTransferQuote: P.select(P.not(P.nullish)) }),
+                  Result.P.Ok({ internationalCreditTransferQuote: P.select(P.nonNullable) }),
                 ),
                 quote => <QuoteDetails quote={quote} />,
               )

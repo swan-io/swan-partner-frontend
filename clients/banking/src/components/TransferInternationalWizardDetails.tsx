@@ -95,7 +95,7 @@ export const TransferInternationalWizardDetails = ({
       .with(
         AsyncData.P.Done(
           Result.P.Ok({
-            internationalCreditTransferTransactionDetailsDynamicForm: P.select(P.not(P.nullish)),
+            internationalCreditTransferTransactionDetailsDynamicForm: P.select(P.nonNullable),
           }),
         ),
         ({ fields }) => setFields(fields),

@@ -39,7 +39,7 @@
     "@opentelemetry/sdk-trace-base": "1.22.0",
     "@opentelemetry/sdk-trace-node": "1.22.0",
     "@opentelemetry/semantic-conventions": "1.22.0",
-    "@swan-io/boxed": "2.1.0",
+    "@swan-io/boxed": "2.1.1",
     "fast-proxy": "2.2.0",
     "fastify": "4.26.2",
     "get-port": "5.1.1",
@@ -50,7 +50,7 @@
     "pathe": "1.1.2",
     "picocolors": "1.0.0",
     "pino-pretty": "10.3.1",
-    "ts-pattern": "5.0.8",
+    "ts-pattern": "5.1.0",
     "valienv": "0.6.0"
   },
   "devDependencies": {

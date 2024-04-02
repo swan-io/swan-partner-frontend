@@ -278,9 +278,9 @@ export const start = async ({
         match({ refreshToken, expiresAt, accessToken })
           .with(
             {
-              refreshToken: P.not(P.nullish),
-              expiresAt: P.not(P.nullish),
-              accessToken: P.not(P.nullish),
+              refreshToken: P.nonNullable,
+              expiresAt: P.nonNullable,
+              accessToken: P.nonNullable,
             },
             ({ expiresAt, accessToken, refreshToken }) => {
               request.session.options({

@@ -11,21 +11,21 @@ Name | Version | License | URL | VendorUrl | VendorName
 @fastify/sensible | 5.5.0 | MIT | https://github.com/fastify/fastify-sensible.git | https://github.com/fastify/fastify-sensible#readme | Tomas Della Vedova - @delvedor
 @fastify/static | 6.12.0 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
 @fastify/view | 8.2.0 | MIT | https://github.com/fastify/point-of-view.git | https://github.com/fastify/point-of-view#readme | Tomas Della Vedova - @delvedor
-@formatjs/intl | 2.10.0 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
-@sentry/react | 7.106.1 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
-@testing-library/react | 14.2.1 | MIT | https://github.com/testing-library/react-testing-library | https://github.com/testing-library/react-testing-library#readme | Kent C. Dodds
+@formatjs/intl | 2.10.1 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
+@sentry/react | 7.109.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
+@testing-library/react | 14.2.2 | MIT | https://github.com/testing-library/react-testing-library | https://github.com/testing-library/react-testing-library#readme | Kent C. Dodds
 @testing-library/user-event | 14.5.2 | MIT | https://github.com/testing-library/user-event | https://github.com/testing-library/user-event#readme | Giorgio Polvara
 @types/accepts | 1.3.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/accepts | Unknown
 @types/iban | 0.0.35 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/iban | Unknown
 @types/mustache | 4.2.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
-@types/react | 18.2.65 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
-@types/react-dom | 18.2.21 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
+@types/react | 18.2.73 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
+@types/react-dom | 18.2.23 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
 @urql/devtools | 2.0.3 | MIT | https://github.com/FormidableLabs/urql-devtools-exchange.git | https://github.com/FormidableLabs/urql-devtools-exchange#readme | Formidable
-@urql/exchange-graphcache | 6.5.0 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
+@urql/exchange-graphcache | 6.5.1 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
 @vitejs/plugin-react-swc | 3.6.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
-core-js | 3.36.0 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
+core-js | 3.36.1 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
 fast-proxy | 2.2.0 | MIT | git@github.com:fastify/fast-proxy.git | https://github.com/fastify/fast-proxy | Rolando Santamaria Maso
 fastify | 4.26.2 | MIT | https://github.com/fastify/fastify.git | https://fastify.dev/ | Matteo Collina
@@ -35,7 +35,7 @@ graphql-request | 6.1.0 | MIT | https://github.com/jasonkuhrt/graphql-request.gi
 graphql-tag | 2.12.6 | MIT | https://github.com/apollographql/graphql-tag.git | https://github.com/apollographql/graphql-tag#readme | Unknown
 iban | 0.0.14 | MIT | https://github.com/arhs/iban.js | Unknown | Laurent VB
 jsdom | 24.0.0 | MIT | https://github.com/jsdom/jsdom.git | Unknown | Unknown
-libphonenumber-js | 1.10.58 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
+libphonenumber-js | 1.10.59 | MIT | https://gitlab.com/catamphetamine/libphonenumber-js.git | https://gitlab.com/catamphetamine/libphonenumber-js#readme | catamphetamine
 mustache | 4.2.0 | MIT | https://github.com/janl/mustache.js.git | https://github.com/janl/mustache.js | mustache.js Authors
 nanoid | 3.3.7 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
 nanoid | 5.0.6 | MIT | https://github.com/ai/nanoid.git | Unknown | Andrey Sitnik
@@ -49,13 +49,13 @@ react-native-web | 0.19.10 | MIT | git://github.com/necolas/react-native-web.git
 react-ux-form | 1.5.0 | MIT | https://github.com/swan-io/react-ux-form.git | https://github.com/swan-io/react-ux-form#readme | Mathieu Acthernoene
 rifm | 0.12.1 | MIT | https://github.com/istarkov/rifm.git | Unknown | istarkov
 shx | 0.3.4 | MIT | https://github.com/shelljs/shx.git | https://github.com/shelljs/shx#readme | Unknown
-ts-pattern | 5.0.8 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
+ts-pattern | 5.1.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
 urql | 4.0.6 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/ | urql GraphQL Contributors
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 9.0.1 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 valienv | 0.6.0 | MIT | https://github.com/zoontek/valienv.git | https://github.com/zoontek/valienv#readme | Mathieu Acthernoene
-vite | 5.1.6 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
-vitest | 1.3.1 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
+vite | 5.2.7 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
+vitest | 1.4.0 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
 wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
 @opentelemetry/api | 1.8.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/api | OpenTelemetry Authors
@@ -71,8 +71,7 @@ wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @opentelemetry/sdk-trace-node | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-node | OpenTelemetry Authors
 @opentelemetry/semantic-conventions | 1.22.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-semantic-conventions | OpenTelemetry Authors
 picocolors | 1.0.0 | ISC | https://github.com/alexeyraspopov/picocolors.git | Unknown | Alexey Raspopov
-tggl-client | 1.13.1 | ISC | Unknown | Unknown | Nicolas Keller
+tggl-client | 1.13.2 | ISC | Unknown | Unknown | Nicolas Keller
 type-fest | 0.21.3 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
 type-fest | 0.20.2 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
-type-fest | 3.13.1 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
-type-fest | 4.12.0 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus
+type-fest | 4.14.0 | (MIT OR CC0-1.0) | https://github.com/sindresorhus/type-fest.git | https://sindresorhus.com | Sindre Sorhus

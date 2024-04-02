@@ -186,10 +186,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
           .tapError(error => {
             match(error)
               .with(
-                {
-                  __typename: "ValidationRejection",
-                  fields: P.not(P.nullish),
-                },
+                { __typename: "ValidationRejection", fields: P.not(P.nullish) },
                 ({ fields }) => {
                   let fieldToFocus: keyof FormState | undefined;
                   fields.forEach(field => {

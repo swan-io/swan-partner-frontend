@@ -175,7 +175,7 @@ export const CardItemSettings = ({
           ? getCCA2forCCA3(card.issuingCountry)?.toLowerCase()
           : undefined,
       })
-        .with({ type: "Company", country: P.not(P.nullish) }, ({ country }) => (
+        .with({ type: "Company", country: P.nonNullable }, ({ country }) => (
           <>
             <Space height={24} />
 

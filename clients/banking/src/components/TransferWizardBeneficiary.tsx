@@ -243,7 +243,7 @@ export const TransferWizardBeneficiary = ({
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok({
                       __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
-                      nameSuggestion: P.select(P.not(P.nullish)),
+                      nameSuggestion: P.select(P.nonNullable),
                     }),
                   ),
                 },

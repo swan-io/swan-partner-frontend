@@ -2,7 +2,7 @@
 # yarn lockfile v1
 
 
-"@0no-co/graphql.web@1.0.6", "@0no-co/graphql.web@^1.0.5":
+"@0no-co/graphql.web@1.0.6", "@0no-co/graphql.web@^1.0.5", "@0no-co/graphql.web@^1.0.6":
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@0no-co/graphql.web/-/graphql.web-1.0.6.tgz#3def68bbaf654a301bd910ce3744506cad97ab9a"
   integrity sha512-KZ7TnwMcQJcFgzjoY623AVxtlDQonkqp3rSz0wb15/jHPyU1v5gynUibEpuutDeoyGJ5Tp+FwxjGyDGDwq3vIw==
@@ -2259,6 +2259,16 @@
   dependencies:
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
+
+"@swan-io/graphql-client@0.1.0-alpha9":
+  version "0.1.0-alpha9"
+  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.0-alpha9.tgz#4eb841d0c9b6dc2aa0577f8baacc6fbe435d435e"
+  integrity sha512-sB434wZXbdmPb8dLzPBL8UukcPf7vcE4rASGHR6wUMGculQZfrRBCrjoijSrGZO9V7VeJNkNzT0nz1YtFAFoSQ==
+  dependencies:
+    "@0no-co/graphql.web" "^1.0.6"
+    "@swan-io/boxed" "^2.1.1"
+    "@swan-io/request" "^1.0.2"
+    ts-pattern "^5.1.0"
 
 "@swan-io/lake@7.3.2":
   version "7.3.2"

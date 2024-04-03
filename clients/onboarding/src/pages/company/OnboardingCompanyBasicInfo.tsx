@@ -1,3 +1,4 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -6,7 +7,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryCCA3, companyCountries } from "@swan-io/shared-business/src/constants/countries";
@@ -86,7 +86,7 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
 };
 
 export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValues }: Props) => {
-  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
 
   const { Field, submitForm, listenFields, setFieldValue } = useForm({
     country: {

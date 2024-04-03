@@ -1,7 +1,7 @@
+import { ClientError } from "@swan-io/graphql-client";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";
-import type { CombinedError } from "urql";
 import { CompanyType } from "../graphql/unauthenticated";
 import { isTranslationKey, t } from "./i18n";
 
@@ -12,7 +12,7 @@ export const getErrorFieldLabel = (field: string) =>
 
 type UpdateOnboardingError =
   | Error
-  | CombinedError
+  | ClientError
   | { __typename: "ForbiddenRejection" }
   | { __typename: "InternalErrorRejection" }
   | { __typename: "ValidationRejection" };

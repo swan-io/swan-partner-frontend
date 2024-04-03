@@ -1,11 +1,11 @@
 import { Array, Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import {
@@ -56,8 +56,8 @@ export const OnboardingCompanyDocuments = ({
   supportingDocumentCollectionStatus,
   templateLanguage,
 }: Props) => {
-  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
-  const [, generateSupportingDocumentUploadUrl] = useUrqlMutation(
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
   const [showConfirmModal, setShowConfirmModal] = useBoolean(false);

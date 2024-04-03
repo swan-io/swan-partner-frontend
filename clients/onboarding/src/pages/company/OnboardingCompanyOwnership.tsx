@@ -1,3 +1,4 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -12,7 +13,6 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
@@ -340,7 +340,7 @@ export const OnboardingCompanyOwnership = ({
   companyName,
   ubos,
 }: Props) => {
-  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const [editableUbos, setEditableUbos] = useState(() =>
     ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
   );

@@ -11,18 +11,16 @@
     "clean": "tsc --clean"
   },
   "dependencies": {
-    "@0no-co/graphql.web": "1.0.6",
     "@formatjs/intl": "2.10.1",
     "@juggle/resize-observer": "3.4.0",
     "@sentry/react": "7.109.0",
     "@swan-io/boxed": "2.1.1",
     "@swan-io/chicane": "2.0.0",
     "@swan-io/lake": "7.3.2",
+    "@swan-io/graphql-client": "0.1.0-alpha9",
     "@swan-io/request": "1.0.2",
     "@swan-io/shared-business": "7.3.2",
     "@swan-io/use-form": "2.0.0",
-    "@urql/devtools": "2.0.3",
-    "@urql/exchange-graphcache": "7.0.0",
     "core-js": "3.36.1",
     "dayjs": "1.11.10",
     "nanoid": "5.0.6",
@@ -33,7 +31,6 @@
     "react-ux-form": "1.5.0",
     "tggl-client": "1.13.2",
     "ts-pattern": "5.1.0",
-    "urql": "4.0.7",
     "uuid": "9.0.1",
     "wonka": "6.3.4"
   },

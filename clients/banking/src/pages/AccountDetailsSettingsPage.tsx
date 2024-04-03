@@ -15,6 +15,7 @@ import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
 import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import {
@@ -23,7 +24,7 @@ import {
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToPromise, parseOperationResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -35,7 +36,6 @@ import { ReactNode, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
-import { useMutation } from "urql";
 import { ErrorView } from "../components/ErrorView";
 import {
   AccountDetailsSettingsPageDocument,
@@ -108,7 +108,7 @@ const UpdateAccountForm = ({
   canManageAccountMembership: boolean;
 }) => {
   const accountCountry = account.country ?? "FRA";
-  const [, updateAccount] = useMutation(UpdateAccountDocument);
+  const [, updateAccount] = useUrqlMutation(UpdateAccountDocument);
 
   const holderInfo = account.holder.info;
   const isCompany = holderInfo?.__typename === "AccountHolderCompanyInfo";
@@ -344,16 +344,16 @@ const UpdateAccountForm = ({
                       taxIdentificationNumber,
                     },
                   })
-                    .then(parseOperationResult)
-                    .then(({ updateAccount, updateAccountHolder }) =>
-                      Promise.all([
-                        filterRejectionsToPromise(updateAccount),
-                        filterRejectionsToPromise(updateAccountHolder),
+                    .mapOkToResult(({ updateAccount, updateAccountHolder }) =>
+                      Result.all([
+                        filterRejectionsToResult(updateAccount),
+                        filterRejectionsToResult(updateAccountHolder),
                       ]),
                     )
-                    .catch((error: unknown) => {
+                    .tapError((error: unknown) => {
                       showToast({ variant: "error", error, title: translateError(error) });
-                    });
+                    })
+                    .toPromise();
                 }
               });
             }}

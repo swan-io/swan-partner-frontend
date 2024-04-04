@@ -1,4 +1,5 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -21,19 +22,16 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { parseOperationResult } from "@swan-io/lake/src/utils/urql";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
-import { useCallback, useLayoutEffect, useState } from "react";
+import { useCallback } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
-import { AuthStatusDocument } from "../graphql/partner";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
 import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { partnerClient, unauthenticatedClient } from "../utils/urql";
 
 const styles = StyleSheet.create({
   base: {
@@ -137,42 +135,8 @@ export const ProjectLoginPage = ({
   sessionExpired?: boolean;
 }) => {
   const { desktop } = useResponsive(breakpoints.medium);
-  const [projectInfos, setProjectInfos] = useState<
-    AsyncData<Result<{ accentColor: string; name: string; logoUri?: string }, Error>>
-  >(AsyncData.Loading());
-
-  useLayoutEffect(() => {
-    const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
-
-    Promise.all([
-      partnerClient.query(AuthStatusDocument, {}).toPromise(),
-      unauthenticatedClient
-        .query(ProjectLoginPageDocument, { projectId, env: envType })
-        .toPromise(),
-    ])
-      .then(([authStatusQuery, projectInfosQuery]) => {
-        const authenticated = isNotNullish(authStatusQuery.data?.user);
-
-        if (authenticated) {
-          return Router.push("ProjectRootRedirect");
-        }
-
-        const { projectInfoById } = parseOperationResult(projectInfosQuery);
-
-        setProjectInfos(
-          AsyncData.Done(
-            Result.Ok({
-              accentColor: projectInfoById.accentColor ?? invariantColors.gray,
-              name: projectInfoById.name,
-              logoUri: projectInfoById.logoUri ?? undefined,
-            }),
-          ),
-        );
-      })
-      .catch(error => {
-        setProjectInfos(AsyncData.Done(Result.Error(error)));
-      });
-  }, [projectId]);
+  const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
+  const [projectInfos] = useQuery(ProjectLoginPageDocument, { projectId, env: envType });
 
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();
@@ -196,7 +160,13 @@ export const ProjectLoginPage = ({
     }
   }, [projectId]);
 
-  return match(projectInfos)
+  return match(
+    projectInfos.mapOk(({ projectInfoById }) => ({
+      accentColor: projectInfoById.accentColor ?? invariantColors.gray,
+      name: projectInfoById.name,
+      logoUri: projectInfoById.logoUri ?? undefined,
+    })),
+  )
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ accentColor, name, logoUri }) => {
       return (
         <ScrollView style={styles.base} contentContainerStyle={styles.content}>

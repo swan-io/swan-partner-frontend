@@ -1,4 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useDeferredQuery } from "@swan-io/graphql-client";
 import { Breadcrumbs, BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -7,7 +8,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Suspense, useEffect, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
@@ -92,11 +92,9 @@ const useDisplayableCardsInformation = ({
     } as const;
   }, [accountId]);
 
-  const { data: withAccountQuery, query: queryWithAccount } = useDeferredUrqlQuery(
-    CardCountWithAccountDocument,
-  );
+  const [withAccountQuery, queryWithAccount] = useDeferredQuery(CardCountWithAccountDocument);
 
-  const { data: withoutAccountQuery, query: queryWithoutAccount } = useDeferredUrqlQuery(
+  const [withoutAccountQuery, queryWithoutAccount] = useDeferredQuery(
     CardCountWithoutAccountDocument,
   );
 
@@ -113,7 +111,14 @@ const useDisplayableCardsInformation = ({
         filters: relevantCardsFilter,
       });
     }
-  }, [accountMembershipId, accountId, filtersWithAccount]);
+  }, [
+    accountMembershipId,
+    accountId,
+    hasAccountId,
+    filtersWithAccount,
+    queryWithAccount,
+    queryWithoutAccount,
+  ]);
 
   if (hasAccountId) {
     return withAccountQuery.mapOk(data => ({

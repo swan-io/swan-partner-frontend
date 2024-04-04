@@ -1,4 +1,5 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -10,7 +11,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
@@ -49,13 +49,7 @@ export const TransferRegularWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const { data } = useUrqlQuery(
-    {
-      query: GetAvailableAccountBalanceDocument,
-      variables: { accountMembershipId },
-    },
-    [accountMembershipId],
-  );
+  const [data] = useQuery(GetAvailableAccountBalanceDocument, { accountMembershipId });
 
   const { Field, submitForm } = useForm({
     amount: {

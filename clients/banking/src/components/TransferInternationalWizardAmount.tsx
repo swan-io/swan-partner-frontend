@@ -1,4 +1,5 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
+import { ClientError, useDeferredQuery, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -12,7 +13,6 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, radii } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -24,7 +24,6 @@ import {
   GetInternationalCreditTransferQuoteQuery,
 } from "../graphql/partner";
 import { Currency, currencies, formatCurrency, formatNestedMessage, t } from "../utils/i18n";
-import { isCombinedError } from "../utils/urql";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -70,22 +69,16 @@ export const TransferInternationalWizardAmount = ({
   onSave,
 }: Props) => {
   const [input, setInput] = useState<Amount | undefined>();
-  const { data: balance } = useUrqlQuery(
-    {
-      query: GetAvailableAccountBalanceDocument,
-      variables: { accountMembershipId },
-    },
-    [accountMembershipId],
-  );
+  const [balance] = useQuery(GetAvailableAccountBalanceDocument, { accountMembershipId });
 
-  const { data: quote } = useUrqlQuery(
-    {
-      query: GetInternationalCreditTransferQuoteDocument,
-      variables: { accountId, ...(input ?? { value: "", currency: "" }) },
-      pause: !input || input?.value === "0" || Number.isNaN(Number(input?.value)),
-    },
-    [input],
-  );
+  const [quote, queryQuote] = useDeferredQuery(GetInternationalCreditTransferQuoteDocument);
+
+  useEffect(() => {
+    if (input != null && input.value !== "0" && !Number.isNaN(Number(input.value))) {
+      const request = queryQuote({ accountId, ...input });
+      return () => request.cancel();
+    }
+  }, [input, accountId, queryQuote]);
 
   const { Field, submitForm, listenFields } = useForm({
     amount: {
@@ -117,24 +110,21 @@ export const TransferInternationalWizardAmount = ({
 
   const errors = match(quote)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
-      if (isCombinedError(error)) {
+      return Array.filterMap(ClientError.toArray(error), error => {
         return match(error)
           .with(
             {
-              graphQLErrors: P.array({
-                extensions: {
-                  code: "QuoteValidationError",
-                  meta: {
-                    fields: P.array({ message: P.select(P.string) }),
-                  },
+              extensions: {
+                code: "QuoteValidationError",
+                meta: {
+                  fields: P.array({ message: P.select(P.string) }),
                 },
-              }),
+              },
             },
-            ([messages]) => messages ?? [],
+            ([messages]) => Option.fromNullable(messages),
           )
-          .otherwise(() => []);
-      }
-      return [];
+          .otherwise(() => Option.None());
+      });
     })
     .otherwise(() => []);
 

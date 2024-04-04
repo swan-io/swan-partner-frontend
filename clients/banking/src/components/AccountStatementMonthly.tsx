@@ -1,5 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import {
   FixedListViewEmpty,
@@ -19,13 +20,13 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
 import { StyleSheet, View } from "react-native";
 import { ErrorView } from "../components/ErrorView";
 import { AccountStatementsPageDocument, AccountStatementsPageQuery } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { Connection } from "./Connection";
 
 const styles = StyleSheet.create({
   columnHeaders: {
@@ -150,17 +151,11 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
 const PER_PAGE = 20;
 
 export const AccountStatementMonthly = ({ accountId, large }: Props) => {
-  const { data, nextData, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: AccountStatementsPageDocument,
-      variables: {
-        first: PER_PAGE,
-        accountId,
-        filters: { period: "Monthly" },
-      },
-    },
-    [accountId],
-  );
+  const [data, { isLoading, setVariables }] = useQuery(AccountStatementsPageDocument, {
+    first: PER_PAGE,
+    accountId,
+    filters: { period: "Monthly" },
+  });
 
   return (
     <>
@@ -183,44 +178,50 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
 
                 <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
                   {() => (
-                    <PlainListView
-                      headerStyle={styles.columnHeaders}
-                      rowStyle={() => (large ? styles.containerRowLarge : styles.containerRow)}
-                      breakpoint={breakpoints.tiny}
-                      data={account?.statements?.edges?.map(({ node }) => node) ?? []}
-                      keyExtractor={item => item.id}
-                      headerHeight={48}
-                      rowHeight={48}
-                      groupHeaderHeight={48}
-                      extraInfo={{ large }}
-                      columns={columns}
-                      getRowLink={({ item }) => {
-                        const availableItem =
-                          item.status === "Available" ? Option.Some(item) : Option.None();
-                        return availableItem
-                          .flatMap(item =>
-                            Array.findMap(item.type, item => Option.fromNullable(item?.url)),
-                          )
-                          .map(url => <Link to={url} target="_blank" />)
-                          .getWithDefault(<View />);
-                      }}
-                      loading={{
-                        isLoading: nextData.isLoading(),
-                        count: NUM_TO_RENDER,
-                      }}
-                      onEndReached={() => {
-                        if (account?.statements?.pageInfo.hasNextPage ?? false) {
-                          setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
-                        }
-                      }}
-                      renderEmptyList={() => (
-                        <FixedListViewEmpty
-                          icon="lake-inbox-empty"
-                          title={t("common.list.noResults")}
+                    <Connection connection={account?.statements}>
+                      {statements => (
+                        <PlainListView
+                          headerStyle={styles.columnHeaders}
+                          rowStyle={() => (large ? styles.containerRowLarge : styles.containerRow)}
+                          breakpoint={breakpoints.tiny}
+                          data={statements?.edges?.map(({ node }) => node) ?? []}
+                          keyExtractor={item => item.id}
+                          headerHeight={48}
+                          rowHeight={48}
+                          groupHeaderHeight={48}
+                          extraInfo={{ large }}
+                          columns={columns}
+                          getRowLink={({ item }) => {
+                            const availableItem =
+                              item.status === "Available" ? Option.Some(item) : Option.None();
+                            return availableItem
+                              .flatMap(item =>
+                                Array.findMap(item.type, item => Option.fromNullable(item?.url)),
+                              )
+                              .map(url => <Link to={url} target="_blank" />)
+                              .getWithDefault(<View />);
+                          }}
+                          loading={{
+                            isLoading,
+                            count: NUM_TO_RENDER,
+                          }}
+                          onEndReached={() => {
+                            if (statements?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: statements?.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          renderEmptyList={() => (
+                            <FixedListViewEmpty
+                              icon="lake-inbox-empty"
+                              title={t("common.list.noResults")}
+                            />
+                          )}
+                          smallColumns={smallColumns}
                         />
                       )}
-                      smallColumns={smallColumns}
-                    />
+                    </Connection>
                   )}
                 </ResponsiveContainer>
               </>

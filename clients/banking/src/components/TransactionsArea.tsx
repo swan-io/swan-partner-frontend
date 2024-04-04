@@ -1,4 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -20,13 +21,12 @@ import {
   spacings,
   texts,
 } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { Amount, GetAccountBalanceDocument } from "../graphql/partner";
+import { GetAccountBalanceDocument } from "../graphql/partner";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
@@ -40,7 +40,6 @@ type Props = {
   canQueryCardOnTransaction: boolean;
   accountStatementsVisible: boolean;
   canViewAccount: boolean;
-  onBalanceReceive: (amount: Amount) => void;
 };
 
 const styles = StyleSheet.create({
@@ -104,13 +103,9 @@ export const TransactionsArea = ({
   accountMembershipId,
   canQueryCardOnTransaction,
   accountStatementsVisible,
-  onBalanceReceive,
   canViewAccount,
 }: Props) => {
-  const { data } = useUrqlQuery({
-    query: GetAccountBalanceDocument,
-    variables: { accountId },
-  });
+  const [data] = useQuery(GetAccountBalanceDocument, { accountId });
 
   const [updatedUpcommingTransactionCount, setUpdatedUpcommingTransactionCount] = useState<
     number | undefined
@@ -439,7 +434,6 @@ export const TransactionsArea = ({
                                 })
                               : Option.None()
                           }
-                          onBalanceReceive={onBalanceReceive}
                           canQueryCardOnTransaction={canQueryCardOnTransaction}
                           accountStatementsVisible={accountStatementsVisible}
                           canViewAccount={canViewAccount}

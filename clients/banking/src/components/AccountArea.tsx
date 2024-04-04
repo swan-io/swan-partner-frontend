@@ -53,7 +53,6 @@ import {
 } from "../utils/routes";
 import { signout } from "../utils/signout";
 import { updateTgglContext } from "../utils/tggl";
-import { isUnauthorizedError } from "../utils/urql";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -309,10 +308,6 @@ export const AccountArea = ({
   const email = accountMembership.email;
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
 
-  const [availableBalance, setAvailableBalance] = useState(
-    accountMembership.account?.balances?.available,
-  );
-
   useEffect(() => {
     updateTgglContext({ accountCountry, userId, email });
   }, [accountCountry, userId, email]);
@@ -398,7 +393,7 @@ export const AccountArea = ({
                 hasMultipleMemberships={hasMultipleMemberships}
                 selectedAccountMembership={accountMembership}
                 onPress={setAccountPickerOpen.on}
-                availableBalance={availableBalance}
+                availableBalance={account?.balances?.available ?? undefined}
               />
 
               <Popover
@@ -410,7 +405,6 @@ export const AccountArea = ({
                 <View style={styles.accountPicker}>
                   <AccountPicker
                     accountMembershipId={accountMembershipId}
-                    availableBalance={availableBalance}
                     onPressItem={accountMembershipId => {
                       // TODO: Prevent full reload by tweaking layout + Suspense
                       window.location.assign(Router.AccountRoot({ accountMembershipId }));
@@ -476,9 +470,7 @@ export const AccountArea = ({
               <ErrorBoundary
                 key={route?.name}
                 onError={error => logFrontendError(error)}
-                fallback={({ error }) =>
-                  isUnauthorizedError(error) ? <></> : <ErrorView error={error} />
-                }
+                fallback={() => <ErrorView />}
               >
                 {holder?.verificationStatus === "Refused" ? (
                   <AccountActivationPage
@@ -539,7 +531,6 @@ export const AccountArea = ({
                               accountId={accountId}
                               accountMembershipId={accountMembershipId}
                               canQueryCardOnTransaction={canQueryCardOnTransaction}
-                              onBalanceReceive={setAvailableBalance}
                               accountStatementsVisible={features.accountStatementsVisible}
                               canViewAccount={accountMembership.canViewAccount}
                             />

@@ -1,5 +1,6 @@
 import { Array, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
@@ -26,8 +27,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
@@ -48,6 +47,7 @@ import {
 } from "../graphql/partner";
 import { languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
+import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -292,7 +292,7 @@ const NewStatementForm = ({
     },
   });
 
-  const [statement, generateStatement] = useUrqlMutation(GenerateAccountStatementDocument);
+  const [generateStatement, statement] = useMutation(GenerateAccountStatementDocument);
 
   const languageOptions: Item<AccountLanguage>[] = useMemo(
     () =>
@@ -457,19 +457,13 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
   const [newWasOpened, setNewWasOpened] = useState(false);
 
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
-  const { data, nextData, setAfter, reload } = useUrqlPaginatedQuery(
-    {
-      query: AccountStatementsPageDocument,
-      variables: {
-        first: PER_PAGE,
-        accountId,
-        filters: {
-          period: "Custom",
-        },
-      },
+  const [data, { isLoading, reload, setVariables }] = useQuery(AccountStatementsPageDocument, {
+    first: PER_PAGE,
+    accountId,
+    filters: {
+      period: "Custom",
     },
-    [accountId],
-  );
+  });
 
   return (
     <>
@@ -496,7 +490,9 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                           large={large}
                           accountId={accountId}
                           onCancel={() => setDisplayedView("list")}
-                          onSuccess={reload}
+                          onSuccess={() => {
+                            reload();
+                          }}
                         />
                       ) : null}
                     </TransitionView>
@@ -534,62 +530,70 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                               </>
                             )}
 
-                          <PlainListView
-                            headerStyle={styles.columnHeaders}
-                            rowStyle={() =>
-                              large ? styles.containerRowLarge : styles.containerRow
-                            }
-                            breakpoint={breakpoints.tiny}
-                            data={account?.statements?.edges?.map(({ node }) => node) ?? []}
-                            keyExtractor={item => item.id}
-                            headerHeight={48}
-                            rowHeight={48}
-                            groupHeaderHeight={48}
-                            extraInfo={{ large }}
-                            columns={columns}
-                            getRowLink={({ item }) => {
-                              const availableItem =
-                                item.status === "Available" ? Option.Some(item) : Option.None();
-                              return availableItem
-                                .flatMap(item =>
-                                  Array.findMap(item.type, item => Option.fromNullable(item?.url)),
-                                )
-                                .map(url => <Link to={url} target="_blank" />)
-                                .getWithDefault(<View />);
-                            }}
-                            loading={{
-                              isLoading: nextData.isLoading(),
-                              count: NUM_TO_RENDER,
-                            }}
-                            onEndReached={() => {
-                              if (account?.statements?.pageInfo.hasNextPage ?? false) {
-                                setAfter(account?.statements?.pageInfo.endCursor ?? undefined);
-                              }
-                            }}
-                            renderEmptyList={() => (
-                              <FixedListViewEmpty
-                                borderedIcon={true}
-                                icon="lake-inbox-empty"
-                                title={t("accountStatements.empty.title")}
-                                subtitle={t("accountStatements.empty.subtitle")}
-                              >
-                                <Space height={24} />
+                          <Connection connection={account?.statements}>
+                            {statements => (
+                              <PlainListView
+                                headerStyle={styles.columnHeaders}
+                                rowStyle={() =>
+                                  large ? styles.containerRowLarge : styles.containerRow
+                                }
+                                breakpoint={breakpoints.tiny}
+                                data={statements?.edges?.map(({ node }) => node) ?? []}
+                                keyExtractor={item => item.id}
+                                headerHeight={48}
+                                rowHeight={48}
+                                groupHeaderHeight={48}
+                                extraInfo={{ large }}
+                                columns={columns}
+                                getRowLink={({ item }) => {
+                                  const availableItem =
+                                    item.status === "Available" ? Option.Some(item) : Option.None();
+                                  return availableItem
+                                    .flatMap(item =>
+                                      Array.findMap(item.type, item =>
+                                        Option.fromNullable(item?.url),
+                                      ),
+                                    )
+                                    .map(url => <Link to={url} target="_blank" />)
+                                    .getWithDefault(<View />);
+                                }}
+                                loading={{
+                                  isLoading,
+                                  count: NUM_TO_RENDER,
+                                }}
+                                onEndReached={() => {
+                                  if (statements?.pageInfo.hasNextPage ?? false) {
+                                    setVariables({
+                                      after: statements?.pageInfo.endCursor ?? undefined,
+                                    });
+                                  }
+                                }}
+                                renderEmptyList={() => (
+                                  <FixedListViewEmpty
+                                    borderedIcon={true}
+                                    icon="lake-inbox-empty"
+                                    title={t("accountStatements.empty.title")}
+                                    subtitle={t("accountStatements.empty.subtitle")}
+                                  >
+                                    <Space height={24} />
 
-                                <LakeButton
-                                  size="small"
-                                  icon="add-circle-filled"
-                                  onPress={() => {
-                                    setNewWasOpened(true);
-                                    setDisplayedView("new");
-                                  }}
-                                  color="current"
-                                >
-                                  {t("common.new")}
-                                </LakeButton>
-                              </FixedListViewEmpty>
+                                    <LakeButton
+                                      size="small"
+                                      icon="add-circle-filled"
+                                      onPress={() => {
+                                        setNewWasOpened(true);
+                                        setDisplayedView("new");
+                                      }}
+                                      color="current"
+                                    >
+                                      {t("common.new")}
+                                    </LakeButton>
+                                  </FixedListViewEmpty>
+                                )}
+                                smallColumns={smallColumns}
+                              />
                             )}
-                            smallColumns={smallColumns}
-                          />
+                          </Connection>
                         </>
                       ) : null}
                     </TransitionView>

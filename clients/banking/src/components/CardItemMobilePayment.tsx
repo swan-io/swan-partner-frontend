@@ -1,4 +1,5 @@
 import { Array, Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -9,7 +10,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -126,7 +126,7 @@ export const CardItemMobilePayment = ({
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<
     Option<CompleteDigitalCard>
   >(Option.None());
-  const [digitalCardCancelation, cancelDigitalCard] = useUrqlMutation(CancelDigitalCardDocument);
+  const [cancelDigitalCard, digitalCardCancelation] = useMutation(CancelDigitalCardDocument);
 
   const onPressCancel = ({ digitalCardId }: { digitalCardId: string }) => {
     cancelDigitalCard({ digitalCardId })

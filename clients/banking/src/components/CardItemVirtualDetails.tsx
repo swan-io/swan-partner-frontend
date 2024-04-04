@@ -1,11 +1,11 @@
 import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -78,7 +78,7 @@ export const CardItemVirtualDetails = ({
   lastRelevantIdentification,
   hasBindingUserError,
 }: Props) => {
-  const [cardNumberViewing, viewCardNumbers] = useUrqlMutation(ViewCardNumbersDocument);
+  const [viewCardNumbers, cardNumberViewing] = useMutation(ViewCardNumbersDocument);
 
   const onPressRevealCardNumbers = () => {
     viewCardNumbers({

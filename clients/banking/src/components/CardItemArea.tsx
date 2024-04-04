@@ -1,4 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useDeferredQuery } from "@swan-io/graphql-client";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,7 +9,6 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { Suspense, useCallback, useEffect, useMemo } from "react";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -73,9 +73,10 @@ export const CardItemArea = ({
     "AccountCardsItemOrderAddress",
   ]);
 
-  const { data, query } = useDeferredUrqlQuery(CardPageDocument);
-  const { data: lastRelevantIdentification, query: queryLastRelevantIdentification } =
-    useDeferredUrqlQuery(LastRelevantIdentificationDocument);
+  const [data, query] = useDeferredQuery(CardPageDocument);
+  const [lastRelevantIdentification, queryLastRelevantIdentification] = useDeferredQuery(
+    LastRelevantIdentificationDocument,
+  );
 
   const reload = useCallback(() => {
     query({ cardId }).tapOk(({ card }) => {

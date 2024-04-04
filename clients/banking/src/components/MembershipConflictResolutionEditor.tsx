@@ -1,3 +1,4 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -5,7 +6,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -45,7 +45,7 @@ export const MembershipConflictResolutionEditor = ({
   accountMembership,
   onAction,
 }: Props) => {
-  const [membershipUpdate, updateMembership] = useUrqlMutation(UpdateAccountMembershipDocument);
+  const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
   const acceptMembership = () => {

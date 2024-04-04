@@ -1,5 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/FixedListView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
@@ -11,7 +12,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -22,6 +22,7 @@ import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router, membershipsRoutes } from "../utils/routes";
+import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
@@ -124,45 +125,39 @@ export const MembershipsArea = ({
     params.canManageCards,
   ]);
 
-  const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: MembersPageDocument,
-      variables: {
-        first: PER_PAGE,
-        accountId,
-        status: match(filters.statuses)
-          .with(undefined, () => [
-            "BindingUserError" as const,
-            "Enabled" as const,
-            "InvitationSent" as const,
-            "Suspended" as const,
-          ])
-          .otherwise(() => filters.statuses),
-        canInitiatePayments: match(filters.canInitiatePayments)
-          .with("true", () => true)
-          .with("false", () => false)
-          .otherwise(() => undefined),
-        canManageAccountMembership: match(filters.canManageAccountMembership)
-          .with("true", () => true)
-          .with("false", () => false)
-          .otherwise(() => undefined),
-        canManageBeneficiaries: match(filters.canManageBeneficiaries)
-          .with("true", () => true)
-          .with("false", () => false)
-          .otherwise(() => undefined),
-        canManageCards: match(filters.canManageCards)
-          .with("true", () => true)
-          .with("false", () => false)
-          .otherwise(() => undefined),
-        canViewAccount: match(filters.canViewAccount)
-          .with("true", () => true)
-          .with("false", () => false)
-          .otherwise(() => undefined),
-        search: filters.search,
-      },
-    },
-    [accountId, filters],
-  );
+  const [data, { isLoading, reload, setVariables }] = useQuery(MembersPageDocument, {
+    first: PER_PAGE,
+    accountId,
+    status: match(filters.statuses)
+      .with(undefined, () => [
+        "BindingUserError" as const,
+        "Enabled" as const,
+        "InvitationSent" as const,
+        "Suspended" as const,
+      ])
+      .otherwise(() => filters.statuses),
+    canInitiatePayments: match(filters.canInitiatePayments)
+      .with("true", () => true)
+      .with("false", () => false)
+      .otherwise(() => undefined),
+    canManageAccountMembership: match(filters.canManageAccountMembership)
+      .with("true", () => true)
+      .with("false", () => false)
+      .otherwise(() => undefined),
+    canManageBeneficiaries: match(filters.canManageBeneficiaries)
+      .with("true", () => true)
+      .with("false", () => false)
+      .otherwise(() => undefined),
+    canManageCards: match(filters.canManageCards)
+      .with("true", () => true)
+      .with("false", () => false)
+      .otherwise(() => undefined),
+    canViewAccount: match(filters.canViewAccount)
+      .with("true", () => true)
+      .with("false", () => false)
+      .otherwise(() => undefined),
+    search: filters.search,
+  });
 
   const editingAccountMembershipId = match(route)
     .with(
@@ -254,9 +249,11 @@ export const MembershipsArea = ({
                     ...filters,
                   })
                 }
-                onRefresh={reload}
+                onRefresh={() => {
+                  reload();
+                }}
                 totalCount={memberships.length}
-                isFetching={nextData.isLoading()}
+                isFetching={isLoading}
                 large={large}
               >
                 {memberCreationVisible ? (
@@ -288,48 +285,56 @@ export const MembershipsArea = ({
                 result.match({
                   Error: error => <ErrorView error={error} />,
                   Ok: ({ account }) => (
-                    <MembershipList
-                      memberships={account?.memberships.edges.map(({ node }) => node) ?? []}
-                      accountMembershipId={accountMembershipId}
-                      onActiveRowChange={onActiveRowChange}
-                      editingAccountMembershipId={editingAccountMembershipId ?? undefined}
-                      onEndReached={() => {
-                        if (account?.memberships.pageInfo.hasNextPage === true) {
-                          setAfter(account?.memberships.pageInfo.endCursor ?? undefined);
-                        }
-                      }}
-                      loading={{
-                        isLoading: nextData.isLoading(),
-                        count: PER_PAGE,
-                      }}
-                      getRowLink={({ item }) => (
-                        <Link
-                          style={match(item.statusInfo)
-                            .with(
-                              {
-                                __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                                idVerifiedMatchError: true,
-                              },
-                              () => ({
-                                backgroundColor: colors.warning[50],
-                              }),
-                            )
-                            .with(
-                              { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
-                              () => ({
-                                backgroundColor: colors.negative[50],
-                              }),
-                            )
-                            .otherwise(() => undefined)}
-                          to={Router.AccountMembersDetailsRoot({
-                            accountMembershipId,
-                            ...params,
-                            editingAccountMembershipId: item.id,
-                          })}
+                    <Connection connection={account?.memberships}>
+                      {memberships => (
+                        <MembershipList
+                          memberships={memberships?.edges.map(({ node }) => node) ?? []}
+                          accountMembershipId={accountMembershipId}
+                          onActiveRowChange={onActiveRowChange}
+                          editingAccountMembershipId={editingAccountMembershipId ?? undefined}
+                          onEndReached={() => {
+                            if (memberships?.pageInfo.hasNextPage === true) {
+                              setVariables({
+                                after: memberships.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          loading={{
+                            isLoading,
+                            count: PER_PAGE,
+                          }}
+                          getRowLink={({ item }) => (
+                            <Link
+                              style={match(item.statusInfo)
+                                .with(
+                                  {
+                                    __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                    idVerifiedMatchError: true,
+                                  },
+                                  () => ({
+                                    backgroundColor: colors.warning[50],
+                                  }),
+                                )
+                                .with(
+                                  { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
+                                  () => ({
+                                    backgroundColor: colors.negative[50],
+                                  }),
+                                )
+                                .otherwise(() => undefined)}
+                              to={Router.AccountMembersDetailsRoot({
+                                accountMembershipId,
+                                ...params,
+                                editingAccountMembershipId: item.id,
+                              })}
+                            />
+                          )}
+                          onRefreshRequest={() => {
+                            reload();
+                          }}
                         />
                       )}
-                      onRefreshRequest={reload}
-                    />
+                    </Connection>
                   ),
                 }),
             })}
@@ -360,7 +365,9 @@ export const MembershipsArea = ({
                   physicalCardOrderVisible={physicalCardOrderVisible}
                   accountCountry={accountCountry}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}
-                  onRefreshRequest={reload}
+                  onRefreshRequest={() => {
+                    reload();
+                  }}
                   large={large}
                 />
               </Suspense>

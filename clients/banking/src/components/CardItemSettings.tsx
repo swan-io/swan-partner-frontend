@@ -1,4 +1,5 @@
 import { Option, Result } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -8,7 +9,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -60,7 +60,7 @@ export const CardItemSettings = ({
   lastRelevantIdentification,
   canManageCards,
 }: Props) => {
-  const [cardUpdate, updateCard] = useUrqlMutation(UpdateCardDocument);
+  const [updateCard, cardUpdate] = useMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
   const settingsRef = useRef<CardWizardSettingsRef | null>(null);

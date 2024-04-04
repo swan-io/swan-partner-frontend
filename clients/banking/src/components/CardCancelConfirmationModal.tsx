@@ -1,8 +1,8 @@
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -23,7 +23,7 @@ export const CardCancelConfirmationModal = ({
   onSuccess,
   onPressClose,
 }: Props) => {
-  const [cardCancelation, cancelCard] = useUrqlMutation(CancelCardDocument);
+  const [cancelCard, cardCancelation] = useMutation(CancelCardDocument);
 
   const onPressConfirm = () => {
     if (cardId != null) {

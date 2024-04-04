@@ -1,7 +1,6 @@
 import { captureException, init } from "@sentry/react";
 import { P, match } from "ts-pattern";
 import { env } from "./env";
-import { isCombinedError } from "./urql";
 
 export { setUser as setSentryUser } from "@sentry/react";
 
@@ -24,10 +23,8 @@ export const initSentry = () => {
 };
 
 export const logFrontendError = (exception: unknown, extra?: Record<string, unknown>) => {
-  if (!isCombinedError(exception)) {
-    captureException(exception, {
-      extra,
-      tags: { scope: "frontend" },
-    });
-  }
+  captureException(exception, {
+    extra,
+    tags: { scope: "frontend" },
+  });
 };

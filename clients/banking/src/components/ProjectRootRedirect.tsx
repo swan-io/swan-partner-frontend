@@ -1,7 +1,7 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { P, match } from "ts-pattern";
 import { GetFirstAccountMembershipDocument } from "../graphql/partner";
@@ -25,12 +25,9 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
     {},
   );
 
-  const { data } = useUrqlQuery({
-    query: GetFirstAccountMembershipDocument,
-    variables: {
-      filters: {
-        status: ["BindingUserError", "ConsentPending", "Enabled", "InvitationSent"],
-      },
+  const [data] = useQuery(GetFirstAccountMembershipDocument, {
+    filters: {
+      status: ["BindingUserError", "ConsentPending", "Enabled", "InvitationSent"],
     },
   });
 

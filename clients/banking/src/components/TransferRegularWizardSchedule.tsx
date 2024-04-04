@@ -1,4 +1,5 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -12,7 +13,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
 import dayjs from "dayjs";
 import { electronicFormat } from "iban";
@@ -71,15 +71,9 @@ export const TransferRegularWizardSchedule = ({
   onSave,
   loading,
 }: Props) => {
-  const { data } = useUrqlQuery(
-    {
-      query: GetIbanValidationDocument,
-      variables: {
-        iban: electronicFormat(beneficiary.iban),
-      },
-    },
-    [beneficiary.iban],
-  );
+  const [data] = useQuery(GetIbanValidationDocument, {
+    iban: electronicFormat(beneficiary.iban),
+  });
 
   const { Field, FieldsListener, submitForm } = useForm({
     isScheduled: {

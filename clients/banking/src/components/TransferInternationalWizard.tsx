@@ -1,4 +1,5 @@
 import { Result } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -6,7 +7,6 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -89,9 +89,7 @@ export const TransferInternationalWizard = ({
 }: Props) => {
   const [step, setStep] = useState<Step>({ name: "Amount" });
 
-  const [transfer, initiateTransfers] = useUrqlMutation(
-    InitiateInternationalCreditTransferDocument,
-  );
+  const [initiateTransfers, transfer] = useMutation(InitiateInternationalCreditTransferDocument);
 
   const initiateTransfer = ({
     amount,

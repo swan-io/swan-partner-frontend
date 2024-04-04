@@ -1,6 +1,6 @@
 import { Array, Future, Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -40,11 +40,11 @@ export type SupportingDocumentsFormRef = {
 export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Props>(
   ({ templateLanguage, collection, refetchCollection }, forwardedRef) => {
     const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
-    const [, generateSupportingDocumentUploadUrl] = useUrqlMutation(
+    const [generateSupportingDocumentUploadUrl] = useMutation(
       GenerateSupportingDocumentUploadUrlDocument,
     );
 
-    const [reviewRequest, requestSupportingDocumentCollectionReview] = useUrqlMutation(
+    const [requestSupportingDocumentCollectionReview, reviewRequest] = useMutation(
       RequestSupportingDocumentCollectionReviewDocument,
     );
 

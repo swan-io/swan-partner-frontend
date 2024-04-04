@@ -1,4 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -17,7 +18,6 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile, TileRows } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
@@ -74,7 +74,7 @@ export const ProfilePage = ({
   hasRequiredIdentificationLevel,
   lastRelevantIdentification,
 }: Props) => {
-  const { data } = useUrqlQuery({ query: ProfilePageDocument });
+  const [data] = useQuery(ProfilePageDocument, {});
 
   const handleProveIdentity = useCallback(() => {
     const params = new URLSearchParams();

@@ -1,3 +1,4 @@
+import { useQuery } from "@swan-io/graphql-client";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -13,7 +14,6 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { forwardRef, useCallback, useEffect, useState } from "react";
@@ -27,6 +27,7 @@ import {
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { Connection } from "./Connection";
 
 const styles = StyleSheet.create({
   container: {
@@ -165,21 +166,14 @@ const Item = ({ onPress, isActive, membership }: ItemProps) => {
 
 type Props = {
   accountMembershipId: string;
-  availableBalance?: Amount;
   onPressItem: (accountMembershipId: string) => void;
 };
 
 export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
-  const { data: accountMemberships, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: GetAccountMembershipsDocument,
-      variables: {
-        first: 10,
-        filters: { status: ["BindingUserError", "ConsentPending", "Enabled", "InvitationSent"] },
-      },
-    },
-    [],
-  );
+  const [accountMemberships, { setVariables }] = useQuery(GetAccountMembershipsDocument, {
+    first: 10,
+    filters: { status: ["BindingUserError", "ConsentPending", "Enabled", "InvitationSent"] },
+  });
 
   const [showScrollAid, setShowScrollAid] = useState(false);
 
@@ -208,29 +202,33 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
         Ok: ({ user }) =>
           user == null ? null : (
             <View>
-              <FlatList
-                role="list"
-                style={styles.list}
-                data={user.accountMemberships.edges}
-                disableVirtualization={true}
-                keyExtractor={item => `AccountSelector${item.node.id}`}
-                onScroll={handleScroll}
-                renderItem={({ item }) => (
-                  <Item
-                    membership={item.node}
-                    isActive={accountMembershipId === item.node.id}
-                    onPress={() => {
-                      onPressItem(item.node.id);
+              <Connection connection={user.accountMemberships}>
+                {accountMemberships => (
+                  <FlatList
+                    role="list"
+                    style={styles.list}
+                    data={accountMemberships.edges}
+                    disableVirtualization={true}
+                    keyExtractor={item => `AccountSelector${item.node.id}`}
+                    onScroll={handleScroll}
+                    renderItem={({ item }) => (
+                      <Item
+                        membership={item.node}
+                        isActive={accountMembershipId === item.node.id}
+                        onPress={() => {
+                          onPressItem(item.node.id);
+                        }}
+                      />
+                    )}
+                    onEndReached={() => {
+                      const endCursor = accountMemberships.pageInfo.endCursor;
+                      if (endCursor != null) {
+                        setVariables({ after: endCursor });
+                      }
                     }}
                   />
                 )}
-                onEndReached={() => {
-                  const endCursor = user.accountMemberships.pageInfo.endCursor;
-                  if (endCursor != null) {
-                    setAfter(endCursor);
-                  }
-                }}
-              />
+              </Connection>
 
               <View
                 style={[styles.bottomGradient, showScrollAid && styles.visibleBottomGradient]}

@@ -1,5 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
@@ -10,7 +11,6 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
@@ -21,6 +21,7 @@ import { Router } from "../utils/routes";
 import { CardList } from "./CardList";
 import { CardFilters, CardListFilter } from "./CardListFilter";
 import { CardWizard } from "./CardWizard";
+import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -95,17 +96,11 @@ export const AccountMembersDetailsCardList = ({
     .with("Canceled", () => CANCELED_STATUSES)
     .exhaustive();
 
-  const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: CardListPageWithoutAccountDocument,
-      variables: {
-        first: PER_PAGE,
-        filters: { statuses, types: filters.type, search: filters.search },
-        accountMembershipId: editingAccountMembershipId,
-      },
-    },
-    [filters],
-  );
+  const [data, { isLoading, reload, setVariables }] = useQuery(CardListPageWithoutAccountDocument, {
+    first: PER_PAGE,
+    filters: { statuses, types: filters.type, search: filters.search },
+    accountMembershipId: editingAccountMembershipId,
+  });
 
   const empty = (
     <FixedListViewEmpty
@@ -157,7 +152,9 @@ export const AccountMembersDetailsCardList = ({
                       cardType: filters.type,
                     })
                   }
-                  onRefresh={reload}
+                  onRefresh={() => {
+                    reload();
+                  }}
                   large={large}
                 >
                   {canAddCard ? (
@@ -194,39 +191,47 @@ export const AccountMembersDetailsCardList = ({
                   result.match({
                     Error: error => <ErrorView error={error} />,
                     Ok: ({ accountMembership }) => (
-                      <CardList
-                        cards={accountMembership?.cards?.edges ?? []}
-                        getRowLink={({ item }) => (
-                          <Link
-                            to={Router.AccountCardsItem({
-                              accountMembershipId: currentUserAccountMembershipId,
-                              cardId: item.id,
-                            })}
+                      <Connection connection={accountMembership?.cards}>
+                        {cards => (
+                          <CardList
+                            cards={cards?.edges ?? []}
+                            getRowLink={({ item }) => (
+                              <Link
+                                to={Router.AccountCardsItem({
+                                  accountMembershipId: currentUserAccountMembershipId,
+                                  cardId: item.id,
+                                })}
+                              />
+                            )}
+                            loading={{
+                              isLoading,
+                              count: 20,
+                            }}
+                            onRefreshRequest={() => {
+                              reload();
+                            }}
+                            onEndReached={() => {
+                              if (cards?.pageInfo.hasNextPage ?? false) {
+                                setVariables({
+                                  after: cards?.pageInfo.endCursor ?? undefined,
+                                });
+                              }
+                            }}
+                            renderEmptyList={() =>
+                              hasFilters ? (
+                                <FixedListViewEmpty
+                                  icon="lake-card"
+                                  borderedIcon={true}
+                                  title={t("cardList.noResultsWithFilters")}
+                                  subtitle={t("common.list.noResultsSuggestion")}
+                                />
+                              ) : (
+                                empty
+                              )
+                            }
                           />
                         )}
-                        loading={{
-                          isLoading: nextData.isLoading(),
-                          count: 20,
-                        }}
-                        onRefreshRequest={reload}
-                        onEndReached={() => {
-                          if (accountMembership?.cards.pageInfo.hasNextPage ?? false) {
-                            setAfter(accountMembership?.cards.pageInfo.endCursor ?? undefined);
-                          }
-                        }}
-                        renderEmptyList={() =>
-                          hasFilters ? (
-                            <FixedListViewEmpty
-                              icon="lake-card"
-                              borderedIcon={true}
-                              title={t("cardList.noResultsWithFilters")}
-                              subtitle={t("common.list.noResultsSuggestion")}
-                            />
-                          ) : (
-                            empty
-                          )
-                        }
-                      />
+                      </Connection>
                     ),
                   }),
               })}

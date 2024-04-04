@@ -1,7 +1,6 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useDeferredUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { Request } from "@swan-io/request";
 import { useCallback, useEffect, useMemo } from "react";
 import { P, match } from "ts-pattern";
@@ -22,10 +21,11 @@ type Props = {
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
-  const { data, query } = useDeferredUrqlQuery(AccountAreaDocument);
-  const { data: lastRelevantIdentification, query: queryLastRelevantIdentification } =
-    useDeferredUrqlQuery(LastRelevantIdentificationDocument);
-  const [, updateAccountLanguage] = useUrqlMutation(UpdateAccountLanguageDocument);
+  const [data, query] = useDeferredQuery(AccountAreaDocument);
+  const [lastRelevantIdentification, queryLastRelevantIdentification] = useDeferredQuery(
+    LastRelevantIdentificationDocument,
+  );
+  const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);
 
   useEffect(() => {
     const request = query({ accountMembershipId }).tapOk(({ accountMembership }) => {

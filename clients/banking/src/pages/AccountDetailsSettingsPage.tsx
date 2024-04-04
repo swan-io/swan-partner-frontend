@@ -1,4 +1,5 @@
 import { AsyncData, Dict, Result } from "@swan-io/boxed";
+import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -15,8 +16,6 @@ import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
 import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import {
   isNotEmpty,
@@ -44,7 +43,6 @@ import {
   UpdateAccountDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { isUnauthorizedError } from "../utils/urql";
 import {
   validateAccountNameLength,
   validateRequired,
@@ -108,7 +106,7 @@ const UpdateAccountForm = ({
   canManageAccountMembership: boolean;
 }) => {
   const accountCountry = account.country ?? "FRA";
-  const [, updateAccount] = useUrqlMutation(UpdateAccountDocument);
+  const [updateAccount] = useMutation(UpdateAccountDocument);
 
   const holderInfo = account.holder.info;
   const isCompany = holderInfo?.__typename === "AccountHolderCompanyInfo";
@@ -383,24 +381,16 @@ export const AccountDetailsSettingsPage = ({
   canManageAccountMembership,
   largeBreakpoint,
 }: Props) => {
-  const { data } = useUrqlQuery(
-    {
-      query: AccountDetailsSettingsPageDocument,
-      variables: {
-        accountId,
-        filters: { status: "Active", type: "SwanTCU" },
-      },
-    },
-    [],
-  );
+  const [data] = useQuery(AccountDetailsSettingsPageDocument, {
+    accountId,
+    filters: { status: "Active", type: "SwanTCU" },
+  });
 
   return (
     <ScrollView contentContainerStyle={[styles.content, largeBreakpoint && styles.contentDesktop]}>
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <TilePlaceholder />)
-        .with(AsyncData.P.Done(Result.P.Error(P.select())), error =>
-          isUnauthorizedError(error) ? <></> : <ErrorView error={error} />,
-        )
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account }) =>
           isNullish(account) ? (
             <NotFoundPage />

@@ -1,3 +1,5 @@
+import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
+import { ClientError, useQuery } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -5,15 +7,12 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
-
-import { AsyncData, Result } from "@swan-io/boxed";
-import { showToast } from "@swan-io/lake/src/state/toasts";
-import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -21,7 +20,6 @@ import {
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
-import { isCombinedError } from "../utils/urql";
 import {
   DynamicFormApi,
   DynamicFormField,
@@ -57,21 +55,15 @@ export const TransferInternationalWizardDetails = ({
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
-  const { data } = useUrqlQuery(
-    {
-      query: GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
-      variables: {
-        name: beneficiary.name,
-        route: beneficiary.route as InternationalCreditTransferRouteInput,
-        amountValue: amount.value,
-        currency: amount.currency,
-        language: locale.language as InternationalCreditTransferDisplayLanguage,
-        dynamicFields,
-        beneficiaryDetails: beneficiary.results,
-      },
-    },
-    [locale.language, dynamicFields],
-  );
+  const [data] = useQuery(GetInternationalCreditTransferTransactionDetailsDynamicFormDocument, {
+    name: beneficiary.name,
+    route: beneficiary.route as InternationalCreditTransferRouteInput,
+    amountValue: amount.value,
+    currency: amount.currency,
+    language: locale.language as InternationalCreditTransferDisplayLanguage,
+    dynamicFields,
+    beneficiaryDetails: beneficiary.results,
+  });
 
   const { Field, submitForm, getFieldState, listenFields } = useForm<{
     results: ResultItem[];
@@ -93,24 +85,26 @@ export const TransferInternationalWizardDetails = ({
         ({ fields }) => setFields(fields),
       )
       .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
-        if (isCombinedError(error)) {
-          match(error)
+        const messages = Array.filterMap(ClientError.toArray(error), error => {
+          return match(error)
             .with(
               {
-                graphQLErrors: P.array({
-                  extensions: {
-                    code: "BeneficiaryValidationError",
-                    meta: {
-                      fields: P.array({ message: P.select(P.string) }),
-                    },
+                extensions: {
+                  code: "BeneficiaryValidationError",
+                  meta: {
+                    fields: P.array({ message: P.select(P.string) }),
                   },
-                }),
+                },
               },
-              ([messages]) => {
-                onPressPrevious(messages);
-              },
+              ([messages]) => Option.fromNullable(messages),
             )
-            .otherwise(error => showToast({ variant: "error", error, title: t("error.generic") }));
+            .otherwise(() => Option.None());
+        });
+
+        if (messages.length > 0) {
+          onPressPrevious(messages);
+        } else {
+          showToast({ variant: "error", error, title: t("error.generic") });
         }
       })
       .otherwise(noop);

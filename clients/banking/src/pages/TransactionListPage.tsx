@@ -1,4 +1,5 @@
-import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
+import { Array, Option } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
@@ -13,11 +14,11 @@ import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
+import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
@@ -25,7 +26,7 @@ import {
   TransactionFiltersState,
   TransactionListFilter,
 } from "../components/TransactionListFilter";
-import { Amount, PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
+import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -59,7 +60,6 @@ type Props = {
   canQueryCardOnTransaction: boolean;
   accountStatementsVisible: boolean;
   canViewAccount: boolean;
-  onBalanceReceive: (amount: Amount) => void;
   transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
   params: {
     isAfterUpdatedAt?: string | undefined;
@@ -81,7 +81,6 @@ const DEFAULT_STATUSES = [
 export const TransactionListPage = ({
   accountId,
   accountMembershipId,
-  onBalanceReceive,
   transferConsent,
   params,
   canQueryCardOnTransaction,
@@ -142,32 +141,19 @@ export const TransactionListPage = ({
     return actualPaymentProduct.length > 0 ? actualPaymentProduct : undefined;
   }, [filters]);
 
-  const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: TransactionListPageDocument,
-      variables: {
-        accountId,
-        first: NUM_TO_RENDER,
-        filters: {
-          ...filters,
-          paymentProduct,
-          status: filters.status ?? DEFAULT_STATUSES,
-        },
-        canQueryCardOnTransaction,
-        canViewAccount,
-      },
+  const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
+    accountId,
+    first: NUM_TO_RENDER,
+    filters: {
+      ...filters,
+      paymentProduct,
+      status: filters.status ?? DEFAULT_STATUSES,
     },
-    [filters, canQueryCardOnTransaction],
-  );
+    canQueryCardOnTransaction,
+    canViewAccount,
+  });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
-
-  const transactions = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .flatMap(data => Option.fromNullable(data.account?.transactions))
-    .map(({ edges }) => edges.map(({ node }) => node))
-    .getWithDefault([]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 
@@ -175,23 +161,6 @@ export const TransactionListPage = ({
     (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
     [],
   );
-
-  useEffect(() => {
-    match(data)
-      .with(
-        AsyncData.P.Done(
-          Result.P.Ok({
-            account: {
-              balances: {
-                available: P.select(),
-              },
-            },
-          }),
-        ),
-        availableBalance => onBalanceReceive(availableBalance),
-      )
-      .otherwise(() => {});
-  }, [data, onBalanceReceive]);
 
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
@@ -207,7 +176,9 @@ export const TransactionListPage = ({
                   ...filters,
                 })
               }
-              onRefresh={reload}
+              onRefresh={() => {
+                reload();
+              }}
               large={large}
             >
               {accountStatementsVisible ? (
@@ -243,104 +214,119 @@ export const TransactionListPage = ({
               result.match({
                 Error: error => <ErrorView error={error} />,
                 Ok: data => (
-                  <TransactionList
-                    withStickyTabs={true}
-                    transactions={data.account?.transactions?.edges ?? []}
-                    getRowLink={({ item }) => (
-                      <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                  <Connection connection={data.account?.transactions}>
+                    {transactions => (
+                      <>
+                        <TransactionList
+                          withStickyTabs={true}
+                          transactions={transactions?.edges ?? []}
+                          getRowLink={({ item }) => (
+                            <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                          )}
+                          pageSize={NUM_TO_RENDER}
+                          activeRowId={activeTransactionId ?? undefined}
+                          onActiveRowChange={onActiveRowChange}
+                          loading={{
+                            isLoading,
+                            count: 2,
+                          }}
+                          onEndReached={() => {
+                            if (transactions?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: transactions?.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          renderEmptyList={() =>
+                            hasFilters ? (
+                              <FixedListViewEmpty
+                                icon="lake-transfer"
+                                borderedIcon={true}
+                                title={t("transansactionList.noResults")}
+                                subtitle={t("common.list.noResultsSuggestion")}
+                              />
+                            ) : (
+                              <FixedListViewEmpty
+                                icon="lake-transfer"
+                                borderedIcon={true}
+                                title={t("transansactionList.noResults")}
+                              />
+                            )
+                          }
+                        />
+
+                        {match(route)
+                          .with(
+                            { name: "AccountTransactionsListDetail" },
+                            ({ params: { transactionId } }) => (
+                              <RightPanel
+                                visible={true}
+                                onPressClose={() => {
+                                  setActiveTransactionId(null);
+                                  Router.push("AccountTransactionsListRoot", {
+                                    accountMembershipId,
+                                  });
+                                }}
+                              >
+                                {({ large }) => (
+                                  <>
+                                    <Box style={large ? styles.buttonLarge : styles.button}>
+                                      <LakeButton
+                                        mode="tertiary"
+                                        icon="lake-close"
+                                        ariaLabel={t("common.closeButton")}
+                                        onPress={() => {
+                                          setActiveTransactionId(null);
+                                          Router.push("AccountTransactionsListRoot", {
+                                            accountMembershipId,
+                                          });
+                                        }}
+                                        children={null}
+                                      />
+                                    </Box>
+
+                                    <TransactionDetail
+                                      accountMembershipId={accountMembershipId}
+                                      large={large}
+                                      transactionId={transactionId}
+                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                      canViewAccount={canViewAccount}
+                                    />
+
+                                    <Space height={24} />
+                                  </>
+                                )}
+                              </RightPanel>
+                            ),
+                          )
+                          .otherwise(() => (
+                            <ListRightPanel
+                              ref={panelRef}
+                              keyExtractor={item => item.id}
+                              activeId={activeTransactionId}
+                              onActiveIdChange={setActiveTransactionId}
+                              onClose={() => setActiveTransactionId(null)}
+                              items={transactions?.edges.map(item => item.node) ?? []}
+                              render={(transaction, large) => (
+                                <TransactionDetail
+                                  accountMembershipId={accountMembershipId}
+                                  large={large}
+                                  transactionId={transaction.id}
+                                  canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                  canViewAccount={canViewAccount}
+                                />
+                              )}
+                              closeLabel={t("common.closeButton")}
+                              previousLabel={t("common.previous")}
+                              nextLabel={t("common.next")}
+                            />
+                          ))}
+                      </>
                     )}
-                    pageSize={NUM_TO_RENDER}
-                    activeRowId={activeTransactionId ?? undefined}
-                    onActiveRowChange={onActiveRowChange}
-                    loading={{
-                      isLoading: nextData.isLoading(),
-                      count: 2,
-                    }}
-                    onEndReached={() => {
-                      if (data.account?.transactions?.pageInfo.hasNextPage ?? false) {
-                        setAfter(data.account?.transactions?.pageInfo.endCursor ?? undefined);
-                      }
-                    }}
-                    renderEmptyList={() =>
-                      hasFilters ? (
-                        <FixedListViewEmpty
-                          icon="lake-transfer"
-                          borderedIcon={true}
-                          title={t("transansactionList.noResults")}
-                          subtitle={t("common.list.noResultsSuggestion")}
-                        />
-                      ) : (
-                        <FixedListViewEmpty
-                          icon="lake-transfer"
-                          borderedIcon={true}
-                          title={t("transansactionList.noResults")}
-                        />
-                      )
-                    }
-                  />
+                  </Connection>
                 ),
               }),
           })}
-
-          {match(route)
-            .with({ name: "AccountTransactionsListDetail" }, ({ params: { transactionId } }) => (
-              <RightPanel
-                visible={true}
-                onPressClose={() => {
-                  setActiveTransactionId(null);
-                  Router.push("AccountTransactionsListRoot", { accountMembershipId });
-                }}
-              >
-                {({ large }) => (
-                  <>
-                    <Box style={large ? styles.buttonLarge : styles.button}>
-                      <LakeButton
-                        mode="tertiary"
-                        icon="lake-close"
-                        ariaLabel={t("common.closeButton")}
-                        onPress={() => {
-                          setActiveTransactionId(null);
-                          Router.push("AccountTransactionsListRoot", { accountMembershipId });
-                        }}
-                        children={null}
-                      />
-                    </Box>
-
-                    <TransactionDetail
-                      accountMembershipId={accountMembershipId}
-                      large={large}
-                      transactionId={transactionId}
-                      canQueryCardOnTransaction={canQueryCardOnTransaction}
-                      canViewAccount={canViewAccount}
-                    />
-
-                    <Space height={24} />
-                  </>
-                )}
-              </RightPanel>
-            ))
-            .otherwise(() => (
-              <ListRightPanel
-                ref={panelRef}
-                keyExtractor={item => item.id}
-                activeId={activeTransactionId}
-                onActiveIdChange={setActiveTransactionId}
-                onClose={() => setActiveTransactionId(null)}
-                items={transactions}
-                render={(transaction, large) => (
-                  <TransactionDetail
-                    accountMembershipId={accountMembershipId}
-                    large={large}
-                    transactionId={transaction.id}
-                    canQueryCardOnTransaction={canQueryCardOnTransaction}
-                    canViewAccount={canViewAccount}
-                  />
-                )}
-                closeLabel={t("common.closeButton")}
-                previousLabel={t("common.previous")}
-                nextLabel={t("common.next")}
-              />
-            ))}
         </>
       )}
     </ResponsiveContainer>

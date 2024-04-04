@@ -1,4 +1,5 @@
 import { Array, Option } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
@@ -10,7 +11,6 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
@@ -21,6 +21,7 @@ import { TransactionList } from "../components/TransactionList";
 import { TransactionListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { Connection } from "./Connection";
 import {
   TransactionFiltersState,
   TransactionListFilter,
@@ -98,32 +99,19 @@ export const TransferList = ({
     ];
   }, []);
 
-  const { data, nextData, reload, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: TransactionListPageDocument,
-      variables: {
-        accountId,
-        first: NUM_TO_RENDER,
-        filters: {
-          ...filters,
-          paymentProduct,
-          status: filters.status ?? DEFAULT_STATUSES,
-        },
-        canQueryCardOnTransaction,
-        canViewAccount,
-      },
+  const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
+    accountId,
+    first: NUM_TO_RENDER,
+    filters: {
+      ...filters,
+      paymentProduct,
+      status: filters.status ?? DEFAULT_STATUSES,
     },
-    [filters, canQueryCardOnTransaction],
-  );
+    canQueryCardOnTransaction,
+    canViewAccount,
+  });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
-
-  const transactions = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .flatMap(data => Option.fromNullable(data.account?.transactions))
-    .map(({ edges }) => edges.map(({ node }) => node))
-    .getWithDefault([]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 
@@ -146,7 +134,9 @@ export const TransferList = ({
                   ...filters,
                 })
               }
-              onRefresh={reload}
+              onRefresh={() => {
+                reload();
+              }}
               large={large}
               available={["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"]}
               filtersDefinition={{
@@ -176,66 +166,74 @@ export const TransferList = ({
               result.match({
                 Error: error => <ErrorView error={error} />,
                 Ok: data => (
-                  <TransactionList
-                    withStickyTabs={true}
-                    withGrouping={false}
-                    transactions={data.account?.transactions?.edges ?? []}
-                    getRowLink={({ item }) => (
-                      <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                  <Connection connection={data.account?.transactions}>
+                    {transactions => (
+                      <>
+                        <TransactionList
+                          withStickyTabs={true}
+                          withGrouping={false}
+                          transactions={transactions?.edges ?? []}
+                          getRowLink={({ item }) => (
+                            <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                          )}
+                          pageSize={NUM_TO_RENDER}
+                          activeRowId={activeTransactionId ?? undefined}
+                          onActiveRowChange={onActiveRowChange}
+                          loading={{
+                            isLoading,
+                            count: 2,
+                          }}
+                          onEndReached={() => {
+                            if (data.account?.transactions?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: data.account?.transactions?.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          renderEmptyList={() =>
+                            hasFilters ? (
+                              <FixedListViewEmpty
+                                icon="lake-transfer"
+                                borderedIcon={true}
+                                title={t("transfer.list.noResults")}
+                                subtitle={t("common.list.noResultsSuggestion")}
+                              />
+                            ) : (
+                              <FixedListViewEmpty
+                                borderedIcon={true}
+                                icon="lake-transfer"
+                                title={t("transfer.list.noResults")}
+                              />
+                            )
+                          }
+                        />
+
+                        <ListRightPanel
+                          ref={panelRef}
+                          keyExtractor={item => item.id}
+                          activeId={activeTransactionId}
+                          onActiveIdChange={setActiveTransactionId}
+                          onClose={() => setActiveTransactionId(null)}
+                          items={transactions?.edges.map(item => item.node) ?? []}
+                          render={(transaction, large) => (
+                            <TransactionDetail
+                              large={large}
+                              accountMembershipId={accountMembershipId}
+                              transactionId={transaction.id}
+                              canQueryCardOnTransaction={canQueryCardOnTransaction}
+                              canViewAccount={canViewAccount}
+                            />
+                          )}
+                          closeLabel={t("common.closeButton")}
+                          previousLabel={t("common.previous")}
+                          nextLabel={t("common.next")}
+                        />
+                      </>
                     )}
-                    pageSize={NUM_TO_RENDER}
-                    activeRowId={activeTransactionId ?? undefined}
-                    onActiveRowChange={onActiveRowChange}
-                    loading={{
-                      isLoading: nextData.isLoading(),
-                      count: 2,
-                    }}
-                    onEndReached={() => {
-                      if (data.account?.transactions?.pageInfo.hasNextPage ?? false) {
-                        setAfter(data.account?.transactions?.pageInfo.endCursor ?? undefined);
-                      }
-                    }}
-                    renderEmptyList={() =>
-                      hasFilters ? (
-                        <FixedListViewEmpty
-                          icon="lake-transfer"
-                          borderedIcon={true}
-                          title={t("transfer.list.noResults")}
-                          subtitle={t("common.list.noResultsSuggestion")}
-                        />
-                      ) : (
-                        <FixedListViewEmpty
-                          borderedIcon={true}
-                          icon="lake-transfer"
-                          title={t("transfer.list.noResults")}
-                        />
-                      )
-                    }
-                  />
+                  </Connection>
                 ),
               }),
           })}
-
-          <ListRightPanel
-            ref={panelRef}
-            keyExtractor={item => item.id}
-            activeId={activeTransactionId}
-            onActiveIdChange={setActiveTransactionId}
-            onClose={() => setActiveTransactionId(null)}
-            items={transactions}
-            render={(transaction, large) => (
-              <TransactionDetail
-                accountMembershipId={accountMembershipId}
-                large={large}
-                transactionId={transaction.id}
-                canQueryCardOnTransaction={canQueryCardOnTransaction}
-                canViewAccount={canViewAccount}
-              />
-            )}
-            closeLabel={t("common.closeButton")}
-            previousLabel={t("common.previous")}
-            nextLabel={t("common.next")}
-          />
         </>
       )}
     </ResponsiveContainer>

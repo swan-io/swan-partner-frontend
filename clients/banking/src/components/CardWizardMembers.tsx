@@ -1,3 +1,4 @@
+import { useForwardPagination } from "@swan-io/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -95,7 +96,9 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
       [currentMembers],
     );
 
-    const memberships = account?.memberships;
+    const connection = account?.memberships;
+
+    const memberships = useForwardPagination(connection);
 
     const onScroll = useCallback(
       (event: NativeSyntheticEvent<NativeScrollEvent>) => {

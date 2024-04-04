@@ -1,4 +1,5 @@
 import { Link } from "@swan-io/chicane";
+import { useQuery } from "@swan-io/graphql-client";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -16,11 +17,11 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
 import { match } from "ts-pattern";
+import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import {
   AccountDetailsBillingPageDocument,
@@ -201,16 +202,10 @@ const PER_PAGE = 20;
 export const AccountDetailsBillingPage = ({ accountId }: Props) => {
   // use useResponsive to fit with scroll behavior set in AccountArea
   const { desktop } = useResponsive();
-  const { data, nextData, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: AccountDetailsBillingPageDocument,
-      variables: {
-        accountId,
-        first: PER_PAGE,
-      },
-    },
-    [accountId],
-  );
+  const [data, { isLoading, setVariables }] = useQuery(AccountDetailsBillingPageDocument, {
+    accountId,
+    first: PER_PAGE,
+  });
 
   return data.match({
     NotAsked: () => null,
@@ -226,34 +221,38 @@ export const AccountDetailsBillingPage = ({ accountId }: Props) => {
     Done: result =>
       result.match({
         Ok: ({ account }) => (
-          <PlainListView
-            withoutScroll={!desktop}
-            data={account?.invoices?.edges?.map(({ node }) => node) ?? []}
-            keyExtractor={item => item.id}
-            headerHeight={48}
-            rowHeight={48}
-            groupHeaderHeight={48}
-            extraInfo={undefined}
-            columns={columns}
-            smallColumns={smallColumns}
-            loading={{
-              isLoading: nextData.isLoading(),
-              count: PER_PAGE,
-            }}
-            onEndReached={() => {
-              if (account?.invoices?.pageInfo.hasNextPage === true) {
-                setAfter(account?.invoices?.pageInfo.endCursor ?? undefined);
-              }
-            }}
-            renderEmptyList={() => (
-              <FixedListViewEmpty
-                icon="lake-receipt"
-                borderedIcon={true}
-                title={t("accountDetails.billing.emptyTitle")}
-                subtitle={t("accountDetails.billing.emptyDescription")}
+          <Connection connection={account?.invoices}>
+            {invoices => (
+              <PlainListView
+                withoutScroll={!desktop}
+                data={invoices?.edges?.map(({ node }) => node) ?? []}
+                keyExtractor={item => item.id}
+                headerHeight={48}
+                rowHeight={48}
+                groupHeaderHeight={48}
+                extraInfo={undefined}
+                columns={columns}
+                smallColumns={smallColumns}
+                loading={{
+                  isLoading,
+                  count: PER_PAGE,
+                }}
+                onEndReached={() => {
+                  if (invoices?.pageInfo.hasNextPage === true) {
+                    setVariables({ after: invoices?.pageInfo.endCursor ?? undefined });
+                  }
+                }}
+                renderEmptyList={() => (
+                  <FixedListViewEmpty
+                    icon="lake-receipt"
+                    borderedIcon={true}
+                    title={t("accountDetails.billing.emptyTitle")}
+                    subtitle={t("accountDetails.billing.emptyDescription")}
+                  />
+                )}
               />
             )}
-          />
+          </Connection>
         ),
         Error: error => <ErrorView error={error} />,
       }),

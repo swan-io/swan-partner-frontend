@@ -1,4 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -21,7 +22,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
@@ -303,10 +303,7 @@ export const AccountActivationPage = ({
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
-  const { data, reload } = useUrqlQuery({
-    query: AccountActivationPageDocument,
-    variables: { accountMembershipId },
-  });
+  const [data, { reload }] = useQuery(AccountActivationPageDocument, { accountMembershipId });
 
   const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
 

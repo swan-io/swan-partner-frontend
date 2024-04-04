@@ -152,6 +152,7 @@
   "card.physical.order.shippingAddress.postalCode": "Postal code",
   "card.physical.orderNewCard": "Order new card",
   "card.physical.temporarilyBlock": "Temporarily block",
+  "card.physical.toRenew": "Your card is expiring on {expiryDate}",
   "card.physical.trackingNumber": "{shippingProvider} tracking number",
   "card.physical.unblock": "Unblock",
   "card.physical.viewPin": "View PIN",

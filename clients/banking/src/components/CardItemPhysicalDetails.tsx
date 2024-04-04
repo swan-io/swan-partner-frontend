@@ -51,7 +51,7 @@ import {
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
-import { formatCurrency, locale, t } from "../utils/i18n";
+import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
@@ -115,6 +115,9 @@ const styles = StyleSheet.create({
   },
   trackingNumber: {
     ...commonStyles.fill,
+  },
+  renewAlert: {
+    width: "100%",
   },
 });
 
@@ -610,6 +613,25 @@ export const CardItemPhysicalDetails = ({
 
   return (
     <View style={styles.container}>
+      {match(card.physicalCard)
+        .with(
+          {
+            __typename: "PhysicalCard",
+            statusInfo: { status: "ToRenew" },
+            expiryDate: P.nonNullable,
+          },
+          ({ expiryDate }) => (
+            <LakeAlert
+              style={styles.renewAlert}
+              variant="info"
+              title={t("card.physical.toRenew", {
+                expiryDate: formatDateTime(new Date(expiryDate), "LL"),
+              })}
+            />
+          ),
+        )
+        .otherwise(() => null)}
+
       <View style={styles.card}>
         {match(card.physicalCard)
           .with({ __typename: "PhysicalCard" }, physicalCard => (

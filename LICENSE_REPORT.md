@@ -19,7 +19,7 @@ Name | Version | License | URL | VendorUrl | VendorName
 @types/iban | 0.0.35 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/iban | Unknown
 @types/mustache | 4.2.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
 @types/react | 18.2.74 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react | Unknown
-@types/react-dom | 18.2.23 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
+@types/react-dom | 18.2.24 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
 @urql/devtools | 2.0.3 | MIT | https://github.com/FormidableLabs/urql-devtools-exchange.git | https://github.com/FormidableLabs/urql-devtools-exchange#readme | Formidable
@@ -54,7 +54,7 @@ urql | 4.0.7 | MIT | https://github.com/urql-graphql/urql.git | https://formidab
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 9.0.1 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 valienv | 0.6.0 | MIT | https://github.com/zoontek/valienv.git | https://github.com/zoontek/valienv#readme | Mathieu Acthernoene
-vite | 5.2.7 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
+vite | 5.2.8 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
 vitest | 1.4.0 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
 wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle

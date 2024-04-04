@@ -41,12 +41,6 @@ export const getUpdateOnboardingError = (
         description: t("error.tryAgain"),
       };
     })
-    .with({ networkError: P.any }, () => {
-      return {
-        title: t("error.network"),
-        description: t("error.checkConnection"),
-      };
-    })
     .otherwise(error => {
       return {
         title: translateError(error),

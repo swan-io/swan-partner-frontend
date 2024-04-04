@@ -2252,24 +2252,24 @@
   resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.1.1.tgz#bdf17d725270c8560d2371972427b6f7e80da5d8"
   integrity sha512-NzmIVAnJuzuPwm8ZR4I9tUpuo9qjtVNA7aTSZYdSvcJ+y7NTyt9+tCi4y87T3m8hACN2ATMqvTmRtHOSDIIz7w==
 
-"@swan-io/chicane@2.0.0-rc.2", "@swan-io/chicane@^2.0.0-rc.2":
-  version "2.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-2.0.0-rc.2.tgz#fe98f4c10c385fcac003303bff75b5de286940fa"
-  integrity sha512-SWE0q8Yql8pjBN6o2SmKKkD3CP0R8cTD5vcmxC19CBDAkosSR6JlOlSgPkq9zHiuGtDtrBwT5vrdJQxLr4Ix+A==
+"@swan-io/chicane@2.0.0", "@swan-io/chicane@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/chicane/-/chicane-2.0.0.tgz#fe98f4c10c385fcac003303bff75b5de286940fa"
+  integrity "sha1-g911uqSdISpGRvBNXZ8tOCk4gq4= sha512-pNTs9KHeWckz070TOF+FuW+QCzJoOfMVqPq5qAQwMzAoaPF5Yps/T5Y4cfGvUrD+wBbd0zHgNu+xGIvK21d5jw=="
   dependencies:
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/lake@7.2.5":
-  version "7.2.5"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.2.5.tgz#a75d5a0149b44521fba67063e6e7be1a6f46c151"
-  integrity sha512-UH3CFJza1v+y+LAPzGOkcWerjBzctun+tDzU1Fg62RMgQSUS14CZm/o4NeXCiMwcMre5hy/YB4EcpflQhYrs2Q==
+"@swan-io/lake@7.3.2":
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.3.2.tgz#154faa96141081094ea33f9dfc6e2ef3b04e726f"
+  integrity sha512-BgfBnO8mWNnH60qTVS0QWczptgctOkm9qEZJUS8f06f/Q3ioBcoJdHBsUiU41wxAu1b6PNfnNyxDH8wEScp4lA==
   dependencies:
     "@react-three/drei" "^9.104.1"
     "@react-three/fiber" "^8.16.1"
     "@swan-io/boxed" "^2.1.1"
-    "@swan-io/chicane" "^2.0.0-rc.2"
-    "@swan-io/use-form" "^2.0.0-rc.2"
+    "@swan-io/chicane" "^2.0.0"
+    "@swan-io/use-form" "^2.0.0"
     dayjs "^1.11.10"
     polished "^4.3.1"
     prism-react-renderer "^2.3.1"
@@ -2289,16 +2289,16 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.2.tgz#bfabcbd3c031782dfde4e1438f790c9a7f682926"
   integrity sha512-jLl5CWyAvqLUp70GIAN7O+fcWBa30ozp4I37sTFJOQvICrlAi5pbGDALZyYt4rkE33ahHwi4BLzWTa6PqOE5MA==
 
-"@swan-io/shared-business@7.2.5":
-  version "7.2.5"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.2.5.tgz#cdcb42a452c87e6fced4efdf54a8abcc38646101"
-  integrity sha512-k2iN1iNEedSxXbUx/2DfCtVHHN7+3/v+dfjUCFkzoiaO8oRS+GR0x1OH7IiyLauIdVj/yWrlVQ2CwUJ82T7OMA==
+"@swan-io/shared-business@7.3.2":
+  version "7.3.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.3.2.tgz#8517536a4fd0a7c57219c1dfc1ba28ad74b0153f"
+  integrity sha512-L19qCuQYt1Hc5Qd7c2+TD92pFtHpuPfo2HBUIsftYe2ycsDsvldnjLwqsVGK8i4UfY40iL+uwQOaJpH6KHjYqQ==
   dependencies:
     "@formatjs/intl" "^2.10.1"
     "@placekit/client-js" "^2.3.0"
     "@swan-io/boxed" "^2.1.1"
     "@swan-io/request" "^1.0.2"
-    "@swan-io/use-form" "^2.0.0-rc.2"
+    "@swan-io/use-form" "^2.0.0"
     dayjs "^1.11.10"
     iban "^0.0.14"
     react "^18.2.0"
@@ -2311,12 +2311,12 @@
     urql "^4.0.7"
     uuid "^9.0.1"
 
-"@swan-io/use-form@2.0.0-rc.2", "@swan-io/use-form@^2.0.0-rc.2":
-  version "2.0.0-rc.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.0-rc.2.tgz#8e7aad0257e16df2bbf5603f5e16b14820e399ee"
-  integrity sha512-F7uX/7dSbPgO4PhOk5IRKIIrKfSv7WcBRFd4UKaYrrFhvJbNg8pojNI2H8/1H8SyYwp8gCMJ3AcDUmuzovpJNg==
+"@swan-io/use-form@2.0.0", "@swan-io/use-form@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.0.tgz#8e7aad0257e16df2bbf5603f5e16b14820e399ee"
+  integrity "sha1-IDY6BdTnJC1rCxn5VPg1Vv1kluQ= sha512-PctTlWCu7itDB/T32PGBFyfzVQobgPxbULkTZnDJlcL2qsuoQXeTjtmAF6ddiZajUKDtZpvYYjQdmtxJzsY8Sg=="
   dependencies:
-    "@swan-io/boxed" "^2.0.0"
+    "@swan-io/boxed" "^2.1.1"
 
 "@swc/core-darwin-arm64@1.4.11":
   version "1.4.11"

@@ -18,7 +18,7 @@ type Props = {
   onPressClose: () => void;
 };
 export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClose }: Props) => {
-  const [data, query] = useDeferredQuery(MembershipDetailDocument);
+  const [data, { query }] = useDeferredQuery(MembershipDetailDocument);
 
   useEffect(() => {
     if (accountMembershipId != null) {

@@ -7,7 +7,6 @@ import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
-import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
@@ -15,7 +14,7 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { Suspense, useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
@@ -354,23 +353,21 @@ export const MembershipsArea = ({
             onClose={() => Router.push("AccountMembersList", { accountMembershipId, ...params })}
             items={memberships}
             render={(membership, large) => (
-              <Suspense fallback={<LoadingView color={colors.current[500]} />}>
-                <MembershipDetailArea
-                  params={params}
-                  currentUserAccountMembershipId={accountMembershipId}
-                  currentUserAccountMembership={currentUserAccountMembership}
-                  editingAccountMembershipId={membership.id}
-                  onAccountMembershipUpdate={onAccountMembershipUpdate}
-                  canAddCard={cardOrderVisible && canAddCard}
-                  physicalCardOrderVisible={physicalCardOrderVisible}
-                  accountCountry={accountCountry}
-                  shouldDisplayIdVerification={shouldDisplayIdVerification}
-                  onRefreshRequest={() => {
-                    reload();
-                  }}
-                  large={large}
-                />
-              </Suspense>
+              <MembershipDetailArea
+                params={params}
+                currentUserAccountMembershipId={accountMembershipId}
+                currentUserAccountMembership={currentUserAccountMembership}
+                editingAccountMembershipId={membership.id}
+                onAccountMembershipUpdate={onAccountMembershipUpdate}
+                canAddCard={cardOrderVisible && canAddCard}
+                physicalCardOrderVisible={physicalCardOrderVisible}
+                accountCountry={accountCountry}
+                shouldDisplayIdVerification={shouldDisplayIdVerification}
+                onRefreshRequest={() => {
+                  reload();
+                }}
+                large={large}
+              />
             )}
             closeLabel={t("common.closeButton")}
             previousLabel={t("common.previous")}

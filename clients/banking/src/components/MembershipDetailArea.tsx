@@ -7,6 +7,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { useIsSuspendable } from "@swan-io/lake/src/components/Suspendable";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -92,9 +93,15 @@ export const MembershipDetailArea = ({
 }: Props) => {
   const route = Router.useRoute(membershipsDetailRoutes);
 
-  const [data, { reload }] = useQuery(MembershipDetailDocument, {
-    accountMembershipId: editingAccountMembershipId,
-  });
+  const suspense = useIsSuspendable();
+
+  const [data, { reload }] = useQuery(
+    MembershipDetailDocument,
+    {
+      accountMembershipId: editingAccountMembershipId,
+    },
+    { suspense },
+  );
 
   const accountMembership = useMemo(() => {
     return data.mapOk(data =>

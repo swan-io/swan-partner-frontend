@@ -71,12 +71,16 @@ export const TransferInternationalWizardAmount = ({
   const [input, setInput] = useState<Amount | undefined>();
   const [balance] = useQuery(GetAvailableAccountBalanceDocument, { accountMembershipId });
 
-  const [quote, queryQuote] = useDeferredQuery(GetInternationalCreditTransferQuoteDocument);
+  const [quote, { query: queryQuote, reset: resetQuote }] = useDeferredQuery(
+    GetInternationalCreditTransferQuoteDocument,
+  );
 
   useEffect(() => {
     if (input != null && input.value !== "0" && !Number.isNaN(Number(input.value))) {
       const request = queryQuote({ accountId, ...input });
       return () => request.cancel();
+    } else {
+      resetQuote();
     }
   }, [input, accountId, queryQuote]);
 

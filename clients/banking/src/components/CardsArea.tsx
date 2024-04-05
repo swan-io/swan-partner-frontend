@@ -92,9 +92,11 @@ const useDisplayableCardsInformation = ({
     } as const;
   }, [accountId]);
 
-  const [withAccountQuery, queryWithAccount] = useDeferredQuery(CardCountWithAccountDocument);
+  const [withAccountQuery, { query: queryWithAccount }] = useDeferredQuery(
+    CardCountWithAccountDocument,
+  );
 
-  const [withoutAccountQuery, queryWithoutAccount] = useDeferredQuery(
+  const [withoutAccountQuery, { query: queryWithoutAccount }] = useDeferredQuery(
     CardCountWithoutAccountDocument,
   );
 

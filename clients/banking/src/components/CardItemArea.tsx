@@ -73,8 +73,8 @@ export const CardItemArea = ({
     "AccountCardsItemOrderAddress",
   ]);
 
-  const [data, query] = useDeferredQuery(CardPageDocument);
-  const [lastRelevantIdentification, queryLastRelevantIdentification] = useDeferredQuery(
+  const [data, { query }] = useDeferredQuery(CardPageDocument);
+  const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,
   );
 

@@ -21,8 +21,8 @@ type Props = {
 const COOKIE_REFRESH_INTERVAL = 30000; // 30s
 
 export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
-  const [data, query] = useDeferredQuery(AccountAreaDocument);
-  const [lastRelevantIdentification, queryLastRelevantIdentification] = useDeferredQuery(
+  const [data, { query }] = useDeferredQuery(AccountAreaDocument);
+  const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,
   );
   const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);

@@ -58,9 +58,11 @@ export const filterOutUnauthorizedError = (clientError: ClientError) => {
     })
   ) {
     // never resolve, this way we never trigger an error screen
-    return Future.make<Result<unknown, ClientError>>(() => {
+    return Future.make<Result<unknown, ClientError>>(resolve => {
       if (isNullish(Router.getRoute(["ProjectLogin"]))) {
         window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
+      } else {
+        resolve(Result.Error(clientError));
       }
     });
   } else {

@@ -12,8 +12,6 @@ import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
-import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { P, match } from "ts-pattern";
@@ -35,7 +33,6 @@ import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
 export type Details = {
   results: ResultItem[];
-  externalReference: string;
 };
 
 type Props = {
@@ -78,14 +75,9 @@ export const TransferInternationalWizardDetails = ({
 
   const { Field, submitForm, getFieldState, listenFields } = useForm<{
     results: ResultItem[];
-    externalReference: string;
   }>({
     results: {
       initialValue: initialDetails?.results ?? [],
-      validate: () => undefined,
-    },
-    externalReference: {
-      initialValue: initialDetails?.externalReference ?? "",
       validate: () => undefined,
     },
   });
@@ -102,13 +94,16 @@ export const TransferInternationalWizardDetails = ({
       )
       .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
         if (isCombinedError(error)) {
+          console.log(error);
           match(error)
             .with(
               {
                 graphQLErrors: P.array({
                   extensions: {
                     code: "BeneficiaryValidationError",
-                    errors: P.array({ message: P.select(P.string) }),
+                    meta: {
+                      fields: P.array({ message: P.select(P.string) }),
+                    },
                   },
                 }),
               },
@@ -135,26 +130,6 @@ export const TransferInternationalWizardDetails = ({
   return (
     <View>
       <Tile>
-        <LakeLabel
-          label={t("transfer.new.internationalTransfer.details.form.field.customLabel")}
-          render={id => (
-            <Field name="externalReference">
-              {({ value, onChange, onBlur, error, valid, ref }) => (
-                <LakeTextInput
-                  id={id}
-                  ref={ref}
-                  value={value}
-                  error={error}
-                  valid={valid}
-                  onChangeText={onChange}
-                  onBlur={onBlur}
-                  inputMode="text"
-                />
-              )}
-            </Field>
-          )}
-        />
-
         {data.isLoading() && !fields.length ? (
           <ActivityIndicator color={colors.gray[900]} />
         ) : (
@@ -190,7 +165,7 @@ export const TransferInternationalWizardDetails = ({
               onPress={() => {
                 const runCallback = () =>
                   submitForm(values => {
-                    if (hasDefinedKeys(values, ["externalReference", "results"])) {
+                    if (hasDefinedKeys(values, ["results"])) {
                       onSave(values);
                     }
                   });

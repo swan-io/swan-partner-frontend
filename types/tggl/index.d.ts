@@ -7,18 +7,25 @@ declare module "tggl-client" {
     userId: string;
     email: string;
     timestamp: string | number;
-    ip: string;
-    referer: string;
-    environmentType: "sandbox" | "live" | "admin";
+    ip?: string;
+    referer?: string;
     projectId: string;
     accountCountry: "FRA" | "NLD" | "DEU" | "ESP";
     environment: "master" | "preprod" | "prod" | "development";
+    environmentType: "sandbox" | "live" | "admin";
+    serviceName: string;
   }
 
   export interface TgglFlags {
-    account_contract_choose_pin_code_enabled: true;
+    account_contract_send_tcu_notifications_on_swans_behalf: true;
     teamManagementV2: true;
-    cancelPhysicalCardAtExpirationFeature: boolean;
+    paymentLink: true;
+    shouldUseICTV2: true;
+    account_contract_choose_pin_code_enabled: true;
+    requestCardPaymentMethod: true;
+    account_contract_send_tcu_notifications: true;
+    kycAccountHoldersVerificationsView: true;
+    n8n_screening_use_account_contract: boolean;
     isCheckRedirectVerificationCodeCalled: boolean;
     enableSandboxMutations: boolean;
     sandboxIdentification: boolean;
@@ -27,18 +34,33 @@ declare module "tggl-client" {
     lago_signature_verification_enabled: boolean;
     graphql_pagination_first_limit_enabled: boolean;
     new_physical_card_model_enabled: boolean;
-    renewPhysicalCardFeature: boolean;
-    setIssuingProcessorCardProductOnRenewFeature: boolean;
     end_customer_billing_enabled: boolean;
     ciao_es_enabled: boolean;
-    kyc_use_new_architecture: boolean;
+    setIssuingProcessorCardProductOnRenewFeature: boolean;
     billing_v2_enabled: boolean;
     create_capital_deposit_case_input_validation_enabled: boolean;
-    renewVirtualCardFeature: boolean;
     kyc_create_kyc_case: boolean;
-    cancelCardContractAtExpirationFeature: boolean;
-    addInternationalBeneficiary: boolean;
     synchronize_fee_settings_enabled: boolean;
-    n8n_screening_use_account_contract: boolean;
+    addInternationalBeneficiary: boolean;
+    cancelCardContractAtExpirationFeature: boolean;
+    renewVirtualCardFeature: boolean;
+    cancelPhysicalCardAtExpirationFeature: boolean;
+    closure_subscription_enabled: boolean;
+    twilioRatio: 0.8 | 1 | 0.5 | 0;
+    kyc_request_first_transfer: boolean;
+    virtual_card_subscription_enabled: boolean;
+    account_subscription_enabled: boolean;
+    renewPhysicalCardFeature: boolean;
+    card_management_system_schedules_enabled: boolean;
+    card_management_system_outboxer_enabled: boolean;
+    isNotificationsServiceEnabled: boolean;
+    notificationServiceUsageRatio: 0.8 | 1 | 0.5 | 0;
+    complianceReason_default_account_closing: boolean;
+    lago_end_customer_enabled: boolean;
+    kycDoNotCreateZendeskUser: boolean;
+    kycDoNotCreateZendeskTickets: boolean;
+    account_contract_monext_openapi_enabled: boolean;
+    account_membership_subscription_enabled: boolean;
+    initiate_international_credit_transfer_outgoing: boolean;
   }
 }

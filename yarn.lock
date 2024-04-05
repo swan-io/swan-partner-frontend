@@ -2260,10 +2260,10 @@
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/graphql-client@0.1.0-alpha20":
-  version "0.1.0-alpha20"
-  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.0-alpha20.tgz#132bd537eebc4e0163b79f1b29ea8b8c57c3f72b"
-  integrity sha512-GSi5FW3NGwaQ3vZmC/6ozRU4rpc1S2TGfPtbekVBT3GzVIDtgHL5fJuMbyYCT+FSuVnVRavMcM7OWiK1dMZ4OA==
+"@swan-io/graphql-client@0.1.0-beta1":
+  version "0.1.0-beta1"
+  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.0-beta1.tgz#9a656f25671ad81b16ca073a3129cafe23037add"
+  integrity sha512-ysm1q2f/HOxSXlpLhHOd9YWdPLJtlvvvirG3lCeWA+7H1KIBy5bEuZIqfWVAptMXR3qkeEQjAvwFu01TgnoZDg==
   dependencies:
     "@0no-co/graphql.web" "^1.0.6"
     "@swan-io/boxed" "^2.1.1"

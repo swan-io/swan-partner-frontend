@@ -94,7 +94,6 @@ export const TransferInternationalWizardDetails = ({
       )
       .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
         if (isCombinedError(error)) {
-          console.log(error);
           match(error)
             .with(
               {

@@ -52,7 +52,7 @@ const PageMetadata = ({
 };
 
 const FlowPicker = ({ onboardingId }: Props) => {
-  const [data, query] = useDeferredQuery(GetOnboardingDocument);
+  const [data, { query }] = useDeferredQuery(GetOnboardingDocument);
   const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
     UpdateIndividualOnboardingDocument,
   );

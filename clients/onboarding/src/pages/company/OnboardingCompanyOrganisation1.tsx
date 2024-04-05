@@ -268,7 +268,7 @@ export const OnboardingCompanyOrganisation1 = ({
 
   const [siren, setSiren] = useState<string>();
 
-  const [data, query] = useDeferredQuery(GetCompanyInfoDocument);
+  const [data, { query }] = useDeferredQuery(GetCompanyInfoDocument);
 
   useEffect(() => {
     if (siren != null) {

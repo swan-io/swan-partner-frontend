@@ -17,6 +17,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
@@ -455,6 +456,8 @@ export const CardItemPhysicalDetails = ({
   physicalCardOrderVisible,
   hasBindingUserError,
 }: Props) => {
+  const { desktop } = useResponsive();
+
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
   const [isPermanentlyBlockModalOpen, setIsPermanentlyBlockModalOpen] = useState(false);
   const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
@@ -621,13 +624,17 @@ export const CardItemPhysicalDetails = ({
             expiryDate: P.nonNullable,
           },
           ({ expiryDate }) => (
-            <LakeAlert
-              style={styles.renewAlert}
-              variant="info"
-              title={t("card.physical.toRenew", {
-                expiryDate: formatDateTime(new Date(expiryDate), "LL"),
-              })}
-            />
+            <>
+              {!desktop && <Space height={24} />}
+
+              <LakeAlert
+                style={styles.renewAlert}
+                variant="info"
+                title={t("card.physical.toRenew", {
+                  expiryDate: formatDateTime(new Date(expiryDate), "LL"),
+                })}
+              />
+            </>
           ),
         )
         .otherwise(() => null)}

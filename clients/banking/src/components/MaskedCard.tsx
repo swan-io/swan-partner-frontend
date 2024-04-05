@@ -74,6 +74,10 @@ const styles = StyleSheet.create({
     ...StyleSheet.absoluteFillObject,
     backgroundImage: `linear-gradient(to top left, rgba(196, 122, 58, 1), rgba(196, 122, 58, 0) 70%)`,
   },
+  toReniewGradient: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundImage: `linear-gradient(to top left, rgba(96, 163, 188, 1), rgba(96, 163, 188, 0) 70%)`,
+  },
   contents: {
     flexGrow: 1,
   },
@@ -136,6 +140,7 @@ export const MaskedCard = ({
       >
         {match(status)
           .with("Suspended", () => <View style={styles.suspendedGradient} />)
+          .with("ToRenew", () => <View style={styles.toReniewGradient} />)
           .otherwise(() => null)}
 
         <View style={styles.contents}>
@@ -161,7 +166,7 @@ export const MaskedCard = ({
           <Fill />
 
           {match(status)
-            .with("Activated", "Enabled", "Renewed", "ToActivate", "Suspended", () => (
+            .with("Activated", "Enabled", "Renewed", "ToActivate", "Suspended", "ToRenew", () => (
               <>
                 <Text style={[styles.monospacedText, { color: textColor, fontSize: panFontSize }]}>
                   {formatPan(pan)}

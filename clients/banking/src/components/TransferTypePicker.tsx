@@ -15,6 +15,7 @@ import { Fragment, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 
 const styles = StyleSheet.create({
   container: {
@@ -54,8 +55,10 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
     }, [accountMembershipId]),
   );
 
+  const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
+
   const links = useMemo(() => {
-    return [
+    const items = [
       {
         url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
         icon: "arrow-swap-regular" as const,
@@ -68,14 +71,20 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         title: t("transfer.tile.recurringTransfer.title"),
         subtitle: t("transfer.tile.recurringTransfer.subtitle"),
       },
-      // {
-      //   url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
-      //   icon: "earth-regular" as const,
-      //   title: t("transfer.tile.internationalTransfer.title"),
-      //   subtitle: t("transfer.tile.internationalTransfer.subtitle"),
-      // },
     ];
-  }, [accountMembershipId]);
+
+    return ictEnabled.getWithDefault(false)
+      ? [
+          ...items,
+          {
+            url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
+            icon: "earth-regular" as const,
+            title: t("transfer.tile.internationalTransfer.title"),
+            subtitle: t("transfer.tile.internationalTransfer.subtitle"),
+          },
+        ]
+      : items;
+  }, [ictEnabled, accountMembershipId]);
 
   return (
     <>

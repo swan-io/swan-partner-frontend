@@ -124,7 +124,9 @@ export const TransferInternationalWizardAmount = ({
               graphQLErrors: P.array({
                 extensions: {
                   code: "QuoteValidationError",
-                  errors: P.array({ message: P.select(P.string) }),
+                  meta: {
+                    fields: P.array({ message: P.select(P.string) }),
+                  },
                 },
               }),
             },

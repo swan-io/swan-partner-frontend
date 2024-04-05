@@ -1,26 +1,23 @@
+import { ClientContext } from "@swan-io/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { Suspense } from "react";
 import { match } from "ts-pattern";
-import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { PaymentArea } from "./components/PaymentArea";
 import { NotFoundPage } from "./pages/NotFoundPage";
+import { client } from "./utils/gql";
 import { logFrontendError } from "./utils/logger";
 import { Router } from "./utils/routes";
-import { unauthenticatedClient } from "./utils/urql";
 
 export const App = () => {
   const route = Router.useRoute(["PaymentArea"]);
 
   return (
-    <ErrorBoundary
-      onError={error => logFrontendError(error)}
-      fallback={({ error }) => <ErrorView error={error} />}
-    >
+    <ErrorBoundary onError={error => logFrontendError(error)} fallback={() => <ErrorView />}>
       <Suspense fallback={<LoadingView color={colors.gray[100]} />}>
-        <ClientProvider value={unauthenticatedClient}>
+        <ClientContext.Provider value={client}>
           {match(route)
             .with({ name: "PaymentArea" }, ({ params: { paymentLinkId } }) => (
               <PaymentArea paymentLinkId={paymentLinkId} />
@@ -28,7 +25,7 @@ export const App = () => {
             .otherwise(() => (
               <NotFoundPage />
             ))}
-        </ClientProvider>
+        </ClientContext.Provider>
       </Suspense>
     </ErrorBoundary>
   );

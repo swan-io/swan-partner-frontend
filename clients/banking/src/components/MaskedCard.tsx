@@ -161,6 +161,12 @@ export const MaskedCard = ({
                 <Tag color="warning">{t("card.blocked")}</Tag>
               </>
             ))
+            .with("ToRenew", () => (
+              <>
+                <Space height={8} />
+                <Tag color="shakespear">{t("card.toRenew")}</Tag>
+              </>
+            ))
             .otherwise(() => null)}
 
           <Fill />

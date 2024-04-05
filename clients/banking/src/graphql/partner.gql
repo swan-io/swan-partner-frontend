@@ -928,6 +928,15 @@ query CardPage($cardId: ID!) {
             consentUrl
           }
         }
+        ... on PhysicalCardToRenewStatusInfo {
+          address {
+            addressLine1
+            addressLine2
+            city
+            postalCode
+            country
+          }
+        }
       }
     }
   }

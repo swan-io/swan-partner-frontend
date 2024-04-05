@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "Original transaction ID",
   "transaction.paymentDateTime": "Payment date",
   "transaction.paymentMethod": "Payment method",
+  "transaction.pendingTransaction.description": "Will be automatically reverted on {executionDate} if unclaimed by merchant",
   "transaction.place": "Place",
   "transaction.reference": "Reference",
   "transaction.rejectedAmount": "Rejected amount",

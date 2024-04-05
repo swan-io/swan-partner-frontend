@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "ID de la transaction d'origine",
   "transaction.paymentDateTime": "Date de paiement",
   "transaction.paymentMethod": "Mode de paiement",
+  "transaction.pendingTransaction.description": "Sera automatiquement annulée le {executionDate} si non réclamée par le commerçant",
   "transaction.place": "Lieu",
   "transaction.reference": "Référence",
   "transaction.rejectedAmount": "Montant rejeté",

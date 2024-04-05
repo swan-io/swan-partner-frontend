@@ -9,6 +9,7 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
@@ -38,6 +39,14 @@ const styles = StyleSheet.create({
   },
   filtersLarge: {
     paddingHorizontal: spacings[40],
+  },
+  button: {
+    paddingHorizontal: spacings[24],
+    paddingVertical: spacings[12],
+  },
+  buttonLarge: {
+    paddingHorizontal: spacings[40],
+    paddingVertical: spacings[12],
   },
 });
 
@@ -81,6 +90,7 @@ export const TransactionListPage = ({
   useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountTransactionsListRoot", { accountMembershipId }),
   );
+  const route = Router.useRoute(["AccountTransactionsListDetail"]);
 
   const filters: TransactionFiltersState = useMemo(() => {
     return {
@@ -271,20 +281,63 @@ export const TransactionListPage = ({
               }),
           })}
 
-          <ListRightPanel
-            ref={panelRef}
-            keyExtractor={item => item.id}
-            activeId={activeTransactionId}
-            onActiveIdChange={setActiveTransactionId}
-            onClose={() => setActiveTransactionId(null)}
-            items={transactions}
-            render={(transaction, large) => (
-              <TransactionDetail large={large} transaction={transaction} />
-            )}
-            closeLabel={t("common.closeButton")}
-            previousLabel={t("common.previous")}
-            nextLabel={t("common.next")}
-          />
+          {match(route)
+            .with({ name: "AccountTransactionsListDetail" }, ({ params: { transactionId } }) => (
+              <RightPanel
+                visible={true}
+                onPressClose={() => {
+                  setActiveTransactionId(null);
+                  Router.push("AccountTransactionsListRoot", { accountMembershipId });
+                }}
+              >
+                {({ large }) => (
+                  <>
+                    <Box style={large ? styles.buttonLarge : styles.button}>
+                      <LakeButton
+                        mode="tertiary"
+                        icon="lake-close"
+                        ariaLabel={t("common.closeButton")}
+                        onPress={() => {
+                          setActiveTransactionId(null);
+                          Router.push("AccountTransactionsListRoot", { accountMembershipId });
+                        }}
+                        children={null}
+                      />
+                    </Box>
+
+                    <TransactionDetail
+                      accountMembershipId={accountMembershipId}
+                      large={large}
+                      transactionId={transactionId}
+                      canQueryCardOnTransaction={canQueryCardOnTransaction}
+                      canViewAccount={canViewAccount}
+                    />
+                  </>
+                )}
+              </RightPanel>
+            ))
+            .otherwise(() => (
+              <ListRightPanel
+                ref={panelRef}
+                keyExtractor={item => item.id}
+                activeId={activeTransactionId}
+                onActiveIdChange={setActiveTransactionId}
+                onClose={() => setActiveTransactionId(null)}
+                items={transactions}
+                render={(transaction, large) => (
+                  <TransactionDetail
+                    accountMembershipId={accountMembershipId}
+                    large={large}
+                    transactionId={transaction.id}
+                    canQueryCardOnTransaction={canQueryCardOnTransaction}
+                    canViewAccount={canViewAccount}
+                  />
+                )}
+                closeLabel={t("common.closeButton")}
+                previousLabel={t("common.previous")}
+                nextLabel={t("common.next")}
+              />
+            ))}
         </>
       )}
     </ResponsiveContainer>

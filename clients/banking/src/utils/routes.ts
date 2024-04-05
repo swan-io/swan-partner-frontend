@@ -33,6 +33,7 @@ const routes = {
         {
           Area: "/*",
           Root: "/",
+          Detail: "/:transactionId",
           ...createGroup("Statements", "/statements", {
             Area: "/*",
             Root: "/monthly",
@@ -115,6 +116,7 @@ export const accountTransactionsRoutes = [
   "AccountTransactionsListRoot",
   "AccountTransactionsListStatementsArea",
   "AccountTransactionsUpcoming",
+  "AccountTransactionsListDetail",
 ] as const;
 
 export const membershipsRoutes = ["AccountMembersList", "AccountMembersDetailsArea"] as const;

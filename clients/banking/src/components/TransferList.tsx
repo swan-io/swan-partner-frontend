@@ -224,7 +224,13 @@ export const TransferList = ({
             onClose={() => setActiveTransactionId(null)}
             items={transactions}
             render={(transaction, large) => (
-              <TransactionDetail large={large} transaction={transaction} />
+              <TransactionDetail
+                accountMembershipId={accountMembershipId}
+                large={large}
+                transactionId={transaction.id}
+                canQueryCardOnTransaction={canQueryCardOnTransaction}
+                canViewAccount={canViewAccount}
+              />
             )}
             closeLabel={t("common.closeButton")}
             previousLabel={t("common.previous")}

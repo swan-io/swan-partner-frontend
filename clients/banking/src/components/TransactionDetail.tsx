@@ -5,20 +5,30 @@ import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotEmpty, isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
+import {
+  isNotEmpty,
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullish,
+} from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { ScrollView, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { TransactionDetailsFragment } from "../graphql/partner";
+import { TransactionDocument } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import {
   getFeesDescription,
   getTransactionRejectedReasonLabel,
@@ -45,24 +55,26 @@ const styles = StyleSheet.create({
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 const truncateTransactionId = (id: string) => id.split("#")[0] ?? id;
 
-const IconLine = ({ icon, text }: { icon: IconName; text: string }) => (
-  <Box direction="row" alignItems="center">
-    <Icon name={icon} size={16} />
-    <Space width={8} />
-
-    <LakeText variant="regular" color={colors.gray[900]}>
-      {text}
-    </LakeText>
-  </Box>
-);
-
-const FormattedDateTime = ({ date, label }: { date: string; label: string }) => (
+const Line = ({ icon, label, text }: { icon?: IconName; label: string; text: string }) => (
   <LakeLabel
     type="viewSmall"
     label={label}
-    render={() => (
-      <IconLine icon="calendar-ltr-regular" text={formatDateTime(new Date(date), "LLL")} />
-    )}
+    render={() =>
+      icon ? (
+        <Box direction="row" alignItems="center">
+          <Icon name={icon} size={16} />
+          <Space width={8} />
+
+          <LakeText variant="regular" color={colors.gray[900]}>
+            {text}
+          </LakeText>
+        </Box>
+      ) : (
+        <LakeText variant="regular" color={colors.gray[900]}>
+          {text}
+        </LakeText>
+      )
+    }
   />
 );
 
@@ -86,94 +98,43 @@ const CopiableLine = ({ label, text }: { label: string; text: string }) => (
 );
 
 type Props = {
-  transaction: TransactionDetailsFragment;
+  accountMembershipId: string;
+  transactionId: string;
   large: boolean;
+  canQueryCardOnTransaction: boolean;
+  canViewAccount: boolean;
 };
 
-export const TransactionDetail = ({ transaction, large }: Props) => {
+export const TransactionDetail = ({
+  accountMembershipId,
+  transactionId,
+  large,
+  canQueryCardOnTransaction,
+  canViewAccount,
+}: Props) => {
+  const { data } = useUrqlQuery(
+    {
+      query: TransactionDocument,
+      variables: { id: transactionId, canViewAccount, canQueryCardOnTransaction },
+    },
+    [transactionId],
+  );
+
+  if (data.isNotAsked() || data.isLoading()) {
+    return <LoadingView />;
+  }
+
+  const result = data.get();
+
+  if (result.isError()) {
+    return <ErrorView error={result.getError()} />;
+  }
+
+  const transaction = result.get().transaction;
+
   if (transaction == null) {
     return <ErrorView />;
   }
-
-  const bookingDateTime = match(transaction.statusInfo)
-    .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
-      <FormattedDateTime label={t("transaction.bookingDateTime")} date={bookingDate} />
-    ))
-    .otherwise(() => null);
-
-  const executionDateTime = match(transaction.statusInfo)
-    .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
-      <FormattedDateTime label={t("transaction.executionDateTime")} date={executionDate} />
-    ))
-    .otherwise(() => null);
-
-  const canceledDateTime = match(transaction.statusInfo)
-    .with(
-      { __typename: "CanceledTransactionStatusInfo", canceledDate: P.nonNullable },
-      ({ canceledDate }) => (
-        <FormattedDateTime label={t("transaction.canceledDate")} date={canceledDate} />
-      ),
-    )
-    .otherwise(() => null);
-
-  const rejectedDateTime = match(transaction.statusInfo)
-    .with({ __typename: "RejectedTransactionStatusInfo" }, () => (
-      <FormattedDateTime label={t("transaction.rejectedDate")} date={transaction.updatedAt} />
-    ))
-    .otherwise(() => null);
-
-  const rejectedReason = match(transaction.statusInfo)
-    .with({ __typename: "RejectedTransactionStatusInfo" }, ({ reason }) => {
-      const description = getTransactionRejectedReasonLabel(reason);
-
-      if (isNullish(description)) {
-        return null;
-      }
-
-      return (
-        <LakeLabel
-          type="viewSmall"
-          label={t("transaction.rejectedReason")}
-          render={() => (
-            <LakeText variant="regular" color={colors.gray[900]}>
-              {description}
-            </LakeText>
-          )}
-        />
-      );
-    })
-    .otherwise(() => null);
-
-  const paymentMethod = match(transaction.__typename)
-    .with(
-      "CheckTransaction",
-      "InternalDirectDebitTransaction",
-      "SEPADirectDebitTransaction",
-      type => (
-        <Box direction="row" alignItems="center">
-          <Icon name="arrow-swap-regular" size={16} />
-          <Space width={8} />
-
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {type === "CheckTransaction"
-              ? t("transactions.method.Check")
-              : t("transactions.method.DirectDebit")}
-          </LakeText>
-        </Box>
-      ),
-    )
-    .otherwise(() => null);
-
-  const transactionId = (
-    <CopiableLine label={t("transaction.id")} text={truncateTransactionId(transaction.id)} />
-  );
-
-  const reference = (
-    <CopiableLine
-      label={t("transaction.reference")}
-      text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
-    />
-  );
 
   return (
     <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
@@ -204,6 +165,37 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                   variant="warning"
                   title={t("transaction.instantTransferUnavailable")}
                   children={t("transaction.instantTransferUnavailable.description")}
+                />
+              ),
+            )
+            .with(
+              {
+                // We display the reason of a rejected transaction which isn't a fee because it has already an alert displayed
+                __typename: P.not("FeeTransaction"),
+                statusInfo: { __typename: "RejectedTransactionStatusInfo", reason: P.select() },
+              },
+              reason => {
+                const description = getTransactionRejectedReasonLabel(reason);
+                if (isNullish(description)) {
+                  return null;
+                }
+                return <LakeAlert anchored={true} variant="error" title={description} />;
+              },
+            )
+            .with(
+              {
+                statusInfo: {
+                  __typename: "PendingTransactionStatusInfo",
+                  pendingEndDate: P.select(P.string),
+                },
+              },
+              pendingEndDate => (
+                <LakeAlert
+                  anchored={true}
+                  variant="warning"
+                  title={t("transaction.pendingTransaction.description", {
+                    executionDate: formatDateTime(new Date(pendingEndDate), "LL"),
+                  })}
                 />
               ),
             )
@@ -288,6 +280,40 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
         <Space height={24} />
 
         <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+          <ReadOnlyFieldList>
+            {match(transaction.statusInfo)
+              .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
+                <Line
+                  label={t("transaction.bookingDateTime")}
+                  text={formatDateTime(new Date(bookingDate), "LLL")}
+                  icon="calendar-ltr-regular"
+                />
+              ))
+              .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
+                <Line
+                  label={t("transaction.executionDateTime")}
+                  text={formatDateTime(new Date(executionDate), "LLL")}
+                  icon="calendar-ltr-regular"
+                />
+              ))
+              .with(
+                {
+                  __typename: "CanceledTransactionStatusInfo",
+                  canceledDate: P.not(P.nullish),
+                },
+                ({ canceledDate }) => (
+                  <Line
+                    label={t("transaction.canceledDate")}
+                    text={formatDateTime(new Date(canceledDate), "LLL")}
+                    icon="calendar-ltr-regular"
+                  />
+                ),
+              )
+              .otherwise(() => null)}
+          </ReadOnlyFieldList>
+
+          <Separator space={8} />
+
           {match(transaction)
             .with(
               { __typename: "CardTransaction" },
@@ -308,61 +334,41 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                 return (
                   <ReadOnlyFieldList>
                     {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
-                      <FormattedDateTime
+                      <Line
                         label={t("transaction.paymentDateTime")}
-                        date={payment.createdAt}
+                        text={formatDateTime(new Date(payment.createdAt), "LLL")}
+                        icon="calendar-ltr-regular"
                       />
                     )}
 
-                    {bookingDateTime}
-                    {executionDateTime}
-                    {canceledDateTime}
-                    {rejectedDateTime}
-                    {rejectedReason}
-
                     {match(merchantCountryName)
                       .with(P.string, name => (
-                        <LakeLabel
-                          type="viewSmall"
+                        <Line
                           label={t("transaction.place")}
-                          render={() => (
-                            <LakeText variant="regular" color={colors.gray[900]}>
-                              {`${merchantCity} - ${name}`}
-                            </LakeText>
-                          )}
+                          text={isNotEmpty(merchantCity) ? `${merchantCity} - ${name}` : name}
                         />
                       ))
                       .otherwise(() => null)}
 
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.maskedPan")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {formatMaskedPan(maskedPan)}
-                        </LakeText>
-                      )}
-                    />
+                    <Line label={t("transaction.maskedPan")} text={formatMaskedPan(maskedPan)} />
 
                     {match(user)
                       .with(
                         { firstName: P.string, lastName: P.string },
                         ({ firstName, lastName }) => (
-                          <LakeLabel
-                            type="viewSmall"
+                          <Line
                             label={t("transaction.cardHolder")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {[firstName, lastName].join(" ")}
-                              </LakeText>
-                            )}
+                            text={[firstName, lastName].join(" ")}
                           />
                         ),
                       )
                       .otherwise(() => null)}
 
-                    {reference}
-                    {transactionId}
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Card")}
+                      icon="payment-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
@@ -375,224 +381,216 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
 
                 return (
                   <ReadOnlyFieldList>
-                    <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
+                    <Line
+                      label={t("transaction.paymentDateTime")}
+                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      icon="calendar-ltr-regular"
+                    />
 
-                    {bookingDateTime}
-
-                    <LakeLabel
-                      type="viewSmall"
+                    <Line
                       label={t("transaction.debtorName")}
-                      render={() => <IconLine icon="person-regular" text={debtor.name} />}
+                      text={debtor.name}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(debtorIban) && (
-                      <LakeLabel
-                        type="viewSmall"
+                      <Line
                         label={t("transaction.debtorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {printIbanFormat(debtorIban)}
-                          </LakeText>
-                        )}
+                        text={printIbanFormat(debtorIban)}
                       />
                     )}
 
-                    <LakeLabel
-                      type="viewSmall"
+                    <Line
                       label={t("transaction.creditorName")}
-                      render={() => <IconLine icon="person-regular" text={creditor.name} />}
+                      text={creditor.name}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(creditorIban) && (
-                      <LakeLabel
-                        type="viewSmall"
+                      <Line
                         label={t("transaction.creditorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {printIbanFormat(creditorIban)}
-                          </LakeText>
-                        )}
+                        text={printIbanFormat(creditorIban)}
                       />
                     )}
 
-                    {executionDateTime}
-                    {canceledDateTime}
-                    {rejectedDateTime}
-                    {rejectedReason}
-                    {reference}
-                    {transactionId}
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Transfer")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "SEPADirectDebitTransaction" },
-              ({ mandate, creditor, debtor, reservedAmount, reservedAmountReleasedAt }) => {
-                const debtorIban = debtor.IBAN;
-
-                const creditorIban =
-                  (mandate?.__typename === "SEPAReceivedDirectDebitMandate"
-                    ? mandate.ultimateCreditorName
-                    : undefined) ?? creditor.IBAN;
+              ({
+                mandate,
+                creditor,
+                debtor,
+                reservedAmount,
+                reservedAmountReleasedAt,
+                createdAt,
+              }) => {
+                const ultimateCreditorName = match(mandate)
+                  .with(
+                    {
+                      __typename: "SEPAReceivedDirectDebitMandate",
+                      ultimateCreditorName: P.select(P.string),
+                    },
+                    ultimateCreditorName => ultimateCreditorName,
+                  )
+                  .otherwise(() => null);
 
                 return (
                   <ReadOnlyFieldList>
-                    {bookingDateTime}
-
-                    <LakeLabel
-                      type="viewSmall"
-                      label={t("transaction.debtorName")}
-                      render={() => <IconLine icon="person-regular" text={debtor.name} />}
+                    <Line
+                      label={t("transaction.paymentDateTime")}
+                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      icon="calendar-ltr-regular"
                     />
 
-                    {isNotNullish(debtorIban) && (
-                      <LakeLabel
-                        type="viewSmall"
+                    <Line
+                      label={t("transaction.debtorName")}
+                      text={debtor.name}
+                      icon="person-regular"
+                    />
+
+                    {isNotNullish(debtor.IBAN) && (
+                      <Line
                         label={t("transaction.debtorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {printIbanFormat(debtorIban)}
-                          </LakeText>
-                        )}
+                        text={printIbanFormat(debtor.IBAN)}
                       />
                     )}
 
-                    <LakeLabel
-                      type="viewSmall"
+                    <Line
                       label={t("transaction.creditorName")}
-                      render={() => <IconLine icon="person-regular" text={creditor.name} />}
+                      text={
+                        isNotNullishOrEmpty(ultimateCreditorName)
+                          ? ultimateCreditorName
+                          : creditor.name
+                      }
+                      icon="person-regular"
                     />
 
-                    {isNotNullish(creditorIban) && (
-                      <LakeLabel
-                        type="viewSmall"
+                    {isNotNullish(creditor.IBAN) && (
+                      <Line
                         label={t("transaction.creditorIban")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {printIbanFormat(creditorIban)}
-                          </LakeText>
-                        )}
+                        text={printIbanFormat(creditor.IBAN)}
                       />
                     )}
 
                     {isNotNullish(reservedAmount) && (
-                      <LakeLabel
-                        type="viewSmall"
+                      <Line
                         label={t("transaction.reservedAmount")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
-                          </LakeText>
-                        )}
+                        text={formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
                       />
                     )}
 
                     {isNotNullish(reservedAmountReleasedAt) && (
-                      <FormattedDateTime
+                      <Line
                         label={t("transaction.reservedUntil")}
-                        date={reservedAmountReleasedAt}
+                        text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                        icon="calendar-ltr-regular"
                       />
                     )}
 
-                    {paymentMethod}
-                    {executionDateTime}
-                    {canceledDateTime}
-                    {rejectedDateTime}
-                    {rejectedReason}
-                    {reference}
-                    {transactionId}
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.DirectDebit")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "InternalDirectDebitTransaction" },
-              ({ creditor, reservedAmount, reservedAmountReleasedAt }) => (
+              ({ creditor, reservedAmount, reservedAmountReleasedAt, createdAt }) => (
                 <ReadOnlyFieldList>
-                  {bookingDateTime}
+                  <Line
+                    label={t("transaction.paymentDateTime")}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
+                    icon="calendar-ltr-regular"
+                  />
 
                   {isNotNullish(reservedAmount) && (
-                    <LakeLabel
-                      type="viewSmall"
+                    <Line
                       label={t("transaction.reservedAmount")}
-                      render={() => (
-                        <LakeText variant="regular" color={colors.gray[900]}>
-                          {formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
-                        </LakeText>
-                      )}
+                      text={formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
                     />
                   )}
 
                   {isNotNullish(reservedAmountReleasedAt) && (
-                    <FormattedDateTime
+                    <Line
                       label={t("transaction.reservedUntil")}
-                      date={reservedAmountReleasedAt}
+                      text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                      icon="calendar-ltr-regular"
                     />
                   )}
 
-                  {paymentMethod}
-                  {executionDateTime}
+                  <Line label={t("transaction.creditorName")} text={creditor.accountId} />
 
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.creditorName")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {creditor.accountId}
-                      </LakeText>
-                    )}
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.DirectDebit")}
+                    icon="arrow-swap-regular"
                   />
-
-                  {canceledDateTime}
-                  {rejectedDateTime}
-                  {rejectedReason}
-                  {reference}
-                  {transactionId}
                 </ReadOnlyFieldList>
               ),
             )
-            .with({ __typename: "InternalCreditTransfer" }, ({ creditor }) => (
+            .with({ __typename: "InternalCreditTransfer" }, ({ creditor, createdAt }) => (
               <ReadOnlyFieldList>
-                {bookingDateTime}
-                {executionDateTime}
-
-                <LakeLabel
-                  type="viewSmall"
-                  label={t("transaction.creditorName")}
-                  render={() => <IconLine icon="person-regular" text={creditor.name} />}
+                <Line
+                  label={t("transaction.paymentDateTime")}
+                  text={formatDateTime(new Date(createdAt), "LLL")}
+                  icon="calendar-ltr-regular"
                 />
 
-                {canceledDateTime}
-                {rejectedDateTime}
-                {rejectedReason}
-                {reference}
-                {transactionId}
+                <Line
+                  label={t("transaction.creditorName")}
+                  text={creditor.name}
+                  icon="person-regular"
+                />
+
+                <Line
+                  label={t("transaction.paymentMethod")}
+                  text={t("transactions.method.Transfer")}
+                  icon="arrow-swap-regular"
+                />
               </ReadOnlyFieldList>
             ))
             .with(
               { __typename: "FeeTransaction" },
-              ({ counterparty, feesType, originTransaction }) => (
+              ({ counterparty, feesType, originTransaction, createdAt }) => (
                 <ReadOnlyFieldList>
-                  {bookingDateTime}
-                  {executionDateTime}
-
-                  <LakeLabel
-                    type="viewSmall"
-                    label={t("transaction.creditorName")}
-                    render={() => <IconLine icon="person-regular" text={counterparty} />}
+                  <Line
+                    label={t("transaction.paymentDateTime")}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
+                    icon="calendar-ltr-regular"
                   />
 
-                  {canceledDateTime}
-                  {rejectedDateTime}
-                  {rejectedReason}
-                  {reference}
-                  {transactionId}
+                  <Line
+                    label={t("transaction.creditorName")}
+                    text={counterparty}
+                    icon="person-regular"
+                  />
 
                   {originTransaction != null && (
                     <ReadOnlyFieldList>
                       <LakeLabel
                         type="viewSmall"
                         label={t("transaction.originalTransactionId")}
+                        actions={
+                          <Link
+                            to={Router.AccountTransactionsListDetail({
+                              accountMembershipId,
+                              transactionId: originTransaction.id,
+                            })}
+                          >
+                            <Icon size={20} name="arrow-right-regular" color={colors.swan[900]} />
+                          </Link>
+                        }
                         render={() => (
                           <LakeText variant="regular" color={colors.gray[900]}>
                             {originTransaction.id}
@@ -600,166 +598,111 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                         )}
                       />
 
-                      <FormattedDateTime
+                      <Line
                         label={t("transaction.originalTransactionDate")}
-                        date={originTransaction.executionDate}
+                        text={formatDateTime(new Date(originTransaction.executionDate), "LLL")}
+                        icon="calendar-ltr-regular"
                       />
 
                       {match(feesType)
                         .with("CashWithdrawalsOutsideSEPA", "CardPaymentsOutsideSEPA", () => (
-                          <LakeLabel
-                            type="viewSmall"
+                          <Line
                             label={t("transaction.originalTransactionAmount")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {formatCurrency(
-                                  Number(originTransaction.amount.value),
-                                  originTransaction.amount.currency,
-                                )}
-                              </LakeText>
+                            text={formatCurrency(
+                              Number(originTransaction.amount.value),
+                              originTransaction.amount.currency,
                             )}
                           />
                         ))
                         .with("DirectDebitRejection", () => (
-                          <LakeLabel
-                            type="viewSmall"
+                          <Line
                             label={t("transaction.rejectedAmount")}
-                            render={() => (
-                              <LakeText variant="regular" color={colors.gray[900]}>
-                                {formatCurrency(
-                                  Number(originTransaction.amount.value),
-                                  originTransaction.amount.currency,
-                                )}
-                              </LakeText>
+                            text={formatCurrency(
+                              Number(originTransaction.amount.value),
+                              originTransaction.amount.currency,
                             )}
                           />
                         ))
                         .otherwise(() => null)}
-
-                      {match(transaction)
-                        .with(
-                          {
-                            __typename: "FeeTransaction",
-                            feesType: "DirectDebitRejection",
-                            originTransaction: {
-                              statusInfo: {
-                                __typename: "RejectedTransactionStatusInfo",
-                                reason: P.select(),
-                              },
-                            },
-                          },
-                          reason => {
-                            const description = getTransactionRejectedReasonLabel(reason);
-
-                            if (isNullish(description)) {
-                              return null;
-                            }
-
-                            return (
-                              <LakeLabel
-                                type="viewSmall"
-                                label={t("transaction.feesReason")}
-                                render={() => (
-                                  <LakeText variant="regular" color={colors.gray[900]}>
-                                    {description}
-                                  </LakeText>
-                                )}
-                              />
-                            );
-                          },
-                        )
-                        .otherwise(() => null)}
                     </ReadOnlyFieldList>
                   )}
+
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.Fees")}
+                    icon="arrow-swap-regular"
+                  />
                 </ReadOnlyFieldList>
               ),
             )
             .with(
               { __typename: "CheckTransaction" },
-              ({
-                cmc7,
-                createdAt,
-                reservedAmount,
-                reservedAmountReleasedAt,
-                rlmcKey,
-                statusInfo: { status },
-              }) => {
+              ({ cmc7, createdAt, reservedAmount, reservedAmountReleasedAt, rlmcKey }) => {
                 // The check number is the first 7 numbers of the cmc7
                 const checkNumber = cmc7.slice(0, 7);
 
                 return (
                   <ReadOnlyFieldList>
-                    {bookingDateTime}
+                    <Line
+                      label={t("transaction.paymentDateTime")}
+                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      icon="calendar-ltr-regular"
+                    />
 
                     {isNotNullish(reservedAmount) && (
-                      <LakeLabel
-                        type="viewSmall"
+                      <Line
                         label={t("transaction.reservedAmount")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
-                          </LakeText>
-                        )}
+                        text={formatCurrency(Number(reservedAmount.value), reservedAmount.currency)}
                       />
                     )}
 
                     {isNotNullish(reservedAmountReleasedAt) && (
-                      <FormattedDateTime
+                      <Line
                         label={t("transaction.reservedUntil")}
-                        date={reservedAmountReleasedAt}
+                        text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                        icon="calendar-ltr-regular"
                       />
                     )}
-
-                    {paymentMethod}
-
-                    {status !== "Upcoming" && (
-                      <FormattedDateTime
-                        label={t("transaction.paymentDateTime")}
-                        date={createdAt}
-                      />
-                    )}
-
-                    {executionDateTime}
-                    {canceledDateTime}
-                    {rejectedDateTime}
-                    {rejectedReason}
-                    {reference}
-                    {transactionId}
 
                     <CopiableLine label={t("transaction.cmc7")} text={cmc7} />
                     <CopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
                     <CopiableLine label={t("transaction.checkNumber")} text={checkNumber} />
+
+                    <Line
+                      label={t("transaction.paymentMethod")}
+                      text={t("transactions.method.Check")}
+                      icon="arrow-swap-regular"
+                    />
                   </ReadOnlyFieldList>
                 );
               },
             )
             .with(
               { __typename: "InternationalCreditTransferTransaction" },
-              ({ createdAt, creditor, internationalCurrencyExchange, paymentProduct }) => (
+              ({ createdAt, creditor, internationalCurrencyExchange }) => (
                 <ReadOnlyFieldList>
-                  <FormattedDateTime label={t("transaction.paymentDateTime")} date={createdAt} />
+                  <Line
+                    label={t("transaction.paymentDateTime")}
+                    text={formatDateTime(new Date(createdAt), "LLL")}
+                    icon="calendar-ltr-regular"
+                  />
 
                   {match(creditor)
                     .with(
                       { __typename: "InternationalCreditTransferOutCreditor" },
                       ({ name, details }) => (
                         <ReadOnlyFieldList>
-                          <LakeLabel
-                            type="viewSmall"
+                          <Line
                             label={t("transaction.creditorName")}
-                            render={() => <IconLine icon="person-regular" text={name} />}
+                            text={name}
+                            icon="person-regular"
                           />
 
                           {details.map(detail => (
-                            <LakeLabel
+                            <Line
                               key={getWiseIctLabel(detail.key)}
-                              type="viewSmall"
                               label={getWiseIctLabel(detail.key)}
-                              render={() => (
-                                <LakeText variant="regular" color={colors.gray[900]}>
-                                  {getWiseIctLabel(detail.value)}
-                                </LakeText>
-                              )}
+                              text={getWiseIctLabel(detail.value)}
                             />
                           ))}
                         </ReadOnlyFieldList>
@@ -767,48 +710,36 @@ export const TransactionDetail = ({ transaction, large }: Props) => {
                     )
                     .otherwise(() => null)}
 
-                  <LakeLabel
-                    type="viewSmall"
+                  <Line
                     label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
-                    render={() => (
-                      <LakeText variant="regular" color={colors.gray[900]}>
-                        {internationalCurrencyExchange.exchangeRate}
-                      </LakeText>
-                    )}
+                    text={internationalCurrencyExchange.exchangeRate}
                   />
 
-                  {match(paymentProduct)
-                    .with("InternationalCreditTransfer", () => (
-                      <LakeLabel
-                        type="viewSmall"
-                        label={t("transactionDetail.internationalCreditTransfer.paymentProduct")}
-                        render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {t("transactionDetail.paymentProduct.InternationalCreditTransfer")}
-                          </LakeText>
-                        )}
-                      />
-                    ))
-                    .otherwise(() => null)}
-
-                  {rejectedReason}
-                  {reference}
-                  {transactionId}
+                  <Line
+                    label={t("transaction.paymentMethod")}
+                    text={t("transactions.method.Transfer")}
+                    icon="arrow-swap-regular"
+                  />
                 </ReadOnlyFieldList>
               ),
             )
 
-            .otherwise(() => (
-              <ReadOnlyFieldList>
-                {bookingDateTime}
-                {executionDateTime}
-                {canceledDateTime}
-                {rejectedDateTime}
-                {rejectedReason}
-                {reference}
-                {transactionId}
-              </ReadOnlyFieldList>
-            ))}
+            .otherwise(() => null)}
+
+          <Separator space={8} />
+
+          {/* common fields */}
+          <ReadOnlyFieldList>
+            <CopiableLine
+              label={t("transaction.id")}
+              text={truncateTransactionId(transaction.id)}
+            />
+
+            <CopiableLine
+              label={t("transaction.reference")}
+              text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
+            />
+          </ReadOnlyFieldList>
         </ScrollView>
       </ListRightPanelContent>
     </ScrollView>

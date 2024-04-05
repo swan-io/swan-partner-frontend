@@ -647,6 +647,7 @@
   "transaction.originalTransactionId": "ID de la transacción original",
   "transaction.paymentDateTime": "Fecha de pago",
   "transaction.paymentMethod": "Método de pago",
+  "transaction.pendingTransaction.description": "Se revertirá automáticamente el {executionDate} si no es reclamado por el comerciante",
   "transaction.place": "Lugar",
   "transaction.reference": "Referencia",
   "transaction.rejectedAmount": "Importe rechazado",

@@ -82,7 +82,7 @@ export const TransferInternationalWizardAmount = ({
     } else {
       resetQuote();
     }
-  }, [input, accountId, queryQuote]);
+  }, [input, accountId, queryQuote, resetQuote]);
 
   const { Field, submitForm, listenFields } = useForm({
     amount: {

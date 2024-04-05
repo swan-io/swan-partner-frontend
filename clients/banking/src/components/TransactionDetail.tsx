@@ -286,14 +286,14 @@ export const TransactionDetail = ({
                 <Line
                   label={t("transaction.bookingDateTime")}
                   text={formatDateTime(new Date(bookingDate), "LLL")}
-                  icon={"calendar-ltr-regular"}
+                  icon="calendar-ltr-regular"
                 />
               ))
               .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
                 <Line
                   label={t("transaction.executionDateTime")}
                   text={formatDateTime(new Date(executionDate), "LLL")}
-                  icon={"calendar-ltr-regular"}
+                  icon="calendar-ltr-regular"
                 />
               ))
               .with(
@@ -305,7 +305,7 @@ export const TransactionDetail = ({
                   <Line
                     label={t("transaction.canceledDate")}
                     text={formatDateTime(new Date(canceledDate), "LLL")}
-                    icon={"calendar-ltr-regular"}
+                    icon="calendar-ltr-regular"
                   />
                 ),
               )
@@ -337,7 +337,7 @@ export const TransactionDetail = ({
                       <Line
                         label={t("transaction.paymentDateTime")}
                         text={formatDateTime(new Date(payment.createdAt), "LLL")}
-                        icon={"calendar-ltr-regular"}
+                        icon="calendar-ltr-regular"
                       />
                     )}
 
@@ -384,13 +384,13 @@ export const TransactionDetail = ({
                     <Line
                       label={t("transaction.paymentDateTime")}
                       text={formatDateTime(new Date(createdAt), "LLL")}
-                      icon={"calendar-ltr-regular"}
+                      icon="calendar-ltr-regular"
                     />
 
                     <Line
                       label={t("transaction.debtorName")}
                       text={debtor.name}
-                      icon={"person-regular"}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(debtorIban) && (
@@ -403,7 +403,7 @@ export const TransactionDetail = ({
                     <Line
                       label={t("transaction.creditorName")}
                       text={creditor.name}
-                      icon={"person-regular"}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(creditorIban) && (
@@ -447,13 +447,13 @@ export const TransactionDetail = ({
                     <Line
                       label={t("transaction.paymentDateTime")}
                       text={formatDateTime(new Date(createdAt), "LLL")}
-                      icon={"calendar-ltr-regular"}
+                      icon="calendar-ltr-regular"
                     />
 
                     <Line
                       label={t("transaction.debtorName")}
                       text={debtor.name}
-                      icon={"person-regular"}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(debtor.IBAN) && (
@@ -470,7 +470,7 @@ export const TransactionDetail = ({
                           ? ultimateCreditorName
                           : creditor.name
                       }
-                      icon={"person-regular"}
+                      icon="person-regular"
                     />
 
                     {isNotNullish(creditor.IBAN) && (
@@ -491,7 +491,7 @@ export const TransactionDetail = ({
                       <Line
                         label={t("transaction.reservedUntil")}
                         text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                        icon={"calendar-ltr-regular"}
+                        icon="calendar-ltr-regular"
                       />
                     )}
 
@@ -511,7 +511,7 @@ export const TransactionDetail = ({
                   <Line
                     label={t("transaction.paymentDateTime")}
                     text={formatDateTime(new Date(createdAt), "LLL")}
-                    icon={"calendar-ltr-regular"}
+                    icon="calendar-ltr-regular"
                   />
 
                   {isNotNullish(reservedAmount) && (
@@ -525,7 +525,7 @@ export const TransactionDetail = ({
                     <Line
                       label={t("transaction.reservedUntil")}
                       text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                      icon={"calendar-ltr-regular"}
+                      icon="calendar-ltr-regular"
                     />
                   )}
 
@@ -544,13 +544,13 @@ export const TransactionDetail = ({
                 <Line
                   label={t("transaction.paymentDateTime")}
                   text={formatDateTime(new Date(createdAt), "LLL")}
-                  icon={"calendar-ltr-regular"}
+                  icon="calendar-ltr-regular"
                 />
 
                 <Line
                   label={t("transaction.creditorName")}
                   text={creditor.name}
-                  icon={"person-regular"}
+                  icon="person-regular"
                 />
 
                 <Line
@@ -567,13 +567,13 @@ export const TransactionDetail = ({
                   <Line
                     label={t("transaction.paymentDateTime")}
                     text={formatDateTime(new Date(createdAt), "LLL")}
-                    icon={"calendar-ltr-regular"}
+                    icon="calendar-ltr-regular"
                   />
 
                   <Line
                     label={t("transaction.creditorName")}
                     text={counterparty}
-                    icon={"person-regular"}
+                    icon="person-regular"
                   />
 
                   {originTransaction != null && (
@@ -601,7 +601,7 @@ export const TransactionDetail = ({
                       <Line
                         label={t("transaction.originalTransactionDate")}
                         text={formatDateTime(new Date(originTransaction.executionDate), "LLL")}
-                        icon={"calendar-ltr-regular"}
+                        icon="calendar-ltr-regular"
                       />
 
                       {match(feesType)
@@ -646,7 +646,7 @@ export const TransactionDetail = ({
                     <Line
                       label={t("transaction.paymentDateTime")}
                       text={formatDateTime(new Date(createdAt), "LLL")}
-                      icon={"calendar-ltr-regular"}
+                      icon="calendar-ltr-regular"
                     />
 
                     {isNotNullish(reservedAmount) && (
@@ -660,7 +660,7 @@ export const TransactionDetail = ({
                       <Line
                         label={t("transaction.reservedUntil")}
                         text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
-                        icon={"calendar-ltr-regular"}
+                        icon="calendar-ltr-regular"
                       />
                     )}
 
@@ -684,7 +684,7 @@ export const TransactionDetail = ({
                   <Line
                     label={t("transaction.paymentDateTime")}
                     text={formatDateTime(new Date(createdAt), "LLL")}
-                    icon={"calendar-ltr-regular"}
+                    icon="calendar-ltr-regular"
                   />
 
                   {match(creditor)
@@ -695,7 +695,7 @@ export const TransactionDetail = ({
                           <Line
                             label={t("transaction.creditorName")}
                             text={name}
-                            icon={"person-regular"}
+                            icon="person-regular"
                           />
 
                           {details.map(detail => (

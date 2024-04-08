@@ -16,7 +16,7 @@
     "@sentry/react": "7.109.0",
     "@swan-io/boxed": "2.1.1",
     "@swan-io/chicane": "2.0.0",
-    "@swan-io/graphql-client": "0.1.0-beta1",
+    "@swan-io/graphql-client": "0.1.0-beta2",
     "@swan-io/lake": "7.3.3",
     "@swan-io/shared-business": "7.3.3",
     "@swan-io/use-form": "2.0.0",

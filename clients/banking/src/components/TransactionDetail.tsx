@@ -592,9 +592,14 @@ export const TransactionDetail = ({
                           </Link>
                         }
                         render={() => (
-                          <LakeText variant="regular" color={colors.gray[900]}>
-                            {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
-                          </LakeText>
+                          <Box direction="row" alignItems="center">
+                            <Icon name="calendar-ltr-regular" size={16} />
+                            <Space width={8} />
+
+                            <LakeText variant="regular" color={colors.gray[900]}>
+                              {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
+                            </LakeText>
+                          </Box>
                         )}
                       />
 

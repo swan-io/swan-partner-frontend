@@ -2,8 +2,6 @@
 // const { dependencies } = require("./package.json");
 const path = require("pathe");
 
-const errorOnCI = process.env.CI === "true" ? "error" : "warn";
-
 module.exports = {
   plugins: ["@typescript-eslint", "react", "react-hooks", "react-native", "swan"],
 
@@ -26,9 +24,6 @@ module.exports = {
   overrides: [
     {
       files: ["**/__{mocks,tests}__/**/*.{ts,tsx}"],
-      rules: {
-        "no-empty": ["error", { allowEmptyCatch: true }],
-      },
     },
     {
       files: ["*.d.ts"],
@@ -47,15 +42,16 @@ module.exports = {
   ],
 
   rules: {
-    curly: errorOnCI,
+    curly: "error",
 
     "no-implicit-coercion": "error",
     "no-param-reassign": "error",
     "no-var": "error",
-    "object-shorthand": errorOnCI,
+    "object-shorthand": "error",
     "prefer-const": "error",
 
     "no-extra-boolean-cast": "off",
+    "no-empty": ["error", { allowEmptyCatch: true }],
 
     "@typescript-eslint/no-unused-vars": [
       "error",
@@ -87,12 +83,12 @@ module.exports = {
     "react-hooks/exhaustive-deps": "warn",
 
     // https://github.com/intellicode/eslint-plugin-react-native
-    "react-native/no-color-literals": errorOnCI,
-    "react-native/no-inline-styles": errorOnCI,
-    "react-native/no-single-element-style-arrays": errorOnCI,
-    "react-native/no-unused-styles": errorOnCI,
+    "react-native/no-color-literals": "error",
+    "react-native/no-inline-styles": "error",
+    "react-native/no-single-element-style-arrays": "error",
+    "react-native/no-unused-styles": "error",
 
-    "swan/jsx-newline": errorOnCI,
+    "swan/jsx-newline": "error",
     "swan/no-template-in-t": "error",
   },
 };

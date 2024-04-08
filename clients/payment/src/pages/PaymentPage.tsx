@@ -1,4 +1,5 @@
 import { Dict } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -9,7 +10,6 @@ import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl"
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -125,11 +125,11 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     },
   });
 
-  const [addSepaDirectDebitPaymentMandateData, addSepaDirectDebitPaymentMandate] = useUrqlMutation(
+  const [addSepaDirectDebitPaymentMandate, addSepaDirectDebitPaymentMandateData] = useMutation(
     AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   );
 
-  const [initiateSddPaymentCollectionData, initiateSddPaymentCollection] = useUrqlMutation(
+  const [initiateSddPaymentCollection, initiateSddPaymentCollectionData] = useMutation(
     InitiateSddPaymentCollectionDocument,
   );
 

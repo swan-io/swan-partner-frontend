@@ -97,7 +97,7 @@ const config: CodegenConfig = {
     [file("../../clients/payment/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/payment/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: frontendPlugins,
+      plugins: frontendPlugins.filter(item => item !== "typescript-urql-graphcache"),
       config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
     },
@@ -105,18 +105,9 @@ const config: CodegenConfig = {
     [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: frontendPlugins,
+      plugins: frontendPlugins.filter(item => item !== "typescript-urql-graphcache"),
       config: frontendConfig,
       documentTransforms: [{ transform: addTypenames }],
-    },
-
-    [file("../../clients/onboarding/src/graphql/introspection.json")]: {
-      schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: ["introspection"],
-      config: { descriptions: false },
-      hooks: {
-        afterOneFileWrite: "yarn tsx scripts/graphql/cleanIntrospectionSchema.ts",
-      },
     },
 
     [file("../../clients/banking/src/graphql/partner.ts")]: {

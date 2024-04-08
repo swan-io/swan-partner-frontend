@@ -1,3 +1,4 @@
+import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,8 +9,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
@@ -123,7 +122,7 @@ export const OnboardingCompanyOrganisation1 = ({
   onboardingId,
   serverValidationErrors,
 }: Props) => {
-  const [updateResult, updateOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
   const canSetTaxIdentification = match({ accountCountry, country })
     .with({ accountCountry: "DEU", country: "DEU" }, () => true)
@@ -269,10 +268,14 @@ export const OnboardingCompanyOrganisation1 = ({
 
   const [siren, setSiren] = useState<string>();
 
-  const { data } = useUrqlQuery(
-    { query: GetCompanyInfoDocument, variables: { siren: siren as string }, pause: siren == null },
-    [siren],
-  );
+  const [data, { query }] = useDeferredQuery(GetCompanyInfoDocument);
+
+  useEffect(() => {
+    if (siren != null) {
+      const request = query({ siren });
+      return () => request.cancel();
+    }
+  }, [siren, query]);
 
   const companyInfo = data
     .toOption()

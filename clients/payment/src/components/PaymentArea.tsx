@@ -1,10 +1,10 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 
+import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -67,13 +67,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
     }));
   }, []);
 
-  const { data } = useUrqlQuery(
-    {
-      query: GetMerchantPaymentLinkDocument,
-      variables: { paymentLinkId },
-    },
-    [],
-  );
+  const [data] = useQuery(GetMerchantPaymentLinkDocument, { paymentLinkId });
 
   useEffect(() => {
     if (isNotNullish(mandateUrl)) {
@@ -188,6 +182,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
             );
           },
         )
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .otherwise(() => (
           <ErrorView />
         ))}

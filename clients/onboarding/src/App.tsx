@@ -1,15 +1,12 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@swan-io/boxed";
+import { ClientContext, useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { useEffect } from "react";
 import { P, match } from "ts-pattern";
-import { Provider as ClientProvider } from "urql";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import {
@@ -24,12 +21,12 @@ import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
+import { client } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { updateTgglContext } from "./utils/tggl";
-import { unauthenticatedClient } from "./utils/urql";
 
 type Props = {
   onboardingId: string;
@@ -55,74 +52,51 @@ const PageMetadata = ({
 };
 
 const FlowPicker = ({ onboardingId }: Props) => {
-  const { data } = useUrqlQuery({
-    query: GetOnboardingDocument,
-    variables: { id: onboardingId, language: locale.language },
-  });
+  const [data, { query }] = useDeferredQuery(GetOnboardingDocument);
+  const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
+    UpdateIndividualOnboardingDocument,
+  );
+  const [updateCompanyOnboarding, companyOnboardingUpdate] = useMutation(
+    UpdateCompanyOnboardingDocument,
+  );
 
-  const [isReadyToRender, setIsReadyToRender] = useBoolean(false);
-
-  const onboardingInfo = data
-    .toOption()
-    .flatMap(data => data.toOption())
-    .flatMap(({ onboardingInfo }) => Option.fromNullable(onboardingInfo));
-
-  const accountHolderType = onboardingInfo
-    .map(onboardingInfo => onboardingInfo.info.__typename)
-    .toUndefined();
-  const onboardingLanguage = onboardingInfo
-    .flatMap(onboardingInfo => Option.fromNullable(onboardingInfo.language))
-    .toUndefined();
-
-  const [, updateIndividualOnboarding] = useUrqlMutation(UpdateIndividualOnboardingDocument);
-  const [, updateCompanyOnboarding] = useUrqlMutation(UpdateCompanyOnboardingDocument);
-
-  // Set the onboarding language based on the browser locale
-  // We do this here to avoid having the loader jump
   useEffect(() => {
-    // Already tried updating, if the language is still not matching, don't retry
-    if (isReadyToRender) {
-      return;
-    }
+    const request = query({ id: onboardingId, language: locale.language }).tapOk(
+      ({ onboardingInfo }) => {
+        if (onboardingInfo?.language === locale.language) {
+          return;
+        }
+        return match(onboardingInfo?.info.__typename)
+          .with("OnboardingCompanyAccountHolderInfo", () =>
+            updateCompanyOnboarding({
+              input: { onboardingId, language: locale.language },
+              language: locale.language,
+            }),
+          )
+          .with("OnboardingIndividualAccountHolderInfo", () =>
+            updateIndividualOnboarding({
+              input: { onboardingId, language: locale.language },
+              language: locale.language,
+            }),
+          )
+          .otherwise(() => {});
+      },
+    );
 
-    // Bail out if the onboarding language is already matching the browser one
-    if (onboardingLanguage === locale.language) {
-      setIsReadyToRender.on();
-      return;
-    }
+    return () => request.cancel();
+  }, [onboardingId]);
 
-    if (accountHolderType != null) {
-      const languageUpdate = match(accountHolderType)
-        .with("OnboardingCompanyAccountHolderInfo", () =>
-          updateCompanyOnboarding({
-            input: { onboardingId, language: locale.language },
-            language: locale.language,
-          }).tap(() => setIsReadyToRender.on()),
-        )
-        .with("OnboardingIndividualAccountHolderInfo", () =>
-          updateIndividualOnboarding({
-            input: { onboardingId, language: locale.language },
-            language: locale.language,
-          }).tap(() => setIsReadyToRender.on()),
-        )
-        .exhaustive();
-
-      return () => languageUpdate.cancel();
-    }
-  }, [
-    onboardingId,
-    accountHolderType,
-    onboardingLanguage,
-    updateIndividualOnboarding,
-    updateCompanyOnboarding,
-    setIsReadyToRender,
-    isReadyToRender,
-  ]);
-
-  return match(isReadyToRender ? data : AsyncData.Loading())
-    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
-    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
+  return match({ data, companyOnboardingUpdate, individualOnboardingUpdate })
+    .with(
+      { data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) },
+      { companyOnboardingUpdate: AsyncData.P.Loading },
+      { individualOnboardingUpdate: AsyncData.P.Loading },
+      () => <LoadingView color={colors.gray[400]} />,
+    )
+    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
+      <ErrorView error={error} />
+    ))
+    .with({ data: AsyncData.P.Done(Result.P.Ok(P.select())) }, data => {
       const onboardingInfo = data.onboardingInfo;
 
       if (onboardingInfo == null) {
@@ -196,9 +170,9 @@ export const App = () => {
     <ErrorBoundary
       key={route?.name}
       onError={error => logFrontendError(error)}
-      fallback={({ error }) => <ErrorView error={error} />}
+      fallback={() => <ErrorView />}
     >
-      <ClientProvider value={unauthenticatedClient}>
+      <ClientContext.Provider value={client}>
         {match(route)
           .with(
             { name: "PopupCallback" },
@@ -215,7 +189,7 @@ export const App = () => {
           ))
           .with(P.nullish, () => <NotFoundPage />)
           .exhaustive()}
-      </ClientProvider>
+      </ClientContext.Provider>
 
       <ToastStack />
     </ErrorBoundary>

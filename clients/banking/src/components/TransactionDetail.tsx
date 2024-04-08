@@ -394,7 +394,7 @@ export const TransactionDetail = ({
                     />
 
                     {isNotNullish(debtorIban) && (
-                      <Line
+                      <CopiableLine
                         label={t("transaction.debtorIban")}
                         text={printIbanFormat(debtorIban)}
                       />
@@ -407,7 +407,7 @@ export const TransactionDetail = ({
                     />
 
                     {isNotNullish(creditorIban) && (
-                      <Line
+                      <CopiableLine
                         label={t("transaction.creditorIban")}
                         text={printIbanFormat(creditorIban)}
                       />
@@ -457,7 +457,7 @@ export const TransactionDetail = ({
                     />
 
                     {isNotNullish(debtor.IBAN) && (
-                      <Line
+                      <CopiableLine
                         label={t("transaction.debtorIban")}
                         text={printIbanFormat(debtor.IBAN)}
                       />
@@ -474,7 +474,7 @@ export const TransactionDetail = ({
                     />
 
                     {isNotNullish(creditor.IBAN) && (
-                      <Line
+                      <CopiableLine
                         label={t("transaction.creditorIban")}
                         text={printIbanFormat(creditor.IBAN)}
                       />

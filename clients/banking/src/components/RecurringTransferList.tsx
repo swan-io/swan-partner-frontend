@@ -1,4 +1,5 @@
 import { AsyncData, Dict, Result } from "@swan-io/boxed";
+import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -31,8 +32,6 @@ import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
@@ -51,6 +50,7 @@ import {
 } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { RightPanelTransactionList } from "./RightPanelTransactionList";
 
@@ -113,32 +113,13 @@ const RecurringTransferHistory = ({
   large,
   canViewAccount,
 }: RecurringTransferHistoryProps) => {
-  const { data, nextData, isForceReloading, reload, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: StandingOrdersHistoryPageDocument,
-      variables: {
-        standingOrderId: recurringTransferId,
-        orderBy: { field: "createdAt", direction: "Desc" },
-        first: NUM_TO_RENDER,
-        canQueryCardOnTransaction,
-        canViewAccount,
-      },
-    },
-    [],
-  );
-
-  const transactions = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .map(({ standingOrder }) => standingOrder?.payments.edges ?? [])
-    .map(edges =>
-      edges
-        .filter(({ node }) => Boolean(node.transactions?.totalCount))
-        .reduce<
-          { node: TransactionDetailsFragment }[]
-        >((list, { node }) => [...list, ...(node.transactions?.edges ?? [])], []),
-    )
-    .getWithDefault([]);
+  const [data, { isLoading, reload, setVariables }] = useQuery(StandingOrdersHistoryPageDocument, {
+    standingOrderId: recurringTransferId,
+    orderBy: { field: "createdAt", direction: "Desc" },
+    first: NUM_TO_RENDER,
+    canQueryCardOnTransaction,
+    canViewAccount,
+  });
 
   return (
     <>
@@ -150,8 +131,10 @@ const RecurringTransferHistory = ({
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
-          loading={isForceReloading}
-          onPress={reload}
+          loading={data.isLoading()}
+          onPress={() => {
+            reload();
+          }}
         />
       </ListRightPanelContent>
 
@@ -171,27 +154,41 @@ const RecurringTransferHistory = ({
           result.match({
             Error: error => <ErrorView error={error} />,
             Ok: data => (
-              <RightPanelTransactionList
-                withoutScroll={!large}
-                transactions={transactions}
-                pageSize={NUM_TO_RENDER}
-                onEndReached={() => {
-                  if (data.standingOrder?.payments.pageInfo.hasNextPage ?? false) {
-                    setAfter(data.standingOrder?.payments.pageInfo.endCursor ?? undefined);
-                  }
+              <Connection connection={data.standingOrder?.payments}>
+                {payments => {
+                  const transactions = (payments?.edges ?? [])
+                    .filter(({ node }) => Boolean(node.transactions?.totalCount))
+                    .reduce<
+                      { node: TransactionDetailsFragment }[]
+                    >((list, { node }) => [...list, ...(node.transactions?.edges ?? [])], []);
+
+                  return (
+                    <RightPanelTransactionList
+                      withoutScroll={!large}
+                      transactions={transactions}
+                      pageSize={NUM_TO_RENDER}
+                      onEndReached={() => {
+                        if (data.standingOrder?.payments.pageInfo.hasNextPage ?? false) {
+                          setVariables({
+                            after: data.standingOrder?.payments.pageInfo.endCursor ?? undefined,
+                          });
+                        }
+                      }}
+                      loading={{
+                        isLoading,
+                        count: 5,
+                      }}
+                      renderEmptyList={() => (
+                        <FixedListViewEmpty
+                          icon="lake-transfer"
+                          borderedIcon={true}
+                          title={t("transansactionList.noResults")}
+                        />
+                      )}
+                    />
+                  );
                 }}
-                loading={{
-                  isLoading: nextData.isLoading(),
-                  count: 5,
-                }}
-                renderEmptyList={() => (
-                  <FixedListViewEmpty
-                    icon="lake-transfer"
-                    borderedIcon={true}
-                    title={t("transansactionList.noResults")}
-                  />
-                )}
-              />
+              </Connection>
             ),
           }),
       })}
@@ -634,7 +631,7 @@ export const RecurringTransferList = ({
   const { desktop } = useResponsive();
 
   const route = Router.useRoute(["AccountPaymentsRecurringTransferDetailsArea"]);
-  const [cancelResult, cancelRecurringTransfer] = useUrqlMutation(CancelStandingOrderDocument);
+  const [cancelRecurringTransfer, cancelResult] = useMutation(CancelStandingOrderDocument);
 
   const [filters, setFilters] = useState<RecurringTransferFilters>(() => ({
     canceled: undefined,
@@ -642,17 +639,11 @@ export const RecurringTransferList = ({
 
   const hasFilters = Dict.values(filters).some(isNotNullish);
 
-  const { data, nextData, reload, isForceReloading, setAfter } = useUrqlPaginatedQuery(
-    {
-      query: GetStandingOrdersDocument,
-      variables: {
-        status: filters.canceled === true ? "Canceled" : "Enabled",
-        accountId,
-        first: PAGE_SIZE,
-      },
-    },
-    [filters],
-  );
+  const [data, { isLoading, reload, setVariables }] = useQuery(GetStandingOrdersDocument, {
+    status: filters.canceled === true ? "Canceled" : "Enabled",
+    accountId,
+    first: PAGE_SIZE,
+  });
 
   const { endCursor, hasNextPage } = useMemo(
     () =>
@@ -667,9 +658,9 @@ export const RecurringTransferList = ({
 
   const onEndReached = useCallback(() => {
     if (hasNextPage && endCursor != null) {
-      setAfter(endCursor);
+      setVariables({ after: endCursor });
     }
-  }, [hasNextPage, endCursor, setAfter]);
+  }, [hasNextPage, endCursor, setVariables]);
 
   const activeRecurringTransferId =
     route?.name === "AccountPaymentsRecurringTransferDetailsArea"
@@ -705,15 +696,6 @@ export const RecurringTransferList = ({
     }
   };
 
-  const recurringTransfers = data.mapOk(
-    result => result.account?.standingOrders.edges.map(({ node }) => node) ?? [],
-  );
-
-  const recurringTransferList = recurringTransfers
-    .toOption()
-    .flatMap(result => result.toOption())
-    .getWithDefault([]);
-
   const extraInfo = useMemo<ExtraInfo>(
     () => ({
       onCancel: setRecurringTransferToCancelId,
@@ -735,8 +717,10 @@ export const RecurringTransferList = ({
               mode="secondary"
               size="small"
               icon="arrow-counterclockwise-filled"
-              loading={isForceReloading}
-              onPress={reload}
+              loading={data.isLoading()}
+              onPress={() => {
+                reload();
+              }}
             />
 
             <Fill minWidth={24} />
@@ -752,7 +736,7 @@ export const RecurringTransferList = ({
 
           <Space height={24} />
 
-          {recurringTransfers.match({
+          {data.match({
             NotAsked: () => null,
             Loading: () => (
               <PlainListViewPlaceholder
@@ -765,77 +749,87 @@ export const RecurringTransferList = ({
             Done: result =>
               result.match({
                 Error: error => <ErrorView error={error} />,
-                Ok: recurringTransfers => (
-                  <PlainListView
-                    withoutScroll={!desktop}
-                    keyExtractor={keyExtractor}
-                    groupHeaderHeight={48}
-                    headerHeight={48}
-                    rowHeight={56}
-                    data={recurringTransfers}
-                    activeRowId={activeRecurringTransferId ?? undefined}
-                    extraInfo={extraInfo}
-                    getRowLink={({ item }) => (
-                      <Pressable onPress={() => openStandingOrderDetails(item.id)} />
-                    )}
-                    columns={columns}
-                    smallColumns={smallColumns}
-                    onEndReached={onEndReached}
-                    renderEmptyList={() => (
+                Ok: data => (
+                  <Connection connection={data.account?.standingOrders}>
+                    {standingOrders => (
                       <>
-                        <BorderedIcon
-                          name="lake-calendar-arrow-swap"
-                          color="current"
-                          size={100}
-                          padding={16}
+                        <PlainListView
+                          withoutScroll={!desktop}
+                          keyExtractor={keyExtractor}
+                          groupHeaderHeight={48}
+                          headerHeight={48}
+                          rowHeight={56}
+                          data={standingOrders?.edges.map(item => item.node) ?? []}
+                          activeRowId={activeRecurringTransferId ?? undefined}
+                          extraInfo={extraInfo}
+                          getRowLink={({ item }) => (
+                            <Pressable onPress={() => openStandingOrderDetails(item.id)} />
+                          )}
+                          columns={columns}
+                          smallColumns={smallColumns}
+                          onEndReached={onEndReached}
+                          renderEmptyList={() => (
+                            <>
+                              <BorderedIcon
+                                name="lake-calendar-arrow-swap"
+                                color="current"
+                                size={100}
+                                padding={16}
+                              />
+
+                              <Space height={24} />
+
+                              <LakeText align="center" variant="medium" color={colors.gray[900]}>
+                                {hasFilters
+                                  ? t("recurringTransfer.emptyWithFilters.title")
+                                  : t("recurringTransfer.empty.title")}
+                              </LakeText>
+
+                              <Space height={12} />
+
+                              <LakeText
+                                align="center"
+                                variant="smallRegular"
+                                color={colors.gray[700]}
+                              >
+                                {hasFilters
+                                  ? t("recurringTransfer.emptyWithFilters.subtitle")
+                                  : t("recurringTransfer.empty.subtitle")}
+                              </LakeText>
+                            </>
+                          )}
+                          loading={{
+                            isLoading,
+                            count: PAGE_SIZE,
+                          }}
                         />
 
-                        <Space height={24} />
-
-                        <LakeText align="center" variant="medium" color={colors.gray[900]}>
-                          {hasFilters
-                            ? t("recurringTransfer.emptyWithFilters.title")
-                            : t("recurringTransfer.empty.title")}
-                        </LakeText>
-
-                        <Space height={12} />
-
-                        <LakeText align="center" variant="smallRegular" color={colors.gray[700]}>
-                          {hasFilters
-                            ? t("recurringTransfer.emptyWithFilters.subtitle")
-                            : t("recurringTransfer.empty.subtitle")}
-                        </LakeText>
+                        <ListRightPanel
+                          keyExtractor={keyExtractor}
+                          items={standingOrders?.edges?.map(item => item.node) ?? []}
+                          activeId={activeRecurringTransferId}
+                          onActiveIdChange={openStandingOrderDetails}
+                          onClose={closeRightPanel}
+                          closeLabel={t("common.closeButton")}
+                          previousLabel={t("common.previous")}
+                          nextLabel={t("common.next")}
+                          render={(item, large) => (
+                            <RecurringTransferPanel
+                              large={large}
+                              accountMembershipId={accountMembershipId}
+                              recurringTransfer={item}
+                              canQueryCardOnTransaction={canQueryCardOnTransaction}
+                              onCancel={setRecurringTransferToCancelId}
+                              canViewAccount={canViewAccount}
+                            />
+                          )}
+                        />
                       </>
                     )}
-                    loading={{
-                      isLoading: nextData.isLoading(),
-                      count: PAGE_SIZE,
-                    }}
-                  />
+                  </Connection>
                 ),
               }),
           })}
-
-          <ListRightPanel
-            keyExtractor={keyExtractor}
-            items={recurringTransferList}
-            activeId={activeRecurringTransferId}
-            onActiveIdChange={openStandingOrderDetails}
-            onClose={closeRightPanel}
-            closeLabel={t("common.closeButton")}
-            previousLabel={t("common.previous")}
-            nextLabel={t("common.next")}
-            render={(item, large) => (
-              <RecurringTransferPanel
-                large={large}
-                accountMembershipId={accountMembershipId}
-                recurringTransfer={item}
-                canQueryCardOnTransaction={canQueryCardOnTransaction}
-                onCancel={setRecurringTransferToCancelId}
-                canViewAccount={canViewAccount}
-              />
-            )}
-          />
 
           <LakeModal
             visible={recurringTransferToCancelId != null}

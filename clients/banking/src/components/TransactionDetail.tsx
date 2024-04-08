@@ -1,3 +1,4 @@
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -11,11 +12,11 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { useIsSuspendable } from "@swan-io/lake/src/components/Suspendable";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import {
   isNotEmpty,
   isNotNullish,
@@ -112,12 +113,15 @@ export const TransactionDetail = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
-  const { data } = useUrqlQuery(
+  const suspense = useIsSuspendable();
+  const [data] = useQuery(
+    TransactionDocument,
     {
-      query: TransactionDocument,
-      variables: { id: transactionId, canViewAccount, canQueryCardOnTransaction },
+      id: transactionId,
+      canViewAccount,
+      canQueryCardOnTransaction,
     },
-    [transactionId],
+    { suspense },
   );
 
   if (data.isNotAsked() || data.isLoading()) {

@@ -1,4 +1,5 @@
 import { Array, Option, Result } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -7,7 +8,6 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -139,7 +139,7 @@ export const NewMembershipWizard = ({
   const [step, setStep] = useState<Step>("Informations");
   const [partiallySavedValues, setPartiallySavedValues] = useState<Partial<FormState> | null>(null);
 
-  const [memberAddition, addMember] = useUrqlMutation(AddAccountMembershipDocument);
+  const [addMember, memberAddition] = useMutation(AddAccountMembershipDocument);
 
   const steps: Step[] = match({ accountCountry, partiallySavedValues })
     .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => [

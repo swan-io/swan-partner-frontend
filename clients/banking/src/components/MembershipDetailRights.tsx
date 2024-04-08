@@ -1,10 +1,10 @@
 import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -77,12 +77,9 @@ export const MembershipDetailRights = ({
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
   const [valuesToConfirm, setValuesToConfirm] = useState<Option<FormValues>>(Option.None());
 
-  const [membershipUpdate, updateMembership] = useUrqlMutation(UpdateAccountMembershipDocument);
-
-  const [membershipSuspension, suspendMembership] = useUrqlMutation(
-    SuspendAccountMembershipDocument,
-  );
-  const [membershipUnsuspension, unsuspendMembership] = useUrqlMutation(
+  const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
+  const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
+  const [unsuspendMembership, membershipUnsuspension] = useMutation(
     ResumeAccountMembershipDocument,
   );
 

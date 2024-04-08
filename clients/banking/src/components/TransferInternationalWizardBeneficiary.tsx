@@ -8,13 +8,13 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { useUrqlQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { hasDefinedKeys, useForm } from "react-ux-form";
 
 import { AsyncData, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { noop } from "@swan-io/lake/src/utils/function";
@@ -69,19 +69,13 @@ export const TransferInternationalWizardBeneficiary = ({
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
-  const { data } = useUrqlQuery(
-    {
-      query: GetInternationalBeneficiaryDynamicFormsDocument,
-      variables: {
-        dynamicFields,
-        amountValue: amount.value,
-        currency: amount.currency,
-        //TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
-        language: locale.language === "fi" ? "en" : locale.language,
-      },
-    },
-    [locale.language, dynamicFields],
-  );
+  const [data] = useQuery(GetInternationalBeneficiaryDynamicFormsDocument, {
+    dynamicFields,
+    amountValue: amount.value,
+    currency: amount.currency,
+    //TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
+    language: locale.language === "fi" ? "en" : locale.language,
+  });
 
   const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldState } =
     useForm<{

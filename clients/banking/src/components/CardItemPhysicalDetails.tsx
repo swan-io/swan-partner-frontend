@@ -1,4 +1,5 @@
 import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -16,7 +17,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useUrqlMutation } from "@swan-io/lake/src/hooks/useUrqlMutation";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
@@ -459,15 +459,13 @@ export const CardItemPhysicalDetails = ({
   const initialShippingAddress =
     card.accountMembership.account?.holder.residencyAddress ?? undefined;
 
-  const [physicalCardPrinting, printPhysicalCard] = useUrqlMutation(PrintPhysicalCardDocument);
-  const [permanentBlocking, permanentlyBlockCard] = useUrqlMutation(CancelPhysicalCardDocument);
-  const [cardSuspension, suspendPhysicalCard] = useUrqlMutation(SuspendPhysicalCardDocument);
-  const [cardUnsuspension, unsuspendPhysicalCard] = useUrqlMutation(ResumePhysicalCardDocument);
-  const [pinCardViewing, viewPhysicalCardPin] = useUrqlMutation(ViewPhysicalCardPinDocument);
-  const [physicalCardActivation, activatePhysicalCard] = useUrqlMutation(
-    ActivatePhysicalCardDocument,
-  );
-  const [physicalCardNumberViewing, viewPhysicalCardNumbers] = useUrqlMutation(
+  const [printPhysicalCard, physicalCardPrinting] = useMutation(PrintPhysicalCardDocument);
+  const [permanentlyBlockCard, permanentBlocking] = useMutation(CancelPhysicalCardDocument);
+  const [suspendPhysicalCard, cardSuspension] = useMutation(SuspendPhysicalCardDocument);
+  const [unsuspendPhysicalCard, cardUnsuspension] = useMutation(ResumePhysicalCardDocument);
+  const [viewPhysicalCardPin, pinCardViewing] = useMutation(ViewPhysicalCardPinDocument);
+  const [activatePhysicalCard, physicalCardActivation] = useMutation(ActivatePhysicalCardDocument);
+  const [viewPhysicalCardNumbers, physicalCardNumberViewing] = useMutation(
     ViewPhysicalCardNumbersDocument,
   );
 

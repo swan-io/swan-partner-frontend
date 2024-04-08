@@ -318,6 +318,9 @@ query AccountArea($accountMembershipId: ID!) {
       }
       holder {
         id
+        info {
+          type
+        }
         supportingDocumentCollections(first: 1) {
           edges {
             node {
@@ -1827,7 +1830,7 @@ fragment AddressInfo on AddressInfo {
   state
 }
 
-query GetCardProducts($accountMembershipId: ID!) {
+query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $search: String) {
   accountMembership(id: $accountMembershipId) {
     id
     account {
@@ -1845,6 +1848,29 @@ query GetCardProducts($accountMembershipId: ID!) {
         }
         residencyAddress {
           ...AddressInfo
+        }
+      }
+      allMemberships: memberships(
+        filters: { status: [Enabled, InvitationSent, BindingUserError] }
+      ) {
+        totalCount
+      }
+      memberships(
+        after: $after
+        first: $first
+        filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+      ) {
+        totalCount
+        pageInfo {
+          endCursor
+          hasNextPage
+        }
+        edges {
+          cursor
+          node {
+            id
+            ...AccountMembership
+          }
         }
       }
     }

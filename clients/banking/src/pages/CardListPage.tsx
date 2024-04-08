@@ -1,5 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
+import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
@@ -9,13 +10,13 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { CardList } from "../components/CardList";
 import { CardFilters, CardListFilter } from "../components/CardListFilter";
+import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import {
   CardListPageDataFragment,
@@ -91,53 +92,31 @@ const usePageData = ({
     .with("Canceled", () => CANCELED_STATUSES)
     .exhaustive();
 
-  const withAccountQuery = useUrqlPaginatedQuery(
-    {
-      query: CardListPageWithAccountDocument,
-      pause: !canQueryEveryCards,
-      variables: {
-        first: PER_PAGE,
-        filters: {
-          statuses,
-          types: filters.type,
-          search: filters.search,
-          accountId,
-        },
+  if (canQueryEveryCards) {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [data, rest] = useQuery(CardListPageWithAccountDocument, {
+      first: PER_PAGE,
+      filters: {
+        statuses,
+        types: filters.type,
+        search: filters.search,
+        accountId,
       },
-    },
-    [filters, accountId],
-  );
+    });
+    return [data.mapOk(data => data.cards), rest] as const;
+  } else {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
+    const [data, rest] = useQuery(CardListPageWithoutAccountDocument, {
+      first: PER_PAGE,
+      filters: { statuses, types: filters.type, search: filters.search },
+      accountMembershipId,
+    });
 
-  const withoutAccountQuery = useUrqlPaginatedQuery(
-    {
-      query: CardListPageWithoutAccountDocument,
-      pause: canQueryEveryCards,
-      variables: {
-        first: PER_PAGE,
-        filters: { statuses, types: filters.type, search: filters.search },
-        accountMembershipId,
-      },
-    },
-    [filters, accountMembershipId],
-  );
-
-  return canQueryEveryCards
-    ? {
-        ...withAccountQuery,
-        data: withAccountQuery.data.map(result => result.map(data => data.cards)),
-        nextData: withAccountQuery.nextData.map(result => result.map(data => data.cards)),
-        setAfter: withAccountQuery.setAfter,
-      }
-    : {
-        ...withoutAccountQuery,
-        data: withoutAccountQuery.data.map(result =>
-          result.map(data => data.accountMembership?.cards ?? EMPTY_CARD_FRAGMENT),
-        ),
-        nextData: withoutAccountQuery.nextData.map(result =>
-          result.map(data => data.accountMembership?.cards ?? EMPTY_CARD_FRAGMENT),
-        ),
-        setAfter: withoutAccountQuery.setAfter,
-      };
+    return [
+      data.mapOk(data => data.accountMembership?.cards ?? EMPTY_CARD_FRAGMENT),
+      rest,
+    ] as const;
+  }
 };
 
 export const CardListPage = ({
@@ -168,7 +147,7 @@ export const CardListPage = ({
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
-  const { data, nextData, setAfter, reload } = usePageData({
+  const [data, { isLoading, setVariables, reload }] = usePageData({
     canManageAccountMembership,
     accountMembershipId,
     canManageCards,
@@ -213,7 +192,9 @@ export const CardListPage = ({
                   ...filters,
                 })
               }
-              onRefresh={reload}
+              onRefresh={() => {
+                reload();
+              }}
               large={large}
             >
               {canAddCard && cardOrderVisible ? (
@@ -243,40 +224,46 @@ export const CardListPage = ({
               result.match({
                 Error: error => <ErrorView error={error} />,
                 Ok: cards => (
-                  <CardList
-                    cards={cards.edges}
-                    getRowLink={({ item }) => (
-                      <Link
-                        data-testid="user-card-item"
-                        to={Router.AccountCardsItem({
-                          accountMembershipId,
-                          cardId: item.id,
-                        })}
+                  <Connection connection={cards}>
+                    {cards => (
+                      <CardList
+                        cards={cards.edges}
+                        getRowLink={({ item }) => (
+                          <Link
+                            data-testid="user-card-item"
+                            to={Router.AccountCardsItem({
+                              accountMembershipId,
+                              cardId: item.id,
+                            })}
+                          />
+                        )}
+                        loading={{
+                          isLoading,
+                          count: 20,
+                        }}
+                        onRefreshRequest={() => {
+                          reload();
+                        }}
+                        onEndReached={() => {
+                          if (cards.pageInfo.hasNextPage ?? false) {
+                            setVariables({ after: cards.pageInfo.endCursor ?? undefined });
+                          }
+                        }}
+                        renderEmptyList={() =>
+                          hasFilters ? (
+                            <FixedListViewEmpty
+                              icon="lake-card"
+                              borderedIcon={true}
+                              title={t("cardList.noResultsWithFilters")}
+                              subtitle={t("common.list.noResultsSuggestion")}
+                            />
+                          ) : (
+                            empty
+                          )
+                        }
                       />
                     )}
-                    loading={{
-                      isLoading: nextData.isLoading(),
-                      count: 20,
-                    }}
-                    onRefreshRequest={reload}
-                    onEndReached={() => {
-                      if (cards.pageInfo.hasNextPage ?? false) {
-                        setAfter(cards.pageInfo.endCursor ?? undefined);
-                      }
-                    }}
-                    renderEmptyList={() =>
-                      hasFilters ? (
-                        <FixedListViewEmpty
-                          icon="lake-card"
-                          borderedIcon={true}
-                          title={t("cardList.noResultsWithFilters")}
-                          subtitle={t("common.list.noResultsSuggestion")}
-                        />
-                      ) : (
-                        empty
-                      )
-                    }
-                  />
+                  </Connection>
                 ),
               }),
           })}

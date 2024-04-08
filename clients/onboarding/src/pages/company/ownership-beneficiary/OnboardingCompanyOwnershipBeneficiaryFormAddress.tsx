@@ -33,9 +33,9 @@ export type FormValues = {
 };
 
 export type Input = {
-  residencyAddressLine1: string;
-  residencyAddressCity: string;
-  residencyAddressPostalCode: string;
+  residencyAddressLine1?: string;
+  residencyAddressCity?: string;
+  residencyAddressPostalCode?: string;
   residencyAddressCountry: CountryCCA3;
   taxIdentificationNumber?: string;
 };
@@ -107,15 +107,22 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
             taxIdentificationNumber,
           }) => {
             const requiredFields = Option.allFromDict({
-              residencyAddressLine1,
-              residencyAddressCity,
-              residencyAddressPostalCode,
               residencyAddressCountry,
+              ...match(accountCountry)
+                .with("DEU", "ESP", () => ({
+                  residencyAddressLine1,
+                  residencyAddressCity,
+                  residencyAddressPostalCode,
+                }))
+                .otherwise(() => ({})),
             });
 
             return match(requiredFields)
               .with(Option.P.Some(P.select()), requiredFields => {
                 return onSave({
+                  residencyAddressLine1: residencyAddressLine1.toUndefined(),
+                  residencyAddressCity: residencyAddressCity.toUndefined(),
+                  residencyAddressPostalCode: residencyAddressPostalCode.toUndefined(),
                   ...requiredFields,
                   taxIdentificationNumber: taxIdentificationNumber.toUndefined(),
                 });

@@ -73,7 +73,11 @@ export const sendMatomoEvent = (
       .otherwise(() => ({})),
   };
 
-  navigator.sendBeacon(API_URL + encodeSearch(params));
+  if ("sendBeacon" in navigator) {
+    try {
+      navigator.sendBeacon(API_URL + encodeSearch(params));
+    } catch {}
+  }
 };
 
 export const useSessionTracking = (projectId: string | undefined) => {

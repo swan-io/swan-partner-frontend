@@ -580,7 +580,7 @@ export const TransactionDetail = ({
                     <ReadOnlyFieldList>
                       <LakeLabel
                         type="viewSmall"
-                        label={t("transaction.originalTransactionId")}
+                        label={t("transaction.relatedTransaction")}
                         actions={
                           <Link
                             to={Router.AccountTransactionsListDetail({
@@ -593,15 +593,9 @@ export const TransactionDetail = ({
                         }
                         render={() => (
                           <LakeText variant="regular" color={colors.gray[900]}>
-                            {originTransaction.id}
+                            {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
                           </LakeText>
                         )}
-                      />
-
-                      <Line
-                        label={t("transaction.originalTransactionDate")}
-                        text={formatDateTime(new Date(originTransaction.executionDate), "LLL")}
-                        icon="calendar-ltr-regular"
                       />
 
                       {match(feesType)

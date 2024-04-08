@@ -10,6 +10,7 @@ import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useUrqlPaginatedQuery } from "@swan-io/lake/src/hooks/useUrqlQuery";
@@ -312,6 +313,8 @@ export const TransactionListPage = ({
                       canQueryCardOnTransaction={canQueryCardOnTransaction}
                       canViewAccount={canViewAccount}
                     />
+
+                    <Space height={24} />
                   </>
                 )}
               </RightPanel>

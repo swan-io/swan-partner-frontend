@@ -731,13 +731,13 @@ export const TransactionDetail = ({
           {/* common fields */}
           <ReadOnlyFieldList>
             <CopiableLine
-              label={t("transaction.id")}
-              text={truncateTransactionId(transaction.id)}
+              label={t("transaction.reference")}
+              text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
             />
 
             <CopiableLine
-              label={t("transaction.reference")}
-              text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
+              label={t("transaction.id")}
+              text={truncateTransactionId(transaction.id)}
             />
           </ReadOnlyFieldList>
         </ScrollView>

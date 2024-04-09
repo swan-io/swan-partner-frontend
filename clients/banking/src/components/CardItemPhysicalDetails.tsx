@@ -52,7 +52,7 @@ import {
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
-import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
+import { formatCurrency, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
@@ -629,7 +629,7 @@ export const CardItemPhysicalDetails = ({
             },
           }) => {
             const completeAddress = `${addressLine1} ${isNotNullish(addressLine2) ? addressLine2 : ""}, ${postalCode} ${city}, ${country}`;
-            const deadline = dayjs(new Date(expiryDate)).subtract(4, "weeks").format("LL");
+            const deadline = dayjs(expiryDate, "MM/YY").subtract(1, "month").format("MMMM YYYY");
 
             return (
               <>
@@ -647,7 +647,7 @@ export const CardItemPhysicalDetails = ({
                     </LakeText>
                   }
                   title={t("card.physical.toRenewAlert", {
-                    expiryDate: formatDateTime(new Date(expiryDate), "LL"),
+                    expiryDate: dayjs(expiryDate, "MM/YY").format("MMMM YYYY"),
                   })}
                 />
               </>

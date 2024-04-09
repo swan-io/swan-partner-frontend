@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
+import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
 import {
   AccountCountry,
   GetOnboardingDocument,
@@ -84,7 +85,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
     );
 
     return () => request.cancel();
-  }, [onboardingId]);
+  }, [onboardingId, query, updateCompanyOnboarding, updateIndividualOnboarding]);
 
   return match({ data, companyOnboardingUpdate, individualOnboardingUpdate })
     .with(
@@ -164,7 +165,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["Area", "PopupCallback"]);
+  const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "PopupCallback"]);
 
   return (
     <ErrorBoundary
@@ -181,6 +182,14 @@ export const App = () => {
                 redirectUrl={redirectUrl}
                 accountMembershipId={accountMembershipId}
                 projectId={projectId}
+              />
+            ),
+          )
+          .with(
+            { name: "SupportingDocumentCollectionArea" },
+            ({ params: { supportingDocumentCollectionId } }) => (
+              <SupportingDocumentCollectionFlow
+                supportingDocumentCollectionId={supportingDocumentCollectionId}
               />
             ),
           )

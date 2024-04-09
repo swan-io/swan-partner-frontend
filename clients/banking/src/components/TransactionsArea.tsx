@@ -410,6 +410,7 @@ export const TransactionsArea = ({
                 .with(
                   { name: "AccountTransactionsListRoot" },
                   { name: "AccountTransactionsListStatementsArea" },
+                  { name: "AccountTransactionsListDetail" },
                   ({
                     name,
                     params: {

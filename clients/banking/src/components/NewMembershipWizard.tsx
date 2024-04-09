@@ -225,9 +225,10 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
-            { accountCountry: "NLD" },
-            { canViewAccount: true },
-            { canInitiatePayments: true },
+            P.intersection(
+              { accountCountry: "NLD" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
             () => {
               const validate = combineValidators(validateRequired, validateAddressLine);
               return validate(value);
@@ -247,9 +248,10 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
-            { accountCountry: "NLD" },
-            { canViewAccount: true },
-            { canInitiatePayments: true },
+            P.intersection(
+              { accountCountry: "NLD" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
             () => {
               return validateRequired(value);
             },
@@ -266,9 +268,10 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
-            { accountCountry: "NLD" },
-            { canViewAccount: true },
-            { canInitiatePayments: true },
+            P.intersection(
+              { accountCountry: "NLD" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
             () => {
               return validateRequired(value);
             },
@@ -285,9 +288,10 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldState("canInitiatePayments").value,
         })
           .with(
-            { accountCountry: "NLD" },
-            { canViewAccount: true },
-            { canInitiatePayments: true },
+            P.intersection(
+              { accountCountry: "NLD" },
+              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            ),
             () => {
               return validateRequired(value);
             },

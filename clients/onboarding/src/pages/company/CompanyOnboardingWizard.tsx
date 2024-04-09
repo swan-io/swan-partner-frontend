@@ -134,7 +134,9 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
       )
       .otherwise(() => false);
-  const hasDocumentsStep = requiredDocumentsPurposes.length > 0;
+  const hasDocumentsStep =
+    onboarding?.supportingDocumentCollection.statusInfo.status === "WaitingForDocument" &&
+    requiredDocumentsPurposes.length > 0;
 
   const [finalized, setFinalized] = useBoolean(false);
 

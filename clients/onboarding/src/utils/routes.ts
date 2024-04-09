@@ -6,6 +6,16 @@ import { projectConfiguration } from "./projectId";
 export const routes = {
   PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
 
+  ...createGroup(
+    "SupportingDocumentCollection",
+    "/supporting-document-collection/:supportingDocumentCollectionId",
+    {
+      Area: "/*",
+      Root: "/",
+      Success: "/success",
+    },
+  ),
+
   ...createGroup("", "/onboardings/:onboardingId", {
     Root: "/",
     Area: "/*",

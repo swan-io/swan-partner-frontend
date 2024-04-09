@@ -243,3 +243,40 @@ mutation generateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentU
     }
   }
 }
+
+query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
+  supportingDocumentCollection(id: $supportingDocumentCollectionId) {
+    id
+    requiredSupportingDocumentPurposes {
+      name
+    }
+    statusInfo {
+      status
+    }
+    supportingDocuments {
+      ...SupportingDocument
+    }
+    projectInfo {
+      id
+      accentColor
+      name
+      logoUri
+    }
+  }
+}
+
+mutation RequestSupportingDocumentCollectionReview(
+  $input: RequestSupportingDocumentCollectionReviewInput!
+) {
+  requestSupportingDocumentCollectionReview(input: $input) {
+    __typename
+    ... on RequestSupportingDocumentCollectionReviewSuccessPayload {
+      supportingDocumentCollection {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}

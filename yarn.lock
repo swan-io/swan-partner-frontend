@@ -2270,20 +2270,10 @@
     "@swan-io/request" "^1.0.4"
     ts-pattern "^5.1.0"
 
-"@swan-io/graphql-client@0.1.0-beta4":
-  version "0.1.0-beta4"
-  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.0-beta4.tgz#55ac53cda82a087f9c676a7f3393e9b5c0a28960"
-  integrity sha512-MTMsFw45AxKXfNeMowTe8WVtpxo4yIOYye8NoA3VjL8u7TXOGzrMix25BiQroyl6bS2fGvm6Z/Xwa2ManRxCsQ==
-  dependencies:
-    "@0no-co/graphql.web" "^1.0.6"
-    "@swan-io/boxed" "^2.1.1"
-    "@swan-io/request" "^1.0.4"
-    ts-pattern "^5.1.0"
-
-"@swan-io/lake@7.3.3":
-  version "7.3.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.3.3.tgz#6a6ec7acf9c33badb570711ad20760cc3bd92a42"
-  integrity sha512-YaeDfaWpZuNQar4LfYzgxKQSe1wI3qLPSCIFFtwq3TPFtYhjuErkHiQBXZZnVI6TU0LYzRoSUIZqFiia+NNx1g==
+"@swan-io/lake@7.4.3":
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-7.4.3.tgz#6557283ad4ce065b4fddfdb426262dceecd2dc53"
+  integrity sha512-yMdhjeUMkcAaAQOlLl14PhMk7989XnJ6YBt5TkV8rngReyM0dP/gXnEcLSFGoURiapiLBent33eSQ6P5+Wj23w==
   dependencies:
     "@react-three/drei" "^9.104.1"
     "@react-three/fiber" "^8.16.1"
@@ -2314,10 +2304,10 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.2.tgz#bfabcbd3c031782dfde4e1438f790c9a7f682926"
   integrity sha512-jLl5CWyAvqLUp70GIAN7O+fcWBa30ozp4I37sTFJOQvICrlAi5pbGDALZyYt4rkE33ahHwi4BLzWTa6PqOE5MA==
 
-"@swan-io/shared-business@7.3.3":
-  version "7.3.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.3.3.tgz#5223c0c8f9fce122a150600975125f4088d61743"
-  integrity sha512-7P3D3fG4W/77dPtgGWKKKCkxNym4Zffg/He/4PD1Xu0z5icccSA2kn8GA3RiEzqxLI2ZbC3Yem001KxG4UFoJw==
+"@swan-io/shared-business@7.4.3":
+  version "7.4.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-7.4.3.tgz#d3c78c9871c3af932fb29c414eac837feacadc71"
+  integrity sha512-pTjjRtzAMQgpnJ24MOHeV6h37ftmztykhjYpYlEw9+jFSzW6G2i+IbglsOlyFT/gZ6WKdwh/A+1OT3G59+9mBQ==
   dependencies:
     "@formatjs/intl" "^2.10.1"
     "@placekit/client-js" "^2.3.0"

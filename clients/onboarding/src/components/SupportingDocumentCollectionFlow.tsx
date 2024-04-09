@@ -82,12 +82,12 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
       .mapOk(({ upload, supportingDocumentId }) => ({ upload, id: supportingDocumentId }));
   };
 
-  const onPressNext = () => {
+  const onPressNext = ({ force } = { force: false }) => {
     const supportingDocumentCollection = supportingDocumentCollectionRef.current;
     if (supportingDocumentCollection == null) {
       return;
     }
-    if (supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
+    if (force || supportingDocumentCollection.areAllRequiredDocumentsFilled()) {
       requestSupportingDocumentCollectionReviewDocument({
         input: {
           supportingDocumentCollectionId,
@@ -223,7 +223,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                         message={t("company.step.documents.confirmModal.message")}
                         icon="document-regular"
                         confirmText={t("company.step.documents.confirmModal.confirm")}
-                        onConfirm={() => onPressNext()}
+                        onConfirm={() => onPressNext({ force: true })}
                         loading={supportingDocumentCollectionReviewDocumentRequest.isLoading()}
                         onCancel={setShowConfirmModal.off}
                       />

@@ -938,6 +938,17 @@ query CardPage($cardId: ID!) {
           }
         }
       }
+      previousPhysicalCards {
+        cardMaskedNumber
+        customOptions {
+          additionalPrintedLine
+        }
+        expiryDate
+        offlineSpendingLimit {
+          currency
+          value
+        }
+      }
     }
   }
 }
@@ -2549,6 +2560,20 @@ mutation UpdateCard($input: UpdateCardInput!) {
         id
         consentUrl
       }
+    }
+  }
+}
+
+mutation ConfirmPhysicalCardRenewal($input: ConfirmPhysicalCardRenewalInput!) {
+  confirmPhysicalCardRenewal(input: $input) {
+    __typename
+    ... on ConfirmPhysicalCardRenewalSuccessPayload {
+      physicalCard {
+        identifier
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

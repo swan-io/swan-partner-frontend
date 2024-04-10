@@ -462,6 +462,9 @@ type AccountHolder {
   """
   verificationStatus: VerificationStatus!
 
+  """Account holder verification Status information."""
+  verificationStatusInfo: AccountHolderVerificationStatusInfo!
+
   """Account holder type information."""
   info: AccountHolderInfo!
 
@@ -727,6 +730,11 @@ type AccountHolderNotFoundRejection implements Rejection {
   message: String!
 }
 
+type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
 """
 Field we can use when ordering that can be applied when listing account holders
 """
@@ -739,6 +747,25 @@ enum AccountHolderOrderByFieldInput {
 input AccountHolderOrderByInput {
   field: AccountHolderOrderByFieldInput
   direction: OrderByDirection
+}
+
+type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Pending"""
+  pendingAt: DateTime!
+}
+
+type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Refused"""
+  refusedAt: DateTime!
+
+  """Reason for which the account holder was refused"""
+  reason: String!
 }
 
 """Account holder status."""
@@ -783,6 +810,30 @@ An individual account holder can't create a b2b received direct debit mandate.
 """
 type AccountHolderTypeIndividualRejection implements Rejection {
   message: String!
+}
+
+"""Account Holder Verification Status Information"""
+interface AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
+type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Verified"""
+  verifiedAt: DateTime!
+}
+
+type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """
+  ISO Date string at which the account holder status was set to WaitingForInformation
+  """
+  WaitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -9434,6 +9485,12 @@ type Mutation {
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
 
+<<<<<<< HEAD
+=======
+  """Initiate several credit transfers (payment-v2)"""
+  initiateCreditTransfersV2(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
+
+>>>>>>> 01bb9f23 (Display modal for shipping address)
   """
   Initiate a funding request.
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -14102,6 +14159,15 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
+<<<<<<< HEAD
+=======
+
+  """
+  Not available, coming soon !
+  SupportingDocumentCollection URL to Swan portal
+  """
+  supportingDocumentCollectionUrl: String!
+>>>>>>> 01bb9f23 (Display modal for shipping address)
 }
 
 """Supporting document collection with Approved status"""

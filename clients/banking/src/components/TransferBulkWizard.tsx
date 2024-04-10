@@ -1,0 +1,210 @@
+import { useMutation } from "@swan-io/graphql-client";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { Separator } from "@swan-io/lake/src/components/Separator";
+import { Space } from "@swan-io/lake/src/components/Space";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useState } from "react";
+import { ScrollView, StyleSheet, View } from "react-native";
+import { match } from "ts-pattern";
+import {
+  AccountCountry,
+  CreditTransferInput,
+  InitiateSepaCreditTransfersDocument,
+} from "../graphql/partner";
+import { encodeDateTime } from "../utils/date";
+import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
+import { TransferBulkUpload } from "./TransferBulkUpload";
+import { Details } from "./TransferRegularWizardDetails";
+import { Schedule } from "./TransferRegularWizardSchedule";
+import { Beneficiary } from "./TransferWizardBeneficiary";
+
+const styles = StyleSheet.create({
+  root: {
+    ...commonStyles.fill,
+  },
+  container: {
+    ...commonStyles.fill,
+  },
+  header: {
+    paddingVertical: spacings[12],
+  },
+  headerContents: {
+    flexDirection: "row",
+    alignItems: "center",
+    width: "100%",
+    maxWidth: 1336,
+    marginHorizontal: "auto",
+    paddingHorizontal: spacings[96],
+  },
+  headerTitle: {
+    ...commonStyles.fill,
+  },
+  mobileZonePadding: {
+    paddingHorizontal: spacings[24],
+    flexGrow: 1,
+  },
+  contents: {
+    flexShrink: 1,
+    flexGrow: 1,
+    marginHorizontal: "auto",
+    maxWidth: 1172,
+    paddingHorizontal: spacings[24],
+    paddingVertical: spacings[24],
+    width: "100%",
+  },
+  desktopContents: {
+    marginVertical: "auto",
+    paddingHorizontal: spacings[96],
+    paddingVertical: spacings[24],
+  },
+});
+
+type Step = { name: "Upload" } | { name: "Review"; creditTransferInputs: CreditTransferInput[] };
+
+type Props = {
+  onPressClose?: () => void;
+  accountCountry: AccountCountry;
+  accountId: string;
+  accountMembershipId: string;
+};
+
+export const TransferBulkWizard = ({
+  onPressClose,
+  accountCountry,
+  accountId,
+  accountMembershipId,
+}: Props) => {
+  const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
+  const [step, setStep] = useState<Step>({ name: "Upload" });
+
+  const initiateTransfer = ({
+    beneficiary,
+    details,
+    schedule,
+  }: {
+    beneficiary: Beneficiary;
+    details: Details;
+    schedule: Schedule;
+  }) => {
+    initiateTransfers({
+      input: {
+        accountId,
+        consentRedirectUrl:
+          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+        creditTransfers: [
+          {
+            amount: details.amount,
+            label: details.label,
+            reference: details.reference,
+            ...match(schedule)
+              .with({ isScheduled: true }, ({ scheduledDate, scheduledTime }) => ({
+                requestedExecutionAt: encodeDateTime(scheduledDate, `${scheduledTime}:00`),
+              }))
+              .otherwise(({ isInstant }) => ({
+                mode: isInstant ? "InstantWithFallback" : "Regular",
+              })),
+            sepaBeneficiary: {
+              name: beneficiary.name,
+              save: false,
+              iban: beneficiary.iban,
+              isMyOwnIban: false, // TODO
+            },
+          },
+        ],
+      },
+    })
+      .mapOk(data => data.initiateCreditTransfers)
+      .mapOkToResult(filterRejectionsToResult)
+      .tapOk(({ payment }) => {
+        const status = payment.statusInfo;
+        const params = { paymentId: payment.id, accountMembershipId };
+
+        return match(status)
+          .with({ __typename: "PaymentInitiated" }, () => {
+            showToast({
+              variant: "success",
+              title: t("transfer.consent.success.title"),
+              description: t("transfer.consent.success.description"),
+              autoClose: false,
+            });
+            Router.replace("AccountTransactionsListRoot", params);
+          })
+          .with({ __typename: "PaymentRejected" }, () =>
+            showToast({
+              variant: "error",
+              title: t("transfer.consent.error.rejected.title"),
+              description: t("transfer.consent.error.rejected.description"),
+            }),
+          )
+          .with({ __typename: "PaymentConsentPending" }, ({ consent }) => {
+            window.location.assign(consent.consentUrl);
+          })
+          .exhaustive();
+      })
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  };
+
+  return (
+    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
+      {({ large }) => (
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
+              {onPressClose != null && (
+                <>
+                  <LakeButton
+                    mode="tertiary"
+                    icon="dismiss-regular"
+                    onPress={onPressClose}
+                    ariaLabel={t("common.closeButton")}
+                  />
+
+                  <Space width={large ? 32 : 8} />
+                </>
+              )}
+
+              <View style={styles.headerTitle}>
+                <LakeHeading level={2} variant="h3">
+                  {t("transfer.newBulkTransfer")}
+                </LakeHeading>
+              </View>
+            </View>
+          </View>
+
+          <Separator />
+
+          <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
+            {match(step)
+              .with({ name: "Upload" }, () => {
+                return (
+                  <>
+                    <LakeHeading variant="h3" level={2}>
+                      {t("transfer.bulk.uploadFile")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+
+                    <TransferBulkUpload
+                      onSave={creditTransferInputs => {
+                        setStep({ name: "Review", creditTransferInputs });
+                      }}
+                    />
+                  </>
+                );
+              })
+              .otherwise(() => null)}
+          </ScrollView>
+        </View>
+      )}
+    </ResponsiveContainer>
+  );
+};

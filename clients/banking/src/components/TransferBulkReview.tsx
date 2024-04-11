@@ -12,7 +12,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, negativeSpacings } from "@swan-io/lake/src/constants/design";
 import { printFormat } from "iban";
 import { useState } from "react";
@@ -30,9 +29,6 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     userSelect: "none",
-  },
-  summaryContents: {
-    ...commonStyles.fill,
   },
 });
 

@@ -86,12 +86,7 @@ type Props = {
   accountMembershipId: string;
 };
 
-export const TransferBulkWizard = ({
-  onPressClose,
-  accountCountry,
-  accountId,
-  accountMembershipId,
-}: Props) => {
+export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipId }: Props) => {
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
   const [step, setStep] = useState<Step>({ name: "Upload" });
 

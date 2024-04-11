@@ -93,7 +93,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
           ]
         : []),
     ];
-  }, [ictEnabled, accountMembershipId]);
+  }, [ictEnabled, bulkEnabled, accountMembershipId]);
 
   return (
     <>

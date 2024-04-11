@@ -325,12 +325,7 @@ export const TransferBulkReview = ({
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton
-              mode="secondary"
-              disabled={selected.size === 0}
-              onPress={onPressPrevious}
-              grow={small}
-            >
+            <LakeButton mode="secondary" onPress={onPressPrevious} grow={small}>
               {t("common.previous")}
             </LakeButton>
 

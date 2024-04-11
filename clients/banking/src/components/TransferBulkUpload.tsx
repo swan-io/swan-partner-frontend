@@ -190,7 +190,12 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
+            <LakeButton
+              color="current"
+              onPress={onPressSubmit}
+              grow={small}
+              loading={status.isLoading()}
+            >
               {t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>

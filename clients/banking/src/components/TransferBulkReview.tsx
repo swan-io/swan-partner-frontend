@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
+import { ColumnConfig, FixedListView } from "@swan-io/lake/src/components/FixedListView";
 import {
   CopyableRegularTextCell,
   EndAlignedCell,
@@ -8,7 +8,6 @@ import {
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -21,19 +20,15 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { printFormat } from "iban";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { CreditTransferInput } from "../graphql/partner";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  scrollView: {
+  scrollViewContainer: {
     marginHorizontal: negativeSpacings[32],
-    height: 1,
     flexGrow: 1,
-  },
-  scrollViewContents: {
-    height: 1,
-    flexGrow: 1,
+    flexShrink: 1,
   },
   name: {
     flexDirection: "row",
@@ -42,16 +37,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     flexShrink: 1,
     paddingHorizontal: spacings[12],
-  },
-  nameSmall: {
-    flexDirection: "row",
-    alignItems: "center",
-    flexGrow: 1,
-    flexShrink: 1,
-  },
-  nameSmallLines: {
-    flexGrow: 1,
-    flexShrink: 1,
   },
   ellipsis: {
     overflow: "hidden",
@@ -75,11 +60,11 @@ type ExtraInfo = {
   totalCount: number;
 };
 
-const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
+const stickedToStartColumns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "name",
     title: t("transfer.bulk.beneficiaryName"),
-    width: "grow",
+    width: 250,
     renderTitle: ({ title, extraInfo: { selected, setSelected, totalCount } }) => {
       const checked = selected.size === totalCount ? true : selected.size === 0 ? false : "mixed";
       return (
@@ -133,6 +118,9 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
       </Pressable>
     ),
   },
+];
+
+const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "label",
     title: t("transfer.bulk.label"),
@@ -186,6 +174,9 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
       );
     },
   },
+];
+
+const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "amount",
     title: t("transfer.bulk.amount"),
@@ -199,55 +190,6 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeText>
         </EndAlignedCell>
-      );
-    },
-  },
-];
-
-const smallColumns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
-  {
-    id: "all",
-    title: "all",
-    width: "grow",
-    renderTitle: () => null,
-    renderCell: ({ item, index, extraInfo: { selected, setSelected } }) => {
-      const amount = item.amount;
-      return (
-        <Box direction="row" alignItems="center" style={styles.name}>
-          <Pressable
-            style={styles.nameSmall}
-            onPress={() => {
-              const nextSelected = new Set([...selected]);
-              if (nextSelected.has(index)) {
-                nextSelected.delete(index);
-              } else {
-                nextSelected.add(index);
-              }
-              setSelected(nextSelected);
-            }}
-            role="checkbox"
-            aria-checked={selected.has(index)}
-          >
-            <LakeCheckbox value={selected.has(index)} />
-            <Space width={12} />
-
-            <View style={styles.nameSmallLines}>
-              <LakeText variant="semibold" color={colors.gray[900]} style={styles.ellipsis}>
-                {item.sepaBeneficiary?.name}
-              </LakeText>
-
-              <LakeText variant="smallRegular" color={colors.gray[700]} style={styles.ellipsis}>
-                {item.sepaBeneficiary?.iban != null ? printFormat(item.sepaBeneficiary?.iban) : " "}
-              </LakeText>
-            </View>
-          </Pressable>
-
-          <Fill minWidth={32} />
-
-          <LakeText variant="medium" color={colors.gray[900]}>
-            {formatCurrency(Number(amount.value), amount.currency)}
-          </LakeText>
-        </Box>
       );
     },
   },
@@ -290,20 +232,21 @@ export const TransferBulkReview = ({
 
         <Space height={8} />
 
-        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContents}>
-          <PlainListView
-            withoutScroll={true}
+        <View style={styles.scrollViewContainer}>
+          <FixedListView
+            mode="plain"
+            rowVerticalSpacing={0}
             headerBackgroundColor={backgroundColor.accented}
             rowHeight={56}
             headerHeight={56}
             data={creditTransferInputs}
             keyExtractor={(item, index) => String(index)}
-            groupHeaderHeight={0}
             extraInfo={{ selected, setSelected, totalCount: creditTransferInputs.length }}
+            stickedToStartColumns={stickedToStartColumns}
             columns={columns}
-            smallColumns={smallColumns}
+            stickedToEndColumns={stickedToEndColumn}
           />
-        </ScrollView>
+        </View>
 
         <Space height={32} />
 

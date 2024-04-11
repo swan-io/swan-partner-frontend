@@ -13,7 +13,7 @@ import { useEffect, useState } from "react";
 import { P, match } from "ts-pattern";
 import { CreditTransferInput } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { validateTransferReference } from "../utils/validations";
+import { validateBeneficiaryName, validateTransferReference } from "../utils/validations";
 
 type Props = {
   onSave: (creditTransfers: CreditTransferInput[]) => void;
@@ -50,7 +50,7 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
             ],
             ({ beneficiary_name, iban, amount, currency, label, reference }) => {
               const value = Number(amount);
-              if (beneficiary_name.length < 2) {
+              if (validateBeneficiaryName(beneficiary_name) != null) {
                 return Result.Error({ type: "InvalidBeneficiaryName", line: index + 1 } as const);
               }
               if (Number.isNaN(value) || value <= 0) {
@@ -152,7 +152,7 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
             .with({ type: "InvalidIban" }, ({ line }) => t("common.form.invalidBulkIban", { line }))
             .with({ type: "InvalidLine" }, ({ line }) => t("common.form.invalidFileLine", { line }))
             .with({ type: "InvalidReference" }, ({ line }) =>
-              t("common.form.invalidReference", { line }),
+              t("common.form.invalidBulkReference", { line }),
             )
             .exhaustive(),
         )

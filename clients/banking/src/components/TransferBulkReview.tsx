@@ -1,6 +1,8 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import {
   CopyableRegularTextCell,
+  EndAlignedCell,
   SimpleHeaderCell,
   StartAlignedCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
@@ -12,16 +14,25 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { backgroundColor, colors, negativeSpacings } from "@swan-io/lake/src/constants/design";
+import {
+  backgroundColor,
+  colors,
+  negativeSpacings,
+  spacings,
+} from "@swan-io/lake/src/constants/design";
 import { printFormat } from "iban";
 import { useState } from "react";
-import { Pressable, ScrollView, StyleSheet } from "react-native";
+import { Pressable, ScrollView, StyleSheet, View } from "react-native";
 import { CreditTransferInput } from "../graphql/partner";
 import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   scrollView: {
-    marginHorizontal: negativeSpacings[40],
+    marginHorizontal: negativeSpacings[32],
+    height: 1,
+    flexGrow: 1,
+  },
+  scrollViewContents: {
     height: 1,
     flexGrow: 1,
   },
@@ -29,6 +40,26 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     userSelect: "none",
+    flexGrow: 1,
+    flexShrink: 1,
+    paddingHorizontal: spacings[12],
+  },
+  nameSmall: {
+    flexDirection: "row",
+    alignItems: "center",
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  nameSmallLines: {
+    flexGrow: 1,
+    flexShrink: 1,
+  },
+  ellipsis: {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+    flexGrow: 1,
+    flexShrink: 1,
   },
 });
 
@@ -49,57 +80,58 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "name",
     title: t("transfer.bulk.beneficiaryName"),
-    width: 215,
+    width: "grow",
     renderTitle: ({ title, extraInfo: { selected, setSelected, totalCount } }) => {
       const checked = selected.size === totalCount ? true : selected.size === 0 ? false : "mixed";
       return (
-        <StartAlignedCell>
-          <Pressable
-            style={styles.name}
-            onPress={() => {
-              setSelected(
-                selected.size > 0
-                  ? new Set()
-                  : new Set(Array.from({ length: totalCount }, (_, index) => index)),
-              );
-            }}
-            role="checkbox"
-            aria-checked={checked}
-          >
-            <LakeCheckbox value={checked} />
-            <Space width={8} />
-
-            <LakeText variant="semibold" color={colors.gray[900]}>
-              {title}
-            </LakeText>
-          </Pressable>
-        </StartAlignedCell>
-      );
-    },
-    renderCell: ({ item, index, extraInfo: { selected, setSelected } }) => (
-      <StartAlignedCell>
         <Pressable
           style={styles.name}
           onPress={() => {
-            const nextSelected = new Set([...selected]);
-            if (nextSelected.has(index)) {
-              nextSelected.delete(index);
-            } else {
-              nextSelected.add(index);
-            }
-            setSelected(nextSelected);
+            setSelected(
+              selected.size > 0
+                ? new Set()
+                : new Set(Array.from({ length: totalCount }, (_, index) => index)),
+            );
           }}
           role="checkbox"
-          aria-checked={selected.has(index)}
+          aria-checked={checked}
         >
-          <LakeCheckbox value={selected.has(index)} />
+          <LakeCheckbox value={checked} />
           <Space width={8} />
 
           <LakeText variant="semibold" color={colors.gray[900]}>
-            {item.sepaBeneficiary?.name}
+            {title}
           </LakeText>
         </Pressable>
-      </StartAlignedCell>
+      );
+    },
+    renderCell: ({ item, index, extraInfo: { selected, setSelected } }) => (
+      <Pressable
+        style={styles.name}
+        onPress={() => {
+          const nextSelected = new Set([...selected]);
+          if (nextSelected.has(index)) {
+            nextSelected.delete(index);
+          } else {
+            nextSelected.add(index);
+          }
+          setSelected(nextSelected);
+        }}
+        role="checkbox"
+        aria-checked={selected.has(index)}
+      >
+        <LakeCheckbox value={selected.has(index)} />
+        <Space width={8} />
+
+        <LakeText
+          variant="semibold"
+          color={colors.gray[900]}
+          numberOfLines={1}
+          style={styles.ellipsis}
+        >
+          {item.sepaBeneficiary?.name}
+        </LakeText>
+      </Pressable>
     ),
   },
   {
@@ -109,28 +141,17 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const label = item.label;
-      if (label == null) {
-        return (
-          <StartAlignedCell>
-            <LakeText>{"—"}</LakeText>
-          </StartAlignedCell>
-        );
-      }
       return (
-        <CopyableRegularTextCell
-          variant="regular"
-          text={label}
-          textToCopy={label}
-          copyWording={t("copyButton.copyTooltip")}
-          copiedWording={t("copyButton.copiedTooltip")}
-        />
+        <StartAlignedCell>
+          <LakeText color={colors.gray[700]}> {label ?? "—"}</LakeText>
+        </StartAlignedCell>
       );
     },
   },
   {
     id: "iban",
     title: t("transfer.bulk.iban"),
-    width: 350,
+    width: 240,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const iban = item.sepaBeneficiary?.iban;
@@ -155,21 +176,10 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const reference = item.reference;
-      if (reference == null) {
-        return (
-          <StartAlignedCell>
-            <LakeText>{"—"}</LakeText>
-          </StartAlignedCell>
-        );
-      }
       return (
-        <CopyableRegularTextCell
-          variant="regular"
-          text={reference}
-          textToCopy={reference}
-          copyWording={t("copyButton.copyTooltip")}
-          copiedWording={t("copyButton.copiedTooltip")}
-        />
+        <StartAlignedCell>
+          <LakeText color={colors.gray[700]}> {reference ?? "—"}</LakeText>
+        </StartAlignedCell>
       );
     },
   },
@@ -177,15 +187,64 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "amount",
     title: t("transfer.bulk.amount"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
     renderCell: ({ item }) => {
       const amount = item.amount;
       return (
-        <StartAlignedCell>
+        <EndAlignedCell>
           <LakeText variant="medium" color={colors.gray[900]}>
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeText>
-        </StartAlignedCell>
+        </EndAlignedCell>
+      );
+    },
+  },
+];
+
+const smallColumns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
+  {
+    id: "all",
+    title: "all",
+    width: "grow",
+    renderTitle: () => null,
+    renderCell: ({ item, index, extraInfo: { selected, setSelected } }) => {
+      const amount = item.amount;
+      return (
+        <Box direction="row" alignItems="center" style={styles.name}>
+          <Pressable
+            style={styles.nameSmall}
+            onPress={() => {
+              const nextSelected = new Set([...selected]);
+              if (nextSelected.has(index)) {
+                nextSelected.delete(index);
+              } else {
+                nextSelected.add(index);
+              }
+              setSelected(nextSelected);
+            }}
+            role="checkbox"
+            aria-checked={selected.has(index)}
+          >
+            <LakeCheckbox value={selected.has(index)} />
+            <Space width={12} />
+
+            <View style={styles.nameSmallLines}>
+              <LakeText variant="semibold" color={colors.gray[900]} style={styles.ellipsis}>
+                {item.sepaBeneficiary?.name}
+              </LakeText>
+
+              <LakeText variant="smallRegular" color={colors.gray[700]} style={styles.ellipsis}>
+                {item.sepaBeneficiary?.iban != null ? printFormat(item.sepaBeneficiary?.iban) : " "}
+              </LakeText>
+            </View>
+          </Pressable>
+
+          <Fill minWidth={32} />
+
+          <LakeText variant="medium" color={colors.gray[900]}>
+            {formatCurrency(Number(amount.value), amount.currency)}
+          </LakeText>
+        </Box>
       );
     },
   },
@@ -216,7 +275,7 @@ export const TransferBulkReview = ({
       <Tile flexGrow={1}>
         <Box direction="row" alignItems="center">
           <LakeText variant="smallMedium" color={colors.current.primary}>
-            {t("transfer.bulk.allTransfers")}
+            {t("transfer.bulk.allTransfers", { count: selected.size })}
           </LakeText>
 
           <Space width={12} />
@@ -228,7 +287,7 @@ export const TransferBulkReview = ({
 
         <Space height={8} />
 
-        <ScrollView style={styles.scrollView}>
+        <ScrollView style={styles.scrollView} contentContainerStyle={styles.scrollViewContents}>
           <PlainListView
             withoutScroll={true}
             headerBackgroundColor={backgroundColor.accented}
@@ -239,6 +298,7 @@ export const TransferBulkReview = ({
             groupHeaderHeight={0}
             extraInfo={{ selected, setSelected, totalCount: creditTransferInputs.length }}
             columns={columns}
+            smallColumns={smallColumns}
           />
         </ScrollView>
 

@@ -1,4 +1,4 @@
-import { AsyncData, Future, Option, Result } from "@swan-io/boxed";
+import { Array, AsyncData, Future, Option, Result } from "@swan-io/boxed";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -18,75 +18,81 @@ type Props = {
   onSave: (creditTransfers: CreditTransferInput[]) => void;
 };
 
-const parseCsv = (
-  text: string,
-): Result<
-  CreditTransferInput[],
-  { type: "InvalidFile" } | { type: "InvalidLine"; line: number }
-> => {
+type ParsingError =
+  | { type: "MissingFile" }
+  | { type: "InvalidFile" }
+  | { type: "TooManyTransfers"; count: number }
+  | { type: "InvalidBeneficiaryName"; line: number }
+  | { type: "InvalidAmount"; line: number }
+  | { type: "InvalidIban"; line: number }
+  | { type: "InvalidLine"; line: number };
+
+const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> => {
   const [header, ...lines] = text.trim().split(/\r?\n|\r|\n/g);
+  if (lines.length > 1000) {
+    return Result.Error([{ type: "TooManyTransfers", count: lines.length }]);
+  }
   const rows = header?.split(",");
   return match(rows)
     .with(["beneficiary_name", "iban", "amount", "currency", "label", "reference"], () => {
-      return lines.reduce<
-        Result<
-          CreditTransferInput[],
-          { type: "InvalidFile" } | { type: "InvalidLine"; line: number }
-        >
-      >((acc, line, index) => {
-        return acc.flatMap(items => {
-          return match(line.split(","))
-            .with(
-              [
-                P.select("beneficiary_name", P.string),
-                P.select("iban", P.string),
-                P.select("amount", P.string),
-                P.select("currency", "EUR"),
-                P.select("label", P.string),
-                P.select("reference", P.string),
-              ],
-              ({ beneficiary_name, iban, amount, currency, label, reference }) => {
-                const value = Number(amount);
-                if (Number.isNaN(value) || value === 0) {
-                  return Result.Error({ type: "InvalidLine", line: index + 1 } as const);
-                }
-                if (!isValid(iban)) {
-                  return Result.Error({ type: "InvalidLine", line: index + 1 } as const);
-                }
-                return Result.Ok([
-                  ...items,
-                  {
-                    sepaBeneficiary: {
-                      iban,
-                      name: beneficiary_name,
-                      isMyOwnIban: false,
-                      save: false,
-                    },
-                    amount: {
-                      value: String(value),
-                      currency,
-                    },
-                    reference: isNullishOrEmpty(reference) ? null : reference,
-                    label: isNullishOrEmpty(label) ? null : label,
-                  },
-                ]);
-              },
-            )
-            .otherwise(() => Result.Error({ type: "InvalidLine", line: index + 1 } as const));
-        });
-      }, Result.Ok([]));
+      const results = lines.map<Result<CreditTransferInput, ParsingError>>((line, index) => {
+        return match(line.split(","))
+          .with(
+            [
+              P.select("beneficiary_name", P.string),
+              P.select("iban", P.string),
+              P.select("amount", P.string),
+              P.select("currency", "EUR"),
+              P.select("label", P.string),
+              P.select("reference", P.string),
+            ],
+            ({ beneficiary_name, iban, amount, currency, label, reference }) => {
+              const value = Number(amount);
+              if (beneficiary_name.length < 2) {
+                return Result.Error({ type: "InvalidBeneficiaryName", line: index + 1 } as const);
+              }
+              if (Number.isNaN(value) || value === 0) {
+                return Result.Error({ type: "InvalidAmount", line: index + 1 } as const);
+              }
+              if (!isValid(iban)) {
+                return Result.Error({ type: "InvalidIban", line: index + 1 } as const);
+              }
+              return Result.Ok({
+                sepaBeneficiary: {
+                  iban,
+                  name: beneficiary_name,
+                  isMyOwnIban: false,
+                  save: false,
+                },
+                amount: {
+                  value: String(value),
+                  currency,
+                },
+                reference: isNullishOrEmpty(reference) ? null : reference,
+                label: isNullishOrEmpty(label) ? null : label,
+              });
+            },
+          )
+          .otherwise(() => Result.Error({ type: "InvalidLine", line: index + 1 } as const));
+      });
+
+      return Result.all(results).mapError(() =>
+        Array.filterMap(results, item =>
+          match(item)
+            .with(Result.P.Error(P.select()), error => Option.Some(error))
+            .otherwise(() => Option.None()),
+        ),
+      );
     })
-    .otherwise(() => Result.Error({ type: "InvalidFile" } as const));
+    .otherwise(() => Result.Error([{ type: "InvalidFile" }] as const));
 };
 
 export const TransferBulkUpload = ({ onSave }: Props) => {
   const [file, setFile] = useState<Option<File>>(Option.None());
   const [isHelpModalOpen, setIsHelpModalOpen] = useState(false);
-  const [status, setStatus] = useState<
-    AsyncData<
-      Result<CreditTransferInput[], { type: "InvalidFile" } | { type: "InvalidLine"; line: number }>
-    >
-  >(AsyncData.NotAsked());
+  const [status, setStatus] = useState<AsyncData<Result<CreditTransferInput[], ParsingError[]>>>(
+    AsyncData.NotAsked(),
+  );
 
   useEffect(() => {
     if (file.isSome()) {
@@ -101,11 +107,16 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
         .map(text => parseCsv(text))
         .tap(result => {
           setStatus(AsyncData.Done(result));
-        });
+        })
+        .tapOk(inputs => onSave(inputs));
     }
-  }, [file]);
+  }, [file, onSave]);
 
   const onPressSubmit = () => {
+    if (file.isNone()) {
+      setStatus(AsyncData.Done(Result.Error([{ type: "MissingFile" }])));
+      return;
+    }
     match(status)
       .with(AsyncData.P.Done(Result.P.Ok(P.select())), creditTransferInputs => {
         onSave(creditTransferInputs);
@@ -114,11 +125,27 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
   };
 
   const fileError = match(status)
-    .with(AsyncData.P.Done(Result.P.Error({ type: "InvalidFile" })), () =>
-      t("common.form.invalidFile"),
-    )
-    .with(AsyncData.P.Done(Result.P.Error(P.select({ type: "InvalidLine" }))), ({ line }) =>
-      t("common.form.invalidFileLine", { line }),
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), errors =>
+      errors
+        .map(item =>
+          match(item)
+            .with({ type: "MissingFile" }, () => t("common.form.required"))
+            .with({ type: "TooManyTransfers" }, ({ count }) =>
+              t("common.form.invalidBulkTooManyTransfers", { count, max: 1000 }),
+            )
+            .with({ type: "InvalidFile" }, () => t("common.form.invalidFile"))
+            .with({ type: "InvalidAmount" }, ({ line }) =>
+              t("common.form.invalidBulkAmount", { line }),
+            )
+            .with({ type: "InvalidBeneficiaryName" }, ({ line }) =>
+              t("common.form.invalidBulkBeneficiaryName", { line }),
+            )
+            .with({ type: "InvalidIban" }, ({ line }) => t("common.form.invalidBulkIban", { line }))
+            .with({ type: "InvalidLine" }, ({ line }) => t("common.form.invalidFileLine", { line }))
+            .exhaustive(),
+        )
+
+        .join("\n"),
     )
     .otherwise(() => undefined);
 
@@ -126,7 +153,7 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
     <>
       <Tile
         footer={
-          fileError != null ? (
+          fileError != null && fileError !== t("common.form.required") ? (
             <LakeAlert anchored={true} variant="error" title={fileError} />
           ) : undefined
         }

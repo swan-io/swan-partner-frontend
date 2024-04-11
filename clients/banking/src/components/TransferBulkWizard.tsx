@@ -9,7 +9,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import {
@@ -147,6 +147,10 @@ export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipI
       });
   };
 
+  const onSave = useCallback((creditTransferInputs: CreditTransferInput[]) => {
+    setStep({ name: "Review", creditTransferInputs });
+  }, []);
+
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
       {({ large }) => (
@@ -186,12 +190,7 @@ export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipI
                     </LakeHeading>
 
                     <Space height={32} />
-
-                    <TransferBulkUpload
-                      onSave={creditTransferInputs => {
-                        setStep({ name: "Review", creditTransferInputs });
-                      }}
-                    />
+                    <TransferBulkUpload onSave={onSave} />
                   </>
                 );
               })

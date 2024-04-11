@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { P, match } from "ts-pattern";
 import { CreditTransferInput } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { validateTransferReference } from "../utils/validations";
 
 type Props = {
   onSave: (creditTransfers: CreditTransferInput[]) => void;
@@ -25,7 +26,8 @@ type ParsingError =
   | { type: "InvalidBeneficiaryName"; line: number }
   | { type: "InvalidAmount"; line: number }
   | { type: "InvalidIban"; line: number }
-  | { type: "InvalidLine"; line: number };
+  | { type: "InvalidLine"; line: number }
+  | { type: "InvalidReference"; line: number };
 
 const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> => {
   const [header, ...lines] = text.trim().split(/\r?\n|\r|\n/g);
@@ -56,6 +58,13 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
               }
               if (!isValid(iban)) {
                 return Result.Error({ type: "InvalidIban", line: index + 1 } as const);
+              }
+              if (
+                reference != null &&
+                reference != "" &&
+                validateTransferReference(reference) != null
+              ) {
+                return Result.Error({ type: "InvalidReference", line: index + 1 } as const);
               }
               return Result.Ok({
                 sepaBeneficiary: {
@@ -142,6 +151,9 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
             )
             .with({ type: "InvalidIban" }, ({ line }) => t("common.form.invalidBulkIban", { line }))
             .with({ type: "InvalidLine" }, ({ line }) => t("common.form.invalidFileLine", { line }))
+            .with({ type: "InvalidReference" }, ({ line }) =>
+              t("common.form.invalidReference", { line }),
+            )
             .exhaustive(),
         )
 

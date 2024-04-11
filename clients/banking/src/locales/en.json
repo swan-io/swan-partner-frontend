@@ -263,6 +263,7 @@
   "common.form.invalidBulkAmount": "Line {line} has an invalid amount",
   "common.form.invalidBulkBeneficiaryName": "Line {line} has an invalid beneficiary name",
   "common.form.invalidBulkIban": "Line {line} has an invalid IBAN",
+  "common.form.InvalidReference": "Line {line} has an invalid reference",
   "common.form.invalidBulkTooManyTransfers": "File contains {count} transfers, maximum is {max}",
   "common.form.invalidDate": "Invalid date",
   "common.form.invalidEmail": "Invalid email",

@@ -253,6 +253,7 @@
   "common.filters": "Filtri",
   "common.filters.all": "Tutti",
   "common.filters.apply": "Applica",
+  "common.form.InvalidReference": "La riga {line} ha un riferimento non valido",
   "common.form.birthdateCannotBeFuture": "La data di nascita non può essere futura",
   "common.form.chooseDateAfter": "Scelga una data successiva a {date}",
   "common.form.chooseDateBefore": "Scelga una data precedente a {date}",

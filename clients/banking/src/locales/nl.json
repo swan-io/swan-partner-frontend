@@ -253,6 +253,7 @@
   "common.filters": "Filters",
   "common.filters.all": "Alle",
   "common.filters.apply": "Toepassen",
+  "common.form.InvalidReference": "Regel {line} heeft een ongeldige referentie",
   "common.form.birthdateCannotBeFuture": "Geboortedatum kan niet in de toekomst liggen",
   "common.form.chooseDateAfter": "Kies een datum na {date}",
   "common.form.chooseDateBefore": "Kies een datum voor {date}",

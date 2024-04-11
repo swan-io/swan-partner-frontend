@@ -253,6 +253,7 @@
   "common.filters": "Suodattimet",
   "common.filters.all": "Kaikki",
   "common.filters.apply": "Käytä",
+  "common.form.InvalidReference": "Rivillä {line} on virheellinen viite",
   "common.form.birthdateCannotBeFuture": "Syntymäaika ei voi olla tulevaisuudessa",
   "common.form.chooseDateAfter": "Valitse päivämäärä, joka on {date} jälkeen",
   "common.form.chooseDateBefore": "Valitse päivämäärä, joka on ennen {date}",

@@ -4,7 +4,6 @@ import {
   CopyableRegularTextCell,
   EndAlignedCell,
   SimpleHeaderCell,
-  StartAlignedCell,
 } from "@swan-io/lake/src/components/FixedListViewCells";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -142,9 +141,11 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderCell: ({ item }) => {
       const label = item.label;
       return (
-        <StartAlignedCell>
-          <LakeText color={colors.gray[700]}> {label ?? "—"}</LakeText>
-        </StartAlignedCell>
+        <View style={styles.name}>
+          <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
+            {label ?? "—"}
+          </LakeText>
+        </View>
       );
     },
   },
@@ -177,9 +178,11 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderCell: ({ item }) => {
       const reference = item.reference;
       return (
-        <StartAlignedCell>
-          <LakeText color={colors.gray[700]}> {reference ?? "—"}</LakeText>
-        </StartAlignedCell>
+        <View style={styles.name}>
+          <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
+            {reference ?? "—"}
+          </LakeText>
+        </View>
       );
     },
   },

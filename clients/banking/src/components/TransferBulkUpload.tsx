@@ -51,7 +51,7 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
               if (beneficiary_name.length < 2) {
                 return Result.Error({ type: "InvalidBeneficiaryName", line: index + 1 } as const);
               }
-              if (Number.isNaN(value) || value === 0) {
+              if (Number.isNaN(value) || value <= 0) {
                 return Result.Error({ type: "InvalidAmount", line: index + 1 } as const);
               }
               if (!isValid(iban)) {

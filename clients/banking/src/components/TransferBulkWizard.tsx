@@ -20,10 +20,10 @@ import {
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { TransferBulkReview } from "./TransferBulkReview";
 import { TransferBulkUpload } from "./TransferBulkUpload";
-import { Details } from "./TransferRegularWizardDetails";
-import { Schedule } from "./TransferRegularWizardSchedule";
-import { Beneficiary } from "./TransferWizardBeneficiary";
+import { TransferRegularWizardDetailsSummary } from "./TransferRegularWizardDetails";
+import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
 
 const styles = StyleSheet.create({
   root: {
@@ -66,7 +66,18 @@ const styles = StyleSheet.create({
   },
 });
 
-type Step = { name: "Upload" } | { name: "Review"; creditTransferInputs: CreditTransferInput[] };
+type Step =
+  | { name: "Upload" }
+  | {
+      name: "Review";
+      creditTransferInputs: CreditTransferInput[];
+      initialSelectedCreditTransferInputs?: CreditTransferInput[];
+    }
+  | {
+      name: "Schedule";
+      originalCreditTransferInputs: CreditTransferInput[];
+      creditTransferInputs: CreditTransferInput[];
+    };
 
 type Props = {
   onPressClose?: () => void;
@@ -85,12 +96,10 @@ export const TransferBulkWizard = ({
   const [step, setStep] = useState<Step>({ name: "Upload" });
 
   const initiateTransfer = ({
-    beneficiary,
-    details,
+    creditTransferInputs,
     schedule,
   }: {
-    beneficiary: Beneficiary;
-    details: Details;
+    creditTransferInputs: CreditTransferInput[];
     schedule: Schedule;
   }) => {
     initiateTransfers({
@@ -98,26 +107,16 @@ export const TransferBulkWizard = ({
         accountId,
         consentRedirectUrl:
           window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
-        creditTransfers: [
-          {
-            amount: details.amount,
-            label: details.label,
-            reference: details.reference,
-            ...match(schedule)
-              .with({ isScheduled: true }, ({ scheduledDate, scheduledTime }) => ({
-                requestedExecutionAt: encodeDateTime(scheduledDate, `${scheduledTime}:00`),
-              }))
-              .otherwise(({ isInstant }) => ({
-                mode: isInstant ? "InstantWithFallback" : "Regular",
-              })),
-            sepaBeneficiary: {
-              name: beneficiary.name,
-              save: false,
-              iban: beneficiary.iban,
-              isMyOwnIban: false, // TODO
-            },
-          },
-        ],
+        creditTransfers: creditTransferInputs.map(creditTransferInput => ({
+          ...creditTransferInput,
+          ...match(schedule)
+            .with({ isScheduled: true }, ({ scheduledDate, scheduledTime }) => ({
+              requestedExecutionAt: encodeDateTime(scheduledDate, `${scheduledTime}:00`),
+            }))
+            .otherwise(({ isInstant }) => ({
+              mode: isInstant ? "InstantWithFallback" : "Regular",
+            })),
+        })),
       },
     })
       .mapOk(data => data.initiateCreditTransfers)
@@ -201,6 +200,81 @@ export const TransferBulkWizard = ({
                   </>
                 );
               })
+              .with(
+                { name: "Review" },
+                ({ creditTransferInputs, initialSelectedCreditTransferInputs }) => (
+                  <>
+                    <LakeHeading variant="h3" level={2}>
+                      {t("transfer.bulk.review")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+
+                    <TransferBulkReview
+                      creditTransferInputs={creditTransferInputs}
+                      initialSelectedCreditTransferInputs={initialSelectedCreditTransferInputs}
+                      onPressPrevious={() => setStep({ name: "Upload" })}
+                      onSave={selectedCreditTransferInputs => {
+                        setStep({
+                          name: "Schedule",
+                          creditTransferInputs: selectedCreditTransferInputs,
+                          originalCreditTransferInputs: creditTransferInputs,
+                        });
+                      }}
+                    />
+                  </>
+                ),
+              )
+              .with(
+                { name: "Schedule" },
+                ({ originalCreditTransferInputs, creditTransferInputs }) => (
+                  <>
+                    <TransferRegularWizardDetailsSummary
+                      isMobile={!large}
+                      details={{
+                        amount: {
+                          value: String(
+                            creditTransferInputs.reduce(
+                              (acc, item) => acc + Number(item.amount.value),
+                              0,
+                            ),
+                          ),
+                          currency: "EUR",
+                        },
+                      }}
+                      onPressEdit={() =>
+                        setStep({
+                          name: "Review",
+                          creditTransferInputs: originalCreditTransferInputs,
+                          initialSelectedCreditTransferInputs: creditTransferInputs,
+                        })
+                      }
+                    />
+
+                    <Space height={32} />
+
+                    <LakeHeading level={2} variant="h3">
+                      {t("transfer.new.schedule.titlePlural")}
+                    </LakeHeading>
+
+                    <Space height={32} />
+
+                    <TransferRegularWizardSchedule
+                      loading={transfer.isLoading()}
+                      onPressPrevious={() =>
+                        setStep({
+                          name: "Review",
+                          creditTransferInputs: originalCreditTransferInputs,
+                          initialSelectedCreditTransferInputs: creditTransferInputs,
+                        })
+                      }
+                      onSave={schedule => {
+                        initiateTransfer({ creditTransferInputs, schedule });
+                      }}
+                    />
+                  </>
+                ),
+              )
               .otherwise(() => null)}
           </ScrollView>
         </View>

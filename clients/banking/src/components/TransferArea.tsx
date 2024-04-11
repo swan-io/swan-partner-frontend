@@ -11,6 +11,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { TransferPage } from "../pages/TransferPage";
 import { t } from "../utils/i18n";
 import { paymentRoutes, Router } from "../utils/routes";
+import { TransferBulkWizard } from "./TransferBulkWizard";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
@@ -98,6 +99,15 @@ export const TransferArea = ({
 
                 <FullViewportLayer visible={type === "international"}>
                   <TransferInternationalWizard
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+                  />
+                </FullViewportLayer>
+
+                <FullViewportLayer visible={type === "bulk"}>
+                  <TransferBulkWizard
+                    accountCountry={accountCountry}
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}

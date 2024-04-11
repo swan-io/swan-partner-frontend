@@ -68,17 +68,17 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
               }
               return Result.Ok({
                 sepaBeneficiary: {
-                  iban,
-                  name: beneficiary_name,
+                  iban: iban.trim(),
+                  name: beneficiary_name.trim(),
                   isMyOwnIban: false,
                   save: false,
                 },
                 amount: {
                   value: String(value),
-                  currency,
+                  currency: currency.trim(),
                 },
-                reference: isNullishOrEmpty(reference) ? null : reference,
-                label: isNullishOrEmpty(label) ? null : label,
+                reference: isNullishOrEmpty(reference.trim()) ? undefined : reference.trim(),
+                label: isNullishOrEmpty(label.trim()) ? undefined : label.trim(),
               });
             },
           )

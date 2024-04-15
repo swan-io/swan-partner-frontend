@@ -3102,6 +3102,12 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
+"""DisabledMerchantProfileStatusInfo"""
+type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  disabledAt: Date!
+}
+
 """Retrieved document extracted from the identity verification"""
 interface DocumentFile {
   downloadUrl: String!
@@ -4788,7 +4794,6 @@ enum MerchantPaymentMethodStatus {
   Enabled
   Rejected
   Disabled
-  Canceled
   Suspended
 }
 
@@ -4876,6 +4881,9 @@ enum MerchantProfileStatus {
 
   """Suspended"""
   Suspended
+
+  """Disabled"""
+  Disabled
 }
 
 """Merchant Profile Status Information"""
@@ -8030,6 +8038,17 @@ enum SimulateOutgoingCardAuthorizationRejectPayloadReason {
   PeriodAmountLimitExceeded
   SwanRefused
   TransactionTypeNotAllowed
+  ThreeDsError
+  PeriodTransactionNumberLimitExceeded
+  MissingExpirationDate
+  MissingPin
+  DigitalWalletDeactivated
+  DigitalWalletEnrolmentInvalid
+  DigitalWalletTokenInvalid
+  DigitalWalletRefusal
+  DigitalWalletSuspended
+  InvalidAmount
+  CardholderCancellation
 }
 
 """Input to simulate a release of a card authorization"""
@@ -8593,7 +8612,10 @@ type SupportingDocumentCollection {
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
 
-  """SupportingDocumentCollection URL to Swan portal"""
+  """
+  Not available, coming soon !
+  SupportingDocumentCollection URL to Swan portal
+  """
   supportingDocumentCollectionUrl: String!
 }
 

@@ -13,8 +13,11 @@ import { P, match } from "ts-pattern";
 
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { customAlphabet } from "nanoid";
+import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
+import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { projectConfiguration } from "./projectId";
 import { Router } from "./routes";
+
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
 
@@ -118,9 +121,11 @@ export const partnerClient = new Client({
     )
     .otherwise(() => `/api/partner`),
   makeRequest,
+  schemaConfig: partnerSchemaConfig,
 });
 
 export const unauthenticatedClient = new Client({
   url: `/api/unauthenticated`,
   makeRequest,
+  schemaConfig: unauthenticatedSchemaConfig,
 });

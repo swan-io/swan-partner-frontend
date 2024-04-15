@@ -1,0 +1,262 @@
+{
+  "AccountStatusInfo": [
+    "AccountClosedStatus",
+    "AccountClosingStatus",
+    "AccountOpenedStatus",
+    "AccountSuspendedStatus"
+  ],
+  "Connection": [
+    "AccountConnection",
+    "AccountHolderConnection",
+    "AccountMembershipConnection",
+    "CardConnection",
+    "ConsentConnection",
+    "DigitalCardConnection",
+    "FundingLimitSettingsChangeRequestConnection",
+    "OnboardingConnection",
+    "PaymentMandateConnection",
+    "SupportingDocumentCollectionConnection",
+    "UserConnection",
+    "VirtualIBANEntryConnection"
+  ],
+  "Edge": [
+    "AccountEdge",
+    "AccountHolderEdge",
+    "AccountMembershipEdge",
+    "CardEdge",
+    "ConsentEdge",
+    "DigitalCardEdge",
+    "FundingLimitSettingsChangeRequestEdge",
+    "OnboardingEdge",
+    "PaymentMandateEdge",
+    "SupportingDocumentCollectionEdge",
+    "UserEdge",
+    "VirtualIBANEntryEdge"
+  ],
+  "AccountHolderStatusInfo": [
+    "AccountHolderCanceledStatusInfo",
+    "AccountHolderEnabledStatusInfo",
+    "AccountHolderSuspendedStatusInfo"
+  ],
+  "AccountHolderInfo": [
+    "AccountHolderCompanyInfo",
+    "AccountHolderIndividualInfo"
+  ],
+  "Rejection": [
+    "AccountHolderNotFoundRejection",
+    "AccountMembershipCannotBeDisabledRejection",
+    "AccountMembershipCannotBeUpdatedRejection",
+    "AccountMembershipNotAllowedRejection",
+    "AccountMembershipNotFoundRejection",
+    "AccountMembershipNotReadyToBeBoundRejection",
+    "AccountNotFoundRejection",
+    "ActionNotAllowedRejection",
+    "AddingCardsToDifferentAccountsRejection",
+    "AlreadyCompletedPaymentLinkRejection",
+    "AlreadyValidPhysicalCardRejection",
+    "ApplePayNotAllowedForProjectRejection",
+    "BadAccountStatusRejection",
+    "BadRequestRejection",
+    "CannotActivatePhysicalCardRejection",
+    "CardCanNotBeDigitalizedRejection",
+    "CardNotFoundRejection",
+    "CardProductDisabledRejection",
+    "CardProductNotApplicableToPhysicalCardsRejection",
+    "CardProductNotFoundRejection",
+    "CardProductSuspendedRejection",
+    "CardProductUsedRejection",
+    "CardWrongStatusRejection",
+    "DebtorAccountClosedRejection",
+    "DebtorAccountNotAllowedRejection",
+    "DigitalCardNotFoundRejection",
+    "EnabledCardDesignNotFoundRejection",
+    "ExpiredPaymentLinkRejection",
+    "ExternalAccountAlreadyExistsRejection",
+    "ForbiddenRejection",
+    "IBANNotReachableRejection",
+    "IBANNotValidRejection",
+    "IbanValidationRejection",
+    "IdentityAlreadyBindToAccountMembershipRejection",
+    "InternalErrorRejection",
+    "InvalidArgumentRejection",
+    "InvalidPhoneNumberRejection",
+    "InvalidSirenNumberRejection",
+    "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
+    "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
+    "MerchantPaymentMethodNotActiveRejection",
+    "MerchantProfileNotValidRejection",
+    "MerchantProfileWrongStatusRejection",
+    "MissingMandatoryFieldRejection",
+    "NotFoundRejection",
+    "NotReachableConsentStatusRejection",
+    "NotSupportedCountryRejection",
+    "OnboardingNotCompletedRejection",
+    "PaymentMandateReferenceAlreadyUsedRejection",
+    "PaymentMethodNotCompatibleRejection",
+    "PermissionCannotBeGrantedRejection",
+    "PhysicalCardNotFoundRejection",
+    "PhysicalCardWrongStatusRejection",
+    "ProjectForbiddenRejection",
+    "ProjectInvalidStatusRejection",
+    "ProjectNotFound",
+    "ProjectNotFoundRejection",
+    "ProjectSettingsForbiddenError",
+    "ProjectSettingsNotFound",
+    "ProjectSettingsStatusNotReachable",
+    "PublicOnboardingDisabledRejection",
+    "RestrictedToUserRejection",
+    "SchemeWrongRejection",
+    "SupportingDocumentCollectionNotFoundRejection",
+    "SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection",
+    "SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection",
+    "SupportingDocumentCollectionStatusNotAllowedRejection",
+    "SupportingDocumentNotFoundRejection",
+    "SupportingDocumentStatusDoesNotAllowDeletionRejection",
+    "SupportingDocumentStatusDoesNotAllowUpdateRejection",
+    "SupportingDocumentStatusNotAllowedRejection",
+    "SupportingDocumentUploadNotAllowedRejection",
+    "TooManyItemsRejection",
+    "TransactionNotFoundRejection",
+    "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
+    "UserNotAllowedToManageAccountMembershipRejection",
+    "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
+    "UserNotCardHolderRejection",
+    "ValidationRejection"
+  ],
+  "AccountHolderVerificationStatusInfo": [
+    "AccountHolderNotStartedVerificationStatusInfo",
+    "AccountHolderPendingVerificationStatusInfo",
+    "AccountHolderRefusedVerificationStatusInfo",
+    "AccountHolderVerifiedVerificationStatusInfo",
+    "AccountHolderWaitingForInformationVerificationStatusInfo"
+  ],
+  "AccountMembershipStatusInfo": [
+    "AccountMembershipBindingUserErrorStatusInfo",
+    "AccountMembershipConsentPendingStatusInfo",
+    "AccountMembershipDisabledStatusInfo",
+    "AccountMembershipEnabledStatusInfo",
+    "AccountMembershipInvitationSentStatusInfo",
+    "AccountMembershipSuspendedStatusInfo"
+  ],
+  "MerchantPaymentLinkStatusInfo": [
+    "ActiveMerchantPaymentLinkStatusInfo",
+    "CompletedMerchantPaymentLinkStatusInfo",
+    "ExpiredMerchantPaymentLinkStatusInfo"
+  ],
+  "MerchantPaymentMethodStatusInfo": [
+    "CanceledMerchantPaymentMethodStatusInfo",
+    "DisabledMerchantPaymentMethodStatusInfo",
+    "EnabledMerchantPaymentMethodStatusInfo",
+    "PendingMerchantPaymentMethodStatusInfo",
+    "RejectedMerchantPaymentMethodStatusInfo",
+    "SuspendedMerchantPaymentMethodStatusInfo"
+  ],
+  "MerchantProfileStatusInfo": [
+    "CanceledMerchantProfileStatusInfo",
+    "DisabledMerchantProfileStatusInfo",
+    "EnabledMerchantProfileStatusInfo",
+    "PendingReviewMerchantProfileStatusInfo",
+    "RejectedMerchantProfileStatusInfo",
+    "SuspendedMerchantProfileStatusInfo"
+  ],
+  "CardStatusInfo": [
+    "CardCanceledStatusInfo",
+    "CardCancelingStatusInfo",
+    "CardConsentPendingStatusInfo",
+    "CardEnabledStatusInfo",
+    "CardProcessingStatusInfo"
+  ],
+  "MerchantPaymentMethod": [
+    "CardMerchantPaymentMethod",
+    "CheckMerchantPaymentMethod",
+    "InternalDirectDebitB2BMerchantPaymentMethod",
+    "InternalDirectDebitStandardMerchantPaymentMethod",
+    "SepaDirectDebitB2BMerchantPaymentMethod",
+    "SepaDirectDebitCoreMerchantPaymentMethod"
+  ],
+  "Reason": [
+    "CloseAccountReason",
+    "SuspendAccountReason"
+  ],
+  "DigitalCard": [
+    "CompleteDigitalCard",
+    "PendingDigitalCard"
+  ],
+  "CompleteDigitalCardStatusInfo": [
+    "DigitalCardCanceledStatusInfo",
+    "DigitalCardEnabledStatusInfo",
+    "DigitalCardSuspendedStatusInfo"
+  ],
+  "PendingDigitalCardStatusInfo": [
+    "DigitalCardConsentPendingStatusInfo",
+    "DigitalCardDeclinedStatusInfo",
+    "DigitalCardPendingStatusInfo"
+  ],
+  "FundingLimitSettingsChangeRequestStatusInfo": [
+    "FundingLimitSettingsChangeRequestApprovedStatusInfo",
+    "FundingLimitSettingsChangeRequestPendingStatusInfo",
+    "FundingLimitSettingsChangeRequestRefusedStatusInfo",
+    "FundingLimitSettingsChangeRequestWaitingForInformationStatusInfo"
+  ],
+  "IndividualUltimateBeneficialOwnerInfo": [
+    "IndividualUltimateBeneficialOwnerTypeHasCapital",
+    "IndividualUltimateBeneficialOwnerTypeLegalRepresentative",
+    "IndividualUltimateBeneficialOwnerTypeOther"
+  ],
+  "OnboardingAccountHolderInfo": [
+    "OnboardingCompanyAccountHolderInfo",
+    "OnboardingIndividualAccountHolderInfo"
+  ],
+  "OnboardingStatusInfo": [
+    "OnboardingFinalizedStatusInfo",
+    "OnboardingInvalidStatusInfo",
+    "OnboardingValidStatusInfo"
+  ],
+  "PartnershipStatusInfo": [
+    "PartnershipAcceptedStatusInfo",
+    "PartnershipCanceledStatusInfo",
+    "PartnershipCancelingStatusInfo"
+  ],
+  "PaymentStatusInfo": [
+    "PaymentConsentPending",
+    "PaymentInitiated",
+    "PaymentRejected"
+  ],
+  "PaymentMandateStatusInfo": [
+    "PaymentMandateCanceledStatusInfo",
+    "PaymentMandateConsentPendingStatusInfo",
+    "PaymentMandateEnabledStatusInfo",
+    "PaymentMandateRejectedStatusInfo"
+  ],
+  "PhysicalCardStatusInfo": [
+    "PhysicalCardActivatedStatusInfo",
+    "PhysicalCardCanceledStatusInfo",
+    "PhysicalCardCancelingStatusInfo",
+    "PhysicalCardConsentPendingStatusInfo",
+    "PhysicalCardProcessingStatusInfo",
+    "PhysicalCardRenewedStatusInfo",
+    "PhysicalCardSuspendedStatusInfo",
+    "PhysicalCardToActivateStatusInfo",
+    "PhysicalCardToRenewStatusInfo"
+  ],
+  "SupportingDocumentCollectionStatusInfo": [
+    "SupportingDocumentCollectionApprovedStatusInfo",
+    "SupportingDocumentCollectionCanceledStatusInfo",
+    "SupportingDocumentCollectionPendingReviewStatusInfo",
+    "SupportingDocumentCollectionRejectedStatusInfo",
+    "SupportingDocumentCollectionWaitingForDocumentStatusInfo"
+  ],
+  "SupportingDocumentStatusInfo": [
+    "SupportingDocumentNotUploadedStatusInfo",
+    "SupportingDocumentRefusedStatusInfo",
+    "SupportingDocumentUploadedStatusInfo",
+    "SupportingDocumentValidatedStatusInfo",
+    "SupportingDocumentWaitingForUploadStatusInfo"
+  ],
+  "UltimateBeneficialOwnerInfo": [
+    "UltimateBeneficialDirectOwnerCompanyInfo",
+    "UltimateBeneficialDirectOwnerIndividualInfo",
+    "UltimateBeneficialIndirectOwnerCompanyInfo",
+    "UltimateBeneficialIndirectOwnerIndividualInfo"
+  ]
+}

@@ -9,6 +9,7 @@ import {
 import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 import { GraphQLError } from "graphql";
 import { P, match } from "ts-pattern";
+import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 
 import { customAlphabet } from "nanoid";
@@ -34,6 +35,7 @@ export const errorToRequestId = new WeakMap<WeakKey, string>();
 
 export const client = new Client({
   url: `${env.PAYMENT_URL}/api/unauthenticated`,
+  schemaConfig,
   makeRequest: ({ url, headers, operationName, document, variables }) => {
     const requestId = "req-" + nanoid();
     const traceparent = `${traceparentVersion}-${generateTraceId()}-${generateSpanId()}-${traceFlags}`;

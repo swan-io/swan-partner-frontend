@@ -205,9 +205,6 @@ type AccountHolder {
   """
   verificationStatus: VerificationStatus!
 
-  """Account holder verification Status information."""
-  verificationStatusInfo: AccountHolderVerificationStatusInfo!
-
   """Account holder type information."""
   info: AccountHolderInfo!
 
@@ -427,11 +424,6 @@ type AccountHolderNotFoundRejection implements Rejection {
   message: String!
 }
 
-type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-}
-
 """
 Field we can use when ordering that can be applied when listing account holders
 """
@@ -444,25 +436,6 @@ enum AccountHolderOrderByFieldInput {
 input AccountHolderOrderByInput {
   field: AccountHolderOrderByFieldInput
   direction: OrderByDirection
-}
-
-type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Pending"""
-  pendingAt: DateTime!
-}
-
-type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Refused"""
-  refusedAt: DateTime!
-
-  """Reason for which the account holder was refused"""
-  reason: String!
 }
 
 """Account holder status."""
@@ -499,30 +472,6 @@ enum AccountHolderType {
 
   """Company (Legal person)"""
   Company
-}
-
-"""Account Holder Verification Status Information"""
-interface AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-}
-
-type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Verified"""
-  verifiedAt: DateTime!
-}
-
-type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """
-  ISO Date string at which the account holder status was set to WaitingForInformation
-  """
-  WaitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -965,7 +914,7 @@ input AddCardPaymentMandateInput {
 }
 
 """Union type return by the addCardPaymentMandate mutation"""
-union AddCardPaymentMandatePayload = AddCardPaymentMandateSuccessPayload | InternalErrorRejection | NotFoundRejection | PaymentMethodNotCompatibleRejection | MerchantProfileWrongStatusRejection | AlreadyCompletedPaymentLinkRejection | ExpiredPaymentLinkRejection | PaymentMandateReferenceAlreadyUsedRejection
+union AddCardPaymentMandatePayload = AddCardPaymentMandateSuccessPayload | InternalErrorRejection | NotFoundRejection
 
 """
 Return type in case of a successful response of the initiateMerchantSddPaymentCollectionFromPaymentLink mutation
@@ -1100,17 +1049,13 @@ input AddSepaDirectDebitPaymentMandateFromPaymentLinkInput {
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload = AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+union AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload = AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
 
 """
 Return type in case of a successful response of the addSepaDirectDebitPaymentMandateFromPaymentLink mutation
 """
 type AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
   paymentMandate: SEPAPaymentDirectDebitMandate!
-}
-
-type AlreadyCompletedPaymentLinkRejection implements Rejection {
-  message: String!
 }
 
 """Rejection returned if card already has a valid Physical Card"""
@@ -2539,12 +2484,6 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
-"""DisabledMerchantProfileStatusInfo"""
-type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
-  status: MerchantProfileStatus!
-  disabledAt: Date!
-}
-
 """
 Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
 but all implementation contains its own node property according to the paginated type.
@@ -2604,10 +2543,6 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   By default the payment link expires 120 days after it was created.
   """
   expiredAt: DateTime!
-}
-
-type ExpiredPaymentLinkRejection implements Rejection {
-  message: String!
 }
 
 type ExternalAccountAlreadyExistsRejection implements Rejection {
@@ -3352,6 +3287,7 @@ enum MerchantPaymentMethodStatus {
   Enabled
   Rejected
   Disabled
+  Canceled
   Suspended
 }
 
@@ -3423,10 +3359,6 @@ type MerchantProfile {
   updatedAt: DateTime!
 }
 
-type MerchantProfileNotValidRejection implements Rejection {
-  message: String!
-}
-
 """Merchant Profile Statuses"""
 enum MerchantProfileStatus {
   """A Merchant Profile is created in the PendingReview status"""
@@ -3443,9 +3375,6 @@ enum MerchantProfileStatus {
 
   """Suspended"""
   Suspended
-
-  """Disabled"""
-  Disabled
 }
 
 """Merchant Profile Status Information"""
@@ -5126,12 +5055,6 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
-
-  """
-  Not available, coming soon !
-  SupportingDocumentCollection URL to Swan portal
-  """
-  supportingDocumentCollectionUrl: String!
 }
 
 """Supporting document collection with Approved status"""

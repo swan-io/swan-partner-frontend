@@ -143,13 +143,6 @@
     "ValidationRejection",
     "WrongValueProvidedRejection"
   ],
-  "AccountHolderVerificationStatusInfo": [
-    "AccountHolderNotStartedVerificationStatusInfo",
-    "AccountHolderPendingVerificationStatusInfo",
-    "AccountHolderRefusedVerificationStatusInfo",
-    "AccountHolderVerifiedVerificationStatusInfo",
-    "AccountHolderWaitingForInformationVerificationStatusInfo"
-  ],
   "AccountMembershipStatusInfo": [
     "AccountMembershipBindingUserErrorStatusInfo",
     "AccountMembershipConsentPendingStatusInfo",
@@ -179,7 +172,6 @@
   ],
   "MerchantProfileStatusInfo": [
     "CanceledMerchantProfileStatusInfo",
-    "DisabledMerchantProfileStatusInfo",
     "EnabledMerchantProfileStatusInfo",
     "PendingReviewMerchantProfileStatusInfo",
     "RejectedMerchantProfileStatusInfo",

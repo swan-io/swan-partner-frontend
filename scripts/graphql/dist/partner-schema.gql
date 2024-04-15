@@ -315,6 +315,17 @@ type Account {
   ): TrustedBeneficiaryConnection!
 }
 
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
+}
+
 """A list of balances regarding an account."""
 type AccountBalances {
   """
@@ -450,9 +461,6 @@ type AccountHolder {
   *Banking regulations require financial institutions such as Swan to know and verify their customers in order to comply with their anti-money laundering and terrorist financing obligations. In banking jargon, we talk about KYC (Know Your Customers) procedure*
   """
   verificationStatus: VerificationStatus!
-
-  """Account holder verification Status information."""
-  verificationStatusInfo: AccountHolderVerificationStatusInfo!
 
   """Account holder type information."""
   info: AccountHolderInfo!
@@ -719,11 +727,6 @@ type AccountHolderNotFoundRejection implements Rejection {
   message: String!
 }
 
-type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-}
-
 """
 Field we can use when ordering that can be applied when listing account holders
 """
@@ -736,25 +739,6 @@ enum AccountHolderOrderByFieldInput {
 input AccountHolderOrderByInput {
   field: AccountHolderOrderByFieldInput
   direction: OrderByDirection
-}
-
-type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Pending"""
-  pendingAt: DateTime!
-}
-
-type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Refused"""
-  refusedAt: DateTime!
-
-  """Reason for which the account holder was refused"""
-  reason: String!
 }
 
 """Account holder status."""
@@ -799,30 +783,6 @@ An individual account holder can't create a b2b received direct debit mandate.
 """
 type AccountHolderTypeIndividualRejection implements Rejection {
   message: String!
-}
-
-"""Account Holder Verification Status Information"""
-interface AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-}
-
-type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """ISO Date string at which the account holder status was set to Verified"""
-  verifiedAt: DateTime!
-}
-
-type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
-  """Verification Status of the account holder."""
-  status: VerificationStatus!
-
-  """
-  ISO Date string at which the account holder status was set to WaitingForInformation
-  """
-  WaitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -1710,7 +1670,7 @@ input AddInternalDirectDebitPaymentMandateInput {
 }
 
 """Union type return by the addInternalDirectDebitPaymentMandate mutation"""
-union AddInternalDirectDebitPaymentMandatePayload = AddInternalDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+union AddInternalDirectDebitPaymentMandatePayload = AddInternalDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | InternalErrorRejection
 
 """
 Return type in case of a successful response of the addInternalDirectDebitPaymentMandate mutation
@@ -1981,7 +1941,7 @@ input AddSepaDirectDebitPaymentMandateInput {
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union AddSepaDirectDebitPaymentMandatePayload = AddSepaDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection
+union AddSepaDirectDebitPaymentMandatePayload = AddSepaDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
 
 """
 Return type in case of a successful response of the addSepaDirectDebitPaymentMandate mutation
@@ -3296,6 +3256,12 @@ input CardPaymentMethodInput {
   activate: Boolean = false
 }
 
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -3315,7 +3281,12 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
+
+union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
 
 """Card design of a Card Product"""
 type CardProductDesign {
@@ -3471,6 +3442,10 @@ enum CardSettingsBackgroundType {
 
   """when Card background is customized"""
   Custom
+}
+
+input CardSettingsByProjectIdInput {
+  projectId: ID!
 }
 
 """Card Status"""
@@ -4030,6 +4005,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -4355,6 +4336,19 @@ type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
+"""Inputs to create a new card product"""
+input CreateCardProductInput {
+  projectId: ID!
+  name: String
+  applicableToPhysicalCards: Boolean
+}
+
+union CreateCardProductPayload = CreateCardProductSuccessPayload | ProjectNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type CreateCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 input CreateMerchantPaymentLinkInput {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfileId: ID!
@@ -4479,7 +4473,7 @@ input CreditTransferInput {
   amount: AmountInput!
 
   """
-  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain (regex [a-zA-Z0-9-?.+,/':() ]{1,35} and cannot begin nor end with /. Also, // is not allowed)
+  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain. (regex [A-Za-z0-9(\\-)(\\_)(\\?)(\\.)(\\+),' ]{1,35})
   """
   reference: String
 
@@ -4576,6 +4570,17 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+"""Inputs to delete a card product"""
+input DeleteCardProductInput {
+  id: ID!
+}
+
+union DeleteCardProductPayload = DeleteCardProductSuccessPayload | CardProductNotFoundRejection | CardProductUsedRejection | ForbiddenRejection | ValidationRejection
+
+type DeleteCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
+
 input DeleteSupportingDocumentInput {
   """Id of the supporting document to delete"""
   id: ID!
@@ -4638,6 +4643,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -4883,12 +4894,6 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
-"""DisabledMerchantProfileStatusInfo"""
-type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
-  status: MerchantProfileStatus!
-  disabledAt: Date!
-}
-
 """Retrieved document extracted from the identity verification"""
 interface DocumentFile {
   downloadUrl: String!
@@ -4919,7 +4924,7 @@ enum DocumentReasonCode {
   """Default value when none of the other values is appropriate"""
   InvalidDocument
 
-  """Some information is missing"""
+  """Name of shareholder is not clearly visible or is missing"""
   InvalidOrMissingData
 
   """Missing identity document of accommodation provider"""
@@ -4933,7 +4938,7 @@ enum DocumentReasonCode {
   """Missing proof of accommodation from accommodation provider"""
   MissingAccommodationProviderLetter
 
-  """Document cannot be accepted for the requested document type"""
+  """Document can’t be accepted as a proof of address"""
   UnacceptableDocument
 }
 
@@ -8799,6 +8804,7 @@ enum MerchantPaymentMethodStatus {
   Enabled
   Rejected
   Disabled
+  Canceled
   Suspended
 }
 
@@ -8897,10 +8903,6 @@ input MerchantProfileFiltersInput {
   status: [MerchantProfileStatus!]!
 }
 
-type MerchantProfileNotValidRejection implements Rejection {
-  message: String!
-}
-
 enum MerchantProfileOrderByFieldInput {
   createdAt
   updatedAt
@@ -8927,9 +8929,6 @@ enum MerchantProfileStatus {
 
   """Suspended"""
   Suspended
-
-  """Disabled"""
-  Disabled
 }
 
 """Merchant Profile Status Information"""
@@ -9015,7 +9014,7 @@ type Mutation {
   addCard(input: AddCardInput!): AddCardPayload!
 
   """
-  Add several cards with Group Delivery (limited to a maximum of 250 cards)
+  Add several cards with Group Delivery
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
   
@@ -9297,6 +9296,17 @@ type Mutation {
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
 
+  """Add a new card product for project."""
+  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
+
+  """Delete a card product."""
+  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
+  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
+
+  """Suspend a card product for a project."""
+  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
+  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
+
   """Cancels a consent."""
   cancelConsent(input: CancelConsentInput!): CancelConsentPayload!
 
@@ -9423,9 +9433,6 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
-
-  """Initiate several credit transfers (payment-v2)"""
-  initiateCreditTransfersV2(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
 
   """
   Initiate a funding request.
@@ -10607,6 +10614,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -10972,6 +10985,11 @@ input PrintPhysicalCardInput {
 
   """Address to deliver the physical card"""
   address: CompleteAddressInput!
+
+  """
+  `true` if the user must choose their PIN Code (will be deprecated/removed)
+  """
+  choosePINCode: Boolean!
 
   """`true` if the user must choose their PIN"""
   choosePin: Boolean
@@ -11490,6 +11508,8 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
+  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
+  cardProductById(id: ID): CardProductByIdResultPayload
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -12550,6 +12570,20 @@ type ResumePhysicalCardSuccessPayload {
 
   """The consent required to resume a physical card"""
   consent: Consent!
+}
+
+input ReviewProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+}
+
+union ReviewProjectCardSettingsPayload = ReviewProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type ReviewProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  cardSettings: CardSettings!
 }
 
 """
@@ -14068,12 +14102,6 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
-
-  """
-  Not available, coming soon !
-  SupportingDocumentCollection URL to Swan portal
-  """
-  supportingDocumentCollectionUrl: String!
 }
 
 """Supporting document collection with Approved status"""
@@ -14579,6 +14607,17 @@ enum SuspendAccountReasonType {
 
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
+
+"""Inputs to suspend a card product"""
+input SuspendCardProductInput {
+  id: ID!
+}
+
+union SuspendCardProductPayload = SuspendCardProductSuccessPayload | CardProductNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type SuspendCardProductSuccessPayload {
+  cardProduct: CardProduct!
+}
 
 """StatusInfo when funding limit settings has been suspended"""
 type SuspendedFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
@@ -16000,6 +16039,21 @@ union UpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorReje
 """Type of result when updateIndividualOnboarding is a success"""
 type UpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
+}
+
+input UpdateProjectCardSettingsInput {
+  projectId: ID!
+  backgroundType: ProjectCardSettingsBackgroundType!
+  logo: String
+  zoomRatioProjectLogo: Int
+  status: ProjectCardStatus
+}
+
+union UpdateProjectCardSettingsPayload = UpdateProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
+
+type UpdateProjectCardSettingsSuccessPayload {
+  projectId: ID!
+  projectCardSettings: CardSettings!
 }
 
 """Inputs to update a received sepa direct debit mandate B2b."""

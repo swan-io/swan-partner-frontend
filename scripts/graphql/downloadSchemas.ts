@@ -2,18 +2,8 @@ import { IntrospectionQuery, buildClientSchema, getIntrospectionQuery, printSche
 import { execSync } from "node:child_process";
 import fs from "node:fs";
 import path from "pathe";
-import { string, validate } from "valienv";
 
 const query = getIntrospectionQuery();
-
-const env = validate({
-  env: process.env,
-  validators: {
-    PARTNER_ADMIN_API_URL: string,
-    PARTNER_API_URL: string,
-    UNAUTHENTICATED_API_URL: string,
-  },
-});
 
 const getIntrospection = (name: string, url: string) =>
   fetch(url, {
@@ -35,9 +25,9 @@ const getIntrospection = (name: string, url: string) =>
     });
 
 void Promise.all([
-  getIntrospection("partner-admin", env.PARTNER_ADMIN_API_URL),
-  getIntrospection("partner", env.PARTNER_API_URL),
-  getIntrospection("unauthenticated", env.UNAUTHENTICATED_API_URL),
+  getIntrospection("partner-admin", "https://api.swan.io/sandbox-partner-admin/graphql"),
+  getIntrospection("partner", "https://api.swan.io/live-partner/graphql"),
+  getIntrospection("unauthenticated", "https://api.swan.io/live-unauthenticated/graphql"),
 ]).then(() => {
   execSync(
     `generate-schema-config scripts/graphql/dist/partner-admin-schema.gql scripts/graphql/dist/partner-admin-schema-config.json`,

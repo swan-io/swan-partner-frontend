@@ -52,7 +52,6 @@
     "AccountNotFoundRejection",
     "ActionNotAllowedRejection",
     "AddingCardsToDifferentAccountsRejection",
-    "AlreadyCompletedPaymentLinkRejection",
     "AlreadyValidPhysicalCardRejection",
     "ApplePayNotAllowedForProjectRejection",
     "BadAccountStatusRejection",
@@ -70,7 +69,6 @@
     "DebtorAccountNotAllowedRejection",
     "DigitalCardNotFoundRejection",
     "EnabledCardDesignNotFoundRejection",
-    "ExpiredPaymentLinkRejection",
     "ExternalAccountAlreadyExistsRejection",
     "ForbiddenRejection",
     "IBANNotReachableRejection",
@@ -84,7 +82,6 @@
     "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
     "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
     "MerchantPaymentMethodNotActiveRejection",
-    "MerchantProfileNotValidRejection",
     "MerchantProfileWrongStatusRejection",
     "MissingMandatoryFieldRejection",
     "NotFoundRejection",
@@ -123,13 +120,6 @@
     "UserNotCardHolderRejection",
     "ValidationRejection"
   ],
-  "AccountHolderVerificationStatusInfo": [
-    "AccountHolderNotStartedVerificationStatusInfo",
-    "AccountHolderPendingVerificationStatusInfo",
-    "AccountHolderRefusedVerificationStatusInfo",
-    "AccountHolderVerifiedVerificationStatusInfo",
-    "AccountHolderWaitingForInformationVerificationStatusInfo"
-  ],
   "AccountMembershipStatusInfo": [
     "AccountMembershipBindingUserErrorStatusInfo",
     "AccountMembershipConsentPendingStatusInfo",
@@ -153,7 +143,6 @@
   ],
   "MerchantProfileStatusInfo": [
     "CanceledMerchantProfileStatusInfo",
-    "DisabledMerchantProfileStatusInfo",
     "EnabledMerchantProfileStatusInfo",
     "PendingReviewMerchantProfileStatusInfo",
     "RejectedMerchantProfileStatusInfo",

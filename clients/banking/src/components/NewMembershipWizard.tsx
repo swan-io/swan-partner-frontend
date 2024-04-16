@@ -1,4 +1,4 @@
-import { Array, Option, Result } from "@swan-io/boxed";
+import { Array, Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -18,10 +18,11 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
+import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
@@ -70,21 +71,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const validatePhoneNumber = async (value: string) => {
-  const result = await Result.fromPromise(import("libphonenumber-js"));
-
-  // if libphonenumber-js fail to load, we don't validate phone number
-  if (result.isOk()) {
-    const { parsePhoneNumber } = result.get();
-
-    try {
-      // parsePhoneNumber can throw an error
-      if (!parsePhoneNumber(value).isValid()) {
-        return t("common.form.invalidPhoneNumber");
-      }
-    } catch {
+const validatePhoneNumber = (value: string) => {
+  try {
+    // parsePhoneNumber can throw an error
+    if (!parsePhoneNumber(value).isValid()) {
       return t("common.form.invalidPhoneNumber");
     }
+  } catch {
+    return t("common.form.invalidPhoneNumber");
   }
 };
 
@@ -176,12 +170,12 @@ export const NewMembershipWizard = ({
     birthDate: {
       initialValue: partiallySavedValues?.birthDate ?? "",
       strategy: "onSuccessOrBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
-          canManageCards: getFieldState("canManageCards").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
-          canManageBeneficiaries: getFieldState("canManageBeneficiaries").value,
-          canManageAccountMembership: getFieldState("canManageAccountMembership").value,
+          canManageCards: getFieldValue("canManageCards"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
+          canManageBeneficiaries: getFieldValue("canManageBeneficiaries"),
+          canManageAccountMembership: getFieldValue("canManageAccountMembership"),
         })
           .with(
             { canInitiatePayments: true },
@@ -218,11 +212,11 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -241,11 +235,11 @@ export const NewMembershipWizard = ({
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -261,11 +255,11 @@ export const NewMembershipWizard = ({
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -281,11 +275,11 @@ export const NewMembershipWizard = ({
     },
     country: {
       initialValue: partiallySavedValues?.country ?? accountCountry ?? "FRA",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -302,12 +296,12 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          residencyAddressCountry: getFieldState("country").value,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          residencyAddressCountry: getFieldValue("country"),
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(

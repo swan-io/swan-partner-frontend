@@ -1,4 +1,4 @@
-import { AsyncData, Dict, Result } from "@swan-io/boxed";
+import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -17,6 +17,7 @@ import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   isNotEmpty,
@@ -24,6 +25,7 @@ import {
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
+import { pick } from "@swan-io/lake/src/utils/object";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -31,9 +33,9 @@ import {
   validateCompanyTaxNumber,
   validateIndividualTaxNumber,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useMemo } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import {
@@ -326,33 +328,43 @@ const UpdateAccountForm = ({
             color="partner"
             loading={formStatus === "submitting"}
             onPress={() => {
-              submitForm(values => {
-                if (hasDefinedKeys(values, ["accountName", "language"])) {
-                  const { accountName, language, vatNumber, taxIdentificationNumber } = values;
+              submitForm({
+                onSuccess: values => {
+                  const option = Option.allFromDict(pick(values, ["accountName", "language"]));
 
-                  return updateAccount({
-                    updateAccountInput: {
-                      accountId,
-                      name: accountName,
-                      language,
-                    },
-                    updateAccountHolderInput: {
-                      accountHolderId: account.holder.id,
-                      vatNumber,
-                      taxIdentificationNumber,
-                    },
-                  })
-                    .mapOkToResult(({ updateAccount, updateAccountHolder }) =>
-                      Result.all([
-                        filterRejectionsToResult(updateAccount),
-                        filterRejectionsToResult(updateAccountHolder),
-                      ]),
-                    )
-                    .tapError((error: unknown) => {
-                      showToast({ variant: "error", error, title: translateError(error) });
+                  if (option.isSome()) {
+                    const { accountName, language } = option.get();
+                    const { vatNumber, taxIdentificationNumber } = values;
+
+                    return updateAccount({
+                      updateAccountInput: {
+                        accountId,
+                        name: accountName,
+                        language,
+                      },
+                      updateAccountHolderInput: {
+                        accountHolderId: account.holder.id,
+                        vatNumber: vatNumber.match({
+                          Some: identity,
+                          None: () => undefined,
+                        }),
+                        taxIdentificationNumber: taxIdentificationNumber.match({
+                          Some: identity,
+                          None: () => undefined,
+                        }),
+                      },
                     })
-                    .toPromise();
-                }
+                      .mapOkToResult(({ updateAccount, updateAccountHolder }) =>
+                        Result.all([
+                          filterRejectionsToResult(updateAccount),
+                          filterRejectionsToResult(updateAccountHolder),
+                        ]),
+                      )
+                      .tapError((error: unknown) => {
+                        showToast({ variant: "error", error, title: translateError(error) });
+                      });
+                  }
+                },
               });
             }}
           >

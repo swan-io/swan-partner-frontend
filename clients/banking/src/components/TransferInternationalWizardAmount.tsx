@@ -14,9 +14,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, radii } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   GetAvailableAccountBalanceDocument,
@@ -252,13 +252,13 @@ export const TransferInternationalWizardAmount = ({
               color="current"
               onPress={() =>
                 errors?.length === 0 &&
-                submitForm(values => {
-                  if (hasDefinedKeys(values, ["amount"]) && isNotNullish(metadata)) {
-                    onSave({
-                      value: values.amount.value,
-                      currency: values.amount.currency as Currency,
-                    });
-                  }
+                submitForm({
+                  onSuccess: ({ amount }) => {
+                    if (amount.isSome() && isNotNullish(metadata)) {
+                      const { value, currency } = amount.get();
+                      onSave({ value, currency: currency as Currency });
+                    }
+                  },
                 })
               }
               grow={small}

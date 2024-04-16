@@ -22,6 +22,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { pick } from "@swan-io/lake/src/utils/object";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -33,10 +34,10 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { Image, Pressable, StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import cardIdentifier from "../assets/images/card-identifier.svg";
 import physicalCardPlaceholder from "../assets/images/physical-card-placeholder.svg";
@@ -201,16 +202,21 @@ const CardItemPhysicalShippingForm = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["addressLine1", "city", "country", "postalCode"])) {
-        onSubmit({
-          addressLine1: values.addressLine1,
-          addressLine2: nullishOrEmptyToUndefined(values.addressLine2),
-          city: values.city,
-          country: values.country,
-          postalCode: values.postalCode,
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(
+          pick(values, ["addressLine1", "city", "country", "postalCode"]),
+        );
+
+        if (option.isSome()) {
+          onSubmit({
+            ...option.get(),
+            addressLine2: values.addressLine2
+              .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
+              .toUndefined(),
+          });
+        }
+      },
     });
   };
 

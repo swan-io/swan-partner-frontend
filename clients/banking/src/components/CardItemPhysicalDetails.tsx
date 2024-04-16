@@ -375,12 +375,14 @@ const CardItemPhysicalPermanentlyBlockForm = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["reason"])) {
-        onSubmit({
-          reason: values.reason,
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        const reason = values.reason.flatMap(Option.fromUndefined);
+
+        if (reason.isSome()) {
+          onSubmit({ reason: reason.get() });
+        }
+      },
     });
   };
 
@@ -438,10 +440,12 @@ const CardItemPhysicalActivationForm = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["identifier"])) {
-        onSubmit(values);
-      }
+    submitForm({
+      onSuccess: ({ identifier }) => {
+        if (identifier.isSome()) {
+          onSubmit({ identifier: identifier.get() });
+        }
+      },
     });
   };
 

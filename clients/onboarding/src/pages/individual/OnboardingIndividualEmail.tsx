@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -16,9 +17,10 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { pick } from "@swan-io/lake/src/utils/object";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -109,33 +111,39 @@ export const OnboardingIndividualEmail = ({
   };
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (!hasDefinedKeys(values, ["email"])) {
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(pick(values, ["email"]));
 
-      updateOnboarding({
-        input: { onboardingId, email: values.email, language: locale.language },
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push("Location", { onboardingId }))
-        .tapError(error => {
-          match(error)
-            .with({ __typename: "ValidationRejection" }, error => {
-              const invalidFields = extractServerValidationErrors(error, path =>
-                path[0] === "email" ? "email" : null,
-              );
-              invalidFields.forEach(({ fieldName, code }) => {
-                const message = getValidationErrorMessage(code, values[fieldName]);
-                setFieldError(fieldName, message);
-              });
-            })
-            .otherwise(noop);
+        if (option.isNone()) {
+          return;
+        }
 
-          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        });
+        const currentValues = option.get();
+
+        updateOnboarding({
+          input: { onboardingId, email: currentValues.email, language: locale.language },
+          language: locale.language,
+        })
+          .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push("Location", { onboardingId }))
+          .tapError(error => {
+            match(error)
+              .with({ __typename: "ValidationRejection" }, error => {
+                const invalidFields = extractServerValidationErrors(error, path =>
+                  path[0] === "email" ? "email" : null,
+                );
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
+              })
+              .otherwise(noop);
+
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+          });
+      },
     });
   };
 

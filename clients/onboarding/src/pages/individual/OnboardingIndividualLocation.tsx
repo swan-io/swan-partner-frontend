@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -11,8 +12,8 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
+import { useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
-import { hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -93,46 +94,51 @@ export const OnboardingIndividualLocation = ({
     // If we submit the form and the manual mode is disabled
     // we enable it to show the errors
 
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["address", "city", "postalCode", "country"])) {
-        const { address, city, postalCode, country } = values;
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-        updateOnboarding({
-          input: {
-            onboardingId,
-            residencyAddress: {
-              addressLine1: address,
-              city,
-              postalCode,
-              country,
+        if (option.isSome()) {
+          const currentValues = option.get();
+          const { address, city, postalCode, country } = currentValues;
+
+          updateOnboarding({
+            input: {
+              onboardingId,
+              residencyAddress: {
+                addressLine1: address,
+                city,
+                postalCode,
+                country,
+              },
+              language: locale.language,
             },
             language: locale.language,
-          },
-          language: locale.language,
-        })
-          .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
-          .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Details", { onboardingId }))
-          .tapError(error => {
-            match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path => {
-                  return match(path)
-                    .with(["residencyAddress", "addressLine1"], () => "address" as const)
-                    .with(["residencyAddress", "city"], () => "city" as const)
-                    .with(["residencyAddress", "postalCode"], () => "postalCode" as const)
-                    .otherwise(() => null);
-                });
-                invalidFields.forEach(({ fieldName, code }) => {
-                  const message = getValidationErrorMessage(code, values[fieldName]);
-                  setFieldError(fieldName, message);
-                });
-              })
-              .otherwise(noop);
+          })
+            .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
+            .mapOkToResult(filterRejectionsToResult)
+            .tapOk(() => Router.push("Details", { onboardingId }))
+            .tapError(error => {
+              match(error)
+                .with({ __typename: "ValidationRejection" }, error => {
+                  const invalidFields = extractServerValidationErrors(error, path => {
+                    return match(path)
+                      .with(["residencyAddress", "addressLine1"], () => "address" as const)
+                      .with(["residencyAddress", "city"], () => "city" as const)
+                      .with(["residencyAddress", "postalCode"], () => "postalCode" as const)
+                      .otherwise(() => null);
+                  });
+                  invalidFields.forEach(({ fieldName, code }) => {
+                    const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                    setFieldError(fieldName, message);
+                  });
+                })
+                .otherwise(noop);
 
-            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-          });
-      }
+              showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+            });
+        }
+      },
     });
   };
 

@@ -131,7 +131,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
       return (
         <View style={styles.name}>
           <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
-            {label ?? "—"}
+            {label ?? "-"}
           </LakeText>
         </View>
       );
@@ -140,7 +140,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "iban",
     title: t("transfer.bulk.iban"),
-    width: 240,
+    width: 300,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const iban = item.sepaBeneficiary?.iban;
@@ -168,7 +168,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
       return (
         <View style={styles.name}>
           <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
-            {reference ?? "—"}
+            {reference ?? "-"}
           </LakeText>
         </View>
       );

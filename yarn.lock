@@ -7072,13 +7072,6 @@ react-use-measure@^2.1.1:
   dependencies:
     debounce "^1.2.1"
 
-react-ux-form@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/react-ux-form/-/react-ux-form-1.5.0.tgz#a00a2fb903fa532dd8a868228261dbe991cf0b53"
-  integrity sha512-hUOmgcFXWqHYFDuKCuyEgQSh63KujFHjAEAKpanYa5lWfhO2JKlLqORnGyRpvw5wc+xIAJ/67KKauv2pbswxww==
-  dependencies:
-    use-sync-external-store "^1.2.0"
-
 react@18.2.0, react@^18.2.0:
   version "18.2.0"
   resolved "https://registry.yarnpkg.com/react/-/react-18.2.0.tgz#555bd98592883255fa00de14f1151a917b5d77d5"

@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -5,8 +6,8 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { locale, t } from "../utils/i18n";
 import { validateAddressLine, validateRequired } from "../utils/validations";
 
@@ -52,25 +53,20 @@ export const CardWizardAddressForm = ({ initialAddress, onPressClose, onSubmit }
   });
 
   const submit = () => {
-    submitForm(values => {
-      if (
-        hasDefinedKeys(values, [
-          "addressLine1",
-          "addressLine2",
-          "postalCode",
-          "city",
-          "state",
-          "country",
-        ])
-      ) {
-        const { addressLine2, state, ...rest } = values;
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-        onSubmit({
-          ...rest,
-          addressLine2: emptyToUndefined(addressLine2),
-          state: emptyToUndefined(state),
-        });
-      }
+        if (option.isSome()) {
+          const { addressLine2, state, ...rest } = option.get();
+
+          onSubmit({
+            ...rest,
+            addressLine2: emptyToUndefined(addressLine2),
+            state: emptyToUndefined(state),
+          });
+        }
+      },
     });
   };
 

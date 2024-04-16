@@ -32,10 +32,10 @@ import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, isMatching } from "ts-pattern";
 import {
@@ -239,11 +239,11 @@ const NewStatementForm = ({
   }>({
     startDate: {
       initialValue: "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         const openingDate = dayjs.utc(value, locale.dateFormat).subtract(1, "hour");
 
         const closingDate = dayjs
-          .utc(getFieldState("closingDate").value, locale.dateFormat)
+          .utc(getFieldValue("closingDate"), locale.dateFormat)
           .subtract(1, "hour");
 
         //check if statements are longer than 3 months
@@ -259,10 +259,10 @@ const NewStatementForm = ({
     },
     closingDate: {
       initialValue: "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         // account statements use UTC+1
         const openingDate = dayjs
-          .utc(getFieldState("startDate").value, locale.dateFormat)
+          .utc(getFieldValue("startDate"), locale.dateFormat)
           .subtract(1, "hour");
         const closingDate = dayjs.utc(value, locale.dateFormat).subtract(1, "hour");
 
@@ -304,34 +304,39 @@ const NewStatementForm = ({
   );
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["startDate", "closingDate", "format", "language"])) {
-        return generateStatement({
-          input: {
-            accountId,
-            openingDate: dayjs
-              .utc(values.startDate, locale.dateFormat)
-              .format("YYYY-MM-DDT00:00:00.000+01:00"),
-            closingDate: dayjs
-              .utc(values.closingDate, locale.dateFormat)
-              .format("YYYY-MM-DDT23:59:59.999+01:00"),
-            statementType: values.format,
-            language: values.language,
-          },
-        })
-          .mapOk(data => data.generateAccountStatement)
-          .mapOkToResult(({ __typename }) =>
-            __typename === "Statement" ? Result.Ok(undefined) : Result.Error(__typename),
-          )
-          .tapOk(() => {
-            setOpenNewStatement(false);
-            reload();
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+
+        if (option.isSome()) {
+          const { startDate, closingDate, format, language } = option.get();
+
+          return generateStatement({
+            input: {
+              accountId,
+              openingDate: dayjs
+                .utc(startDate, locale.dateFormat)
+                .format("YYYY-MM-DDT00:00:00.000+01:00"),
+              closingDate: dayjs
+                .utc(closingDate, locale.dateFormat)
+                .format("YYYY-MM-DDT23:59:59.999+01:00"),
+              statementType: format,
+              language,
+            },
           })
-          .tapError(error => {
-            showToast({ variant: "error", error, title: translateError(error) });
-          })
-          .toPromise();
-      }
+            .mapOk(data => data.generateAccountStatement)
+            .mapOkToResult(({ __typename }) =>
+              __typename === "Statement" ? Result.Ok(undefined) : Result.Error(__typename),
+            )
+            .tapOk(() => {
+              setOpenNewStatement(false);
+              reload();
+            })
+            .tapError(error => {
+              showToast({ variant: "error", error, title: translateError(error) });
+            });
+        }
+      },
     });
   };
 

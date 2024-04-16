@@ -2,7 +2,6 @@
 
 Name | Version | License | URL | VendorUrl | VendorName
 --- | --- | --- | --- | --- | ---
-@0no-co/graphql.web | 1.0.6 | MIT | https://github.com/0no-co/graphql.web | Unknown | 0no.co
 @fastify/accepts | 4.3.0 | MIT | https://github.com/fastify/fastify-accepts.git | https://github.com/fastify/fastify-accepts#readme | allevo
 @fastify/cors | 8.5.0 | MIT | https://github.com/fastify/fastify-cors.git | https://github.com/fastify/fastify-cors#readme | Tomas Della Vedova - @delvedor
 @fastify/helmet | 11.1.1 | MIT | https://github.com/fastify/fastify-helmet.git | https://github.com/fastify/fastify-helmet#readme | Matteo Collina
@@ -22,8 +21,6 @@ Name | Version | License | URL | VendorUrl | VendorName
 @types/react-dom | 18.2.24 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-dom | Unknown
 @types/react-native | 0.72.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/react-native | Unknown
 @types/uuid | 9.0.8 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/uuid | Unknown
-@urql/devtools | 2.0.3 | MIT | https://github.com/FormidableLabs/urql-devtools-exchange.git | https://github.com/FormidableLabs/urql-devtools-exchange#readme | Formidable
-@urql/exchange-graphcache | 7.0.0 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/graphcache | urql GraphQL Contributors
 @vitejs/plugin-react-swc | 3.6.0 | MIT | https://github.com/vitejs/vite-plugin-react-swc.git | https://github.com/ArnaudBarre | Arnaud Barré
 core-js | 3.36.1 | MIT | https://github.com/zloirock/core-js.git | http://zloirock.ru | Denis Pushkarev
 dayjs | 1.11.10 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
@@ -46,17 +43,14 @@ react | 18.2.0 | MIT | https://github.com/facebook/react.git | https://reactjs.o
 react-atomic-state | 2.0.0 | MIT | https://github.com/zoontek/react-atomic-state.git | https://github.com/zoontek/react-atomic-state#readme | Mathieu Acthernoene
 react-dom | 18.2.0 | MIT | https://github.com/facebook/react.git | https://reactjs.org/ | Unknown
 react-native-web | 0.19.10 | MIT | git://github.com/necolas/react-native-web.git | Unknown | Nicolas Gallagher
-react-ux-form | 1.5.0 | MIT | https://github.com/swan-io/react-ux-form.git | https://github.com/swan-io/react-ux-form#readme | Mathieu Acthernoene
 rifm | 0.12.1 | MIT | https://github.com/istarkov/rifm.git | Unknown | istarkov
 shx | 0.3.4 | MIT | https://github.com/shelljs/shx.git | https://github.com/shelljs/shx#readme | Unknown
 ts-pattern | 5.1.0 | MIT | ssh://git@github.com/gvergnaud/ts-pattern.git | https://github.com/gvergnaud/ts-pattern#readme | Gabriel Vergnaud
-urql | 4.0.7 | MIT | https://github.com/urql-graphql/urql.git | https://formidable.com/open-source/urql/docs/ | urql GraphQL Contributors
 uuid | 8.3.2 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 uuid | 9.0.1 | MIT | https://github.com/uuidjs/uuid.git | Unknown | Unknown
 valienv | 0.6.0 | MIT | https://github.com/zoontek/valienv.git | https://github.com/zoontek/valienv#readme | Mathieu Acthernoene
 vite | 5.2.8 | MIT | https://github.com/vitejs/vite.git | https://vitejs.dev/ | Evan You
 vitest | 1.4.0 | MIT | https://github.com/vitest-dev/vitest.git | https://github.com/vitest-dev/vitest#readme | Anthony Fu
-wonka | 6.3.4 | MIT | https://github.com/0no-co/wonka | Unknown | 0no.co
 @juggle/resize-observer | 3.4.0 | Apache-2.0 | ssh://git@github.com/juggle/resize-observer.git | https://juggle.studio/resize-observer/ | Juggle
 @opentelemetry/api | 1.8.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/api | OpenTelemetry Authors
 @opentelemetry/core | 1.23.0 | Apache-2.0 | https://github.com/open-telemetry/opentelemetry-js.git | https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-core | OpenTelemetry Authors

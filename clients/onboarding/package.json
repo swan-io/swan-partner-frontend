@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/onboarding",
-  "version": "1.12.1",
+  "version": "1.12.2",
   "private": true,
   "engines": {
     "node": ">=18.0.0",

@@ -159,7 +159,7 @@ export const TransferInternationalWizardDetails = ({
                 const runCallback = () =>
                   submitForm({
                     onSuccess: values => {
-                      Option.allFromDict(values).map(values => onSave(values));
+                      Option.allFromDict(values).map(onSave);
                     },
                   });
 

@@ -44,25 +44,28 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
               P.select("beneficiary_name", P.string),
               P.select("iban", P.string),
               P.select("amount", P.string),
-              P.select("currency", "EUR"),
+              P.select("currency", P.string),
               P.select("label", P.string),
               P.select("reference", P.string),
             ],
             ({ beneficiary_name, iban, amount, currency, label, reference }) => {
-              const value = Number(amount);
-              if (validateBeneficiaryName(beneficiary_name) != null) {
+              const value = Number(amount.trim());
+              if (validateBeneficiaryName(beneficiary_name.trim()) != null) {
                 return Result.Error({ type: "InvalidBeneficiaryName", line: index + 1 } as const);
               }
               if (Number.isNaN(value) || value <= 0) {
                 return Result.Error({ type: "InvalidAmount", line: index + 1 } as const);
               }
-              if (!isValid(iban)) {
+              if (!isValid(iban.trim())) {
                 return Result.Error({ type: "InvalidIban", line: index + 1 } as const);
+              }
+              if (currency.trim() !== "EUR") {
+                return Result.Error({ type: "InvalidLine", line: index + 1 } as const);
               }
               if (
                 reference != null &&
-                reference != "" &&
-                validateTransferReference(reference) != null
+                reference.trim() != "" &&
+                validateTransferReference(reference.trim()) != null
               ) {
                 return Result.Error({ type: "InvalidReference", line: index + 1 } as const);
               }

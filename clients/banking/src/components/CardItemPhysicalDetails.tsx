@@ -14,6 +14,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { QuickActions } from "@swan-io/lake/src/components/QuickActions";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Svg } from "@swan-io/lake/src/components/Svg";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
@@ -32,7 +33,7 @@ import {
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, Pressable, StyleSheet, View } from "react-native";
 import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import cardIdentifier from "../assets/images/card-identifier.svg";
@@ -92,6 +93,37 @@ const styles = StyleSheet.create({
     paddingBottom: "30%",
     width: "50%",
     marginHorizontal: "auto",
+  },
+  physicalCardContainer: { position: "relative" },
+  physicalCardFront: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    width: "100%",
+    height: "100%",
+    zIndex: 1,
+  },
+  physicalCardRenewedBehind: {
+    zIndex: 0,
+    animationKeyframes: {
+      "100%": {
+        transform: "translateX(200px) scale(0.6)",
+      },
+    },
+    animationDuration: "500ms",
+    animationTimingFunction: "ease-in-out",
+    animationFillMode: "forwards",
+  },
+  physicalCardPreviousBehind: {
+    zIndex: 0,
+    animationKeyframes: {
+      "100%": {
+        transform: "translateX(-200px) scale(0.6)",
+      },
+    },
+    animationDuration: "500ms",
+    animationTimingFunction: "ease-in-out",
+    animationFillMode: "forwards",
   },
   spendingContainer: {
     ...commonStyles.fill,
@@ -650,6 +682,8 @@ export const CardItemPhysicalDetails = ({
   };
 
   const textColor = hasBindingUserError ? colors.gray[300] : colors.gray[800];
+  const previousCard = card.physicalCard?.previousPhysicalCards[0];
+  const [currentCard, setCurrentCard] = useState<"previous" | "renewed">("renewed");
 
   return (
     <View style={styles.container}>
@@ -687,7 +721,7 @@ export const CardItemPhysicalDetails = ({
                   style={styles.renewAlert}
                   variant="info"
                   title={t("card.physical.toRenewAlert", {
-                    expiryDate: dayjs(expiryDate, "MM/YY").format("MMMM YYYY"),
+                    expiryDate: dayjs(expiryDate, "MM/YY").endOf("month").format("LL"),
                   })}
                   children={
                     <>
@@ -732,31 +766,66 @@ export const CardItemPhysicalDetails = ({
           .with({ __typename: "PhysicalCard" }, physicalCard => (
             <View style={styles.card}>
               {card.cardDesignUrl != null ? (
-                <MaskedCard
-                  cardDesignUrl={card.cardDesignUrl}
-                  textColor={
-                    card.cardProduct.cardDesigns.find(
-                      cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                    )?.accentColor ?? "#fff"
-                  }
-                  holderName={getMemberName({ accountMembership: card.accountMembership })}
-                  pan={physicalCard.cardMaskedNumber}
-                  expiryDate={physicalCard.expiryDate ?? ""}
-                  status={physicalCard.statusInfo.status}
-                  estimatedDeliveryDate={match(physicalCard.statusInfo)
-                    .with(
-                      {
-                        __typename: "PhysicalCardToActivateStatusInfo",
-                        estimatedDeliveryDate: P.string,
-                      },
-                      {
-                        __typename: "PhysicalCardRenewedStatusInfo",
-                        estimatedDeliveryDate: P.string,
-                      },
-                      ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                    )
-                    .otherwise(() => undefined)}
-                />
+                <View style={styles.physicalCardContainer}>
+                  <Svg role="none" viewBox="0 0 85 55" />
+
+                  <Pressable
+                    onPress={() => setCurrentCard("renewed")}
+                    style={[
+                      styles.physicalCardFront,
+                      currentCard === "previous" && styles.physicalCardRenewedBehind,
+                    ]}
+                  >
+                    <MaskedCard
+                      cardDesignUrl={card.cardDesignUrl}
+                      textColor={
+                        card.cardProduct.cardDesigns.find(
+                          cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                        )?.accentColor ?? "#fff"
+                      }
+                      holderName={getMemberName({ accountMembership: card.accountMembership })}
+                      pan={physicalCard.cardMaskedNumber}
+                      expiryDate={physicalCard.expiryDate ?? ""}
+                      status={physicalCard.statusInfo.status}
+                      estimatedDeliveryDate={match(physicalCard.statusInfo)
+                        .with(
+                          {
+                            __typename: "PhysicalCardToActivateStatusInfo",
+                            estimatedDeliveryDate: P.string,
+                          },
+                          {
+                            __typename: "PhysicalCardRenewedStatusInfo",
+                            estimatedDeliveryDate: P.string,
+                          },
+                          ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                        )
+                        .otherwise(() => undefined)}
+                    />
+                  </Pressable>
+
+                  {isNotNullish(previousCard) && (
+                    <Pressable
+                      onPress={() => setCurrentCard("previous")}
+                      style={[
+                        styles.physicalCardFront,
+                        currentCard === "renewed" && styles.physicalCardPreviousBehind,
+                      ]}
+                    >
+                      <MaskedCard
+                        cardDesignUrl={card.cardDesignUrl}
+                        textColor={
+                          card.cardProduct.cardDesigns.find(
+                            cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                          )?.accentColor ?? "#fff"
+                        }
+                        holderName={getMemberName({ accountMembership: card.accountMembership })}
+                        pan={previousCard.cardMaskedNumber}
+                        expiryDate={previousCard.expiryDate ?? ""}
+                        status={"ToRenew"}
+                      />
+                    </Pressable>
+                  )}
+                </View>
               ) : null}
 
               {cardRequiresIdentityVerification ? (

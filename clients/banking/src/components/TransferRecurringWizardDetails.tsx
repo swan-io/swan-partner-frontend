@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -12,10 +13,10 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { formatCurrency, t } from "../utils/i18n";
 import { validateTransferReference } from "../utils/validations";
@@ -67,7 +68,7 @@ const TransferRecurringWizardDetailsFixedAmount = ({
   onPressSwitchMode,
   onSave,
 }: TransferRecurringWizardDetailsFixedAmountProps) => {
-  const { Field, getFieldState, submitForm } = useForm({
+  const { Field, getFieldValue, submitForm } = useForm({
     amount: {
       initialValue: initialDetails?.amount.value ?? "",
       sanitize: value => value.replace(/,/g, "."),
@@ -88,18 +89,22 @@ const TransferRecurringWizardDetailsFixedAmount = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["amount"])) {
-        onSave({
-          type: "FixedAmount",
-          amount: {
-            value: values.amount,
-            currency: "EUR",
-          },
-          label: values.label,
-          reference: values.reference,
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        const { amount } = values;
+
+        if (amount.isSome()) {
+          onSave({
+            type: "FixedAmount",
+            amount: {
+              value: amount.get(),
+              currency: "EUR",
+            },
+            label: values.label.toUndefined(),
+            reference: values.reference.toUndefined(),
+          });
+        }
+      },
     });
   };
 
@@ -191,8 +196,8 @@ const TransferRecurringWizardDetailsFixedAmount = ({
         role="button"
         onPress={() =>
           onPressSwitchMode({
-            label: getFieldState("label").value,
-            reference: getFieldState("reference").value,
+            label: getFieldValue("label"),
+            reference: getFieldValue("reference"),
           })
         }
       >
@@ -248,7 +253,7 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
   onPressSwitchMode,
   onSave,
 }: TransferRecurringWizardDetailsTargetAccountBalanceProps) => {
-  const { Field, getFieldState, submitForm } = useForm({
+  const { Field, getFieldValue, submitForm } = useForm({
     targetAmount: {
       initialValue: initialDetails?.targetAmount.value ?? "",
       sanitize: value => value.replace(/,/g, "."),
@@ -270,18 +275,26 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["targetAmount"])) {
-        onSave({
-          type: "TargetAccountBalance",
-          targetAmount: {
-            value: values.targetAmount,
-            currency: "EUR",
-          },
-          label: nullishOrEmptyToUndefined(values.label),
-          reference: nullishOrEmptyToUndefined(values.reference),
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        const { targetAmount } = values;
+
+        if (targetAmount.isSome()) {
+          onSave({
+            type: "TargetAccountBalance",
+            targetAmount: {
+              value: targetAmount.get(),
+              currency: "EUR",
+            },
+            label: values.label
+              .flatMap(value => Option.fromNullable(emptyToUndefined(value)))
+              .toUndefined(),
+            reference: values.reference
+              .flatMap(value => Option.fromNullable(emptyToUndefined(value)))
+              .toUndefined(),
+          });
+        }
+      },
     });
   };
 
@@ -375,8 +388,8 @@ const TransferRecurringWizardDetailsTargetAccountBalance = ({
       <Pressable
         onPress={() =>
           onPressSwitchMode({
-            label: getFieldState("label").value,
-            reference: getFieldState("reference").value,
+            label: getFieldValue("label"),
+            reference: getFieldValue("reference"),
           })
         }
       >

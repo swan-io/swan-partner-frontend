@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -11,8 +12,8 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { CountryCCA3, companyCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
-import { hasDefinedKeys, useForm } from "react-ux-form";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -117,32 +118,36 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
   }, [listenFields, setFieldValue]);
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (!hasDefinedKeys(values, ["country", "typeOfRepresentation", "companyType"])) {
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-      const { country, typeOfRepresentation, companyType } = values;
+        if (option.isNone()) {
+          return;
+        }
 
-      updateOnboarding({
-        input: {
-          onboardingId,
-          companyType,
-          typeOfRepresentation,
-          residencyAddress: { country },
+        const { country, typeOfRepresentation, companyType } = option.get();
+
+        updateOnboarding({
+          input: {
+            onboardingId,
+            companyType,
+            typeOfRepresentation,
+            residencyAddress: { country },
+            language: locale.language,
+          },
           language: locale.language,
-        },
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push(nextStep, { onboardingId }))
-        .tapError(error => {
-          // No need to add specific message depending on validation
-          // because all fields are select or radio (so we can't have syntax error)
-          // and all fields have a default value (so we can't have missing value)
-          showToast({ variant: "error", error, title: translateError(error) });
-        });
+        })
+          .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapError(error => {
+            // No need to add specific message depending on validation
+            // because all fields are select or radio (so we can't have syntax error)
+            // and all fields have a default value (so we can't have missing value)
+            showToast({ variant: "error", error, title: translateError(error) });
+          });
+      },
     });
   };
 

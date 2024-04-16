@@ -70,7 +70,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
     ref,
   ) => {
     const isAddressRequired = match(accountCountry)
-      .with("DEU", "ESP", () => true)
+      .with("DEU", "ESP", "FRA", "NLD", () => true)
       .otherwise(() => false);
 
     const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
@@ -170,6 +170,9 @@ export const validateUbo = (
   const isAddressRequired = match(accountCountry)
     .with("DEU", "ESP", () => true)
     .otherwise(() => false);
+  const isAddressCountryRequired = match(accountCountry)
+    .with("DEU", "ESP", "FRA", "NLD", () => true)
+    .otherwise(() => false);
   const isBirthInfoRequired = match(accountCountry)
     .with("ESP", "FRA", "NLD", () => true)
     .otherwise(() => false);
@@ -200,9 +203,10 @@ export const validateUbo = (
     residencyAddressCity: isAddressRequired
       ? validateRequired(editorState.residencyAddressCity ?? "")
       : undefined,
-    residencyAddressCountry: isAddressRequired
-      ? validateRequired(editorState.residencyAddressCountry ?? "")
-      : undefined,
+    residencyAddressCountry:
+      isAddressRequired || isAddressCountryRequired
+        ? validateRequired(editorState.residencyAddressCountry ?? "")
+        : undefined,
     residencyAddressPostalCode: isAddressRequired
       ? validateRequired(editorState.residencyAddressPostalCode ?? "")
       : undefined,

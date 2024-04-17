@@ -111,6 +111,17 @@ type FormState = {
   taxIdentificationNumber: string;
 };
 
+type OptionRecord<T> = {
+  [K in keyof T]-?: Option<T[K]>;
+};
+
+const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = keyof T>(
+  object: T,
+  keys: K[],
+): object is T & {
+  [K1 in K]-?: Exclude<T[K1], undefined>;
+} => keys.every(key => typeof object[key] !== "undefined");
+
 const MANDATORY_FIELDS = [
   "phoneNumber" as const,
   "email" as const,
@@ -135,11 +146,8 @@ export const NewMembershipWizard = ({
 
   const [addMember, memberAddition] = useMutation(AddAccountMembershipDocument);
 
-  const steps: Step[] = match({ accountCountry, partiallySavedValues })
-    .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => [
-      "Informations" as const,
-      "Address" as const,
-    ])
+  const steps: Step[] = match(accountCountry)
+    .with("DEU", "NLD", () => ["Informations" as const, "Address" as const])
     .otherwise(() => ["Informations" as const]);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
@@ -335,14 +343,43 @@ export const NewMembershipWizard = ({
     }
   };
 
+  const optionRecordToUndefined = (
+    values: OptionRecord<FormState>,
+  ): {
+    [K in keyof FormState]: FormState[K] | undefined;
+  } => ({
+    addressLine1: values.addressLine1.toUndefined(),
+    birthDate: values.birthDate.toUndefined(),
+    canInitiatePayments: values.canInitiatePayments.toUndefined(),
+    canManageAccountMembership: values.canManageAccountMembership.toUndefined(),
+    canManageBeneficiaries: values.canManageBeneficiaries.toUndefined(),
+    canManageCards: values.canManageCards.toUndefined(),
+    canViewAccount: values.canViewAccount.toUndefined(),
+    city: values.city.toUndefined(),
+    country: values.country.toUndefined(),
+    email: values.email.toUndefined(),
+    firstName: values.firstName.toUndefined(),
+    lastName: values.lastName.toUndefined(),
+    phoneNumber: values.phoneNumber.toUndefined(),
+    postalCode: values.postalCode.toUndefined(),
+    taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+  });
+
   const onPressNext = () => {
-    submitForm(values => {
-      setPartiallySavedValues(previousValues => ({ ...previousValues, ...values }));
-      const currentStepIndex = steps.indexOf(step);
-      const nextStep = steps[currentStepIndex + 1];
-      if (nextStep != null) {
-        setStep(nextStep);
-      }
+    submitForm({
+      onSuccess: values => {
+        setPartiallySavedValues(previousValues => ({
+          ...previousValues,
+          ...optionRecordToUndefined(values),
+        }));
+
+        const currentStepIndex = steps.indexOf(step);
+        const nextStep = steps[currentStepIndex + 1];
+
+        if (nextStep != null) {
+          setStep(nextStep);
+        }
+      },
     });
   };
 
@@ -382,75 +419,84 @@ export const NewMembershipWizard = ({
   };
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      const computedValues = { ...partiallySavedValues, ...values };
-      if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-        const { addressLine1, city, postalCode, country } = computedValues;
-        const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
-          isNullishOrEmpty,
-        );
+    submitForm({
+      onSuccess: values => {
+        const computedValues = {
+          ...partiallySavedValues,
+          ...optionRecordToUndefined(values),
+        };
 
-        const residencyAddress = isAddressIncomplete
-          ? undefined
-          : {
-              addressLine1,
-              city,
-              postalCode,
-              country,
-            };
+        if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
+          const { addressLine1, city, postalCode, country } = computedValues;
+          const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
+            isNullishOrEmpty,
+          );
 
-        addMember({
-          input: {
-            accountId,
-            canInitiatePayments: computedValues.canInitiatePayments,
-            canManageAccountMembership: computedValues.canManageAccountMembership,
-            canManageBeneficiaries: computedValues.canManageBeneficiaries,
-            canViewAccount: computedValues.canViewAccount,
-            canManageCards: computedValues.canManageCards,
-            consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
-            email: computedValues.email,
-            residencyAddress,
-            restrictedTo: {
-              firstName: computedValues.firstName,
-              lastName: computedValues.lastName,
-              phoneNumber: computedValues.phoneNumber,
-              birthDate:
-                computedValues.birthDate !== ""
-                  ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
-                  : undefined,
+          const residencyAddress = isAddressIncomplete
+            ? undefined
+            : {
+                addressLine1,
+                city,
+                postalCode,
+                country,
+              };
+
+          addMember({
+            input: {
+              accountId,
+              canInitiatePayments: computedValues.canInitiatePayments,
+              canManageAccountMembership: computedValues.canManageAccountMembership,
+              canManageBeneficiaries: computedValues.canManageBeneficiaries,
+              canViewAccount: computedValues.canViewAccount,
+              canManageCards: computedValues.canManageCards,
+              consentRedirectUrl:
+                window.origin + Router.AccountMembersList({ accountMembershipId }),
+              email: computedValues.email,
+              residencyAddress,
+              restrictedTo: {
+                firstName: computedValues.firstName,
+                lastName: computedValues.lastName,
+                phoneNumber: computedValues.phoneNumber,
+                birthDate:
+                  computedValues.birthDate !== ""
+                    ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
+                    : undefined,
+              },
+              taxIdentificationNumber: emptyToUndefined(
+                computedValues.taxIdentificationNumber ?? "",
+              ),
             },
-            taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
-          },
-        })
-          .mapOk(data => data.addAccountMembership)
-          .mapOkToResult(filterRejectionsToResult)
-          .mapOk(data => data.accountMembership)
-          .mapOk(data =>
-            match(data)
-              .with(
-                { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
-                ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
-              )
-              .otherwise(data => {
-                match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                  .with("EMAIL", () => {
-                    sendInvitation({ editingAccountMembershipId: data.id });
-                  })
-                  .otherwise(() => {});
-                onSuccess(data.id);
-                return Option.None();
+          })
+            .mapOk(data => data.addAccountMembership)
+            .mapOkToResult(filterRejectionsToResult)
+            .mapOk(data => data.accountMembership)
+            .mapOk(data =>
+              match(data)
+                .with(
+                  { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+                  ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
+                )
+                .otherwise(data => {
+                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                    .with("EMAIL", () => {
+                      sendInvitation({ editingAccountMembershipId: data.id });
+                    })
+                    .otherwise(() => {});
+                  onSuccess(data.id);
+                  return Option.None();
+                }),
+            )
+            .tapOk(consentUrl =>
+              consentUrl.match({
+                Some: consentUrl => window.location.replace(consentUrl),
+                None: () => {},
               }),
-          )
-          .tapOk(consentUrl =>
-            consentUrl.match({
-              Some: consentUrl => window.location.replace(consentUrl),
-              None: () => {},
-            }),
-          )
-          .tapError(error => {
-            showToast({ variant: "error", error, title: translateError(error) });
-          });
-      }
+            )
+            .tapError(error => {
+              showToast({ variant: "error", error, title: translateError(error) });
+            });
+        }
+      },
     });
   };
 

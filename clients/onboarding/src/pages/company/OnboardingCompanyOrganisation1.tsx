@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -13,6 +14,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { omit } from "@swan-io/lake/src/utils/object";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,
@@ -195,73 +197,69 @@ export const OnboardingCompanyOrganisation1 = ({
   };
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (
-        !hasDefinedKeys(values, [
-          "isRegistered",
-          "name",
-          "registrationNumber",
-          "vatNumber",
-          "address",
-          "city",
-          "postalCode",
-        ])
-      ) {
-        return;
-      }
-      const {
-        isRegistered,
-        name,
-        registrationNumber,
-        vatNumber,
-        taxIdentificationNumber,
-        address,
-        city,
-        postalCode,
-      } = values;
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(omit(values, ["taxIdentificationNumber"]));
 
-      updateOnboarding({
-        input: {
-          onboardingId,
-          isRegistered,
-          name,
-          registrationNumber,
-          vatNumber: emptyToUndefined(vatNumber),
-          taxIdentificationNumber: emptyToUndefined(taxIdentificationNumber ?? ""),
-          residencyAddress: {
-            addressLine1: address,
-            city,
-            postalCode,
+        if (option.isNone()) {
+          return;
+        }
+
+        const taxIdentificationNumber = values.taxIdentificationNumber
+          .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
+          .toUndefined();
+
+        const currentValues = {
+          ...option.get(),
+          taxIdentificationNumber,
+        };
+
+        const { isRegistered, name, registrationNumber, vatNumber, address, city, postalCode } =
+          currentValues;
+
+        updateOnboarding({
+          input: {
+            onboardingId,
+            isRegistered,
+            name,
+            registrationNumber,
+            vatNumber: emptyToUndefined(vatNumber),
+            taxIdentificationNumber,
+            residencyAddress: {
+              addressLine1: address,
+              city,
+              postalCode,
+            },
+            language: locale.language,
           },
           language: locale.language,
-        },
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push(nextStep, { onboardingId }))
-        .tapError(error => {
-          match(error)
-            .with({ __typename: "ValidationRejection" }, error => {
-              const invalidFields = extractServerValidationErrors(error, path =>
-                match(path)
-                  .with(["registrationNumber"] as const, ([fieldName]) => fieldName)
-                  .with(["vatNumber"] as const, ([fieldName]) => fieldName)
-                  .with(["taxIdentificationNumber"] as const, ([fieldName]) => fieldName)
-                  .with(["residencyAddress", "addressLine1"], () => "address" as const)
-                  .with(["residencyAddress", "city"] as const, ([, fieldName]) => fieldName)
-                  .with(["residencyAddress", "postalCode"] as const, ([, fieldName]) => fieldName)
-                  .otherwise(() => null),
-              );
-              invalidFields.forEach(({ fieldName, code }) => {
-                const message = getValidationErrorMessage(code, values[fieldName]);
-                setFieldError(fieldName, message);
-              });
-            })
-            .otherwise(noop);
+        })
+          .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapError(error => {
+            match(error)
+              .with({ __typename: "ValidationRejection" }, error => {
+                const invalidFields = extractServerValidationErrors(error, path =>
+                  match(path)
+                    .with(["registrationNumber"] as const, ([fieldName]) => fieldName)
+                    .with(["vatNumber"] as const, ([fieldName]) => fieldName)
+                    .with(["taxIdentificationNumber"] as const, ([fieldName]) => fieldName)
+                    .with(["residencyAddress", "addressLine1"], () => "address" as const)
+                    .with(["residencyAddress", "city"] as const, ([, fieldName]) => fieldName)
+                    .with(["residencyAddress", "postalCode"] as const, ([, fieldName]) => fieldName)
+                    .otherwise(() => null),
+                );
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
+              })
+              .otherwise(noop);
 
-          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        });
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+          });
+      },
     });
   };
 

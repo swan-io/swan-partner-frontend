@@ -17,7 +17,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Svg } from "@swan-io/lake/src/components/Svg";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
@@ -96,7 +96,11 @@ const styles = StyleSheet.create({
     width: "50%",
     marginHorizontal: "auto",
   },
-  physicalCardContainer: { position: "relative" },
+  physicalCardContainer: {
+    position: "relative",
+    perspective: "200px",
+    perspectiveOrigin: "50% 50%",
+  },
   physicalCardFront: {
     position: "absolute",
     top: 0,
@@ -104,35 +108,19 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     zIndex: 1,
+    transitionProperty: "transform",
+    transitionDuration: "300ms",
+    transitionTimingFunction: "ease-in-out",
   },
   physicalCardRenewedBehind: {
     zIndex: 0,
-    transform: "translateX(200px) scale(0.6)",
-    transitionProperty: "transform",
-    transitionDuration: "500ms",
-    transitionTimingFunction: "ease-in-out",
-  },
-  physicalCardRenewedFront: {
-    zIndex: 1,
-    transform: "translateX(-200px) scale(1)",
-    transitionProperty: "transform",
-    transitionDuration: "500ms",
-    transitionTimingFunction: "ease-in-out",
+    transform: "translateZ(0) translateX(30%) scale(0.6, 0.75) rotateY(-10deg)",
   },
   physicalCardPreviousBehind: {
     zIndex: 0,
-    transform: "translateX(-200px) scale(0.6)",
-    transitionProperty: "transform",
-    transitionDuration: "500ms",
-    transitionTimingFunction: "ease-in-out",
+    transform: "translateZ(0) translateX(-30%) scale(0.6, 0.75) rotateY(10deg)",
   },
-  physicalCardPreviousFront: {
-    zIndex: 1,
-    transform: "translateX(200px) scale(1)",
-    transitionProperty: "transform",
-    transitionDuration: "500ms",
-    transitionTimingFunction: "ease-in-out",
-  },
+  physicalCardItem: { width: "100%", height: "auto" },
   spendingContainer: {
     ...commonStyles.fill,
     alignSelf: "stretch",
@@ -509,7 +497,7 @@ export const CardItemPhysicalDetails = ({
   physicalCardOrderVisible,
   hasBindingUserError,
 }: Props) => {
-  const { desktop } = useResponsive();
+  const { desktop } = useResponsive(breakpoints.medium);
 
   const [orderModalStatus, setOrderModalStatus] = useState<
     Option<
@@ -703,8 +691,9 @@ export const CardItemPhysicalDetails = ({
         .with(
           {
             __typename: "PhysicalCard",
-
-            statusInfo: { __typename: "PhysicalCardToRenewStatusInfo" },
+            statusInfo: {
+              __typename: "PhysicalCardToRenewStatusInfo",
+            },
             expiryDate: P.nonNullable,
           },
           ({ expiryDate, statusInfo: { address } }) => {
@@ -720,9 +709,9 @@ export const CardItemPhysicalDetails = ({
               ],
               x => x,
             ).join(", ");
-            const deadline = dayjs(expiryDate, "MM/YY")
+            const sixWeeksBefore = dayjs(expiryDate, "MM/YY")
               .endOf("month")
-              .subtract(4, "weeks")
+              .subtract(6, "weeks")
               .format("LL");
 
             return (
@@ -739,7 +728,7 @@ export const CardItemPhysicalDetails = ({
                     <>
                       <LakeText>
                         {t("card.physical.toRenewAlert.description", {
-                          deadline,
+                          sixWeeksBefore,
                           address: completeAddress,
                         })}
                       </LakeText>
@@ -771,6 +760,25 @@ export const CardItemPhysicalDetails = ({
             );
           },
         )
+        .with({ statusInfo: { __typename: "PhysicalCardRenewedStatusInfo" } }, ({ expiryDate }) => (
+          <>
+            <Space height={24} />
+
+            <LakeAlert
+              style={styles.renewAlert}
+              variant="info"
+              title={t("card.physical.toRenewAlert", {
+                expiryDate: dayjs(expiryDate, "MM/YY").endOf("month").format("LL"),
+              })}
+              children={
+                <>
+                  <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                  <Space height={12} />
+                </>
+              }
+            />
+          </>
+        ))
         .otherwise(() => null)}
 
       <View style={styles.card}>
@@ -786,10 +794,7 @@ export const CardItemPhysicalDetails = ({
                       onPress={() => setCurrentCard("renewed")}
                       style={[
                         styles.physicalCardFront,
-                        currentCard === "previous" && [
-                          styles.physicalCardRenewedBehind,
-                          styles.physicalCardPreviousFront,
-                        ],
+                        currentCard === "previous" && styles.physicalCardRenewedBehind,
                       ]}
                     >
                       <MaskedCard
@@ -824,10 +829,7 @@ export const CardItemPhysicalDetails = ({
                         onPress={() => setCurrentCard("previous")}
                         style={[
                           styles.physicalCardFront,
-                          currentCard === "renewed" && [
-                            styles.physicalCardPreviousBehind,
-                            styles.physicalCardRenewedFront,
-                          ],
+                          currentCard === "renewed" && styles.physicalCardPreviousBehind,
                         ]}
                       >
                         <MaskedCard
@@ -837,7 +839,9 @@ export const CardItemPhysicalDetails = ({
                               cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
                             )?.accentColor ?? "#fff"
                           }
-                          holderName={getMemberName({ accountMembership: card.accountMembership })}
+                          holderName={getMemberName({
+                            accountMembership: card.accountMembership,
+                          })}
                           pan={previousCard.cardMaskedNumber}
                           expiryDate={previousCard.expiryDate ?? ""}
                           status={"ToRenew"}
@@ -845,62 +849,61 @@ export const CardItemPhysicalDetails = ({
                       </Pressable>
                     )}
                   </View>
-                ) : (
-                  <View style={styles.physicalCardContainer}>
-                    {isNotNullish(previousCard) ? (
-                      <ChoicePicker
-                        onChange={setCurrentCard}
-                        value={currentCard}
-                        items={["previous", "renewed"]}
-                        renderItem={physicalCard => (
-                          <>
-                            <Svg role="none" viewBox="0 0 85 55" />
+                ) : isNotNullish(previousCard) ? (
+                  <ChoicePicker
+                    tile={false}
+                    onChange={setCurrentCard}
+                    value={currentCard}
+                    items={["previous", "renewed"]}
+                    renderItem={() => (
+                      <View style={styles.physicalCardContainer}>
+                        <Svg role="none" viewBox="0 0 85 55" style={styles.physicalCardItem} />
 
-                            <MaskedCard
-                              cardDesignUrl={card.cardDesignUrl}
-                              textColor={
-                                card.cardProduct.cardDesigns.find(
-                                  cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                                )?.accentColor ?? "#fff"
-                              }
-                              holderName={getMemberName({
-                                accountMembership: card.accountMembership,
-                              })}
-                              pan={previousCard.cardMaskedNumber}
-                              expiryDate={previousCard.expiryDate ?? ""}
-                              status={"ToRenew"}
-                            />
-                          </>
-                        )}
-                      />
-                    ) : (
-                      <MaskedCard
-                        cardDesignUrl={card.cardDesignUrl}
-                        textColor={
-                          card.cardProduct.cardDesigns.find(
-                            cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                          )?.accentColor ?? "#fff"
-                        }
-                        holderName={getMemberName({ accountMembership: card.accountMembership })}
-                        pan={physicalCard.cardMaskedNumber}
-                        expiryDate={physicalCard.expiryDate ?? ""}
-                        status={physicalCard.statusInfo.status}
-                        estimatedDeliveryDate={match(physicalCard.statusInfo)
-                          .with(
-                            {
-                              __typename: "PhysicalCardToActivateStatusInfo",
-                              estimatedDeliveryDate: P.string,
-                            },
-                            {
-                              __typename: "PhysicalCardRenewedStatusInfo",
-                              estimatedDeliveryDate: P.string,
-                            },
-                            ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                          )
-                          .otherwise(() => undefined)}
-                      />
+                        <View style={styles.physicalCardFront}>
+                          <MaskedCard
+                            cardDesignUrl={card.cardDesignUrl}
+                            textColor={
+                              card.cardProduct.cardDesigns.find(
+                                cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                              )?.accentColor ?? "#fff"
+                            }
+                            holderName={getMemberName({
+                              accountMembership: card.accountMembership,
+                            })}
+                            pan={previousCard.cardMaskedNumber}
+                            expiryDate={previousCard.expiryDate ?? ""}
+                            status={"ToRenew"}
+                          />
+                        </View>
+                      </View>
                     )}
-                  </View>
+                  />
+                ) : (
+                  <MaskedCard
+                    cardDesignUrl={card.cardDesignUrl}
+                    textColor={
+                      card.cardProduct.cardDesigns.find(
+                        cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                      )?.accentColor ?? "#fff"
+                    }
+                    holderName={getMemberName({ accountMembership: card.accountMembership })}
+                    pan={physicalCard.cardMaskedNumber}
+                    expiryDate={physicalCard.expiryDate ?? ""}
+                    status={physicalCard.statusInfo.status}
+                    estimatedDeliveryDate={match(physicalCard.statusInfo)
+                      .with(
+                        {
+                          __typename: "PhysicalCardToActivateStatusInfo",
+                          estimatedDeliveryDate: P.string,
+                        },
+                        {
+                          __typename: "PhysicalCardRenewedStatusInfo",
+                          estimatedDeliveryDate: P.string,
+                        },
+                        ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                      )
+                      .otherwise(() => undefined)}
+                  />
                 )
               ) : null}
 
@@ -1189,7 +1192,10 @@ export const CardItemPhysicalDetails = ({
                         {
                           label: t("card.physical.temporarilyBlock"),
                           icon: "lock-closed-regular" as const,
-                          onPress: () => suspendCard(),
+                          onPress: () =>
+                            isNotNullish(previousCard)
+                              ? setIsTemporaryBlockModalOpen(true)
+                              : suspendCard(),
                           isLoading: cardSuspension.isLoading(),
                           disabled: hasBindingUserError,
                           tooltipDisabled: !hasBindingUserError,
@@ -1207,10 +1213,7 @@ export const CardItemPhysicalDetails = ({
                         {
                           label: t("card.physical.unblock"),
                           icon: "lock-open-regular" as const,
-                          onPress: () =>
-                            isNotNullish(previousCard)
-                              ? setIsTemporaryBlockModalOpen(true)
-                              : unsuspendCard(),
+                          onPress: () => unsuspendCard(),
                           color: colors.warning.contrast,
                           backgroundColor: colors.warning[500],
                           isLoading: cardUnsuspension.isLoading(),
@@ -1429,7 +1432,12 @@ export const CardItemPhysicalDetails = ({
         onPressClose={() => setIsPermanentlyBlockModalOpen(false)}
         color="negative"
       >
-        <LakeText color={colors.gray[600]}>{t("card.physical.cancelDescription")}</LakeText>
+        <LakeText color={colors.gray[600]}>
+          {isNotNullish(previousCard)
+            ? t("card.physical.cancelDescriptionWithRenewal")
+            : t("card.physical.cancelDescription")}
+        </LakeText>
+
         <Space height={16} />
 
         <CardItemPhysicalPermanentlyBlockForm
@@ -1438,21 +1446,29 @@ export const CardItemPhysicalDetails = ({
         />
       </LakeModal>
 
-      {/* <LakeModal
+      <LakeModal
         visible={isTemporaryBlockModalOpen}
-        icon="subtract-circle-regular"
-        title={t("card.physical.cancel")}
+        icon="lock-closed-regular"
+        title={t("card.physical.cancelTemporaryConfirmationWithRenewal")}
         onPressClose={() => setIsTemporaryBlockModalOpen(false)}
         color="warning"
       >
-        <LakeText color={colors.gray[600]}>{t("card.physical.cancelDescription")}</LakeText>
+        <LakeText color={colors.gray[600]}>
+          {t("card.physical.cancelTemporaryDescriptionWithRenewal")}
+        </LakeText>
+
         <Space height={16} />
 
-        <CardItemPhysicalPermanentlyBlockForm
-          onSubmit={onPermanentlyBlockFormSubmit}
-          isLoading={permanentBlocking.isLoading()}
-        />
-      </LakeModal> */}
+        <LakeButton
+          onPress={() => {
+            suspendCard();
+            setIsTemporaryBlockModalOpen(false);
+          }}
+          color="warning"
+        >
+          {t("card.block")}
+        </LakeButton>
+      </LakeModal>
 
       <LakeModal
         visible={isActivationModalOpen}

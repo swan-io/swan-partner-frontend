@@ -143,8 +143,8 @@ export const OnboardingCompanyOrganisation1 = ({
     },
     registrationNumber: {
       initialValue: initialRegistrationNumber,
-      validate: (value, { getFieldState }) => {
-        const isRegistered = getFieldState("isRegistered").value;
+      validate: (value, { getFieldValue }) => {
+        const isRegistered = getFieldValue("isRegistered");
         return isRegistered === true ? validateRequired(value) : undefined;
       },
       sanitize: value => value.trim(),

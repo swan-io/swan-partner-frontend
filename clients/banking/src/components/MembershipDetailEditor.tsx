@@ -189,10 +189,10 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          country: getFieldState("country").value,
+          country: getFieldValue("country"),
           canViewAccount: editingAccountMembership.canViewAccount,
           canInitiatePayment: editingAccountMembership.canInitiatePayments,
         })

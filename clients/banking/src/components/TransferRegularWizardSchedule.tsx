@@ -89,12 +89,12 @@ export const TransferRegularWizardSchedule = ({
     },
     scheduledTime: {
       initialValue: "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         if (value === "") {
           return t("common.form.required");
         }
 
-        const date = getFieldState("scheduledDate").value;
+        const date = getFieldValue("scheduledDate");
         const isScheduleToday = isToday(date);
         const minHours = isScheduleToday ? new Date().getHours() : 0;
         const minMinutes = isScheduleToday ? new Date().getMinutes() : 0;

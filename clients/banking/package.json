@@ -20,7 +20,7 @@
     "@swan-io/lake": "8.0.0",
     "@swan-io/request": "1.0.4",
     "@swan-io/shared-business": "8.0.0",
-    "@swan-io/use-form": "2.0.0",
+    "@swan-io/use-form": "2.0.1",
     "core-js": "3.36.1",
     "dayjs": "1.11.10",
     "iban": "0.0.14",

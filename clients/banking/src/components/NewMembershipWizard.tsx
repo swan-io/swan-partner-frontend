@@ -18,7 +18,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, useForm } from "@swan-io/use-form";
+import { OptionRecord, combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
@@ -109,10 +109,6 @@ type FormState = {
   city: string;
   country: CountryCCA3;
   taxIdentificationNumber: string;
-};
-
-type OptionRecord<T> = {
-  [K in keyof T]-?: Option<T[K]>;
 };
 
 const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = keyof T>(

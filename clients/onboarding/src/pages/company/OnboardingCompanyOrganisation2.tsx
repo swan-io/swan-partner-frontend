@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
@@ -119,48 +120,52 @@ export const OnboardingCompanyOrganisation2 = ({
   };
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (
-        !hasDefinedKeys(values, [
-          "businessActivity",
-          "businessActivityDescription",
-          "monthlyPaymentVolume",
-        ]) ||
-        values.businessActivity === ""
-      ) {
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-      const { businessActivity, businessActivityDescription, monthlyPaymentVolume } = values;
+        if (option.isNone()) {
+          return;
+        }
 
-      updateOnboarding({
-        input: {
-          onboardingId,
-          businessActivity,
-          businessActivityDescription,
-          monthlyPaymentVolume,
+        const currentValues = option.get();
+
+        const { businessActivity, businessActivityDescription, monthlyPaymentVolume } =
+          currentValues;
+
+        if (businessActivity === "") {
+          return;
+        }
+
+        updateOnboarding({
+          input: {
+            onboardingId,
+            businessActivity,
+            businessActivityDescription,
+            monthlyPaymentVolume,
+            language: locale.language,
+          },
           language: locale.language,
-        },
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push(nextStep, { onboardingId }))
-        .tapError(error => {
-          match(error)
-            .with({ __typename: "ValidationRejection" }, error => {
-              const invalidFields = extractServerValidationErrors(error, path =>
-                path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
-              );
-              invalidFields.forEach(({ fieldName, code }) => {
-                const message = getValidationErrorMessage(code, values[fieldName]);
-                setFieldError(fieldName, message);
-              });
-            })
-            .otherwise(noop);
+        })
+          .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapError(error => {
+            match(error)
+              .with({ __typename: "ValidationRejection" }, error => {
+                const invalidFields = extractServerValidationErrors(error, path =>
+                  path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
+                );
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
+              })
+              .otherwise(noop);
 
-          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        });
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+          });
+      },
     });
   };
 

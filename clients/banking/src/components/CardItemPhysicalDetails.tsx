@@ -855,7 +855,7 @@ export const CardItemPhysicalDetails = ({
                     onChange={setCurrentCard}
                     value={currentCard}
                     items={["previous", "renewed"]}
-                    renderItem={() => (
+                    renderItem={selectedCard => (
                       <View style={styles.physicalCardContainer}>
                         <Svg role="none" viewBox="0 0 85 55" style={styles.physicalCardItem} />
 
@@ -870,9 +870,34 @@ export const CardItemPhysicalDetails = ({
                             holderName={getMemberName({
                               accountMembership: card.accountMembership,
                             })}
-                            pan={previousCard.cardMaskedNumber}
-                            expiryDate={previousCard.expiryDate ?? ""}
-                            status={"ToRenew"}
+                            pan={
+                              selectedCard === "previous"
+                                ? previousCard.cardMaskedNumber
+                                : physicalCard.cardMaskedNumber
+                            }
+                            expiryDate={
+                              selectedCard === "previous"
+                                ? previousCard.expiryDate ?? ""
+                                : physicalCard.expiryDate ?? ""
+                            }
+                            status={
+                              selectedCard === "previous"
+                                ? "ToRenew"
+                                : physicalCard.statusInfo.status
+                            }
+                            estimatedDeliveryDate={match(physicalCard.statusInfo)
+                              .with(
+                                {
+                                  __typename: "PhysicalCardToActivateStatusInfo",
+                                  estimatedDeliveryDate: P.string,
+                                },
+                                {
+                                  __typename: "PhysicalCardRenewedStatusInfo",
+                                  estimatedDeliveryDate: P.string,
+                                },
+                                ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                              )
+                              .otherwise(() => undefined)}
                           />
                         </View>
                       </View>

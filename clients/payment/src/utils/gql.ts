@@ -12,6 +12,7 @@ import { P, match } from "ts-pattern";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 
+import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
 import { customAlphabet } from "nanoid";
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
@@ -32,6 +33,7 @@ const traceparentVersion = "00";
 const traceFlags = "01";
 
 export const errorToRequestId = new WeakMap<WeakKey, string>();
+registerErrorToRequestId(errorToRequestId);
 
 export const client = new Client({
   url: `${env.PAYMENT_URL}/api/unauthenticated`,

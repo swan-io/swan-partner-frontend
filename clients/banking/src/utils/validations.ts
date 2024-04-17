@@ -31,7 +31,7 @@ export const validateName: Validator<string> = value => {
   // This regex was copied from the backend to ensure that the validation is the same
   // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
   const isValid = value.match(
-    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ]| |'|-|Ά|Ό|,)*$/,
+    /^[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ. '-ΆΌ,]*$/,
   );
 
   if (!isValid) {
@@ -39,7 +39,7 @@ export const validateName: Validator<string> = value => {
   }
 };
 
-//Beneficiary name input must accept numeric value, unlike other validation name
+// Beneficiary name input must accept numeric value, unlike other validation name
 export const validateBeneficiaryName: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");
@@ -52,7 +52,7 @@ export const validateBeneficiaryName: Validator<string> = value => {
 
   // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
   const isValid = value.match(
-    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ]| |'|-|Ά|Ό|,|[1-9])*$/,
+    /^[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ. '-ΆΌ,0-9]*$/,
   );
 
   if (!isValid) {

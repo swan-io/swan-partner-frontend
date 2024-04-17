@@ -242,13 +242,14 @@ export const TransferInternationalWizardBeneficiary = ({
               disabled={data.isLoading()}
               grow={small}
               onPress={() => {
-                dynamicFormApiRef.current?.submitDynamicForm(() =>
-                  submitForm({
-                    onSuccess: values => {
-                      Option.allFromDict(values).map(onSave);
-                    },
-                  }),
-                );
+                dynamicFormApiRef.current?.submitDynamicForm({
+                  onSuccess: () =>
+                    submitForm({
+                      onSuccess: values => {
+                        Option.allFromDict(values).map(details => onSave(details));
+                      },
+                    }),
+                });
               }}
             >
               {t("common.continue")}

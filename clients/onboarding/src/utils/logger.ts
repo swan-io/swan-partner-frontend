@@ -20,7 +20,7 @@ export const initSentry = () => {
   });
 };
 
-export const logFrontendError = (exception: unknown, extra?: Record<string, unknown>) => {
+export const logFrontendError = (exception: Error, extra?: Record<string, unknown>) => {
   captureException(exception, {
     extra,
     tags: { scope: "frontend" },

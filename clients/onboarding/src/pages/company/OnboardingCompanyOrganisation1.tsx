@@ -37,7 +37,6 @@ import {
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
 import { locale, t } from "../../utils/i18n";
-import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import {
   getRegistrationNumberName,
@@ -397,7 +396,7 @@ export const OnboardingCompanyOrganisation1 = ({
                             error={error}
                             onValueChange={onChange}
                             onSuggestion={onSelectCompany}
-                            onLoadError={logFrontendError}
+                            onLoadError={noop}
                           />
                         ) : (
                           <LakeTextInput

@@ -140,7 +140,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
   {
     id: "iban",
     title: t("transfer.bulk.iban"),
-    width: 300,
+    width: 340,
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const iban = item.sepaBeneficiary?.iban;

@@ -11,8 +11,8 @@ import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/desig
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,
@@ -37,7 +37,6 @@ import {
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
 import { locale, t } from "../../utils/i18n";
-import { logFrontendError } from "../../utils/logger";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import {
   getRegistrationNumberName,
@@ -397,7 +396,7 @@ export const OnboardingCompanyOrganisation1 = ({
                             error={error}
                             onValueChange={onChange}
                             onSuggestion={onSelectCompany}
-                            onLoadError={logFrontendError}
+                            onLoadError={noop}
                           />
                         ) : (
                           <LakeTextInput

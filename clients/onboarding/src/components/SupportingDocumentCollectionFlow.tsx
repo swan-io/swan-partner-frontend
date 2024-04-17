@@ -7,7 +7,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { breakpoints, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import {
   Document,

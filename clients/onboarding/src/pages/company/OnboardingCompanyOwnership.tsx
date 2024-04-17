@@ -15,8 +15,8 @@ import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/consta
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {

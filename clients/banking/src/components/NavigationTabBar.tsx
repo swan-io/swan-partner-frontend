@@ -32,7 +32,6 @@ import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { logFrontendError } from "../utils/logger";
 import { Router, accountAreaRoutes } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -173,7 +172,6 @@ export const NavigationTabBar = ({
       .tapOk(() => window.location.replace(Router.ProjectLogin()))
       .tapError(error => {
         showToast({ variant: "error", error, title: translateError(error) });
-        logFrontendError(error);
       });
   };
 

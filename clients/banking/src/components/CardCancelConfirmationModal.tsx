@@ -4,7 +4,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { CancelCardDocument } from "../graphql/partner";

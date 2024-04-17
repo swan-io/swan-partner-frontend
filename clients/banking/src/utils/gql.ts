@@ -11,6 +11,7 @@ import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 import { GraphQLError } from "graphql";
 import { P, match } from "ts-pattern";
 
+import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { customAlphabet } from "nanoid";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
@@ -37,6 +38,7 @@ const traceparentVersion = "00";
 const traceFlags = "01";
 
 export const errorToRequestId = new WeakMap<WeakKey, string>();
+registerErrorToRequestId(errorToRequestId);
 
 const isUnauthorizedResponse = (response: unknown) => {
   const value = response as { status?: number; statusCode?: number } | undefined;

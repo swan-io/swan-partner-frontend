@@ -11,7 +11,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";

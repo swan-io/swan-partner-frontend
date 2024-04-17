@@ -239,7 +239,6 @@ export const TransferRegularWizardSchedule = ({
                       {!isInstant && (
                         <>
                           <Space height={4} />
-
                           <LakeText>{t("transfer.new.regularTransferDescription")}</LakeText>
                         </>
                       )}

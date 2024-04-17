@@ -7,8 +7,8 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { Form, FormConfig, combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
-import { Form, FormConfig, combineValidators, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   DateField,
@@ -54,7 +54,6 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
 
         acc[field.key] = {
           initialValue,
-          debounceInterval: 0,
           validate: combineValidators(
             field.required && validateRequired,
 
@@ -92,7 +91,7 @@ type DynamicFormProps = {
 
 const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
   ({ fields, form, onChange }, forwardedRef) => {
-    const { Field, listenFields, submitForm, validateField, getFieldState } = useForm(form);
+    const { Field, listenFields, submitForm, validateField, getFieldValue } = useForm(form);
 
     useImperativeHandle(forwardedRef, () => ({ submitDynamicForm: submitForm }), [submitForm]);
 
@@ -112,14 +111,14 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
     useEffect(() => {
       void Promise.all(
         fields.map(async ({ key }) => {
-          const { value } = getFieldState(key);
+          const value = getFieldValue(key);
 
           if (isNotNullishOrEmpty(value)) {
             await validateField(key);
           }
         }),
       );
-    }, [form, fields, getFieldState, validateField]);
+    }, [form, fields, getFieldValue, validateField]);
 
     if (fields.length === 0) {
       return null;

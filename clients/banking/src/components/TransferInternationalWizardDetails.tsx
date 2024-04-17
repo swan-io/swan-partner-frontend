@@ -165,7 +165,7 @@ export const TransferInternationalWizardDetails = ({
 
                 fields.length === 0
                   ? runCallback()
-                  : dynamicFormApiRef.current?.submitDynamicForm({ onSuccess: runCallback });
+                  : dynamicFormApiRef.current?.submitDynamicForm(runCallback);
               }}
             >
               {t("common.continue")}

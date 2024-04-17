@@ -7,7 +7,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";

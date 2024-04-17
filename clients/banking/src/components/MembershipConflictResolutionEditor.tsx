@@ -7,7 +7,7 @@ import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldLis
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import dayjs from "dayjs";
 import { useState } from "react";

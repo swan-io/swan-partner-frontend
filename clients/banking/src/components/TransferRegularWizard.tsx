@@ -7,7 +7,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { ScrollView, StyleSheet, View } from "react-native";

@@ -11,8 +11,8 @@ import { breakpoints, negativeSpacings } from "@swan-io/lake/src/constants/desig
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,

@@ -17,13 +17,13 @@ import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   isNotEmpty,
   isNotNullish,
   isNullish,
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";

@@ -2,8 +2,8 @@ import { Array, Future, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetNode } from "@swan-io/lake/src/utils/types";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/urql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import {
   Document,

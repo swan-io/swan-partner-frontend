@@ -203,6 +203,13 @@
       "WebhookSubscriptionNotFoundRejection",
       "WrongValueProvidedRejection"
     ],
+    "AccountHolderVerificationStatusInfo": [
+      "AccountHolderNotStartedVerificationStatusInfo",
+      "AccountHolderPendingVerificationStatusInfo",
+      "AccountHolderRefusedVerificationStatusInfo",
+      "AccountHolderVerifiedVerificationStatusInfo",
+      "AccountHolderWaitingForInformationVerificationStatusInfo"
+    ],
     "AccountMembershipStatusInfo": [
       "AccountMembershipBindingUserErrorStatusInfo",
       "AccountMembershipConsentPendingStatusInfo",

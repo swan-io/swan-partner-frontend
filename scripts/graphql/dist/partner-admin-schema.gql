@@ -8592,15 +8592,12 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
-<<<<<<< HEAD
-=======
 
   """
   Not available, coming soon !
   SupportingDocumentCollection URL to Swan portal
   """
   supportingDocumentCollectionUrl: String!
->>>>>>> 01bb9f23 (Display modal for shipping address)
 }
 
 """Supporting document collection with Approved status"""

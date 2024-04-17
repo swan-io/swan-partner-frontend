@@ -121,6 +121,13 @@
       "UserNotCardHolderRejection",
       "ValidationRejection"
     ],
+    "AccountHolderVerificationStatusInfo": [
+      "AccountHolderNotStartedVerificationStatusInfo",
+      "AccountHolderPendingVerificationStatusInfo",
+      "AccountHolderRefusedVerificationStatusInfo",
+      "AccountHolderVerifiedVerificationStatusInfo",
+      "AccountHolderWaitingForInformationVerificationStatusInfo"
+    ],
     "AccountMembershipStatusInfo": [
       "AccountMembershipBindingUserErrorStatusInfo",
       "AccountMembershipConsentPendingStatusInfo",

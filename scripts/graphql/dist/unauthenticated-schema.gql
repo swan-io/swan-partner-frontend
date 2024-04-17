@@ -1242,22 +1242,6 @@ enum BusinessActivity {
   Transportation
 }
 
-<<<<<<< HEAD
-=======
-"""Inputs to cancel a card"""
-input CancelCardInput {
-  """Unique identifier of a card"""
-  cardId: ID!
-}
-
-union CancelCardPayload = CancelCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | ValidationRejection
-
-type CancelCardSuccessPayload {
-  """The canceled card"""
-  card: Card!
-}
-
->>>>>>> 01bb9f23 (Display modal for shipping address)
 """CanceledMerchantPaymentMethodStatusInfo"""
 type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
   status: MerchantPaymentMethodStatus!
@@ -1273,43 +1257,6 @@ type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   enabledAt: Date
 }
 
-<<<<<<< HEAD
-=======
-"""Inputs to cancel a physical card"""
-input CancelPhysicalCardInput {
-  """Unique identifier of a card"""
-  cardId: ID!
-
-  """Reason why the physical card is canceled"""
-  reason: CancelPhysicalCardReason!
-}
-
-union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | CardNotFoundRejection | ForbiddenRejection | PhysicalCardNotFoundRejection | ValidationRejection
-
-"""reason why the physical card is canceled"""
-enum CancelPhysicalCardReason {
-  """When the card holder never received the card"""
-  NonReceived
-
-  """When the card has been stolen"""
-  Lost
-
-  """When the card has been stolen"""
-  Stolen
-
-  """When the card doesn't work anymore"""
-  Defected
-
-  """When the card holder wants to block his card"""
-  Blocked
-}
-
-type CancelPhysicalCardSuccessPayload {
-  """The canceled physical card"""
-  physicalCard: PhysicalCard!
-}
-
->>>>>>> 01bb9f23 (Display modal for shipping address)
 """Rejection returned when the Physical Card cannot be activated"""
 type CannotActivatePhysicalCardRejection implements Rejection {
   message: String!
@@ -3539,46 +3486,12 @@ type Mutation {
   """
   generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
 
-<<<<<<< HEAD
-=======
   """
   Ask for Swan's compliance team to review given supporting document collection.
   
   *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
-
-  """Cancel a Card"""
-  cancelCard(input: CancelCardInput): CancelCardPayload!
-
-  """Cancel a physical card."""
-  cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
-
-  """Add a new card product for project."""
-  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
-
-  """Delete a card product."""
-  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
-
->>>>>>> 01bb9f23 (Display modal for shipping address)
-  """
-  Ask for Swan's compliance team to review given supporting document collection.
-  
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-<<<<<<< HEAD
-  requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
-=======
-  resumePhysicalCard(input: ResumePhysicalCardInput): ResumePhysicalCardPayload!
-  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
-
-  """Suspend a card product for a project."""
-  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
-
-  """Suspend a Physical Card."""
-  suspendPhysicalCard(input: SuspendPhysicalCardInput): SuspendPhysicalCardPayload!
-  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
->>>>>>> 01bb9f23 (Display modal for shipping address)
   unauthenticatedAddCardPaymentMandate(input: AddCardPaymentMandateInput!): AddCardPaymentMandatePayload!
   addSepaDirectDebitPaymentMandateFromPaymentLink(input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!): AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload!
   unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!): UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload!
@@ -4804,19 +4717,9 @@ type Query {
   """
   companyUboByCompanyRefAndHeadquarterCountry(input: CompanyUboByCompanyRefAndHeadquarterCountryInput!): CompanyUboByCompanyRefAndHeadquarterCountryPayload!
   onboardingInfo(id: ID!): OnboardingInfo
-<<<<<<< HEAD
 
   """Returns a supporting document collection from its id."""
   supportingDocumentCollection(id: ID!): SupportingDocumentCollection
-=======
-
-  """Returns a supporting document collection from its id."""
-  supportingDocumentCollection(id: ID!): SupportingDocumentCollection
-  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
-
-  """Returns a card from its id."""
-  card(cardId: ID!): Card
->>>>>>> 01bb9f23 (Display modal for shipping address)
   projectInfoById(id: ID!): ProjectInfo!
 
   """Return a merchant payment link by id"""
@@ -5203,15 +5106,12 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
-<<<<<<< HEAD
-=======
 
   """
   Not available, coming soon !
   SupportingDocumentCollection URL to Swan portal
   """
   supportingDocumentCollectionUrl: String!
->>>>>>> 01bb9f23 (Display modal for shipping address)
 }
 
 """Supporting document collection with Approved status"""

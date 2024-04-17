@@ -26,6 +26,7 @@ type ParsingError =
   | { type: "InvalidBeneficiaryName"; line: number }
   | { type: "InvalidAmount"; line: number }
   | { type: "InvalidIban"; line: number }
+  | { type: "InvalidCurency"; line: number }
   | { type: "InvalidLine"; line: number }
   | { type: "InvalidReference"; line: number };
 
@@ -60,7 +61,7 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
                 return Result.Error({ type: "InvalidIban", line: index + 1 } as const);
               }
               if (currency.trim() !== "EUR") {
-                return Result.Error({ type: "InvalidLine", line: index + 1 } as const);
+                return Result.Error({ type: "InvalidCurency", line: index + 1 } as const);
               }
               if (
                 reference != null &&
@@ -153,6 +154,9 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
               t("common.form.invalidBulkBeneficiaryName", { line }),
             )
             .with({ type: "InvalidIban" }, ({ line }) => t("common.form.invalidBulkIban", { line }))
+            .with({ type: "InvalidCurency" }, ({ line }) =>
+              t("common.form.invalidBulkCurrency", { line }),
+            )
             .with({ type: "InvalidLine" }, ({ line }) => t("common.form.invalidFileLine", { line }))
             .with({ type: "InvalidReference" }, ({ line }) =>
               t("common.form.invalidBulkReference", { line }),

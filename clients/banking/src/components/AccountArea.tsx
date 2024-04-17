@@ -224,8 +224,8 @@ export const AccountArea = ({
   );
 
   useEffect(() => {
-    setAccountMembershipState({ accountMembershipId });
-  }, [setAccountMembershipState, accountMembershipId]);
+    setAccountMembershipState({ accountMembershipId, userId });
+  }, [setAccountMembershipState, accountMembershipId, userId]);
 
   useEffect(() => {
     setSentryUser({

@@ -36,7 +36,9 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
       const state = match(accountMembershipState)
-        .with({ accountMembershipId: P.string }, value => value)
+        .with({ accountMembershipId: P.string, userId: P.optional(P.string) }, value =>
+          value.userId === data.user?.id ? value : undefined,
+        )
         .otherwise(() => undefined);
 
       // source = onboarding is set by packages/onboarding/src/pages/PopupCallbackPage.tsx

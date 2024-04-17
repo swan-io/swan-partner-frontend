@@ -10,6 +10,7 @@ import {
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
+import { Router } from "../utils/routes";
 import { AccountArea } from "./AccountArea";
 import { AccountActivationTag } from "./AccountPicker";
 import { ErrorView } from "./ErrorView";
@@ -28,7 +29,10 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);
 
   useEffect(() => {
-    const request = query({ accountMembershipId }).tapOk(({ accountMembership }) => {
+    const request = query({ accountMembershipId }).tapOk(({ accountMembership, user }) => {
+      if (accountMembership?.user?.id !== user?.id) {
+        Router.replace("ProjectRootRedirect");
+      }
       const hasRequiredIdentificationLevel =
         accountMembership?.hasRequiredIdentificationLevel ?? undefined;
       const recommendedIdentificationLevel = accountMembership?.recommendedIdentificationLevel;

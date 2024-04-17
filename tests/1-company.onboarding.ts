@@ -122,7 +122,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await expect(
     page.getByLabel(t("onboarding.company.step.organisation1.addressLabel")),
-  ).toHaveValue("95 AV DU PRESIDENT WILSON");
+  ).toHaveValue("95 AVENUE DU PRESIDENT WILSON");
 
   await expect(page.getByLabel(t("onboarding.company.step.organisation1.cityLabel"))).toHaveValue(
     "MONTREUIL",
@@ -153,7 +153,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await nicolasSaisonTile.waitFor();
 
   const editModal = page.locator("[aria-modal]", {
-    hasText: t("onboarding.company.step.owners.editTitle"),
+    hasText: /Edit|Fill/,
   });
 
   await clickOnButton(nicolasBenadyTile, t("onboarding.company.step.owners.editButton"));
@@ -161,6 +161,8 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await editModal
     .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))
     .fill("75001");
+  await clickOnButton(editModal, t("onboarding.common.next"));
+  await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));
 
   await clickOnButton(nicolasSaisonTile, t("onboarding.company.step.owners.editButton"));
@@ -168,6 +170,8 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await editModal
     .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))
     .fill("75001");
+  await clickOnButton(editModal, t("onboarding.common.next"));
+  await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
@@ -520,6 +524,21 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
       exact: true,
     })
     .click();
+
+  await modal.getByRole("button", { name: t("onboarding.common.next") }).click();
+
+  await modal
+    .getByLabel(t("onboarding.company.step.owners.beneficiary.residencyAddress"))
+    .fill("Anna Paulownastraat 76");
+  await modal
+    .getByLabel(t("onboarding.company.step.owners.beneficiary.residencyAddressCity"))
+    .fill("Den Haag");
+  await modal
+    .getByLabel(t("onboarding.company.step.owners.beneficiary.residencyAddressPostalCode"))
+    .fill("2518 BJ");
+  await modal
+    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
+    .fill("xxxxxxxxx");
 
   await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 

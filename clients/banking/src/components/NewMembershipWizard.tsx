@@ -1,4 +1,4 @@
-import { Array, Dict, Option } from "@swan-io/boxed";
+import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";

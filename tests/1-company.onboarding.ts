@@ -536,9 +536,6 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
   await modal
     .getByLabel(t("onboarding.company.step.owners.beneficiary.residencyAddressPostalCode"))
     .fill("2518 BJ");
-  await modal
-    .getByLabel(t("onboarding.step.finalizeError.taxIdentificationNumber"))
-    .fill("xxxxxxxxx");
 
   await page.getByRole("button", { name: t("onboarding.common.save") }).click();
 

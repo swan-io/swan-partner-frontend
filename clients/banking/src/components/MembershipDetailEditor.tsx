@@ -15,10 +15,10 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {

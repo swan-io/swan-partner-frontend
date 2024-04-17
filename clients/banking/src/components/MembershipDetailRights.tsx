@@ -11,9 +11,9 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useForm } from "react-ux-form";
 import { P, isMatching, match } from "ts-pattern";
 import {
   AccountMembershipFragment,

@@ -15,9 +15,9 @@ import {
   businessActivities,
   monthlyPaymentVolumes,
 } from "@swan-io/shared-business/src/constants/business";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";

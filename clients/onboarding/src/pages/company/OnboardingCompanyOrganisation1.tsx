@@ -20,9 +20,9 @@ import {
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";

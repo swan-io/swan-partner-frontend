@@ -22,9 +22,9 @@ import {
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";

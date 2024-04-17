@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -184,20 +184,19 @@ export const MembershipDetailRights = ({
   };
 
   const onPressSave = () => {
-    submitForm(rights => {
-      if (
-        requiresIdentityVerification &&
-        (rights.canViewAccount === true ||
-          rights.canInitiatePayments === true ||
-          rights.canManageBeneficiaries === true ||
-          rights.canManageAccountMembership === true ||
-          rights.canManageCards === true)
-      ) {
-        setValuesToConfirm(Option.Some(rights));
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        Option.allFromDict(values).map(rights => {
+          const hasAtLeastOneRight = Dict.values(rights).some(right => right === true);
 
-      sendUpdate(rights);
+          if (requiresIdentityVerification && hasAtLeastOneRight) {
+            setValuesToConfirm(Option.Some(rights));
+            return;
+          }
+
+          sendUpdate(rights);
+        });
+      },
     });
   };
 

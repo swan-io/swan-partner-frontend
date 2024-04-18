@@ -315,17 +315,6 @@ type Account {
   ): TrustedBeneficiaryConnection!
 }
 
-"""
-Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
-"""
-type AccountAndCard {
-  """Account"""
-  account: Account!
-
-  """Requested Card"""
-  cardRequested: Card!
-}
-
 """A list of balances regarding an account."""
 type AccountBalances {
   """
@@ -461,6 +450,9 @@ type AccountHolder {
   *Banking regulations require financial institutions such as Swan to know and verify their customers in order to comply with their anti-money laundering and terrorist financing obligations. In banking jargon, we talk about KYC (Know Your Customers) procedure*
   """
   verificationStatus: VerificationStatus!
+
+  """Account holder verification Status information."""
+  verificationStatusInfo: AccountHolderVerificationStatusInfo!
 
   """Account holder type information."""
   info: AccountHolderInfo!
@@ -727,6 +719,11 @@ type AccountHolderNotFoundRejection implements Rejection {
   message: String!
 }
 
+type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
 """
 Field we can use when ordering that can be applied when listing account holders
 """
@@ -739,6 +736,25 @@ enum AccountHolderOrderByFieldInput {
 input AccountHolderOrderByInput {
   field: AccountHolderOrderByFieldInput
   direction: OrderByDirection
+}
+
+type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Pending"""
+  pendingAt: DateTime!
+}
+
+type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Refused"""
+  refusedAt: DateTime!
+
+  """Reason for which the account holder was refused"""
+  reason: String!
 }
 
 """Account holder status."""
@@ -783,6 +799,30 @@ An individual account holder can't create a b2b received direct debit mandate.
 """
 type AccountHolderTypeIndividualRejection implements Rejection {
   message: String!
+}
+
+"""Account Holder Verification Status Information"""
+interface AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
+type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Verified"""
+  verifiedAt: DateTime!
+}
+
+type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """
+  ISO Date string at which the account holder status was set to WaitingForInformation
+  """
+  WaitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -3256,12 +3296,6 @@ input CardPaymentMethodInput {
   activate: Boolean = false
 }
 
-"""Location where the card should be printed from"""
-enum CardPrintingHub {
-  France
-  Spain
-}
-
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -3281,12 +3315,7 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
-
-  """Card printing hub"""
-  cardPrintingHub: CardPrintingHub
 }
-
-union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
 
 """Card design of a Card Product"""
 type CardProductDesign {
@@ -3442,10 +3471,6 @@ enum CardSettingsBackgroundType {
 
   """when Card background is customized"""
   Custom
-}
-
-input CardSettingsByProjectIdInput {
-  projectId: ID!
 }
 
 """Card Status"""
@@ -4005,12 +4030,6 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -4336,19 +4355,6 @@ type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
-"""Inputs to create a new card product"""
-input CreateCardProductInput {
-  projectId: ID!
-  name: String
-  applicableToPhysicalCards: Boolean
-}
-
-union CreateCardProductPayload = CreateCardProductSuccessPayload | ProjectNotFoundRejection | ForbiddenRejection | ValidationRejection
-
-type CreateCardProductSuccessPayload {
-  cardProduct: CardProduct!
-}
-
 input CreateMerchantPaymentLinkInput {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfileId: ID!
@@ -4570,17 +4576,6 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
-"""Inputs to delete a card product"""
-input DeleteCardProductInput {
-  id: ID!
-}
-
-union DeleteCardProductPayload = DeleteCardProductSuccessPayload | CardProductNotFoundRejection | CardProductUsedRejection | ForbiddenRejection | ValidationRejection
-
-type DeleteCardProductSuccessPayload {
-  cardProduct: CardProduct!
-}
-
 input DeleteSupportingDocumentInput {
   """Id of the supporting document to delete"""
   id: ID!
@@ -4643,12 +4638,6 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -9014,7 +9003,7 @@ type Mutation {
   addCard(input: AddCardInput!): AddCardPayload!
 
   """
-  Add several cards with Group Delivery
+  Add several cards with Group Delivery (limited to a maximum of 250 cards)
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
   
@@ -9295,17 +9284,6 @@ type Mutation {
   This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
-
-  """Add a new card product for project."""
-  createCardProduct(input: CreateCardProductInput!): CreateCardProductPayload!
-
-  """Delete a card product."""
-  deleteCardProduct(input: DeleteCardProductInput!): DeleteCardProductPayload!
-  reviewProjectCardSettings(input: ReviewProjectCardSettingsInput!): ReviewProjectCardSettingsPayload
-
-  """Suspend a card product for a project."""
-  suspendCardProduct(input: SuspendCardProductInput!): SuspendCardProductPayload!
-  updateProjectCardSettings(input: UpdateProjectCardSettingsInput!): UpdateProjectCardSettingsPayload @deprecated(reason: "use updateCardProductCardDesign instead")
 
   """Cancels a consent."""
   cancelConsent(input: CancelConsentInput!): CancelConsentPayload!
@@ -10614,12 +10592,6 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -10986,10 +10958,8 @@ input PrintPhysicalCardInput {
   """Address to deliver the physical card"""
   address: CompleteAddressInput!
 
-  """
-  `true` if the user must choose their PIN Code (will be deprecated/removed)
-  """
-  choosePINCode: Boolean!
+  """@deprecated(reason: "use `choosePin` instead")"""
+  choosePINCode: Boolean
 
   """`true` if the user must choose their PIN"""
   choosePin: Boolean
@@ -11508,8 +11478,6 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
-  cardSettingsByProjectId(input: CardSettingsByProjectIdInput): CardSettings!
-  cardProductById(id: ID): CardProductByIdResultPayload
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -12570,20 +12538,6 @@ type ResumePhysicalCardSuccessPayload {
 
   """The consent required to resume a physical card"""
   consent: Consent!
-}
-
-input ReviewProjectCardSettingsInput {
-  projectId: ID!
-  backgroundType: ProjectCardSettingsBackgroundType!
-  logo: String
-  zoomRatioProjectLogo: Int
-}
-
-union ReviewProjectCardSettingsPayload = ReviewProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
-
-type ReviewProjectCardSettingsSuccessPayload {
-  projectId: ID!
-  cardSettings: CardSettings!
 }
 
 """
@@ -14102,6 +14056,12 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
+
+  """
+  Not available, coming soon !
+  SupportingDocumentCollection URL to Swan portal
+  """
+  supportingDocumentCollectionUrl: String!
 }
 
 """Supporting document collection with Approved status"""
@@ -14607,17 +14567,6 @@ enum SuspendAccountReasonType {
 
 """SuspendAccountStatusReason"""
 union SuspendAccountStatusReason = SuspendAccountReason
-
-"""Inputs to suspend a card product"""
-input SuspendCardProductInput {
-  id: ID!
-}
-
-union SuspendCardProductPayload = SuspendCardProductSuccessPayload | CardProductNotFoundRejection | ForbiddenRejection | ValidationRejection
-
-type SuspendCardProductSuccessPayload {
-  cardProduct: CardProduct!
-}
 
 """StatusInfo when funding limit settings has been suspended"""
 type SuspendedFundingLimitSettingsStatusInfo implements FundingLimitSettingsStatusInfo {
@@ -16039,21 +15988,6 @@ union UpdateIndividualOnboardingPayload = ForbiddenRejection | InternalErrorReje
 """Type of result when updateIndividualOnboarding is a success"""
 type UpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
-}
-
-input UpdateProjectCardSettingsInput {
-  projectId: ID!
-  backgroundType: ProjectCardSettingsBackgroundType!
-  logo: String
-  zoomRatioProjectLogo: Int
-  status: ProjectCardStatus
-}
-
-union UpdateProjectCardSettingsPayload = UpdateProjectCardSettingsSuccessPayload | ForbiddenRejection | ValidationRejection
-
-type UpdateProjectCardSettingsSuccessPayload {
-  projectId: ID!
-  projectCardSettings: CardSettings!
 }
 
 """Inputs to update a received sepa direct debit mandate B2b."""

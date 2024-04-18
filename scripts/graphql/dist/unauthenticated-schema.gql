@@ -205,6 +205,9 @@ type AccountHolder {
   """
   verificationStatus: VerificationStatus!
 
+  """Account holder verification Status information."""
+  verificationStatusInfo: AccountHolderVerificationStatusInfo!
+
   """Account holder type information."""
   info: AccountHolderInfo!
 
@@ -424,6 +427,11 @@ type AccountHolderNotFoundRejection implements Rejection {
   message: String!
 }
 
+type AccountHolderNotStartedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
 """
 Field we can use when ordering that can be applied when listing account holders
 """
@@ -436,6 +444,25 @@ enum AccountHolderOrderByFieldInput {
 input AccountHolderOrderByInput {
   field: AccountHolderOrderByFieldInput
   direction: OrderByDirection
+}
+
+type AccountHolderPendingVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Pending"""
+  pendingAt: DateTime!
+}
+
+type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Refused"""
+  refusedAt: DateTime!
+
+  """Reason for which the account holder was refused"""
+  reason: String!
 }
 
 """Account holder status."""
@@ -472,6 +499,30 @@ enum AccountHolderType {
 
   """Company (Legal person)"""
   Company
+}
+
+"""Account Holder Verification Status Information"""
+interface AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+}
+
+type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """ISO Date string at which the account holder status was set to Verified"""
+  verifiedAt: DateTime!
+}
+
+type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
+  """Verification Status of the account holder."""
+  status: VerificationStatus!
+
+  """
+  ISO Date string at which the account holder status was set to WaitingForInformation
+  """
+  WaitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -5055,6 +5106,12 @@ type SupportingDocumentCollection {
   accountHolder: SupportingDocumentAccountHolder!
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
+
+  """
+  Not available, coming soon !
+  SupportingDocumentCollection URL to Swan portal
+  """
+  supportingDocumentCollectionUrl: String!
 }
 
 """Supporting document collection with Approved status"""

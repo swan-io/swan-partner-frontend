@@ -928,6 +928,26 @@ query CardPage($cardId: ID!) {
             consentUrl
           }
         }
+        ... on PhysicalCardToRenewStatusInfo {
+          address {
+            addressLine1
+            addressLine2
+            city
+            postalCode
+            country
+          }
+        }
+      }
+      previousPhysicalCards {
+        cardMaskedNumber
+        customOptions {
+          additionalPrintedLine
+        }
+        expiryDate
+        offlineSpendingLimit {
+          currency
+          value
+        }
       }
     }
   }
@@ -2540,6 +2560,20 @@ mutation UpdateCard($input: UpdateCardInput!) {
         id
         consentUrl
       }
+    }
+  }
+}
+
+mutation ConfirmPhysicalCardRenewal($input: ConfirmPhysicalCardRenewalInput!) {
+  confirmPhysicalCardRenewal(input: $input) {
+    __typename
+    ... on ConfirmPhysicalCardRenewalSuccessPayload {
+      physicalCard {
+        identifier
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

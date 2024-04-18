@@ -143,6 +143,7 @@
   "card.physical.identifier": "Identificatie",
   "card.physical.identifier.invalid": "Ongeldig identificatienummer",
   "card.physical.order": "Bestellen",
+  "card.physical.order.choosePin": "Kies pincode",
   "card.physical.order.shippingAddress": "Verzendadres",
   "card.physical.order.shippingAddress.addressLine1": "Adres",
   "card.physical.order.shippingAddress.addressLine2": "Adresregel 2 (optioneel)",

@@ -5,6 +5,7 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -53,6 +54,7 @@ import {
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import {
   validateAddressLine,
   validateNullableRequired,
@@ -123,7 +125,7 @@ type Card = NonNullable<CardPageQuery["card"]>;
 type CardItemPhysicalShippingFormProps = {
   initialAddress?: AddressInfo;
   onPressClose: () => void;
-  onSubmit: (input: CompleteAddressInput) => void;
+  onSubmit: (input: { address: CompleteAddressInput; choosePin: boolean }) => void;
   isLoading: boolean;
 };
 
@@ -133,6 +135,10 @@ const CardItemPhysicalShippingForm = ({
   onSubmit,
   isLoading,
 }: CardItemPhysicalShippingFormProps) => {
+  const canChoosePin = useTgglFlag("account_contract_choose_pin_code_enabled").getWithDefault(
+    false,
+  );
+
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     addressLine1: {
       initialValue: initialAddress?.addressLine1 ?? "",
@@ -153,17 +159,23 @@ const CardItemPhysicalShippingForm = ({
       initialValue: (initialAddress?.country as CountryCCA3) ?? "FRA",
       validate: validateRequired,
     },
+    choosePin: {
+      initialValue: false,
+    },
   });
 
   const onPressSubmit = () => {
     submitForm(values => {
       if (hasDefinedKeys(values, ["addressLine1", "city", "country", "postalCode"])) {
         onSubmit({
-          addressLine1: values.addressLine1,
-          addressLine2: nullishOrEmptyToUndefined(values.addressLine2),
-          city: values.city,
-          country: values.country,
-          postalCode: values.postalCode,
+          address: {
+            addressLine1: values.addressLine1,
+            addressLine2: nullishOrEmptyToUndefined(values.addressLine2),
+            city: values.city,
+            country: values.country,
+            postalCode: values.postalCode,
+          },
+          choosePin: values.choosePin ?? false,
         });
       }
     });
@@ -283,6 +295,18 @@ const CardItemPhysicalShippingForm = ({
           />
         )}
       </Field>
+
+      {canChoosePin ? (
+        <Field name="choosePin">
+          {({ value, onChange }) => (
+            <LakeLabelledCheckbox
+              label={t("card.physical.order.choosePin")}
+              value={value}
+              onValueChange={onChange}
+            />
+          )}
+        </Field>
+      ) : null}
 
       <LakeButtonGroup>
         <LakeButton mode="secondary" grow={true} onPress={onPressClose} disabled={isLoading}>
@@ -469,7 +493,13 @@ export const CardItemPhysicalDetails = ({
     ViewPhysicalCardNumbersDocument,
   );
 
-  const onShippingFormSubmit = (address: CompleteAddressInput) => {
+  const onShippingFormSubmit = ({
+    address,
+    choosePin,
+  }: {
+    address: CompleteAddressInput;
+    choosePin: boolean;
+  }) => {
     printPhysicalCard({
       input: {
         cardId,
@@ -478,6 +508,7 @@ export const CardItemPhysicalDetails = ({
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
         choosePINCode: false,
         address,
+        choosePin,
       },
     })
       .mapOk(data => data.printPhysicalCard)

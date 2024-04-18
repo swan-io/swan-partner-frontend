@@ -143,6 +143,7 @@
   "card.physical.identifier": "Identifier",
   "card.physical.identifier.invalid": "Invalid identifier number",
   "card.physical.order": "Order",
+  "card.physical.order.choosePin": "Choose PIN",
   "card.physical.order.shippingAddress": "Shipping address",
   "card.physical.order.shippingAddress.addressLine1": "Address",
   "card.physical.order.shippingAddress.addressLine2": "Address line 2 (optional)",

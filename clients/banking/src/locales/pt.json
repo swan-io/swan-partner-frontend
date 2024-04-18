@@ -143,6 +143,7 @@
   "card.physical.identifier": "Identificador",
   "card.physical.identifier.invalid": "Número de identificação inválido",
   "card.physical.order": "Pedir",
+  "card.physical.order.choosePin": "Escolha o PIN",
   "card.physical.order.shippingAddress": "Endereço de envio",
   "card.physical.order.shippingAddress.addressLine1": "Endereço",
   "card.physical.order.shippingAddress.addressLine2": "Linha de endereço 2 (opcional)",

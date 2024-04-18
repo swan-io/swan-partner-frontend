@@ -143,6 +143,7 @@
   "card.physical.identifier": "Identifiant",
   "card.physical.identifier.invalid": "Numéro d'identification non valide",
   "card.physical.order": "Commander",
+  "card.physical.order.choosePin": "Choisissez un NIP",
   "card.physical.order.shippingAddress": "Adresse de livraison",
   "card.physical.order.shippingAddress.addressLine1": "Adresse",
   "card.physical.order.shippingAddress.addressLine2": "Ligne d’adresse 2 (facultatif)",

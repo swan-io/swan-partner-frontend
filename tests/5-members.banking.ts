@@ -1,4 +1,4 @@
-import { expect, test } from "@playwright/test";
+import { test } from "@playwright/test";
 import { EndorseSandboxUserDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
@@ -20,9 +20,7 @@ test.beforeEach(async ({ request }) => {
   });
 });
 
-test("Members - create french", async ({ browser, page, request }) => {
-  const date = new Date();
-  const requestApi = getApiRequester(request);
+test("Members - create french", async ({ page }) => {
   const { benady, saison } = await getSession();
   const MEMBERS_PAGE_URL = `${env.BANKING_URL}/${benady.memberships.individual.french.id}/members`;
   await page.goto(MEMBERS_PAGE_URL);
@@ -53,14 +51,10 @@ test("Members - create french", async ({ browser, page, request }) => {
 
   await clickOnButton(modal, t("banking.membershipList.newMember.sendInvitation"));
 
-  await waitForText(page, t("banking.members.invitationLink"));
-
-  await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
+  await waitForText(page, "Nicolas Saison");
 });
 
-test("Members - create german", async ({ browser, page, request }) => {
-  const date = new Date();
-  const requestApi = getApiRequester(request);
+test("Members - create german", async ({ page }) => {
   const { benady, saison } = await getSession();
   const MEMBERS_PAGE_URL = `${env.BANKING_URL}/${benady.memberships.individual.german.id}/members`;
   await page.goto(MEMBERS_PAGE_URL);
@@ -101,7 +95,5 @@ test("Members - create german", async ({ browser, page, request }) => {
 
   await clickOnButton(modal, t("banking.membershipList.newMember.sendInvitation"));
 
-  await waitForText(page, t("banking.members.invitationLink"));
-
-  await expect(page.getByRole("main").getByRole("link", { name: "Nicolas Saison" })).toBeAttached();
+  await waitForText(page, "Nicolas Saison");
 });

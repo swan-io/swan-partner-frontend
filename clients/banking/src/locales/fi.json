@@ -143,6 +143,7 @@
   "card.physical.identifier": "Tunniste",
   "card.physical.identifier.invalid": "Tunnistenumero on väärässä muodossa",
   "card.physical.order": "Tilaa",
+  "card.physical.order.choosePin": "Valitse PIN-koodi",
   "card.physical.order.shippingAddress": "Toimitusosoite",
   "card.physical.order.shippingAddress.addressLine1": "Osoite",
   "card.physical.order.shippingAddress.addressLine2": "Osoiterivi 2 (valinnainen)",

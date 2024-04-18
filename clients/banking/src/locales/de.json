@@ -143,6 +143,7 @@
   "card.physical.identifier": "Kennung",
   "card.physical.identifier.invalid": "Ungültige Identifikationsnummer",
   "card.physical.order": "Bestellung",
+  "card.physical.order.choosePin": "PIN wählen",
   "card.physical.order.shippingAddress": "Lieferadresse",
   "card.physical.order.shippingAddress.addressLine1": "Anschrift",
   "card.physical.order.shippingAddress.addressLine2": "Adresszeile 2 (optional)",

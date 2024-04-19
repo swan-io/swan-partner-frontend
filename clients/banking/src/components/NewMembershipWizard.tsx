@@ -339,26 +339,34 @@ export const NewMembershipWizard = ({
     }
   };
 
-  const optionRecordToUndefined = (
+  const filterDefinedValues = (
     values: OptionRecord<FormState>,
   ): {
-    [K in keyof FormState]: FormState[K] | undefined;
+    [K in keyof FormState]?: FormState[K];
   } => ({
-    addressLine1: values.addressLine1.toUndefined(),
-    birthDate: values.birthDate.toUndefined(),
-    canInitiatePayments: values.canInitiatePayments.toUndefined(),
-    canManageAccountMembership: values.canManageAccountMembership.toUndefined(),
-    canManageBeneficiaries: values.canManageBeneficiaries.toUndefined(),
-    canManageCards: values.canManageCards.toUndefined(),
-    canViewAccount: values.canViewAccount.toUndefined(),
-    city: values.city.toUndefined(),
-    country: values.country.toUndefined(),
-    email: values.email.toUndefined(),
-    firstName: values.firstName.toUndefined(),
-    lastName: values.lastName.toUndefined(),
-    phoneNumber: values.phoneNumber.toUndefined(),
-    postalCode: values.postalCode.toUndefined(),
-    taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+    ...(values.addressLine1.isSome() ? { addressLine1: values.addressLine1.get() } : null),
+    ...(values.birthDate.isSome() ? { birthDate: values.birthDate.get() } : null),
+    ...(values.canInitiatePayments.isSome()
+      ? { canInitiatePayments: values.canInitiatePayments.get() }
+      : null),
+    ...(values.canManageAccountMembership.isSome()
+      ? { canManageAccountMembership: values.canManageAccountMembership.get() }
+      : null),
+    ...(values.canManageBeneficiaries.isSome()
+      ? { canManageBeneficiaries: values.canManageBeneficiaries.get() }
+      : null),
+    ...(values.canManageCards.isSome() ? { canManageCards: values.canManageCards.get() } : null),
+    ...(values.canViewAccount.isSome() ? { canViewAccount: values.canViewAccount.get() } : null),
+    ...(values.city.isSome() ? { city: values.city.get() } : null),
+    ...(values.country.isSome() ? { country: values.country.get() } : null),
+    ...(values.email.isSome() ? { email: values.email.get() } : null),
+    ...(values.firstName.isSome() ? { firstName: values.firstName.get() } : null),
+    ...(values.lastName.isSome() ? { lastName: values.lastName.get() } : null),
+    ...(values.phoneNumber.isSome() ? { phoneNumber: values.phoneNumber.get() } : null),
+    ...(values.postalCode.isSome() ? { postalCode: values.postalCode.get() } : null),
+    ...(values.taxIdentificationNumber.isSome()
+      ? { taxIdentificationNumber: values.taxIdentificationNumber.get() }
+      : null),
   });
 
   const onPressNext = () => {
@@ -366,7 +374,7 @@ export const NewMembershipWizard = ({
       onSuccess: values => {
         setPartiallySavedValues(previousValues => ({
           ...previousValues,
-          ...optionRecordToUndefined(values),
+          ...filterDefinedValues(values),
         }));
 
         const currentStepIndex = steps.indexOf(step);
@@ -419,7 +427,7 @@ export const NewMembershipWizard = ({
       onSuccess: values => {
         const computedValues = {
           ...partiallySavedValues,
-          ...optionRecordToUndefined(values),
+          ...filterDefinedValues(values),
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {

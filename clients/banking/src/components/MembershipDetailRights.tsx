@@ -1,4 +1,4 @@
-import { Option } from "@swan-io/boxed";
+import { Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -11,9 +11,9 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { useForm } from "react-ux-form";
 import { P, isMatching, match } from "ts-pattern";
 import {
   AccountMembershipFragment,
@@ -184,20 +184,19 @@ export const MembershipDetailRights = ({
   };
 
   const onPressSave = () => {
-    submitForm(rights => {
-      if (
-        requiresIdentityVerification &&
-        (rights.canViewAccount === true ||
-          rights.canInitiatePayments === true ||
-          rights.canManageBeneficiaries === true ||
-          rights.canManageAccountMembership === true ||
-          rights.canManageCards === true)
-      ) {
-        setValuesToConfirm(Option.Some(rights));
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        Option.allFromDict(values).map(rights => {
+          const hasAtLeastOneRight = Dict.values(rights).some(right => right === true);
 
-      sendUpdate(rights);
+          if (requiresIdentityVerification && hasAtLeastOneRight) {
+            setValuesToConfirm(Option.Some(rights));
+            return;
+          }
+
+          sendUpdate(rights);
+        });
+      },
     });
   };
 

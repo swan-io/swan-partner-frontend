@@ -2294,15 +2294,10 @@
     ts-pattern "^5.1.0"
     uuid "^9.0.1"
 
-"@swan-io/request@1.0.4", "@swan-io/request@^1.0.4":
+"@swan-io/request@1.0.4", "@swan-io/request@^1.0.2", "@swan-io/request@^1.0.4":
   version "1.0.4"
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.4.tgz#9578892306b92c335b064051e165a55268817d14"
   integrity sha512-3KguAxPCJ0EBlETij2volJw68k4lOw4nxjw1SkjStyjA50awFxx5UwgUeGfocsDbI7EwPqs1oH3E23hoAcni5w==
-
-"@swan-io/request@^1.0.2":
-  version "1.0.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.2.tgz#bfabcbd3c031782dfde4e1438f790c9a7f682926"
-  integrity sha512-jLl5CWyAvqLUp70GIAN7O+fcWBa30ozp4I37sTFJOQvICrlAi5pbGDALZyYt4rkE33ahHwi4BLzWTa6PqOE5MA==
 
 "@swan-io/shared-business@8.0.0":
   version "8.0.0"
@@ -2326,10 +2321,10 @@
     ts-pattern "^5.1.0"
     uuid "^9.0.1"
 
-"@swan-io/use-form@2.0.0", "@swan-io/use-form@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.0.tgz#20363a05d4e7242d6b0b19f954f83556fd6496e4"
-  integrity sha512-PctTlWCu7itDB/T32PGBFyfzVQobgPxbULkTZnDJlcL2qsuoQXeTjtmAF6ddiZajUKDtZpvYYjQdmtxJzsY8Sg==
+"@swan-io/use-form@2.0.1", "@swan-io/use-form@^2.0.0":
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.1.tgz#65a8ff5428e50081282b80c34f092537fe4d43ae"
+  integrity sha512-eWUvHOhcy6Y0wR21qznCDhAzK71Wuh1Rj9JInWfs+4Nf+CdSQ2SJd/m0rthpCtC6P1HOGPw9MB7jX92Ikh69aw==
   dependencies:
     "@swan-io/boxed" "^2.1.1"
 
@@ -7071,13 +7066,6 @@ react-use-measure@^2.1.1:
   integrity sha512-nocZhN26cproIiIduswYpV5y5lQpSQS1y/4KuvUCjSKmw7ZWIS/+g3aFnX3WdBkyuGUtTLif3UTqnLLhbDoQig==
   dependencies:
     debounce "^1.2.1"
-
-react-ux-form@1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/react-ux-form/-/react-ux-form-1.5.0.tgz#a00a2fb903fa532dd8a868228261dbe991cf0b53"
-  integrity sha512-hUOmgcFXWqHYFDuKCuyEgQSh63KujFHjAEAKpanYa5lWfhO2JKlLqORnGyRpvw5wc+xIAJ/67KKauv2pbswxww==
-  dependencies:
-    use-sync-external-store "^1.2.0"
 
 react@18.2.0, react@^18.2.0:
   version "18.2.0"

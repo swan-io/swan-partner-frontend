@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -11,9 +11,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { hasDefinedKeys, toOptionalValidator, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
@@ -73,17 +73,25 @@ export const TransferRegularWizardDetails = ({
   });
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["amount"])) {
-        onSave({
-          amount: {
-            value: values.amount,
-            currency: "EUR",
-          },
-          label: nullishOrEmptyToUndefined(values.label),
-          reference: nullishOrEmptyToUndefined(values.reference),
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        const { amount } = values;
+
+        if (amount.isSome()) {
+          onSave({
+            amount: {
+              value: amount.get(),
+              currency: "EUR",
+            },
+            label: values.label
+              .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
+              .toUndefined(),
+            reference: values.reference
+              .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
+              .toUndefined(),
+          });
+        }
+      },
     });
   };
 

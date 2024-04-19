@@ -1,4 +1,4 @@
-import { Array, Option, Result } from "@swan-io/boxed";
+import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -18,10 +18,11 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import { OptionRecord, combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
+import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
@@ -70,21 +71,14 @@ const styles = StyleSheet.create({
   },
 });
 
-const validatePhoneNumber = async (value: string) => {
-  const result = await Result.fromPromise(import("libphonenumber-js"));
-
-  // if libphonenumber-js fail to load, we don't validate phone number
-  if (result.isOk()) {
-    const { parsePhoneNumber } = result.get();
-
-    try {
-      // parsePhoneNumber can throw an error
-      if (!parsePhoneNumber(value).isValid()) {
-        return t("common.form.invalidPhoneNumber");
-      }
-    } catch {
+const validatePhoneNumber = (value: string) => {
+  try {
+    // parsePhoneNumber can throw an error
+    if (!parsePhoneNumber(value).isValid()) {
       return t("common.form.invalidPhoneNumber");
     }
+  } catch {
+    return t("common.form.invalidPhoneNumber");
   }
 };
 
@@ -117,6 +111,13 @@ type FormState = {
   taxIdentificationNumber: string;
 };
 
+const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = keyof T>(
+  object: T,
+  keys: K[],
+): object is T & {
+  [K1 in K]-?: Exclude<T[K1], undefined>;
+} => keys.every(key => typeof object[key] !== "undefined");
+
 const MANDATORY_FIELDS = [
   "phoneNumber" as const,
   "email" as const,
@@ -141,11 +142,8 @@ export const NewMembershipWizard = ({
 
   const [addMember, memberAddition] = useMutation(AddAccountMembershipDocument);
 
-  const steps: Step[] = match({ accountCountry, partiallySavedValues })
-    .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => [
-      "Informations" as const,
-      "Address" as const,
-    ])
+  const steps: Step[] = match(accountCountry)
+    .with("DEU", "NLD", () => ["Informations" as const, "Address" as const])
     .otherwise(() => ["Informations" as const]);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
@@ -176,12 +174,12 @@ export const NewMembershipWizard = ({
     birthDate: {
       initialValue: partiallySavedValues?.birthDate ?? "",
       strategy: "onSuccessOrBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
-          canManageCards: getFieldState("canManageCards").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
-          canManageBeneficiaries: getFieldState("canManageBeneficiaries").value,
-          canManageAccountMembership: getFieldState("canManageAccountMembership").value,
+          canManageCards: getFieldValue("canManageCards"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
+          canManageBeneficiaries: getFieldValue("canManageBeneficiaries"),
+          canManageAccountMembership: getFieldValue("canManageAccountMembership"),
         })
           .with(
             { canInitiatePayments: true },
@@ -218,11 +216,11 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -241,11 +239,11 @@ export const NewMembershipWizard = ({
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -261,11 +259,11 @@ export const NewMembershipWizard = ({
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -281,11 +279,11 @@ export const NewMembershipWizard = ({
     },
     country: {
       initialValue: partiallySavedValues?.country ?? accountCountry ?? "FRA",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -302,12 +300,12 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          residencyAddressCountry: getFieldState("country").value,
-          canViewAccount: getFieldState("canViewAccount").value,
-          canInitiatePayments: getFieldState("canInitiatePayments").value,
+          residencyAddressCountry: getFieldValue("country"),
+          canViewAccount: getFieldValue("canViewAccount"),
+          canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
             P.intersection(
@@ -341,14 +339,43 @@ export const NewMembershipWizard = ({
     }
   };
 
+  const optionRecordToUndefined = (
+    values: OptionRecord<FormState>,
+  ): {
+    [K in keyof FormState]: FormState[K] | undefined;
+  } => ({
+    addressLine1: values.addressLine1.toUndefined(),
+    birthDate: values.birthDate.toUndefined(),
+    canInitiatePayments: values.canInitiatePayments.toUndefined(),
+    canManageAccountMembership: values.canManageAccountMembership.toUndefined(),
+    canManageBeneficiaries: values.canManageBeneficiaries.toUndefined(),
+    canManageCards: values.canManageCards.toUndefined(),
+    canViewAccount: values.canViewAccount.toUndefined(),
+    city: values.city.toUndefined(),
+    country: values.country.toUndefined(),
+    email: values.email.toUndefined(),
+    firstName: values.firstName.toUndefined(),
+    lastName: values.lastName.toUndefined(),
+    phoneNumber: values.phoneNumber.toUndefined(),
+    postalCode: values.postalCode.toUndefined(),
+    taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+  });
+
   const onPressNext = () => {
-    submitForm(values => {
-      setPartiallySavedValues(previousValues => ({ ...previousValues, ...values }));
-      const currentStepIndex = steps.indexOf(step);
-      const nextStep = steps[currentStepIndex + 1];
-      if (nextStep != null) {
-        setStep(nextStep);
-      }
+    submitForm({
+      onSuccess: values => {
+        setPartiallySavedValues(previousValues => ({
+          ...previousValues,
+          ...optionRecordToUndefined(values),
+        }));
+
+        const currentStepIndex = steps.indexOf(step);
+        const nextStep = steps[currentStepIndex + 1];
+
+        if (nextStep != null) {
+          setStep(nextStep);
+        }
+      },
     });
   };
 
@@ -388,75 +415,84 @@ export const NewMembershipWizard = ({
   };
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      const computedValues = { ...partiallySavedValues, ...values };
-      if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-        const { addressLine1, city, postalCode, country } = computedValues;
-        const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
-          isNullishOrEmpty,
-        );
+    submitForm({
+      onSuccess: values => {
+        const computedValues = {
+          ...partiallySavedValues,
+          ...optionRecordToUndefined(values),
+        };
 
-        const residencyAddress = isAddressIncomplete
-          ? undefined
-          : {
-              addressLine1,
-              city,
-              postalCode,
-              country,
-            };
+        if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
+          const { addressLine1, city, postalCode, country } = computedValues;
+          const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
+            isNullishOrEmpty,
+          );
 
-        addMember({
-          input: {
-            accountId,
-            canInitiatePayments: computedValues.canInitiatePayments,
-            canManageAccountMembership: computedValues.canManageAccountMembership,
-            canManageBeneficiaries: computedValues.canManageBeneficiaries,
-            canViewAccount: computedValues.canViewAccount,
-            canManageCards: computedValues.canManageCards,
-            consentRedirectUrl: window.origin + Router.AccountMembersList({ accountMembershipId }),
-            email: computedValues.email,
-            residencyAddress,
-            restrictedTo: {
-              firstName: computedValues.firstName,
-              lastName: computedValues.lastName,
-              phoneNumber: computedValues.phoneNumber,
-              birthDate:
-                computedValues.birthDate !== ""
-                  ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
-                  : undefined,
+          const residencyAddress = isAddressIncomplete
+            ? undefined
+            : {
+                addressLine1,
+                city,
+                postalCode,
+                country,
+              };
+
+          addMember({
+            input: {
+              accountId,
+              canInitiatePayments: computedValues.canInitiatePayments,
+              canManageAccountMembership: computedValues.canManageAccountMembership,
+              canManageBeneficiaries: computedValues.canManageBeneficiaries,
+              canViewAccount: computedValues.canViewAccount,
+              canManageCards: computedValues.canManageCards,
+              consentRedirectUrl:
+                window.origin + Router.AccountMembersList({ accountMembershipId }),
+              email: computedValues.email,
+              residencyAddress,
+              restrictedTo: {
+                firstName: computedValues.firstName,
+                lastName: computedValues.lastName,
+                phoneNumber: computedValues.phoneNumber,
+                birthDate:
+                  computedValues.birthDate !== ""
+                    ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
+                    : undefined,
+              },
+              taxIdentificationNumber: emptyToUndefined(
+                computedValues.taxIdentificationNumber ?? "",
+              ),
             },
-            taxIdentificationNumber: emptyToUndefined(computedValues.taxIdentificationNumber ?? ""),
-          },
-        })
-          .mapOk(data => data.addAccountMembership)
-          .mapOkToResult(filterRejectionsToResult)
-          .mapOk(data => data.accountMembership)
-          .mapOk(data =>
-            match(data)
-              .with(
-                { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
-                ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
-              )
-              .otherwise(data => {
-                match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
-                  .with("EMAIL", () => {
-                    sendInvitation({ editingAccountMembershipId: data.id });
-                  })
-                  .otherwise(() => {});
-                onSuccess(data.id);
-                return Option.None();
+          })
+            .mapOk(data => data.addAccountMembership)
+            .mapOkToResult(filterRejectionsToResult)
+            .mapOk(data => data.accountMembership)
+            .mapOk(data =>
+              match(data)
+                .with(
+                  { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+                  ({ statusInfo: { consent } }) => Option.Some(consent.consentUrl),
+                )
+                .otherwise(data => {
+                  match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
+                    .with("EMAIL", () => {
+                      sendInvitation({ editingAccountMembershipId: data.id });
+                    })
+                    .otherwise(() => {});
+                  onSuccess(data.id);
+                  return Option.None();
+                }),
+            )
+            .tapOk(consentUrl =>
+              consentUrl.match({
+                Some: consentUrl => window.location.replace(consentUrl),
+                None: () => {},
               }),
-          )
-          .tapOk(consentUrl =>
-            consentUrl.match({
-              Some: consentUrl => window.location.replace(consentUrl),
-              None: () => {},
-            }),
-          )
-          .tapError(error => {
-            showToast({ variant: "error", error, title: translateError(error) });
-          });
-      }
+            )
+            .tapError(error => {
+              showToast({ variant: "error", error, title: translateError(error) });
+            });
+        }
+      },
     });
   };
 

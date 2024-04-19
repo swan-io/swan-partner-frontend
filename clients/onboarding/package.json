@@ -20,7 +20,7 @@
     "@swan-io/lake": "8.0.0",
     "@swan-io/request": "1.0.4",
     "@swan-io/shared-business": "8.0.0",
-    "@swan-io/use-form": "2.0.0",
+    "@swan-io/use-form": "2.0.1",
     "core-js": "3.36.1",
     "dayjs": "1.11.10",
     "nanoid": "5.0.6",
@@ -28,7 +28,6 @@
     "react-atomic-state": "2.0.0",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.10",
-    "react-ux-form": "1.5.0",
     "tggl-client": "1.13.2",
     "ts-pattern": "5.1.0",
     "uuid": "9.0.1"

@@ -22,9 +22,9 @@ import {
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
@@ -160,67 +160,77 @@ export const OnboardingCompanyRegistration = ({
   };
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (!hasDefinedKeys(values, ["email"])) {
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        if (values.email.isNone()) {
+          return;
+        }
 
-      const { email, address, city, postalCode, country } = values;
+        const currentValues = {
+          email: values.email.get(),
+          address: values.address.toUndefined(),
+          city: values.city.toUndefined(),
+          postalCode: values.postalCode.toUndefined(),
+          country: values.country.toUndefined(),
+        };
 
-      const updateInput: UnauthenticatedUpdateCompanyOnboardingInput = isAddressRequired
-        ? {
-            onboardingId,
-            email,
-            language: locale.language,
-            legalRepresentativePersonalAddress: {
-              addressLine1: address ?? "",
-              city: city ?? "",
-              postalCode: postalCode ?? "",
-              country: country ?? "",
-            },
-          }
-        : {
-            onboardingId,
-            email,
-            language: locale.language,
-          };
+        const { address, city, postalCode, country } = currentValues;
 
-      updateOnboarding({
-        input: updateInput,
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push(nextStep, { onboardingId }))
-        .tapError(error => {
-          match(error)
-            .with({ __typename: "ValidationRejection" }, error => {
-              const invalidFields = extractServerValidationErrors(error, path =>
-                match(path)
-                  .with(["email"] as const, ([fieldName]) => fieldName)
-                  .with(
-                    ["legalRepresentativePersonalAddress", "addressLine1"],
-                    () => "address" as const,
-                  )
-                  .with(
-                    ["legalRepresentativePersonalAddress", "city"] as const,
-                    ([, fieldName]) => fieldName,
-                  )
-                  .with(
-                    ["legalRepresentativePersonalAddress", "postalCode"] as const,
-                    ([, fieldName]) => fieldName,
-                  )
-                  .otherwise(() => null),
-              );
-              invalidFields.forEach(({ fieldName, code }) => {
-                const message = getValidationErrorMessage(code, values[fieldName]);
-                setFieldError(fieldName, message);
-              });
-            })
-            .otherwise(noop);
+        const updateInput: UnauthenticatedUpdateCompanyOnboardingInput = isAddressRequired
+          ? {
+              onboardingId,
+              email: currentValues.email,
+              language: locale.language,
+              legalRepresentativePersonalAddress: {
+                addressLine1: address ?? "",
+                city: city ?? "",
+                postalCode: postalCode ?? "",
+                country: country ?? "",
+              },
+            }
+          : {
+              onboardingId,
+              email: currentValues.email,
+              language: locale.language,
+            };
 
-          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        });
+        updateOnboarding({
+          input: updateInput,
+          language: locale.language,
+        })
+          .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapError(error => {
+            match(error)
+              .with({ __typename: "ValidationRejection" }, error => {
+                const invalidFields = extractServerValidationErrors(error, path =>
+                  match(path)
+                    .with(["email"] as const, ([fieldName]) => fieldName)
+                    .with(
+                      ["legalRepresentativePersonalAddress", "addressLine1"],
+                      () => "address" as const,
+                    )
+                    .with(
+                      ["legalRepresentativePersonalAddress", "city"] as const,
+                      ([, fieldName]) => fieldName,
+                    )
+                    .with(
+                      ["legalRepresentativePersonalAddress", "postalCode"] as const,
+                      ([, fieldName]) => fieldName,
+                    )
+                    .otherwise(() => null),
+                );
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
+              })
+              .otherwise(noop);
+
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+          });
+      },
     });
   };
 

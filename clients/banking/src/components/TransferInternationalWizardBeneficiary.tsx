@@ -1,5 +1,9 @@
+import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { useQuery } from "@swan-io/graphql-client";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -8,17 +12,11 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { ActivityIndicator, View } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
-
-import { AsyncData, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { StyleSheet } from "react-native";
+import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { useForm } from "@swan-io/use-form";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
@@ -77,7 +75,7 @@ export const TransferInternationalWizardBeneficiary = ({
     language: locale.language === "fi" ? "en" : locale.language,
   });
 
-  const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldState } =
+  const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldValue } =
     useForm<{
       name: string;
       route: string;
@@ -121,13 +119,13 @@ export const TransferInternationalWizardBeneficiary = ({
   );
 
   const refresh = useDebounce<void>(() => {
-    const { value } = getFieldState("results");
+    const value = getFieldValue("results");
 
     setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
   }, 1000);
 
   useEffect(() => {
-    const { value } = getFieldState("route");
+    const value = getFieldValue("route");
 
     if (value && isNullishOrEmpty(route)) {
       setRoute(value);
@@ -136,7 +134,7 @@ export const TransferInternationalWizardBeneficiary = ({
       setFieldValue("route", routes[0].value);
       setRoute(routes[0].value);
     }
-  }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldState]);
+  }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldValue]);
 
   useEffect(() => {
     const removeRouteListener = listenFields(["route"], ({ route: { value } }) => setRoute(value));
@@ -245,10 +243,10 @@ export const TransferInternationalWizardBeneficiary = ({
               grow={small}
               onPress={() => {
                 dynamicFormApiRef.current?.submitDynamicForm(() =>
-                  submitForm(values => {
-                    if (hasDefinedKeys(values, ["name", "route", "results"])) {
-                      onSave(values);
-                    }
+                  submitForm({
+                    onSuccess: values => {
+                      Option.allFromDict(values).map(details => onSave(details));
+                    },
                   }),
                 );
               }}

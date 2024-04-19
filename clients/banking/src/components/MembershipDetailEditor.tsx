@@ -8,6 +8,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { pick } from "@swan-io/lake/src/utils/object";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -15,10 +16,10 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
@@ -189,10 +190,10 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
-      validate: (value, { getFieldState }) => {
+      validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
-          country: getFieldState("country").value,
+          country: getFieldValue("country"),
           canViewAccount: editingAccountMembership.canViewAccount,
           canInitiatePayment: editingAccountMembership.canInitiatePayments,
         })
@@ -222,78 +223,66 @@ export const MembershipDetailEditor = ({
   });
 
   const onPressSave = () => {
-    submitForm(values => {
-      const restrictedTo = match({
-        values,
-        editingAccountMembership,
-        isEditingCurrentUser: currentUserAccountMembership.id == editingAccountMembership.id,
-      })
-        .with(
-          {
-            values: P.union(
-              { firstName: P.string },
-              { lastName: P.string },
-              { phoneNumber: P.string },
-              { birthDate: P.string },
-            ),
-            editingAccountMembership: {
-              statusInfo: {
-                __typename: P.union(
-                  "AccountMembershipInvitationSentStatusInfo",
-                  "AccountMembershipBindingUserErrorStatusInfo",
-                  "AccountMembershipEnabledStatusInfo",
-                ),
-              },
-            },
-            isEditingCurrentUser: false,
-          },
-          () => ({
-            firstName: values.firstName,
-            lastName: values.lastName,
-            phoneNumber: values.phoneNumber,
-            birthDate:
-              values.birthDate != null
-                ? dayjs(values.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
-                : undefined,
-          }),
-        )
-        .otherwise(() => undefined);
-
-      updateMembership({
-        input: {
-          accountMembershipId: editingAccountMembershipId,
-          consentRedirectUrl:
-            window.location.origin +
-            Router.AccountMembersDetailsRoot({
-              accountMembershipId: currentUserAccountMembershipId,
-              editingAccountMembershipId,
-            }),
-          email: values.email,
-          residencyAddress: hasDefinedKeys(values, [
-            "addressLine1",
-            "city",
-            "postalCode",
-            "country",
-          ])
-            ? {
-                addressLine1: values.addressLine1,
-                city: values.city,
-                postalCode: values.postalCode,
-                country: values.country,
-              }
-            : undefined,
-          restrictedTo,
-          taxIdentificationNumber: values.taxIdentificationNumber,
-        },
-      })
-        .mapOk(data => data.updateAccountMembership)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(({ consent: { consentUrl } }) => {
-          window.location.replace(consentUrl);
+    submitForm({
+      onSuccess: values => {
+        const restrictedTo = match({
+          values: Option.allFromDict(
+            pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
+          ),
+          editingAccountMembership,
+          isEditingCurrentUser: currentUserAccountMembership.id == editingAccountMembership.id,
         })
-        .tapError(error => {
-          showToast({ variant: "error", error, title: translateError(error) });
-        });
+          .with(
+            {
+              values: Option.P.Some(P.select()),
+              editingAccountMembership: {
+                statusInfo: {
+                  __typename: P.union(
+                    "AccountMembershipInvitationSentStatusInfo",
+                    "AccountMembershipBindingUserErrorStatusInfo",
+                    "AccountMembershipEnabledStatusInfo",
+                  ),
+                },
+              },
+              isEditingCurrentUser: false,
+            },
+            ({ firstName, lastName, phoneNumber, birthDate }) => ({
+              firstName,
+              lastName,
+              phoneNumber,
+              birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
+            }),
+          )
+          .otherwise(() => undefined);
+
+        updateMembership({
+          input: {
+            accountMembershipId: editingAccountMembershipId,
+            consentRedirectUrl:
+              window.location.origin +
+              Router.AccountMembersDetailsRoot({
+                accountMembershipId: currentUserAccountMembershipId,
+                editingAccountMembershipId,
+              }),
+            email: values.email.toUndefined(),
+
+            residencyAddress: Option.allFromDict(
+              pick(values, ["addressLine1", "city", "postalCode", "country"]),
+            ).toUndefined(),
+
+            restrictedTo,
+            taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+          },
+        })
+          .mapOk(data => data.updateAccountMembership)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(({ consent: { consentUrl } }) => {
+            window.location.replace(consentUrl);
+          })
+          .tapError(error => {
+            showToast({ variant: "error", error, title: translateError(error) });
+          });
+      },
     });
   };
 

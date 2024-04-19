@@ -1,4 +1,4 @@
-import { Dict } from "@swan-io/boxed";
+import { Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -20,9 +20,9 @@ import {
   validateIban,
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { SepaLogo } from "../components/SepaLogo";
@@ -95,8 +95,8 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     },
     addressLine1: {
       initialValue: paymentLink.billingAddress?.addressLine1 ?? "",
-      validate: (value, { getFieldState }) => {
-        const country = getFieldState("country").value;
+      validate: (value, { getFieldValue }) => {
+        const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
@@ -106,8 +106,8 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     city: {
       initialValue: paymentLink.billingAddress?.city ?? "",
       sanitize: value => value.trim(),
-      validate: (value, { getFieldState }) => {
-        const country = getFieldState("country").value;
+      validate: (value, { getFieldValue }) => {
+        const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
@@ -116,8 +116,8 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     postalCode: {
       initialValue: paymentLink.billingAddress?.postalCode ?? "",
       sanitize: value => value.trim(),
-      validate: (value, { getFieldState }) => {
-        const country = getFieldState("country").value;
+      validate: (value, { getFieldValue }) => {
+        const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
@@ -134,83 +134,77 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
   );
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (
-        hasDefinedKeys(values, [
-          "paymentMethod",
-          "iban",
-          "country",
-          "name",
-          "addressLine1",
-          "city",
-          "postalCode",
-        ])
-      ) {
-        const { name, addressLine1, city, country, postalCode, iban } = values;
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-        addSepaDirectDebitPaymentMandate({
-          input: {
-            paymentLinkId: paymentLink.id,
-            debtor: {
-              iban,
-              name,
-              address: {
-                addressLine1,
-                country,
-                city,
-                postalCode,
-              },
-            },
-            language: locale.language as Language,
-          },
-        })
-          .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
-          .mapOkToResult(filterRejectionsToResult)
-          .mapOk(data => data.paymentMandate)
-          .flatMapOk(paymentMandate =>
-            initiateSddPaymentCollection({
-              input: {
-                mandateId: paymentMandate.id,
-                paymentLinkId: paymentLink.id,
-              },
-            })
-              .mapOk(
-                data => data.unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink,
-              )
-              .mapOkToResult(filterRejectionsToResult)
-              .mapOk(() => paymentMandate.mandateDocumentUrl),
-          )
-          .tapOk(mandateUrl => {
-            setMandateUrl(mandateUrl);
-          })
-          .tapError(error => {
-            match(error)
-              .with(
-                { __typename: "ValidationRejection", fields: P.not(P.nullish) },
-                ({ fields }) => {
-                  let fieldToFocus: keyof FormState | undefined;
-                  fields.forEach(field => {
-                    Dict.entries(fieldToPathMap).forEach(([fieldName, path]) => {
-                      match(field.path)
-                        .with(path, () => {
-                          setFieldError(fieldName, t("form.invalidField"));
-                          if (fieldToFocus == null) {
-                            fieldToFocus = fieldName;
-                          }
-                        })
-                        .otherwise(() => {});
-                    });
-                  });
-                  if (fieldToFocus != null) {
-                    focusField(fieldToFocus);
-                  }
+        if (option.isSome()) {
+          const { name, addressLine1, city, country, postalCode, iban } = option.get();
+
+          return addSepaDirectDebitPaymentMandate({
+            input: {
+              paymentLinkId: paymentLink.id,
+              debtor: {
+                iban,
+                name,
+                address: {
+                  addressLine1,
+                  country,
+                  city,
+                  postalCode,
                 },
-              )
-              .otherwise(error =>
-                showToast({ variant: "error", error, title: translateError(error) }),
-              );
-          });
-      }
+              },
+              language: locale.language as Language,
+            },
+          })
+            .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
+            .mapOkToResult(filterRejectionsToResult)
+            .mapOk(data => data.paymentMandate)
+            .flatMapOk(paymentMandate =>
+              initiateSddPaymentCollection({
+                input: {
+                  mandateId: paymentMandate.id,
+                  paymentLinkId: paymentLink.id,
+                },
+              })
+                .mapOk(
+                  data => data.unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink,
+                )
+                .mapOkToResult(filterRejectionsToResult)
+                .mapOk(() => paymentMandate.mandateDocumentUrl),
+            )
+            .tapOk(mandateUrl => {
+              setMandateUrl(mandateUrl);
+            })
+            .tapError(error => {
+              match(error)
+                .with(
+                  { __typename: "ValidationRejection", fields: P.not(P.nullish) },
+                  ({ fields }) => {
+                    let fieldToFocus: keyof FormState | undefined;
+                    fields.forEach(field => {
+                      Dict.entries(fieldToPathMap).forEach(([fieldName, path]) => {
+                        match(field.path)
+                          .with(path, () => {
+                            setFieldError(fieldName, t("form.invalidField"));
+                            if (fieldToFocus == null) {
+                              fieldToFocus = fieldName;
+                            }
+                          })
+                          .otherwise(() => {});
+                      });
+                    });
+                    if (fieldToFocus != null) {
+                      focusField(fieldToFocus);
+                    }
+                  },
+                )
+                .otherwise(error =>
+                  showToast({ variant: "error", error, title: translateError(error) }),
+                );
+            });
+        }
+      },
     });
   };
 

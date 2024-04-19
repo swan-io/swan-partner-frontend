@@ -10,9 +10,9 @@ import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { useForm } from "@swan-io/use-form";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
-import { hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -65,7 +65,7 @@ export const TransferInternationalWizardDetails = ({
     beneficiaryDetails: beneficiary.results,
   });
 
-  const { Field, submitForm, getFieldState, listenFields } = useForm<{
+  const { Field, submitForm, getFieldValue, listenFields } = useForm<{
     results: ResultItem[];
   }>({
     results: {
@@ -111,7 +111,7 @@ export const TransferInternationalWizardDetails = ({
   }, [data, onPressPrevious]);
 
   const refresh = useDebounce<void>(() => {
-    const { value } = getFieldState("results");
+    const value = getFieldValue("results");
 
     setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
   }, 1000);
@@ -157,10 +157,10 @@ export const TransferInternationalWizardDetails = ({
               grow={small}
               onPress={() => {
                 const runCallback = () =>
-                  submitForm(values => {
-                    if (hasDefinedKeys(values, ["results"])) {
-                      onSave(values);
-                    }
+                  submitForm({
+                    onSuccess: values => {
+                      Option.allFromDict(values).map(onSave);
+                    },
                   });
 
                 fields.length === 0

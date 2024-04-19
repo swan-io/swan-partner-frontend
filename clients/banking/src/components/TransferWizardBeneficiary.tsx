@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useDeferredQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -12,10 +12,10 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
 import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
@@ -122,13 +122,10 @@ export const TransferWizardBeneficiary = ({
   ]);
 
   const onPressSubmit = () => {
-    submitForm(values => {
-      if (hasDefinedKeys(values, ["name", "iban"])) {
-        onSave({
-          name: values.name,
-          iban: values.iban,
-        });
-      }
+    submitForm({
+      onSuccess: values => {
+        Option.allFromDict(values).map(beneficiary => onSave(beneficiary));
+      },
     });
   };
 
@@ -313,13 +310,12 @@ export const TransferWizardBeneficiary = ({
               label={t("transfer.new.iban.label")}
               render={id => (
                 <Field name="iban">
-                  {({ value, onChange, onBlur, error, validating, valid, ref }) => (
+                  {({ value, onChange, onBlur, error, valid, ref }) => (
                     <LakeTextInput
                       id={id}
                       ref={ref}
                       placeholder={t("transfer.new.iban.placeholder")}
                       value={printIbanFormat(value)}
-                      validating={validating}
                       error={error}
                       valid={valid}
                       onChangeText={onChange}

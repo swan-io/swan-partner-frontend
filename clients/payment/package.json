@@ -19,7 +19,7 @@
     "@swan-io/graphql-client": "0.1.0",
     "@swan-io/lake": "8.0.0",
     "@swan-io/shared-business": "8.0.0",
-    "@swan-io/use-form": "2.0.0",
+    "@swan-io/use-form": "2.0.1",
     "core-js": "3.36.1",
     "dayjs": "1.11.10",
     "iban": "0.0.14",
@@ -27,7 +27,6 @@
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "react-native-web": "0.19.10",
-    "react-ux-form": "1.5.0",
     "ts-pattern": "5.1.0"
   },
   "devDependencies": {

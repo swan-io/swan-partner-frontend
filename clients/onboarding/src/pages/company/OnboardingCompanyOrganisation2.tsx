@@ -1,3 +1,4 @@
+import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
@@ -15,9 +16,9 @@ import {
   businessActivities,
   monthlyPaymentVolumes,
 } from "@swan-io/shared-business/src/constants/business";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
-import { combineValidators, hasDefinedKeys, useForm } from "react-ux-form";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -119,48 +120,52 @@ export const OnboardingCompanyOrganisation2 = ({
   };
 
   const onPressNext = () => {
-    submitForm(values => {
-      if (
-        !hasDefinedKeys(values, [
-          "businessActivity",
-          "businessActivityDescription",
-          "monthlyPaymentVolume",
-        ]) ||
-        values.businessActivity === ""
-      ) {
-        return;
-      }
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
 
-      const { businessActivity, businessActivityDescription, monthlyPaymentVolume } = values;
+        if (option.isNone()) {
+          return;
+        }
 
-      updateOnboarding({
-        input: {
-          onboardingId,
-          businessActivity,
-          businessActivityDescription,
-          monthlyPaymentVolume,
+        const currentValues = option.get();
+
+        const { businessActivity, businessActivityDescription, monthlyPaymentVolume } =
+          currentValues;
+
+        if (businessActivity === "") {
+          return;
+        }
+
+        updateOnboarding({
+          input: {
+            onboardingId,
+            businessActivity,
+            businessActivityDescription,
+            monthlyPaymentVolume,
+            language: locale.language,
+          },
           language: locale.language,
-        },
-        language: locale.language,
-      })
-        .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(() => Router.push(nextStep, { onboardingId }))
-        .tapError(error => {
-          match(error)
-            .with({ __typename: "ValidationRejection" }, error => {
-              const invalidFields = extractServerValidationErrors(error, path =>
-                path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
-              );
-              invalidFields.forEach(({ fieldName, code }) => {
-                const message = getValidationErrorMessage(code, values[fieldName]);
-                setFieldError(fieldName, message);
-              });
-            })
-            .otherwise(noop);
+        })
+          .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
+          .mapOkToResult(filterRejectionsToResult)
+          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapError(error => {
+            match(error)
+              .with({ __typename: "ValidationRejection" }, error => {
+                const invalidFields = extractServerValidationErrors(error, path =>
+                  path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
+                );
+                invalidFields.forEach(({ fieldName, code }) => {
+                  const message = getValidationErrorMessage(code, currentValues[fieldName]);
+                  setFieldError(fieldName, message);
+                });
+              })
+              .otherwise(noop);
 
-          showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
-        });
+            showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
+          });
+      },
     });
   };
 

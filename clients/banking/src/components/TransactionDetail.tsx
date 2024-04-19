@@ -147,15 +147,22 @@ export const TransactionDetail = ({
           style={styles.tile}
           footer={match(transaction)
             // BankingFee should never happen, so we don't handle it
-            .with({ feesType: P.not("BankingFee") }, ({ feesType }) => {
-              const description = getFeesDescription(feesType);
+            // We display the description only for non rejected transaction because it has already an alert displayed in this case
+            .with(
+              {
+                feesType: P.not("BankingFee"),
+                statusInfo: { __typename: P.not("RejectedTransactionStatusInfo") },
+              },
+              ({ feesType }) => {
+                const description = getFeesDescription(feesType);
 
-              if (isNullish(description)) {
-                return null;
-              }
+                if (isNullish(description)) {
+                  return null;
+                }
 
-              return <LakeAlert anchored={true} variant="info" title={description} />;
-            })
+                return <LakeAlert anchored={true} variant="info" title={description} />;
+              },
+            )
             .with(
               {
                 statusInfo: { status: "Pending" },
@@ -174,8 +181,6 @@ export const TransactionDetail = ({
             )
             .with(
               {
-                // We display the reason of a rejected transaction which isn't a fee because it has already an alert displayed
-                __typename: P.not("FeeTransaction"),
                 statusInfo: { __typename: "RejectedTransactionStatusInfo", reason: P.select() },
               },
               reason => {
@@ -196,7 +201,7 @@ export const TransactionDetail = ({
               pendingEndDate => (
                 <LakeAlert
                   anchored={true}
-                  variant="warning"
+                  variant="info"
                   title={t("transaction.pendingTransaction.description", {
                     executionDate: formatDateTime(new Date(pendingEndDate), "LL"),
                   })}
@@ -207,7 +212,7 @@ export const TransactionDetail = ({
         >
           {match(transaction.statusInfo.__typename)
             .with("PendingTransactionStatusInfo", () => (
-              <Tag color="warning">{t("transactionStatus.pending")}</Tag>
+              <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
             ))
             .with("RejectedTransactionStatusInfo", () => (
               <Tag color="negative">{t("transactionStatus.rejected")}</Tag>

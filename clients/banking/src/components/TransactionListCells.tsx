@@ -97,7 +97,7 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
         .with("PendingTransactionStatusInfo", () => (
           <>
             <Space width={16} />
-            <Tag color="warning">{t("transactionStatus.pending")}</Tag>
+            <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
           </>
         ))
         .with("RejectedTransactionStatusInfo", () => (
@@ -294,7 +294,7 @@ export const TransactionSummaryCell = ({ transaction }: { transaction: Transacti
           .with("PendingTransactionStatusInfo", () => (
             <>
               <Space width={12} />
-              <Tag color="warning">{t("transactionStatus.pending")}</Tag>
+              <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
             </>
           ))
           .with("RejectedTransactionStatusInfo", () => (

@@ -56,7 +56,6 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
   );
 
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
-  const bulkEnabled = useTgglFlag("bankingBulkTransfer");
 
   const links = useMemo(() => {
     return [
@@ -82,18 +81,14 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
             },
           ]
         : []),
-      ...(bulkEnabled.getOr(false)
-        ? [
-            {
-              url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
-              icon: "lake-document-csv" as const,
-              title: t("transfer.tile.bulkTransfer.title"),
-              subtitle: t("transfer.tile.bulkTransfer.subtitle"),
-            },
-          ]
-        : []),
+      {
+        url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
+        icon: "lake-document-csv" as const,
+        title: t("transfer.tile.bulkTransfer.title"),
+        subtitle: t("transfer.tile.bulkTransfer.subtitle"),
+      },
     ];
-  }, [ictEnabled, bulkEnabled, accountMembershipId]);
+  }, [ictEnabled, accountMembershipId]);
 
   return (
     <>

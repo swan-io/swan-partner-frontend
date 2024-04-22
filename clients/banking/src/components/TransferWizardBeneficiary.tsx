@@ -291,17 +291,28 @@ export const TransferWizardBeneficiary = ({
               label={t("transfer.new.beneficiary.name")}
               render={id => (
                 <Field name="name">
-                  {({ value, onChange, onBlur, error, valid, ref }) => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      value={value}
-                      error={error}
-                      valid={valid}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
+                  {({ value, onChange, onBlur, error, valid, ref }) => {
+                    const shouldWarn = match(
+                      beneficiaryVerification.mapOk(query => query.beneficiaryVerification),
+                    )
+                      .with(
+                        AsyncData.P.Done(Result.P.Ok({ __typename: P.not("BeneficiaryMatch") })),
+                        () => true,
+                      )
+                      .otherwise(() => false);
+                    return (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        value={value}
+                        error={error}
+                        valid={!shouldWarn && valid}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        warning={shouldWarn}
+                      />
+                    );
+                  }}
                 </Field>
               )}
             />
@@ -310,18 +321,38 @@ export const TransferWizardBeneficiary = ({
               label={t("transfer.new.iban.label")}
               render={id => (
                 <Field name="iban">
-                  {({ value, onChange, onBlur, error, valid, ref }) => (
-                    <LakeTextInput
-                      id={id}
-                      ref={ref}
-                      placeholder={t("transfer.new.iban.placeholder")}
-                      value={printIbanFormat(value)}
-                      error={error}
-                      valid={valid}
-                      onChangeText={onChange}
-                      onBlur={onBlur}
-                    />
-                  )}
+                  {({ value, onChange, onBlur, error, valid, ref }) => {
+                    const shouldWarn = match(
+                      beneficiaryVerification.mapOk(query => query.beneficiaryVerification),
+                    )
+                      .with(
+                        AsyncData.P.Done(
+                          Result.P.Ok(
+                            P.union(
+                              {
+                                __typename: "InvalidBeneficiaryVerification",
+                              },
+                              { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
+                            ),
+                          ),
+                        ),
+                        () => true,
+                      )
+                      .otherwise(() => false);
+                    return (
+                      <LakeTextInput
+                        id={id}
+                        ref={ref}
+                        placeholder={t("transfer.new.iban.placeholder")}
+                        value={printIbanFormat(value)}
+                        error={error}
+                        valid={!shouldWarn && valid}
+                        onChangeText={onChange}
+                        onBlur={onBlur}
+                        warning={shouldWarn}
+                      />
+                    );
+                  }}
                 </Field>
               )}
             />

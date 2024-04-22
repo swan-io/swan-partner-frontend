@@ -44,5 +44,5 @@ updateTgglContext({
   environmentType: lowerCase(env.SWAN_ENVIRONMENT),
   projectId: projectConfiguration
     .map<string | undefined>(config => config.projectId)
-    .getWithDefault(undefined),
+    .getOr(undefined),
 });

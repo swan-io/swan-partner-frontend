@@ -136,7 +136,7 @@ export const CardItemTransactionList = ({
     .flatMap(result => result.toOption())
     .flatMap(data => Option.fromNullable(data.card?.transactions))
     .map(({ edges }) => edges.map(({ node }) => node))
-    .getWithDefault([]);
+    .getOr([]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 

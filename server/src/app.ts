@@ -557,7 +557,7 @@ export const start = async ({
 
     const state = Result.fromExecution<unknown>(() =>
       JSON.parse(request.query.state ?? "{}"),
-    ).getWithDefault({});
+    ).getOr({});
 
     const stateId = request.session.get("state") ?? "UNKNOWN";
 

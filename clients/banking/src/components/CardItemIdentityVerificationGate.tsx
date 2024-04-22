@@ -50,7 +50,7 @@ export const CardItemIdentityVerificationGate = ({
   const isProcessing = lastRelevantIdentification
     .map(getIdentificationLevelStatusInfo)
     .map(({ status }) => status === "Pending")
-    .getWithDefault(false);
+    .getOr(false);
 
   return (
     <View style={styles.container}>

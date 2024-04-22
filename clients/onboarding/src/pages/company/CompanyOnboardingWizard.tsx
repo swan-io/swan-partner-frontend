@@ -71,7 +71,7 @@ const getNextStep = (
   return Array.findIndex(steps, step => step.id === currentStep)
     .flatMap(index => Option.fromNullable(steps[index + 1]))
     .map(step => step.id)
-    .getWithDefault(currentStep);
+    .getOr(currentStep);
 };
 
 const getPreviousStep = (
@@ -81,7 +81,7 @@ const getPreviousStep = (
   return Array.findIndex(steps, step => step.id === currentStep)
     .flatMap(index => Option.fromNullable(steps[index - 1]))
     .map(step => step.id)
-    .getWithDefault(currentStep);
+    .getOr(currentStep);
 };
 
 export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Props) => {

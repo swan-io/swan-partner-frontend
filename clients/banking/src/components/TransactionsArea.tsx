@@ -130,7 +130,7 @@ export const TransactionsArea = ({
           ({ fundingSources, merchantProfiles }) =>
             fundingSources.totalCount > 0 || merchantProfiles.totalCount > 0,
         )
-        .getWithDefault(false);
+        .getOr(false);
 
       const availableBalance = account?.balances?.available;
       const bookedBalance = account?.balances?.booked;

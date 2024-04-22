@@ -203,7 +203,7 @@ export const AccountArea = ({
 
   const hasMultipleMemberships = Option.fromNullable(accountMembership.user)
     .map(({ accountMemberships: { totalCount } }) => totalCount > 1)
-    .getWithDefault(false);
+    .getOr(false);
 
   const account = accountMembership.account;
   const accountCountry = account?.country ?? undefined;
@@ -219,7 +219,7 @@ export const AccountArea = ({
   const [, setAccountMembershipState] = usePersistedState<unknown>(
     `swan_session_webBankingAccountMembershipState${projectConfiguration
       .map(({ projectId }) => `_${projectId}`)
-      .getWithDefault("")}`,
+      .getOr("")}`,
     {},
   );
 
@@ -288,7 +288,7 @@ export const AccountArea = ({
                 ({ accountMembershipsWithBindingUserError }) =>
                   accountMembershipsWithBindingUserError.totalCount > 0,
               )
-              .getWithDefault(false),
+              .getOr(false),
           },
         ];
 

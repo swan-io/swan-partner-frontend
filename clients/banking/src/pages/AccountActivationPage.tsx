@@ -519,7 +519,7 @@ export const AccountActivationPage = ({
                 <Space height={32} />
 
                 <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
-                  {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+                  {lastRelevantIdentification.map(isReadyToSign).getOr(false)
                     ? t("accountActivation.identity.button.signVerification")
                     : t("accountActivation.identity.button.verifyMyIdentity")}
                 </LakeButton>

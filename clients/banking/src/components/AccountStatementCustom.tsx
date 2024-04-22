@@ -560,7 +560,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                                       ),
                                     )
                                     .map(url => <Link to={url} target="_blank" />)
-                                    .getWithDefault(<View />);
+                                    .getOr(<View />);
                                 }}
                                 loading={{
                                   isLoading,

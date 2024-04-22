@@ -72,7 +72,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         title: t("transfer.tile.recurringTransfer.title"),
         subtitle: t("transfer.tile.recurringTransfer.subtitle"),
       },
-      ...(ictEnabled.getWithDefault(false)
+      ...(ictEnabled.getOr(false)
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
@@ -82,7 +82,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
             },
           ]
         : []),
-      ...(bulkEnabled.getWithDefault(false)
+      ...(bulkEnabled.getOr(false)
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),

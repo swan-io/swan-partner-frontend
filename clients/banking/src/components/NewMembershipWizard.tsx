@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -18,7 +18,7 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { OptionRecord, combineValidators, useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
@@ -339,42 +339,12 @@ export const NewMembershipWizard = ({
     }
   };
 
-  const filterDefinedValues = (
-    values: OptionRecord<FormState>,
-  ): {
-    [K in keyof FormState]?: FormState[K];
-  } => ({
-    ...(values.addressLine1.isSome() ? { addressLine1: values.addressLine1.get() } : null),
-    ...(values.birthDate.isSome() ? { birthDate: values.birthDate.get() } : null),
-    ...(values.canInitiatePayments.isSome()
-      ? { canInitiatePayments: values.canInitiatePayments.get() }
-      : null),
-    ...(values.canManageAccountMembership.isSome()
-      ? { canManageAccountMembership: values.canManageAccountMembership.get() }
-      : null),
-    ...(values.canManageBeneficiaries.isSome()
-      ? { canManageBeneficiaries: values.canManageBeneficiaries.get() }
-      : null),
-    ...(values.canManageCards.isSome() ? { canManageCards: values.canManageCards.get() } : null),
-    ...(values.canViewAccount.isSome() ? { canViewAccount: values.canViewAccount.get() } : null),
-    ...(values.city.isSome() ? { city: values.city.get() } : null),
-    ...(values.country.isSome() ? { country: values.country.get() } : null),
-    ...(values.email.isSome() ? { email: values.email.get() } : null),
-    ...(values.firstName.isSome() ? { firstName: values.firstName.get() } : null),
-    ...(values.lastName.isSome() ? { lastName: values.lastName.get() } : null),
-    ...(values.phoneNumber.isSome() ? { phoneNumber: values.phoneNumber.get() } : null),
-    ...(values.postalCode.isSome() ? { postalCode: values.postalCode.get() } : null),
-    ...(values.taxIdentificationNumber.isSome()
-      ? { taxIdentificationNumber: values.taxIdentificationNumber.get() }
-      : null),
-  });
-
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
         setPartiallySavedValues(previousValues => ({
           ...previousValues,
-          ...filterDefinedValues(values),
+          ...Dict.fromOptional(values),
         }));
 
         const currentStepIndex = steps.indexOf(step);
@@ -427,7 +397,7 @@ export const NewMembershipWizard = ({
       onSuccess: values => {
         const computedValues = {
           ...partiallySavedValues,
-          ...filterDefinedValues(values),
+          ...Dict.fromOptional(values),
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {

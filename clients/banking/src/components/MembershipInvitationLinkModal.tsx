@@ -49,7 +49,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
             fullName: getMemberName({ accountMembership }),
           }),
         )
-        .getWithDefault(t("members.invitationTitle"))}
+        .getOr(t("members.invitationTitle"))}
     >
       <LakeLabel
         label={t("members.invitationLink")}

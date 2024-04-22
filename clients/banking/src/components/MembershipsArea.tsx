@@ -170,7 +170,7 @@ export const MembershipsArea = ({
     .flatMap(data => data.toOption())
     .flatMap(({ account }) => Option.fromNullable(account?.memberships))
     .map(({ edges }) => edges.map(({ node }) => node))
-    .getWithDefault([]);
+    .getOr([]);
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 

@@ -105,7 +105,7 @@ export const ProfilePage = ({
             Option.P.None,
             Option.P.Some({ status: P.union("NotStarted", "Started", "Canceled", "Expired") }),
             () =>
-              lastRelevantIdentification.map(isReadyToSign).getWithDefault(false) ? (
+              lastRelevantIdentification.map(isReadyToSign).getOr(false) ? (
                 <LakeAlert
                   anchored={true}
                   variant="warning"
@@ -239,7 +239,7 @@ export const ProfilePage = ({
                                 mode="primary"
                                 onPress={handleProveIdentity}
                               >
-                                {lastRelevantIdentification.map(isReadyToSign).getWithDefault(false)
+                                {lastRelevantIdentification.map(isReadyToSign).getOr(false)
                                   ? t("profile.finalizeVerification")
                                   : t("profile.verifyIdentity")}
                               </LakeButton>
@@ -343,9 +343,7 @@ export const ProfilePage = ({
                                   mode="primary"
                                   onPress={handleProveIdentity}
                                 >
-                                  {lastRelevantIdentification
-                                    .map(isReadyToSign)
-                                    .getWithDefault(false)
+                                  {lastRelevantIdentification.map(isReadyToSign).getOr(false)
                                     ? t("profile.finalizeVerification")
                                     : t("profile.verifyIdentity")}
                                 </LakeButton>

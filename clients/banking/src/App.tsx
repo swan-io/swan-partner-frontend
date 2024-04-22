@@ -32,7 +32,7 @@ const AppContainer = () => {
 
   const loginInfo = authStatus
     .mapOk(data => data.user?.id != null)
-    .map(result => ({ isLoggedIn: result.getWithDefault(false) }));
+    .map(result => ({ isLoggedIn: result.getOr(false) }));
 
   return match(loginInfo)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => null)

@@ -199,7 +199,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                                 Array.findMap(item.type, item => Option.fromNullable(item?.url)),
                               )
                               .map(url => <Link to={url} target="_blank" />)
-                              .getWithDefault(<View />);
+                              .getOr(<View />);
                           }}
                           loading={{
                             isLoading,

@@ -21,6 +21,27 @@ fragment TransactionDetails on Transaction {
       currency
       value
     }
+    statusInfo {
+      __typename
+      status
+      ... on BookedTransactionStatusInfo {
+        bookingDate
+      }
+      ... on PendingTransactionStatusInfo {
+        pendingEndDate
+      }
+      ... on CanceledTransactionStatusInfo {
+        canceledDate
+      }
+      ... on RejectedTransactionStatusInfo {
+        status
+        reason
+      }
+      ... on UpcomingTransactionStatusInfo {
+        status
+        executionDate
+      }
+    }
   }
   statusInfo {
     __typename

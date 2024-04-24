@@ -51,7 +51,7 @@ export const getTransactionRejectedReasonLabel = (reason: RejectedReasonCode) =>
 export const getInstantTransferFallbackReasonLabel = (reason: RejectedReasonCode) => {
   return match(`instantTransferFallbackReason.${reason}`)
     .with(P.when(isTranslationKey), key => t(key))
-    .otherwise(() => undefined);
+    .otherwise(() => t("transaction.instantTransferUnavailable.description"));
 };
 
 export const getFeesDescription = (fees: Exclude<FeesTypeEnum, "BankingFee">) => {

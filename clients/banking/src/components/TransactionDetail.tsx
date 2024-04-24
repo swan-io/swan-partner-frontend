@@ -182,9 +182,7 @@ export const TransactionDetail = ({
                     anchored={true}
                     variant="warning"
                     title={t("transaction.instantTransferUnavailable")}
-                    children={
-                      description ?? t("transaction.instantTransferUnavailable.description")
-                    }
+                    children={description}
                   />
                 );
               },

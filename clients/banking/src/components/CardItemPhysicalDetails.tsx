@@ -834,7 +834,7 @@ export const CardItemPhysicalDetails = ({
                       />
                     </Pressable>
 
-                    {isNotNullish(previousCard) && (
+                    {physicalCard.statusInfo.status === "Renewed" && isNotNullish(previousCard) && (
                       <Pressable
                         onPress={() => setCurrentCard("previous")}
                         style={[
@@ -1015,12 +1015,6 @@ export const CardItemPhysicalDetails = ({
                       },
                     },
                   },
-                  {
-                    isCurrentUserCardOwner: true,
-                    statusInfo: {
-                      __typename: "PhysicalCardRenewedStatusInfo",
-                    },
-                  },
                   () => (
                     <>
                       <Space height={24} />
@@ -1038,6 +1032,38 @@ export const CardItemPhysicalDetails = ({
                         >
                           {t("card.physical.activate")}
                         </LakeButton>
+                      </LakeTooltip>
+                    </>
+                  ),
+                )
+                .with(
+                  {
+                    isCurrentUserCardOwner: true,
+                    physicalCard: {
+                      statusInfo: {
+                        __typename: "PhysicalCardRenewedStatusInfo",
+                      },
+                    },
+                  },
+                  () => (
+                    <>
+                      <Space height={24} />
+
+                      <LakeTooltip
+                        content={t("card.tooltipConflict")}
+                        placement="center"
+                        disabled={!hasBindingUserError}
+                      >
+                        {currentCard === "renewed" && (
+                          <LakeButton
+                            color="current"
+                            onPress={() => setIsActivationModalOpen(true)}
+                            loading={physicalCardActivation.isLoading()}
+                            disabled={hasBindingUserError}
+                          >
+                            {t("card.physical.activate")}
+                          </LakeButton>
+                        )}
                       </LakeTooltip>
                     </>
                   ),
@@ -1228,6 +1254,7 @@ export const CardItemPhysicalDetails = ({
                           __typename: P.union(
                             "PhysicalCardActivatedStatusInfo",
                             "PhysicalCardRenewedStatusInfo",
+                            "PhysicalCardToRenewStatusInfo",
                           ),
                         },
                       },
@@ -1305,6 +1332,7 @@ export const CardItemPhysicalDetails = ({
                           __typename: P.union(
                             "PhysicalCardRenewedStatusInfo",
                             "PhysicalCardToActivateStatusInfo",
+                            "PhysicalCardToRenewStatusInfo",
                           ),
                           isPINReady: true,
                         },

@@ -122,8 +122,8 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
         <Space height={8} />
 
         <Box direction="row">
-          {match(card.type)
-            .with("SingleUseVirtual", () => (
+          {match(card)
+            .with({ type: "SingleUseVirtual" }, () => (
               <>
                 <Tag color="darkPink" icon="phone-regular">
                   {t("cards.format.singleUse")}
@@ -142,16 +142,26 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                 )}
               </>
             ))
-            .with("Virtual", () => (
+            .with({ type: "Virtual" }, () => (
               <Tag color="mediumSladeBlue" icon="phone-regular">
                 {t("cards.format.virtual")}
               </Tag>
             ))
-            .with("VirtualAndPhysical", () => (
-              <Tag color="shakespear" icon="payment-regular">
-                {t("cards.format.virtualAndPhysical")}
-              </Tag>
+            .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
+              <>
+                <Tag color="shakespear" icon="payment-regular">
+                  {t("cards.format.virtualAndPhysical")}
+                </Tag>
+
+                {physicalCard?.statusInfo.status === "ToRenew" && (
+                  <>
+                    <Space width={12} />
+                    <Tag color="shakespear">{t("cards.expiringSoon")}</Tag>
+                  </>
+                )}
+              </>
             ))
+
             .exhaustive()}
         </Box>
       </View>

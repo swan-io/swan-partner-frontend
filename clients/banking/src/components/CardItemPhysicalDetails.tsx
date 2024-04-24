@@ -738,7 +738,7 @@ export const CardItemPhysicalDetails = ({
                     <>
                       <LakeText>
                         {t("card.physical.toRenewAlert.description", {
-                          sixWeeksBefore,
+                          deadline: sixWeeksBefore,
                           address: completeAddress,
                         })}
                       </LakeText>
@@ -1008,10 +1008,18 @@ export const CardItemPhysicalDetails = ({
               {match({ physicalCard, isCurrentUserCardOwner })
                 .with(
                   {
-                    physicalCard: {
-                      statusInfo: { __typename: "PhysicalCardToActivateStatusInfo" },
-                    },
                     isCurrentUserCardOwner: true,
+                    physicalCard: {
+                      statusInfo: {
+                        __typename: "PhysicalCardToActivateStatusInfo",
+                      },
+                    },
+                  },
+                  {
+                    isCurrentUserCardOwner: true,
+                    statusInfo: {
+                      __typename: "PhysicalCardRenewedStatusInfo",
+                    },
                   },
                   () => (
                     <>

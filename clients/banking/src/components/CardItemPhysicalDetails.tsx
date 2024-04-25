@@ -1095,7 +1095,12 @@ export const CardItemPhysicalDetails = ({
                     isCurrentUserCardOwner: true,
                     card: {
                       physicalCard: {
-                        statusInfo: { __typename: "PhysicalCardActivatedStatusInfo" },
+                        statusInfo: {
+                          __typename: P.union(
+                            "PhysicalCardActivatedStatusInfo",
+                            "PhysicalCardToRenewStatusInfo",
+                          ),
+                        },
                       },
                       accountMembership: {
                         statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
@@ -1118,6 +1123,44 @@ export const CardItemPhysicalDetails = ({
                         >
                           {t("card.revealNumbers")}
                         </LakeButton>
+                      </LakeTooltip>
+
+                      <Space height={24} />
+                    </>
+                  ),
+                )
+                .with(
+                  {
+                    isCurrentUserCardOwner: true,
+                    card: {
+                      physicalCard: {
+                        statusInfo: {
+                          __typename: "PhysicalCardRenewedStatusInfo",
+                        },
+                      },
+                      accountMembership: {
+                        statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
+                      },
+                    },
+                  },
+                  () => (
+                    <>
+                      <LakeTooltip
+                        content={t("card.tooltipConflict")}
+                        placement="center"
+                        disabled={!hasBindingUserError}
+                      >
+                        {currentCard === "previous" && (
+                          <LakeButton
+                            disabled={hasBindingUserError}
+                            mode="secondary"
+                            icon="eye-regular"
+                            loading={physicalCardNumberViewing.isLoading()}
+                            onPress={onPressRevealPhysicalCardNumbers}
+                          >
+                            {t("card.revealNumbers")}
+                          </LakeButton>
+                        )}
                       </LakeTooltip>
 
                       <Space height={24} />

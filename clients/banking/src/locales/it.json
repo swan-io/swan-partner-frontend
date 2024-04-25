@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Riceva tutte le carte allo stesso tempo con un'unica consegna.",
   "cards.delivery.individual": "Consegna individuale",
   "cards.delivery.individual.description": "Ognuno riceverà le proprie carte individualmente, a indirizzi diversi.",
+  "cards.expiringSoon": "In scadenza",
   "cards.format.physical": "Fisica",
   "cards.format.singleUse": "Uso singolo",
   "cards.format.singleUse.description": "Adatta per transazioni una tantum o per acquisti in abbonamento.",

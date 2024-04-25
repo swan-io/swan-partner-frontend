@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Ontvang alle kaarten tegelijk, in één levering.",
   "cards.delivery.individual": "Individuele levering",
   "cards.delivery.individual.description": "Iedereen ontvangt de kaarten individueel, op verschillende adressen.",
+  "cards.expiringSoon": "Verloopt binnenkort",
   "cards.format.physical": "Fysiek",
   "cards.format.singleUse": "Eenmalig gebruik",
   "cards.format.singleUse.description": "Geschikt voor eenmalige transacties, of abonnementsaankopen.",

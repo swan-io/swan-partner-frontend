@@ -46,6 +46,7 @@ import {
   AddressInfo,
   CancelPhysicalCardDocument,
   CancelPhysicalCardReason,
+  CardPageDocument,
   CardPageQuery,
   CompleteAddressInput,
   ConfirmPhysicalCardRenewalDocument,
@@ -57,6 +58,7 @@ import {
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
+import { partnerClient } from "../utils/gql";
 import { formatCurrency, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -547,6 +549,7 @@ export const CardItemPhysicalDetails = ({
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
         setOrderModalStatus(Option.None());
+        partnerClient.query(CardPageDocument, { cardId });
       })
       .mapOk(data => data.physicalCard.identifier)
       .tapError(error => {
@@ -795,18 +798,139 @@ export const CardItemPhysicalDetails = ({
         {match(card.physicalCard)
           .with({ __typename: "PhysicalCard" }, physicalCard => (
             <View style={styles.card}>
-              {card.cardDesignUrl != null ? (
-                desktop ? (
-                  <View style={styles.physicalCardContainer}>
-                    <Svg role="none" viewBox="0 0 85 55" />
+              {card.cardDesignUrl != null
+                ? match({ physicalCard, previousCard })
+                    .with(
+                      {
+                        physicalCard: { statusInfo: { status: "Renewed" } },
+                        previousCard: P.nonNullable,
+                      },
+                      ({ previousCard }) =>
+                        desktop ? (
+                          <View style={styles.physicalCardContainer}>
+                            <Svg role="none" viewBox="0 0 85 55" />
 
-                    <Pressable
-                      onPress={() => setCurrentCard("renewed")}
-                      style={[
-                        styles.physicalCardFront,
-                        currentCard === "previous" && styles.physicalCardRenewedBehind,
-                      ]}
-                    >
+                            <Pressable
+                              onPress={() => setCurrentCard("renewed")}
+                              style={[
+                                styles.physicalCardFront,
+                                currentCard === "previous" && styles.physicalCardRenewedBehind,
+                              ]}
+                            >
+                              <MaskedCard
+                                cardDesignUrl={card.cardDesignUrl}
+                                textColor={
+                                  card.cardProduct.cardDesigns.find(
+                                    cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                  )?.accentColor ?? "#fff"
+                                }
+                                holderName={getMemberName({
+                                  accountMembership: card.accountMembership,
+                                })}
+                                pan={physicalCard.cardMaskedNumber}
+                                expiryDate={physicalCard.expiryDate ?? ""}
+                                status={physicalCard.statusInfo.status}
+                                estimatedDeliveryDate={match(physicalCard.statusInfo)
+                                  .with(
+                                    {
+                                      __typename: "PhysicalCardToActivateStatusInfo",
+                                      estimatedDeliveryDate: P.string,
+                                    },
+                                    {
+                                      __typename: "PhysicalCardRenewedStatusInfo",
+                                      estimatedDeliveryDate: P.string,
+                                    },
+                                    ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                                  )
+                                  .otherwise(() => undefined)}
+                              />
+                            </Pressable>
+
+                            <Pressable
+                              onPress={() => setCurrentCard("previous")}
+                              style={[
+                                styles.physicalCardFront,
+                                currentCard === "renewed" && styles.physicalCardPreviousBehind,
+                              ]}
+                            >
+                              <MaskedCard
+                                cardDesignUrl={card.cardDesignUrl}
+                                textColor={
+                                  card.cardProduct.cardDesigns.find(
+                                    cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                  )?.accentColor ?? "#fff"
+                                }
+                                holderName={getMemberName({
+                                  accountMembership: card.accountMembership,
+                                })}
+                                pan={previousCard.cardMaskedNumber}
+                                expiryDate={previousCard.expiryDate ?? ""}
+                                status={"ToRenew"}
+                              />
+                            </Pressable>
+                          </View>
+                        ) : (
+                          <ChoicePicker
+                            tile={false}
+                            onChange={setCurrentCard}
+                            value={currentCard}
+                            items={["previous", "renewed"]}
+                            renderItem={selectedCard => (
+                              <View style={styles.physicalCardContainer}>
+                                <Svg
+                                  role="none"
+                                  viewBox="0 0 85 55"
+                                  style={styles.physicalCardItem}
+                                />
+
+                                <View style={styles.physicalCardFront}>
+                                  <MaskedCard
+                                    cardDesignUrl={card.cardDesignUrl}
+                                    textColor={
+                                      card.cardProduct.cardDesigns.find(
+                                        cardDesign =>
+                                          cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                      )?.accentColor ?? "#fff"
+                                    }
+                                    holderName={getMemberName({
+                                      accountMembership: card.accountMembership,
+                                    })}
+                                    pan={
+                                      selectedCard === "previous"
+                                        ? previousCard.cardMaskedNumber
+                                        : physicalCard.cardMaskedNumber
+                                    }
+                                    expiryDate={
+                                      selectedCard === "previous"
+                                        ? previousCard.expiryDate ?? ""
+                                        : physicalCard.expiryDate ?? ""
+                                    }
+                                    status={
+                                      selectedCard === "previous"
+                                        ? "ToRenew"
+                                        : physicalCard.statusInfo.status
+                                    }
+                                    estimatedDeliveryDate={match(physicalCard.statusInfo)
+                                      .with(
+                                        {
+                                          __typename: "PhysicalCardToActivateStatusInfo",
+                                          estimatedDeliveryDate: P.string,
+                                        },
+                                        {
+                                          __typename: "PhysicalCardRenewedStatusInfo",
+                                          estimatedDeliveryDate: P.string,
+                                        },
+                                        ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                                      )
+                                      .otherwise(() => undefined)}
+                                  />
+                                </View>
+                              </View>
+                            )}
+                          />
+                        ),
+                    )
+                    .otherwise(() => (
                       <MaskedCard
                         cardDesignUrl={card.cardDesignUrl}
                         textColor={
@@ -832,115 +956,8 @@ export const CardItemPhysicalDetails = ({
                           )
                           .otherwise(() => undefined)}
                       />
-                    </Pressable>
-
-                    {physicalCard.statusInfo.status === "Renewed" && isNotNullish(previousCard) && (
-                      <Pressable
-                        onPress={() => setCurrentCard("previous")}
-                        style={[
-                          styles.physicalCardFront,
-                          currentCard === "renewed" && styles.physicalCardPreviousBehind,
-                        ]}
-                      >
-                        <MaskedCard
-                          cardDesignUrl={card.cardDesignUrl}
-                          textColor={
-                            card.cardProduct.cardDesigns.find(
-                              cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                            )?.accentColor ?? "#fff"
-                          }
-                          holderName={getMemberName({
-                            accountMembership: card.accountMembership,
-                          })}
-                          pan={previousCard.cardMaskedNumber}
-                          expiryDate={previousCard.expiryDate ?? ""}
-                          status={"ToRenew"}
-                        />
-                      </Pressable>
-                    )}
-                  </View>
-                ) : isNotNullish(previousCard) ? (
-                  <ChoicePicker
-                    tile={false}
-                    onChange={setCurrentCard}
-                    value={currentCard}
-                    items={["previous", "renewed"]}
-                    renderItem={selectedCard => (
-                      <View style={styles.physicalCardContainer}>
-                        <Svg role="none" viewBox="0 0 85 55" style={styles.physicalCardItem} />
-
-                        <View style={styles.physicalCardFront}>
-                          <MaskedCard
-                            cardDesignUrl={card.cardDesignUrl}
-                            textColor={
-                              card.cardProduct.cardDesigns.find(
-                                cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                              )?.accentColor ?? "#fff"
-                            }
-                            holderName={getMemberName({
-                              accountMembership: card.accountMembership,
-                            })}
-                            pan={
-                              selectedCard === "previous"
-                                ? previousCard.cardMaskedNumber
-                                : physicalCard.cardMaskedNumber
-                            }
-                            expiryDate={
-                              selectedCard === "previous"
-                                ? previousCard.expiryDate ?? ""
-                                : physicalCard.expiryDate ?? ""
-                            }
-                            status={
-                              selectedCard === "previous"
-                                ? "ToRenew"
-                                : physicalCard.statusInfo.status
-                            }
-                            estimatedDeliveryDate={match(physicalCard.statusInfo)
-                              .with(
-                                {
-                                  __typename: "PhysicalCardToActivateStatusInfo",
-                                  estimatedDeliveryDate: P.string,
-                                },
-                                {
-                                  __typename: "PhysicalCardRenewedStatusInfo",
-                                  estimatedDeliveryDate: P.string,
-                                },
-                                ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                              )
-                              .otherwise(() => undefined)}
-                          />
-                        </View>
-                      </View>
-                    )}
-                  />
-                ) : (
-                  <MaskedCard
-                    cardDesignUrl={card.cardDesignUrl}
-                    textColor={
-                      card.cardProduct.cardDesigns.find(
-                        cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                      )?.accentColor ?? "#fff"
-                    }
-                    holderName={getMemberName({ accountMembership: card.accountMembership })}
-                    pan={physicalCard.cardMaskedNumber}
-                    expiryDate={physicalCard.expiryDate ?? ""}
-                    status={physicalCard.statusInfo.status}
-                    estimatedDeliveryDate={match(physicalCard.statusInfo)
-                      .with(
-                        {
-                          __typename: "PhysicalCardToActivateStatusInfo",
-                          estimatedDeliveryDate: P.string,
-                        },
-                        {
-                          __typename: "PhysicalCardRenewedStatusInfo",
-                          estimatedDeliveryDate: P.string,
-                        },
-                        ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                      )
-                      .otherwise(() => undefined)}
-                  />
-                )
-              ) : null}
+                    ))
+                : null}
 
               {cardRequiresIdentityVerification ? (
                 <>

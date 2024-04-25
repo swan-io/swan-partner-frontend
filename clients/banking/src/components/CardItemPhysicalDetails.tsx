@@ -1388,14 +1388,18 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         isCurrentUserCardOwner: true,
-                        statusInfo: {
-                          __typename: P.union(
-                            "PhysicalCardRenewedStatusInfo",
-                            "PhysicalCardToActivateStatusInfo",
-                            "PhysicalCardToRenewStatusInfo",
-                          ),
-                          isPINReady: true,
-                        },
+                        statusInfo: P.union(
+                          {
+                            __typename: P.union(
+                              "PhysicalCardRenewedStatusInfo",
+                              "PhysicalCardToActivateStatusInfo",
+                            ),
+                            isPINReady: true,
+                          },
+                          {
+                            __typename: "PhysicalCardToRenewStatusInfo",
+                          },
+                        ),
                       },
                       {
                         isCurrentUserCardOwner: true,

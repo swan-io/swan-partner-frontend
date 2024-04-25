@@ -665,6 +665,11 @@ fragment CardListItem on Card {
       value
     }
   }
+  physicalCard {
+    statusInfo {
+      status
+    }
+  }
   cardDesignUrl
   accountMembership {
     id
@@ -900,7 +905,7 @@ query CardPage($cardId: ID!) {
     physicalCard {
       expiryDate
       cardMaskedNumber
-
+      identifier
       statusInfo {
         __typename
         status

@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Recibir todas las tarjetas en la misma entrega.",
   "cards.delivery.individual": "Entrega individual",
   "cards.delivery.individual.description": "Todos recibirán sus tarjetas de forma individual, en direcciones diferentes.",
+  "cards.expiringSoon": "Caduca pronto",
   "cards.format.physical": "Física",
   "cards.format.singleUse": "Desechable",
   "cards.format.singleUse.description": "Ideal para operaciones puntuales o compras de suscripciones.",

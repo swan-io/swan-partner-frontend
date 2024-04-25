@@ -2270,10 +2270,10 @@
     "@swan-io/request" "^1.0.5"
     ts-pattern "^5.1.0"
 
-"@swan-io/lake@8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.1.0.tgz#311bdb192117eea0e500a36837eeaffeaff03a1b"
-  integrity sha512-zqVlKUdmoXYtfFJlC2f/Md8TBAPgoznr2cnMAftjk3phTBzDSyXQfGpd9eAChbkFeUO/wLN2z1jetFx+NLwQDQ==
+"@swan-io/lake@8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.1.2.tgz#05106847424137fdd9fd0b8da74787f11630a299"
+  integrity sha512-YJWDgaTCmUpz/rFFxTmpkHlLv5fcFMAltxlmj3dmnUQJxAmQjoCe4xsykJJS3HJFgg15tvRdQ6O4oqeI4Hb7JQ==
   dependencies:
     "@react-three/drei" "^9.104.1"
     "@react-three/fiber" "^8.16.1"
@@ -2299,10 +2299,10 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.5.tgz#3e4fd8e0d699bde18fa7338939c4f2de92ab7dae"
   integrity sha512-inXD6hBUmbbDyzAAL30yEaIuSmTCjzyGpQwejdTTDE63qNnDpOVj4SZzsMgph8q1xCq5r3tLm5QgvN2HGuneIw==
 
-"@swan-io/shared-business@8.1.0":
-  version "8.1.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.1.0.tgz#d7c60ec30e74d6d450220e2ed52498bd7dfb103d"
-  integrity sha512-IryfGpZAo9G6FkUcxsv3WPc0apeJpAmuXFavyB/R2IvHdtKAl39ugFYrLYMREhSF/fYk7/4qBdNZfJDk//qPsg==
+"@swan-io/shared-business@8.1.2":
+  version "8.1.2"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.1.2.tgz#088ba8ab76cd3178734510491ae1bd4da2dee176"
+  integrity sha512-fZPL20zHucxzNTouTEd5OK0/UEwOHw8jPDOnWhymhsgJovGoyvqC5GyFGq5fasrlOiEHHaIjNNTVTr55/jwfsg==
   dependencies:
     "@formatjs/intl" "^2.10.1"
     "@placekit/client-js" "^2.3.0"

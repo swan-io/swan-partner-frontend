@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Receive all the cards in a single delivery.",
   "cards.delivery.individual": "Individual delivery",
   "cards.delivery.individual.description": "Everyone will receive their cards individually at different addresses.",
+  "cards.expiringSoon": "Expiring soon",
   "cards.format.physical": "Physical",
   "cards.format.singleUse": "Single use",
   "cards.format.singleUse.description": "Suitable for one-time transactions and subscription purchases.",

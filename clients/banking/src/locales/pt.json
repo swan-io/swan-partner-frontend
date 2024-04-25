@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Receba todos os cartões com apenas uma entrega.",
   "cards.delivery.individual": "Entrega individual",
   "cards.delivery.individual.description": "Todos receberão os seus cartões individualmente, em endereços diferentes.",
+  "cards.expiringSoon": "A expirar em breve",
   "cards.format.physical": "Físico",
   "cards.format.singleUse": "Uso único",
   "cards.format.singleUse.description": "Adequado para transações únicas ou assinaturas.",

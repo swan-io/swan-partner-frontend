@@ -236,6 +236,7 @@
   "cards.delivery.grouped.description": "Vastaanota kaikki kortit yhdessä lähetyksessä.",
   "cards.delivery.individual": "Erillinen toimitus",
   "cards.delivery.individual.description": "Kaikki saavat korttinsa erikseen eri osoitteisiin.",
+  "cards.expiringSoon": "Vanhenee pian",
   "cards.format.physical": "Fyysinen",
   "cards.format.singleUse": "Kertakäyttöinen",
   "cards.format.singleUse.description": "Soveltuu kertatapahtumiin ja tilausten ostamiseen.",

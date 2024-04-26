@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Tijdelijk geblokkeerd",
   "card.physical.toRenewAlert": "Je kaart verloopt op {expiryDate}",
   "card.physical.toRenewAlert.cta": "Adres bijwerken",
-  "card.physical.toRenewAlert.description": "We sturen je kaart automatisch op. Als je verzendadres verschilt van het vermelde adres, update het dan voor {deadline}.\n \nVerzendadres: {address}",
+  "card.physical.toRenewAlert.description": "We sturen je nieuwe kaart automatisch op. Als je verzendadres verschilt van het vermelde adres, update het dan voor {deadline}.\n\nVerzendadres: {address}",
   "card.physical.toRenewAlert.info": "Je nieuwe kaart komt binnenkort aan.\nActiveer je nieuwe kaart op elk moment nadat de status is veranderd naar Verzending. Nadat je je nieuwe kaart hebt geactiveerd, kun je je oude kaart niet meer gebruiken. Je hebt nog steeds toegang tot je transactiegeschiedenis, instellingen en mobiele betalingsinformatie.",
   "card.physical.trackingNumber": "{shippingProvider}-trackingnummer",
   "card.physical.unblock": "Deblokkeren",

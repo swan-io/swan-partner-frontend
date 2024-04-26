@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Väliaikainen esto",
   "card.physical.toRenewAlert": "Korttisi vanhenee {expiryDate}",
   "card.physical.toRenewAlert.cta": "Päivitä osoite",
-  "card.physical.toRenewAlert.description": "Lähetämme korttisi automaattisesti. Jos toimitusosoitteesi on eri kuin listattu osoite, päivitä se ennen {deadline}.\n \nToimitusosoite: {address}",
+  "card.physical.toRenewAlert.description": "Lähetämme uuden korttisi automaattisesti. Jos toimitusosoitteesi poikkeaa listatusta osoitteesta, päivitä se ennen {deadline}-päivää. \n \nToimitusosoite: {address}",
   "card.physical.toRenewAlert.info": "Uusi korttisi saapuu pian.\nAktivoi uusi korttisi milloin tahansa, kun tila muuttuu Lähetys-tilaan. Kun aktivoit uuden korttisi, et voi enää käyttää vanhaa korttiasi. Sinulla on kuitenkin edelleen pääsy tapahtumahistoriaasi, asetuksiin ja mobiilimaksutietoihin.",
   "card.physical.trackingNumber": "Toimittajan {shippingProvider} seurantanumero",
   "card.physical.unblock": "Pura esto",

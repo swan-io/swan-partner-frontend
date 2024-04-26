@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Bloquer temporairement",
   "card.physical.toRenewAlert": "Votre carte expire le {expiryDate}",
   "card.physical.toRenewAlert.cta": "Mettre à jour l'adresse",
-  "card.physical.toRenewAlert.description": "Nous enverrons votre carte automatiquement. Si votre adresse de livraison est différente de celle indiquée, veuillez la mettre à jour avant le {deadline}.\n \nAdresse de livraison : {address}",
+  "card.physical.toRenewAlert.description": "Nous enverrons automatiquement votre nouvelle carte. Si votre adresse de livraison est différente de celle répertoriée, veuillez la mettre à jour avant le {deadline}.\n\nAdresse de livraison : {address}",
   "card.physical.toRenewAlert.info": "Votre nouvelle carte arrivera bientôt.\nActivez votre nouvelle carte à tout moment après que le statut passe à Expédition. Après avoir activé votre nouvelle carte, vous ne pourrez plus utiliser l'ancienne. Vous aurez toujours accès à votre historique de transactions, vos paramètres et vos informations de paiement mobile.",
   "card.physical.trackingNumber": "Numéro de suivi {shippingProvider}",
   "card.physical.unblock": "Débloquer",

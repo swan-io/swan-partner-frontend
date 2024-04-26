@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Blocca temporaneamente",
   "card.physical.toRenewAlert": "La sua carta scadrà il {expiryDate}",
   "card.physical.toRenewAlert.cta": "Aggiorna indirizzo",
-  "card.physical.toRenewAlert.description": "Inviaremo la sua carta automaticamente. Se il suo indirizzo di spedizione è diverso dall'indirizzo indicato, la preghiamo di aggiornarlo entro il {deadline}.\n \nIndirizzo di spedizione: {address}",
+  "card.physical.toRenewAlert.description": "Inviaremo automaticamente la sua nuova carta. Se il suo indirizzo di spedizione è diverso da quello indicato, la preghiamo di aggiornarlo entro il {deadline}.\n \nIndirizzo di spedizione: {address}",
   "card.physical.toRenewAlert.info": "La sua nuova carta arriverà presto.\nAttivi la sua nuova carta in qualsiasi momento dopo che lo stato cambia in Spedizione. Dopo aver attivato la sua nuova carta, non potrà più utilizzare la vecchia carta. Avrà comunque accesso alla sua cronologia delle transazioni, impostazioni e informazioni sui pagamenti mobili.",
   "card.physical.trackingNumber": "Numero di tracciamento {shippingProvider}",
   "card.physical.unblock": "Sblocca",

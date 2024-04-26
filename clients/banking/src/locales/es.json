@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Bloquear temporalmente",
   "card.physical.toRenewAlert": "Tu tarjeta caduca el {expiryDate}",
   "card.physical.toRenewAlert.cta": "Actualizar dirección",
-  "card.physical.toRenewAlert.description": "Enviaremos tu tarjeta automáticamente. Si tu dirección de envío es diferente a la dirección registrada, actualízala antes del {deadline}.\n \nDirección de envío: {address}",
+  "card.physical.toRenewAlert.description": "Enviaremos tu nueva tarjeta automáticamente. Si tu dirección de envío es diferente a la indicada, actualízala antes del {deadline}.\n \nDirección de envío: {address}",
   "card.physical.toRenewAlert.info": "Tu nueva tarjeta llegará pronto.\nActiva tu nueva tarjeta en cualquier momento después de que el estado cambie a Envío. Después de activar tu nueva tarjeta, ya no podrás usar la antigua. Seguirás teniendo acceso a tu historial de transacciones, ajustes e información de pago móvil.",
   "card.physical.trackingNumber": "Número de seguimiento de {shippingProvider}",
   "card.physical.unblock": "Desbloquear",

@@ -743,9 +743,9 @@ export const CardItemPhysicalDetails = ({
               ],
               x => x,
             ).join(", ");
-            const sixWeeksBefore = dayjs(expiryDate, "MM/YY")
+            const fourWeeksBefore = dayjs(expiryDate, "MM/YY")
               .endOf("month")
-              .subtract(6, "weeks")
+              .subtract(4, "weeks")
               .format("LL");
 
             return (
@@ -762,7 +762,7 @@ export const CardItemPhysicalDetails = ({
                     <>
                       <LakeText>
                         {t("card.physical.toRenewAlert.description", {
-                          deadline: sixWeeksBefore,
+                          deadline: fourWeeksBefore,
                           address: completeAddress,
                         })}
                       </LakeText>

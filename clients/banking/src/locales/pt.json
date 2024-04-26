@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Bloquear temporariamente",
   "card.physical.toRenewAlert": "O seu cartão está a expirar em {expiryDate}",
   "card.physical.toRenewAlert.cta": "Atualizar endereço",
-  "card.physical.toRenewAlert.description": "Vamos enviar o seu cartão automaticamente. Se o seu endereço de entrega for diferente do endereço listado, por favor atualize-o antes de {deadline}.\n \nEndereço de entrega: {address}",
+  "card.physical.toRenewAlert.description": "Enviaremos automaticamente o seu novo cartão. Se o seu endereço de entrega for diferente do endereço listado, por favor atualize-o antes de {deadline}.\n \nEndereço de entrega: {address}",
   "card.physical.toRenewAlert.info": "O seu novo cartão chegará em breve.\nAtive o seu novo cartão a qualquer momento após o status mudar para Envio. Depois de ativar o seu novo cartão, não poderá mais usar o seu cartão antigo. Ainda terá acesso ao seu histórico de transações, configurações e informações de pagamento móvel.",
   "card.physical.trackingNumber": "Número de rastreamento da {shippingProvider}",
   "card.physical.unblock": "Desbloquear",

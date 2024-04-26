@@ -158,7 +158,7 @@
   "card.physical.temporarilyBlock": "Vorübergehend sperren",
   "card.physical.toRenewAlert": "Ihre Karte läuft am {expiryDate} ab",
   "card.physical.toRenewAlert.cta": "Adresse aktualisieren",
-  "card.physical.toRenewAlert.description": "Wir senden Ihre Karte automatisch. Wenn Ihre Lieferadresse von der angegebenen Adresse abweicht, aktualisieren Sie diese bitte vor dem {deadline}.\n\nLieferadresse: {address}",
+  "card.physical.toRenewAlert.description": "Wir senden Ihre neue Karte automatisch. Wenn Ihre Versandadresse von der angegebenen Adresse abweicht, aktualisieren Sie diese bitte vor dem {deadline}.\n \nVersandadresse: {address}",
   "card.physical.toRenewAlert.info": "Ihre neue Karte wird bald eintreffen.\nAktivieren Sie Ihre neue Karte jederzeit, nachdem der Status auf Versand geändert wurde. Nachdem Sie Ihre neue Karte aktiviert haben, können Sie Ihre alte Karte nicht mehr verwenden. Sie haben weiterhin Zugriff auf Ihr Transaktionsprotokoll, Einstellungen und mobile Zahlungsinformationen.",
   "card.physical.trackingNumber": "{shippingProvider} Sendungsnummer",
   "card.physical.unblock": "Entsperren",

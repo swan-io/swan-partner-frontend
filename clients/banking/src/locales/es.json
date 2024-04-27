@@ -188,6 +188,7 @@
   "card.spendingLimit.remaining.weekly": "Restante (próximos 7 días)",
   "card.toRenew": "Próximo vencimiento",
   "card.tooltipConflict": "Desactivada hasta que se resuelva el conflicto de datos",
+  "card.yourAddress": "Tu dirección",
   "cardDetail.mobilePayment": "Pago con móvil",
   "cardDetail.physicalCard": "Tarjeta física",
   "cardDetail.settings": "Ajustes",

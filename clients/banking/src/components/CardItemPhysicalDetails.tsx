@@ -125,6 +125,16 @@ const styles = StyleSheet.create({
     transform: "translateZ(0) translateX(-30%) scale(0.6, 0.75) rotateY(10deg)",
   },
   physicalCardItem: { width: "100%", height: "auto" },
+  shippingAddressAlert: {
+    borderWidth: 0,
+    borderLeftWidth: 0,
+    borderTopWidth: 0.8,
+    borderColor: colors.gray[100],
+  },
+  shippingAddressTile: {
+    borderBottomLeftRadius: 0,
+    borderBottomRightRadius: 0,
+  },
   spendingContainer: {
     ...commonStyles.fill,
     alignSelf: "stretch",
@@ -1315,30 +1325,51 @@ export const CardItemPhysicalDetails = ({
                 .otherwise(() => null)}
 
               {match(physicalCard.statusInfo)
-                .with(
-                  { __typename: "PhysicalCardToActivateStatusInfo" },
-                  { __typename: "PhysicalCardRenewedStatusInfo" },
-                  ({ address }) => (
-                    <>
-                      <LakeAlert
-                        variant={"info"}
-                        title={t("card.shippingAddress")}
-                        subtitle={[
-                          address.addressLine1,
-                          address.addressLine2,
-                          address.postalCode,
-                          address.city,
-                          address.country != null && isCountryCCA3(address.country)
-                            ? getCountryName(address.country)
-                            : undefined,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      />
+                .with({ __typename: "PhysicalCardToActivateStatusInfo" }, ({ address }) => (
+                  <>
+                    <LakeAlert
+                      variant={"neutral"}
+                      title={t("card.shippingAddress")}
+                      children={[
+                        address.addressLine1,
+                        address.addressLine2,
+                        address.postalCode,
+                        address.city,
+                        address.country != null && isCountryCCA3(address.country)
+                          ? getCountryName(address.country)
+                          : undefined,
+                      ]
+                        .filter(Boolean)
+                        .join(", ")}
+                    />
 
-                      <Space height={24} />
-                    </>
-                  ),
+                    <Space height={24} />
+                  </>
+                ))
+                .with(
+                  { __typename: "PhysicalCardRenewedStatusInfo", trackingNumber: P.nullish },
+                  ({ address }) =>
+                    currentCard === "renewed" && (
+                      <>
+                        <LakeAlert
+                          variant={"neutral"}
+                          title={t("card.shippingAddress")}
+                          children={[
+                            address.addressLine1,
+                            address.addressLine2,
+                            address.postalCode,
+                            address.city,
+                            address.country != null && isCountryCCA3(address.country)
+                              ? getCountryName(address.country)
+                              : undefined,
+                          ]
+                            .filter(Boolean)
+                            .join(", ")}
+                        />
+
+                        <Space height={24} />
+                      </>
+                    ),
                 )
                 .otherwise(() => null)}
 
@@ -1463,10 +1494,7 @@ export const CardItemPhysicalDetails = ({
               {match(physicalCard.statusInfo)
                 .with(
                   {
-                    __typename: P.union(
-                      "PhysicalCardRenewedStatusInfo",
-                      "PhysicalCardToActivateStatusInfo",
-                    ),
+                    __typename: P.union("PhysicalCardToActivateStatusInfo"),
                     trackingNumber: P.string,
                     shippingProvider: P.string,
                   },
@@ -1498,6 +1526,65 @@ export const CardItemPhysicalDetails = ({
                           </Box>
                         </Tile>
                       </>
+                    );
+                  },
+                )
+                .with(
+                  {
+                    __typename: P.union("PhysicalCardRenewedStatusInfo"),
+                    trackingNumber: P.string,
+                    shippingProvider: P.string,
+                  },
+                  ({ trackingNumber, shippingProvider, address }) => {
+                    return (
+                      currentCard === "renewed" && (
+                        <>
+                          <Space height={48} />
+
+                          <Tile style={styles.shippingAddressTile}>
+                            <Icon size={20} color={colors.current[500]} name="box-regular" />
+                            <Space height={8} />
+
+                            <Box direction="row" alignItems="center">
+                              <View style={styles.trackingNumber}>
+                                <LakeText variant="smallMedium" color={colors.gray[900]}>
+                                  {t("card.physical.trackingNumber", { shippingProvider })}
+                                </LakeText>
+
+                                <LakeText variant="smallRegular" color={colors.gray[700]}>
+                                  {trackingNumber}
+                                </LakeText>
+                              </View>
+
+                              <LakeCopyButton
+                                valueToCopy={trackingNumber}
+                                copyText={t("copyButton.copyTooltip")}
+                                copiedText={t("copyButton.copiedTooltip")}
+                              />
+                            </Box>
+                          </Tile>
+
+                          <LakeAlert
+                            style={styles.shippingAddressAlert}
+                            anchored={true}
+                            variant={"neutral"}
+                            title={t("card.yourAddress")}
+                            children={[
+                              address.addressLine1,
+                              address.addressLine2,
+                              address.postalCode,
+                              address.city,
+                              address.country != null && isCountryCCA3(address.country)
+                                ? getCountryName(address.country)
+                                : undefined,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          />
+
+                          <Space height={24} />
+                        </>
+                      )
                     );
                   },
                 )

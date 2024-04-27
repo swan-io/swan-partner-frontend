@@ -188,6 +188,7 @@
   "card.spendingLimit.remaining.weekly": "Jäljellä (seuraavat 7 päivää)",
   "card.toRenew": "Vanhenee pian",
   "card.tooltipConflict": "Pois käytöstä, kunnes tietoristiriita on saatu ratkaistua",
+  "card.yourAddress": "Osoitteesi",
   "cardDetail.mobilePayment": "Mobiilimaksu",
   "cardDetail.physicalCard": "Fyysinen kortti",
   "cardDetail.settings": "Asetukset",

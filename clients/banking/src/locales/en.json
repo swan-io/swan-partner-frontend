@@ -188,6 +188,7 @@
   "card.spendingLimit.remaining.weekly": "Remaining (next 7 days)",
   "card.tooltipConflict": "Deactivated until your information conflict is solved",
   "card.toRenew": "Expiring soon",
+  "card.yourAddress": "Your address",
   "cardDetail.mobilePayment": "Mobile payment",
   "cardDetail.physicalCard": "Physical card",
   "cardDetail.settings": "Settings",

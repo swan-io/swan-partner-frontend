@@ -153,7 +153,8 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                   {t("cards.format.virtualAndPhysical")}
                 </Tag>
 
-                {physicalCard?.statusInfo.status === "ToRenew" && (
+                {(physicalCard?.statusInfo.status === "ToRenew" ||
+                  physicalCard?.statusInfo.status === "Renewed") && (
                   <>
                     <Space width={12} />
                     <Tag color="shakespear">{t("cards.expiringSoon")}</Tag>
@@ -376,7 +377,8 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                 ariaLabel={t("cards.format.virtualAndPhysical")}
               />
 
-              {physicalCard?.statusInfo.status === "ToRenew" && (
+              {(physicalCard?.statusInfo.status === "ToRenew" ||
+                physicalCard?.statusInfo.status === "Renewed") && (
                 <>
                   <Space width={12} />
 

@@ -21,6 +21,14 @@ fragment TransactionDetails on Transaction {
       currency
       value
     }
+    statusInfo {
+      __typename
+      status
+      ... on RejectedTransactionStatusInfo {
+        status
+        reason
+      }
+    }
   }
   statusInfo {
     __typename

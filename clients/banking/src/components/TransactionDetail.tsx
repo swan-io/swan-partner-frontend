@@ -32,6 +32,7 @@ import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   getFeesDescription,
+  getInstantTransferFallbackReasonLabel,
   getTransactionRejectedReasonLabel,
   getWiseIctLabel,
 } from "../utils/templateTranslations";
@@ -168,16 +169,23 @@ export const TransactionDetail = ({
                 statusInfo: { status: "Pending" },
                 originTransaction: {
                   type: P.union("SepaInstantCreditTransferIn", "SepaInstantCreditTransferOut"),
+                  statusInfo: {
+                    reason: P.select(),
+                  },
                 },
               },
-              () => (
-                <LakeAlert
-                  anchored={true}
-                  variant="warning"
-                  title={t("transaction.instantTransferUnavailable")}
-                  children={t("transaction.instantTransferUnavailable.description")}
-                />
-              ),
+              reason => {
+                const description = getInstantTransferFallbackReasonLabel(reason);
+
+                return (
+                  <LakeAlert
+                    anchored={true}
+                    variant="warning"
+                    title={t("transaction.instantTransferUnavailable")}
+                    children={description}
+                  />
+                );
+              },
             )
             .with(
               {

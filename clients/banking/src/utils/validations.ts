@@ -60,7 +60,7 @@ export const validateBeneficiaryName: Validator<string> = value => {
   }
 };
 
-const TRANSFER_REFERENCE_REGEX = /^[0-9a-zA-Z]+$/;
+const TRANSFER_REFERENCE_REGEX = /^(?!\/)((?!\/\/)[a-zA-Z0-9-?.+,/':() ])+(?<!\/)$/;
 
 export const validateTransferReference: Validator<string> = value => {
   if (value.length > 35) {

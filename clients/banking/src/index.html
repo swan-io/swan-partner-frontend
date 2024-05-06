@@ -43,7 +43,10 @@
             .map(item => item.slice(0, 2))
             .find(item => availableLocales.has(item)) ?? "en";
 
-        window.__locales = await import(`./locales/${locale}.json`);
+        window.__locales = await Promise.all([
+          import(`./locales/${locale}.json`),
+          await import(`../../../node_modules/@swan-io/shared-business/src/locales/${locale}.json`),
+        ]).then(values => Object.assign({}, ...values));
         await import("./index.tsx");
       })(new Set(__availableLocales));
     </script>

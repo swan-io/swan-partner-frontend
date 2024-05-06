@@ -1,0 +1,32 @@
+{
+  "onboarding": {
+    "en": "locales/en.json",
+    "de": "locales/de.json",
+    "es": "locales/es.json",
+    "fi": "locales/fi.json",
+    "fr": "locales/fr.json",
+    "it": "locales/it.json",
+    "nl": "locales/nl.json",
+    "pt": "locales/pt.json"
+  },
+  "banking": {
+    "en": "locales/en.json",
+    "de": "locales/de.json",
+    "es": "locales/es.json",
+    "fi": "locales/fi.json",
+    "fr": "locales/fr.json",
+    "it": "locales/it.json",
+    "nl": "locales/nl.json",
+    "pt": "locales/pt.json"
+  },
+  "payment": {
+    "en": "locales/en.json",
+    "de": "locales/de.json",
+    "es": "locales/es.json",
+    "fi": "locales/fi.json",
+    "fr": "locales/fr.json",
+    "it": "locales/it.json",
+    "nl": "locales/nl.json",
+    "pt": "locales/pt.json"
+  }
+}

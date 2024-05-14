@@ -65,7 +65,7 @@ export const client = new Client({
           .with({ errors: P.select(P.array()) }, errors =>
             Result.Error(errors.map(parseGraphQLError)),
           )
-          .with({ data: P.select(P.not(P.nullish)) }, data => {
+          .with({ data: P.select(P.nonNullable) }, data => {
             return Result.Ok(data);
           })
           .otherwise(response => Result.Error(new InvalidGraphQLResponseError(response))),

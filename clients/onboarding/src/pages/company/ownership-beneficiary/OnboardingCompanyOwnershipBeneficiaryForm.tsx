@@ -74,7 +74,6 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
       .otherwise(() => false);
 
     const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
-
     const commonRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormCommonRef | null>(null);
     const addressRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormAddressRef | null>(null);
 
@@ -105,7 +104,9 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
               ref={commonRef}
               placekitApiKey={placekitApiKey}
               accountCountry={accountCountry}
-              initialValues={initialValues}
+              initialValues={
+                commonValuesRef.current.isSome() ? commonValuesRef.current.get() : initialValues
+              }
               onSave={values => {
                 if (isAddressRequired) {
                   commonValuesRef.current = Option.Some(values);

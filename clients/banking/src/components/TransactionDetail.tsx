@@ -316,7 +316,7 @@ export const TransactionDetail = ({
               .with(
                 {
                   __typename: "CanceledTransactionStatusInfo",
-                  canceledDate: P.not(P.nullish),
+                  canceledDate: P.nonNullable,
                 },
                 ({ canceledDate }) => (
                   <Line

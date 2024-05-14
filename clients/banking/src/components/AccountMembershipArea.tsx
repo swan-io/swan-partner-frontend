@@ -118,8 +118,8 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
           return match(data)
             .with(
               {
-                user: P.not(P.nullish),
-                accountMembership: { user: P.not(P.nullish) },
+                user: P.nonNullable,
+                accountMembership: { user: P.nonNullable },
               },
               ({ accountMembership, projectInfo, user }) => {
                 const {

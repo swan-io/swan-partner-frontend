@@ -321,8 +321,8 @@ export const AccountActivationPage = ({
     .with(
       AsyncData.P.Done(
         Result.P.Ok({
-          accountMembership: P.select("accountMembership", P.not(P.nullish)),
-          projectInfo: P.select("projectInfo", P.not(P.nullish)),
+          accountMembership: P.select("accountMembership", P.nonNullable),
+          projectInfo: P.select("projectInfo", P.nonNullable),
         }),
       ),
       ({ accountMembership, projectInfo }) => {

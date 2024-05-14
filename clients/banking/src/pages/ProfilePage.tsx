@@ -147,7 +147,7 @@ export const ProfilePage = ({
   return match(data)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .with(AsyncData.P.Done(Result.P.Ok({ user: P.select(P.not(P.nullish)) })), user => {
+    .with(AsyncData.P.Done(Result.P.Ok({ user: P.select(P.nonNullable) })), user => {
       const firstName = user.firstName ?? "";
       const lastName = user.lastName ?? "";
       const phoneNumber = user.mobilePhoneNumber ?? undefined;

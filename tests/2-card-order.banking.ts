@@ -71,7 +71,7 @@ const create = async (page: Page, options: Options) => {
   await layer.waitFor({ state: "detached" });
 
   const title = t("banking.cardList.fullNameAndCardType");
-  await waitForText(main, new RegExp(`${title}|Reveal card numbers`));
+  await waitForText(main, new RegExp(`${title}|Reveal card number`));
 
   if (await getByText(main, title).isVisible()) {
     const cards = main.getByTestId("user-card-item");

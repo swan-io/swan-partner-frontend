@@ -110,11 +110,11 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Prop
     },
   });
 
-  const [addSepaDirectDebitPaymentMandateData, addSepaDirectDebitPaymentMandate] = useMutation(
+  const [addSepaDirectDebitPaymentMandate, addSepaDirectDebitPaymentMandateData] = useMutation(
     AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
   );
 
-  const [initiateSddPaymentCollectionData, initiateSddPaymentCollection] = useMutation(
+  const [initiateSddPaymentCollection, initiateSddPaymentCollectionData] = useMutation(
     InitiateSddPaymentCollectionDocument,
   );
 

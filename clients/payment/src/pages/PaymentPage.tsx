@@ -10,6 +10,8 @@ import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
+import { CardPayment } from "../components/CardPayment";
+import { SddPayment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
 import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
@@ -21,9 +23,9 @@ const styles = StyleSheet.create({
   segmentedControl: {
     maxWidth: "100%",
   },
-  grow: {
-    flexGrow: 1,
-  },
+  // grow: {
+  //   flexGrow: 1,
+  // },
 });
 
 type Props = {
@@ -99,7 +101,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
       <Space height={24} />
 
       {match(paymentMethodSelected)
-        .with("Card", () => <Card />)
+        .with("Card", () => <CardPayment />)
         .with("SepaDirectDebitCore", () => (
           <SddPayment
             nonEeaCountries={nonEeaCountries}

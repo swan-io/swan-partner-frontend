@@ -75,5 +75,12 @@ mutation InitiateSddPaymentCollection(
     ... on InternalErrorRejection {
       message
     }
+    ... on ValidationRejection {
+      fields {
+        code
+        message
+        path
+      }
+    }
   }
 }

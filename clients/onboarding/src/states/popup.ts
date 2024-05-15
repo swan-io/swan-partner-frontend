@@ -1,6 +1,6 @@
 import { Option, Result } from "@swan-io/boxed";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { atom } from "react-atomic-state";
 
 type Data = { type: "closePopup"; redirectUrl?: string };
@@ -75,18 +75,16 @@ const EXTRA_ALLOWED_ORIGIN = `https://dashboard.${location.hostname.split(".").s
 
 // need to be called inside popup
 export const dispatchToPopupOpener = (data: Data) => {
-  let origin = EXTRA_ALLOWED_ORIGIN;
   const opener = window.opener as Window | undefined;
-
-  Result.fromExecution(() => {
-    if (isNotNullish(opener)) {
-      origin = opener.origin;
-    }
-  });
 
   return Option.fromNullable(opener)
     .toResult(null)
     .flatMap(opener => {
+      // access to origin might throw
+      const origin = Result.fromExecution(() => opener.origin)
+        .toOption()
+        .getWithDefault(EXTRA_ALLOWED_ORIGIN);
+
       // For some reason, we might have `SecurityError` if we have an `window.opener` but domains don't match
       // Let's catch that and act accordingly.
       // NOTE: the error, even though it's caught, will be displayed in Safari's console

@@ -5,7 +5,7 @@ import { CreateSandboxIdentificationDocument } from "./graphql/partner-admin";
 import { getApiRequester } from "./utils/api";
 import { env } from "./utils/env";
 import { t } from "./utils/i18n";
-import { clickOnButton, clickOnLink, clickOnText, getByText, waitForText } from "./utils/selectors";
+import { clickOnButton, clickOnLink, clickOnText, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 type Options = {
@@ -70,11 +70,12 @@ const create = async (page: Page, options: Options) => {
   await clickOnButton(layer, t("banking.common.next"));
   await layer.waitFor({ state: "detached" });
 
-  const title = t("banking.cardList.fullNameAndCardType");
-  const revealNumbers = t("banking.card.revealNumbers");
-  await waitForText(main, new RegExp(`${title}|${revealNumbers}`));
+  const fullNameAndCardType = main.getByText(t("banking.cardList.fullNameAndCardType"));
+  const revealNumbers = main.getByText(t("banking.card.revealNumbers"));
 
-  if (await getByText(main, title).isVisible()) {
+  await expect(fullNameAndCardType.or(revealNumbers)).toBeVisible();
+
+  if (await fullNameAndCardType.isVisible()) {
     const cards = main.getByTestId("user-card-item");
     await cards.getByText(name, { exact: true }).click();
   }

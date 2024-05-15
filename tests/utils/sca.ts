@@ -1,4 +1,4 @@
-import { Browser, devices, Locator, Page } from "@playwright/test";
+import { Browser, devices, expect, Locator, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
 import { assertIsDefined, wait } from "./functions";
@@ -49,11 +49,12 @@ const fillPasscode = async (page: Page) => {
 };
 
 const waitForConfirm = async (page: Page) => {
-  const sandboxTitle = "Prove your identity in the Sandbox";
-  const confirmTitle = "Done";
-  await waitForText(page, new RegExp(`${sandboxTitle}|${confirmTitle}`));
+  const sandboxTitle = getByText(page, "Prove your identity in the Sandbox");
+  const confirmTitle = getByText(page, "Done");
 
-  if (await getByText(page, sandboxTitle).isVisible()) {
+  await expect(sandboxTitle.or(confirmTitle)).toBeVisible();
+
+  if (await sandboxTitle.isVisible()) {
     await clickOnButton(page, "Next");
   }
 

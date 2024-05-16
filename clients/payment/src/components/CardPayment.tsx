@@ -1,10 +1,14 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { Frames } from "frames-react";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
+import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 
@@ -12,9 +16,20 @@ const styles = StyleSheet.create({
   grow: {
     flexGrow: 1,
   },
+  errorContainer: {
+    paddingTop: spacings[4],
+  },
 });
 
-export const CardPayment = () => {
+type Props = {
+  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+  nonEeaCountries: string[];
+  setMandateUrl: (value: string) => void;
+};
+
+export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Props) => {
+  console.log(nonEeaCountries, paymentLink, setMandateUrl);
+
   const { desktop } = useResponsive();
 
   useEffect(() => {
@@ -22,11 +37,7 @@ export const CardPayment = () => {
       publicKey: env.CLIENT_CHECKOUT_API_KEY,
       style: {
         base: {
-          borderStyle: "solid",
-          borderWidth: "1px",
-          borderColor: "#e8e7e8",
-          borderRadius: "6px",
-          height: "40px",
+          height: "38px",
           paddingLeft: "12px",
           fontFamily:
             "Inter, -apple-system, system-ui, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji",
@@ -34,7 +45,6 @@ export const CardPayment = () => {
           // fontStyle: "normal",
           color: "#2b2f30",
           letterSpacing: "-0.011em",
-          backgroundColor: "#ffffff",
         },
       },
       localization: {
@@ -48,21 +58,41 @@ export const CardPayment = () => {
 
   return (
     <>
-      <LakeLabel
-        label={t("paymentLink.card.cardNumber")}
-        render={() => (
-          <div className="card-number-frame">{/* <!-- card number will be added here --> */}</div>
-        )}
-      />
+      <Box>
+        <LakeLabel
+          label={t("paymentLink.card.cardNumber")}
+          render={() => (
+            <>
+              <div className="card-number-frame">
+                {/* <!-- card number will be added here --> */}
+              </div>
+
+              <Box direction="row" style={styles.errorContainer}>
+                <LakeText variant="smallRegular" color={colors.negative[500]}>
+                  {" "}
+                </LakeText>
+              </Box>
+            </>
+          )}
+        />
+      </Box>
 
       <Box direction={desktop ? "row" : "column"}>
         <Box style={styles.grow}>
           <LakeLabel
             label={t("paymentLink.card.expiryDate")}
             render={() => (
-              <div className="expiry-date-frame">
-                {/* <!-- expiry date will be added here --> */}
-              </div>
+              <>
+                <div className="expiry-date-frame">
+                  {/* <!-- expiry date will be added here --> */}
+                </div>
+
+                <Box direction="row" style={styles.errorContainer}>
+                  <LakeText variant="smallRegular" color={colors.negative[500]}>
+                    {" "}
+                  </LakeText>
+                </Box>
+              </>
             )}
           />
         </Box>
@@ -73,21 +103,31 @@ export const CardPayment = () => {
           <LakeLabel
             label={t("paymentLink.card.cvv")}
             render={() => (
-              <div className="cvv-frame">{/* <!-- cvv frame will be added here --> */}</div>
+              <>
+                <div className="cvv-frame">{/* <!-- cvv frame will be added here --> */}</div>
+
+                <Box direction="row" style={styles.errorContainer}>
+                  <LakeText variant="smallRegular" color={colors.negative[500]}>
+                    {" "}
+                  </LakeText>
+                </Box>
+              </>
             )}
           />
         </Box>
       </Box>
 
-      <button
-        onClick={() => {
+      <Space height={32} />
+
+      <LakeButton
+        onPress={() => {
           Frames.submitCard()
             .then(obj => console.log(obj))
             .catch(err => console.error(err));
         }}
       >
         Submit
-      </button>
+      </LakeButton>
     </>
   );
 };

@@ -1,5 +1,6 @@
 import "@swan-io/lake/src/assets/fonts/Inter.css";
 import "@swan-io/lake/src/assets/main.css";
+import "./main.css";
 
 import { ResizeObserver } from "@juggle/resize-observer";
 import "core-js/actual/array/flat";

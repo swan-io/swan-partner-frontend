@@ -8,6 +8,7 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
       status
     }
     merchantProfile {
+      accentColor
       merchantLogoUrl
       merchantName
       merchantPaymentMethods {
@@ -81,6 +82,20 @@ mutation InitiateSddPaymentCollection(
         message
         path
       }
+    }
+  }
+}
+
+mutation AddCardPaymentMandate($input: AddCardPaymentMandateInput!) {
+  unauthenticatedAddCardPaymentMandate(input: $input) {
+    __typename
+    ... on AddCardPaymentMandateSuccessPayload {
+      paymentMandate {
+        id
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

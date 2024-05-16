@@ -316,7 +316,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Prop
       <Space height={32} />
 
       <LakeButton
-        color="current"
+        color="partner"
         onPress={onPressSubmit}
         loading={
           addSepaDirectDebitPaymentMandateData.isLoading() ||

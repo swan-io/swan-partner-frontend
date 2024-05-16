@@ -146,13 +146,18 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                 <Space height={24} />
 
                 {match({ route: route?.name, status })
-                  .with({ route: "PaymentForm", status: "Active" }, () => (
-                    <PaymentPage
-                      paymentLink={merchantPaymentLink}
-                      setMandateUrl={setMandateUrl}
-                      nonEeaCountries={nonEEACountries}
-                    />
-                  ))
+                  .with({ route: "PaymentForm", status: "Active" }, () =>
+                    match(merchantPaymentLink.paymentMethods)
+                      .with([P.nonNullable, ...P.array()], merchantPaymentMethods => (
+                        <PaymentPage
+                          merchantPaymentMethods={merchantPaymentMethods}
+                          paymentLink={merchantPaymentLink}
+                          setMandateUrl={setMandateUrl}
+                          nonEeaCountries={nonEEACountries}
+                        />
+                      ))
+                      .otherwise(() => <ErrorView />),
+                  )
                   .with({ route: "PaymentSuccess", status: "Completed" }, () => (
                     <SuccessPage paymentLink={merchantPaymentLink} mandateUrl={mandateUrl} />
                   ))

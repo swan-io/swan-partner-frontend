@@ -10,7 +10,7 @@ type State = {
   onDispatch: ((data: Data) => void) | null;
 };
 
-const dataTypes = deriveUnion<Data["type"]>({
+const knownDataTypes = deriveUnion<Data["type"]>({
   closePopup: true,
 });
 
@@ -23,7 +23,7 @@ const onMessage = ({ data, origin }: { data: Data; origin: string }) => {
   if (origin !== window.location.origin) {
     return; // prevent cross-origin issues
   }
-  if (!dataTypes.is(data.type)) {
+  if (!knownDataTypes.is(data.type)) {
     return; // unknown message
   }
 
@@ -42,9 +42,9 @@ export const openPopup = ({
   width = 500,
   onDispatch = null,
 }: {
-  width?: number;
   url: string;
   height?: number;
+  width?: number;
   onDispatch?: ((data: Data) => void) | null;
 }) => {
   if (isNullish(state.get().popup)) {
@@ -71,23 +71,11 @@ export const openPopup = ({
   });
 };
 
-const EXTRA_ALLOWED_ORIGIN = `https://dashboard.${location.hostname.split(".").slice(1).join(".")}`;
-
 // need to be called inside popup
-export const dispatchToPopupOpener = (data: Data) => {
+export const dispatchToPopupOpener = (data: Data): Result<void, unknown> => {
   const opener = window.opener as Window | undefined;
 
   return Option.fromNullable(opener)
-    .toResult(null)
-    .flatMap(opener => {
-      // access to origin might throw
-      const origin = Result.fromExecution(() => opener.origin)
-        .toOption()
-        .getWithDefault(EXTRA_ALLOWED_ORIGIN);
-
-      // For some reason, we might have `SecurityError` if we have an `window.opener` but domains don't match
-      // Let's catch that and act accordingly.
-      // NOTE: the error, even though it's caught, will be displayed in Safari's console
-      return Result.fromExecution(() => opener.postMessage(data, origin));
-    });
+    .toResult({})
+    .flatMap(opener => Result.fromExecution(() => opener.postMessage(data, "*")));
 };

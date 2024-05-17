@@ -4,7 +4,8 @@ import { atom } from "react-atomic-state";
 import { P, isMatching } from "ts-pattern";
 
 const isClosePopupData = isMatching({
-  type: "closePopup",
+  source: "onboarding",
+  event: "closePopup",
   redirectUrl: P.string,
 });
 
@@ -22,7 +23,7 @@ window.addEventListener("message", ({ data, origin }: { data: unknown; origin: s
   const callback = state.get()?.callback;
 
   if (
-    origin !== window.location.origin && // prevent cross-origin issues
+    origin === window.location.origin && // prevent cross-origin issues
     isClosePopupData(data) &&
     isNotNullish(callback)
   ) {
@@ -71,8 +72,13 @@ export const openPopup = ({ url, onClose }: { url: string; onClose: State["callb
 
 // need to be called inside popup
 export const closePopup = (redirectUrl: string): Result<void, unknown> => {
-  const data: ClosePopupData = { type: "closePopup", redirectUrl };
   const opener = window.opener as Window | undefined;
+
+  const data: ClosePopupData = {
+    source: "onboarding",
+    event: "closePopup",
+    redirectUrl,
+  };
 
   return Option.fromNullable(opener)
     .toResult(null)

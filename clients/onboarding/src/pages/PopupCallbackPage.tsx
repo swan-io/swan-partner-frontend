@@ -26,7 +26,7 @@ export const PopupCallbackPage = ({ redirectUrl, accountMembershipId, projectId 
           )
           .otherwise(() => `${env.BANKING_URL}?source=onboarding`);
 
-    if (dispatchToPopupOpener({ type: "closePopup", redirectUrl: url }).isError()) {
+    if (!dispatchToPopupOpener({ type: "close-popup", redirectUrl: url })) {
       // If we don't manage to close a popup, redirect from there
       window.location.replace(url);
     }

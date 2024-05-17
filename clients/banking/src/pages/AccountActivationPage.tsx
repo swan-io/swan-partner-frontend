@@ -439,7 +439,7 @@ export const AccountActivationPage = ({
 
           openPopup({
             url: `/auth/login?${params.toString()}`,
-            onDispatch: refetchQueries,
+            onClose: refetchQueries,
           });
         };
 

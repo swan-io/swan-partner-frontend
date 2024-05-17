@@ -71,7 +71,7 @@ export const OnboardingIndividualFinalize = ({
     } else {
       openPopup({
         url,
-        onDispatch: ({ redirectUrl }) => {
+        onClose: redirectUrl => {
           if (isNotNullish(redirectUrl)) {
             // We use location.replace to be sure that the auth
             // cookie is correctly written before changing page

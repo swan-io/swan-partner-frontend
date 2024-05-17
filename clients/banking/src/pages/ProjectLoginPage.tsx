@@ -150,7 +150,7 @@ export const ProjectLoginPage = ({
       params.set("redirectTo", Router.PopupCallback());
       openPopup({
         url: `/auth/login?${params.toString()}`,
-        onDispatch: () => {
+        onClose: () => {
           // We use location.replace to be sure that the auth
           // cookie is correctly written before changing page
           // (history pushState does not seem to offer these guarantees)

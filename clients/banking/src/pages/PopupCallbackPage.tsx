@@ -8,7 +8,7 @@ type Props = {
 
 export const PopupCallbackPage = ({ redirectUrl }: Props) => {
   useEffect(() => {
-    if (dispatchToPopupOpener({ type: "closePopup" }).isError()) {
+    if (!dispatchToPopupOpener({ type: "close-popup" })) {
       if (isNotNullish(redirectUrl)) {
         window.location.replace(redirectUrl);
       }

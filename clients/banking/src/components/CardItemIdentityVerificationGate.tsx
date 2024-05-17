@@ -43,7 +43,7 @@ export const CardItemIdentityVerificationGate = ({
     params.set("projectId", projectId);
     openPopup({
       url: `/auth/login?${params.toString()}`,
-      onDispatch: () => onComplete(),
+      onClose: () => onComplete(),
     });
   };
 

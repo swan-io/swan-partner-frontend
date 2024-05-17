@@ -1,58 +1,63 @@
-import { Option, Result } from "@swan-io/boxed";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { atom } from "react-atomic-state";
 
-type Data = { type: "closePopup" };
+type Data = { type: "close-popup" } | { type: "consent-id"; payload: string };
 
 type State = {
   popup: Window | null;
-  onDispatch: ((data: Data) => void) | null;
+  timer: number | null;
+  onClose: (() => void) | null;
 };
 
-const knownDataTypes = deriveUnion<Data["type"]>({
-  closePopup: true,
-});
-
-const state = atom<State>({
+const initialState: State = {
   popup: null,
-  onDispatch: null,
-});
+  timer: null,
+  onClose: null,
+};
+
+const state = atom<State>(initialState);
+
+const closePopup = () => {
+  const { popup, timer, onClose } = state.get();
+
+  window.removeEventListener("message", onMessage);
+  isNotNullish(timer) && clearInterval(timer);
+
+  onClose?.(); // trigger user callback
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+  popup?.close?.(); // popup instance might not exist
+
+  state.set(initialState);
+};
 
 const onMessage = ({ data, origin }: { data: Data; origin: string }) => {
   if (origin !== window.location.origin) {
     return; // prevent cross-origin issues
   }
-  if (!knownDataTypes.is(data.type)) {
-    return; // unknown message
+
+  switch (data.type) {
+    case "close-popup":
+      return closePopup();
   }
-
-  const { popup, onDispatch } = state.get();
-
-  window.removeEventListener("message", onMessage);
-
-  onDispatch?.(data); // trigger user callback
-  state.reset();
-  popup?.close?.(); // popup instance might not exist
 };
 
 export const openPopup = ({
   url,
-  height = 800,
   width = 500,
-  onDispatch = null,
+  height = 800,
+  onClose = null,
 }: {
   url: string;
-  height?: number;
   width?: number;
-  onDispatch: ((data: Data) => void) | null;
+  height?: number;
+  onClose?: (() => void) | null;
 }) => {
   if (isNullish(state.get().popup)) {
     window.addEventListener("message", onMessage); // listen for messages from the popup window
   }
 
-  const screenLeft = window.screenLeft ?? window.screenX;
-  const screenRight = window.screenTop ?? window.screenY;
+  const screenLeft = window.screenLeft ?? window.screenX; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+  const screenRight = window.screenTop ?? window.screenY; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
   const { outerHeight, outerWidth } = window;
 
   const params = [
@@ -65,17 +70,29 @@ export const openPopup = ({
     "toolbar=no",
   ];
 
-  state.set({
+  state.set(prevState => ({
+    ...prevState,
     popup: window.open(url, "Swan", params.join(",")),
-    onDispatch,
-  });
+    onClose,
+    // https://stackoverflow.com/a/48240128
+    timer: setInterval(() => {
+      const { popup } = state.get();
+
+      if (isNotNullish(popup) && popup.closed) {
+        closePopup();
+      }
+    }, 100) as unknown as number,
+  }));
 };
 
 // need to be called inside popup
-export const dispatchToPopupOpener = (data: Data): Result<void, unknown> => {
+export const dispatchToPopupOpener = (data: Data): boolean => {
   const opener = window.opener as Window | undefined;
 
-  return Option.fromNullable(opener)
-    .toResult(null)
-    .flatMap(opener => Result.fromExecution(() => opener.postMessage(data, "*")));
+  if (isNotNullish(opener)) {
+    opener.postMessage(data, opener.origin);
+    return true;
+  }
+
+  return false;
 };

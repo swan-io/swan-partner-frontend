@@ -85,7 +85,7 @@ export const ProfilePage = ({
     params.set("identificationLevel", recommendedIdentificationLevel);
     openPopup({
       url: `/auth/login?${params.toString()}`,
-      onDispatch: () => refetchAccountAreaQuery(),
+      onClose: () => refetchAccountAreaQuery(),
     });
   }, [refetchAccountAreaQuery, recommendedIdentificationLevel]);
 

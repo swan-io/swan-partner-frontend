@@ -36,10 +36,10 @@ import {
   SupportingDocumentsFormRef,
 } from "../components/SupportingDocumentsForm";
 import { AccountActivationPageDocument, IdentificationFragment } from "../graphql/partner";
-import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
+import { openPopup } from "../utils/popup";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 

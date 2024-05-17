@@ -28,9 +28,9 @@ import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
-import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
+import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({

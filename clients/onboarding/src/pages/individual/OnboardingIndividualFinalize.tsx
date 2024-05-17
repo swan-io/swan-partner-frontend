@@ -11,8 +11,8 @@ import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeSt
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { IdentificationLevel } from "../../graphql/unauthenticated";
-import { openPopup } from "../../states/popup";
 import { env } from "../../utils/env";
+import { openPopup } from "../../utils/popup";
 import { projectConfiguration } from "../../utils/projectId";
 import { IndividualOnboardingRoute, Router } from "../../utils/routes";
 

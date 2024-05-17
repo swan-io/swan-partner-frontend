@@ -30,9 +30,9 @@ import {
   IdentificationLevel,
   ProfilePageDocument,
 } from "../graphql/partner";
-import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
+import { openPopup } from "../utils/popup";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { NotFoundPage } from "./NotFoundPage";

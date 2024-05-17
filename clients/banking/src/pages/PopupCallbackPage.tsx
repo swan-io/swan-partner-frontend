@@ -1,6 +1,6 @@
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect } from "react";
-import { closePopup } from "../states/popup";
+import { closePopup } from "../utils/popup";
 
 type Props = {
   redirectUrl?: string;

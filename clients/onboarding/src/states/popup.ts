@@ -1,6 +1,5 @@
 import { Option, Result } from "@swan-io/boxed";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { atom } from "react-atomic-state";
 import { P, isMatching } from "ts-pattern";
 
 const isClosePopupData = isMatching({
@@ -12,27 +11,21 @@ const isClosePopupData = isMatching({
 type GuardType<T> = T extends (value: unknown) => value is infer R ? R : never;
 type ClosePopupData = GuardType<typeof isClosePopupData>;
 
-type State = {
-  callback: (redirectUrl: string) => void;
-};
+let callback: ((redirectUrl: string) => void) | undefined = undefined;
 
-const state = atom<State | undefined>(undefined);
-
-// listen for messages from the popup window
-window.addEventListener("message", ({ data, origin }: { data: unknown; origin: string }) => {
-  const callback = state.get()?.callback;
-
+const onMessage = ({ data, origin }: { data: unknown; origin: string }) => {
   if (
     origin === window.location.origin && // prevent cross-origin issues
     isClosePopupData(data) &&
     isNotNullish(callback)
   ) {
     callback(data.redirectUrl);
-    state.reset();
+    callback = undefined;
+    window.removeEventListener("message", onMessage);
   }
-});
+};
 
-export const openPopup = ({ url, onClose }: { url: string; onClose: State["callback"] }) => {
+export const openPopup = ({ url, onClose }: { url: string; onClose: typeof callback }) => {
   const height = 800;
   const width = 500;
 
@@ -53,17 +46,19 @@ export const openPopup = ({ url, onClose }: { url: string; onClose: State["callb
   const popup = window.open(url, "Swan", params.join(","));
 
   if (isNotNullish(popup)) {
-    state.set({
-      callback: redirectUrl => {
-        onClose(redirectUrl); // trigger user callback
-        popup?.close?.();
-      },
-    });
+    // listen for messages from the popup window
+    window.addEventListener("message", onMessage);
+
+    callback = redirectUrl => {
+      onClose?.(redirectUrl); // trigger user callback
+      popup?.close?.();
+    };
 
     // https://stackoverflow.com/a/48240128
     const interval = setInterval(() => {
       if (popup?.closed === true) {
-        state.reset();
+        window.removeEventListener("message", onMessage);
+        callback = undefined;
         clearInterval(interval);
       }
     }, 100);

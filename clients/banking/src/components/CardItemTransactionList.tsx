@@ -131,13 +131,6 @@ export const CardItemTransactionList = ({
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
 
-  const transactions = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .flatMap(data => Option.fromNullable(data.card?.transactions))
-    .map(({ edges }) => edges.map(({ node }) => node))
-    .getOr([]);
-
   const panelRef = useRef<FocusTrapRef | null>(null);
 
   const onActiveRowChange = useCallback(
@@ -194,95 +187,97 @@ export const CardItemTransactionList = ({
                 Ok: ({ card }) => (
                   <Connection connection={card?.transactions}>
                     {transactions => (
-                      <TransactionList
-                        withStickyTabs={true}
-                        transactions={transactions?.edges ?? []}
-                        getRowLink={({ item }) => (
-                          <Pressable onPress={() => setActiveTransactionId(item.id)} />
-                        )}
-                        pageSize={NUM_TO_RENDER}
-                        activeRowId={activeTransactionId ?? undefined}
-                        onActiveRowChange={onActiveRowChange}
-                        loading={{
-                          isLoading,
-                          count: 2,
-                        }}
-                        onEndReached={() => {
-                          if (transactions?.pageInfo.hasNextPage ?? false) {
-                            setVariables({
-                              after: transactions?.pageInfo.endCursor ?? undefined,
-                            });
-                          }
-                        }}
-                        renderEmptyList={() =>
-                          hasFilters ? (
-                            <FixedListViewEmpty
-                              icon="lake-transfer"
-                              borderedIcon={true}
-                              title={t("common.list.noResults")}
-                              subtitle={t("common.list.noResultsSuggestion")}
-                            />
-                          ) : (
-                            <FixedListViewEmpty
-                              icon="lake-transfer"
-                              borderedIcon={true}
-                              title={t("transansactionList.noResults")}
-                            >
-                              {cardRequiresIdentityVerification ? (
-                                <>
-                                  <Space height={24} />
+                      <>
+                        <TransactionList
+                          withStickyTabs={true}
+                          transactions={transactions?.edges ?? []}
+                          getRowLink={({ item }) => (
+                            <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                          )}
+                          pageSize={NUM_TO_RENDER}
+                          activeRowId={activeTransactionId ?? undefined}
+                          onActiveRowChange={onActiveRowChange}
+                          loading={{
+                            isLoading,
+                            count: 2,
+                          }}
+                          onEndReached={() => {
+                            if (transactions?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: transactions?.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          renderEmptyList={() =>
+                            hasFilters ? (
+                              <FixedListViewEmpty
+                                icon="lake-transfer"
+                                borderedIcon={true}
+                                title={t("common.list.noResults")}
+                                subtitle={t("common.list.noResultsSuggestion")}
+                              />
+                            ) : (
+                              <FixedListViewEmpty
+                                icon="lake-transfer"
+                                borderedIcon={true}
+                                title={t("transansactionList.noResults")}
+                              >
+                                {cardRequiresIdentityVerification ? (
+                                  <>
+                                    <Space height={24} />
 
-                                  <CardItemIdentityVerificationGate
-                                    recommendedIdentificationLevel={
-                                      card?.accountMembership.recommendedIdentificationLevel ??
-                                      "Expert"
-                                    }
-                                    isCurrentUserCardOwner={isCurrentUserCardOwner}
-                                    projectId={projectId}
-                                    description={t("card.identityVerification.transactions")}
-                                    descriptionForOtherMember={t(
-                                      "card.identityVerification.transactions.otherMember",
-                                      {
-                                        name: getMemberName({
-                                          accountMembership: cardFromProps.accountMembership,
-                                        }),
-                                      },
-                                    )}
-                                    onComplete={onRefreshAccountRequest}
-                                    lastRelevantIdentification={lastRelevantIdentification}
-                                  />
-                                </>
-                              ) : null}
-                            </FixedListViewEmpty>
-                          )
-                        }
-                      />
+                                    <CardItemIdentityVerificationGate
+                                      recommendedIdentificationLevel={
+                                        card?.accountMembership.recommendedIdentificationLevel ??
+                                        "Expert"
+                                      }
+                                      isCurrentUserCardOwner={isCurrentUserCardOwner}
+                                      projectId={projectId}
+                                      description={t("card.identityVerification.transactions")}
+                                      descriptionForOtherMember={t(
+                                        "card.identityVerification.transactions.otherMember",
+                                        {
+                                          name: getMemberName({
+                                            accountMembership: cardFromProps.accountMembership,
+                                          }),
+                                        },
+                                      )}
+                                      onComplete={onRefreshAccountRequest}
+                                      lastRelevantIdentification={lastRelevantIdentification}
+                                    />
+                                  </>
+                                ) : null}
+                              </FixedListViewEmpty>
+                            )
+                          }
+                        />
+
+                        <ListRightPanel
+                          ref={panelRef}
+                          keyExtractor={item => item.id}
+                          activeId={activeTransactionId}
+                          onActiveIdChange={setActiveTransactionId}
+                          onClose={() => setActiveTransactionId(null)}
+                          items={transactions?.edges.map(item => item.node) ?? []}
+                          render={(transaction, large) => (
+                            <TransactionDetail
+                              accountMembershipId={accountMembershipId}
+                              large={large}
+                              transactionId={transaction.id}
+                              canQueryCardOnTransaction={true}
+                              canViewAccount={canViewAccount}
+                            />
+                          )}
+                          closeLabel={t("common.closeButton")}
+                          previousLabel={t("common.previous")}
+                          nextLabel={t("common.next")}
+                        />
+                      </>
                     )}
                   </Connection>
                 ),
               }),
           })}
-
-          <ListRightPanel
-            ref={panelRef}
-            keyExtractor={item => item.id}
-            activeId={activeTransactionId}
-            onActiveIdChange={setActiveTransactionId}
-            onClose={() => setActiveTransactionId(null)}
-            items={transactions}
-            render={(transaction, large) => (
-              <TransactionDetail
-                accountMembershipId={accountMembershipId}
-                large={large}
-                transactionId={transaction.id}
-                canQueryCardOnTransaction={true}
-                canViewAccount={canViewAccount}
-              />
-            )}
-            closeLabel={t("common.closeButton")}
-            previousLabel={t("common.previous")}
-            nextLabel={t("common.next")}
-          />
         </>
       )}
     </ResponsiveContainer>

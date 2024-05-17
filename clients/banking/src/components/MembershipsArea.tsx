@@ -165,13 +165,6 @@ export const MembershipsArea = ({
     )
     .otherwise(() => null);
 
-  const memberships = data
-    .toOption()
-    .flatMap(data => data.toOption())
-    .flatMap(({ account }) => Option.fromNullable(account?.memberships))
-    .map(({ edges }) => edges.map(({ node }) => node))
-    .getOr([]);
-
   const panelRef = useRef<FocusTrapRef | null>(null);
 
   const onActiveRowChange = useCallback(
@@ -251,8 +244,7 @@ export const MembershipsArea = ({
                 onRefresh={() => {
                   reload();
                 }}
-                totalCount={memberships.length}
-                isFetching={isLoading}
+                totalCount={data.mapOk(data => data.account?.memberships.totalCount ?? 0)}
                 large={large}
               >
                 {memberCreationVisible ? (
@@ -285,94 +277,103 @@ export const MembershipsArea = ({
                   Error: error => <ErrorView error={error} />,
                   Ok: ({ account }) => (
                     <Connection connection={account?.memberships}>
-                      {memberships => (
-                        <MembershipList
-                          memberships={memberships?.edges.map(({ node }) => node) ?? []}
-                          accountMembershipId={accountMembershipId}
-                          onActiveRowChange={onActiveRowChange}
-                          editingAccountMembershipId={editingAccountMembershipId ?? undefined}
-                          onEndReached={() => {
-                            if (memberships?.pageInfo.hasNextPage === true) {
-                              setVariables({
-                                after: memberships.pageInfo.endCursor ?? undefined,
-                              });
-                            }
-                          }}
-                          loading={{
-                            isLoading,
-                            count: PER_PAGE,
-                          }}
-                          getRowLink={({ item }) => (
-                            <Link
-                              style={match(item.statusInfo)
-                                .with(
-                                  {
-                                    __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                                    idVerifiedMatchError: true,
-                                  },
-                                  () => ({
-                                    backgroundColor: colors.warning[50],
-                                  }),
-                                )
-                                .with(
-                                  { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
-                                  () => ({
-                                    backgroundColor: colors.negative[50],
-                                  }),
-                                )
-                                .otherwise(() => undefined)}
-                              to={Router.AccountMembersDetailsRoot({
-                                accountMembershipId,
-                                ...params,
-                                editingAccountMembershipId: item.id,
-                              })}
+                      {memberships => {
+                        return (
+                          <>
+                            <MembershipList
+                              memberships={memberships?.edges.map(({ node }) => node) ?? []}
+                              accountMembershipId={accountMembershipId}
+                              onActiveRowChange={onActiveRowChange}
+                              editingAccountMembershipId={editingAccountMembershipId ?? undefined}
+                              onEndReached={() => {
+                                if (memberships?.pageInfo.hasNextPage === true) {
+                                  setVariables({
+                                    after: memberships.pageInfo.endCursor ?? undefined,
+                                  });
+                                }
+                              }}
+                              loading={{
+                                isLoading,
+                                count: PER_PAGE,
+                              }}
+                              getRowLink={({ item }) => (
+                                <Link
+                                  style={match(item.statusInfo)
+                                    .with(
+                                      {
+                                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                        idVerifiedMatchError: true,
+                                      },
+                                      () => ({
+                                        backgroundColor: colors.warning[50],
+                                      }),
+                                    )
+                                    .with(
+                                      { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
+                                      () => ({
+                                        backgroundColor: colors.negative[50],
+                                      }),
+                                    )
+                                    .otherwise(() => undefined)}
+                                  to={Router.AccountMembersDetailsRoot({
+                                    accountMembershipId,
+                                    ...params,
+                                    editingAccountMembershipId: item.id,
+                                  })}
+                                />
+                              )}
+                              onRefreshRequest={() => {
+                                reload();
+                              }}
                             />
-                          )}
-                          onRefreshRequest={() => {
-                            reload();
-                          }}
-                        />
-                      )}
+
+                            <ListRightPanel
+                              ref={panelRef}
+                              keyExtractor={item => item.id}
+                              activeId={editingAccountMembershipId}
+                              onActiveIdChange={editingAccountMembershipId =>
+                                Router.push("AccountMembersDetailsRoot", {
+                                  accountMembershipId,
+                                  editingAccountMembershipId,
+                                  ...params,
+                                })
+                              }
+                              onClose={() =>
+                                Router.push("AccountMembersList", {
+                                  accountMembershipId,
+                                  ...params,
+                                })
+                              }
+                              items={memberships?.edges.map(item => item.node) ?? []}
+                              render={(membership, large) => (
+                                <MembershipDetailArea
+                                  params={params}
+                                  currentUserAccountMembershipId={accountMembershipId}
+                                  currentUserAccountMembership={currentUserAccountMembership}
+                                  editingAccountMembershipId={membership.id}
+                                  onAccountMembershipUpdate={onAccountMembershipUpdate}
+                                  canAddCard={cardOrderVisible && canAddCard}
+                                  physicalCardOrderVisible={physicalCardOrderVisible}
+                                  accountCountry={accountCountry}
+                                  shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                  onRefreshRequest={() => {
+                                    reload();
+                                  }}
+                                  large={large}
+                                />
+                              )}
+                              closeLabel={t("common.closeButton")}
+                              previousLabel={t("common.previous")}
+                              nextLabel={t("common.next")}
+                            />
+                          </>
+                        );
+                      }}
                     </Connection>
                   ),
                 }),
             })}
           </View>
-
-          <ListRightPanel
-            ref={panelRef}
-            keyExtractor={item => item.id}
-            activeId={editingAccountMembershipId}
-            onActiveIdChange={editingAccountMembershipId =>
-              Router.push("AccountMembersDetailsRoot", {
-                accountMembershipId,
-                editingAccountMembershipId,
-                ...params,
-              })
-            }
-            onClose={() => Router.push("AccountMembersList", { accountMembershipId, ...params })}
-            items={memberships}
-            render={(membership, large) => (
-              <MembershipDetailArea
-                params={params}
-                currentUserAccountMembershipId={accountMembershipId}
-                currentUserAccountMembership={currentUserAccountMembership}
-                editingAccountMembershipId={membership.id}
-                onAccountMembershipUpdate={onAccountMembershipUpdate}
-                canAddCard={cardOrderVisible && canAddCard}
-                physicalCardOrderVisible={physicalCardOrderVisible}
-                accountCountry={accountCountry}
-                shouldDisplayIdVerification={shouldDisplayIdVerification}
-                onRefreshRequest={() => {
-                  reload();
-                }}
-                large={large}
-              />
-            )}
-            closeLabel={t("common.closeButton")}
-            previousLabel={t("common.previous")}
-            nextLabel={t("common.next")}
-          />
 
           <LakeModal
             visible={params.new != null}

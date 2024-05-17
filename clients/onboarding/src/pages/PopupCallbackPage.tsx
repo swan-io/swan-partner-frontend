@@ -1,7 +1,7 @@
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useEffect } from "react";
 import { match, P } from "ts-pattern";
-import { dispatchToPopupOpener } from "../states/popup";
+import { closePopup } from "../states/popup";
 import { env } from "../utils/env";
 
 type Props = {
@@ -26,7 +26,7 @@ export const PopupCallbackPage = ({ redirectUrl, accountMembershipId, projectId 
           )
           .otherwise(() => `${env.BANKING_URL}?source=onboarding`);
 
-    if (!dispatchToPopupOpener({ type: "close-popup", redirectUrl: url })) {
+    if (closePopup(url).isError()) {
       // If we don't manage to close a popup, redirect from there
       window.location.replace(url);
     }

@@ -1,63 +1,42 @@
-import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { Option, Result } from "@swan-io/boxed";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { atom } from "react-atomic-state";
+import { P, isMatching } from "ts-pattern";
 
-type Data = { type: "close-popup"; redirectUrl?: string };
+const isClosePopupData = isMatching({
+  type: "closePopup",
+  redirectUrl: P.string,
+});
+
+type GuardType<T> = T extends (value: unknown) => value is infer R ? R : never;
+type ClosePopupData = GuardType<typeof isClosePopupData>;
 
 type State = {
-  popup: Window | null;
-  timer: number | null;
-  onClose: ((redirectUrl?: string) => void) | null;
+  callback: (redirectUrl: string) => void;
 };
 
-const initialState: State = {
-  popup: null,
-  timer: null,
-  onClose: null,
-};
+const state = atom<State | undefined>(undefined);
 
-const state = atom<State>(initialState);
+// listen for messages from the popup window
+window.addEventListener("message", ({ data, origin }: { data: unknown; origin: string }) => {
+  const callback = state.get()?.callback;
 
-const closePopup = (redirectUrl?: string) => {
-  const { popup, timer, onClose } = state.get();
-
-  window.removeEventListener("message", onMessage);
-  isNotNullish(timer) && clearInterval(timer);
-
-  onClose?.(redirectUrl); // trigger user callback
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
-  popup?.close?.(); // popup instance might not exist
-
-  state.set(initialState);
-};
-
-const onMessage = ({ data, origin }: { data: Data; origin: string }) => {
-  if (origin !== window.location.origin) {
-    return; // prevent cross-origin issues
+  if (
+    origin !== window.location.origin && // prevent cross-origin issues
+    isClosePopupData(data) &&
+    isNotNullish(callback)
+  ) {
+    callback(data.redirectUrl);
+    state.reset();
   }
+});
 
-  switch (data.type) {
-    case "close-popup":
-      return closePopup(data.redirectUrl);
-  }
-};
+export const openPopup = ({ url, onClose }: { url: string; onClose: State["callback"] }) => {
+  const height = 800;
+  const width = 500;
 
-export const openPopup = ({
-  url,
-  width = 500,
-  height = 800,
-  onClose = null,
-}: {
-  url: string;
-  width?: number;
-  height?: number;
-  onClose?: ((redirectUrl?: string) => void) | null;
-}) => {
-  if (isNullish(state.get().popup)) {
-    window.addEventListener("message", onMessage); // listen for messages from the popup window
-  }
-
-  const screenLeft = window.screenLeft ?? window.screenX; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
-  const screenRight = window.screenTop ?? window.screenY; // eslint-disable-line @typescript-eslint/no-unnecessary-condition
+  const screenLeft = window.screenLeft ?? window.screenX;
+  const screenRight = window.screenTop ?? window.screenY;
   const { outerHeight, outerWidth } = window;
 
   const params = [
@@ -70,40 +49,32 @@ export const openPopup = ({
     "toolbar=no",
   ];
 
-  state.set(prevState => ({
-    ...prevState,
-    popup: window.open(url, "Swan", params.join(",")),
-    onClose,
-    // https://stackoverflow.com/a/48240128
-    timer: setInterval(() => {
-      const { popup } = state.get();
+  const popup = window.open(url, "Swan", params.join(","));
 
-      if (isNotNullish(popup) && popup.closed) {
-        closePopup();
+  if (isNotNullish(popup)) {
+    state.set({
+      callback: redirectUrl => {
+        onClose(redirectUrl); // trigger user callback
+        popup?.close?.();
+      },
+    });
+
+    // https://stackoverflow.com/a/48240128
+    const interval = setInterval(() => {
+      if (popup?.closed === true) {
+        state.reset();
+        clearInterval(interval);
       }
-    }, 100) as unknown as number,
-  }));
+    }, 100);
+  }
 };
 
-const EXTRA_ALLOWED_ORIGIN = `https://dashboard.${location.hostname.split(".").slice(1).join(".")}`;
-
 // need to be called inside popup
-export const dispatchToPopupOpener = (data: Data): boolean => {
-  let origin = EXTRA_ALLOWED_ORIGIN;
+export const closePopup = (redirectUrl: string): Result<void, unknown> => {
+  const data: ClosePopupData = { type: "closePopup", redirectUrl };
   const opener = window.opener as Window | undefined;
 
-  try {
-    if (opener != null) {
-      origin = opener.origin;
-    }
-  } catch (err) {
-    // do nothing
-  }
-
-  if (isNotNullish(opener)) {
-    opener.postMessage(data, origin);
-    return true;
-  }
-
-  return false;
+  return Option.fromNullable(opener)
+    .toResult(null)
+    .flatMap(opener => Result.fromExecution(() => opener.postMessage(data, "*")));
 };

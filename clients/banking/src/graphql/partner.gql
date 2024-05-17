@@ -1516,6 +1516,7 @@ query MembersPage(
         search: $search
       }
     ) {
+      totalCount
       pageInfo {
         endCursor
         hasNextPage

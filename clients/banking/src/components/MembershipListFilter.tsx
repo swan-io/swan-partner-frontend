@@ -1,4 +1,4 @@
-import { Dict } from "@swan-io/boxed";
+import { AsyncData, Dict, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -14,6 +14,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
+import { P, match } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
@@ -100,8 +101,7 @@ type TransactionListFilterProps = {
   available?: readonly (keyof MembershipFilters)[];
   children?: ReactNode;
   large?: boolean;
-  totalCount: number;
-  isFetching: boolean;
+  totalCount: AsyncData<Result<number, unknown>>;
 };
 
 const defaultAvailableFilters = [
@@ -119,7 +119,6 @@ export const MembershipListFilter = ({
   onChange,
   onRefresh,
   totalCount,
-  isFetching,
   large = true,
   available = defaultAvailableFilters,
 }: TransactionListFilterProps) => {
@@ -218,7 +217,13 @@ export const MembershipListFilter = ({
           placeholder={t("common.search")}
           initialValue={filters.search ?? ""}
           onChangeText={search => onChange({ ...filters, search })}
-          renderEnd={() => (!isFetching ? <Tag>{totalCount}</Tag> : undefined)}
+          renderEnd={() =>
+            match(totalCount)
+              .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
+                <Tag>{totalCount}</Tag>
+              ))
+              .otherwise(() => null)
+          }
         />
       </Box>
 

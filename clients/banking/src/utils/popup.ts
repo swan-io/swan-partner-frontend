@@ -1,79 +1,90 @@
-import { Option, Result } from "@swan-io/boxed";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { isMatching } from "ts-pattern";
+import { Future, Option, Result } from "@swan-io/boxed";
+import { P, isMatching } from "ts-pattern";
 
-const isClosePopupData = isMatching({
-  source: "banking",
-  event: "closePopup",
-});
+const SOURCE_NAME = "Swan";
+const EVENT_NAME = "closePopup";
 
-type GuardType<T> = T extends (value: unknown) => value is infer R ? R : never;
-type ClosePopupData = GuardType<typeof isClosePopupData>;
+const AUTH_WINDOW_WIDTH = 500;
+const AUTH_WINDOW_HEIGHT = 800;
 
-let callback: (() => void) | undefined = undefined;
+const dataPattern = {
+  source: SOURCE_NAME,
+  event: EVENT_NAME,
+  redirectUrl: P.optional(P.string),
+} as const;
 
-const onMessage = ({ data, origin }: { data: unknown; origin: string }) => {
-  if (
-    origin === window.location.origin && // prevent cross-origin issues
-    isClosePopupData(data) &&
-    isNotNullish(callback)
-  ) {
-    window.removeEventListener("message", onMessage);
-    callback();
-    callback = undefined;
+let currentFuture: Future<Option<string>> | undefined;
+
+export const openPopup = (url: string) => {
+  // opened a new popup, cancel the previous flow
+  if (currentFuture != null) {
+    currentFuture.cancel();
   }
-};
 
-export const openPopup = ({ url, onClose }: { url: string; onClose: typeof callback }) => {
-  const height = 800;
-  const width = 500;
+  const future = Future.make<Option<string>>(resolve => {
+    const screenLeft = window.screenLeft ?? window.screenX;
+    const screenRight = window.screenTop ?? window.screenY;
+    const { outerHeight, outerWidth } = window;
 
-  const screenLeft = window.screenLeft ?? window.screenX;
-  const screenRight = window.screenTop ?? window.screenY;
-  const { outerHeight, outerWidth } = window;
+    const params = [
+      `left=${screenLeft + outerWidth - (AUTH_WINDOW_WIDTH / 2 + outerWidth / 2)}`,
+      `top=${screenRight + outerHeight - (AUTH_WINDOW_HEIGHT / 2 + outerHeight / 2)}`,
+      `height=${AUTH_WINDOW_HEIGHT}`,
+      `width=${AUTH_WINDOW_WIDTH}`,
+      "menubar=no",
+      "status=no",
+      "toolbar=no",
+    ];
 
-  const params = [
-    `left=${screenLeft + outerWidth - (width / 2 + outerWidth / 2)}`,
-    `top=${screenRight + outerHeight - (height / 2 + outerHeight / 2)}`,
-    `height=${height}`,
-    `width=${width}`,
-    "menubar=no",
-    "status=no",
-    "toolbar=no",
-  ];
+    const popup = window.open(url, SOURCE_NAME, params.join(","));
 
-  const popup = window.open(url, "Swan", params.join(","));
+    const intervalId = setInterval(() => {
+      // `null` means that the popup couldn't be open
+      // `closed` means that an external event closed it
+      if (popup == null || popup.closed) {
+        future.cancel();
+      }
+    }, 100);
 
-  if (isNotNullish(popup)) {
+    const stopListening = () => {
+      window.removeEventListener("message", onMessage);
+      clearInterval(intervalId);
+    };
+
+    const onMessage = ({ data }: MessageEvent<unknown>) => {
+      if (isMatching(dataPattern, data)) {
+        if (popup != null) {
+          popup.close();
+        }
+
+        resolve(Option.fromNullable(data.redirectUrl));
+        stopListening();
+      }
+    };
+
     // listen for messages from the popup window
     window.addEventListener("message", onMessage);
 
-    callback = () => {
-      onClose?.(); // trigger user callback
-      popup?.close?.();
+    return () => {
+      stopListening();
     };
+  });
 
-    // https://stackoverflow.com/a/48240128
-    const interval = setInterval(() => {
-      if (popup?.closed === true) {
-        window.removeEventListener("message", onMessage);
-        callback = undefined;
-        clearInterval(interval);
-      }
-    }, 100);
-  }
+  currentFuture = future;
+  return future;
 };
 
-// need to be called inside popup
-export const closePopup = (): Result<void, unknown> => {
+// will be called inside popup
+export const sendClosePopupMessage = (redirectUrl: Option<string>) => {
   const opener = window.opener as Window | undefined;
 
-  const data: ClosePopupData = {
-    source: "banking",
-    event: "closePopup",
+  const data: P.infer<typeof dataPattern> = {
+    source: SOURCE_NAME,
+    event: EVENT_NAME,
+    redirectUrl: redirectUrl.toUndefined(),
   };
 
   return Option.fromNullable(opener)
-    .toResult(null)
-    .flatMap(opener => Result.fromExecution(() => opener.postMessage(data, opener.origin)));
+    .toResult(new Error("Opener not accessible"))
+    .flatMap(opener => Result.fromExecution(() => opener.postMessage(data, "*")));
 };

@@ -78,14 +78,16 @@ export const ProfilePage = ({
 
   const handleProveIdentity = useCallback(() => {
     const params = new URLSearchParams();
+
     match(projectConfiguration.map(({ projectId }) => projectId))
       .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
       .otherwise(() => {});
+
     params.set("redirectTo", Router.PopupCallback());
     params.set("identificationLevel", recommendedIdentificationLevel);
-    openPopup({
-      url: `/auth/login?${params.toString()}`,
-      onClose: () => refetchAccountAreaQuery(),
+
+    openPopup(`/auth/login?${params.toString()}`).onResolve(() => {
+      refetchAccountAreaQuery();
     });
   }, [refetchAccountAreaQuery, recommendedIdentificationLevel]);
 

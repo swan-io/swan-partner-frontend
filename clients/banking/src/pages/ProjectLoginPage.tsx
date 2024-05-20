@@ -141,21 +141,22 @@ export const ProjectLoginPage = ({
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();
     const params = new URLSearchParams();
+
     params.set("projectId", projectId);
+    params.set("redirectTo", isMobile ? redirectTo : Router.PopupCallback());
+
+    const authUrl = `/auth/login?${params.toString()}`;
 
     if (isMobile) {
-      params.set("redirectTo", redirectTo);
-      window.location.replace(`/auth/login?${params.toString()}`);
+      window.location.replace(authUrl);
     } else {
       params.set("redirectTo", Router.PopupCallback());
-      openPopup({
-        url: `/auth/login?${params.toString()}`,
-        onClose: () => {
-          // We use location.replace to be sure that the auth
-          // cookie is correctly written before changing page
-          // (history pushState does not seem to offer these guarantees)
-          window.location.replace(redirectTo);
-        },
+
+      openPopup(authUrl).onResolve(() => {
+        // We use location.replace to be sure that the auth
+        // cookie is correctly written before changing page
+        // (history pushState does not seem to offer these guarantees)
+        window.location.replace(redirectTo);
       });
     }
   }, [projectId]);

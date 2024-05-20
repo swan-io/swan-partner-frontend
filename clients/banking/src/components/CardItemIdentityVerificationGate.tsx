@@ -38,12 +38,13 @@ export const CardItemIdentityVerificationGate = ({
 }: Props) => {
   const onPressProve = () => {
     const params = new URLSearchParams();
+
     params.set("redirectTo", Router.PopupCallback());
     params.set("identificationLevel", recommendedIdentificationLevel);
     params.set("projectId", projectId);
-    openPopup({
-      url: `/auth/login?${params.toString()}`,
-      onClose: () => onComplete(),
+
+    openPopup(`/auth/login?${params.toString()}`).onResolve(() => {
+      onComplete();
     });
   };
 

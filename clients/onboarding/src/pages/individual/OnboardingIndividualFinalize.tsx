@@ -3,7 +3,6 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { useEffect } from "react";
 import { P, match } from "ts-pattern";
@@ -69,16 +68,13 @@ export const OnboardingIndividualFinalize = ({
     if (isMobile) {
       window.location.replace(url);
     } else {
-      openPopup({
-        url,
-        onClose: redirectUrl => {
-          if (isNotNullish(redirectUrl)) {
-            // We use location.replace to be sure that the auth
-            // cookie is correctly written before changing page
-            // (history pushState does not seem to offer these guarantees)
-            window.location.replace(redirectUrl);
-          }
-        },
+      openPopup(url).onResolve(redirectUrl => {
+        if (redirectUrl.isSome()) {
+          // We use location.replace to be sure that the auth
+          // cookie is correctly written before changing page
+          // (history pushState does not seem to offer these guarantees)
+          window.location.replace(redirectUrl.get());
+        }
       });
     }
   };

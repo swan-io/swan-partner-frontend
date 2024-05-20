@@ -42,6 +42,7 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
     }
     paymentMethods {
       type
+      id
     }
   }
 }
@@ -92,10 +93,29 @@ mutation AddCardPaymentMandate($input: AddCardPaymentMandateInput!) {
     ... on AddCardPaymentMandateSuccessPayload {
       paymentMandate {
         id
+        __typename
       }
     }
     ... on Rejection {
       message
+    }
+  }
+}
+
+mutation InitiateCardMerchantPayment(
+  $input: UnauthenticatedInitiateCardMerchantPaymentFromPaymentLinkInput!
+) {
+  unauthenticatedInitiateCardMerchantPaymentFromPaymentLink(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on ValidationRejection {
+      fields {
+        code
+        message
+        path
+      }
     }
   }
 }

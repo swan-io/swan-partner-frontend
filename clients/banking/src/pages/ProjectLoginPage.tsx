@@ -28,9 +28,9 @@ import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
-import { openPopup } from "../states/popup";
 import { env } from "../utils/env";
 import { getFirstSupportedLanguage, t } from "../utils/i18n";
+import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -141,21 +141,22 @@ export const ProjectLoginPage = ({
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();
     const params = new URLSearchParams();
+
     params.set("projectId", projectId);
+    params.set("redirectTo", isMobile ? redirectTo : Router.PopupCallback());
+
+    const authUrl = `/auth/login?${params.toString()}`;
 
     if (isMobile) {
-      params.set("redirectTo", redirectTo);
-      window.location.replace(`/auth/login?${params.toString()}`);
+      window.location.replace(authUrl);
     } else {
       params.set("redirectTo", Router.PopupCallback());
-      openPopup({
-        url: `/auth/login?${params.toString()}`,
-        onDispatch: () => {
-          // We use location.replace to be sure that the auth
-          // cookie is correctly written before changing page
-          // (history pushState does not seem to offer these guarantees)
-          window.location.replace(redirectTo);
-        },
+
+      openPopup(authUrl).onResolve(() => {
+        // We use location.replace to be sure that the auth
+        // cookie is correctly written before changing page
+        // (history pushState does not seem to offer these guarantees)
+        window.location.replace(redirectTo);
       });
     }
   }, [projectId]);

@@ -4,9 +4,9 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { StyleSheet, View } from "react-native";
 import { IdentificationFragment, IdentificationLevel } from "../graphql/partner";
-import { openPopup } from "../states/popup";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
+import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -38,12 +38,13 @@ export const CardItemIdentityVerificationGate = ({
 }: Props) => {
   const onPressProve = () => {
     const params = new URLSearchParams();
+
     params.set("redirectTo", Router.PopupCallback());
     params.set("identificationLevel", recommendedIdentificationLevel);
     params.set("projectId", projectId);
-    openPopup({
-      url: `/auth/login?${params.toString()}`,
-      onDispatch: () => onComplete(),
+
+    openPopup(`/auth/login?${params.toString()}`).onResolve(() => {
+      onComplete();
     });
   };
 

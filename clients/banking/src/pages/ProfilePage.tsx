@@ -30,9 +30,9 @@ import {
   IdentificationLevel,
   ProfilePageDocument,
 } from "../graphql/partner";
-import { openPopup } from "../states/popup";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
+import { openPopup } from "../utils/popup";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { NotFoundPage } from "./NotFoundPage";
@@ -78,14 +78,16 @@ export const ProfilePage = ({
 
   const handleProveIdentity = useCallback(() => {
     const params = new URLSearchParams();
+
     match(projectConfiguration.map(({ projectId }) => projectId))
       .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
       .otherwise(() => {});
+
     params.set("redirectTo", Router.PopupCallback());
     params.set("identificationLevel", recommendedIdentificationLevel);
-    openPopup({
-      url: `/auth/login?${params.toString()}`,
-      onDispatch: () => refetchAccountAreaQuery(),
+
+    openPopup(`/auth/login?${params.toString()}`).onResolve(() => {
+      refetchAccountAreaQuery();
     });
   }, [refetchAccountAreaQuery, recommendedIdentificationLevel]);
 

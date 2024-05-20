@@ -1,3 +1,5 @@
+import { Future, Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -5,10 +7,17 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { Frames } from "frames-react";
-import { useEffect } from "react";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { FrameCardTokenizedEvent, Frames } from "frames-react";
+import { useEffect, useState } from "react";
 import { StyleSheet } from "react-native";
-import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
+import {
+  AddCardPaymentMandateDocument,
+  GetMerchantPaymentLinkQuery,
+  InitiateCardMerchantPaymentDocument,
+} from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 
@@ -23,12 +32,19 @@ const styles = StyleSheet.create({
 
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
-  nonEeaCountries: string[];
-  setMandateUrl: (value: string) => void;
+  paymentMethodId: string;
 };
 
-export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Props) => {
-  console.log(nonEeaCountries, paymentLink, setMandateUrl);
+export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
+  const [addCardPaymentMandate, addCardPaymentMandateData] = useMutation(
+    AddCardPaymentMandateDocument,
+  );
+
+  const [initiateCardPayment, initiateCardPaymentData] = useMutation(
+    InitiateCardMerchantPaymentDocument,
+  );
+
+  const [isCardValid, setIsCardValid] = useState<Option<boolean>>(Option.None());
 
   const { desktop } = useResponsive();
 
@@ -54,7 +70,49 @@ export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Pro
         expiryYearPlaceholder: "YY",
       },
     });
+
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("cardValidationChanged", (event: { isValid: boolean }) =>
+      setIsCardValid(isCardValid => isCardValid.map(() => event.isValid)),
+    );
   }, []);
+
+  const onPressSubmit = () => {
+    setIsCardValid(Option.None());
+
+    Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
+      .tapOk(() => setIsCardValid(Option.Some(true)))
+      .tapError(() => setIsCardValid(Option.Some(false)))
+      .flatMapOk(data =>
+        addCardPaymentMandate({
+          input: {
+            paymentLinkId: paymentLink.id,
+            paymentMethodId,
+            sequence: "OneOff",
+            token: data.token,
+          },
+        })
+          .mapOk(data => {
+            console.log(data.unauthenticatedAddCardPaymentMandate);
+
+            return data.unauthenticatedAddCardPaymentMandate;
+          })
+          .mapOkToResult(filterRejectionsToResult),
+      )
+      .flatMapOk(data =>
+        initiateCardPayment({
+          input: {
+            cardPaymentMandate: data.paymentMandate.id,
+            paymentLinkId: paymentLink.id,
+          },
+        })
+          .mapOk(data => data.unauthenticatedInitiateCardMerchantPaymentFromPaymentLink)
+          .mapOkToResult(filterRejectionsToResult),
+      )
+      .tapError(error => {
+        showToast({ variant: "error", error, title: translateError(error) });
+      });
+  };
 
   return (
     <>
@@ -63,7 +121,16 @@ export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Pro
           label={t("paymentLink.card.cardNumber")}
           render={() => (
             <>
-              <div className="card-number-frame">
+              <div
+                className="card-number-frame"
+                style={
+                  isCardValid.getOr(true)
+                    ? undefined
+                    : {
+                        borderColor: colors.negative[400],
+                      }
+                }
+              >
                 {/* <!-- card number will be added here --> */}
               </div>
 
@@ -83,7 +150,16 @@ export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Pro
             label={t("paymentLink.card.expiryDate")}
             render={() => (
               <>
-                <div className="expiry-date-frame">
+                <div
+                  className="expiry-date-frame"
+                  style={
+                    isCardValid.getOr(true)
+                      ? undefined
+                      : {
+                          borderColor: colors.negative[400],
+                        }
+                  }
+                >
                   {/* <!-- expiry date will be added here --> */}
                 </div>
 
@@ -104,7 +180,18 @@ export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Pro
             label={t("paymentLink.card.cvv")}
             render={() => (
               <>
-                <div className="cvv-frame">{/* <!-- cvv frame will be added here --> */}</div>
+                <div
+                  className="cvv-frame"
+                  style={
+                    isCardValid.getOr(true)
+                      ? undefined
+                      : {
+                          borderColor: colors.negative[400],
+                        }
+                  }
+                >
+                  {/* <!-- cvv frame will be added here --> */}
+                </div>
 
                 <Box direction="row" style={styles.errorContainer}>
                   <LakeText variant="smallRegular" color={colors.negative[500]}>
@@ -120,13 +207,11 @@ export const CardPayment = ({ nonEeaCountries, paymentLink, setMandateUrl }: Pro
       <Space height={32} />
 
       <LakeButton
-        onPress={() => {
-          Frames.submitCard()
-            .then(obj => console.log(obj))
-            .catch(err => console.error(err));
-        }}
+        color="partner"
+        onPress={onPressSubmit}
+        loading={addCardPaymentMandateData.isLoading() || initiateCardPaymentData.isLoading()}
       >
-        Submit
+        {t("button.pay")}
       </LakeButton>
     </>
   );

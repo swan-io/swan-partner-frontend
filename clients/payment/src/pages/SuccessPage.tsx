@@ -6,9 +6,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
-import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -29,10 +27,9 @@ const styles = StyleSheet.create({
 
 type Props = {
   mandateUrl?: string;
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
 };
 
-export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
+export const SuccessPage = ({ mandateUrl }: Props) => {
   const { desktop } = useResponsive();
 
   return (
@@ -52,28 +49,14 @@ export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
 
       <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
         <LakeButton
-          ariaLabel={t("paymentLink.button.returnToWebsite")}
-          mode="secondary"
-          href={paymentLink.redirectUrl}
+          color="current"
+          ariaLabel={t("paymentLink.button.downloadMandate")}
+          icon="arrow-down-regular"
+          mode="primary"
+          href={mandateUrl}
         >
-          {t("paymentLink.button.returnToWebsite")}
+          {t("paymentLink.button.downloadMandate")}
         </LakeButton>
-
-        {isNotNullish(mandateUrl) && (
-          <>
-            <Space height={12} width={16} />
-
-            <LakeButton
-              color="current"
-              ariaLabel={t("paymentLink.button.downloadMandate")}
-              icon="arrow-down-regular"
-              mode="primary"
-              href={mandateUrl}
-            >
-              {t("paymentLink.button.downloadMandate")}
-            </LakeButton>
-          </>
-        )}
       </Box>
     </Box>
   );

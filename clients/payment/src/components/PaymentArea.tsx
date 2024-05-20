@@ -159,7 +159,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                       .otherwise(() => <ErrorView />),
                   )
                   .with({ route: "PaymentSuccess", status: "Completed" }, () => (
-                    <SuccessPage paymentLink={merchantPaymentLink} mandateUrl={mandateUrl} />
+                    <SuccessPage mandateUrl={mandateUrl} />
                   ))
                   .with({ route: "PaymentSuccess" }, () => (
                     <Redirect to={Router.PaymentForm({ paymentLinkId })} />

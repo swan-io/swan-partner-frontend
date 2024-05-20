@@ -689,9 +689,12 @@ type AccountMembership {
 
   """Disabled date"""
   disabledAt: DateTime
+<<<<<<< HEAD
 
   """Language of the account membership"""
   language: AccountLanguage
+=======
+>>>>>>> 76bfdb4e (update schemes and translation)
 }
 
 """when a user is binded with the error to the account membership"""
@@ -1271,9 +1274,12 @@ type BasicPhysicalCardInfo {
 
   """Unique identifier present on physical card"""
   identifier: String
+<<<<<<< HEAD
 
   """`true` if physical card is expired"""
   isExpired: Boolean!
+=======
+>>>>>>> 76bfdb4e (update schemes and translation)
 }
 
 """Bank Identifier Code"""
@@ -7652,9 +7658,12 @@ Filters that can be applied when listing supporting document collections
 input SupportingDocumentCollectionFilterInput {
   """Supporting document collection type/types we're looking for"""
   type: [SupportingDocumentCollectionType!]
+<<<<<<< HEAD
 
   """Supporting document collection status we're looking for"""
   status: [SupportingDocumentCollectionStatus!]
+=======
+>>>>>>> 76bfdb4e (update schemes and translation)
 }
 
 """Rejection returned if the supporting document collection was not found"""

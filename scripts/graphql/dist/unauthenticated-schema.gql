@@ -5221,9 +5221,12 @@ Filters that can be applied when listing supporting document collections
 input SupportingDocumentCollectionFilterInput {
   """Supporting document collection type/types we're looking for"""
   type: [SupportingDocumentCollectionType!]
+<<<<<<< HEAD
 
   """Supporting document collection status we're looking for"""
   status: [SupportingDocumentCollectionStatus!]
+=======
+>>>>>>> 76bfdb4e (update schemes and translation)
 }
 
 """Rejection returned if the supporting document collection was not found"""

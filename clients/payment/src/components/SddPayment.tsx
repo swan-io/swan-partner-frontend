@@ -38,7 +38,6 @@ type Props = {
 };
 
 type FormState = {
-  paymentMethod: "SepaDirectDebitB2b" | "Card";
   iban: string;
   country: CountryCCA3;
   name: string;
@@ -48,7 +47,6 @@ type FormState = {
 };
 
 const fieldToPathMap = {
-  paymentMethod: ["paymentMethod"],
   iban: ["debtor", "iban"],
   name: ["debtor", "name"],
   country: ["address", "country"],
@@ -61,12 +59,9 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Prop
   const { desktop } = useResponsive();
 
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
-    paymentMethod: {
-      initialValue: "SepaDirectDebitB2b",
-    },
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",
-      sanitize: value => value.trim(),
+      sanitize: value => value.trim().replace(/ /g, ""),
       validate: combineValidators(validateRequired, validateIban),
     },
     country: {

@@ -5,14 +5,16 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useEffect, useState } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
+import { match } from "ts-pattern";
 import {
   AddCardPaymentMandateDocument,
   GetMerchantPaymentLinkQuery,
@@ -20,6 +22,13 @@ import {
 } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import {
+  AmericanExpressLogo,
+  CarteBancaireLogo,
+  MaestroLogo,
+  MastercardLogo,
+  VisaLogo,
+} from "./CardLogos";
 
 const styles = StyleSheet.create({
   grow: {
@@ -28,7 +37,24 @@ const styles = StyleSheet.create({
   errorContainer: {
     paddingTop: spacings[4],
   },
+  cardLogo: {
+    justifyContent: "center",
+    flexShrink: 0,
+    backgroundColor: colors.gray[50],
+    paddingHorizontal: spacings[16],
+    paddingVertical: spacings[8],
+    maxHeight: 40,
+    borderTopRightRadius: radii[6],
+    borderBottomRightRadius: radii[6],
+    borderColor: colors.gray[100],
+    borderWidth: 1,
+    borderTopLeftRadius: 0,
+    borderLeftWidth: 0,
+    borderBottomLeftRadius: 0,
+  },
 });
+
+type PaymentMethod = "visa" | "maestro" | "mastercard" | "american express" | "cartes bancaires";
 
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
@@ -36,6 +62,8 @@ type Props = {
 };
 
 export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
+  const { desktop } = useResponsive();
+
   const [addCardPaymentMandate, addCardPaymentMandateData] = useMutation(
     AddCardPaymentMandateDocument,
   );
@@ -45,8 +73,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
   );
 
   const [isCardValid, setIsCardValid] = useState<Option<boolean>>(Option.None());
-
-  const { desktop } = useResponsive();
+  const [paymentMethod, setPaymentMethod] = useState<Option<PaymentMethod>>(Option.None());
 
   useEffect(() => {
     Frames.init({
@@ -64,21 +91,42 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
         },
       },
       localization: {
-        cardNumberPlaceholder: "1234 12•• •••• 1234",
-        cvvPlaceholder: "XXX",
+        cardNumberPlaceholder: " ",
+        cvvPlaceholder: " ",
         expiryMonthPlaceholder: "MM",
         expiryYearPlaceholder: "YY",
       },
+      schemeChoice: true,
     });
 
     //@ts-expect-error addEventHandler isn't typed correctly
     Frames.addEventHandler("cardValidationChanged", (event: { isValid: boolean }) =>
       setIsCardValid(isCardValid => isCardValid.map(() => event.isValid)),
     );
+
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
+      const cardType = event.paymentMethod;
+
+      if (isNullish(cardType)) {
+        setPaymentMethod(Option.None());
+      }
+      match(cardType.toLowerCase())
+        .with(
+          "visa",
+          "maestro",
+          "mastercard",
+          "american express",
+          "cartes bancaires",
+          paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
+        )
+        .otherwise(() => setPaymentMethod(Option.None()));
+    });
   }, []);
 
   const onPressSubmit = () => {
     setIsCardValid(Option.None());
+    console.log("&", isCardValid);
 
     Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
       .tapOk(() => setIsCardValid(Option.Some(true)))
@@ -92,27 +140,24 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
             token: data.token,
           },
         })
-          .mapOk(data => {
-            console.log(data.unauthenticatedAddCardPaymentMandate);
-
-            return data.unauthenticatedAddCardPaymentMandate;
-          })
+          .mapOk(data => data.unauthenticatedAddCardPaymentMandate)
           .mapOkToResult(filterRejectionsToResult),
       )
       .flatMapOk(data =>
         initiateCardPayment({
           input: {
-            cardPaymentMandate: data.paymentMandate.id,
+            cardPaymentMandateId: data.paymentMandate.id,
             paymentLinkId: paymentLink.id,
           },
         })
-          .mapOk(data => data.unauthenticatedInitiateCardMerchantPaymentFromPaymentLink)
+          .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
           .mapOkToResult(filterRejectionsToResult),
       )
       .tapError(error => {
         showToast({ variant: "error", error, title: translateError(error) });
       });
   };
+  console.log("or", isCardValid);
 
   return (
     <>
@@ -121,18 +166,48 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
           label={t("paymentLink.card.cardNumber")}
           render={() => (
             <>
-              <div
-                className="card-number-frame"
-                style={
-                  isCardValid.getOr(true)
-                    ? undefined
-                    : {
+              <Box direction="row" grow={1} shrink={1}>
+                <div
+                  className={`card-number-frame ${paymentMethod.isSome() ? "card-number-frame-with-logo" : ""}`}
+                  style={{
+                    ...(isCardValid.isSome() &&
+                      !isCardValid.get() && {
                         borderColor: colors.negative[400],
-                      }
-                }
-              >
-                {/* <!-- card number will be added here --> */}
-              </div>
+                      }),
+                  }}
+                >
+                  {/* <!-- card number will be added here --> */}
+                </div>
+
+                {match(paymentMethod)
+                  .with(Option.P.None, () => null)
+                  .with(Option.P.Some("american express"), () => (
+                    <View style={styles.cardLogo}>
+                      <AmericanExpressLogo />
+                    </View>
+                  ))
+                  .with(Option.P.Some("cartes bancaires"), () => (
+                    <View style={styles.cardLogo}>
+                      <CarteBancaireLogo />
+                    </View>
+                  ))
+                  .with(Option.P.Some("maestro"), () => (
+                    <View style={styles.cardLogo}>
+                      <MaestroLogo />
+                    </View>
+                  ))
+                  .with(Option.P.Some("mastercard"), () => (
+                    <View style={styles.cardLogo}>
+                      <MastercardLogo />
+                    </View>
+                  ))
+                  .with(Option.P.Some("visa"), () => (
+                    <View style={styles.cardLogo}>
+                      <VisaLogo />
+                    </View>
+                  ))
+                  .exhaustive()}
+              </Box>
 
               <Box direction="row" style={styles.errorContainer}>
                 <LakeText variant="smallRegular" color={colors.negative[500]}>

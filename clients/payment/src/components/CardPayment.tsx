@@ -126,7 +126,6 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
 
   const onPressSubmit = () => {
     setIsCardValid(Option.None());
-    console.log("&", isCardValid);
 
     Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
       .tapOk(() => setIsCardValid(Option.Some(true)))
@@ -157,7 +156,6 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
         showToast({ variant: "error", error, title: translateError(error) });
       });
   };
-  console.log("or", isCardValid);
 
   return (
     <>

@@ -103,9 +103,9 @@ mutation AddCardPaymentMandate($input: AddCardPaymentMandateInput!) {
 }
 
 mutation InitiateCardMerchantPayment(
-  $input: UnauthenticatedInitiateCardMerchantPaymentFromPaymentLinkInput!
+  $input: UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput!
 ) {
-  unauthenticatedInitiateCardMerchantPaymentFromPaymentLink(input: $input) {
+  unauthenticatedInitiateMerchantCardPaymentFromPaymentLink(input: $input) {
     __typename
     ... on Rejection {
       message

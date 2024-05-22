@@ -1,4 +1,4 @@
-FROM node:22 AS builder
+FROM node:latest AS builder
 WORKDIR /app
 ADD ./server/ ./
 RUN yarn install --pure-lockfile

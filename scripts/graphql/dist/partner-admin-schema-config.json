@@ -10,9 +10,7 @@
       "AccountConnection",
       "AccountHolderConnection",
       "AccountMembershipConnection",
-      "CardConnection",
       "ConsentConnection",
-      "DigitalCardConnection",
       "FundingLimitSettingsChangeRequestConnection",
       "InvoiceConnection",
       "OnboardingConnection",
@@ -27,9 +25,7 @@
       "AccountEdge",
       "AccountHolderEdge",
       "AccountMembershipEdge",
-      "CardEdge",
       "ConsentEdge",
-      "DigitalCardEdge",
       "FundingLimitSettingsChangeRequestEdge",
       "IdentificationEdge",
       "InvoiceEdge",
@@ -52,25 +48,13 @@
     ],
     "Rejection": [
       "AccountHolderNotFoundRejection",
-      "AccountMembershipNotAllowedRejection",
       "AccountNotEligibleRejection",
       "AccountNotFoundRejection",
       "AccountVerificationAlreadyRejectedRejection",
       "AccountVerificationWrongStatusRejection",
-      "AddingCardsToDifferentAccountsRejection",
-      "AlreadyValidPhysicalCardRejection",
-      "ApplePayNotAllowedForProjectRejection",
       "BadAccountStatusRejection",
       "BadRequestRejection",
-      "CannotActivatePhysicalCardRejection",
-      "CardCanNotBeDigitalizedRejection",
       "CardNotFoundRejection",
-      "CardProductDisabledRejection",
-      "CardProductNotApplicableToPhysicalCardsRejection",
-      "CardProductNotFoundRejection",
-      "CardProductSuspendedRejection",
-      "CardProductUsedRejection",
-      "CardWrongStatusRejection",
       "CouldNotFindCapitalDepositCaseRejection",
       "CouldNotFindCapitalDepositDocumentRejection",
       "CouldNotRejectCapitalDepositDocumentRejection",
@@ -78,8 +62,6 @@
       "CouldNotUploadCapitalDepositDocumentRejection",
       "DebtorAccountClosedRejection",
       "DebtorAccountNotAllowedRejection",
-      "DigitalCardNotFoundRejection",
-      "EnabledCardDesignNotFoundRejection",
       "EndorseSandboxUserDummyRejection",
       "ForbiddenRejection",
       "FundingLimitExceededRejection",
@@ -89,7 +71,6 @@
       "FundingSourceWrongStatusRejection",
       "GlobalFundingLimitExceededRejection",
       "GlobalInstantFundingLimitExceededRejection",
-      "GraphqlInputValidationRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
       "InstantFundingLimitExceededRejection",
@@ -101,22 +82,20 @@
       "InvalidPhoneNumberRejection",
       "LastSandboxUserCannotBeDeletedRejection",
       "MerchantPaymentMethodNotActiveRejection",
+      "MerchantPaymentMethodWrongStatusRejection",
       "MerchantProfileWrongStatusRejection",
-      "MissingMandatoryFieldRejection",
       "NationalityNotFoundRejection",
       "NotFoundRejection",
       "NotReachableConsentStatusRejection",
       "PaymentMandateMandateNotFoundRejection",
       "PaymentMandateReferenceAlreadyUsedRejection",
       "PaymentMethodNotCompatibleRejection",
-      "PhysicalCardNotFoundRejection",
       "PhysicalCardWrongStatusRejection",
       "ProjectForbiddenRejection",
       "ProjectFundingLimitExceededRejection",
       "ProjectInstantFundingLimitExceededRejection",
       "ProjectInvalidStatusRejection",
       "ProjectNotFound",
-      "ProjectNotFoundRejection",
       "ProjectSettingsForbiddenError",
       "ProjectSettingsNotFound",
       "ProjectSettingsStatusNotReachable",
@@ -124,6 +103,7 @@
       "ReceivedDirectDebitMandateCanceledRejection",
       "ReceivedDirectDebitMandateNotB2bRejection",
       "ReceivedDirectDebitMandateNotFoundRejection",
+      "RejectionReasonMandatoryRejection",
       "SandboxIdentificationNotFoundRejection",
       "SandboxUserNotFoundRejection",
       "SchemeWrongRejection",
@@ -139,7 +119,6 @@
       "SupportingDocumentUploadNotAllowedRejection",
       "TooManyItemsRejection",
       "TransactionNotFoundRejection",
-      "UserNotCardHolderRejection",
       "UserNotFoundRejection",
       "ValidationRejection",
       "WrongValueProvidedRejection"
@@ -170,27 +149,13 @@
       "OAuth2Consent",
       "ThreeDsConsent"
     ],
-    "MerchantPaymentMethodStatusInfo": [
-      "CanceledMerchantPaymentMethodStatusInfo",
-      "DisabledMerchantPaymentMethodStatusInfo",
-      "EnabledMerchantPaymentMethodStatusInfo",
-      "PendingMerchantPaymentMethodStatusInfo",
-      "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
-    ],
     "MerchantProfileStatusInfo": [
       "CanceledMerchantProfileStatusInfo",
+      "DisabledMerchantProfileStatusInfo",
       "EnabledMerchantProfileStatusInfo",
       "PendingReviewMerchantProfileStatusInfo",
       "RejectedMerchantProfileStatusInfo",
       "SuspendedMerchantProfileStatusInfo"
-    ],
-    "CardStatusInfo": [
-      "CardCanceledStatusInfo",
-      "CardCancelingStatusInfo",
-      "CardConsentPendingStatusInfo",
-      "CardEnabledStatusInfo",
-      "CardProcessingStatusInfo"
     ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
@@ -204,25 +169,11 @@
       "CloseAccountReason",
       "SuspendAccountReason"
     ],
-    "DigitalCard": [
-      "CompleteDigitalCard",
-      "PendingDigitalCard"
-    ],
     "Field": [
       "DateField",
       "RadioField",
       "SelectField",
       "TextField"
-    ],
-    "CompleteDigitalCardStatusInfo": [
-      "DigitalCardCanceledStatusInfo",
-      "DigitalCardEnabledStatusInfo",
-      "DigitalCardSuspendedStatusInfo"
-    ],
-    "PendingDigitalCardStatusInfo": [
-      "DigitalCardConsentPendingStatusInfo",
-      "DigitalCardDeclinedStatusInfo",
-      "DigitalCardPendingStatusInfo"
     ],
     "AccountVerification": [
       "DirectDebitAccountVerification"
@@ -231,6 +182,13 @@
       "DisabledFundingLimitSettingsStatusInfo",
       "EnabledFundingLimitSettingsStatusInfo",
       "SuspendedFundingLimitSettingsStatusInfo"
+    ],
+    "MerchantPaymentMethodStatusInfo": [
+      "DisabledMerchantPaymentMethodStatusInfo",
+      "EnabledMerchantPaymentMethodStatusInfo",
+      "PendingMerchantPaymentMethodStatusInfo",
+      "RejectedMerchantPaymentMethodStatusInfo",
+      "SuspendedMerchantPaymentMethodStatusInfo"
     ],
     "DocumentFile": [
       "DriversLicenseDocumentFile",

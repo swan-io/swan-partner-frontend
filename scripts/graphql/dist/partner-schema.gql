@@ -393,6 +393,11 @@ enum AccountCountry {
 
   """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
+
+  """
+  Italian account with an Italian IBAN, starting with IT (Coming Soon, not supported yet).
+  """
+  ITA
 }
 
 """Implements the Relay Edge interface"""
@@ -510,6 +515,9 @@ type AccountHolder {
     the index (a unique reference in string form) from which you will load the following elements
     """
     after: String
+
+    """When the list of supporting document collections needs to be filtered"""
+    filters: SupportingDocumentCollectionFilterInput
   ): SupportingDocumentCollectionConnection!
 
   """
@@ -879,6 +887,9 @@ type AccountMembership {
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
+
+  """Unique identifier of the account of the account membership"""
+  accountId: ID!
 
   """account of the account membership"""
   account: Account
@@ -1710,7 +1721,7 @@ input AddInternalDirectDebitPaymentMandateInput {
 }
 
 """Union type return by the addInternalDirectDebitPaymentMandate mutation"""
-union AddInternalDirectDebitPaymentMandatePayload = AddInternalDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | InternalErrorRejection
+union AddInternalDirectDebitPaymentMandatePayload = AddInternalDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
 
 """
 Return type in case of a successful response of the addInternalDirectDebitPaymentMandate mutation
@@ -1981,7 +1992,7 @@ input AddSepaDirectDebitPaymentMandateInput {
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union AddSepaDirectDebitPaymentMandatePayload = AddSepaDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+union AddSepaDirectDebitPaymentMandatePayload = AddSepaDirectDebitPaymentMandateSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection
 
 """
 Return type in case of a successful response of the addSepaDirectDebitPaymentMandate mutation
@@ -2283,6 +2294,9 @@ type BasicPhysicalCardInfo {
 
   """Custom Options"""
   customOptions: PhysicalCardCustomOptions!
+
+  """Unique identifier present on physical card"""
+  identifier: String
 }
 
 """BeneficiaryAccountHolderType"""
@@ -2484,14 +2498,6 @@ Describes an identification level for the process associated to this identificat
 type CanceledIdentificationLevelStatusInfo {
   """Always set to `Cancelled`"""
   status: SwanIdentificationStatus!
-}
-
-"""CanceledMerchantPaymentMethodStatusInfo"""
-type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
-  status: MerchantPaymentMethodStatus!
-
-  """Merchant Payment Method canceled date"""
-  canceledAt: Date!
 }
 
 """CanceledMerchantProfileStatusInfo"""
@@ -3008,6 +3014,17 @@ enum CardAuthorizationOutcome {
   TransactionInvalid
   TransactionNotAuthorizedForCardholder
   TransactionNotAuthorizedForPointOfSale
+  ThreeDsError
+  PeriodTransactionNumberLimitExceeded
+  MissingExpirationDate
+  MissingPin
+  DigitalWalletDeactivated
+  DigitalWalletEnrolmentInvalid
+  DigitalWalletTokenInvalid
+  DigitalWalletRefusal
+  DigitalWalletSuspended
+  InvalidAmount
+  CardholderCancellation
 }
 
 enum CardAuthorizationType {
@@ -4479,7 +4496,7 @@ input CreditTransferInput {
   amount: AmountInput!
 
   """
-  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain. (regex [A-Za-z0-9(\\-)(\\_)(\\?)(\\.)(\\+),' ]{1,35})
+  reference assigned by the initiating party, to unambiguously identify the transaction. This reference is passed on, unchanged, throughout the entire end-to-end chain (regex [a-zA-Z0-9-?.+,/':() ]{1,35} and cannot begin nor end with /. Also, // is not allowed)
   """
   reference: String
 
@@ -4563,6 +4580,17 @@ Date time (ISO 8601 with time information)
 ex: 2021-04-12T16:28:22.867Z
 """
 scalar DateTime
+
+input DeactivateUserInput {
+  """ID of the user to deactivate"""
+  userId: ID!
+}
+
+union DeactivateUserPayload = DeactivateUserSuccess | UserCannotBeDeactivatedRejection | UserAlreadyDeactivatedRejection | UserNotFoundRejection
+
+type DeactivateUserSuccess {
+  user: User!
+}
 
 """Rejection returned when the Debtor is closed"""
 type DebtorAccountClosedRejection implements Rejection {
@@ -4883,6 +4911,12 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
+"""DisabledMerchantProfileStatusInfo"""
+type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  disabledAt: Date!
+}
+
 """Retrieved document extracted from the identity verification"""
 interface DocumentFile {
   downloadUrl: String!
@@ -4913,7 +4947,7 @@ enum DocumentReasonCode {
   """Default value when none of the other values is appropriate"""
   InvalidDocument
 
-  """Name of shareholder is not clearly visible or is missing"""
+  """Some information is missing"""
   InvalidOrMissingData
 
   """Missing identity document of accommodation provider"""
@@ -4927,8 +4961,37 @@ enum DocumentReasonCode {
   """Missing proof of accommodation from accommodation provider"""
   MissingAccommodationProviderLetter
 
-  """Document can’t be accepted as a proof of address"""
+  """Document cannot be accepted for the requested document type"""
   UnacceptableDocument
+
+  """Accommodation provider's identity document must be in full color"""
+  ProviderColorIdDocumentRequired
+
+  """
+  Document must be signed, either by hand or electronically with certification
+  """
+  MissingSignature
+
+  """Document is damaged or in poor condition"""
+  BadDocumentQuality
+
+  """Only part of the document was provided"""
+  FullDocumentRequired
+
+  """Missing accommodation provider's proof of address"""
+  MissingProviderProofOfAddress
+
+  """Missing accommodation provider's proof of address and ID document"""
+  MissingProviderProofOfAddressAndIdDocument
+
+  """Power of attorney must be provided to Swan"""
+  PowerOfAttorneyToSwanRequired
+
+  """Missing company domiciliation statement"""
+  MissingCompanyDomiciliationStatement
+
+  """The signature is not handwritten or electronically certified"""
+  HandwrittenOrCertifiedElectronicSignatureRequired
 }
 
 """The type of the document"""
@@ -6127,6 +6190,26 @@ input IdentificationFiltersInput {
 
   """To filter on process values"""
   processes: [IdentificationProcess!]
+}
+
+"""
+If requested by sending the right parameters to the initial oauth2 url,
+it contains the identification level that is requested to be fulfilled
+after the oauth2 consent by starting the right identification.
+
+QES => use the `startFourthlineExpertIdVerificationIdentification` mutation
+
+Expert => use the `startUbbleExpertIdVerificationIdentification` mutation
+
+PVID => use the `startUbblePvidIdVerificationIdentification` mutation
+
+Auto => use query `recommendedIdentificationFlow` to let Swan recommend the best flow and level for a user
+"""
+enum IdentificationFlowLevel {
+  Auto
+  Expert
+  PVID
+  QES
 }
 
 """The various reasons that can lead to an invalid identification level"""
@@ -8793,7 +8876,6 @@ enum MerchantPaymentMethodStatus {
   Enabled
   Rejected
   Disabled
-  Canceled
   Suspended
 }
 
@@ -8851,7 +8933,10 @@ type MerchantProfile {
   merchantPaymentMethods: [MerchantPaymentMethod!]
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!]
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+
+  """Update Requested associated"""
+  requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """expected average basket value."""
   expectedAverageBasket: Amount!
@@ -8892,6 +8977,10 @@ input MerchantProfileFiltersInput {
   status: [MerchantProfileStatus!]!
 }
 
+type MerchantProfileNotValidRejection implements Rejection {
+  message: String!
+}
+
 enum MerchantProfileOrderByFieldInput {
   createdAt
   updatedAt
@@ -8918,6 +9007,9 @@ enum MerchantProfileStatus {
 
   """Suspended"""
   Suspended
+
+  """Disabled"""
+  Disabled
 }
 
 """Merchant Profile Status Information"""
@@ -9296,6 +9388,9 @@ type Mutation {
   """
   createMultiConsent(input: CreateMultiConsentInput!): CreateMultiConsentPayload
 
+  """Deactivate an User"""
+  deactivateUser(input: DeactivateUserInput!): DeactivateUserPayload!
+
   """Grant consent with a server signature"""
   grantConsentWithServerSignature(input: GrantConsentWithServerSignatureInput!): GrantConsentWithServerSignaturePayload!
 
@@ -9433,6 +9528,14 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   scheduleStandingOrder(input: ScheduleStandingOrderInput!): ScheduleStandingOrderPayload!
+
+  """
+  Probe a Webhook callback endpoint
+  It will send a test event with a random id and the test event type
+  It will return the status code of the response
+  if the endpoint responds and the generated event id
+  """
+  probeWebhookEndpoint(input: ProbeWebhookEndpointInput!): ProbeWebhookEndpointPayload!
 
   """Replays the endpoint call of a previous event"""
   replayWebhookEvent(input: ReplayWebhookEventInput!): ReplayWebhookEventPayload!
@@ -10958,9 +11061,6 @@ input PrintPhysicalCardInput {
   """Address to deliver the physical card"""
   address: CompleteAddressInput!
 
-  """@deprecated(reason: "use `choosePin` instead")"""
-  choosePINCode: Boolean
-
   """`true` if the user must choose their PIN"""
   choosePin: Boolean
 
@@ -10976,6 +11076,25 @@ union PrintPhysicalCardPayload = PrintPhysicalCardSuccessPayload | AccountMember
 type PrintPhysicalCardSuccessPayload {
   """The physicalCard created"""
   physicalCard: PhysicalCard!
+}
+
+"""Values to provide for probing a callback endpoint"""
+input ProbeWebhookEndpointInput {
+  """
+  The endpoint URL the test event will be sent to
+  (max 255 characters)
+  """
+  endpoint: String!
+
+  """A shared secret as proof of identity"""
+  secret: String
+}
+
+union ProbeWebhookEndpointPayload = ProbeWebhookEndpointSuccessPayload | InternalErrorRejection | InvalidArgumentRejection
+
+type ProbeWebhookEndpointSuccessPayload {
+  eventId: ID!
+  responseStatus: Int
 }
 
 """
@@ -12975,6 +13094,7 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   When the above is false, the value of the Sepa Creditor Identifier used
   """
   sepaCreditorIdentifier: String
+  updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
 }
 
 input SepaDirectDebitB2BPaymentMethodInput {
@@ -13026,6 +13146,7 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   When the above is false, the value of the Sepa Creditor Identifier used
   """
   sepaCreditorIdentifier: String
+  updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
 }
 
 input SepaDirectDebitCorePaymentMethodInput {
@@ -13185,6 +13306,20 @@ input SepaDirectDebitPaymentMethodInput {
   If `true`, the transaction will be created with the Swan Creditor Identifier
   """
   useSwanSepaCreditorIdentifier: Boolean! = true
+
+  """
+  Your own SCI - Mandatory if the useSwanCreditorIdentifier is set to false
+  """
+  sepaCreditorIdentifier: String
+}
+
+type SepaDirectDebitPaymentMethodUpdateRequest {
+  id: ID!
+
+  """
+  If `true`, the transaction will be created with the Swan Creditor Identifier
+  """
+  useSwanSepaCreditorIdentifier: Boolean!
 
   """
   Your own SCI - Mandatory if the useSwanCreditorIdentifier is set to false
@@ -14062,6 +14197,7 @@ type SupportingDocumentCollection {
   SupportingDocumentCollection URL to Swan portal
   """
   supportingDocumentCollectionUrl: String!
+  type: SupportingDocumentCollectionType!
 }
 
 """Supporting document collection with Approved status"""
@@ -14103,6 +14239,14 @@ type SupportingDocumentCollectionEdge implements Edge {
 
   """The supporting document collection"""
   node: SupportingDocumentCollection!
+}
+
+"""
+Filters that can be applied when listing supporting document collections
+"""
+input SupportingDocumentCollectionFilterInput {
+  """Supporting document collection type/types we're looking for"""
+  type: [SupportingDocumentCollectionType!]
 }
 
 """Rejection returned if the supporting document collection was not found"""
@@ -14176,6 +14320,12 @@ type SupportingDocumentCollectionStatusNotAllowedRejection implements Rejection 
   oldStatus: SupportingDocumentCollectionStatus!
   newStatus: SupportingDocumentCollectionStatus!
   message: String!
+}
+
+enum SupportingDocumentCollectionType {
+  Onboarding
+  AccountHolderVerificationRenewal
+  Transaction
 }
 
 """Supporting document collection with WaitingForUpload status"""
@@ -14301,7 +14451,10 @@ type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo
   """When the document has been refused by Swan"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Date on which the supporting document collection has been refused"""
@@ -14486,7 +14639,10 @@ type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInf
   """When the document has been uploaded but not verified by Swan yet"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Original file name"""
@@ -14511,7 +14667,10 @@ type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusIn
   """When the document has been uploaded and verified by Swan"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Date on which the supporting document has been validated"""
@@ -14687,6 +14846,10 @@ enum SwanIdentificationStatus {
 
   """When the identification has been started"""
   Started
+}
+
+type SwanTCUDocumentEffectiveDateNotAllowedRejection implements Rejection {
+  message: String!
 }
 
 type SwanTCUDocumentNotFoundRejection implements Rejection {
@@ -16149,6 +16312,9 @@ type User {
   """nationality"""
   nationalityCCA3: CCA3
 
+  """birth city"""
+  birthCity: String
+
   """`true` if Swan has verified the user's identity"""
   idVerified: Boolean!
 
@@ -16178,6 +16344,9 @@ type User {
   """
   preferredNotificationChannel: PreferredNotificationChannel
 
+  """Status of the user"""
+  status: UserStatus
+
   """Creation date of the user"""
   createdAt: DateTime!
 
@@ -16203,6 +16372,22 @@ type User {
     """
     orderBy: IdentificationsOrderByInput
   ): IdentificationConnection
+}
+
+type UserAlreadyDeactivatedRejection {
+  """User id"""
+  userId: ID!
+
+  """Message"""
+  message: String!
+}
+
+type UserCannotBeDeactivatedRejection {
+  """User id"""
+  userId: ID!
+
+  """Reason"""
+  message: String!
 }
 
 """
@@ -16249,6 +16434,7 @@ input UserFilterInput {
   mobilePhoneNumber: String
   nationalityCCA3: CCA3
   preferredNotificationChannel: PreferredNotificationChannel
+  status: [UserStatus!]
 
   """
   Searches first name, last name, phone number and id
@@ -16279,6 +16465,14 @@ type UserNotCardHolderRejection implements Rejection {
   message: String!
 }
 
+type UserNotFoundRejection implements Rejection {
+  """User id"""
+  id: ID!
+
+  """Message"""
+  message: String!
+}
+
 """Field we can use when ordering that can be applied when listing users"""
 enum UserOrderByFieldInput {
   createdAt
@@ -16289,6 +16483,21 @@ enum UserOrderByFieldInput {
 input UserOrderByInput {
   field: UserOrderByFieldInput
   direction: OrderByDirection
+}
+
+enum UserStatus {
+  """Users with Active status are able to login & use Swan."""
+  Active
+
+  """
+  Users in Deactivated status don't use Swan anymore and won't ever be able to login. Their phone number can be reused as a new number.
+  """
+  Deactivated
+
+  """
+  Users in Blocked status are not able to login for security reason. Their phone number can't be reused.
+  """
+  Blocked
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -16510,6 +16719,13 @@ type WebBankingSettings {
   canOrderPhysicalCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
+  canCreateMerchantProfile: Boolean
+  canRequestOnlineCardsPaymentMethod: Boolean
+  canRequestSepaDirectDebitCorePaymentMethod: Boolean
+  canRequestSepaDirectDebitB2BPaymentMethod: Boolean
+  canRequestInternalDirectDebitCorePaymentMethod: Boolean
+  canRequestInternalDirectDebitB2BPaymentMethod: Boolean
+  canRequestChecksPaymentMethod: Boolean
 }
 
 """

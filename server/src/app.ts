@@ -439,11 +439,11 @@ export const start = async ({
 
   /**
    * Send an account membership invitation
-   * e.g. /api/invitation/:id/send?inviterAccountMembershipId=1234
+   * e.g. /api/invitation/:inviteeAccountMembershipId/send?inviterAccountMembershipId=1234&lang=en
    */
   app.post<{
+    Params: { inviteeAccountMembershipId: string };
     Querystring: Record<string, string>;
-    Params: { inviteeAccountMembershipId: string; lang: string };
   }>("/api/invitation/:inviteeAccountMembershipId/send", async (request, reply) => {
     const accessToken = request.accessToken;
 
@@ -454,7 +454,7 @@ export const start = async ({
       return reply.status(400).send("Not implemented");
     }
 
-    const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
+    const { inviterAccountMembershipId, lang = "en" } = request.query;
 
     if (inviterAccountMembershipId == null) {
       return reply.status(400).send("Missing inviterAccountMembershipId");
@@ -465,7 +465,7 @@ export const start = async ({
         accessToken,
         inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
         inviterAccountMembershipId,
-        language: request.params.lang,
+        language: lang,
       });
       return reply.send({ success: result });
     } catch (err) {

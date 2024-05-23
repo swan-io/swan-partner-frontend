@@ -203,15 +203,16 @@ start({
 
     /**
      * Send an account membership invitation
-     * e.g. /api/project/:projectId/invitation/:id/send?inviterAccountMembershipId=1234
+     * e.g. /api/project/:projectId/invitation/:inviteeAccountMembershipId/send?inviterAccountMembershipId=1234&lang=en
      */
     app.post<{
+      Params: { projectId: string; inviteeAccountMembershipId: string };
       Querystring: Record<string, string>;
-      Params: { inviteeAccountMembershipId: string; lang: string; projectId: string };
     }>(
       "/api/projects/:projectId/invitation/:inviteeAccountMembershipId/send",
       async (request, reply) => {
-        const inviterAccountMembershipId = request.query.inviterAccountMembershipId;
+        const { inviterAccountMembershipId, lang = "en" } = request.query;
+
         if (inviterAccountMembershipId == null) {
           return reply.status(400).send("Missing inviterAccountMembershipId");
         }
@@ -229,7 +230,7 @@ start({
                   accessToken,
                   inviteeAccountMembershipId: request.params.inviteeAccountMembershipId,
                   inviterAccountMembershipId,
-                  language: request.params.lang,
+                  language: lang,
                 }),
               ),
             )

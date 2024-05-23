@@ -1,7 +1,7 @@
-FROM node:18 AS builder
+FROM node:latest AS builder
 WORKDIR /app
 ADD ./server/ ./
-RUN npm install
+RUN yarn install --pure-lockfile
 
 FROM cgr.dev/chainguard/node:latest
 WORKDIR /app

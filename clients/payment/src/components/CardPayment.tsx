@@ -22,6 +22,7 @@ import {
 } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import {
   AmericanExpressLogo,
   CarteBancaireLogo,
@@ -196,6 +197,9 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
             .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
             .mapOkToResult(filterRejectionsToResult),
         )
+        .tapOk(() => {
+          Router.replace("PaymentSuccess", { paymentLinkId: paymentLink.id });
+        })
         .tapError(error => {
           showToast({ variant: "error", error, title: translateError(error) });
         })

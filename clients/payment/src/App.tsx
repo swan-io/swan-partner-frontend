@@ -1,6 +1,7 @@
 import { ClientContext } from "@swan-io/graphql-client";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ToastStack } from "@swan-io/lake/src/components/ToastStack";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { Suspense } from "react";
 import { match } from "ts-pattern";
@@ -25,6 +26,8 @@ export const App = () => {
             .otherwise(() => (
               <NotFoundPage />
             ))}
+
+          <ToastStack />
         </ClientContext.Provider>
       </Suspense>
     </ErrorBoundary>

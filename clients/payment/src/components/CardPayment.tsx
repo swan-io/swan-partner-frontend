@@ -61,18 +61,26 @@ type Props = {
   paymentMethodId: string;
 };
 
+type FrameEvent = {
+  element: "card-number" | "expiry-date" | "cvv";
+  isValid: boolean;
+  isEmpty: boolean;
+};
+
 export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
   const { desktop } = useResponsive();
 
-  const [addCardPaymentMandate, addCardPaymentMandateData] = useMutation(
-    AddCardPaymentMandateDocument,
-  );
+  const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
 
-  const [initiateCardPayment, initiateCardPaymentData] = useMutation(
-    InitiateCardMerchantPaymentDocument,
-  );
+  const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
 
-  const [isCardValid, setIsCardValid] = useState<Option<boolean>>(Option.None());
+  type FieldState = "untouched" | "empty" | "invalid" | "valid";
+
+  const [cardNumberState, setCardNumberState] = useState<FieldState>("untouched");
+  const [expiryDateState, setExpiryDateState] = useState<FieldState>("untouched");
+  const [cvvState, setCvvState] = useState<FieldState>("untouched");
+
+  const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<Option<PaymentMethod>>(Option.None());
 
   useEffect(() => {
@@ -85,9 +93,12 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
           fontFamily:
             "Inter, -apple-system, system-ui, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji",
           fontSize: "16px",
-          // fontStyle: "normal",
+          fontWeight: "normal",
           color: "#2b2f30",
           letterSpacing: "-0.011em",
+        },
+        placeholder: {
+          base: { color: colors.gray[100], fontStyle: "italic" },
         },
       },
       localization: {
@@ -100,9 +111,33 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
     });
 
     //@ts-expect-error addEventHandler isn't typed correctly
-    Frames.addEventHandler("cardValidationChanged", (event: { isValid: boolean }) =>
-      setIsCardValid(isCardValid => isCardValid.map(() => event.isValid)),
-    );
+    Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
+      console.log("event", event);
+
+      match(event)
+        .with({ element: "card-number", isEmpty: true }, () => {
+          setCardNumberState("empty");
+        })
+        .with({ element: "card-number", isValid: false }, () => {
+          setCardNumberState("invalid");
+        })
+        .with({ element: "card-number", isValid: true }, () => setCardNumberState("valid"))
+        .with({ element: "expiry-date", isEmpty: true }, () => {
+          setExpiryDateState("empty");
+        })
+        .with({ element: "expiry-date", isValid: false }, () => {
+          setExpiryDateState("invalid");
+        })
+        .with({ element: "expiry-date", isValid: true }, () => setExpiryDateState("valid"))
+        .with({ element: "cvv", isEmpty: true }, () => {
+          setCvvState("empty");
+        })
+        .with({ element: "cvv", isValid: false }, () => {
+          setCvvState("invalid");
+        })
+        .with({ element: "cvv", isValid: true }, () => setCvvState("valid"))
+        .exhaustive();
+    });
 
     //@ts-expect-error addEventHandler isn't typed correctly
     Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
@@ -110,51 +145,62 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
 
       if (isNullish(cardType)) {
         setPaymentMethod(Option.None());
+      } else {
+        match(cardType.toLowerCase())
+          .with(
+            "visa",
+            "maestro",
+            "mastercard",
+            "american express",
+            "cartes bancaires",
+            paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
+          )
+          .otherwise(() => setPaymentMethod(Option.None()));
       }
-      match(cardType.toLowerCase())
-        .with(
-          "visa",
-          "maestro",
-          "mastercard",
-          "american express",
-          "cartes bancaires",
-          paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
-        )
-        .otherwise(() => setPaymentMethod(Option.None()));
     });
   }, []);
 
   const onPressSubmit = () => {
-    setIsCardValid(Option.None());
+    if (cardNumberState === "untouched") {
+      setCardNumberState("empty");
+    }
+    if (expiryDateState === "untouched") {
+      setExpiryDateState("empty");
+    }
+    if (cvvState === "untouched") {
+      setCvvState("empty");
+    }
+    if (cardNumberState === "valid" && expiryDateState === "valid" && cvvState === "valid") {
+      setIsLoading(true);
 
-    Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
-      .tapOk(() => setIsCardValid(Option.Some(true)))
-      .tapError(() => setIsCardValid(Option.Some(false)))
-      .flatMapOk(data =>
-        addCardPaymentMandate({
-          input: {
-            paymentLinkId: paymentLink.id,
-            paymentMethodId,
-            sequence: "OneOff",
-            token: data.token,
-          },
+      Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
+        .flatMapOk(data =>
+          addCardPaymentMandate({
+            input: {
+              paymentLinkId: paymentLink.id,
+              paymentMethodId,
+              sequence: "OneOff",
+              token: data.token,
+            },
+          })
+            .mapOk(data => data.unauthenticatedAddCardPaymentMandate)
+            .mapOkToResult(filterRejectionsToResult),
+        )
+        .flatMapOk(data =>
+          initiateCardPayment({
+            input: {
+              cardPaymentMandateId: data.paymentMandate.id,
+              paymentLinkId: paymentLink.id,
+            },
+          })
+            .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
+            .mapOkToResult(filterRejectionsToResult),
+        )
+        .tapError(error => {
+          showToast({ variant: "error", error, title: translateError(error) });
         })
-          .mapOk(data => data.unauthenticatedAddCardPaymentMandate)
-          .mapOkToResult(filterRejectionsToResult),
-      )
-      .flatMapOk(data =>
-        initiateCardPayment({
-          input: {
-            cardPaymentMandateId: data.paymentMandate.id,
-            paymentLinkId: paymentLink.id,
-          },
-        })
-          .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
-          .mapOkToResult(filterRejectionsToResult),
-      )
-      .tapError(error => {
-        showToast({ variant: "error", error, title: translateError(error) });
-      });
+        .tap(() => setIsLoading(false));
+    }
   };
 
   return (
@@ -167,12 +213,12 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
               <Box direction="row" grow={1} shrink={1}>
                 <div
                   className={`card-number-frame ${paymentMethod.isSome() ? "card-number-frame-with-logo" : ""}`}
-                  style={{
-                    ...(isCardValid.isSome() &&
-                      !isCardValid.get() && {
-                        borderColor: colors.negative[400],
-                      }),
-                  }}
+                  style={match(cardNumberState)
+                    .with("invalid", "empty", () => ({
+                      borderColor: colors.negative[400],
+                    }))
+                    .with("untouched", "valid", () => undefined)
+                    .exhaustive()}
                 >
                   {/* <!-- card number will be added here --> */}
                 </div>
@@ -209,7 +255,11 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
 
               <Box direction="row" style={styles.errorContainer}>
                 <LakeText variant="smallRegular" color={colors.negative[500]}>
-                  {" "}
+                  {match(cardNumberState)
+                    .with("invalid", () => t("paymentLink.invalidCardNumber"))
+                    .with("empty", () => t("paymentLink.cardNumberRequired"))
+                    .with("untouched", "valid", () => " ")
+                    .exhaustive()}
                 </LakeText>
               </Box>
             </>
@@ -225,20 +275,23 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
               <>
                 <div
                   className="expiry-date-frame"
-                  style={
-                    isCardValid.getOr(true)
-                      ? undefined
-                      : {
-                          borderColor: colors.negative[400],
-                        }
-                  }
+                  style={match(expiryDateState)
+                    .with("invalid", "empty", () => ({
+                      borderColor: colors.negative[400],
+                    }))
+                    .with("untouched", "valid", () => undefined)
+                    .exhaustive()}
                 >
                   {/* <!-- expiry date will be added here --> */}
                 </div>
 
                 <Box direction="row" style={styles.errorContainer}>
                   <LakeText variant="smallRegular" color={colors.negative[500]}>
-                    {" "}
+                    {match(expiryDateState)
+                      .with("invalid", () => t("paymentLink.invalidExpiryDate"))
+                      .with("empty", () => t("paymentLink.expiryDateRequired"))
+                      .with("untouched", "valid", () => " ")
+                      .exhaustive()}
                   </LakeText>
                 </Box>
               </>
@@ -255,20 +308,23 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
               <>
                 <div
                   className="cvv-frame"
-                  style={
-                    isCardValid.getOr(true)
-                      ? undefined
-                      : {
-                          borderColor: colors.negative[400],
-                        }
-                  }
+                  style={match(cvvState)
+                    .with("invalid", "empty", () => ({
+                      borderColor: colors.negative[400],
+                    }))
+                    .with("untouched", "valid", () => undefined)
+                    .exhaustive()}
                 >
                   {/* <!-- cvv frame will be added here --> */}
                 </div>
 
                 <Box direction="row" style={styles.errorContainer}>
                   <LakeText variant="smallRegular" color={colors.negative[500]}>
-                    {" "}
+                    {match(cvvState)
+                      .with("invalid", () => t("paymentLink.invalidCvv"))
+                      .with("empty", () => t("paymentLink.cvvRequired"))
+                      .with("untouched", "valid", () => " ")
+                      .exhaustive()}
                   </LakeText>
                 </Box>
               </>
@@ -279,11 +335,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
 
       <Space height={32} />
 
-      <LakeButton
-        color="partner"
-        onPress={onPressSubmit}
-        loading={addCardPaymentMandateData.isLoading() || initiateCardPaymentData.isLoading()}
-      >
+      <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading}>
         {t("button.pay")}
       </LakeButton>
     </>

@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Card blocked",
   "transactionRejectedReason.CardSuspended": "Card suspended",
   "transactionRejectedReason.CardholderCancellation": "Card holder asked for the cancellation",
+  "transactionRejectedReason.CheckNotReceived": "Check not received",
   "transactionRejectedReason.CheckReceivedLate": "Check received late",
   "transactionRejectedReason.CreditorBankOffline": "Rejected because the credit bank is offline",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Technical error",

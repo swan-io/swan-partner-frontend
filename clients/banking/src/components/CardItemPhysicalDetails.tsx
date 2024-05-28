@@ -595,7 +595,7 @@ export const CardItemPhysicalDetails = ({
         consentRedirectUrl:
           window.location.origin +
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
-        choosePINCode: false,
+        choosePin: false,
         address,
       },
     })

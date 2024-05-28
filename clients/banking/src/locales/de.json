@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Karte blockiert",
   "transactionRejectedReason.CardSuspended": "Karte gesperrt",
   "transactionRejectedReason.CardholderCancellation": "Der Karteninhaber hat um die Stornierung gebeten",
+  "transactionRejectedReason.CheckNotReceived": "Scheck nicht erhalten",
   "transactionRejectedReason.CheckReceivedLate": "Scheck verspätet erhalten",
   "transactionRejectedReason.CreditorBankOffline": "Abgelehnt, weil das Kreditinstitut offline ist",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Technischer Fehler",

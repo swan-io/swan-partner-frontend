@@ -67,7 +67,7 @@
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.2.0",
     "@localazy/cli": "1.7.10",
-    "@playwright/test": "1.44.0",
+    "@playwright/test": "1.44.1",
     "@sentry/cli": "2.31.2",
     "@swan-io/boxed": "2.3.0",
     "@types/glob": "8.1.0",

@@ -2135,7 +2135,17 @@
     "@emotion/hash" "^0.9.1"
     use-sync-external-store "^1.2.0"
 
-"@swan-io/graphql-client@0.1.3", "@swan-io/graphql-client@^0.1.3":
+"@swan-io/graphql-client@0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.4.tgz#22ec152f24b907e542923997436294374fb49a6b"
+  integrity sha512-Z3hm7rwTUzoyam09DicPrDkIUpWr0ogueFiy13Tln09wW1w3QuvpY1Lk/PS+aN/wmwVLkag9XWOXSQvZ0flKzw==
+  dependencies:
+    "@0no-co/graphql.web" "^1.0.6"
+    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/request" "^1.0.6"
+    ts-pattern "^5.1.0"
+
+"@swan-io/graphql-client@^0.1.3":
   version "0.1.3"
   resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.1.3.tgz#420b55fc3b936fb370a4850edd7944ef0da35786"
   integrity sha512-C9NqOHwavRrAGCr5vyrd8ViTndkLayh4y4+N1nkxwKgAleLV3cIaxFeu6+UCPUksx2U1ygg0l5d0ez/L0azuUg==

@@ -479,35 +479,4 @@ declare module "react-native" {
     top?: WebDimensionValue;
     width?: WebDimensionValue;
   }
-
-  /**
-   * Picker has been extracted from react-native core and will be removed in a future release.
-   * It can now be installed and imported from `@react-native-community/picker` instead of 'react-native'.
-   * @see https://github.com/react-native-community/react-native-picker
-   * @deprecated
-   */
-  interface PickerProps {
-    children?: React.ReactNode;
-    enabled?: boolean;
-    itemStyle?: StyleProp<TextStyle>;
-    mode?: "dialog" | "dropdown";
-    prompt?: string;
-    selectedValue?: string;
-    style?: StyleProp<TextStyle>;
-    testID?: string;
-    onValueChange?: (itemValue: any, itemPosition: number) => void;
-  }
-
-  interface PickerItemProps {
-    color?: ColorValue;
-    label: string;
-    testID?: string;
-    value?: string;
-  }
-
-  export class Picker extends React.Component<PickerProps> {
-    static MODE_DIALOG: string;
-    static MODE_DROPDOWN: string;
-    static Item: React.ComponentType<PickerItemProps>;
-  }
 }

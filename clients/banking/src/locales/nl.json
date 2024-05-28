@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Kaart geblokkeerd",
   "transactionRejectedReason.CardSuspended": "Kaart opgeschort",
   "transactionRejectedReason.CardholderCancellation": "Kaarthouder heeft om annulering gevraagd",
+  "transactionRejectedReason.CheckNotReceived": "Check niet ontvangen",
   "transactionRejectedReason.CheckReceivedLate": "Cheque ontvangen na deadline",
   "transactionRejectedReason.CreditorBankOffline": "Afgewezen omdat de crediteurbank offline is",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Technische foutmelding",

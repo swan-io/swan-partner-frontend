@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Kortti on estetty",
   "transactionRejectedReason.CardSuspended": "Kortti on suljettu väliaikaisesti",
   "transactionRejectedReason.CardholderCancellation": "Kortinhaltija pyysi peruutusta",
+  "transactionRejectedReason.CheckNotReceived": "Shekkiä ei vastaanotettu",
   "transactionRejectedReason.CheckReceivedLate": "Shekki vastaanotettu myöhässä",
   "transactionRejectedReason.CreditorBankOffline": "Hylätty, koska luottopankki on verkon ulkopuolella",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Tekninen virhe",

@@ -139,6 +139,7 @@
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
       "MerchantPaymentMethodWrongStatusRejection",
+      "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
       "MissingMandatoryFieldRejection",
       "NotFoundRejection",
@@ -188,6 +189,7 @@
       "SupportingDocumentStatusNotAllowedRejection",
       "SupportingDocumentUploadNotAllowedRejection",
       "SuspendReceivedDirectDebitMandatedRejection",
+      "SwanTCUDocumentEffectiveDateNotAllowedRejection",
       "SwanTCUDocumentNotFoundRejection",
       "SwanTCUDocumentStatusNotAllowedRejection",
       "TooManyChildConsentsRejection",
@@ -198,6 +200,7 @@
       "UserNotAllowedToManageAccountMembershipRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
       "UserNotCardHolderRejection",
+      "UserNotFoundRejection",
       "ValidationRejection",
       "WebhookEventLogNotFoundRejection",
       "WebhookSubscriptionNotFoundRejection",
@@ -238,16 +241,9 @@
       "RejectedFundingSourceStatusInfo",
       "SuspendedFundingSourceStatusInfo"
     ],
-    "MerchantPaymentMethodStatusInfo": [
-      "CanceledMerchantPaymentMethodStatusInfo",
-      "DisabledMerchantPaymentMethodStatusInfo",
-      "EnabledMerchantPaymentMethodStatusInfo",
-      "PendingMerchantPaymentMethodStatusInfo",
-      "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
-    ],
     "MerchantProfileStatusInfo": [
       "CanceledMerchantProfileStatusInfo",
+      "DisabledMerchantProfileStatusInfo",
       "EnabledMerchantProfileStatusInfo",
       "PendingReviewMerchantProfileStatusInfo",
       "RejectedMerchantProfileStatusInfo",
@@ -322,6 +318,13 @@
       "DisabledFundingLimitSettingsStatusInfo",
       "EnabledFundingLimitSettingsStatusInfo",
       "SuspendedFundingLimitSettingsStatusInfo"
+    ],
+    "MerchantPaymentMethodStatusInfo": [
+      "DisabledMerchantPaymentMethodStatusInfo",
+      "EnabledMerchantPaymentMethodStatusInfo",
+      "PendingMerchantPaymentMethodStatusInfo",
+      "RejectedMerchantPaymentMethodStatusInfo",
+      "SuspendedMerchantPaymentMethodStatusInfo"
     ],
     "DocumentFile": [
       "DriversLicenseDocumentFile",
@@ -477,8 +480,8 @@
       "SupportingDocumentWaitingForUploadStatusInfo"
     ],
     "TrustedBeneficiaryStatusInfo": [
-      "TrustedBeneficiaryConsentPending",
       "TrustedBeneficiaryStatusInfoCanceled",
+      "TrustedBeneficiaryStatusInfoConsentPending",
       "TrustedBeneficiaryStatusInfoEnabled"
     ],
     "TrustedBeneficiary": [

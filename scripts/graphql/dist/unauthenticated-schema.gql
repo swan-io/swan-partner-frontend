@@ -181,6 +181,11 @@ enum AccountCountry {
 
   """Dutch account with a Dutch IBAN, starting with DU."""
   NLD
+
+  """
+  Italian account with an Italian IBAN, starting with IT (Coming Soon, not supported yet).
+  """
+  ITA
 }
 
 """Implements the Relay Edge interface"""
@@ -264,6 +269,9 @@ type AccountHolder {
     the index (a unique reference in string form) from which you will load the following elements
     """
     after: String
+
+    """When the list of supporting document collections needs to be filtered"""
+    filters: SupportingDocumentCollectionFilterInput
   ): SupportingDocumentCollectionConnection!
 
   """
@@ -564,7 +572,7 @@ type AccountMembership {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean!
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean!
 
   """
@@ -579,6 +587,9 @@ type AccountMembership {
 
   """status of the account membership"""
   statusInfo: AccountMembershipStatusInfo!
+
+  """Unique identifier of the account of the account membership"""
+  accountId: ID!
 
   """account of the account membership"""
   account: Account
@@ -616,6 +627,9 @@ type AccountMembership {
 
   """Disabled date"""
   disabledAt: DateTime
+
+  """Language of the account membership"""
+  language: AccountLanguage
 
   """
   account membership's cards
@@ -965,7 +979,7 @@ input AddCardPaymentMandateInput {
 }
 
 """Union type return by the addCardPaymentMandate mutation"""
-union AddCardPaymentMandatePayload = AddCardPaymentMandateSuccessPayload | InternalErrorRejection | NotFoundRejection
+union AddCardPaymentMandatePayload = AddCardPaymentMandateSuccessPayload | InternalErrorRejection | NotFoundRejection | PaymentMethodNotCompatibleRejection | MerchantProfileWrongStatusRejection | AlreadyCompletedPaymentLinkRejection | ExpiredPaymentLinkRejection | PaymentMandateReferenceAlreadyUsedRejection
 
 """
 Return type in case of a successful response of the initiateMerchantSddPaymentCollectionFromPaymentLink mutation
@@ -1100,13 +1114,17 @@ input AddSepaDirectDebitPaymentMandateFromPaymentLinkInput {
 }
 
 """Union type return by the addSepaDirectDebitPaymentMandate mutation"""
-union AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload = AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
+union AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload = AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | DebtorAccountNotAllowedRejection | MerchantProfileNotValidRejection | IBANNotValidRejection | IBANNotReachableRejection | DebtorAccountClosedRejection | SchemeWrongRejection | PaymentMandateReferenceAlreadyUsedRejection | ValidationRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection
 
 """
 Return type in case of a successful response of the addSepaDirectDebitPaymentMandateFromPaymentLink mutation
 """
 type AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
   paymentMandate: SEPAPaymentDirectDebitMandate!
+}
+
+type AlreadyCompletedPaymentLinkRejection implements Rejection {
+  message: String!
 }
 
 """Rejection returned if card already has a valid Physical Card"""
@@ -1215,6 +1233,12 @@ type BasicPhysicalCardInfo {
 
   """Custom Options"""
   customOptions: PhysicalCardCustomOptions!
+
+  """Unique identifier present on physical card"""
+  identifier: String
+
+  """`true` if physical card is expired"""
+  isExpired: Boolean!
 }
 
 """Bank Identifier Code"""
@@ -1240,14 +1264,6 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
-}
-
-"""CanceledMerchantPaymentMethodStatusInfo"""
-type CanceledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodStatusInfo {
-  status: MerchantPaymentMethodStatus!
-
-  """Merchant Payment Method canceled date"""
-  canceledAt: Date!
 }
 
 """CanceledMerchantProfileStatusInfo"""
@@ -2535,6 +2551,12 @@ type DisabledMerchantPaymentMethodStatusInfo implements MerchantPaymentMethodSta
   disabledAt: Date!
 }
 
+"""DisabledMerchantProfileStatusInfo"""
+type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
+  status: MerchantProfileStatus!
+  disabledAt: Date!
+}
+
 """
 Edge type containing the node and cursor. The node is not defined in the interface because generic is not supported by GraphQL
 but all implementation contains its own node property according to the paginated type.
@@ -2594,6 +2616,10 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   By default the payment link expires 120 days after it was created.
   """
   expiredAt: DateTime!
+}
+
+type ExpiredPaymentLinkRejection implements Rejection {
+  message: String!
 }
 
 type ExternalAccountAlreadyExistsRejection implements Rejection {
@@ -3338,7 +3364,6 @@ enum MerchantPaymentMethodStatus {
   Enabled
   Rejected
   Disabled
-  Canceled
   Suspended
 }
 
@@ -3356,6 +3381,10 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitB2b
   Check
   Card
+}
+
+type MerchantPaymentMethodWrongStatusRejection implements Rejection {
+  message: String!
 }
 
 """Merchant Profile"""
@@ -3392,7 +3421,10 @@ type MerchantProfile {
   merchantPaymentMethods: [MerchantPaymentMethod!]
 
   """Updates Requested associated"""
-  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!]
+  requestedMerchantProfileUpdates: [RequestMerchantProfileUpdate!] @deprecated
+
+  """Update Requested associated"""
+  requestMerchantProfileUpdate: RequestMerchantProfileUpdate
 
   """expected average basket value."""
   expectedAverageBasket: Amount!
@@ -3408,6 +3440,10 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
+}
+
+type MerchantProfileNotValidRejection implements Rejection {
+  message: String!
 }
 
 """Merchant Profile Statuses"""
@@ -3426,6 +3462,9 @@ enum MerchantProfileStatus {
 
   """Suspended"""
   Suspended
+
+  """Disabled"""
+  Disabled
 }
 
 """Merchant Profile Status Information"""
@@ -3494,6 +3533,7 @@ type Mutation {
   requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
   unauthenticatedAddCardPaymentMandate(input: AddCardPaymentMandateInput!): AddCardPaymentMandatePayload!
   addSepaDirectDebitPaymentMandateFromPaymentLink(input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!): AddSepaDirectDebitPaymentMandateFromPaymentLinkPayload!
+  unauthenticatedInitiateMerchantCardPaymentFromPaymentLink(input: UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput!): UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload!
   unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!): UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkPayload!
 }
 
@@ -4014,7 +4054,7 @@ type PaymentInitiated implements PaymentStatusInfo {
 
 """Payment Level of the account"""
 enum PaymentLevel {
-  """When the account is limited to 150€ within 30 days and with no IBAN"""
+  """When the account is limited to 0€ within 30 days and with no IBAN"""
   Limited
 
   """
@@ -4925,6 +4965,7 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   When the above is false, the value of the Sepa Creditor Identifier used
   """
   sepaCreditorIdentifier: String
+  updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
 }
 
 """SepaDirectDebitCoreMerchantPaymentMethod"""
@@ -4959,6 +5000,21 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """
   When the above is false, the value of the Sepa Creditor Identifier used
+  """
+  sepaCreditorIdentifier: String
+  updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
+}
+
+type SepaDirectDebitPaymentMethodUpdateRequest {
+  id: ID!
+
+  """
+  If `true`, the transaction will be created with the Swan Creditor Identifier
+  """
+  useSwanSepaCreditorIdentifier: Boolean!
+
+  """
+  Your own SCI - Mandatory if the useSwanCreditorIdentifier is set to false
   """
   sepaCreditorIdentifier: String
 }
@@ -5112,6 +5168,7 @@ type SupportingDocumentCollection {
   SupportingDocumentCollection URL to Swan portal
   """
   supportingDocumentCollectionUrl: String!
+  type: SupportingDocumentCollectionType!
 }
 
 """Supporting document collection with Approved status"""
@@ -5153,6 +5210,17 @@ type SupportingDocumentCollectionEdge implements Edge {
 
   """The supporting document collection"""
   node: SupportingDocumentCollection!
+}
+
+"""
+Filters that can be applied when listing supporting document collections
+"""
+input SupportingDocumentCollectionFilterInput {
+  """Supporting document collection type/types we're looking for"""
+  type: [SupportingDocumentCollectionType!]
+
+  """Supporting document collection status we're looking for"""
+  status: [SupportingDocumentCollectionStatus!]
 }
 
 """Rejection returned if the supporting document collection was not found"""
@@ -5226,6 +5294,12 @@ type SupportingDocumentCollectionStatusNotAllowedRejection implements Rejection 
   oldStatus: SupportingDocumentCollectionStatus!
   newStatus: SupportingDocumentCollectionStatus!
   message: String!
+}
+
+enum SupportingDocumentCollectionType {
+  Onboarding
+  AccountHolderVerificationRenewal
+  Transaction
 }
 
 """Supporting document collection with WaitingForUpload status"""
@@ -5351,7 +5425,10 @@ type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo
   """When the document has been refused by Swan"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Date on which the supporting document collection has been refused"""
@@ -5536,7 +5613,10 @@ type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInf
   """When the document has been uploaded but not verified by Swan yet"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Original file name"""
@@ -5561,7 +5641,10 @@ type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusIn
   """When the document has been uploaded and verified by Swan"""
   status: SupportingDocumentStatus!
 
-  """An unique URL and one-time URL to download the Document"""
+  """
+  An unique URL and one-time URL to download the Document
+  @Deprecated
+  """
   downloadUrl: String!
 
   """Date on which the supporting document has been validated"""
@@ -5774,6 +5857,22 @@ enum UltimateBeneficialOwnerType {
   IndirectCompany
 }
 
+input UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput {
+  """Payment Mandate ID generated by Swan"""
+  cardPaymentMandateId: ID!
+
+  """Payment Link related to the Card Payment Mandate"""
+  paymentLinkId: ID!
+}
+
+union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+
+type UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload {
+  """"""
+  paymentId: ID!
+  redirectUrl: URL!
+}
+
 input UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput {
   """Payment Mandate ID generated by Swan"""
   mandateId: ID!
@@ -5918,6 +6017,9 @@ type User {
   """nationality"""
   nationalityCCA3: CCA3
 
+  """birth city"""
+  birthCity: String
+
   """`true` if Swan has verified the user's identity"""
   idVerified: Boolean!
 
@@ -5946,6 +6048,9 @@ type User {
   When it is "null" it means that the preferences have not been updated. Default SMS in use
   """
   preferredNotificationChannel: PreferredNotificationChannel
+
+  """Status of the user"""
+  status: UserStatus
 
   """Creation date of the user"""
   createdAt: DateTime!
@@ -5999,6 +6104,21 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
 """Rejection returned when the User is not the Card Holder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
+}
+
+enum UserStatus {
+  """Users with Active status are able to login & use Swan."""
+  Active
+
+  """
+  Users in Deactivated status don't use Swan anymore and won't ever be able to login. Their phone number can be reused as a new number.
+  """
+  Deactivated
+
+  """
+  Users in Blocked status are not able to login for security reason. Their phone number can't be reused.
+  """
+  Blocked
 }
 
 """A detail of a validation error : what field is errored and why"""
@@ -6134,4 +6254,11 @@ type WebBankingSettings {
   canOrderPhysicalCards: Boolean
   canViewMembers: Boolean
   canAddNewMembers: Boolean
+  canCreateMerchantProfile: Boolean
+  canRequestOnlineCardsPaymentMethod: Boolean
+  canRequestSepaDirectDebitCorePaymentMethod: Boolean
+  canRequestSepaDirectDebitB2BPaymentMethod: Boolean
+  canRequestInternalDirectDebitCorePaymentMethod: Boolean
+  canRequestInternalDirectDebitB2BPaymentMethod: Boolean
+  canRequestChecksPaymentMethod: Boolean
 }

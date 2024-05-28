@@ -106,7 +106,7 @@ export const OnboardingCompanyRegistration = ({
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
-  const haveToAcceptTcu = accountCountry === "DEU";
+  const haveToAcceptTcu = accountCountry === "DEU" || accountCountry === "ITA";
   const isAddressRequired = match(accountCountry)
     .with("DEU", "NLD", () => true)
     .otherwise(() => false);

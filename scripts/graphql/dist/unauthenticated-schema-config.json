@@ -53,6 +53,7 @@
       "AccountNotFoundRejection",
       "ActionNotAllowedRejection",
       "AddingCardsToDifferentAccountsRejection",
+      "AlreadyCompletedPaymentLinkRejection",
       "AlreadyValidPhysicalCardRejection",
       "ApplePayNotAllowedForProjectRejection",
       "BadAccountStatusRejection",
@@ -70,6 +71,7 @@
       "DebtorAccountNotAllowedRejection",
       "DigitalCardNotFoundRejection",
       "EnabledCardDesignNotFoundRejection",
+      "ExpiredPaymentLinkRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ForbiddenRejection",
       "IBANNotReachableRejection",
@@ -83,6 +85,8 @@
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
       "MerchantPaymentMethodNotActiveRejection",
+      "MerchantPaymentMethodWrongStatusRejection",
+      "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
       "MissingMandatoryFieldRejection",
       "NotFoundRejection",
@@ -141,16 +145,9 @@
       "CompletedMerchantPaymentLinkStatusInfo",
       "ExpiredMerchantPaymentLinkStatusInfo"
     ],
-    "MerchantPaymentMethodStatusInfo": [
-      "CanceledMerchantPaymentMethodStatusInfo",
-      "DisabledMerchantPaymentMethodStatusInfo",
-      "EnabledMerchantPaymentMethodStatusInfo",
-      "PendingMerchantPaymentMethodStatusInfo",
-      "RejectedMerchantPaymentMethodStatusInfo",
-      "SuspendedMerchantPaymentMethodStatusInfo"
-    ],
     "MerchantProfileStatusInfo": [
       "CanceledMerchantProfileStatusInfo",
+      "DisabledMerchantProfileStatusInfo",
       "EnabledMerchantProfileStatusInfo",
       "PendingReviewMerchantProfileStatusInfo",
       "RejectedMerchantProfileStatusInfo",
@@ -188,6 +185,13 @@
       "DigitalCardConsentPendingStatusInfo",
       "DigitalCardDeclinedStatusInfo",
       "DigitalCardPendingStatusInfo"
+    ],
+    "MerchantPaymentMethodStatusInfo": [
+      "DisabledMerchantPaymentMethodStatusInfo",
+      "EnabledMerchantPaymentMethodStatusInfo",
+      "PendingMerchantPaymentMethodStatusInfo",
+      "RejectedMerchantPaymentMethodStatusInfo",
+      "SuspendedMerchantPaymentMethodStatusInfo"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",

@@ -88,7 +88,7 @@ const getWorkspacePackages = () =>
     info => JSON.parse(info) as Record<string, { location: string }>,
   );
 
-const createGhPullRequest = (title: string) => exec(`gh pr create -t "${title}"`);
+const createGhPullRequest = (title: string) => exec(`gh pr create -t "${title}" -b ""`);
 const gitAddAll = () => exec("git add . -u");
 const gitCheckout = (branch: string) => exec(`git checkout ${branch}`);
 const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);

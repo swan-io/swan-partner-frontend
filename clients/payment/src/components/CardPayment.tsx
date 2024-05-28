@@ -99,7 +99,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
           letterSpacing: "-0.011em",
         },
         placeholder: {
-          base: { color: colors.gray[100], fontStyle: "italic" },
+          base: { color: "#737276", fontStyle: "italic" },
         },
       },
       localization: {
@@ -113,8 +113,6 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
 
     //@ts-expect-error addEventHandler isn't typed correctly
     Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
-      console.log("event", event);
-
       match(event)
         .with({ element: "card-number", isEmpty: true }, () => {
           setCardNumberState("empty");

@@ -68,12 +68,6 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
   const [data] = useQuery(GetMerchantPaymentLinkDocument, { paymentLinkId });
 
-  useEffect(() => {
-    if (isNotNullish(mandateUrl)) {
-      Router.replace("PaymentSuccess", { paymentLinkId });
-    }
-  }, [mandateUrl, paymentLinkId]);
-
   return (
     <View style={styles.base}>
       {match(data)

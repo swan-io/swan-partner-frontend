@@ -740,7 +740,7 @@ export const CardItemPhysicalDetails = ({
             },
             expiryDate: P.nonNullable,
           },
-          ({ expiryDate, statusInfo: { address } }) => {
+          ({ statusInfo: { address }, previousPhysicalCards, expiryDate }) => {
             const { addressLine1, addressLine2, city, country, postalCode } = address;
             const completeAddress = Array.filterMap(
               [
@@ -753,7 +753,12 @@ export const CardItemPhysicalDetails = ({
               ],
               x => x,
             ).join(", ");
-            const fourWeeksBefore = dayjs(expiryDate, "MM/YY")
+            const fourWeeksBefore = dayjs(
+              isNotNullish(previousPhysicalCards[0])
+                ? previousPhysicalCards[0].expiryDate
+                : expiryDate,
+              "MM/YY",
+            )
               .endOf("month")
               .subtract(4, "weeks")
               .format("LL");
@@ -766,7 +771,14 @@ export const CardItemPhysicalDetails = ({
                   style={styles.renewAlert}
                   variant="info"
                   title={t("card.physical.toRenewAlert", {
-                    expiryDate: dayjs(expiryDate, "MM/YY").endOf("month").format("LL"),
+                    expiryDate: dayjs(
+                      isNotNullish(previousPhysicalCards[0])
+                        ? previousPhysicalCards[0].expiryDate
+                        : expiryDate,
+                      "MM/YY",
+                    )
+                      .endOf("month")
+                      .format("LL"),
                   })}
                   children={
                     <>
@@ -804,25 +816,33 @@ export const CardItemPhysicalDetails = ({
             );
           },
         )
-        .with({ statusInfo: { __typename: "PhysicalCardRenewedStatusInfo" } }, ({ expiryDate }) => (
-          <>
-            <Space height={24} />
+        .with(
+          {
+            statusInfo: { __typename: "PhysicalCardRenewedStatusInfo" },
+            previousPhysicalCards: [{ expiryDate: P.nonNullable }, ...P.array(P._)],
+          },
+          ({ previousPhysicalCards }) => (
+            <>
+              <Space height={24} />
 
-            <LakeAlert
-              style={styles.renewAlert}
-              variant="info"
-              title={t("card.physical.toRenewAlert", {
-                expiryDate: dayjs(expiryDate, "MM/YY").endOf("month").format("LL"),
-              })}
-              children={
-                <>
-                  <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
-                  <Space height={12} />
-                </>
-              }
-            />
-          </>
-        ))
+              <LakeAlert
+                style={styles.renewAlert}
+                variant="info"
+                title={t("card.physical.toRenewAlert", {
+                  expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
+                    .endOf("month")
+                    .format("LL"),
+                })}
+                children={
+                  <>
+                    <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                    <Space height={12} />
+                  </>
+                }
+              />
+            </>
+          ),
+        )
         .otherwise(() => null)}
 
       <View style={styles.card}>

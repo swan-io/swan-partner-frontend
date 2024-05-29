@@ -8,7 +8,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, texts } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
 import { useState } from "react";
-import { ImageBackground, StyleSheet, Text, View } from "react-native";
+import { Image, StyleSheet, Text, View } from "react-native";
 import { match } from "ts-pattern";
 import { CardStatus, PhysicalCardStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -133,11 +133,13 @@ export const MaskedCard = ({
       {/* garantee the credit card ratio */}
       <Svg role="none" viewBox="0 0 85 55" />
 
-      <ImageBackground
-        source={{ uri: cardDesignUrl }}
-        style={styles.base}
-        onLoadEnd={() => setIsVisible(true)}
-      >
+      <View style={styles.base}>
+        <Image
+          style={StyleSheet.absoluteFill}
+          source={{ uri: cardDesignUrl }}
+          onLoadEnd={() => setIsVisible(true)}
+        />
+
         {match(status)
           .with("Suspended", () => <View style={styles.suspendedGradient} />)
           .with("ToRenew", () => <View style={styles.toReniewGradient} />)
@@ -243,7 +245,7 @@ export const MaskedCard = ({
             </View>
           ))
           .otherwise(() => null)}
-      </ImageBackground>
+      </View>
     </View>
   );
 };

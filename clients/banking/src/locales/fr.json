@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Carte bloquée",
   "transactionRejectedReason.CardSuspended": "Carte suspendue",
   "transactionRejectedReason.CardholderCancellation": "Le titulaire de la carte a demandé l'annulation",
+  "transactionRejectedReason.CheckNotReceived": "Chèque non reçu",
   "transactionRejectedReason.CheckReceivedLate": "Chèque reçu en retard",
   "transactionRejectedReason.CreditorBankOffline": "Rejeté car la banque de crédit est hors ligne",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Erreur technique",

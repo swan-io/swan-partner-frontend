@@ -634,7 +634,7 @@ type AccountMembership {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean!
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean!
 
   """
@@ -689,6 +689,9 @@ type AccountMembership {
 
   """Disabled date"""
   disabledAt: DateTime
+
+  """Language of the account membership"""
+  language: AccountLanguage
 }
 
 """when a user is binded with the error to the account membership"""
@@ -1268,6 +1271,9 @@ type BasicPhysicalCardInfo {
 
   """Unique identifier present on physical card"""
   identifier: String
+
+  """`true` if physical card is expired"""
+  isExpired: Boolean!
 }
 
 """Bank Identifier Code"""
@@ -1568,6 +1574,22 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+}
+
+"""List of Check return reasons"""
+enum CheckReturnReasonCodeEnum {
+  AccountClosed
+  CheckBlocked
+  CheckOutdated
+  DebtorDeceased
+  EndorsementMissingOrInvalid
+  Fraudulent
+  InsufficientFunds
+  LegalOrBankDecision
+  MandatoryReferenceMissingOnCheck
+  SignatureInvalid
+  SwanTechnicalErrorOccurred
+  TransactionDuplicated
 }
 
 """
@@ -2354,13 +2376,6 @@ enum EnvType {
   Sandbox
 }
 
-enum ExpectedStatus {
-  Registered
-  AccountAlert
-  IrregularCheck
-  UnknownCheck
-}
-
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -2401,6 +2416,13 @@ interface Field {
 
 enum FieldValidationError {
   Missing
+}
+
+enum FNCIResult {
+  PositiveGreen
+  IrregularRed
+  IrregularOrange
+  IrregularWhite
 }
 
 type ForbiddenRejection implements Rejection {
@@ -2654,7 +2676,7 @@ type FundingSourceWrongStatusRejection implements Rejection {
 
 """GenerateCheckInput"""
 input GenerateCheckInput {
-  expectedStatus: ExpectedStatus
+  fnciResult: FNCIResult
 }
 
 union GenerateCheckPayload = GenerateCheckSuccessPayload | InternalErrorRejection
@@ -4868,7 +4890,7 @@ interface PaymentDirectDebitMandate {
 
 """Payment Level of the account"""
 enum PaymentLevel {
-  """When the account is limited to 150€ within 30 days and with no IBAN"""
+  """When the account is limited to 0€ within 30 days and with no IBAN"""
   Limited
 
   """
@@ -6330,6 +6352,7 @@ enum SepaDirectDebitReturnReasonCodeEnum {
   MandateInvalid
   NotSpecifiedByBank
   NotSpecifiedByPayer
+  RefundRequestedByDebtor
   RegulatorReason
   TransactionDuplicated
   TransactionNotAllowedOnAccountType
@@ -6626,6 +6649,9 @@ type SimulateIncomingCheckRejectionSuccessPayload {
 input SimulateIncomingCheckReturnInput {
   """Transaction ID to be booked"""
   transactionId: ID!
+
+  """Return reason code"""
+  reasonCode: CheckReturnReasonCodeEnum
 }
 
 """Union of Success payload and potential rejections"""
@@ -7589,6 +7615,9 @@ Filters that can be applied when listing supporting document collections
 input SupportingDocumentCollectionFilterInput {
   """Supporting document collection type/types we're looking for"""
   type: [SupportingDocumentCollectionType!]
+
+  """Supporting document collection status we're looking for"""
+  status: [SupportingDocumentCollectionStatus!]
 }
 
 """Rejection returned if the supporting document collection was not found"""

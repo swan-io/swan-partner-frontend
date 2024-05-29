@@ -750,6 +750,7 @@
   "transactionRejectedReason.CardPermanentlyBlocked": "Carta bloccata",
   "transactionRejectedReason.CardSuspended": "Carta sospesa",
   "transactionRejectedReason.CardholderCancellation": "Il titolare della carta ha richiesto l'annullamento",
+  "transactionRejectedReason.CheckNotReceived": "Assegno non ricevuto",
   "transactionRejectedReason.CheckReceivedLate": "Assegno ricevuto in ritardo",
   "transactionRejectedReason.CreditorBankOffline": "Respinta perché la banca di credito è offline",
   "transactionRejectedReason.CreditorBankTechnicalErrorOccurred": "Errore tecnico",

@@ -872,7 +872,7 @@ type AccountMembership {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean!
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean!
 
   """
@@ -927,6 +927,9 @@ type AccountMembership {
 
   """Disabled date"""
   disabledAt: DateTime
+
+  """Language of the account membership"""
+  language: AccountLanguage
 
   """
   account membership's cards
@@ -1409,7 +1412,7 @@ input AddAccountMembershipInput {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean!
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean!
 
   """
@@ -1430,6 +1433,9 @@ input AddAccountMembershipInput {
 
   """Tax Identification Number of the user added"""
   taxIdentificationNumber: String
+
+  """Language of the account membership"""
+  language: AccountLanguage
 }
 
 union AddAccountMembershipPayload = AddAccountMembershipSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | PermissionCannotBeGrantedRejection | ValidationRejection
@@ -1728,6 +1734,39 @@ Return type in case of a successful response of the addInternalDirectDebitPaymen
 """
 type AddInternalDirectDebitPaymentMandateSuccessPayload {
   paymentMandate: InternalPaymentDirectDebitMandate!
+}
+
+"""Input to add an international trusted beneficiary"""
+input AddInternationalTrustedBeneficiaryInput {
+  """Account ID of the account on which the beneficiary will be created"""
+  accountId: ID!
+
+  """Currency of the international beneficiary account"""
+  currency: Currency!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalBeneficiaryDetailsInput!]!
+
+  """Name of the created beneficiary"""
+  label: String
+
+  """Account holder name of the international trusted beneficiary"""
+  name: String!
+
+  """Route that Swan will use to transfer the funds to that beneficiary"""
+  route: InternationalCreditTransferRouteInput!
+
+  """When the consent flow is finished the user is redirected to this URL"""
+  consentRedirectUrl: String!
+}
+
+"""Add international trusted beneficiary payload"""
+union AddInternationalTrustedBeneficiaryPayload = AddInternationalTrustedBeneficiarySuccessPayload | ForbiddenRejection | AccountNotFoundRejection | ValidationRejection | InternalErrorRejection
+
+"""Add international trusted beneficiary success payload"""
+type AddInternationalTrustedBeneficiarySuccessPayload {
+  """The created beneficiary"""
+  trustedBeneficiary: TrustedInternationalBeneficiary!
 }
 
 """Input to add a Merchant Profile"""
@@ -2297,6 +2336,9 @@ type BasicPhysicalCardInfo {
 
   """Unique identifier present on physical card"""
   identifier: String
+
+  """`true` if physical card is expired"""
+  isExpired: Boolean!
 }
 
 """BeneficiaryAccountHolderType"""
@@ -8360,7 +8402,7 @@ input MembershipInfoInput {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean!
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean!
 
   """
@@ -8378,6 +8420,9 @@ input MembershipInfoInput {
 
   """Tax Identification Number of the user added"""
   taxIdentificationNumber: String
+
+  """Language of the account membership"""
+  language: AccountLanguage
 }
 
 """
@@ -9497,6 +9542,13 @@ type Mutation {
   """
   addDirectDebitFundingSource(input: AddDirectDebitFundingSourceInput!): AddDirectDebitFundingSourcePayload
 
+  """
+  Add an international trusted beneficiary to an account
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  """
+  addInternationalTrustedBeneficiary(input: AddInternationalTrustedBeneficiaryInput!): AddInternationalTrustedBeneficiaryPayload
+
   """Cancel a funding source"""
   cancelFundingSource(input: CancelFundingSourceInput!): CancelFundingSourcePayload
 
@@ -10345,7 +10397,7 @@ type PaymentInitiated implements PaymentStatusInfo {
 
 """Payment Level of the account"""
 enum PaymentLevel {
-  """When the account is limited to 150€ within 30 days and with no IBAN"""
+  """When the account is limited to 0€ within 30 days and with no IBAN"""
   Limited
 
   """
@@ -11468,7 +11520,7 @@ type Query {
   
   Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
   
-  *This query is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  *This query is restricted to data export or to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
   """
   onboardings(
     """the number of elements to load (maximum: 100)"""
@@ -12051,8 +12103,13 @@ enum RejectedReasonCode {
   """Rejected because the card is suspended"""
   CardSuspended
 
-  """Rejected because the check was received too late"""
+  """
+  Rejected because the check was received more than 30 days after it was declared to Swan
+  """
   CheckReceivedLate
+
+  """Rejected because the check was not received"""
+  CheckNotReceived
 
   """Rejected because the creditor bank is offline"""
   CreditorBankOffline
@@ -12063,10 +12120,12 @@ enum RejectedReasonCode {
   """Rejected following a timeout from the creditor bank"""
   CreditorBankTimeout
 
-  """Rejected because the date is missing"""
+  """Rejected because the date is missing on the check"""
   DateMissing
 
-  """Rejected because the date is invalid"""
+  """
+  Rejected because the date on the check is invalid (unreadable or in the future for example)
+  """
   DateInvalid
 
   """Rejected because the debtor account is closed"""
@@ -12092,10 +12151,10 @@ enum RejectedReasonCode {
   """Rejected because the debtor account holder is dead"""
   DebtorDeceased
 
-  """Rejected because the debtor's name is missing"""
+  """Rejected because the name of the payer is missing on the check"""
   DebtorNameMissing
 
-  """Rejected because of the endorsement is missing"""
+  """Rejected because the check has not been signed."""
   EndorsementMissing
 
   """Rejected because of a fraud suspicion"""
@@ -12113,7 +12172,9 @@ enum RejectedReasonCode {
   """Rejected because of invalid transfer date"""
   InvalidTransferDate
 
-  """Rejected because the amount is invalid or missing"""
+  """
+  Rejected because the digital amount on the check is missing or unreadable
+  """
   InvalidOrMissingAmount
 
   """Rejected by debtor because the mandate is invalid"""
@@ -12147,7 +12208,7 @@ enum RejectedReasonCode {
   """Rejected by bank for regulatory reason"""
   RegulatoryReason
 
-  """Rejected because the signature is missing"""
+  """Rejected because the signature is missing on the check"""
   SignatureMissing
 
   """Rejected because the check is suspicious"""
@@ -14247,6 +14308,9 @@ Filters that can be applied when listing supporting document collections
 input SupportingDocumentCollectionFilterInput {
   """Supporting document collection type/types we're looking for"""
   type: [SupportingDocumentCollectionType!]
+
+  """Supporting document collection status we're looking for"""
+  status: [SupportingDocumentCollectionStatus!]
 }
 
 """Rejection returned if the supporting document collection was not found"""
@@ -15072,8 +15136,14 @@ enum TransactionReasonCode {
   """Rejected because the card is suspended"""
   CardSuspended
 
+  """The payer has blocked the check payment"""
+  CheckBlocked
+
   """Invalid check"""
   CheckInvalid
+
+  """The check payment can’t be fulfilled because it’s too old"""
+  CheckOutdated
 
   """Invalid check number"""
   CheckNumberInvalid
@@ -15113,6 +15183,14 @@ enum TransactionReasonCode {
   """Rejected because the debtor account holder is dead"""
   DebtorDeceased
 
+  """
+  The check payment can’t be fulfilled because the signature is missing or invalid
+  """
+  EndorsementMissingOrInvalid
+
+  """The check payment can’t be fulfilled because of a fraud"""
+  Fraudulent
+
   """Funds already transferred back to the originator"""
   FundsAlreadyTransferredBack
 
@@ -15145,6 +15223,11 @@ enum TransactionReasonCode {
 
   """Rejected by debtor because the mandate is invalid"""
   MandateInvalid
+
+  """
+  The check payment can’t be fulfilled because a mandatory piece of information is missing on the check
+  """
+  MandatoryReferenceMissingOnCheck
 
   """
   Rejected because the merchant must request a new transaction with authorisation
@@ -15204,6 +15287,9 @@ enum TransactionReasonCode {
 
   """Invalid RLMC key, please control the key and the check number"""
   RlmcKeyInvalid
+
+  """The check payment can’t be fulfilled because the signature is invalid"""
+  SignatureInvalid
 
   """Rejected because the debtor or the creditor bank is offline"""
   SwanOffline
@@ -15554,15 +15640,6 @@ type TrustedBeneficiaryConnection implements Connection {
   totalCount: Int!
 }
 
-"""TrustedBeneficiary status consent pending"""
-type TrustedBeneficiaryConsentPending implements TrustedBeneficiaryStatusInfo {
-  """status of the beneficiary  (set to `ConsentPending`)"""
-  status: TrustedBeneficiaryStatus!
-
-  """The consent required to initiate this beneficiary"""
-  consent: Consent!
-}
-
 """Please see the Edge interface"""
 type TrustedBeneficiaryEdge implements Edge {
   node: TrustedBeneficiary!
@@ -15616,6 +15693,15 @@ type TrustedBeneficiaryStatusInfoCanceled implements TrustedBeneficiaryStatusInf
 
   """canceled Date"""
   canceledAt: DateTime!
+}
+
+"""TrustedBeneficiary status consent pending"""
+type TrustedBeneficiaryStatusInfoConsentPending implements TrustedBeneficiaryStatusInfo {
+  """status of the beneficiary  (set to `ConsentPending`)"""
+  status: TrustedBeneficiaryStatus!
+
+  """The consent required to initiate this beneficiary"""
+  consent: Consent!
 }
 
 """TrustedBeneficiary status enabled"""
@@ -15939,7 +16025,7 @@ input UpdateAccountMembershipInput {
   """`true` if this account membership can add or canceled beneficiaries"""
   canManageBeneficiaries: Boolean
 
-  """`true` if this account membership can initiate payments"""
+  """`true` if this account membership can initiate credit transfers"""
   canInitiatePayments: Boolean
 
   """

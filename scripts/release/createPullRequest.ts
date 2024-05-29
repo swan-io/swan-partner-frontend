@@ -7,8 +7,6 @@ import prompts from "prompts";
 import semver from "semver";
 import { PackageJson } from "type-fest";
 
-const REPOSITORY_URL = "https://github.com/swan-io/swan-partner-frontend";
-
 const logError = (...error: string[]) =>
   console.error(`${chalk.red("ERROR")} ${error.join("\n")}` + "\n");
 
@@ -67,7 +65,7 @@ const updateGhPagerConfig = () => exec('gh config set pager "less -F -X"');
 const resetGitBranch = (branch: string, remote: string) =>
   exec(`git switch -C ${branch} ${remote}/${branch}`);
 
-const getGitChangelogEntries = (from: string | undefined, to: string) =>
+const getGitCommits = (from: string | undefined, to: string) =>
   exec(`git log ${from != null ? `${from}..${to}` : ""} --pretty="format:%s"`)
     .then(_ => _.split("\n"))
     .then(entries =>
@@ -90,15 +88,13 @@ const getWorkspacePackages = () =>
     info => JSON.parse(info) as Record<string, { location: string }>,
   );
 
-const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);
+const createGhPullRequest = (title: string) => exec(`gh pr create -t "${title}" -b ""`);
 const gitAddAll = () => exec("git add . -u");
-const gitCommit = (message: string) => exec(`git commit -m "${message}"`);
-const gitPush = (branch: string, remote: string) => exec(`git push -u ${remote} ${branch}`);
 const gitCheckout = (branch: string) => exec(`git checkout ${branch}`);
+const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);
+const gitCommit = (message: string) => exec(`git commit -m "${message}"`);
 const gitDeleteLocalBranch = (branch: string) => exec(`git branch -D ${branch}`);
-
-const createGhPullRequest = (title: string, notes: string) =>
-  exec(`gh pr create -t "${title}" -b "${notes}"`);
+const gitPush = (branch: string, remote: string) => exec(`git push -u ${remote} ${branch}`);
 
 void (async () => {
   if (await isProgramMissing("git")) {
@@ -139,11 +135,11 @@ void (async () => {
   console.log(`🚀 Let's release ${pkg.name} (currently at ${currentVersion.raw})`);
 
   const currentVersionTag = `v${currentVersion.raw}`;
-  const changelogEntries = await getGitChangelogEntries(currentVersionTag, "main");
+  const commits = await getGitCommits(currentVersionTag, "main");
 
-  if (changelogEntries.length > 0) {
-    console.log("\n" + chalk.bold("What's Changed"));
-    console.log(changelogEntries.join("\n") + "\n");
+  if (commits.length > 0) {
+    console.log("\n" + chalk.bold("Commits"));
+    console.log(commits.join("\n") + "\n");
   }
 
   const patch = semver.inc(currentVersion, "patch");
@@ -198,13 +194,8 @@ void (async () => {
   await gitCommit(releaseTag);
   await gitPush(releaseBranch, "origin");
 
-  const releaseNotes = [
-    ...(changelogEntries.length > 0 ? ["## What's Changed", changelogEntries.join("\n")] : []),
-    `**Full Changelog**: ${REPOSITORY_URL}/compare/${currentVersionTag}...${releaseTag}`,
-  ].join("\n\n");
-
   await updateGhPagerConfig();
-  const url = await createGhPullRequest(releaseTag, releaseNotes);
+  const url = await createGhPullRequest(releaseTag);
 
   console.log("\n" + chalk.bold("✨ Pull request created:"));
   console.log(url + "\n");

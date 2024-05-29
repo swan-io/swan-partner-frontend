@@ -480,8 +480,8 @@
       "SupportingDocumentWaitingForUploadStatusInfo"
     ],
     "TrustedBeneficiaryStatusInfo": [
-      "TrustedBeneficiaryConsentPending",
       "TrustedBeneficiaryStatusInfoCanceled",
+      "TrustedBeneficiaryStatusInfoConsentPending",
       "TrustedBeneficiaryStatusInfoEnabled"
     ],
     "TrustedBeneficiary": [

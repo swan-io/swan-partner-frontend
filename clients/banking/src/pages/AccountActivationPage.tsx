@@ -23,7 +23,6 @@ import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/cons
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { isMobile } from "@swan-io/lake/src/utils/userAgent";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useRef, useState } from "react";
@@ -458,7 +457,7 @@ export const AccountActivationPage = ({
                 {t("accountActivation.refused.title")}
               </LakeHeading>
 
-              <Space height={isMobile ? 4 : 12} />
+              <Space height={desktop ? 12 : 4} />
 
               <LakeText align="center">
                 {formatNestedMessage("accountActivation.refused.description", {

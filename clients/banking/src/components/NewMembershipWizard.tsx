@@ -143,7 +143,7 @@ export const NewMembershipWizard = ({
   const [addMember, memberAddition] = useMutation(AddAccountMembershipDocument);
 
   const steps: Step[] = match(accountCountry)
-    .with("DEU", "NLD", () => ["Informations" as const, "Address" as const])
+    .with("DEU", "NLD", "ITA", () => ["Informations" as const, "Address" as const])
     .otherwise(() => ["Informations" as const]);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
@@ -223,9 +223,12 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
-            P.intersection(
-              { accountCountry: "NLD" },
-              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            P.union(
+              P.intersection(
+                { accountCountry: "NLD" },
+                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+              ),
+              { accountCountry: "ITA" },
             ),
             () => {
               const validate = combineValidators(validateRequired, validateAddressLine);
@@ -246,9 +249,12 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
-            P.intersection(
-              { accountCountry: "NLD" },
-              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            P.union(
+              P.intersection(
+                { accountCountry: "NLD" },
+                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+              ),
+              { accountCountry: "ITA" },
             ),
             () => {
               return validateRequired(value);
@@ -266,9 +272,12 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
-            P.intersection(
-              { accountCountry: "NLD" },
-              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            P.union(
+              P.intersection(
+                { accountCountry: "NLD" },
+                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+              ),
+              { accountCountry: "ITA" },
             ),
             () => {
               return validateRequired(value);
@@ -286,9 +295,12 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
-            P.intersection(
-              { accountCountry: "NLD" },
-              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            P.union(
+              P.intersection(
+                { accountCountry: "NLD" },
+                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+              ),
+              { accountCountry: "ITA" },
             ),
             () => {
               return validateRequired(value);
@@ -308,9 +320,12 @@ export const NewMembershipWizard = ({
           canInitiatePayments: getFieldValue("canInitiatePayments"),
         })
           .with(
-            P.intersection(
-              P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
-              P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+            P.union(
+              { accountCountry: "ITA" },
+              P.intersection(
+                P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
+                P.union({ canViewAccount: true }, { canInitiatePayments: true }),
+              ),
             ),
             () =>
               combineValidators(
@@ -779,25 +794,32 @@ export const NewMembershipWizard = ({
                   <FieldsListener names={["country"]}>
                     {({ country }) =>
                       match({ accountCountry, country: country.value })
-                        .with({ accountCountry: "DEU", country: "DEU" }, () => (
-                          <Field name="taxIdentificationNumber">
-                            {({ value, valid, error, onChange, ref }) => (
-                              <TaxIdentificationNumberInput
-                                ref={ref}
-                                accountCountry={accountCountry}
-                                isCompany={false}
-                                value={value}
-                                valid={valid}
-                                error={error}
-                                onChange={onChange}
-                                required={
-                                  Boolean(partiallySavedValues?.canViewAccount) ||
-                                  Boolean(partiallySavedValues?.canInitiatePayments)
-                                }
-                              />
-                            )}
-                          </Field>
-                        ))
+                        .with(
+                          P.union(
+                            { accountCountry: "DEU", country: "DEU" },
+                            { accountCountry: "ITA" },
+                          ),
+                          () => (
+                            <Field name="taxIdentificationNumber">
+                              {({ value, valid, error, onChange, ref }) => (
+                                <TaxIdentificationNumberInput
+                                  ref={ref}
+                                  accountCountry={accountCountry}
+                                  isCompany={false}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChange={onChange}
+                                  required={
+                                    accountCountry === "ITA" ||
+                                    Boolean(partiallySavedValues?.canViewAccount) ||
+                                    Boolean(partiallySavedValues?.canInitiatePayments)
+                                  }
+                                />
+                              )}
+                            </Field>
+                          ),
+                        )
                         .otherwise(() => null)
                     }
                   </FieldsListener>

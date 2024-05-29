@@ -2145,10 +2145,10 @@
     "@swan-io/request" "^1.0.6"
     ts-pattern "^5.1.0"
 
-"@swan-io/lake@8.3.2":
-  version "8.3.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.3.2.tgz#54f7152e696998e68b6435932a78869734020099"
-  integrity sha512-wCnmoOZMQkwnAklE3ultlhgCSFI9/wifmp9pwmmm/3dkmaGRyz+SYp8UE0jj52xhjY9e0OmZoGzjSf2Hd1wb/A==
+"@swan-io/lake@8.3.3":
+  version "8.3.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.3.3.tgz#94d9dde36b55a7f3d76f49e127d6130a9dc1a671"
+  integrity sha512-LFNUxwWTLpIGb9/tQatzBeNwXlV5aFt43p504xectlhVvEcwCoRY3S3XQ4lolW8mBIuioCESANJB4VkEjHLI6w==
   dependencies:
     "@react-three/drei" "^9.105.6"
     "@react-three/fiber" "^8.16.6"

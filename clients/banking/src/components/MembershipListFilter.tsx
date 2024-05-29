@@ -191,7 +191,6 @@ export const MembershipListFilter = ({
           filters={filtersWithoutSearch}
           openFilters={openFilters}
           label={t("common.filters")}
-          title={t("common.chooseFilter")}
           onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
           availableFilters={availableFilters}
           large={large}

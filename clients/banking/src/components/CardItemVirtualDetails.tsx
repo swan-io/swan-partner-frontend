@@ -1,8 +1,8 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { QuickActions } from "@swan-io/lake/src/components/QuickActions";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
@@ -151,14 +151,36 @@ export const CardItemVirtualDetails = ({
                   <>
                     <Space height={24} />
 
-                    <LakeButton
-                      mode="secondary"
-                      icon="eye-regular"
-                      loading={cardNumberViewing.isLoading()}
-                      onPress={onPressRevealCardNumbers}
-                    >
-                      {t("card.revealNumbers")}
-                    </LakeButton>
+                    <QuickActions
+                      actions={[
+                        ...match({ isCurrentUserCardOwner, card })
+                          .with(
+                            {
+                              isCurrentUserCardOwner: true,
+                              card: {
+                                statusInfo: { __typename: P.union("CardEnabledStatusInfo") },
+                                accountMembership: {
+                                  statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
+                                },
+                              },
+                            },
+
+                            () => [
+                              {
+                                label: t("card.revealNumbers"),
+                                icon: "eye-regular" as const,
+                                onPress: () => onPressRevealCardNumbers(),
+                                isLoading: cardNumberViewing.isLoading(),
+                                disabled: hasBindingUserError,
+                                tooltipDisabled: !hasBindingUserError,
+                                tooltipText: t("card.tooltipConflict"),
+                              },
+                            ],
+                          )
+
+                          .otherwise(() => []),
+                      ]}
+                    />
                   </>
                 ),
               )

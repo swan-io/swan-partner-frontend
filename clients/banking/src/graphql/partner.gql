@@ -961,6 +961,7 @@ query CardPage($cardId: ID!) {
           currency
           value
         }
+        isExpired
       }
     }
   }

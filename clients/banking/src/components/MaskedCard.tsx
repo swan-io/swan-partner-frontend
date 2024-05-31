@@ -105,6 +105,7 @@ type Props = {
   expiryDate: string;
   status: Status;
   estimatedDeliveryDate?: string;
+  expired?: boolean;
 };
 
 export const MaskedCard = ({
@@ -115,6 +116,7 @@ export const MaskedCard = ({
   pan,
   expiryDate,
   estimatedDeliveryDate,
+  expired,
 }: Props) => {
   const [ratio, setRatio] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
@@ -140,9 +142,12 @@ export const MaskedCard = ({
           onLoadEnd={() => setIsVisible(true)}
         />
 
-        {match(status)
-          .with("Suspended", () => <View style={styles.suspendedGradient} />)
-          .with("ToRenew", () => <View style={styles.toReniewGradient} />)
+        {match({ status, expired })
+          .with({ status: "Suspended" }, () => <View style={styles.suspendedGradient} />)
+          .with({ status: "ToRenew", expired: true }, () => (
+            <View style={styles.suspendedGradient} />
+          ))
+          .with({ status: "ToRenew" }, () => <View style={styles.toReniewGradient} />)
           .otherwise(() => null)}
 
         <View style={styles.contents}>
@@ -150,20 +155,26 @@ export const MaskedCard = ({
             {holderName}
           </Text>
 
-          {match(status)
-            .with("Canceled", "Canceled", () => (
+          {match({ status, expired })
+            .with({ status: "Canceled" }, () => (
               <>
                 <Space height={8} />
                 <Tag color="negative">{t("card.permanentlyBlocked")}</Tag>
               </>
             ))
-            .with("Suspended", () => (
+            .with({ status: "Suspended" }, () => (
               <>
                 <Space height={8} />
                 <Tag color="warning">{t("card.blocked")}</Tag>
               </>
             ))
-            .with("ToRenew", () => (
+            .with({ status: "ToRenew", expired: true }, () => (
+              <>
+                <Space height={8} />
+                <Tag color="negative">{t("card.expired")}</Tag>
+              </>
+            ))
+            .with({ status: "ToRenew" }, () => (
               <>
                 <Space height={8} />
                 <Tag color="shakespear">{t("card.toRenew")}</Tag>

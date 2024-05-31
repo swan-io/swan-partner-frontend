@@ -800,7 +800,10 @@ export const CardItemPhysicalDetails = ({
                           style={styles.renewAlertCta}
                           onPress={() => {
                             setOrderModalStatus(
-                              Option.Some({ type: "renewal", initialShippingAddress: address }),
+                              Option.Some({
+                                type: "renewal",
+                                initialShippingAddress: address,
+                              }),
                             );
                           }}
                         >
@@ -825,21 +828,35 @@ export const CardItemPhysicalDetails = ({
             <>
               <Space height={24} />
 
-              <LakeAlert
-                style={styles.renewAlert}
-                variant="info"
-                title={t("card.physical.toRenewAlert", {
-                  expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
-                    .endOf("month")
-                    .format("LL"),
-                })}
-                children={
-                  <>
-                    <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
-                    <Space height={12} />
-                  </>
-                }
-              />
+              {previousPhysicalCards[0].isExpired === true ? (
+                <LakeAlert
+                  style={styles.renewAlert}
+                  variant="info"
+                  title={t("card.physical.expiredAlert")}
+                  children={
+                    <>
+                      <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
+                      <Space height={12} />
+                    </>
+                  }
+                />
+              ) : (
+                <LakeAlert
+                  style={styles.renewAlert}
+                  variant="info"
+                  title={t("card.physical.toRenewAlert", {
+                    expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
+                      .endOf("month")
+                      .format("LL"),
+                  })}
+                  children={
+                    <>
+                      <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                      <Space height={12} />
+                    </>
+                  }
+                />
+              )}
             </>
           ),
         )
@@ -854,6 +871,10 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         physicalCard: { statusInfo: { status: "Renewed" } },
+                        previousCard: P.nonNullable,
+                      },
+                      {
+                        physicalCard: { statusInfo: { status: "ToRenew" } },
                         previousCard: P.nonNullable,
                       },
                       ({ previousCard }) =>
@@ -906,6 +927,7 @@ export const CardItemPhysicalDetails = ({
                                 ]}
                               >
                                 <MaskedCard
+                                  expired={previousCard.isExpired}
                                   cardDesignUrl={card.cardDesignUrl}
                                   textColor={
                                     card.cardProduct.cardDesigns.find(
@@ -952,6 +974,7 @@ export const CardItemPhysicalDetails = ({
 
                                 <View style={styles.physicalCardFront}>
                                   <MaskedCard
+                                    expired={previousCard.isExpired}
                                     cardDesignUrl={card.cardDesignUrl}
                                     textColor={
                                       card.cardProduct.cardDesigns.find(

@@ -200,6 +200,20 @@ export const CardItemArea = ({
           return <ErrorView />;
         }
 
+        //don't display the previousPhysicalCards if a physicalCard has a "ToRenew" status
+        const cardToDisplay = match(card.physicalCard)
+          .with(
+            {
+              statusInfo: { status: "ToRenew" },
+              previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
+            },
+            physicalCard => ({
+              ...card,
+              physicalCard: { ...physicalCard, previousPhysicalCards: [] },
+            }),
+          )
+          .otherwise(() => ({ ...card }));
+
         return (
           <>
             <TabView
@@ -325,7 +339,7 @@ export const CardItemArea = ({
                       <CardItemPhysicalDetails
                         hasBindingUserError={hasBindingUserError}
                         projectId={projectId}
-                        card={card}
+                        card={cardToDisplay}
                         cardId={cardId}
                         accountMembershipId={accountMembershipId}
                         isCurrentUserCardOwner={isCurrentUserCardOwner}

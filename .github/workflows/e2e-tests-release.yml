@@ -70,7 +70,9 @@ jobs:
         run: yarn graphql-codegen
 
       - name: Run E2E tests
-        run: CI=true yarn test-e2e
+        run: yarn test-e2e
+        env:
+          CI: true
 
       - uses: actions/upload-artifact@v4
         if: ${{ failure() }}

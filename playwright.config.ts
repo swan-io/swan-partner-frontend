@@ -72,7 +72,7 @@ export default defineConfig({
   webServer: {
     command: "yarn dev-e2e",
     url: env.BANKING_URL,
-    reuseExistingServer: !env.CI,
+    reuseExistingServer: true,
     stderr: "pipe",
     stdout: "ignore",
   },

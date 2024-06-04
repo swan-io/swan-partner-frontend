@@ -38,7 +38,7 @@
   "company.step.organisation1.organisationLabel": "A sua organização",
   "company.step.organisation1.organisationPlaceholder": "Introduza o nome da sua organização...",
   "company.step.organisation1.postCodeLabel": "Código Postal",
-  "company.step.organisation1.registrationNumberLabel": "Qual o seu número de registo{registrationNumberLegalName}?",
+  "company.step.organisation1.registrationNumberLabel": "Qual o seu número de registo ({registrationNumberLegalName})?",
   "company.step.organisation1.registrationNumberPlaceholder": "Introduza o seu número...",
   "company.step.organisation1.title": "Informação legal",
   "company.step.organisation1.vatLabel": "Qual é o seu número de IVA?",

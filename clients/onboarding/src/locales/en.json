@@ -38,7 +38,7 @@
   "company.step.organisation1.organisationLabel": "Your organization",
   "company.step.organisation1.organisationPlaceholder": "Type your organization name...",
   "company.step.organisation1.postCodeLabel": "Postcode",
-  "company.step.organisation1.registrationNumberLabel": "What’s your registration number{registrationNumberLegalName}?",
+  "company.step.organisation1.registrationNumberLabel": "What’s your registration number ({registrationNumberLegalName})?",
   "company.step.organisation1.registrationNumberPlaceholder": "Enter your number...",
   "company.step.organisation1.title": "Legal information",
   "company.step.organisation1.vatLabel": "What’s your VAT number?",

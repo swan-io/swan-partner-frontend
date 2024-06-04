@@ -38,7 +38,7 @@
   "company.step.organisation1.organisationLabel": "Votre organisation",
   "company.step.organisation1.organisationPlaceholder": "Saisissez le nom de votre organisation...",
   "company.step.organisation1.postCodeLabel": "Code postal",
-  "company.step.organisation1.registrationNumberLabel": "Quel est votre numéro d'immatriculation{registrationNumberLegalName} ?",
+  "company.step.organisation1.registrationNumberLabel": "Quel est votre numéro d'immatriculation ({registrationNumberLegalName}) ?",
   "company.step.organisation1.registrationNumberPlaceholder": "Saisissez votre numéro...",
   "company.step.organisation1.title": "Informations juridiques",
   "company.step.organisation1.vatLabel": "Quel est votre numéro de TVA ?",

@@ -394,6 +394,7 @@
   "membershipDetail.edit.lastName": "Cognome",
   "membershipDetail.edit.phoneNumber": "Numero di telefono",
   "membershipDetail.edit.postalCode": "CAP",
+  "membershipDetail.edit.preferredEmailLanguage": "Lingua preferita",
   "membershipDetail.edit.resendInvitation": "Reinvia l'invito",
   "membershipDetail.edit.rights": "Permessi",
   "membershipDetail.edit.showLink": "Mostra link di invito",

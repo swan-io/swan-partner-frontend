@@ -394,6 +394,7 @@
   "membershipDetail.edit.lastName": "Sukunimi",
   "membershipDetail.edit.phoneNumber": "Puhelinnumero",
   "membershipDetail.edit.postalCode": "Postinumero",
+  "membershipDetail.edit.preferredEmailLanguage": "Suosittu kieli sähköposteille",
   "membershipDetail.edit.resendInvitation": "Lähetä kutsu uudelleen",
   "membershipDetail.edit.rights": "Oikeudet",
   "membershipDetail.edit.showLink": "Lähetä kutsulinkki",

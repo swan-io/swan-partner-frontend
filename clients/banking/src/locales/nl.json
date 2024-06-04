@@ -394,6 +394,7 @@
   "membershipDetail.edit.lastName": "Achternaam",
   "membershipDetail.edit.phoneNumber": "Telefoonnummer",
   "membershipDetail.edit.postalCode": "Postcode",
+  "membershipDetail.edit.preferredEmailLanguage": "Voorkeurstaal",
   "membershipDetail.edit.resendInvitation": "De uitnodiging opnieuw versturen",
   "membershipDetail.edit.rights": "Machtigingen",
   "membershipDetail.edit.showLink": "Toon uitnodigingslink",

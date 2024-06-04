@@ -394,6 +394,7 @@
   "membershipDetail.edit.lastName": "Last name",
   "membershipDetail.edit.phoneNumber": "Phone number",
   "membershipDetail.edit.postalCode": "Postal code",
+  "membershipDetail.edit.preferredEmailLanguage": "Preferred language",
   "membershipDetail.edit.resendInvitation": "Resend the invitation",
   "membershipDetail.edit.rights": "Permissions",
   "membershipDetail.edit.showLink": "Show invitation link",

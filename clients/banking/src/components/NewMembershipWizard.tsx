@@ -96,7 +96,7 @@ type Step = "Informations" | "Address";
 type FormState = {
   phoneNumber: string;
   email: string;
-  preferredEmailLanguage: AccountLanguage;
+  accountLanguage: AccountLanguage;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -122,7 +122,7 @@ const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = k
 const MANDATORY_FIELDS = [
   "phoneNumber",
   "email",
-  "preferredEmailLanguage",
+  "accountLanguage",
   "firstName",
   "lastName",
   "canViewAccount",
@@ -141,21 +141,19 @@ const accountLanguages = deriveUnion<AccountLanguage>({
   pt: true,
 });
 
-const preferredEmailLanguages = languages.reduce<
-  {
-    name: string;
-    value: AccountLanguage;
-  }[]
->((acc, language) => {
-  if (accountLanguages.is(language.id)) {
-    acc.push({
-      name: language.native,
-      value: language.id,
-    });
-  }
+const accountLanguageItems = languages.reduce<{ name: string; value: AccountLanguage }[]>(
+  (acc, language) => {
+    if (accountLanguages.is(language.id)) {
+      acc.push({
+        name: language.native,
+        value: language.id,
+      });
+    }
 
-  return acc;
-}, []);
+    return acc;
+  },
+  [],
+);
 
 export const NewMembershipWizard = ({
   accountId,
@@ -180,7 +178,7 @@ export const NewMembershipWizard = ({
       sanitize: value => value.trim(),
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
-    preferredEmailLanguage: {
+    accountLanguage: {
       initialValue: accountLanguages.is(locale.language) ? locale.language : "en",
       validate: validateRequired,
     },
@@ -396,15 +394,15 @@ export const NewMembershipWizard = ({
 
   const sendInvitation = ({
     editingAccountMembershipId,
-    preferredEmailLanguage,
+    accountLanguage,
   }: {
     editingAccountMembershipId: string;
-    preferredEmailLanguage: AccountLanguage;
+    accountLanguage: AccountLanguage;
   }) => {
     const query = new URLSearchParams();
 
     query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", preferredEmailLanguage);
+    query.append("lang", accountLanguage);
 
     const url = match(projectConfiguration)
       .with(
@@ -441,8 +439,7 @@ export const NewMembershipWizard = ({
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-          const { addressLine1, city, postalCode, country, preferredEmailLanguage } =
-            computedValues;
+          const { addressLine1, city, postalCode, country, accountLanguage } = computedValues;
 
           const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
             isNullishOrEmpty,
@@ -468,6 +465,7 @@ export const NewMembershipWizard = ({
               consentRedirectUrl:
                 window.origin + Router.AccountMembersList({ accountMembershipId }),
               email: computedValues.email,
+              language: accountLanguage,
               residencyAddress,
               restrictedTo: {
                 firstName: computedValues.firstName,
@@ -497,7 +495,7 @@ export const NewMembershipWizard = ({
                     .with("EMAIL", () => {
                       sendInvitation({
                         editingAccountMembershipId: data.id,
-                        preferredEmailLanguage,
+                        accountLanguage,
                       });
                     })
                     .otherwise(() => {});
@@ -633,7 +631,7 @@ export const NewMembershipWizard = ({
 
                   <Box direction={boxDirection}>
                     <View style={fieldStyle}>
-                      <Field name="preferredEmailLanguage">
+                      <Field name="accountLanguage">
                         {({ value, onChange, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.preferredEmailLanguage")}
@@ -643,7 +641,7 @@ export const NewMembershipWizard = ({
                                 icon="local-language-filled"
                                 id={id}
                                 value={value}
-                                items={preferredEmailLanguages}
+                                items={accountLanguageItems}
                                 onValueChange={onChange}
                               />
                             )}

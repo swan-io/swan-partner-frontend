@@ -37,7 +37,7 @@ dayjs.extend(relativeTime);
 dayjs.extend(localizedFormat);
 
 const supportedLanguages = ["en", "es", "de", "fr", "it", "nl", "pt", "fi"] as const;
-export type SupportedLanguage = (typeof supportedLanguages)[number];
+type SupportedLanguage = (typeof supportedLanguages)[number];
 
 const translationKeys = Dict.keys(translationEN);
 export type TranslationKey = (typeof translationKeys)[number];

@@ -10,6 +10,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Request, badStatusToError } from "@swan-io/request";
@@ -28,10 +29,11 @@ import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
+  AccountLanguage,
   AccountMembershipFragment,
   AddAccountMembershipDocument,
 } from "../graphql/partner";
-import { SupportedLanguage, languages, locale, rifmDateProps, t } from "../utils/i18n";
+import { languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -94,7 +96,7 @@ type Step = "Informations" | "Address";
 type FormState = {
   phoneNumber: string;
   email: string;
-  preferredEmailLanguage: SupportedLanguage;
+  preferredEmailLanguage: AccountLanguage;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -129,10 +131,31 @@ const MANDATORY_FIELDS = [
   "canManageAccountMembership",
 ] satisfies (keyof FormState)[];
 
-const preferredEmailLanguages = languages.map(country => ({
-  name: country.native,
-  value: country.id,
-}));
+const accountLanguages = deriveUnion<AccountLanguage>({
+  en: true,
+  de: true,
+  fr: true,
+  it: true,
+  nl: true,
+  es: true,
+  pt: true,
+});
+
+const preferredEmailLanguages = languages.reduce<
+  {
+    name: string;
+    value: AccountLanguage;
+  }[]
+>((acc, language) => {
+  if (accountLanguages.is(language.id)) {
+    acc.push({
+      name: language.native,
+      value: language.id,
+    });
+  }
+
+  return acc;
+}, []);
 
 export const NewMembershipWizard = ({
   accountId,
@@ -158,7 +181,7 @@ export const NewMembershipWizard = ({
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
     preferredEmailLanguage: {
-      initialValue: locale.language,
+      initialValue: accountLanguages.is(locale.language) ? locale.language : "en",
       validate: validateRequired,
     },
     email: {
@@ -376,7 +399,7 @@ export const NewMembershipWizard = ({
     preferredEmailLanguage,
   }: {
     editingAccountMembershipId: string;
-    preferredEmailLanguage: SupportedLanguage;
+    preferredEmailLanguage: AccountLanguage;
   }) => {
     const query = new URLSearchParams();
 

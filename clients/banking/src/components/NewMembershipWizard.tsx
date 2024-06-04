@@ -4,6 +4,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -30,7 +31,7 @@ import {
   AccountMembershipFragment,
   AddAccountMembershipDocument,
 } from "../graphql/partner";
-import { locale, rifmDateProps, t } from "../utils/i18n";
+import { SupportedLanguage, languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -52,22 +53,19 @@ const styles = StyleSheet.create({
   paginationDotActive: {
     backgroundColor: colors.gray[500],
   },
-  fieldLarge: {
-    flexBasis: "50%",
-    flexShrink: 1,
-    alignSelf: "stretch",
-  },
   field: {
     alignSelf: "stretch",
   },
-  checkboxLarge: {
+  fieldLarge: {
     flexBasis: "50%",
-    alignSelf: "stretch",
-    paddingVertical: spacings[4],
+    flexShrink: 1,
   },
   checkbox: {
     alignSelf: "stretch",
     paddingVertical: spacings[4],
+  },
+  checkboxLarge: {
+    flexBasis: "50%",
   },
 });
 
@@ -96,6 +94,7 @@ type Step = "Informations" | "Address";
 type FormState = {
   phoneNumber: string;
   email: string;
+  preferredEmailLanguage: SupportedLanguage;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -119,15 +118,21 @@ const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = k
 } => keys.every(key => typeof object[key] !== "undefined");
 
 const MANDATORY_FIELDS = [
-  "phoneNumber" as const,
-  "email" as const,
-  "firstName" as const,
-  "lastName" as const,
-  "canViewAccount" as const,
-  "canInitiatePayments" as const,
-  "canManageBeneficiaries" as const,
-  "canManageAccountMembership" as const,
-];
+  "phoneNumber",
+  "email",
+  "preferredEmailLanguage",
+  "firstName",
+  "lastName",
+  "canViewAccount",
+  "canInitiatePayments",
+  "canManageBeneficiaries",
+  "canManageAccountMembership",
+] satisfies (keyof FormState)[];
+
+const preferredEmailLanguages = languages.map(country => ({
+  name: country.native,
+  value: country.id,
+}));
 
 export const NewMembershipWizard = ({
   accountId,
@@ -149,53 +154,43 @@ export const NewMembershipWizard = ({
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
     phoneNumber: {
       initialValue: partiallySavedValues?.phoneNumber ?? "",
-      strategy: "onSuccessOrBlur",
       sanitize: value => value.trim(),
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
+    preferredEmailLanguage: {
+      initialValue: locale.language,
+      validate: validateRequired,
+    },
     email: {
       initialValue: partiallySavedValues?.email ?? "",
-      strategy: "onSuccessOrBlur",
-      validate: combineValidators(validateRequired, validateEmail),
       sanitize: value => value.trim(),
+      validate: combineValidators(validateRequired, validateEmail),
     },
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
-      strategy: "onBlur",
-      validate: validateName,
       sanitize: value => value.trim(),
+      validate: validateName,
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
-      strategy: "onBlur",
-      validate: validateName,
       sanitize: value => value.trim(),
+      validate: validateName,
     },
     birthDate: {
       initialValue: partiallySavedValues?.birthDate ?? "",
-      strategy: "onSuccessOrBlur",
+      sanitize: value => value.trim(),
       validate: (value, { getFieldValue }) => {
-        return match({
-          canManageCards: getFieldValue("canManageCards"),
-          canInitiatePayments: getFieldValue("canInitiatePayments"),
-          canManageBeneficiaries: getFieldValue("canManageBeneficiaries"),
-          canManageAccountMembership: getFieldValue("canManageAccountMembership"),
-        })
-          .with(
-            { canInitiatePayments: true },
-            { canManageBeneficiaries: true },
-            { canManageAccountMembership: true },
-            { canManageCards: true },
-            () => {
-              const validate = combineValidators(validateRequired, validateBirthdate);
-              return validate(value);
-            },
-          )
-          .otherwise(() => {
-            if (value !== "") {
-              return validateBirthdate(value);
-            }
-          });
+        if (
+          getFieldValue("canManageCards") &&
+          getFieldValue("canInitiatePayments") &&
+          getFieldValue("canManageBeneficiaries") &&
+          getFieldValue("canManageAccountMembership")
+        ) {
+          const validate = combineValidators(validateRequired, validateBirthdate);
+          return validate(value);
+        } else if (value !== "") {
+          return validateBirthdate(value);
+        }
       },
     },
     canViewAccount: {
@@ -216,6 +211,7 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
+      sanitize: value => value.trim(),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -242,6 +238,7 @@ export const NewMembershipWizard = ({
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
+      sanitize: value => value.trim(),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -265,6 +262,7 @@ export const NewMembershipWizard = ({
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
+      sanitize: value => value.trim(),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -349,6 +347,7 @@ export const NewMembershipWizard = ({
   const onPressBack = () => {
     const currentStepIndex = steps.indexOf(step);
     const nextStep = steps[currentStepIndex - 1];
+
     if (nextStep != null) {
       setStep(nextStep);
     }
@@ -374,12 +373,15 @@ export const NewMembershipWizard = ({
 
   const sendInvitation = ({
     editingAccountMembershipId,
+    preferredEmailLanguage,
   }: {
     editingAccountMembershipId: string;
+    preferredEmailLanguage: SupportedLanguage;
   }) => {
     const query = new URLSearchParams();
+
     query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", locale.language);
+    query.append("lang", preferredEmailLanguage);
 
     const url = match(projectConfiguration)
       .with(
@@ -416,7 +418,9 @@ export const NewMembershipWizard = ({
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-          const { addressLine1, city, postalCode, country } = computedValues;
+          const { addressLine1, city, postalCode, country, preferredEmailLanguage } =
+            computedValues;
+
           const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
             isNullishOrEmpty,
           );
@@ -468,9 +472,13 @@ export const NewMembershipWizard = ({
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
                     .with("EMAIL", () => {
-                      sendInvitation({ editingAccountMembershipId: data.id });
+                      sendInvitation({
+                        editingAccountMembershipId: data.id,
+                        preferredEmailLanguage,
+                      });
                     })
                     .otherwise(() => {});
+
                   onSuccess(data.id);
                   return Option.None();
                 }),
@@ -491,16 +499,20 @@ export const NewMembershipWizard = ({
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.small}>
-      {({ large }) => (
-        <>
-          {match(step)
-            .with("Informations", () => {
-              return (
+      {({ large }) => {
+        const boxDirection = large ? "row" : "column";
+        const fieldStyle = [styles.field, large && styles.fieldLarge];
+        const checkboxStyle = [styles.checkbox, large && styles.checkboxLarge];
+
+        return (
+          <>
+            {match(step)
+              .with("Informations", () => (
                 <>
-                  <Box direction={large ? "row" : "column"} alignItems="start">
-                    <View style={large ? styles.fieldLarge : styles.field}>
+                  <Box direction={boxDirection}>
+                    <View style={fieldStyle}>
                       <Field name="firstName">
-                        {({ value, valid, error, onChange, ref }) => (
+                        {({ value, valid, error, onChange, onBlur, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.firstName")}
                             render={id => (
@@ -511,6 +523,7 @@ export const NewMembershipWizard = ({
                                 valid={valid}
                                 error={error}
                                 onChangeText={onChange}
+                                onBlur={onBlur}
                               />
                             )}
                           />
@@ -520,9 +533,9 @@ export const NewMembershipWizard = ({
 
                     <Space width={16} />
 
-                    <View style={large ? styles.fieldLarge : styles.field}>
+                    <View style={fieldStyle}>
                       <Field name="lastName">
-                        {({ value, valid, error, onChange, ref }) => (
+                        {({ value, valid, error, onChange, onBlur, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.lastName")}
                             render={id => (
@@ -533,6 +546,7 @@ export const NewMembershipWizard = ({
                                 valid={valid}
                                 error={error}
                                 onChangeText={onChange}
+                                onBlur={onBlur}
                               />
                             )}
                           />
@@ -541,10 +555,10 @@ export const NewMembershipWizard = ({
                     </View>
                   </Box>
 
-                  <Box direction={large ? "row" : "column"} alignItems="start">
-                    <View style={large ? styles.fieldLarge : styles.field}>
+                  <Box direction={boxDirection}>
+                    <View style={fieldStyle}>
                       <Field name="phoneNumber">
-                        {({ value, valid, error, onChange, ref }) => (
+                        {({ value, valid, error, onChange, onBlur, ref }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.phoneNumber")}
                             render={id => (
@@ -556,6 +570,7 @@ export const NewMembershipWizard = ({
                                 valid={valid}
                                 error={error}
                                 onChangeText={onChange}
+                                onBlur={onBlur}
                                 inputMode="tel"
                               />
                             )}
@@ -566,9 +581,9 @@ export const NewMembershipWizard = ({
 
                     <Space width={16} />
 
-                    <View style={large ? styles.fieldLarge : styles.field}>
+                    <View style={fieldStyle}>
                       <Field name="birthDate">
-                        {({ value, valid, error, onChange, ref }) => (
+                        {({ value, valid, error, onChange, onBlur, ref }) => (
                           <Rifm value={value} onChange={onChange} {...rifmDateProps}>
                             {({ value, onChange }) => (
                               <LakeLabel
@@ -582,6 +597,7 @@ export const NewMembershipWizard = ({
                                     valid={valid}
                                     error={error}
                                     onChange={onChange}
+                                    onBlur={onBlur}
                                   />
                                 )}
                               />
@@ -592,30 +608,57 @@ export const NewMembershipWizard = ({
                     </View>
                   </Box>
 
-                  <Field name="email">
-                    {({ value, valid, error, onChange, ref }) => (
-                      <LakeLabel
-                        label={t("membershipDetail.edit.email")}
-                        render={id => (
-                          <LakeTextInput
-                            id={id}
-                            ref={ref}
-                            value={value}
-                            valid={valid}
-                            error={error}
-                            onChangeText={onChange}
+                  <Box direction={boxDirection}>
+                    <View style={fieldStyle}>
+                      <Field name="preferredEmailLanguage">
+                        {({ value, onChange, ref }) => (
+                          <LakeLabel
+                            label={t("membershipDetail.edit.preferredEmailLanguage")}
+                            render={id => (
+                              <LakeSelect
+                                ref={ref}
+                                icon="local-language-filled"
+                                id={id}
+                                value={value}
+                                items={preferredEmailLanguages}
+                                onValueChange={onChange}
+                              />
+                            )}
                           />
                         )}
-                      />
-                    )}
-                  </Field>
+                      </Field>
+                    </View>
+
+                    <Space width={16} />
+
+                    <View style={fieldStyle}>
+                      <Field name="email">
+                        {({ value, valid, error, onChange, onBlur, ref }) => (
+                          <LakeLabel
+                            label={t("membershipDetail.edit.email")}
+                            render={id => (
+                              <LakeTextInput
+                                id={id}
+                                ref={ref}
+                                value={value}
+                                valid={valid}
+                                error={error}
+                                onChangeText={onChange}
+                                onBlur={onBlur}
+                              />
+                            )}
+                          />
+                        )}
+                      </Field>
+                    </View>
+                  </Box>
 
                   <LakeLabel
                     label={t("membershipDetail.edit.rights")}
                     render={() => (
                       <>
-                        <Box direction={large ? "row" : "column"} alignItems="start">
-                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                        <Box direction={boxDirection}>
+                          <View style={checkboxStyle}>
                             <Field name="canViewAccount">
                               {({ value, onChange }) => (
                                 <LakeLabelledCheckbox
@@ -628,7 +671,7 @@ export const NewMembershipWizard = ({
                             </Field>
                           </View>
 
-                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                          <View style={checkboxStyle}>
                             <Field name="canInitiatePayments">
                               {({ value, onChange }) => (
                                 <LakeLabelledCheckbox
@@ -642,8 +685,8 @@ export const NewMembershipWizard = ({
                           </View>
                         </Box>
 
-                        <Box direction={large ? "row" : "column"} alignItems="start">
-                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                        <Box direction={boxDirection}>
+                          <View style={checkboxStyle}>
                             <Field name="canManageBeneficiaries">
                               {({ value, onChange }) => (
                                 <LakeLabelledCheckbox
@@ -656,7 +699,7 @@ export const NewMembershipWizard = ({
                             </Field>
                           </View>
 
-                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                          <View style={checkboxStyle}>
                             <Field name="canManageAccountMembership">
                               {({ value, onChange }) => (
                                 <LakeLabelledCheckbox
@@ -672,8 +715,8 @@ export const NewMembershipWizard = ({
                           </View>
                         </Box>
 
-                        <Box direction={large ? "row" : "column"} alignItems="start">
-                          <View style={large ? styles.checkboxLarge : styles.checkbox}>
+                        <Box direction={boxDirection}>
+                          <View style={checkboxStyle}>
                             <Field name="canManageCards">
                               {({ value, onChange }) => (
                                 <LakeLabelledCheckbox
@@ -692,206 +735,206 @@ export const NewMembershipWizard = ({
                     )}
                   />
                 </>
-              );
-            })
-            .with("Address", () => {
-              return (
-                <>
-                  <Field name="country">
-                    {({ value, error, onChange, ref }) => (
-                      <LakeLabel
-                        label={t("membershipDetail.edit.country")}
-                        render={id => (
-                          <CountryPicker
-                            id={id}
-                            ref={ref}
-                            countries={allCountries}
-                            value={value}
-                            onValueChange={onChange}
-                            error={error}
-                          />
-                        )}
-                      />
-                    )}
-                  </Field>
+              ))
+              .with("Address", () => {
+                return (
+                  <>
+                    <Field name="country">
+                      {({ value, error, onChange, ref }) => (
+                        <LakeLabel
+                          label={t("membershipDetail.edit.country")}
+                          render={id => (
+                            <CountryPicker
+                              id={id}
+                              ref={ref}
+                              countries={allCountries}
+                              value={value}
+                              onValueChange={onChange}
+                              error={error}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
 
-                  <FieldsListener names={["country"]}>
-                    {({ country }) => {
-                      return (
-                        <Field name="addressLine1">
-                          {({ value, onChange, error }) => (
+                    <FieldsListener names={["country"]}>
+                      {({ country }) => {
+                        return (
+                          <Field name="addressLine1">
+                            {({ value, onChange, error }) => (
+                              <LakeLabel
+                                label={t("cardWizard.address.line1")}
+                                render={id => (
+                                  <PlacekitAddressSearchInput
+                                    apiKey={__env.CLIENT_PLACEKIT_API_KEY}
+                                    country={country.value}
+                                    value={value}
+                                    onValueChange={onChange}
+                                    onSuggestion={suggestion => {
+                                      setFieldValue("addressLine1", suggestion.completeAddress);
+                                      setFieldValue("city", suggestion.city);
+                                      setFieldValue("postalCode", suggestion.postalCode ?? "");
+                                    }}
+                                    language={locale.language}
+                                    placeholder={t("addressInput.placeholder")}
+                                    emptyResultText={t("common.noResults")}
+                                    error={error}
+                                    id={id}
+                                  />
+                                )}
+                              />
+                            )}
+                          </Field>
+                        );
+                      }}
+                    </FieldsListener>
+
+                    <Box direction={boxDirection}>
+                      <View style={fieldStyle}>
+                        <Field name="postalCode">
+                          {({ value, valid, error, onChange, ref }) => (
                             <LakeLabel
-                              label={t("cardWizard.address.line1")}
+                              label={t("membershipDetail.edit.postalCode")}
                               render={id => (
-                                <PlacekitAddressSearchInput
-                                  apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                                  country={country.value}
-                                  value={value}
-                                  onValueChange={onChange}
-                                  onSuggestion={suggestion => {
-                                    setFieldValue("addressLine1", suggestion.completeAddress);
-                                    setFieldValue("city", suggestion.city);
-                                    setFieldValue("postalCode", suggestion.postalCode ?? "");
-                                  }}
-                                  language={locale.language}
-                                  placeholder={t("addressInput.placeholder")}
-                                  emptyResultText={t("common.noResults")}
-                                  error={error}
+                                <LakeTextInput
                                   id={id}
+                                  ref={ref}
+                                  value={value}
+                                  valid={valid}
+                                  error={error}
+                                  onChangeText={onChange}
                                 />
                               )}
                             />
                           )}
                         </Field>
-                      );
-                    }}
-                  </FieldsListener>
+                      </View>
 
-                  <Box direction={large ? "row" : "column"} alignItems="start">
-                    <View style={large ? styles.fieldLarge : styles.field}>
-                      <Field name="postalCode">
-                        {({ value, valid, error, onChange, ref }) => (
-                          <LakeLabel
-                            label={t("membershipDetail.edit.postalCode")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                valid={valid}
-                                error={error}
-                                onChangeText={onChange}
-                              />
-                            )}
-                          />
-                        )}
-                      </Field>
-                    </View>
+                      <Space width={16} />
 
-                    <Space width={16} />
-
-                    <View style={large ? styles.fieldLarge : styles.field}>
-                      <Field name="city">
-                        {({ value, valid, error, onChange, ref }) => (
-                          <LakeLabel
-                            label={t("membershipDetail.edit.city")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                value={value}
-                                valid={valid}
-                                error={error}
-                                onChangeText={onChange}
-                              />
-                            )}
-                          />
-                        )}
-                      </Field>
-                    </View>
-                  </Box>
-
-                  <FieldsListener names={["country"]}>
-                    {({ country }) =>
-                      match({ accountCountry, country: country.value })
-                        .with(
-                          P.union(
-                            { accountCountry: "DEU", country: "DEU" },
-                            { accountCountry: "ITA" },
-                          ),
-                          () => (
-                            <Field name="taxIdentificationNumber">
-                              {({ value, valid, error, onChange, ref }) => (
-                                <TaxIdentificationNumberInput
+                      <View style={fieldStyle}>
+                        <Field name="city">
+                          {({ value, valid, error, onChange, ref }) => (
+                            <LakeLabel
+                              label={t("membershipDetail.edit.city")}
+                              render={id => (
+                                <LakeTextInput
+                                  id={id}
                                   ref={ref}
-                                  accountCountry={accountCountry}
-                                  isCompany={false}
                                   value={value}
                                   valid={valid}
                                   error={error}
-                                  onChange={onChange}
-                                  required={
-                                    accountCountry === "ITA" ||
-                                    Boolean(partiallySavedValues?.canViewAccount) ||
-                                    Boolean(partiallySavedValues?.canInitiatePayments)
-                                  }
+                                  onChangeText={onChange}
                                 />
                               )}
-                            </Field>
-                          ),
-                        )
-                        .otherwise(() => null)
-                    }
-                  </FieldsListener>
-                </>
-              );
-            })
-            .exhaustive()}
+                            />
+                          )}
+                        </Field>
+                      </View>
+                    </Box>
 
-          {steps.length > 1 ? (
-            <>
-              <Space height={16} />
+                    <FieldsListener names={["country"]}>
+                      {({ country }) =>
+                        match({ accountCountry, country: country.value })
+                          .with(
+                            P.union(
+                              { accountCountry: "DEU", country: "DEU" },
+                              { accountCountry: "ITA" },
+                            ),
+                            () => (
+                              <Field name="taxIdentificationNumber">
+                                {({ value, valid, error, onChange, ref }) => (
+                                  <TaxIdentificationNumberInput
+                                    ref={ref}
+                                    accountCountry={accountCountry}
+                                    isCompany={false}
+                                    value={value}
+                                    valid={valid}
+                                    error={error}
+                                    onChange={onChange}
+                                    required={
+                                      accountCountry === "ITA" ||
+                                      Boolean(partiallySavedValues?.canViewAccount) ||
+                                      Boolean(partiallySavedValues?.canInitiatePayments)
+                                    }
+                                  />
+                                )}
+                              </Field>
+                            ),
+                          )
+                          .otherwise(() => null)
+                      }
+                    </FieldsListener>
+                  </>
+                );
+              })
+              .exhaustive()}
 
-              <Box direction="row" alignItems="center" justifyContent="center">
-                {Array.from(steps).map(item => (
-                  <View
-                    key={item}
-                    style={[styles.paginationDot, item === step && styles.paginationDotActive]}
-                  />
-                ))}
-              </Box>
+            {steps.length > 1 && (
+              <>
+                <Space height={16} />
 
-              <Space height={16} />
-            </>
-          ) : null}
+                <Box direction="row" alignItems="center" justifyContent="center">
+                  {Array.from(steps).map(item => (
+                    <View
+                      key={item}
+                      style={[styles.paginationDot, item === step && styles.paginationDotActive]}
+                    />
+                  ))}
+                </Box>
 
-          {match({ step, steps })
-            .with({ step: "Informations", steps: ["Informations"] }, () => (
-              <LakeButtonGroup paddingBottom={0}>
-                <LakeButton mode="secondary" grow={true} onPress={onPressCancel}>
-                  {t("common.cancel")}
-                </LakeButton>
+                <Space height={16} />
+              </>
+            )}
 
-                <LakeButton
-                  color="current"
-                  grow={true}
-                  onPress={onPressSubmit}
-                  loading={memberAddition.isLoading()}
-                >
-                  {t("membershipList.newMember.sendInvitation")}
-                </LakeButton>
-              </LakeButtonGroup>
-            ))
-            .with({ step: "Informations", steps: ["Informations", "Address"] }, () => (
-              <LakeButtonGroup paddingBottom={0}>
-                <LakeButton mode="secondary" grow={true} onPress={onPressCancel}>
-                  {t("common.cancel")}
-                </LakeButton>
+            {match({ step, steps })
+              .with({ step: "Informations", steps: ["Informations"] }, () => (
+                <LakeButtonGroup paddingBottom={0}>
+                  <LakeButton mode="secondary" grow={true} onPress={onPressCancel}>
+                    {t("common.cancel")}
+                  </LakeButton>
 
-                <LakeButton color="current" grow={true} onPress={onPressNext}>
-                  {t("membershipList.newMember.next")}
-                </LakeButton>
-              </LakeButtonGroup>
-            ))
-            .with({ step: "Address", steps: ["Informations", "Address"] }, () => (
-              <LakeButtonGroup paddingBottom={0}>
-                <LakeButton mode="secondary" grow={true} onPress={onPressBack}>
-                  {t("membershipList.newMember.back")}
-                </LakeButton>
+                  <LakeButton
+                    color="current"
+                    grow={true}
+                    onPress={onPressSubmit}
+                    loading={memberAddition.isLoading()}
+                  >
+                    {t("membershipList.newMember.sendInvitation")}
+                  </LakeButton>
+                </LakeButtonGroup>
+              ))
+              .with({ step: "Informations", steps: ["Informations", "Address"] }, () => (
+                <LakeButtonGroup paddingBottom={0}>
+                  <LakeButton mode="secondary" grow={true} onPress={onPressCancel}>
+                    {t("common.cancel")}
+                  </LakeButton>
 
-                <LakeButton
-                  color="current"
-                  grow={true}
-                  onPress={onPressSubmit}
-                  loading={memberAddition.isLoading()}
-                >
-                  {t("membershipList.newMember.sendInvitation")}
-                </LakeButton>
-              </LakeButtonGroup>
-            ))
-            .otherwise(() => null)}
-        </>
-      )}
+                  <LakeButton color="current" grow={true} onPress={onPressNext}>
+                    {t("membershipList.newMember.next")}
+                  </LakeButton>
+                </LakeButtonGroup>
+              ))
+              .with({ step: "Address", steps: ["Informations", "Address"] }, () => (
+                <LakeButtonGroup paddingBottom={0}>
+                  <LakeButton mode="secondary" grow={true} onPress={onPressBack}>
+                    {t("membershipList.newMember.back")}
+                  </LakeButton>
+
+                  <LakeButton
+                    color="current"
+                    grow={true}
+                    onPress={onPressSubmit}
+                    loading={memberAddition.isLoading()}
+                  >
+                    {t("membershipList.newMember.sendInvitation")}
+                  </LakeButton>
+                </LakeButtonGroup>
+              ))
+              .otherwise(() => null)}
+          </>
+        );
+      }}
     </ResponsiveContainer>
   );
 };

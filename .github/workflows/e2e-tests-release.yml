@@ -63,7 +63,7 @@ jobs:
 
       - name: Setup playwright
         if: ${{ steps.cache-playwright.outputs.cache-hit != 'true' }}
-        run: yarn playwright install chrome --with-deps
+        run: yarn playwright install --with-deps
 
       - name: GraphQL Codegen
         run: yarn graphql-codegen

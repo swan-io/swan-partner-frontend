@@ -111,10 +111,16 @@ const getMailjetInput = ({
                 .with("nl", () => 5987163)
                 .with("pt", () => 5987107)
                 // .with("fi", () => 5987184) // Finnish is not ready yet
-                .otherwise(() => 2850442), // "english"
+                .otherwise(() => 2850442), // English
               Subject: match(language)
+                .with("es", () => `Únete a tu espacio bancario en ${projectInfo.name}`)
+                .with("de", () => `Treten Sie Ihrem Bankraum bei ${projectInfo.name} bei`)
                 .with("fr", () => `Rejoignez votre espace bancaire sur ${projectInfo.name}`)
-                .otherwise(() => `Join your banking space on ${projectInfo.name}`),
+                .with("it", () => `Unisciti al tuo spazio bancario su ${projectInfo.name}`)
+                .with("nl", () => `Sluit je aan bij jouw bankomgeving op ${projectInfo.name}`)
+                .with("pt", () => `Junte-se ao seu espaço bancário em ${projectInfo.name}`)
+                // .with("fi", () => `Liity pankkitilaasi palvelussa ${projectInfo.name}`) // Finnish is not ready yet
+                .otherwise(() => `Join your banking space on ${projectInfo.name}`), // English
               TemplateLanguage: true,
               Variables: {
                 applicationName: projectInfo.name,

@@ -40,7 +40,7 @@ export const parseAccountCountry = (
   accountCountry: unknown,
 ): Result<AccountCountry | undefined, UnsupportedAccountCountryError> =>
   match(accountCountry)
-    .with("FRA", "DEU", "ESP", "NLD", undefined, value => Result.Ok(value))
+    .with("FRA", "DEU", "ESP", "NLD", "ITA", undefined, value => Result.Ok(value))
     .otherwise(country => Result.Error(new UnsupportedAccountCountryError(String(country))));
 
 export class FinalizeOnboardingRejectionError extends Error {

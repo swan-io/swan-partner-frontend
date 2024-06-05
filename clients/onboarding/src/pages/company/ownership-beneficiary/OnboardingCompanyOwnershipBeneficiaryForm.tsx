@@ -70,7 +70,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
     ref,
   ) => {
     const isAddressRequired = match(accountCountry)
-      .with("DEU", "ESP", "FRA", "NLD", () => true)
+      .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
       .otherwise(() => false);
 
     const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());

@@ -235,6 +235,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
               .with(
                 { accountCountry: "DEU", residencyAddressCountry: "DEU" },
                 { accountCountry: "ESP" },
+                { accountCountry: "ITA" },
                 () => (
                   <>
                     <Space height={12} />
@@ -248,9 +249,10 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
                           onChange={onChange}
                           accountCountry={accountCountry}
                           isCompany={false}
-                          // is mandatory for German accounts with UBO living in Germany
+                          // is mandatory for German accounts with UBO living in Germany, same for Italy
                           required={
-                            accountCountry === "DEU" && residencyAddressCountry.value === "DEU"
+                            (accountCountry === "DEU" && residencyAddressCountry.value === "DEU") ||
+                            (accountCountry === "ITA" && residencyAddressCountry.value === "ITA")
                           }
                         />
                       )}

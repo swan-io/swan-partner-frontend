@@ -83,7 +83,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
   Props
 >(({ placekitApiKey, accountCountry, initialValues, onSave }, ref) => {
   const isBirthInfoRequired = match(accountCountry)
-    .with("ESP", "FRA", "NLD", () => true)
+    .with("ESP", "FRA", "NLD", "ITA", () => true)
     .otherwise(() => false);
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({

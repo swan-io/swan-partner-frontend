@@ -280,19 +280,21 @@ export const languages: Language[] = [
   },
 ];
 
+const accountLanguageUnion = deriveUnion<AccountLanguage>({
+  de: true,
+  en: true,
+  es: true,
+  fr: true,
+  it: true,
+  nl: true,
+  pt: true,
+});
+
 export const accountLanguages = {
-  ...deriveUnion<AccountLanguage>({
-    de: true,
-    en: true,
-    es: true,
-    fr: true,
-    it: true,
-    nl: true,
-    pt: true,
-  }),
+  ...accountLanguageUnion,
 
   items: languages.reduce<{ name: string; value: AccountLanguage }[]>((acc, language) => {
-    if (accountLanguages.is(language.id)) {
+    if (accountLanguageUnion.is(language.id)) {
       acc.push({ name: language.native, value: language.id });
     }
 

@@ -157,7 +157,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
           .otherwise(() => setPaymentMethod(Option.None()));
       }
     });
-  }, []);
+  }, [publicKey]);
 
   const onPressSubmit = () => {
     if (cardNumberState === "untouched") {

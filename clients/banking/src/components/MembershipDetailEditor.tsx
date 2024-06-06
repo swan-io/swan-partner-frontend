@@ -509,7 +509,7 @@ export const MembershipDetailEditor = ({
                           onChangeText={onChange}
                         />
 
-                        {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" ? (
+                        {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" && (
                           <>
                             <Space width={12} />
 
@@ -548,7 +548,7 @@ export const MembershipDetailEditor = ({
                               ))
                               .exhaustive()}
                           </>
-                        ) : null}
+                        )}
                       </Box>
                     )}
                   />
@@ -634,23 +634,25 @@ export const MembershipDetailEditor = ({
                 )}
               </Field>
 
-              <Field name="language">
-                {({ ref, value, onChange }) => (
-                  <LakeLabel
-                    label={t("membershipDetail.edit.preferredEmailLanguage")}
-                    render={id => (
-                      <LakeSelect
-                        ref={ref}
-                        id={id}
-                        icon="local-language-filled"
-                        items={accountLanguages.items}
-                        value={value}
-                        onValueChange={onChange}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
+              {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" && (
+                <Field name="language">
+                  {({ ref, value, onChange }) => (
+                    <LakeLabel
+                      label={t("membershipDetail.edit.preferredEmailLanguage")}
+                      render={id => (
+                        <LakeSelect
+                          ref={ref}
+                          id={id}
+                          icon="local-language-filled"
+                          items={accountLanguages.items}
+                          value={value}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+              )}
             </>
           ),
         )

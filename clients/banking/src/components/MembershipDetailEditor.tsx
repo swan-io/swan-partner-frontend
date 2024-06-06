@@ -9,6 +9,7 @@ import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -94,6 +95,7 @@ export const MembershipDetailEditor = ({
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     email: {
       initialValue: editingAccountMembership.email,
+      sanitize: trim,
       validate: validateRequired,
     },
     lastName: {
@@ -111,6 +113,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateName,
     },
     firstName: {
@@ -128,6 +131,7 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateName,
     },
     birthDate: {
@@ -148,6 +152,7 @@ export const MembershipDetailEditor = ({
           dayjs(user.birthDate).format(locale.dateFormat),
         )
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateBirthdate,
     },
     phoneNumber: {
@@ -165,19 +170,23 @@ export const MembershipDetailEditor = ({
         )
         .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateRequired,
     },
     // German account specific fields
     addressLine1: {
       initialValue: editingAccountMembership.residencyAddress?.addressLine1 ?? "",
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateAddressLine),
     },
     postalCode: {
       initialValue: editingAccountMembership.residencyAddress?.postalCode ?? "",
+      sanitize: trim,
       validate: validateRequired,
     },
     city: {
       initialValue: editingAccountMembership.residencyAddress?.city ?? "",
+      sanitize: trim,
       validate: validateRequired,
     },
     country: {
@@ -190,6 +199,7 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -218,7 +228,6 @@ export const MembershipDetailEditor = ({
           )
           .otherwise(() => {});
       },
-      sanitize: value => value.trim(),
     },
   });
 

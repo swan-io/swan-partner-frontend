@@ -15,6 +15,7 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,
@@ -142,46 +143,46 @@ export const OnboardingCompanyOrganisation1 = ({
     },
     name: {
       initialValue: initialName,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     registrationNumber: {
       initialValue: initialRegistrationNumber,
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const isRegistered = getFieldValue("isRegistered");
         return isRegistered === true ? validateRequired(value) : undefined;
       },
-      sanitize: value => value.trim(),
     },
     vatNumber: {
       initialValue: initialVatNumber,
+      sanitize: trim,
       validate: validateVatNumber,
-      sanitize: value => value.trim(),
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
+      sanitize: trim,
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
             validateCompanyTaxNumber(accountCountry),
           )
         : undefined,
-      sanitize: value => value.trim(),
     },
     address: {
       initialValue: initialAddressLine1,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     city: {
       initialValue: initialCity,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     postalCode: {
       initialValue: initialPostalCode,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
   });
 

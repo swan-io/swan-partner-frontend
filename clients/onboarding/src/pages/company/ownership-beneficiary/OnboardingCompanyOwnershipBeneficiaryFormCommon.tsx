@@ -10,6 +10,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
@@ -89,20 +90,20 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
     firstName: {
       initialValue: initialValues.firstName ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value?.trim(),
     },
     lastName: {
       initialValue: initialValues.lastName ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value?.trim(),
     },
     birthDate: {
       initialValue: isNotNullishOrEmpty(initialValues.birthDate)
         ? decodeBirthDate(initialValues.birthDate)
         : "",
+      sanitize: trim,
       validate: isBirthInfoRequired ? validateRequired : undefined,
-      sanitize: value => value?.trim(),
     },
     birthCountryCode: {
       initialValue: initialValues.birthCountryCode ?? accountCountry,
@@ -110,13 +111,13 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     },
     birthCity: {
       initialValue: initialValues.birthCity ?? "",
+      sanitize: trim,
       validate: isBirthInfoRequired ? validateRequired : undefined,
-      sanitize: value => value?.trim(),
     },
     birthCityPostalCode: {
       initialValue: initialValues.birthCityPostalCode ?? "",
+      sanitize: trim,
       validate: isBirthInfoRequired ? validateRequired : undefined,
-      sanitize: value => value?.trim(),
     },
     type: {
       initialValue: initialValues.type ?? "HasCapital",
@@ -140,8 +141,8 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     },
     totalCapitalPercentage: {
       initialValue: initialValues.totalCapitalPercentage?.toString() ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
   });
 

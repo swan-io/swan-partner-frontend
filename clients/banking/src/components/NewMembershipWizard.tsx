@@ -13,6 +13,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -175,7 +176,7 @@ export const NewMembershipWizard = ({
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
     phoneNumber: {
       initialValue: partiallySavedValues?.phoneNumber ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
     accountLanguage: {
@@ -184,22 +185,22 @@ export const NewMembershipWizard = ({
     },
     email: {
       initialValue: partiallySavedValues?.email ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
     },
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: validateName,
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: validateName,
     },
     birthDate: {
       initialValue: partiallySavedValues?.birthDate ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         if (
           getFieldValue("canManageCards") &&
@@ -232,7 +233,7 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -259,7 +260,7 @@ export const NewMembershipWizard = ({
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -283,7 +284,7 @@ export const NewMembershipWizard = ({
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -331,6 +332,7 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
+      sanitize: value => value.trim().replace(/\//g, ""),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -361,7 +363,6 @@ export const NewMembershipWizard = ({
           )
           .otherwise(() => undefined);
       },
-      sanitize: value => value.trim().replace(/\//g, ""),
     },
   });
 

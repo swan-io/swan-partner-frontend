@@ -12,6 +12,7 @@ import { colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -90,22 +91,22 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     },
     name: {
       initialValue: paymentLink.customer?.name ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: validateRequired,
     },
     addressLine1: {
       initialValue: paymentLink.billingAddress?.addressLine1 ?? "",
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {
           return validateRequired(value);
         }
       },
-      sanitize: value => value.trim(),
     },
     city: {
       initialValue: paymentLink.billingAddress?.city ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {
@@ -115,7 +116,7 @@ export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Pro
     },
     postalCode: {
       initialValue: paymentLink.billingAddress?.postalCode ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const country = getFieldValue("country");
         if (nonEeaCountries.includes(country)) {

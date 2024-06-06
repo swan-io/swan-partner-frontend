@@ -82,7 +82,10 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
       validate: (value, { getFieldValue }) => {
         const beneficiaryCountry = getFieldValue("residencyAddressCountry");
 
-        if (accountCountry === "DEU" && beneficiaryCountry === "DEU") {
+        if (
+          (accountCountry === "DEU" && beneficiaryCountry === "DEU") ||
+          (accountCountry === "ITA" && beneficiaryCountry === "ITA")
+        ) {
           return combineValidators(
             validateRequired,
             validateIndividualTaxNumber(accountCountry),
@@ -241,8 +244,9 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
                     <Space height={12} />
 
                     <Field name="taxIdentificationNumber">
-                      {({ value, error, valid, onChange }) => (
+                      {({ value, error, valid, onChange, onBlur }) => (
                         <TaxIdentificationNumberInput
+                          onBlur={onBlur}
                           value={value ?? ""}
                           error={error}
                           valid={valid}

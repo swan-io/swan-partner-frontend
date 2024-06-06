@@ -109,7 +109,7 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.lastName,
+          ({ statusInfo }) => statusInfo.restrictedTo.lastName,
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
@@ -127,7 +127,7 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.firstName,
+          ({ statusInfo }) => statusInfo.restrictedTo.firstName,
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
@@ -145,8 +145,7 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership =>
-            dayjs(accountMembership.statusInfo.restrictedTo.birthDate).format(locale.dateFormat),
+          ({ statusInfo }) => dayjs(statusInfo.restrictedTo.birthDate).format(locale.dateFormat),
         )
         .with({ user: { birthDate: P.string } }, ({ user }) =>
           dayjs(user.birthDate).format(locale.dateFormat),
@@ -166,7 +165,7 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.phoneNumber,
+          ({ statusInfo }) => statusInfo.restrictedTo.phoneNumber,
         )
         .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
         .otherwise(() => ""),
@@ -210,12 +209,7 @@ export const MembershipDetailEditor = ({
           .with(
             P.intersection(
               { accountCountry: "DEU", country: "DEU" },
-              P.union(
-                {
-                  canViewAccount: true,
-                },
-                { canInitiatePayment: true },
-              ),
+              P.union({ canViewAccount: true }, { canInitiatePayment: true }),
             ),
             ({ accountCountry }) =>
               combineValidators(
@@ -339,6 +333,7 @@ export const MembershipDetailEditor = ({
 
   const sendInvitation = () => {
     setInvitationSending(AsyncData.Loading());
+
     const query = new URLSearchParams();
     query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
     query.append("lang", locale.language);
@@ -386,13 +381,13 @@ export const MembershipDetailEditor = ({
         // Personal information are not editable while active
         .with(
           {
+            user: P.nonNullable,
             statusInfo: {
               __typename: P.union(
                 "AccountMembershipEnabledStatusInfo",
                 "AccountMembershipSuspendedStatusInfo",
               ),
             },
-            user: P.nonNullable,
           },
           accountMembership => (
             <>
@@ -438,32 +433,18 @@ export const MembershipDetailEditor = ({
                         error={error}
                         onChangeText={onChange}
                         // `email` is editable when enabled
-                        readOnly={match({
-                          accountMembership,
-                        })
+                        readOnly={match(accountMembership)
                           .with(
-                            {
-                              accountMembership: {
-                                statusInfo: {
-                                  __typename: "AccountMembershipSuspendedStatusInfo",
-                                },
-                              },
-                            },
+                            { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
                             () => true,
                           )
                           .with(
-                            {
-                              accountMembership: {
-                                statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                              },
-                            },
-                            ({ accountMembership }) => {
+                            { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
+                            ({ id }) =>
                               // can't edit the legal rep when you're not the legal rep
-                              if (accountMembership.id !== currentUserAccountMembership.id) {
-                                return accountMembership.legalRepresentative;
-                              }
-                              return false;
-                            },
+                              id === currentUserAccountMembership.id
+                                ? false
+                                : accountMembership.legalRepresentative,
                           )
                           .exhaustive()}
                       />
@@ -478,8 +459,8 @@ export const MembershipDetailEditor = ({
           {
             statusInfo: {
               __typename: P.union(
-                "AccountMembershipInvitationSentStatusInfo",
                 "AccountMembershipBindingUserErrorStatusInfo",
+                "AccountMembershipInvitationSentStatusInfo",
               ),
             },
           },
@@ -629,8 +610,8 @@ export const MembershipDetailEditor = ({
         )
         .otherwise(() => null)}
 
-      {match({ accountCountry, editingAccountMembership })
-        .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => (
+      {match(accountCountry)
+        .with("DEU", "NLD", () => (
           <>
             <Field name="country">
               {({ value, error, onChange, ref }) => (
@@ -743,12 +724,7 @@ export const MembershipDetailEditor = ({
                               .with(
                                 P.intersection(
                                   { accountCountry: "DEU", country: "DEU" },
-                                  P.union(
-                                    {
-                                      canViewAccount: true,
-                                    },
-                                    { canInitiatePayment: true },
-                                  ),
+                                  P.union({ canViewAccount: true }, { canInitiatePayment: true }),
                                 ),
                                 () => true,
                               )
@@ -767,17 +743,11 @@ export const MembershipDetailEditor = ({
 
       <View style={styles.buttonGroup}>
         <LakeButtonGroup>
-          {match(editingAccountMembership)
+          {match(editingAccountMembership.statusInfo.__typename)
             .with(
-              {
-                statusInfo: {
-                  __typename: P.union(
-                    "AccountMembershipEnabledStatusInfo",
-                    "AccountMembershipInvitationSentStatusInfo",
-                    "AccountMembershipBindingUserErrorStatusInfo",
-                  ),
-                },
-              },
+              "AccountMembershipBindingUserErrorStatusInfo",
+              "AccountMembershipEnabledStatusInfo",
+              "AccountMembershipInvitationSentStatusInfo",
               () => (
                 <LakeButton
                   color="current"
@@ -799,9 +769,7 @@ export const MembershipDetailEditor = ({
               // Can't suspend yourself
               { isEditingCurrentUserAccountMembership: true },
               // Can't suspend the account legal representative
-              {
-                editingAccountMembership: { legalRepresentative: true },
-              },
+              { editingAccountMembership: { legalRepresentative: true } },
               () => null,
             )
             .with(

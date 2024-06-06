@@ -12,6 +12,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import {
   businessActivities,
   monthlyPaymentVolumes,
@@ -98,8 +99,8 @@ export const OnboardingCompanyOrganisation2 = ({
     },
     businessActivityDescription: {
       initialValue: initialBusinessActivityDescription,
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateMaxLength(CHARACTER_LIMITATION)),
-      sanitize: value => value.trim(),
     },
     monthlyPaymentVolume: {
       initialValue: initialMonthlyPaymentVolume,

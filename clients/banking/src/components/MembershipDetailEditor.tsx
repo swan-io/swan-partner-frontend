@@ -3,12 +3,15 @@ import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -23,12 +26,13 @@ import { StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
+  AccountLanguage,
   AccountMembershipFragment,
   ResumeAccountMembershipDocument,
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
-import { locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -49,20 +53,18 @@ const styles = StyleSheet.create({
 });
 
 type AllowedStatuses =
+  | "AccountMembershipBindingUserErrorStatusInfo"
   | "AccountMembershipConsentPendingStatusInfo"
   | "AccountMembershipDisabledStatusInfo"
   | "AccountMembershipEnabledStatusInfo"
   | "AccountMembershipInvitationSentStatusInfo"
-  | "AccountMembershipSuspendedStatusInfo"
-  | "AccountMembershipBindingUserErrorStatusInfo";
+  | "AccountMembershipSuspendedStatusInfo";
 
 type Props = {
   accountCountry: CountryCCA3;
   editingAccountMembershipId: string;
   editingAccountMembership: AccountMembershipFragment & {
-    statusInfo: {
-      __typename: AllowedStatuses;
-    };
+    statusInfo: { __typename: AllowedStatuses };
   };
   currentUserAccountMembershipId: string;
   currentUserAccountMembership: AccountMembershipFragment;
@@ -82,6 +84,7 @@ export const MembershipDetailEditor = ({
   large,
 }: Props) => {
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
+
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
@@ -94,6 +97,7 @@ export const MembershipDetailEditor = ({
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
     email: {
       initialValue: editingAccountMembership.email,
+      sanitize: trim,
       validate: validateRequired,
     },
     lastName: {
@@ -107,10 +111,11 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.lastName,
+          ({ statusInfo }) => statusInfo.restrictedTo.lastName,
         )
         .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateName,
     },
     firstName: {
@@ -124,11 +129,20 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.firstName,
+          ({ statusInfo }) => statusInfo.restrictedTo.firstName,
         )
         .with({ user: { firstName: P.string } }, ({ user }) => user.firstName)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateName,
+    },
+    language: {
+      initialValue: match(editingAccountMembership.language)
+        .returnType<AccountLanguage>()
+        .with(accountLanguages.P, identity)
+        .otherwise(() => "en"),
+      strategy: "onChange",
+      validate: validateRequired,
     },
     birthDate: {
       initialValue: match(editingAccountMembership)
@@ -141,13 +155,13 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership =>
-            dayjs(accountMembership.statusInfo.restrictedTo.birthDate).format(locale.dateFormat),
+          ({ statusInfo }) => dayjs(statusInfo.restrictedTo.birthDate).format(locale.dateFormat),
         )
         .with({ user: { birthDate: P.string } }, ({ user }) =>
           dayjs(user.birthDate).format(locale.dateFormat),
         )
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateBirthdate,
     },
     phoneNumber: {
@@ -161,23 +175,27 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => accountMembership.statusInfo.restrictedTo.phoneNumber,
+          ({ statusInfo }) => statusInfo.restrictedTo.phoneNumber,
         )
         .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
         .otherwise(() => ""),
+      sanitize: trim,
       validate: validateRequired,
     },
     // German account specific fields
     addressLine1: {
       initialValue: editingAccountMembership.residencyAddress?.addressLine1 ?? "",
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateAddressLine),
     },
     postalCode: {
       initialValue: editingAccountMembership.residencyAddress?.postalCode ?? "",
+      sanitize: trim,
       validate: validateRequired,
     },
     city: {
       initialValue: editingAccountMembership.residencyAddress?.city ?? "",
+      sanitize: trim,
       validate: validateRequired,
     },
     country: {
@@ -190,6 +208,7 @@ export const MembershipDetailEditor = ({
     taxIdentificationNumber: {
       initialValue: editingAccountMembership.taxIdentificationNumber ?? "",
       strategy: "onBlur",
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -200,12 +219,7 @@ export const MembershipDetailEditor = ({
           .with(
             P.intersection(
               { accountCountry: "DEU", country: "DEU" },
-              P.union(
-                {
-                  canViewAccount: true,
-                },
-                { canInitiatePayment: true },
-              ),
+              P.union({ canViewAccount: true }, { canInitiatePayment: true }),
             ),
             ({ accountCountry }) =>
               combineValidators(
@@ -218,60 +232,59 @@ export const MembershipDetailEditor = ({
           )
           .otherwise(() => {});
       },
-      sanitize: value => value.trim(),
     },
   });
 
   const onPressSave = () => {
     submitForm({
       onSuccess: values => {
-        const restrictedTo = match({
-          values: Option.allFromDict(
-            pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
-          ),
-          editingAccountMembership,
-          isEditingCurrentUser: currentUserAccountMembership.id == editingAccountMembership.id,
-        })
-          .with(
-            {
-              values: Option.P.Some(P.select()),
-              editingAccountMembership: {
-                statusInfo: {
-                  __typename: P.union(
-                    "AccountMembershipInvitationSentStatusInfo",
-                    "AccountMembershipBindingUserErrorStatusInfo",
-                    "AccountMembershipEnabledStatusInfo",
-                  ),
-                },
-              },
-              isEditingCurrentUser: false,
-            },
-            ({ firstName, lastName, phoneNumber, birthDate }) => ({
-              firstName,
-              lastName,
-              phoneNumber,
-              birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
-            }),
-          )
-          .otherwise(() => undefined);
-
         updateMembership({
           input: {
             accountMembershipId: editingAccountMembershipId,
+            language: values.language.toUndefined(),
+            email: values.email.toUndefined(),
+            taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+
+            restrictedTo: match({
+              editingAccountMembership,
+              isEditingCurrentUser: currentUserAccountMembership.id === editingAccountMembership.id,
+              values: Option.allFromDict(
+                pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
+              ),
+            })
+              .with(
+                {
+                  values: Option.P.Some(P.select()),
+                  isEditingCurrentUser: false,
+                  editingAccountMembership: {
+                    statusInfo: {
+                      __typename: P.union(
+                        "AccountMembershipBindingUserErrorStatusInfo",
+                        "AccountMembershipEnabledStatusInfo",
+                        "AccountMembershipInvitationSentStatusInfo",
+                      ),
+                    },
+                  },
+                },
+                ({ firstName, lastName, phoneNumber, birthDate }) => ({
+                  firstName,
+                  lastName,
+                  phoneNumber,
+                  birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
+                }),
+              )
+              .otherwise(() => undefined),
+
             consentRedirectUrl:
               window.location.origin +
               Router.AccountMembersDetailsRoot({
                 accountMembershipId: currentUserAccountMembershipId,
                 editingAccountMembershipId,
               }),
-            email: values.email.toUndefined(),
 
             residencyAddress: Option.allFromDict(
               pick(values, ["addressLine1", "city", "postalCode", "country"]),
             ).toUndefined(),
-
-            restrictedTo,
-            taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
           },
         })
           .mapOk(data => data.updateAccountMembership)
@@ -330,6 +343,7 @@ export const MembershipDetailEditor = ({
 
   const sendInvitation = () => {
     setInvitationSending(AsyncData.Loading());
+
     const query = new URLSearchParams();
     query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
     query.append("lang", locale.language);
@@ -377,13 +391,13 @@ export const MembershipDetailEditor = ({
         // Personal information are not editable while active
         .with(
           {
+            user: P.nonNullable,
             statusInfo: {
               __typename: P.union(
                 "AccountMembershipEnabledStatusInfo",
                 "AccountMembershipSuspendedStatusInfo",
               ),
             },
-            user: P.nonNullable,
           },
           accountMembership => (
             <>
@@ -429,34 +443,38 @@ export const MembershipDetailEditor = ({
                         error={error}
                         onChangeText={onChange}
                         // `email` is editable when enabled
-                        readOnly={match({
-                          accountMembership,
-                        })
+                        readOnly={match(accountMembership)
                           .with(
-                            {
-                              accountMembership: {
-                                statusInfo: {
-                                  __typename: "AccountMembershipSuspendedStatusInfo",
-                                },
-                              },
-                            },
+                            { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
+                            ({ id }) =>
+                              // can't edit the legal rep when you're not the legal rep
+                              id === currentUserAccountMembership.id
+                                ? false
+                                : accountMembership.legalRepresentative,
+                          )
+                          .with(
+                            { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
                             () => true,
                           )
-                          .with(
-                            {
-                              accountMembership: {
-                                statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                              },
-                            },
-                            ({ accountMembership }) => {
-                              // can't edit the legal rep when you're not the legal rep
-                              if (accountMembership.id !== currentUserAccountMembership.id) {
-                                return accountMembership.legalRepresentative;
-                              }
-                              return false;
-                            },
-                          )
                           .exhaustive()}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
+              <Field name="language">
+                {({ ref, value, onChange }) => (
+                  <LakeLabel
+                    label={t("membershipDetail.edit.preferredEmailLanguage")}
+                    render={id => (
+                      <LakeSelect
+                        ref={ref}
+                        id={id}
+                        icon="local-language-filled"
+                        items={accountLanguages.items}
+                        value={value}
+                        onValueChange={onChange}
                       />
                     )}
                   />
@@ -469,8 +487,8 @@ export const MembershipDetailEditor = ({
           {
             statusInfo: {
               __typename: P.union(
-                "AccountMembershipInvitationSentStatusInfo",
                 "AccountMembershipBindingUserErrorStatusInfo",
+                "AccountMembershipInvitationSentStatusInfo",
               ),
             },
           },
@@ -491,7 +509,7 @@ export const MembershipDetailEditor = ({
                           onChangeText={onChange}
                         />
 
-                        {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" ? (
+                        {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" && (
                           <>
                             <Space width={12} />
 
@@ -530,7 +548,7 @@ export const MembershipDetailEditor = ({
                               ))
                               .exhaustive()}
                           </>
-                        ) : null}
+                        )}
                       </Box>
                     )}
                   />
@@ -615,13 +633,33 @@ export const MembershipDetailEditor = ({
                   />
                 )}
               </Field>
+
+              {statusInfo.__typename === "AccountMembershipInvitationSentStatusInfo" && (
+                <Field name="language">
+                  {({ ref, value, onChange }) => (
+                    <LakeLabel
+                      label={t("membershipDetail.edit.preferredEmailLanguage")}
+                      render={id => (
+                        <LakeSelect
+                          ref={ref}
+                          id={id}
+                          icon="local-language-filled"
+                          items={accountLanguages.items}
+                          value={value}
+                          onValueChange={onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+              )}
             </>
           ),
         )
         .otherwise(() => null)}
 
-      {match({ accountCountry, editingAccountMembership })
-        .with({ accountCountry: "DEU" }, { accountCountry: "NLD" }, () => (
+      {match(accountCountry)
+        .with("DEU", "NLD", () => (
           <>
             <Field name="country">
               {({ value, error, onChange, ref }) => (
@@ -734,12 +772,7 @@ export const MembershipDetailEditor = ({
                               .with(
                                 P.intersection(
                                   { accountCountry: "DEU", country: "DEU" },
-                                  P.union(
-                                    {
-                                      canViewAccount: true,
-                                    },
-                                    { canInitiatePayment: true },
-                                  ),
+                                  P.union({ canViewAccount: true }, { canInitiatePayment: true }),
                                 ),
                                 () => true,
                               )
@@ -758,26 +791,20 @@ export const MembershipDetailEditor = ({
 
       <View style={styles.buttonGroup}>
         <LakeButtonGroup>
-          {match(editingAccountMembership)
+          {match(editingAccountMembership.statusInfo.__typename)
             .with(
-              {
-                statusInfo: {
-                  __typename: P.union(
-                    "AccountMembershipEnabledStatusInfo",
-                    "AccountMembershipInvitationSentStatusInfo",
-                    "AccountMembershipBindingUserErrorStatusInfo",
-                  ),
-                },
-              },
+              "AccountMembershipBindingUserErrorStatusInfo",
+              "AccountMembershipEnabledStatusInfo",
+              "AccountMembershipInvitationSentStatusInfo",
               () => (
                 <LakeButton
                   color="current"
                   loading={membershipUpdate.isLoading()}
+                  onPress={onPressSave}
                   disabled={
                     isEditingCurrentUserAccountMembership &&
                     !editingAccountMembership.legalRepresentative
                   }
-                  onPress={onPressSave}
                 >
                   {t("common.save")}
                 </LakeButton>
@@ -790,9 +817,7 @@ export const MembershipDetailEditor = ({
               // Can't suspend yourself
               { isEditingCurrentUserAccountMembership: true },
               // Can't suspend the account legal representative
-              {
-                editingAccountMembership: { legalRepresentative: true },
-              },
+              { editingAccountMembership: { legalRepresentative: true } },
               () => null,
             )
             .with(

@@ -26,6 +26,7 @@ import {
   isNullishOrEmpty,
 } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -121,7 +122,7 @@ const UpdateAccountForm = ({
   }>({
     accountName: {
       initialValue: account.name ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateAccountNameLength),
     },
     language: {
@@ -131,12 +132,12 @@ const UpdateAccountForm = ({
     },
     vatNumber: {
       initialValue: isCompany && isNotNullish(holderInfo.vatNumber) ? holderInfo.vatNumber : "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: toOptionalValidator(validateVatNumber),
     },
     taxIdentificationNumber: {
       initialValue: holderInfo?.taxIdentificationNumber ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: isCompany
         ? validateCompanyTaxNumber(accountCountry)
         : validateIndividualTaxNumber(accountCountry),

@@ -1,6 +1,6 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
 import { Dict } from "@swan-io/boxed";
-import { memoize } from "@swan-io/lake/src/utils/function";
+import { deriveUnion, memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { DateFormat } from "@swan-io/shared-business/src/components/DatePicker";
 import {
@@ -21,6 +21,7 @@ import localizedFormat from "dayjs/plugin/localizedFormat";
 import relativeTime from "dayjs/plugin/relativeTime";
 import utc from "dayjs/plugin/utc";
 import { ReactElement, ReactNode, cloneElement, isValidElement } from "react";
+import { AccountLanguage } from "../graphql/partner";
 import translationDE from "../locales/de.json";
 import translationEN from "../locales/en.json";
 import translationES from "../locales/es.json";
@@ -278,6 +279,28 @@ export const languages: Language[] = [
     flag: "🇫🇮",
   },
 ];
+
+const accountLanguageUnion = deriveUnion<AccountLanguage>({
+  de: true,
+  en: true,
+  es: true,
+  fr: true,
+  it: true,
+  nl: true,
+  pt: true,
+});
+
+export const accountLanguages = {
+  ...accountLanguageUnion,
+
+  items: languages.reduce<{ name: string; value: AccountLanguage }[]>((acc, language) => {
+    if (accountLanguageUnion.is(language.id)) {
+      acc.push({ name: language.native, value: language.id });
+    }
+
+    return acc;
+  }, []),
+};
 
 export const currencies = [
   "AUD",

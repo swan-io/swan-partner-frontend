@@ -2095,6 +2095,38 @@ type AddSingleUseVirtualCardSuccessForUserPayload {
   card: Card!
 }
 
+"""Input to add a SEPA trusted beneficiary"""
+input AddTrustedSepaBeneficiaryInput {
+  """Account ID of the account on which the beneficiary will be created"""
+  accountId: ID!
+
+  """IBAN of the SEPA trusted beneficiary"""
+  iban: IBAN!
+
+  """Name of the SEPA trusted beneficiary"""
+  name: String!
+
+  """
+  Label of the SEPA trusted beneficiary. If not provided, the name will be used.
+  """
+  label: String
+
+  """Beneficiary address"""
+  address: AddressInput
+
+  """When the consent flow is finished the user is redirected to this URL"""
+  consentRedirectUrl: String!
+}
+
+"""Add sepa trusted beneficiary payload"""
+union AddTrustedSepaBeneficiaryPayload = AddTrustedSepaBeneficiarySuccessPayload | ForbiddenRejection | AccountNotFoundRejection | ValidationRejection | InternalErrorRejection
+
+"""Add SEPA trusted beneficiary success payload"""
+type AddTrustedSepaBeneficiarySuccessPayload {
+  """The created trusted sepa beneficiary"""
+  trustedBeneficiary: TrustedSepaBeneficiary!
+}
+
 union AddVirtualIbanEntryPayload = AddVirtualIbanEntrySuccessPayload | AccountNotFoundRejection | BadAccountStatusRejection | ForbiddenRejection | ValidationRejection
 
 type AddVirtualIbanEntrySuccessPayload {
@@ -3013,60 +3045,6 @@ type Card {
 
   """Periodic Spending"""
   spending: Spending
-}
-
-enum CardAuthorizationOutcome {
-  Accepted
-  AccountClosed
-  AccountSuspended
-  AtmWithdrawalAmountLimitExceeded
-  AtmWithdrawalNumberLimitExceeded
-  AuthorizationConsumed
-  AuthorizationUpdated
-  AuthorizationValidityExceeded
-  CardCanceled
-  CardExpired
-  CardholderCancelation
-  CardLost
-  CardNotProvidedToCardholderOrClosed
-  CardNumberInvalid
-  CardOpposedCardStolen
-  CardOutOfOrder
-  CardTemporarilyLocked
-  CardUnknown
-  DoNotHonor
-  eMoneyAccount
-  eMoneyAccountLimitExceeded
-  IncorrectPinCodeAttemptsExceeded
-  InsufficientFunds
-  MerchantInvalid
-  MerchantShouldResubmitAuthorization
-  MiscellaneousReason
-  OriginalTransactionNotFound
-  PartialApproval
-  PartialCancelation
-  PeriodAmountLimitExceeded
-  PeriodNumberTransactionLimitExceeded
-  PinCodeInvalid
-  PinCodeValidationImpossible
-  SpendingLimitsReached
-  TechnicalError
-  TransactionAmountLimitExceeded
-  TransactionCurrencyIncorrect
-  TransactionInvalid
-  TransactionNotAuthorizedForCardholder
-  TransactionNotAuthorizedForPointOfSale
-  ThreeDsError
-  PeriodTransactionNumberLimitExceeded
-  MissingExpirationDate
-  MissingPin
-  DigitalWalletDeactivated
-  DigitalWalletEnrolmentInvalid
-  DigitalWalletTokenInvalid
-  DigitalWalletRefusal
-  DigitalWalletSuspended
-  InvalidAmount
-  CardholderCancellation
 }
 
 enum CardAuthorizationType {
@@ -4319,6 +4297,9 @@ enum ConsentPurpose {
 
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
+
+  """when returning a transaction"""
+  ReturnTransaction
 }
 
 """
@@ -5511,6 +5492,9 @@ enum FeesTypeEnum {
   Outgoing credit transfers not denominated and executed in euros on group 4 currencies
   """
   InternationalCreditTransferOutGroup4
+
+  """Outgoing credit transfers via SWIFT executed in euros"""
+  InternationalCreditTransferOutSwiftGroup1
 
   """Improper use of account"""
   ImproperUseOfAccount
@@ -6793,8 +6777,14 @@ input InitiateInternationalCreditTransferInput {
   """Target amount of the international credit transfer"""
   targetAmount: AmountInput!
 
-  """Beneficiary of the international credit transfer"""
-  internationalBeneficiary: InternationalBeneficiaryInput!
+  """if the transfer will credit a new international beneficiary"""
+  internationalBeneficiary: InternationalBeneficiaryInput
+
+  """
+  * COMING SOON *
+  if the transfer will credit an existing international beneficiary
+  """
+  trustedBeneficiaryId: ID
 
   """Transfer details"""
   internationalCreditTransferDetails: [InternationalCreditTransferDetailsInput!]!
@@ -7537,6 +7527,11 @@ input InternationalBeneficiaryInput {
   Route that Swan will use to transfer the funds
   """
   route: InternationalCreditTransferRouteInput!
+
+  """
+  Whether to save or not this beneficiary to the beneficiary list of the debited account
+  """
+  save: Boolean
 }
 
 union InternationalCreditTransferCreditor = InternationalCreditTransferOutCreditor | InternationalCreditTransferInCreditor
@@ -9549,6 +9544,13 @@ type Mutation {
   """
   addInternationalTrustedBeneficiary(input: AddInternationalTrustedBeneficiaryInput!): AddInternationalTrustedBeneficiaryPayload
 
+  """
+  Add a trusted SEPA beneficiary to an account
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  """
+  addTrustedSepaBeneficiary(input: AddTrustedSepaBeneficiaryInput!): AddTrustedSepaBeneficiaryPayload
+
   """Cancel a funding source"""
   cancelFundingSource(input: CancelFundingSourceInput!): CancelFundingSourcePayload
 
@@ -9558,6 +9560,9 @@ type Mutation {
   The user must have an account membership to the account and the permission to initiate credit transfer
   """
   cancelStandingOrder(input: CancelStandingOrderInput!): CancelStandingOrderPayload!
+
+  """Initiate several credit transfers (payment-v2)"""
+  initiateCreditTransfersV2(input: InitiateCreditTransfersInput!): InitiateCreditTransfersPayload!
 
   """
   Initiate a funding request.
@@ -9571,6 +9576,13 @@ type Mutation {
   Create an international transfer
   """
   initiateInternationalCreditTransfer(input: InitiateInternationalCreditTransferInput!): InitiateInternationalCreditTransferResponsePayload
+
+  """
+  COMING SOON
+  
+  Returns a transaction
+  """
+  returnTransaction(input: ReturnTransactionInput!): ReturnTransactionPayload!
 
   """
   Schedule a standing Order
@@ -11159,6 +11171,11 @@ enum ProductType {
   GiftsAndDonations
 }
 
+"""Thrown when a plan already has a subscription"""
+type ProjectAlreadyHasSubscriptionRejection implements Rejection {
+  message: String!
+}
+
 type ProjectCardDesigns {
   """Unique identifier of a project"""
   id: ID!
@@ -12717,6 +12734,28 @@ type ResumePhysicalCardSuccessPayload {
   physicalCard: PhysicalCard!
 
   """The consent required to resume a physical card"""
+  consent: Consent!
+}
+
+input ReturnTransactionInput {
+  """The id of the transaction to return"""
+  transactionId: String!
+
+  """URL the user is redirected to after consent has been given"""
+  consentRedirectUrl: String!
+}
+
+type ReturnTransactionNotFound implements Rejection {
+  message: String!
+}
+
+union ReturnTransactionPayload = ReturnTransactionSuccessPayload | ReturnTransactionRejection | ReturnTransactionNotFound
+
+type ReturnTransactionRejection implements Rejection {
+  message: String!
+}
+
+type ReturnTransactionSuccessPayload {
   consent: Consent!
 }
 
@@ -15572,26 +15611,18 @@ enum TransactionTypeEnum {
   """
   CheckInReturn
 
-  """
-  *COMING SOON*
-  When an International Credit Transfer credited a Swan account.
-  """
+  """When an International Credit Transfer credited a Swan account."""
   InternationalCreditTransferIn
 
-  """
-  *COMING SOON*
-  When an International Credit Transfer debited a Swan account.
-  """
+  """When an International Credit Transfer debited a Swan account."""
   InternationalCreditTransferOut
 
   """
-  *COMING SOON*
   When an International Credit Transfer credited a Swan account and Swan or the Swan debtor returned the funds.
   """
   InternationalCreditTransferInReturn
 
   """
-  *COMING SOON*
   When an International Credit Transfer debited a Swan account and Swan or the Swan debtor returned it.
   """
   InternationalCreditTransferOutReturn
@@ -16047,6 +16078,9 @@ input UpdateAccountMembershipInput {
   """Residency address of the member to be added"""
   residencyAddress: ResidencyAddressInput
 
+  """Language of the account membership"""
+  language: AccountLanguage
+
   """Tax Identification Number of the user added"""
   taxIdentificationNumber: String
 }
@@ -16408,13 +16442,15 @@ type User {
   authenticators: [Authenticator!]
 
   """
+  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
+  
   Identification status
   
   Each attempt to go through our identity verification process will update this value.
   
   This field is only available for the current user.
   """
-  identificationStatus: IdentificationStatus
+  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
 
   """
   List of identification levels available for the user.

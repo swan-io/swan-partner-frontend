@@ -12,6 +12,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { pick } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { DatePicker, isDateInRange } from "@swan-io/shared-business/src/components/DatePicker";
 import { useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
@@ -56,8 +57,8 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
     },
     firstExecutionDate: {
       initialValue: dayjs.utc().format(locale.dateFormat),
+      sanitize: trim,
       validate: validateTodayOrAfter,
-      sanitize: value => value?.trim(),
     },
     firstExecutionTime: {
       initialValue: "",
@@ -79,6 +80,7 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
     },
     lastExecutionDate: {
       initialValue: "",
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const withLastExecutionDate = getFieldValue("withLastExecutionDate");
         if (!withLastExecutionDate) {
@@ -100,7 +102,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
           return t("error.lastExecutionDateBeforeFirstExecutionDate");
         }
       },
-      sanitize: value => value?.trim(),
     },
     lastExecutionTime: {
       initialValue: "",

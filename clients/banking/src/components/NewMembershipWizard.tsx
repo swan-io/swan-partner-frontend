@@ -96,7 +96,7 @@ type Step = "Informations" | "Address";
 type FormState = {
   phoneNumber: string;
   email: string;
-  accountLanguage: AccountLanguage;
+  language: AccountLanguage;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -122,7 +122,7 @@ const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = k
 const MANDATORY_FIELDS = [
   "phoneNumber",
   "email",
-  "accountLanguage",
+  "language",
   "firstName",
   "lastName",
   "canViewAccount",
@@ -154,8 +154,9 @@ export const NewMembershipWizard = ({
       sanitize: trim,
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
-    accountLanguage: {
+    language: {
       initialValue: accountLanguages.is(locale.language) ? locale.language : "en",
+      strategy: "onChange",
       validate: validateRequired,
     },
     email: {
@@ -370,15 +371,15 @@ export const NewMembershipWizard = ({
 
   const sendInvitation = ({
     editingAccountMembershipId,
-    accountLanguage,
+    language,
   }: {
     editingAccountMembershipId: string;
-    accountLanguage: AccountLanguage;
+    language: AccountLanguage;
   }) => {
     const query = new URLSearchParams();
 
     query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", accountLanguage);
+    query.append("lang", language);
 
     const url = match(projectConfiguration)
       .with(
@@ -415,7 +416,7 @@ export const NewMembershipWizard = ({
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-          const { addressLine1, city, postalCode, country, accountLanguage } = computedValues;
+          const { addressLine1, city, postalCode, country, language } = computedValues;
 
           const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
             isNullishOrEmpty,
@@ -441,7 +442,7 @@ export const NewMembershipWizard = ({
               consentRedirectUrl:
                 window.origin + Router.AccountMembersList({ accountMembershipId }),
               email: computedValues.email,
-              language: accountLanguage,
+              language,
               residencyAddress,
               restrictedTo: {
                 firstName: computedValues.firstName,
@@ -469,10 +470,7 @@ export const NewMembershipWizard = ({
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
                     .with("EMAIL", () => {
-                      sendInvitation({
-                        editingAccountMembershipId: data.id,
-                        accountLanguage,
-                      });
+                      sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});
 
@@ -607,17 +605,17 @@ export const NewMembershipWizard = ({
 
                   <Box direction={boxDirection}>
                     <View style={fieldStyle}>
-                      <Field name="accountLanguage">
-                        {({ value, onChange, ref }) => (
+                      <Field name="language">
+                        {({ ref, value, onChange }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.preferredEmailLanguage")}
                             render={id => (
                               <LakeSelect
                                 ref={ref}
-                                icon="local-language-filled"
                                 id={id}
-                                value={value}
+                                icon="local-language-filled"
                                 items={accountLanguages.items}
+                                value={value}
                                 onValueChange={onChange}
                               />
                             )}

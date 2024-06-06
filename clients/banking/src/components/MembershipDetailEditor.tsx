@@ -3,10 +3,12 @@ import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
@@ -24,12 +26,13 @@ import { StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
+  AccountLanguage,
   AccountMembershipFragment,
   ResumeAccountMembershipDocument,
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
-import { locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -50,20 +53,18 @@ const styles = StyleSheet.create({
 });
 
 type AllowedStatuses =
+  | "AccountMembershipBindingUserErrorStatusInfo"
   | "AccountMembershipConsentPendingStatusInfo"
   | "AccountMembershipDisabledStatusInfo"
   | "AccountMembershipEnabledStatusInfo"
   | "AccountMembershipInvitationSentStatusInfo"
-  | "AccountMembershipSuspendedStatusInfo"
-  | "AccountMembershipBindingUserErrorStatusInfo";
+  | "AccountMembershipSuspendedStatusInfo";
 
 type Props = {
   accountCountry: CountryCCA3;
   editingAccountMembershipId: string;
   editingAccountMembership: AccountMembershipFragment & {
-    statusInfo: {
-      __typename: AllowedStatuses;
-    };
+    statusInfo: { __typename: AllowedStatuses };
   };
   currentUserAccountMembershipId: string;
   currentUserAccountMembership: AccountMembershipFragment;
@@ -83,6 +84,7 @@ export const MembershipDetailEditor = ({
   large,
 }: Props) => {
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
+
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [suspendMembership, membershipSuspension] = useMutation(SuspendAccountMembershipDocument);
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
@@ -133,6 +135,14 @@ export const MembershipDetailEditor = ({
         .otherwise(() => ""),
       sanitize: trim,
       validate: validateName,
+    },
+    language: {
+      initialValue: match(editingAccountMembership.language)
+        .returnType<AccountLanguage>()
+        .with(accountLanguages.P, identity)
+        .otherwise(() => "en"),
+      strategy: "onChange",
+      validate: validateRequired,
     },
     birthDate: {
       initialValue: match(editingAccountMembership)
@@ -228,53 +238,53 @@ export const MembershipDetailEditor = ({
   const onPressSave = () => {
     submitForm({
       onSuccess: values => {
-        const restrictedTo = match({
-          values: Option.allFromDict(
-            pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
-          ),
-          editingAccountMembership,
-          isEditingCurrentUser: currentUserAccountMembership.id == editingAccountMembership.id,
-        })
-          .with(
-            {
-              values: Option.P.Some(P.select()),
-              editingAccountMembership: {
-                statusInfo: {
-                  __typename: P.union(
-                    "AccountMembershipInvitationSentStatusInfo",
-                    "AccountMembershipBindingUserErrorStatusInfo",
-                    "AccountMembershipEnabledStatusInfo",
-                  ),
-                },
-              },
-              isEditingCurrentUser: false,
-            },
-            ({ firstName, lastName, phoneNumber, birthDate }) => ({
-              firstName,
-              lastName,
-              phoneNumber,
-              birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
-            }),
-          )
-          .otherwise(() => undefined);
-
         updateMembership({
           input: {
             accountMembershipId: editingAccountMembershipId,
+            language: values.language.toUndefined(),
+            email: values.email.toUndefined(),
+            taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
+
+            restrictedTo: match({
+              editingAccountMembership,
+              isEditingCurrentUser: currentUserAccountMembership.id === editingAccountMembership.id,
+              values: Option.allFromDict(
+                pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
+              ),
+            })
+              .with(
+                {
+                  values: Option.P.Some(P.select()),
+                  isEditingCurrentUser: false,
+                  editingAccountMembership: {
+                    statusInfo: {
+                      __typename: P.union(
+                        "AccountMembershipBindingUserErrorStatusInfo",
+                        "AccountMembershipEnabledStatusInfo",
+                        "AccountMembershipInvitationSentStatusInfo",
+                      ),
+                    },
+                  },
+                },
+                ({ firstName, lastName, phoneNumber, birthDate }) => ({
+                  firstName,
+                  lastName,
+                  phoneNumber,
+                  birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
+                }),
+              )
+              .otherwise(() => undefined),
+
             consentRedirectUrl:
               window.location.origin +
               Router.AccountMembersDetailsRoot({
                 accountMembershipId: currentUserAccountMembershipId,
                 editingAccountMembershipId,
               }),
-            email: values.email.toUndefined(),
 
             residencyAddress: Option.allFromDict(
               pick(values, ["addressLine1", "city", "postalCode", "country"]),
             ).toUndefined(),
-
-            restrictedTo,
-            taxIdentificationNumber: values.taxIdentificationNumber.toUndefined(),
           },
         })
           .mapOk(data => data.updateAccountMembership)
@@ -435,10 +445,6 @@ export const MembershipDetailEditor = ({
                         // `email` is editable when enabled
                         readOnly={match(accountMembership)
                           .with(
-                            { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
-                            () => true,
-                          )
-                          .with(
                             { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
                             ({ id }) =>
                               // can't edit the legal rep when you're not the legal rep
@@ -446,7 +452,29 @@ export const MembershipDetailEditor = ({
                                 ? false
                                 : accountMembership.legalRepresentative,
                           )
+                          .with(
+                            { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
+                            () => true,
+                          )
                           .exhaustive()}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
+
+              <Field name="language">
+                {({ ref, value, onChange }) => (
+                  <LakeLabel
+                    label={t("membershipDetail.edit.preferredEmailLanguage")}
+                    render={id => (
+                      <LakeSelect
+                        ref={ref}
+                        id={id}
+                        icon="local-language-filled"
+                        items={accountLanguages.items}
+                        value={value}
+                        onValueChange={onChange}
                       />
                     )}
                   />
@@ -605,6 +633,24 @@ export const MembershipDetailEditor = ({
                   />
                 )}
               </Field>
+
+              <Field name="language">
+                {({ ref, value, onChange }) => (
+                  <LakeLabel
+                    label={t("membershipDetail.edit.preferredEmailLanguage")}
+                    render={id => (
+                      <LakeSelect
+                        ref={ref}
+                        id={id}
+                        icon="local-language-filled"
+                        items={accountLanguages.items}
+                        value={value}
+                        onValueChange={onChange}
+                      />
+                    )}
+                  />
+                )}
+              </Field>
             </>
           ),
         )
@@ -752,11 +798,11 @@ export const MembershipDetailEditor = ({
                 <LakeButton
                   color="current"
                   loading={membershipUpdate.isLoading()}
+                  onPress={onPressSave}
                   disabled={
                     isEditingCurrentUserAccountMembership &&
                     !editingAccountMembership.legalRepresentative
                   }
-                  onPress={onPressSave}
                 >
                   {t("common.save")}
                 </LakeButton>

@@ -10,7 +10,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
@@ -34,7 +33,7 @@ import {
   AccountMembershipFragment,
   AddAccountMembershipDocument,
 } from "../graphql/partner";
-import { languages, locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -131,30 +130,6 @@ const MANDATORY_FIELDS = [
   "canManageBeneficiaries",
   "canManageAccountMembership",
 ] satisfies (keyof FormState)[];
-
-const accountLanguages = deriveUnion<AccountLanguage>({
-  en: true,
-  de: true,
-  fr: true,
-  it: true,
-  nl: true,
-  es: true,
-  pt: true,
-});
-
-const accountLanguageItems = languages.reduce<{ name: string; value: AccountLanguage }[]>(
-  (acc, language) => {
-    if (accountLanguages.is(language.id)) {
-      acc.push({
-        name: language.native,
-        value: language.id,
-      });
-    }
-
-    return acc;
-  },
-  [],
-);
 
 export const NewMembershipWizard = ({
   accountId,
@@ -642,7 +617,7 @@ export const NewMembershipWizard = ({
                                 icon="local-language-filled"
                                 id={id}
                                 value={value}
-                                items={accountLanguageItems}
+                                items={accountLanguages.items}
                                 onValueChange={onChange}
                               />
                             )}

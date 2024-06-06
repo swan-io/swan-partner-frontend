@@ -28,7 +28,6 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -45,7 +44,7 @@ import {
   GenerateAccountStatementDocument,
   StatementType,
 } from "../graphql/partner";
-import { languages, locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
@@ -84,16 +83,6 @@ const styles = StyleSheet.create({
   formContainerLarge: {
     paddingHorizontal: spacings[48],
   },
-});
-
-const accountLanguages = deriveUnion<AccountLanguage>({
-  de: true,
-  en: true,
-  es: true,
-  fr: true,
-  it: true,
-  nl: true,
-  pt: true,
 });
 
 const isCountryAccountLanguage = isMatching({

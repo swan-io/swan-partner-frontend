@@ -20,7 +20,6 @@ import {
   GetMerchantPaymentLinkQuery,
   InitiateCardMerchantPaymentDocument,
 } from "../graphql/unauthenticated";
-import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -30,7 +29,6 @@ import {
   MastercardLogo,
   VisaLogo,
 } from "./CardLogos";
-import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
   grow: {
@@ -61,6 +59,7 @@ type PaymentMethod = "visa" | "maestro" | "mastercard" | "american express" | "c
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   paymentMethodId: string;
+  publicKey: string;
 };
 
 type FrameEvent = {
@@ -69,7 +68,7 @@ type FrameEvent = {
   isEmpty: boolean;
 };
 
-export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
+export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) => {
   const { desktop } = useResponsive();
 
   const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
@@ -86,82 +85,78 @@ export const CardPayment = ({ paymentLink, paymentMethodId }: Props) => {
   const [paymentMethod, setPaymentMethod] = useState<Option<PaymentMethod>>(Option.None());
 
   useEffect(() => {
-    if (isNullish(env.CLIENT_CHECKOUT_API_KEY)) {
-      <ErrorView />;
-    } else {
-      Frames.init({
-        publicKey: env.CLIENT_CHECKOUT_API_KEY,
-        style: {
-          base: {
-            height: "38px",
-            paddingLeft: "12px",
-            fontFamily:
-              "Inter, -apple-system, system-ui, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji",
-            fontSize: "16px",
-            fontWeight: "normal",
-            color: "#2b2f30",
-            letterSpacing: "-0.011em",
-          },
-          placeholder: {
-            base: { color: "#737276", fontStyle: "italic" },
-          },
+    Frames.init({
+      publicKey,
+      style: {
+        base: {
+          height: "38px",
+          paddingLeft: "12px",
+          fontFamily:
+            "Inter, -apple-system, system-ui, BlinkMacSystemFont, Segoe UI, Helvetica, Arial, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji",
+          fontSize: "16px",
+          fontWeight: "normal",
+          color: "#2b2f30",
+          letterSpacing: "-0.011em",
         },
-        localization: {
-          cardNumberPlaceholder: " ",
-          cvvPlaceholder: " ",
-          expiryMonthPlaceholder: "MM",
-          expiryYearPlaceholder: "YY",
+        placeholder: {
+          base: { color: "#737276", fontStyle: "italic" },
         },
-        schemeChoice: true,
-      });
+      },
+      localization: {
+        cardNumberPlaceholder: " ",
+        cvvPlaceholder: " ",
+        expiryMonthPlaceholder: "MM",
+        expiryYearPlaceholder: "YY",
+      },
+      schemeChoice: true,
+    });
 
-      //@ts-expect-error addEventHandler isn't typed correctly
-      Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
-        match(event)
-          .with({ element: "card-number", isEmpty: true }, () => {
-            setCardNumberState("empty");
-          })
-          .with({ element: "card-number", isValid: false }, () => {
-            setCardNumberState("invalid");
-          })
-          .with({ element: "card-number", isValid: true }, () => setCardNumberState("valid"))
-          .with({ element: "expiry-date", isEmpty: true }, () => {
-            setExpiryDateState("empty");
-          })
-          .with({ element: "expiry-date", isValid: false }, () => {
-            setExpiryDateState("invalid");
-          })
-          .with({ element: "expiry-date", isValid: true }, () => setExpiryDateState("valid"))
-          .with({ element: "cvv", isEmpty: true }, () => {
-            setCvvState("empty");
-          })
-          .with({ element: "cvv", isValid: false }, () => {
-            setCvvState("invalid");
-          })
-          .with({ element: "cvv", isValid: true }, () => setCvvState("valid"))
-          .exhaustive();
-      });
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
+      match(event)
+        .with({ element: "card-number", isEmpty: true }, () => {
+          setCardNumberState("empty");
+        })
+        .with({ element: "card-number", isValid: false }, () => {
+          setCardNumberState("invalid");
+        })
+        .with({ element: "card-number", isValid: true }, () => setCardNumberState("valid"))
+        .with({ element: "expiry-date", isEmpty: true }, () => {
+          setExpiryDateState("empty");
+        })
+        .with({ element: "expiry-date", isValid: false }, () => {
+          setExpiryDateState("invalid");
+        })
+        .with({ element: "expiry-date", isValid: true }, () => setExpiryDateState("valid"))
+        .with({ element: "cvv", isEmpty: true }, () => {
+          setCvvState("empty");
+        })
+        .with({ element: "cvv", isValid: false }, () => {
+          setCvvState("invalid");
+        })
+        .with({ element: "cvv", isValid: true }, () => setCvvState("valid"))
+        .exhaustive();
+    });
 
-      //@ts-expect-error addEventHandler isn't typed correctly
-      Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
-        const cardType = event.paymentMethod;
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
+      const cardType = event.paymentMethod;
 
-        if (isNullish(cardType)) {
-          setPaymentMethod(Option.None());
-        } else {
-          match(cardType.toLowerCase())
-            .with(
-              "visa",
-              "maestro",
-              "mastercard",
-              "american express",
-              "cartes bancaires",
-              paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
-            )
-            .otherwise(() => setPaymentMethod(Option.None()));
-        }
-      });
-    }
+      if (isNullish(cardType)) {
+        setPaymentMethod(Option.None());
+      } else {
+        match(cardType.toLowerCase())
+          .with(
+            "visa",
+            "maestro",
+            "mastercard",
+            "american express",
+            "cartes bancaires",
+            paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
+          )
+          .otherwise(() => setPaymentMethod(Option.None()));
+      }
+    });
   }, []);
 
   const onPressSubmit = () => {

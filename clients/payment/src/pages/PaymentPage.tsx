@@ -8,15 +8,17 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
+import { ErrorView } from "../components/ErrorView";
 import { SddPayment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
 import { GetMerchantPaymentLinkQuery, MerchantPaymentMethodType } from "../graphql/unauthenticated";
+import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -118,9 +120,19 @@ export const PaymentPage = ({
         <Space height={24} />
 
         {match(selectedPaymentMethod)
-          .with({ name: "Card" }, ({ id }) => (
-            <CardPayment paymentLink={paymentLink} paymentMethodId={id} />
-          ))
+          .with({ name: "Card" }, ({ id }) => {
+            if (isNullish(env.CLIENT_CHECKOUT_API_KEY)) {
+              return <ErrorView />;
+            } else {
+              return (
+                <CardPayment
+                  paymentLink={paymentLink}
+                  paymentMethodId={id}
+                  publicKey={env.CLIENT_CHECKOUT_API_KEY}
+                />
+              );
+            }
+          })
           .with({ name: "Direct Debit" }, () => (
             <SddPayment
               nonEeaCountries={nonEeaCountries}

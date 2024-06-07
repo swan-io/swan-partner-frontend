@@ -327,7 +327,7 @@ export const AccountArea = ({
   const accountPickerButtonRef = useRef<View | null>(null);
   const [isAccountPickerOpen, setAccountPickerOpen] = useBoolean(false);
 
-  const accountId = accountMembership.account?.id;
+  const accountId = accountMembership.accountId;
 
   const roots = {
     history: Router.AccountTransactionsListRoot({ accountMembershipId }),
@@ -508,7 +508,7 @@ export const AccountArea = ({
                         />
                       ))
                       .with({ name: "AccountDetailsArea" }, () =>
-                        isNullish(accountId) || !features.accountVisible ? (
+                        !features.accountVisible ? (
                           <ErrorView />
                         ) : (
                           <AccountDetailsArea
@@ -523,24 +523,21 @@ export const AccountArea = ({
                       )
                       .with(
                         { name: "AccountTransactionsArea" },
-                        ({ params: { accountMembershipId } }) =>
-                          isNullish(accountId) ? (
-                            <ErrorView />
-                          ) : (
-                            <TransactionsArea
-                              accountId={accountId}
-                              accountMembershipId={accountMembershipId}
-                              canQueryCardOnTransaction={canQueryCardOnTransaction}
-                              accountStatementsVisible={features.accountStatementsVisible}
-                              canViewAccount={accountMembership.canViewAccount}
-                            />
-                          ),
+                        ({ params: { accountMembershipId } }) => (
+                          <TransactionsArea
+                            accountId={accountId}
+                            accountMembershipId={accountMembershipId}
+                            canQueryCardOnTransaction={canQueryCardOnTransaction}
+                            accountStatementsVisible={features.accountStatementsVisible}
+                            canViewAccount={accountMembership.canViewAccount}
+                          />
+                        ),
                       )
 
                       .with(
                         { name: "AccountPaymentsArea" },
                         ({ params: { consentId, standingOrder, status: consentStatus } }) =>
-                          isNullish(accountId) || isNullish(accountCountry) ? (
+                          isNullish(accountCountry) ? (
                             <ErrorView />
                           ) : (
                             <TransferArea
@@ -567,7 +564,7 @@ export const AccountArea = ({
                           accountId={accountId}
                           userId={userId}
                           refetchAccountAreaQuery={reload}
-                          canAddCard={permissions.canViewAccount && permissions.canManageCards}
+                          canAddCard={permissions.canManageCards}
                           canManageCards={permissions.canManageCards}
                           accountMembership={accountMembership}
                           canManageAccountMembership={permissions.canManageAccountMembership}
@@ -576,13 +573,10 @@ export const AccountArea = ({
                         />
                       ))
                       .with({ name: "AccountMembersArea" }, ({ params }) =>
-                        match({ accountId, accountMembership })
+                        match(accountMembership)
                           .with(
-                            {
-                              accountId: P.string,
-                              accountMembership: { account: { country: P.string } },
-                            },
-                            ({ accountId, accountMembership: currentUserAccountMembership }) => (
+                            { account: { country: P.string } },
+                            currentUserAccountMembership => (
                               <MembershipsArea
                                 accountMembershipId={accountMembershipId}
                                 accountId={accountId}

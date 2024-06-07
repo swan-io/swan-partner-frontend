@@ -17,6 +17,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import {
   AddressDetail,
   PlacekitAddressSearchInput,
@@ -114,23 +115,23 @@ export const OnboardingCompanyRegistration = ({
   const { Field, submitForm, setFieldValue, setFieldError, FieldsListener } = useForm({
     email: {
       initialValue: initialEmail,
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
-      sanitize: value => value.trim(),
     },
     address: {
       initialValue: initialAddressLine1,
+      sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
-      sanitize: value => value.trim(),
     },
     city: {
       initialValue: initialCity,
+      sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
-      sanitize: value => value.trim(),
     },
     postalCode: {
       initialValue: initialPostalCode,
+      sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
-      sanitize: value => value.trim(),
     },
     country: {
       initialValue: initialCountry,

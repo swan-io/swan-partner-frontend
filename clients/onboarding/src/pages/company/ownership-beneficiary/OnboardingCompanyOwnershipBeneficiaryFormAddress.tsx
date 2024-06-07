@@ -2,6 +2,7 @@ import { Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import {
   AddressDetail,
@@ -58,18 +59,18 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
     residencyAddressLine1: {
       initialValue: initialValues.residencyAddressLine1 ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     residencyAddressCity: {
       initialValue: initialValues.residencyAddressCity ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     residencyAddressPostalCode: {
       initialValue: initialValues.residencyAddressPostalCode ?? "",
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     residencyAddressCountry: {
       initialValue: isCountryCCA3(initialValues.residencyAddressCountry)
@@ -79,6 +80,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
     },
     taxIdentificationNumber: {
       initialValue: initialValues.taxIdentificationNumber ?? "",
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const beneficiaryCountry = getFieldValue("residencyAddressCountry");
 
@@ -94,7 +96,6 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
 
         return validateIndividualTaxNumber(accountCountry)(value);
       },
-      sanitize: value => value.trim(),
     },
   });
 

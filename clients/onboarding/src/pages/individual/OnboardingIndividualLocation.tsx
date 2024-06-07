@@ -10,6 +10,7 @@ import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useForm } from "@swan-io/use-form";
@@ -58,18 +59,18 @@ export const OnboardingIndividualLocation = ({
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
       initialValue: initialAddressLine1,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     city: {
       initialValue: initialCity,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     postalCode: {
       initialValue: initialPostalCode,
+      sanitize: trim,
       validate: validateRequired,
-      sanitize: value => value.trim(),
     },
     country: {
       initialValue: initialCountry,

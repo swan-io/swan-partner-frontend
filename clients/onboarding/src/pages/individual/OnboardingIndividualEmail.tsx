@@ -18,6 +18,7 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
@@ -84,8 +85,8 @@ export const OnboardingIndividualEmail = ({
   const { Field, submitForm, setFieldError, FieldsListener } = useForm({
     email: {
       initialValue: initialEmail,
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
-      sanitize: value => value.trim(),
     },
     tcuAccepted: {
       initialValue: !haveToAcceptTcu, // initialize as accepted if not required

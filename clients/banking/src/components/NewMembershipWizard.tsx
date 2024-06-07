@@ -10,9 +10,9 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
-import { deriveUnion } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
@@ -33,7 +33,7 @@ import {
   AccountMembershipFragment,
   AddAccountMembershipDocument,
 } from "../graphql/partner";
-import { languages, locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
@@ -96,7 +96,7 @@ type Step = "Informations" | "Address";
 type FormState = {
   phoneNumber: string;
   email: string;
-  accountLanguage: AccountLanguage;
+  language: AccountLanguage;
   firstName: string;
   lastName: string;
   birthDate: string;
@@ -122,7 +122,7 @@ const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = k
 const MANDATORY_FIELDS = [
   "phoneNumber",
   "email",
-  "accountLanguage",
+  "language",
   "firstName",
   "lastName",
   "canViewAccount",
@@ -130,30 +130,6 @@ const MANDATORY_FIELDS = [
   "canManageBeneficiaries",
   "canManageAccountMembership",
 ] satisfies (keyof FormState)[];
-
-const accountLanguages = deriveUnion<AccountLanguage>({
-  en: true,
-  de: true,
-  fr: true,
-  it: true,
-  nl: true,
-  es: true,
-  pt: true,
-});
-
-const accountLanguageItems = languages.reduce<{ name: string; value: AccountLanguage }[]>(
-  (acc, language) => {
-    if (accountLanguages.is(language.id)) {
-      acc.push({
-        name: language.native,
-        value: language.id,
-      });
-    }
-
-    return acc;
-  },
-  [],
-);
 
 export const NewMembershipWizard = ({
   accountId,
@@ -175,31 +151,32 @@ export const NewMembershipWizard = ({
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
     phoneNumber: {
       initialValue: partiallySavedValues?.phoneNumber ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: combineValidators(validateRequired, validatePhoneNumber),
     },
-    accountLanguage: {
+    language: {
       initialValue: accountLanguages.is(locale.language) ? locale.language : "en",
+      strategy: "onChange",
       validate: validateRequired,
     },
     email: {
       initialValue: partiallySavedValues?.email ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
     },
     firstName: {
       initialValue: partiallySavedValues?.firstName ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: validateName,
     },
     lastName: {
       initialValue: partiallySavedValues?.lastName ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: validateName,
     },
     birthDate: {
       initialValue: partiallySavedValues?.birthDate ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         if (
           getFieldValue("canManageCards") &&
@@ -232,7 +209,7 @@ export const NewMembershipWizard = ({
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -259,7 +236,7 @@ export const NewMembershipWizard = ({
     },
     postalCode: {
       initialValue: partiallySavedValues?.postalCode ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -283,7 +260,7 @@ export const NewMembershipWizard = ({
     },
     city: {
       initialValue: partiallySavedValues?.city ?? "",
-      sanitize: value => value.trim(),
+      sanitize: trim,
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -331,6 +308,7 @@ export const NewMembershipWizard = ({
     taxIdentificationNumber: {
       initialValue: partiallySavedValues?.taxIdentificationNumber ?? "",
       strategy: "onBlur",
+      sanitize: value => value.trim().replace(/\//g, ""),
       validate: (value, { getFieldValue }) => {
         return match({
           accountCountry,
@@ -361,7 +339,6 @@ export const NewMembershipWizard = ({
           )
           .otherwise(() => undefined);
       },
-      sanitize: value => value.trim().replace(/\//g, ""),
     },
   });
 
@@ -394,15 +371,15 @@ export const NewMembershipWizard = ({
 
   const sendInvitation = ({
     editingAccountMembershipId,
-    accountLanguage,
+    language,
   }: {
     editingAccountMembershipId: string;
-    accountLanguage: AccountLanguage;
+    language: AccountLanguage;
   }) => {
     const query = new URLSearchParams();
 
     query.append("inviterAccountMembershipId", currentUserAccountMembership.id);
-    query.append("lang", accountLanguage);
+    query.append("lang", language);
 
     const url = match(projectConfiguration)
       .with(
@@ -439,7 +416,7 @@ export const NewMembershipWizard = ({
         };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
-          const { addressLine1, city, postalCode, country, accountLanguage } = computedValues;
+          const { addressLine1, city, postalCode, country, language } = computedValues;
 
           const isAddressIncomplete = [addressLine1, city, postalCode, country].some(
             isNullishOrEmpty,
@@ -465,7 +442,7 @@ export const NewMembershipWizard = ({
               consentRedirectUrl:
                 window.origin + Router.AccountMembersList({ accountMembershipId }),
               email: computedValues.email,
-              language: accountLanguage,
+              language,
               residencyAddress,
               restrictedTo: {
                 firstName: computedValues.firstName,
@@ -493,10 +470,7 @@ export const NewMembershipWizard = ({
                 .otherwise(data => {
                   match(__env.ACCOUNT_MEMBERSHIP_INVITATION_MODE)
                     .with("EMAIL", () => {
-                      sendInvitation({
-                        editingAccountMembershipId: data.id,
-                        accountLanguage,
-                      });
+                      sendInvitation({ editingAccountMembershipId: data.id, language });
                     })
                     .otherwise(() => {});
 
@@ -631,17 +605,17 @@ export const NewMembershipWizard = ({
 
                   <Box direction={boxDirection}>
                     <View style={fieldStyle}>
-                      <Field name="accountLanguage">
-                        {({ value, onChange, ref }) => (
+                      <Field name="language">
+                        {({ ref, value, onChange }) => (
                           <LakeLabel
                             label={t("membershipDetail.edit.preferredEmailLanguage")}
                             render={id => (
                               <LakeSelect
                                 ref={ref}
-                                icon="local-language-filled"
                                 id={id}
+                                icon="local-language-filled"
+                                items={accountLanguages.items}
                                 value={value}
-                                items={accountLanguageItems}
                                 onValueChange={onChange}
                               />
                             )}

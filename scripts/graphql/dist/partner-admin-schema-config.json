@@ -91,6 +91,7 @@
       "PaymentMandateReferenceAlreadyUsedRejection",
       "PaymentMethodNotCompatibleRejection",
       "PhysicalCardWrongStatusRejection",
+      "ProjectAlreadyHasSubscriptionRejection",
       "ProjectForbiddenRejection",
       "ProjectFundingLimitExceededRejection",
       "ProjectInstantFundingLimitExceededRejection",

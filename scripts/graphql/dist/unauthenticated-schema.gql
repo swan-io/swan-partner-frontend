@@ -2283,6 +2283,9 @@ enum ConsentPurpose {
 
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
+
+  """when returning a transaction"""
+  ReturnTransaction
 }
 
 """Status of a consent"""
@@ -6027,13 +6030,15 @@ type User {
   authenticators: [Authenticator!]
 
   """
+  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
+  
   Identification status
   
   Each attempt to go through our identity verification process will update this value.
   
   This field is only available for the current user.
   """
-  identificationStatus: IdentificationStatus
+  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
 
   """
   List of identification levels available for the user.

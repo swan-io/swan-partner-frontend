@@ -1311,6 +1311,7 @@ type BrowserConsent implements DetailedConsent {
   redirectUrl: String!
   allowsServerConsent: Boolean!
   challenge: String
+  channelName: String
 }
 
 type BrowserMultiConsent implements DetailedConsent {
@@ -1337,6 +1338,7 @@ type BrowserMultiConsent implements DetailedConsent {
   redirectUrl: String!
   allowsServerConsent: Boolean!
   challenge: String
+  channelName: String
 }
 
 """Business activity."""
@@ -1791,6 +1793,7 @@ enum ConsentOperationPropertyName {
   Amount
   BeneficiaryName
   BirthDate
+  BookedDate
   CardDesignURL
   CardHolderName
   CardNumber
@@ -1903,6 +1906,9 @@ enum ConsentPurpose {
 
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
+
+  """when returning a transaction"""
+  ReturnTransaction
 }
 
 type ConsentResponse {
@@ -2199,6 +2205,9 @@ enum DetailedConsentPurpose {
 
   """if the consent is a multiple consent"""
   ConsentToMultipleConsents
+
+  """when returning a transaction"""
+  ReturnTransaction
 
   """
   if the consent originates from a oauth2 flow, the purpose should be determined from its scopes
@@ -3087,9 +3096,7 @@ enum IncomingCheckRejectionReasonCodeEnum {
   DebtorNameMissing
   AmountMismatch
   CheckReceivedLate
-  SuspiciousCheck
-  SwanTechnicalErrorOccurred
-  CheckExpiredReject
+  CheckNotReceived
 }
 
 enum IncomingInternalDirectDebitRejectReasonCodeEnum {
@@ -3718,6 +3725,9 @@ enum ManualBankingFee {
   """
   ProcessingJudicialOrAdministrativeSeizure
 
+  """SEPA creditor identifier request"""
+  SepaCreditorIdentifierRequest
+
   """Intervention fee for managing unauthorized overdrafts"""
   UnauthorizedOverdraft
 }
@@ -4121,6 +4131,13 @@ type Mutation {
 
   """Mutation to simulate a banking fee manually added by the Swan Team"""
   simulateManualBankingFee(input: SimulateManualBankingFeeInput!): SimulateManualBankingFeePayload
+
+  """
+  Mutation to simulate the start of the billing for a given project, which occurs generally when the project go Live (Partner billing)
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  simulateStartProjectBilling(input: SimulateStartProjectBillingInput!): SimulateStartProjectBillingPayload
 
   """Mutation to simulate a capital deposit case approval."""
   simulateApproveCapitalDepositCase(input: SimulateApproveCapitalDepositCaseInput!): SimulateApproveCapitalDepositCasePayload!
@@ -5382,6 +5399,11 @@ enum ProductType {
   Services
   VirtualGoods
   GiftsAndDonations
+}
+
+"""Thrown when a plan already has a subscription"""
+type ProjectAlreadyHasSubscriptionRejection implements Rejection {
+  message: String!
 }
 
 type ProjectForbiddenRejection implements Rejection {
@@ -7371,6 +7393,21 @@ input SimulateReleaseReservedBalanceInput {
 """Union of Success payload and potential rejections"""
 union SimulateReleaseReservedBalancePayload = ForbiddenRejection | TransactionNotFoundRejection | ReleaseReservedBalanceSuccessPayload
 
+input SimulateStartProjectBillingInput {
+  """Name of the company to bill"""
+  companyName: String!
+
+  """E-mail which will receive the generated invoices each month"""
+  email: String!
+}
+
+union SimulateStartProjectBillingPayload = SimulateStartProjectBillingSuccessPayload | ProjectAlreadyHasSubscriptionRejection | ForbiddenRejection
+
+type SimulateStartProjectBillingSuccessPayload {
+  """ID of the project billed"""
+  projectId: ID!
+}
+
 input SimulateUpdateMerchantPaymentMethodInput {
   merchantPaymentMethodId: ID!
   merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
@@ -8175,6 +8212,7 @@ type ThreeDsConsent implements DetailedConsent {
   maskedCardNumber: String!
   amount: AmountWithCurrency!
   challenge: String
+  channelName: String
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
@@ -8434,13 +8472,15 @@ type User {
   authenticators: [Authenticator!]
 
   """
+  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
+  
   Identification status
   
   Each attempt to go through our identity verification process will update this value.
   
   This field is only available for the current user.
   """
-  identificationStatus: IdentificationStatus
+  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
 
   """
   List of identification levels available for the user.

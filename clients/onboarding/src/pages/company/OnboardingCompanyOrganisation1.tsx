@@ -129,11 +129,9 @@ export const OnboardingCompanyOrganisation1 = ({
   const canSetTaxIdentification = match({ accountCountry, country })
     .with({ accountCountry: "DEU", country: "DEU" }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
-    .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
   const isTaxIdentificationRequired = match({ accountCountry, country })
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
-    .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({

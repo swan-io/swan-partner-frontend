@@ -112,7 +112,6 @@ export const OnboardingIndividualDetails = ({
             validateIndividualTaxNumber(accountCountry),
           )
         : undefined,
-      sanitize: value => value.trim(),
     },
   });
 

@@ -94,7 +94,7 @@ export const MembershipDetailEditor = ({
   const isEditingCurrentUserAccountMembership =
     currentUserAccountMembership.id === editingAccountMembership.id;
 
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
+  const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm({
     email: {
       initialValue: editingAccountMembership.email,
       sanitize: trim,
@@ -345,8 +345,9 @@ export const MembershipDetailEditor = ({
     setInvitationSending(AsyncData.Loading());
 
     const query = new URLSearchParams();
+
     query.append("inviterAccountMembershipId", currentUserAccountMembershipId);
-    query.append("lang", locale.language);
+    query.append("lang", getFieldValue("language"));
 
     const url = match(projectConfiguration)
       .with(

@@ -1179,7 +1179,7 @@ export const CardItemPhysicalDetails = ({
 
               <QuickActions
                 actions={[
-                  ...match({ isCurrentUserCardOwner, card })
+                  ...match({ isCurrentUserCardOwner, card, currentCard })
                     .with(
                       {
                         isCurrentUserCardOwner: true,
@@ -1189,7 +1189,6 @@ export const CardItemPhysicalDetails = ({
                               __typename: P.union(
                                 "PhysicalCardActivatedStatusInfo",
                                 "PhysicalCardToRenewStatusInfo",
-                                "PhysicalCardRenewedStatusInfo",
                               ),
                             },
                           },
@@ -1198,7 +1197,20 @@ export const CardItemPhysicalDetails = ({
                           },
                         },
                       },
-
+                      {
+                        isCurrentUserCardOwner: true,
+                        currentCard: "previous",
+                        card: {
+                          physicalCard: {
+                            statusInfo: {
+                              __typename: "PhysicalCardRenewedStatusInfo",
+                            },
+                          },
+                          accountMembership: {
+                            statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
+                          },
+                        },
+                      },
                       () => [
                         {
                           label: t("card.revealNumbers"),

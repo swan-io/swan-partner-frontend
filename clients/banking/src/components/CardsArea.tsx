@@ -1,5 +1,5 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useDeferredQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@swan-io/graphql-client";
 import { Breadcrumbs, BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -9,14 +9,10 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { Suspense, useEffect, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import {
-  AccountAreaQuery,
-  CardCountWithAccountDocument,
-  CardCountWithoutAccountDocument,
-} from "../graphql/partner";
+import { AccountAreaQuery, CardCountWithAccountDocument } from "../graphql/partner";
 import { CardListPage } from "../pages/CardListPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -61,7 +57,7 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   accountMembershipId: string;
-  accountId: string | undefined;
+  accountId: string;
   canAddCard: boolean;
   canManageCards: boolean;
   canManageAccountMembership: boolean;
@@ -73,72 +69,6 @@ type Props = {
 
 const relevantCardsFilter = {
   statuses: ["Enabled" as const, "Processing" as const, "Canceling" as const, "Canceled" as const],
-};
-// This hook is used to query Query.accountMembership.cards OR Query.cards,
-// depending on if we have access to account details (especially its id)
-const useDisplayableCardsInformation = ({
-  accountMembershipId,
-  accountId,
-}: {
-  accountMembershipId: string;
-  accountId: string | undefined;
-}) => {
-  const hasAccountId = isNotNullish(accountId);
-
-  const filtersWithAccount = useMemo(() => {
-    return {
-      statuses: relevantCardsFilter.statuses,
-      accountId,
-    } as const;
-  }, [accountId]);
-
-  const [withAccountQuery, { query: queryWithAccount }] = useDeferredQuery(
-    CardCountWithAccountDocument,
-  );
-
-  const [withoutAccountQuery, { query: queryWithoutAccount }] = useDeferredQuery(
-    CardCountWithoutAccountDocument,
-  );
-
-  useEffect(() => {
-    if (hasAccountId) {
-      queryWithAccount({
-        first: 1,
-        filters: filtersWithAccount,
-      });
-    } else {
-      queryWithoutAccount({
-        accountMembershipId,
-        first: 1,
-        filters: relevantCardsFilter,
-      });
-    }
-  }, [
-    accountMembershipId,
-    accountId,
-    hasAccountId,
-    filtersWithAccount,
-    queryWithAccount,
-    queryWithoutAccount,
-  ]);
-
-  if (hasAccountId) {
-    return withAccountQuery.mapOk(data => ({
-      onlyCardId:
-        data?.cards.totalCount === 1
-          ? Option.fromNullable(data?.cards.edges[0]?.node.id)
-          : Option.None(),
-      totalDisplayableCardCount: data?.cards.totalCount ?? 0,
-    }));
-  } else {
-    return withoutAccountQuery.mapOk(data => ({
-      onlyCardId:
-        data?.accountMembership?.cards.totalCount === 1
-          ? Option.fromNullable(data?.accountMembership?.cards.edges[0]?.node.id)
-          : Option.None(),
-      totalDisplayableCardCount: data?.accountMembership?.cards.totalCount ?? 0,
-    }));
-  }
 };
 
 export const CardsArea = ({
@@ -155,9 +85,12 @@ export const CardsArea = ({
 }: Props) => {
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
-  const data = useDisplayableCardsInformation({
-    accountMembershipId,
-    accountId,
+  const [data] = useQuery(CardCountWithAccountDocument, {
+    first: 1,
+    filters: {
+      statuses: relevantCardsFilter.statuses,
+      accountId,
+    },
   });
 
   const rootLevelCrumbs = useMemo(
@@ -174,7 +107,15 @@ export const CardsArea = ({
     return <NotFoundPage />;
   }
 
-  return match(data)
+  return match(
+    data.mapOk(data => ({
+      onlyCardId:
+        data?.cards.totalCount === 1
+          ? Option.fromNullable(data?.cards.edges[0]?.node.id)
+          : Option.None(),
+      totalDisplayableCardCount: data?.cards.totalCount ?? 0,
+    })),
+  )
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(

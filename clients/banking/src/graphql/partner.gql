@@ -313,6 +313,7 @@ query LastRelevantIdentification(
 query AccountArea($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
+    accountId
     ...AccountMembership
     account {
       IBAN

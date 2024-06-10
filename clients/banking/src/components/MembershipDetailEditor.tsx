@@ -400,89 +400,94 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          accountMembership => (
-            <>
-              <LakeLabel
-                label={t("membershipDetail.edit.birthDate")}
-                render={id => (
-                  <Rifm
-                    value={
-                      accountMembership.user.birthDate != null
-                        ? dayjs(accountMembership.user.birthDate).format(locale.dateFormat)
-                        : ""
-                    }
-                    onChange={() => {}}
-                    {...rifmDateProps}
-                  >
-                    {({ value }) => <LakeTextInput id={id} readOnly={true} value={value} />}
-                  </Rifm>
-                )}
-              />
+          accountMembership => {
+            // `email` and `language` are editable when enabled
+            const readOnly = match(accountMembership)
+              .with(
+                { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
+                ({ id }) =>
+                  // can't edit the legal rep when you're not the legal rep
+                  id === currentUserAccountMembership.id
+                    ? false
+                    : accountMembership.legalRepresentative,
+              )
+              .with(
+                { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
+                () => true,
+              )
+              .exhaustive();
 
-              <LakeLabel
-                label={t("membershipDetail.edit.phoneNumber")}
-                render={id => (
-                  <LakeTextInput
-                    id={id}
-                    readOnly={true}
-                    placeholder="+33600000000"
-                    value={accountMembership.user.mobilePhoneNumber ?? ""}
-                  />
-                )}
-              />
+            return (
+              <>
+                <LakeLabel
+                  label={t("membershipDetail.edit.birthDate")}
+                  render={id => (
+                    <Rifm
+                      value={
+                        accountMembership.user.birthDate != null
+                          ? dayjs(accountMembership.user.birthDate).format(locale.dateFormat)
+                          : ""
+                      }
+                      onChange={() => {}}
+                      {...rifmDateProps}
+                    >
+                      {({ value }) => <LakeTextInput id={id} readOnly={true} value={value} />}
+                    </Rifm>
+                  )}
+                />
 
-              <Field name="email">
-                {({ value, valid, error, onChange, ref }) => (
-                  <LakeLabel
-                    label={t("membershipDetail.edit.email")}
-                    render={id => (
-                      <LakeTextInput
-                        id={id}
-                        ref={ref}
-                        value={value}
-                        valid={valid}
-                        error={error}
-                        onChangeText={onChange}
-                        // `email` is editable when enabled
-                        readOnly={match(accountMembership)
-                          .with(
-                            { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
-                            ({ id }) =>
-                              // can't edit the legal rep when you're not the legal rep
-                              id === currentUserAccountMembership.id
-                                ? false
-                                : accountMembership.legalRepresentative,
-                          )
-                          .with(
-                            { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
-                            () => true,
-                          )
-                          .exhaustive()}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
+                <LakeLabel
+                  label={t("membershipDetail.edit.phoneNumber")}
+                  render={id => (
+                    <LakeTextInput
+                      id={id}
+                      readOnly={true}
+                      placeholder="+33600000000"
+                      value={accountMembership.user.mobilePhoneNumber ?? ""}
+                    />
+                  )}
+                />
 
-              <Field name="language">
-                {({ ref, value, onChange }) => (
-                  <LakeLabel
-                    label={t("membershipDetail.edit.preferredEmailLanguage")}
-                    render={id => (
-                      <LakeSelect
-                        ref={ref}
-                        id={id}
-                        icon="local-language-filled"
-                        items={accountLanguages.items}
-                        value={value}
-                        onValueChange={onChange}
-                      />
-                    )}
-                  />
-                )}
-              </Field>
-            </>
-          ),
+                <Field name="email">
+                  {({ value, valid, error, onChange, ref }) => (
+                    <LakeLabel
+                      label={t("membershipDetail.edit.email")}
+                      render={id => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
+                          readOnly={readOnly}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+
+                <Field name="language">
+                  {({ ref, value, onChange }) => (
+                    <LakeLabel
+                      label={t("membershipDetail.edit.preferredEmailLanguage")}
+                      render={id => (
+                        <LakeSelect
+                          ref={ref}
+                          id={id}
+                          icon="local-language-filled"
+                          items={accountLanguages.items}
+                          value={value}
+                          onValueChange={onChange}
+                          readOnly={readOnly}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
+              </>
+            );
+          },
         )
         .with(
           {

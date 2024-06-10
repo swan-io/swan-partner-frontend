@@ -142,10 +142,8 @@ export const ProjectLoginPage = ({
   const sessionExpiredWarningVisible = useRef(sessionExpired).current;
 
   useEffect(() => {
-    if (sessionExpired) {
-      Router.replace("ProjectLogin");
-    }
-  }, [sessionExpired]);
+    Router.replace("ProjectLogin");
+  }, []);
 
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();

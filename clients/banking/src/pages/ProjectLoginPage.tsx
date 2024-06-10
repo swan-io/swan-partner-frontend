@@ -22,7 +22,7 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { isMobile } from "@swan-io/lake/src/utils/userAgent";
+import { isDecentMobileDevice } from "@swan-io/lake/src/utils/userAgent";
 import { useCallback } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -143,11 +143,11 @@ export const ProjectLoginPage = ({
     const params = new URLSearchParams();
 
     params.set("projectId", projectId);
-    params.set("redirectTo", isMobile ? redirectTo : Router.PopupCallback());
+    params.set("redirectTo", isDecentMobileDevice ? redirectTo : Router.PopupCallback());
 
     const authUrl = `/auth/login?${params.toString()}`;
 
-    if (isMobile) {
+    if (isDecentMobileDevice) {
       window.location.replace(authUrl);
     } else {
       params.set("redirectTo", Router.PopupCallback());

@@ -22,8 +22,8 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { isMobile } from "@swan-io/lake/src/utils/userAgent";
-import { useCallback } from "react";
+import { isDecentMobileDevice } from "@swan-io/lake/src/utils/userAgent";
+import { useCallback, useEffect, useRef } from "react";
 import { Image, ScrollView, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
@@ -138,16 +138,23 @@ export const ProjectLoginPage = ({
   const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
   const [projectInfos] = useQuery(ProjectLoginPageDocument, { projectId, env: envType });
 
+  // we store initial sessionExpired value, then remove it from the url
+  const sessionExpiredWarningVisible = useRef(sessionExpired).current;
+
+  useEffect(() => {
+    Router.replace("ProjectLogin");
+  }, []);
+
   const handleButtonPress = useCallback(() => {
     const redirectTo = Router.ProjectRootRedirect();
     const params = new URLSearchParams();
 
     params.set("projectId", projectId);
-    params.set("redirectTo", isMobile ? redirectTo : Router.PopupCallback());
+    params.set("redirectTo", isDecentMobileDevice ? redirectTo : Router.PopupCallback());
 
     const authUrl = `/auth/login?${params.toString()}`;
 
-    if (isMobile) {
+    if (isDecentMobileDevice) {
       window.location.replace(authUrl);
     } else {
       params.set("redirectTo", Router.PopupCallback());
@@ -186,7 +193,7 @@ export const ProjectLoginPage = ({
 
           <Fill minHeight={48} />
 
-          {sessionExpired && (
+          {sessionExpiredWarningVisible && (
             <>
               <LakeAlert variant="warning" title={t("login.sessionExpired.title")} />
               <Space height={desktop ? 24 : 48} />

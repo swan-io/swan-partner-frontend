@@ -50,25 +50,21 @@ const isUnauthorizedLikeString = (value: string) => {
   return lowerCased.includes("unauthenticated") || lowerCased.includes("unauthorized");
 };
 
-export const filterOutUnauthorizedError = (clientError: ClientError) => {
+export const filterOutUnauthorizedError = (operationName: string, clientError: ClientError) => {
   if (
-    ClientError.toArray(clientError).some(error => {
-      return match(error)
+    isNullish(Router.getRoute(["ProjectLogin"])) && // We are not on the project login page
+    operationName !== "AuthStatus" && // The session expire didn't occured after a simple logged in check
+    ClientError.toArray(clientError).some(error =>
+      match(error)
         .with({ status: 401 }, () => true)
-        .with({ extensions: { response: P.select() } }, response =>
-          isUnauthorizedResponse(response),
-        )
+        .with({ extensions: { response: P.select() } }, res => isUnauthorizedResponse(res))
         .with({ message: P.select(P.string) }, message => isUnauthorizedLikeString(message))
-        .otherwise(() => false);
-    })
+        .otherwise(() => false),
+    )
   ) {
     // never resolve, this way we never trigger an error screen
-    return Future.make<Result<unknown, ClientError>>(resolve => {
-      if (isNullish(Router.getRoute(["ProjectLogin"]))) {
-        window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
-      } else {
-        resolve(Result.Error(clientError));
-      }
+    return Future.make<Result<unknown, ClientError>>(() => {
+      window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
     });
   } else {
     return Future.value(Result.Error(clientError));
@@ -107,7 +103,7 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
         })
         .otherwise(response => Result.Error(new InvalidGraphQLResponseError(response))),
     )
-    .flatMapError(filterOutUnauthorizedError)
+    .flatMapError(error => filterOutUnauthorizedError(operationName, error))
     .tapError(errors => {
       ClientError.forEach(errors, error => {
         errorToRequestId.set(error, requestId);

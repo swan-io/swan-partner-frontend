@@ -18,7 +18,7 @@ import { CardList } from "../components/CardList";
 import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
-import { CardListPageDataFragment, CardListPageDocument } from "../graphql/partner";
+import { CardListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -56,12 +56,6 @@ const PER_PAGE = 20;
 
 const ACTIVE_STATUSES = ["Processing" as const, "Enabled" as const];
 const CANCELED_STATUSES = ["Canceling" as const, "Canceled" as const];
-
-const EMPTY_CARD_FRAGMENT: CardListPageDataFragment = {
-  __typename: "CardConnection",
-  pageInfo: { __typename: "PageInfo", endCursor: null, hasNextPage: false },
-  edges: [],
-};
 
 export const CardListPage = ({
   canAddCard,

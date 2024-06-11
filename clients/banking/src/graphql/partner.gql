@@ -313,7 +313,6 @@ query LastRelevantIdentification(
 query AccountArea($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
-    accountId
     ...AccountMembership
     account {
       IBAN
@@ -1407,6 +1406,7 @@ query getStandingOrders(
 fragment AccountMembership on AccountMembership {
   __typename
   id
+  accountId
   createdAt
   updatedAt
   email

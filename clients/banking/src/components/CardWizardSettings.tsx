@@ -250,21 +250,17 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
       .with({ maxSpendingLimit: P.nonNullable }, ({ maxSpendingLimit }) =>
         Number(maxSpendingLimit.amount.value),
       )
-      .with({ accountHolderType: "AccountHolderCompanyInfo" }, () =>
-        Number(cardProduct.companySpendingLimit.amount.value),
-      )
       .with({ accountHolderType: "AccountHolderIndividualInfo" }, () =>
         Number(cardProduct.individualSpendingLimit.amount.value),
       )
-      .otherwise(() => null);
+      .otherwise(() => Number(cardProduct.companySpendingLimit.amount.value));
 
     const currency = match(accountHolder?.info.__typename)
-      .with("AccountHolderCompanyInfo", () => cardProduct.companySpendingLimit.amount.currency)
       .with(
         "AccountHolderIndividualInfo",
         () => cardProduct.individualSpendingLimit.amount.currency,
       )
-      .otherwise(() => "EUR");
+      .otherwise(() => cardProduct.companySpendingLimit.amount.currency);
 
     const [currentSettings, setCurrentSettings] = useState<DirtyCardSettings>(() => ({
       cardName: initialSettings?.cardName,

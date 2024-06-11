@@ -18,11 +18,7 @@ import { CardList } from "../components/CardList";
 import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
-import {
-  CardListPageDataFragment,
-  CardListPageWithAccountDocument,
-  CardListPageWithoutAccountDocument,
-} from "../graphql/partner";
+import { CardListPageDataFragment, CardListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -46,8 +42,6 @@ const styles = StyleSheet.create({
 type Props = {
   canAddCard: boolean;
   cardOrderVisible: boolean;
-  canManageCards: boolean;
-  canManageAccountMembership: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
@@ -68,56 +62,6 @@ const EMPTY_CARD_FRAGMENT: CardListPageDataFragment = {
   pageInfo: { __typename: "PageInfo", endCursor: null, hasNextPage: false },
   edges: [],
 };
-// This hook is used to query Query.accountMembership.cards OR Query.cards,
-// depending on if we have access to account details (especially its id)
-// and if the membership has canManageCards right
-const usePageData = ({
-  canManageAccountMembership,
-  accountMembershipId,
-  canManageCards,
-  accountId,
-  filters,
-}: {
-  canManageAccountMembership: boolean;
-  accountMembershipId: string;
-  accountId: string | undefined;
-  canManageCards: boolean;
-  filters: CardFilters;
-}) => {
-  const canQueryEveryCards =
-    isNotNullish(accountId) && canManageAccountMembership && canManageCards;
-
-  const statuses = match(filters.status)
-    .with("Active", () => ACTIVE_STATUSES)
-    .with("Canceled", () => CANCELED_STATUSES)
-    .exhaustive();
-
-  if (canQueryEveryCards) {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [data, rest] = useQuery(CardListPageWithAccountDocument, {
-      first: PER_PAGE,
-      filters: {
-        statuses,
-        types: filters.type,
-        search: filters.search,
-        accountId,
-      },
-    });
-    return [data.mapOk(data => data.cards), rest] as const;
-  } else {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const [data, rest] = useQuery(CardListPageWithoutAccountDocument, {
-      first: PER_PAGE,
-      filters: { statuses, types: filters.type, search: filters.search },
-      accountMembershipId,
-    });
-
-    return [
-      data.mapOk(data => data.accountMembership?.cards ?? EMPTY_CARD_FRAGMENT),
-      rest,
-    ] as const;
-  }
-};
 
 export const CardListPage = ({
   canAddCard,
@@ -125,8 +69,6 @@ export const CardListPage = ({
   accountMembershipId,
   accountId,
   totalDisplayableCardCount,
-  canManageCards,
-  canManageAccountMembership,
   params,
 }: Props) => {
   const filters: CardFilters = useMemo(() => {
@@ -147,12 +89,19 @@ export const CardListPage = ({
 
   const hasFilters = Object.values(filters).some(isNotNullish);
 
-  const [data, { isLoading, setVariables, reload }] = usePageData({
-    canManageAccountMembership,
-    accountMembershipId,
-    canManageCards,
-    accountId,
-    filters,
+  const statuses = match(filters.status)
+    .with("Active", () => ACTIVE_STATUSES)
+    .with("Canceled", () => CANCELED_STATUSES)
+    .exhaustive();
+
+  const [data, { isLoading, setVariables, reload }] = useQuery(CardListPageDocument, {
+    first: PER_PAGE,
+    filters: {
+      statuses,
+      types: filters.type,
+      search: filters.search,
+      accountId,
+    },
   });
 
   const empty = (
@@ -174,6 +123,8 @@ export const CardListPage = ({
       </LakeButtonGroup>
     </FixedListViewEmpty>
   );
+
+  const cards = data.mapOk(data => data.cards);
 
   if (totalDisplayableCardCount === 0 && canAddCard && cardOrderVisible) {
     return <View style={styles.empty}>{empty}</View>;
@@ -210,7 +161,7 @@ export const CardListPage = ({
             </CardListFilter>
           </Box>
 
-          {data.match({
+          {cards.match({
             NotAsked: () => null,
             Loading: () => (
               <PlainListViewPlaceholder

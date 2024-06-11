@@ -12,7 +12,7 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountAreaQuery, CardCountWithAccountDocument } from "../graphql/partner";
+import { AccountAreaQuery, CardCountDocument } from "../graphql/partner";
 import { CardListPage } from "../pages/CardListPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -59,7 +59,6 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   canAddCard: boolean;
-  canManageCards: boolean;
   canManageAccountMembership: boolean;
   cardOrderVisible: boolean;
   physicalCardOrderVisible: boolean;
@@ -76,7 +75,6 @@ export const CardsArea = ({
   accountMembershipId,
   accountId,
   canAddCard,
-  canManageCards,
   canManageAccountMembership,
   cardOrderVisible,
   physicalCardOrderVisible,
@@ -85,7 +83,7 @@ export const CardsArea = ({
 }: Props) => {
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
-  const [data] = useQuery(CardCountWithAccountDocument, {
+  const [data] = useQuery(CardCountDocument, {
     first: 1,
     filters: {
       statuses: relevantCardsFilter.statuses,
@@ -153,8 +151,6 @@ export const CardsArea = ({
                           ({ params: { accountMembershipId, new: _, ...params } }) => (
                             <CardListPage
                               accountMembershipId={accountMembershipId}
-                              canManageCards={canManageCards}
-                              canManageAccountMembership={canManageAccountMembership}
                               accountId={accountId}
                               canAddCard={canAddCard}
                               totalDisplayableCardCount={totalDisplayableCardCount}

@@ -565,7 +565,6 @@ export const AccountArea = ({
                           userId={userId}
                           refetchAccountAreaQuery={reload}
                           canAddCard={permissions.canManageCards}
-                          canManageCards={permissions.canManageCards}
                           accountMembership={accountMembership}
                           canManageAccountMembership={permissions.canManageAccountMembership}
                           cardOrderVisible={features.virtualCardOrderVisible}

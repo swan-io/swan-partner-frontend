@@ -834,10 +834,7 @@ export const CardWizard = ({
                         }) => {
                           const accountMembership = data?.accountMembership;
 
-                          if (
-                            accountMembership?.account == null ||
-                            accountMembership?.user == null
-                          ) {
+                          if (accountMembership?.user == null) {
                             return <ErrorView />;
                           }
 
@@ -845,29 +842,38 @@ export const CardWizard = ({
                             <CardWizardIndividualDelivery
                               ref={cardWizardIndividualDeliveryRef}
                               members={memberships}
-                              address={{
-                                addressLine1:
-                                  accountMembership.account.holder.residencyAddress.addressLine1 ??
-                                  "",
-                                addressLine2:
-                                  accountMembership.account.holder.residencyAddress.addressLine2,
-                                city: accountMembership.account.holder.residencyAddress.city ?? "",
-                                companyName: match(accountMembership.account.holder)
-                                  .with(
-                                    { info: { __typename: "AccountHolderCompanyInfo" } },
-                                    ({ info: { name } }) => name,
-                                  )
-                                  .otherwise(() => undefined),
-                                country:
-                                  accountMembership.account.holder.residencyAddress.country ?? "",
-                                firstName: accountMembership.user.firstName ?? "",
-                                lastName: accountMembership.user.lastName ?? "",
-                                phoneNumber: accountMembership.user.mobilePhoneNumber ?? "",
-                                postalCode:
-                                  accountMembership.account.holder.residencyAddress.postalCode ??
-                                  "",
-                                state: accountMembership.account.holder.residencyAddress.state,
-                              }}
+                              address={
+                                accountMembership.account == null
+                                  ? undefined
+                                  : {
+                                      addressLine1:
+                                        accountMembership.account.holder.residencyAddress
+                                          .addressLine1 ?? "",
+                                      addressLine2:
+                                        accountMembership.account.holder.residencyAddress
+                                          .addressLine2,
+                                      city:
+                                        accountMembership.account.holder.residencyAddress.city ??
+                                        "",
+                                      companyName: match(accountMembership.account.holder)
+                                        .with(
+                                          { info: { __typename: "AccountHolderCompanyInfo" } },
+                                          ({ info: { name } }) => name,
+                                        )
+                                        .otherwise(() => undefined),
+                                      country:
+                                        accountMembership.account.holder.residencyAddress.country ??
+                                        "",
+                                      firstName: accountMembership.user.firstName ?? "",
+                                      lastName: accountMembership.user.lastName ?? "",
+                                      phoneNumber: accountMembership.user.mobilePhoneNumber ?? "",
+                                      postalCode:
+                                        accountMembership.account.holder.residencyAddress
+                                          .postalCode ?? "",
+                                      state:
+                                        accountMembership.account.holder.residencyAddress.state,
+                                    }
+                              }
                               onSubmit={individualDeliveryConfig => {
                                 addCardsWrapper({
                                   cardProductId: cardProduct.id,

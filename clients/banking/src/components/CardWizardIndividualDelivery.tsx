@@ -39,142 +39,182 @@ type CardIndividualDeliveryConfig = {
 
 type Props = {
   members: Member[];
-  address: CompleteAddressWithContactInput;
+  address?: CompleteAddressWithContactInput;
   onSubmit: (cardDeliveryConfig: CardIndividualDeliveryConfig) => void;
 };
 
 export type CardWizardIndividualDeliveryRef = { submit: () => void };
 
+type PropsWithAddress = Omit<Props, "address"> & { address: CompleteAddressWithContactInput };
+
+const CardWizardIndividualDeliveryWithAddress = forwardRef<
+  CardWizardIndividualDeliveryRef,
+  PropsWithAddress
+>(({ members, address, onSubmit }: PropsWithAddress, ref) => {
+  const [currentCardIndividualDeliveryConfig, setCardIndividualDeliveryConfig] =
+    useState<CardIndividualDeliveryConfig>(() => members.map(member => ({ member, address })));
+
+  const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
+
+  const hasSomeError = currentCardIndividualDeliveryConfig.some(config =>
+    isNotNullish(validateAddressLine(config.address.addressLine1)),
+  );
+
+  useImperativeHandle(
+    ref,
+    () => ({
+      submit: () => {
+        if (!hasSomeError) {
+          onSubmit(currentCardIndividualDeliveryConfig);
+        }
+      },
+    }),
+    [currentCardIndividualDeliveryConfig, hasSomeError, onSubmit],
+  );
+
+  return (
+    <View>
+      {currentCardIndividualDeliveryConfig.map((config, index) => {
+        const initials =
+          config.member.user?.firstName != null && config.member.user?.lastName != null
+            ? `${config.member.user.firstName.charAt(0)}${config.member.user.lastName.charAt(0)}`
+            : undefined;
+        const hasError = isNotNullish(validateAddressLine(config.address.addressLine1));
+        return (
+          <View key={config.member.id}>
+            <Tile
+              style={hasError ? styles.erroredTile : null}
+              footer={
+                hasError ? (
+                  <LakeAlert
+                    anchored={true}
+                    variant="error"
+                    title={t("cardWizard.address.tooLong")}
+                  />
+                ) : null
+              }
+            >
+              <Box direction="row" alignItems="center">
+                <Avatar size={28} initials={initials} />
+                <Space width={24} />
+
+                <View style={commonStyles.fill}>
+                  <LakeText variant="semibold" color={colors.gray[900]}>
+                    {getMemberName({ accountMembership: config.member })}
+                  </LakeText>
+
+                  <LakeText>{config.address.addressLine1}</LakeText>
+
+                  {config.address.addressLine2 != null ? (
+                    <LakeText>{config.address.addressLine2}</LakeText>
+                  ) : null}
+
+                  <LakeText>
+                    {`${config.address.postalCode} ${config.address.city} ${
+                      config.address.state ?? ""
+                    } ${config.address.country}`.trim()}
+                  </LakeText>
+                </View>
+
+                <Fill minWidth={24} />
+
+                <LakeButton
+                  mode="tertiary"
+                  onPress={() =>
+                    setEditingAddress([
+                      {
+                        addressLine1: config.address.addressLine1,
+                        addressLine2: config.address.addressLine2 ?? undefined,
+                        postalCode: config.address.postalCode,
+                        city: config.address.city,
+                        state: config.address.state ?? undefined,
+                        country: config.address.country as CountryCCA3,
+                      },
+                      index,
+                    ])
+                  }
+                >
+                  {t("cardWizard.address.change")}
+                </LakeButton>
+              </Box>
+            </Tile>
+
+            <Space height={16} />
+          </View>
+        );
+      })}
+
+      <LakeModal visible={editingAddress != null} title={t("cardWizard.address.changeAddress")}>
+        {(() => {
+          if (editingAddress != null) {
+            const [initialAddress, editingIndex] = editingAddress;
+
+            return (
+              <CardWizardAddressForm
+                initialAddress={initialAddress}
+                onSubmit={address => {
+                  setCardIndividualDeliveryConfig(
+                    currentCardIndividualDeliveryConfig.map((item, index) => {
+                      if (editingIndex !== index) {
+                        return item;
+                      }
+                      return {
+                        ...item,
+                        address: {
+                          firstName: item.address.firstName,
+                          lastName: item.address.lastName,
+                          phoneNumber: item.address.phoneNumber,
+                          ...address,
+                        },
+                      };
+                    }),
+                  );
+                  setEditingAddress(null);
+                }}
+                onPressClose={() => setEditingAddress(null)}
+              />
+            );
+          }
+          return null;
+        })()}
+      </LakeModal>
+    </View>
+  );
+});
+
 export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliveryRef, Props>(
   ({ members, address, onSubmit }: Props, ref) => {
-    const [currentCardIndividualDeliveryConfig, setCardIndividualDeliveryConfig] =
-      useState<CardIndividualDeliveryConfig>(() => members.map(member => ({ member, address })));
-
-    const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
-
-    const hasSomeError = currentCardIndividualDeliveryConfig.some(config =>
-      isNotNullish(validateAddressLine(config.address.addressLine1)),
-    );
-
-    useImperativeHandle(
-      ref,
-      () => ({
-        submit: () => {
-          if (!hasSomeError) {
-            onSubmit(currentCardIndividualDeliveryConfig);
-          }
-        },
-      }),
-      [currentCardIndividualDeliveryConfig, hasSomeError, onSubmit],
-    );
-
+    if (address != null) {
+      return (
+        <CardWizardIndividualDeliveryWithAddress
+          ref={ref}
+          members={members}
+          address={address}
+          onSubmit={onSubmit}
+        />
+      );
+    }
     return (
-      <View>
-        {currentCardIndividualDeliveryConfig.map((config, index) => {
-          const initials =
-            config.member.user?.firstName != null && config.member.user?.lastName != null
-              ? `${config.member.user.firstName.charAt(0)}${config.member.user.lastName.charAt(0)}`
-              : undefined;
-          const hasError = isNotNullish(validateAddressLine(config.address.addressLine1));
-          return (
-            <View key={config.member.id}>
-              <Tile
-                style={hasError ? styles.erroredTile : null}
-                footer={
-                  hasError ? (
-                    <LakeAlert
-                      anchored={true}
-                      variant="error"
-                      title={t("cardWizard.address.tooLong")}
-                    />
-                  ) : null
-                }
-              >
-                <Box direction="row" alignItems="center">
-                  <Avatar size={28} initials={initials} />
-                  <Space width={24} />
-
-                  <View style={commonStyles.fill}>
-                    <LakeText variant="semibold" color={colors.gray[900]}>
-                      {getMemberName({ accountMembership: config.member })}
-                    </LakeText>
-
-                    <LakeText>{config.address.addressLine1}</LakeText>
-
-                    {config.address.addressLine2 != null ? (
-                      <LakeText>{config.address.addressLine2}</LakeText>
-                    ) : null}
-
-                    <LakeText>
-                      {`${config.address.postalCode} ${config.address.city} ${
-                        config.address.state ?? ""
-                      } ${config.address.country}`.trim()}
-                    </LakeText>
-                  </View>
-
-                  <Fill minWidth={24} />
-
-                  <LakeButton
-                    mode="tertiary"
-                    onPress={() =>
-                      setEditingAddress([
-                        {
-                          addressLine1: config.address.addressLine1,
-                          addressLine2: config.address.addressLine2 ?? undefined,
-                          postalCode: config.address.postalCode,
-                          city: config.address.city,
-                          state: config.address.state ?? undefined,
-                          country: config.address.country as CountryCCA3,
-                        },
-                        index,
-                      ])
-                    }
-                  >
-                    {t("cardWizard.address.change")}
-                  </LakeButton>
-                </Box>
-              </Tile>
-
-              <Space height={16} />
-            </View>
-          );
-        })}
-
-        <LakeModal visible={editingAddress != null} title={t("cardWizard.address.changeAddress")}>
-          {(() => {
-            if (editingAddress != null) {
-              const [initialAddress, editingIndex] = editingAddress;
-
-              return (
-                <CardWizardAddressForm
-                  initialAddress={initialAddress}
-                  onSubmit={address => {
-                    setCardIndividualDeliveryConfig(
-                      currentCardIndividualDeliveryConfig.map((item, index) => {
-                        if (editingIndex !== index) {
-                          return item;
-                        }
-                        return {
-                          ...item,
-                          address: {
-                            firstName: item.address.firstName,
-                            lastName: item.address.lastName,
-                            phoneNumber: item.address.phoneNumber,
-                            ...address,
-                          },
-                        };
-                      }),
-                    );
-                    setEditingAddress(null);
-                  }}
-                  onPressClose={() => setEditingAddress(null)}
-                />
-              );
-            }
-            return null;
-          })()}
-        </LakeModal>
-      </View>
+      <Tile>
+        <CardWizardAddressForm
+          ref={ref}
+          initialAddress={{ addressLine1: "", postalCode: "", city: "" }}
+          showButtons={false}
+          onSubmit={address =>
+            onSubmit(
+              members.map(member => ({
+                member,
+                address: {
+                  ...address,
+                  firstName: member.user?.firstName ?? "",
+                  lastName: member.user?.lastName ?? "",
+                  phoneNumber: member.user?.mobilePhoneNumber ?? "",
+                },
+              })),
+            )
+          }
+        />
+      </Tile>
     );
   },
 );

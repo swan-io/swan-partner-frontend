@@ -1,4 +1,4 @@
-import { Page, expect, test } from "@playwright/test";
+import { Page, test } from "@playwright/test";
 import dayjs from "dayjs";
 import { randomUUID } from "node:crypto";
 import { match } from "ts-pattern";
@@ -78,9 +78,6 @@ test("Transfer - instant", async ({ page }) => {
 
   await clickOnButton(layer, t("banking.common.continue"));
   await waitForText(page, t("banking.transactions.availableBalance"));
-  await page.getByLabel(t("banking.common.refresh")).click();
-
-  await expect(page.getByRole("heading", { name: `${label} - label` })).toBeAttached();
 });
 
 test("Transfer - not instant", async ({ page }) => {

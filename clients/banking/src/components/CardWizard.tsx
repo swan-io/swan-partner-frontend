@@ -391,16 +391,11 @@ export const CardWizard = ({
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
       const cardProducts = data?.projectInfo.cardProducts ?? [];
-      const accountId = accountMembership.account?.id;
 
       const canOrderPhysicalCard = step.cardFormat === "VirtualAndPhysical";
 
-      if (accountId == null) {
-        return <ErrorView />;
-      }
-
       const hasMoreThanOneMember =
-        preselectedAccountMembership != null
+        preselectedAccountMembership != null || data.accountMembership?.account == null
           ? false
           : (data.accountMembership?.account?.allMemberships.totalCount ?? 0) > 1;
 
@@ -627,7 +622,9 @@ export const CardWizard = ({
                                 const memberships =
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
-                                    : account?.memberships.edges.map(({ node }) => node) ?? [];
+                                    : account != null
+                                      ? members?.edges.map(({ node }) => node) ?? []
+                                      : [accountMembership];
 
                                 if (canOrderPhysicalCard) {
                                   setStep({

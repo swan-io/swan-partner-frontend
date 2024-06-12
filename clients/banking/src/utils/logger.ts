@@ -1,8 +1,8 @@
-import { captureException, init } from "@sentry/react";
+import { captureException, init } from "@sentry/browser";
 import { P, match } from "ts-pattern";
 import { env } from "./env";
 
-export { setUser as setSentryUser } from "@sentry/react";
+export { setUser as setSentryUser } from "@sentry/browser";
 
 export const initSentry = () => {
   init({

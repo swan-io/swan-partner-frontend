@@ -11,7 +11,7 @@ Name | Version | License | URL | VendorUrl | VendorName
 @fastify/static | 6.12.0 | MIT | https://github.com/fastify/fastify-static.git | https://github.com/fastify/fastify-static | Tommaso Allevi - @allevo
 @fastify/view | 9.1.0 | MIT | https://github.com/fastify/point-of-view.git | https://github.com/fastify/point-of-view#readme | Tomas Della Vedova - @delvedor
 @formatjs/intl | 2.10.4 | MIT | git@github.com:formatjs/formatjs.git | https://formatjs.io/ | Long Ho
-@sentry/react | 8.7.0 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/react | Sentry
+@sentry/browser | 8.9.2 | MIT | git://github.com/getsentry/sentry-javascript.git | https://github.com/getsentry/sentry-javascript/tree/master/packages/browser | Sentry
 @types/accepts | 1.3.7 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/accepts | Unknown
 @types/iban | 0.0.35 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/iban | Unknown
 @types/mustache | 4.2.5 | MIT | https://github.com/DefinitelyTyped/DefinitelyTyped.git | https://github.com/DefinitelyTyped/DefinitelyTyped/tree/master/types/mustache | Unknown
@@ -24,6 +24,7 @@ core-js | 3.37.1 | MIT | https://github.com/zloirock/core-js.git | http://zloiro
 dayjs | 1.11.11 | MIT | https://github.com/iamkun/dayjs.git | https://day.js.org/ | iamkun
 fast-proxy | 2.2.0 | MIT | git@github.com:fastify/fast-proxy.git | https://github.com/fastify/fast-proxy | Rolando Santamaria Maso
 fastify | 4.27.0 | MIT | https://github.com/fastify/fastify.git | https://fastify.dev/ | Matteo Collina
+frames-react | 1.1.0 | MIT | Unknown | Unknown | Unknown
 get-port | 5.1.1 | MIT | https://github.com/sindresorhus/get-port.git | sindresorhus.com | Sindre Sorhus
 graphql | 16.8.1 | MIT | https://github.com/graphql/graphql-js.git | https://github.com/graphql/graphql-js | Unknown
 graphql-request | 6.1.0 | MIT | https://github.com/jasonkuhrt/graphql-request.git | https://github.com/jasonkuhrt/graphql-request | Jason Kuhrt

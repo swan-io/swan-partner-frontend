@@ -1,4 +1,4 @@
-import { captureException, init } from "@sentry/react";
+import { captureException, init } from "@sentry/browser";
 import { P, match } from "ts-pattern";
 import { env } from "./env";
 

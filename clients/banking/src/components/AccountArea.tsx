@@ -36,7 +36,7 @@ import {
 } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
-import { AccountAreaQuery, IdentificationFragment } from "../graphql/partner";
+import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -139,6 +139,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  accountLanguage: AccountLanguage;
   accountMembershipId: string;
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   user: NonNullable<AccountAreaQuery["user"]>;
@@ -176,6 +177,7 @@ type Props = {
 };
 
 export const AccountArea = ({
+  accountLanguage,
   accountMembershipId,
   accountMembership,
   projectInfo,
@@ -512,11 +514,11 @@ export const AccountArea = ({
                           <ErrorView />
                         ) : (
                           <AccountDetailsArea
+                            accountLanguage={accountLanguage}
                             accountId={accountId}
                             accountMembershipId={accountMembershipId}
                             canManageAccountMembership={permissions.canManageAccountMembership}
                             virtualIbansVisible={features.virtualIbansVisible}
-                            projectName={projectName}
                             isIndividual={isIndividual}
                           />
                         ),

@@ -493,7 +493,11 @@ query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
   }
 }
 
-query AccountDetailsSettingsPage($accountId: ID!, $filters: LegalDocumentsFilterInput) {
+query AccountDetailsSettingsPage(
+  $accountId: ID!
+  $filters: LegalDocumentsFilterInput
+  $language: String!
+) {
   account(accountId: $accountId) {
     id
     country
@@ -531,6 +535,11 @@ query AccountDetailsSettingsPage($accountId: ID!, $filters: LegalDocumentsFilter
         country
       }
     }
+  }
+  projectInfo {
+    id
+    tcuDocumentUri(language: $language)
+    name
   }
 }
 

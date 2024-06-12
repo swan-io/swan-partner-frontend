@@ -128,18 +128,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
               },
               () => Option.None(),
             )
-            .with(
-              { statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } },
-              document =>
-                Option.Some({
-                  purpose: document.supportingDocumentPurpose,
-                  file: {
-                    id: document.id,
-                    name: document.statusInfo.filename,
-                    url: document.statusInfo.downloadUrl,
-                    statusInfo: { status: "Validated" },
-                  },
-                }),
+            // Hide `Validated` docs as they're results from internal upload
+            .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, () =>
+              Option.None(),
             )
             .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
               Option.Some({

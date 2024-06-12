@@ -6,6 +6,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
+import { AccountLanguage } from "../graphql/partner";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";
@@ -21,20 +22,20 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  accountLanguage: AccountLanguage;
   accountId: string;
   accountMembershipId: string;
   canManageAccountMembership: boolean;
   virtualIbansVisible: boolean;
-  projectName: string;
   isIndividual: boolean;
 };
 
 export const AccountDetailsArea = ({
+  accountLanguage,
   accountId,
   accountMembershipId,
   canManageAccountMembership,
   virtualIbansVisible,
-  projectName,
   isIndividual,
 }: Props) => {
   const route = Router.useRoute([
@@ -104,7 +105,7 @@ export const AccountDetailsArea = ({
             ))
             .with({ name: "AccountDetailsSettings" }, () => (
               <AccountDetailsSettingsPage
-                projectName={projectName}
+                accountLanguage={accountLanguage}
                 accountId={accountId}
                 largeBreakpoint={large}
                 canManageAccountMembership={canManageAccountMembership}

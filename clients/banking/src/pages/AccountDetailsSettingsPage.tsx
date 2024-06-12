@@ -103,10 +103,12 @@ const UpdateAccountForm = ({
   accountId,
   account,
   canManageAccountMembership,
+  projectInfo,
 }: {
   accountId: string;
   account: NonNullable<AccountDetailsSettingsPageQuery["account"]>;
   canManageAccountMembership: boolean;
+  projectInfo: NonNullable<AccountDetailsSettingsPageQuery["projectInfo"]>;
 }) => {
   const accountCountry = account.country ?? "FRA";
   const [updateAccount] = useMutation(UpdateAccountDocument);
@@ -315,10 +317,18 @@ const UpdateAccountForm = ({
           <LakeText>{t("accountDetails.settings.contractsDescription")}</LakeText>
           <Space height={12} />
 
-          <TileGrid>
+          <TileGrid breakpoint={500}>
             {legalDocuments.map(legalDocument => (
-              <Contract to={legalDocument}>{t("accountDetails.swanTermsAndConditions")}</Contract>
+              <Contract key={legalDocument} to={legalDocument}>
+                {t("accountDetails.swanTermsAndConditions")}
+              </Contract>
             ))}
+
+            <Contract to={projectInfo.tcuDocumentUri}>
+              {t("accountDetails.settings.partnershipConditions", {
+                projectName: projectInfo.name,
+              })}
+            </Contract>
           </TileGrid>
         </>
       ) : null}
@@ -382,14 +392,14 @@ const UpdateAccountForm = ({
 };
 
 type Props = {
-  projectName: string;
+  accountLanguage: AccountLanguage;
   accountId: string;
   canManageAccountMembership: boolean;
   largeBreakpoint: boolean;
 };
 
 export const AccountDetailsSettingsPage = ({
-  // projectName,
+  accountLanguage,
   accountId,
   canManageAccountMembership,
   largeBreakpoint,
@@ -397,6 +407,7 @@ export const AccountDetailsSettingsPage = ({
   const [data] = useQuery(AccountDetailsSettingsPageDocument, {
     accountId,
     filters: { status: "Active", type: "SwanTCU" },
+    language: accountLanguage,
   });
 
   return (
@@ -404,7 +415,7 @@ export const AccountDetailsSettingsPage = ({
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <TilePlaceholder />)
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account }) =>
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ account, projectInfo }) =>
           isNullish(account) ? (
             <NotFoundPage />
           ) : (
@@ -412,6 +423,7 @@ export const AccountDetailsSettingsPage = ({
               accountId={accountId}
               account={account}
               canManageAccountMembership={canManageAccountMembership}
+              projectInfo={projectInfo}
             />
           ),
         )

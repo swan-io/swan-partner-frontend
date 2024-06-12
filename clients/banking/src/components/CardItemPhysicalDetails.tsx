@@ -1182,7 +1182,7 @@ export const CardItemPhysicalDetails = ({
                   {
                     currentCard: "previous",
                     physicalCard: {
-                      previousPhysicalCards: [{ isExpired: true }],
+                      previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
                     },
                   },
                   () => null,
@@ -1402,7 +1402,7 @@ export const CardItemPhysicalDetails = ({
                         "PhysicalCardToRenewStatusInfo",
                       ),
                     },
-                    previousPhysicalCards: [{ isExpired: true }],
+                    previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
                   },
                   () =>
                     currentCard === "renewed" && (
@@ -1515,7 +1515,7 @@ export const CardItemPhysicalDetails = ({
                           ),
                         ),
                       },
-                      previousPhysicalCards: [{ isExpired: true }],
+                      previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
                     },
                   },
                   () =>

@@ -17,7 +17,7 @@ import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -26,7 +26,6 @@ import { SuccessPage } from "../pages/SuccessPage";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
-import { Redirect } from "./Redirect";
 
 const styles = StyleSheet.create({
   base: {
@@ -69,12 +68,6 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
   const [data] = useQuery(GetMerchantPaymentLinkDocument, { paymentLinkId });
 
-  useEffect(() => {
-    if (isNotNullish(mandateUrl)) {
-      Router.replace("PaymentSuccess", { paymentLinkId });
-    }
-  }, [mandateUrl, paymentLinkId]);
-
   return (
     <View style={styles.base}>
       {match(data)
@@ -91,7 +84,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
             const { merchantPaymentLink, nonEEACountries } = paymentLink;
             const { cancelRedirectUrl, merchantProfile, statusInfo } = merchantPaymentLink;
             const { merchantLogoUrl, merchantName } = merchantProfile;
-            const status = isNullish(mandateUrl) ? statusInfo.status : "Completed";
+            const mandateUrlStatus = isNullish(mandateUrl) ? statusInfo.status : "Completed";
 
             return (
               <ScrollView contentContainerStyle={styles.content}>
@@ -145,21 +138,24 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
                 <Space height={24} />
 
-                {match({ route: route?.name, status })
-                  .with({ route: "PaymentForm", status: "Active" }, () => (
-                    <PaymentPage
-                      paymentLink={merchantPaymentLink}
-                      setMandateUrl={setMandateUrl}
-                      nonEeaCountries={nonEEACountries}
-                    />
+                {match({ route: route?.name, mandateUrlStatus })
+                  .with({ route: "PaymentForm", mandateUrlStatus: "Active" }, () =>
+                    match(merchantPaymentLink.paymentMethods)
+                      .with([P.nonNullable, ...P.array()], merchantPaymentMethods => (
+                        <PaymentPage
+                          merchantPaymentMethods={merchantPaymentMethods}
+                          paymentLink={merchantPaymentLink}
+                          setMandateUrl={setMandateUrl}
+                          nonEeaCountries={nonEEACountries}
+                        />
+                      ))
+                      .otherwise(() => <ErrorView />),
+                  )
+                  .with({ route: "PaymentSuccess", mandateUrlStatus: "Completed" }, () => (
+                    <SuccessPage mandateUrl={mandateUrl} />
                   ))
-                  .with({ route: "PaymentSuccess", status: "Completed" }, () => (
-                    <SuccessPage paymentLink={merchantPaymentLink} mandateUrl={mandateUrl} />
-                  ))
-                  .with({ route: "PaymentSuccess" }, () => (
-                    <Redirect to={Router.PaymentForm({ paymentLinkId })} />
-                  ))
-                  .with({ status: "Expired" }, () => (
+                  .with({ route: "PaymentSuccess" }, () => <SuccessPage />)
+                  .with({ mandateUrlStatus: "Expired" }, () => (
                     <ExpiredPage paymentLink={merchantPaymentLink} />
                   ))
                   .otherwise(() => (

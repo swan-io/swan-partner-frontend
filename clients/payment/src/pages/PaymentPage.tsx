@@ -1,39 +1,25 @@
-import { Dict, Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { Array, Option } from "@swan-io/boxed";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
+import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { trim } from "@swan-io/lake/src/utils/string";
-import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import {
-  printIbanFormat,
-  validateIban,
-  validateRequired,
-} from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, useForm } from "@swan-io/use-form";
-import { electronicFormat } from "iban";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
+import { CardPayment } from "../components/CardPayment";
+import { ErrorView } from "../components/ErrorView";
+import { SddPayment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
-import {
-  AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
-  GetMerchantPaymentLinkQuery,
-  InitiateSddPaymentCollectionDocument,
-  Language,
-} from "../graphql/unauthenticated";
-import { locale, t } from "../utils/i18n";
+import { GetMerchantPaymentLinkQuery, MerchantPaymentMethodType } from "../graphql/unauthenticated";
+import { env } from "../utils/env";
+import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
   segmentedControlDesktop: {
@@ -42,348 +28,120 @@ const styles = StyleSheet.create({
   segmentedControl: {
     maxWidth: "100%",
   },
-  grow: {
-    flexGrow: 1,
-  },
+  // grow: {
+  //   flexGrow: 1,
+  // },
 });
-
-type FormState = {
-  paymentMethod: "SepaDirectDebitCore";
-  iban: string;
-  country: CountryCCA3;
-  name: string;
-  addressLine1: string;
-  city: string;
-  postalCode: string;
-};
 
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   setMandateUrl: (value: string) => void;
   nonEeaCountries: string[];
+  merchantPaymentMethods: { type: MerchantPaymentMethodType; id: string }[];
 };
 
-const fieldToPathMap = {
-  paymentMethod: ["paymentMethod"],
-  iban: ["debtor", "iban"],
-  name: ["debtor", "name"],
-  country: ["address", "country"],
-  addressLine1: ["address", "addressLine1"],
-  city: ["address", "city"],
-  postalCode: ["address", "postalCode"],
-} as const;
-
-export const PaymentPage = ({ paymentLink, setMandateUrl, nonEeaCountries }: Props) => {
+export const PaymentPage = ({
+  paymentLink,
+  setMandateUrl,
+  nonEeaCountries,
+  merchantPaymentMethods,
+}: Props) => {
   const { desktop } = useResponsive();
 
-  const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
-    paymentMethod: {
-      initialValue: "SepaDirectDebitCore",
-    },
-    iban: {
-      initialValue: paymentLink?.customer?.iban ?? "",
-      sanitize: electronicFormat,
-      validate: combineValidators(validateRequired, validateIban),
-    },
-    country: {
-      initialValue: "FRA",
-      validate: validateRequired,
-    },
-    name: {
-      initialValue: paymentLink.customer?.name ?? "",
-      sanitize: trim,
-      validate: validateRequired,
-    },
-    addressLine1: {
-      initialValue: paymentLink.billingAddress?.addressLine1 ?? "",
-      sanitize: trim,
-      validate: (value, { getFieldValue }) => {
-        const country = getFieldValue("country");
-        if (nonEeaCountries.includes(country)) {
-          return validateRequired(value);
-        }
-      },
-    },
-    city: {
-      initialValue: paymentLink.billingAddress?.city ?? "",
-      sanitize: trim,
-      validate: (value, { getFieldValue }) => {
-        const country = getFieldValue("country");
-        if (nonEeaCountries.includes(country)) {
-          return validateRequired(value);
-        }
-      },
-    },
-    postalCode: {
-      initialValue: paymentLink.billingAddress?.postalCode ?? "",
-      sanitize: trim,
-      validate: (value, { getFieldValue }) => {
-        const country = getFieldValue("country");
-        if (nonEeaCountries.includes(country)) {
-          return validateRequired(value);
-        }
-      },
-    },
-  });
+  const distinctPaymentMethods = [
+    ...new Set(
+      Array.filterMap(merchantPaymentMethods, paymentMethod => {
+        return match(paymentMethod)
+          .returnType<Option<{ type: "Card" | "SepaDirectDebitB2b"; id: string }>>()
+          .with({ type: "Card" }, () => Option.Some({ type: "Card", id: paymentMethod.id }))
+          .with({ type: P.union("SepaDirectDebitB2b", "SepaDirectDebitCore") }, () =>
+            Option.Some({ type: "SepaDirectDebitB2b", id: paymentMethod.id }),
+          )
+          .otherwise(() => Option.None());
+      }),
+    ),
+  ];
 
-  const [addSepaDirectDebitPaymentMandate, addSepaDirectDebitPaymentMandateData] = useMutation(
-    AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
+  const paymentMethods = Array.filterMap(distinctPaymentMethods, distinctPaymentMethods =>
+    match(distinctPaymentMethods)
+      .with({ type: "Card" }, () =>
+        Option.Some({
+          id: distinctPaymentMethods.id,
+          name: "Card",
+          icon: <Icon name="lake-card" size={24} />,
+        }),
+      )
+      .with({ type: "SepaDirectDebitB2b" }, () =>
+        Option.Some({
+          id: distinctPaymentMethods.id,
+          name: "Direct Debit",
+          icon: <SepaLogo height={15} />,
+        }),
+      )
+      .exhaustive(),
   );
 
-  const [initiateSddPaymentCollection, initiateSddPaymentCollectionData] = useMutation(
-    InitiateSddPaymentCollectionDocument,
-  );
-
-  const onPressSubmit = () => {
-    submitForm({
-      onSuccess: values => {
-        const option = Option.allFromDict(values);
-
-        if (option.isSome()) {
-          const { name, addressLine1, city, country, postalCode, iban } = option.get();
-
-          return addSepaDirectDebitPaymentMandate({
-            input: {
-              paymentLinkId: paymentLink.id,
-              debtor: {
-                iban,
-                name,
-                address: {
-                  addressLine1,
-                  country,
-                  city,
-                  postalCode,
-                },
-              },
-              language: locale.language as Language,
-            },
-          })
-            .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
-            .mapOkToResult(filterRejectionsToResult)
-            .mapOk(data => data.paymentMandate)
-            .flatMapOk(paymentMandate =>
-              initiateSddPaymentCollection({
-                input: {
-                  mandateId: paymentMandate.id,
-                  paymentLinkId: paymentLink.id,
-                },
-              })
-                .mapOk(
-                  data => data.unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink,
-                )
-                .mapOkToResult(filterRejectionsToResult)
-                .mapOk(() => paymentMandate.mandateDocumentUrl),
-            )
-            .tapOk(mandateUrl => {
-              setMandateUrl(mandateUrl);
-            })
-            .tapError(error => {
-              match(error)
-                .with(
-                  { __typename: "ValidationRejection", fields: P.nonNullable },
-                  ({ fields }) => {
-                    let fieldToFocus: keyof FormState | undefined;
-                    fields.forEach(field => {
-                      Dict.entries(fieldToPathMap).forEach(([fieldName, path]) => {
-                        match(field.path)
-                          .with(path, () => {
-                            setFieldError(fieldName, t("form.invalidField"));
-                            if (fieldToFocus == null) {
-                              fieldToFocus = fieldName;
-                            }
-                          })
-                          .otherwise(() => {});
-                      });
-                    });
-                    if (fieldToFocus != null) {
-                      focusField(fieldToFocus);
-                    }
-                  },
-                )
-                .otherwise(error =>
-                  showToast({ variant: "error", error, title: translateError(error) }),
-                );
-            });
-        }
-      },
-    });
-  };
-
-  const merchantName = paymentLink.merchantProfile.merchantName;
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
 
   return (
     <>
-      <LakeText variant="medium" align="center" color={colors.gray[700]}>
-        {paymentLink.label}
-      </LakeText>
+      <WithPartnerAccentColor
+        color={paymentLink.merchantProfile.accentColor ?? invariantColors.defaultAccentColor}
+      >
+        <LakeText variant="medium" align="center" color={colors.gray[700]}>
+          {paymentLink.label}
+        </LakeText>
 
-      <Space height={12} />
+        <Space height={12} />
 
-      <LakeHeading variant="h1" level={2} align="center">
-        {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
-      </LakeHeading>
+        <LakeHeading variant="h1" level={2} align="center">
+          {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
+        </LakeHeading>
 
-      <Space height={32} />
+        <Space height={32} />
 
-      <Field name="paymentMethod">
-        {({ value, onChange }) => (
+        {isNotNullish(selectedPaymentMethod) && (
           <LakeLabel
             style={desktop ? styles.segmentedControlDesktop : styles.segmentedControl}
             label={t("paymentLink.paymentMethod")}
             render={() => (
               <SegmentedControl
                 mode="desktop"
-                selected={value}
-                items={[
-                  {
-                    id: "SepaDirectDebitCore",
-                    name: "Direct Debit",
-                    icon: <SepaLogo height={15} />,
-                  },
-                ]}
-                onValueChange={onChange}
+                selected={selectedPaymentMethod.id}
+                items={paymentMethods}
+                onValueChange={id => {
+                  setSelectedPaymentMethod(paymentMethods.find(method => method.id === id));
+                }}
               />
             )}
           />
         )}
-      </Field>
 
-      <Space height={24} />
+        <Space height={24} />
 
-      <Field name="iban">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.iban")}
-            render={() => (
-              <LakeTextInput
-                value={printIbanFormat(value)}
-                valid={valid}
-                error={error}
-                onBlur={onBlur}
-                onChangeText={onChange}
-                ref={ref}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="country">
-        {({ value, error, onChange, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.country")}
-            render={id => (
-              <CountryPicker
-                id={id}
-                countries={allCountries}
-                value={value}
-                onValueChange={onChange}
-                error={error}
-                ref={ref}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="name">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.name")}
-            render={() => (
-              <LakeTextInput
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                ref={ref}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="addressLine1">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("paymentLink.addressLine1")}
-            render={() => (
-              <LakeTextInput
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-                ref={ref}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Box direction={desktop ? "row" : "column"}>
-        <Box style={styles.grow}>
-          <Field name="city">
-            {({ value, valid, error, onChange, onBlur, ref }) => (
-              <LakeLabel
-                label={t("paymentLink.city")}
-                render={() => (
-                  <LakeTextInput
-                    value={value}
-                    valid={valid}
-                    error={error}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    ref={ref}
-                  />
-                )}
-              />
-            )}
-          </Field>
-        </Box>
-
-        <Space width={24} />
-
-        <Box style={styles.grow}>
-          <Field name="postalCode">
-            {({ value, valid, error, onChange, onBlur, ref }) => (
-              <LakeLabel
-                label={t("paymentLink.postalCode")}
-                render={() => (
-                  <LakeTextInput
-                    value={value}
-                    valid={valid}
-                    error={error}
-                    onChangeText={onChange}
-                    onBlur={onBlur}
-                    ref={ref}
-                  />
-                )}
-              />
-            )}
-          </Field>
-        </Box>
-      </Box>
-
-      <Space height={32} />
-
-      <LakeButton
-        color="current"
-        onPress={onPressSubmit}
-        loading={
-          addSepaDirectDebitPaymentMandateData.isLoading() ||
-          initiateSddPaymentCollectionData.isLoading()
-        }
-      >
-        {t("button.pay")}
-      </LakeButton>
-
-      <Space height={32} />
-
-      <LakeText color={colors.gray[700]} align="center" variant="smallRegular">
-        {t("paymentLink.termsAndConditions", { merchantName })}
-      </LakeText>
+        {match(selectedPaymentMethod)
+          .with({ name: "Card" }, ({ id }) => {
+            if (isNullish(env.CLIENT_CHECKOUT_API_KEY)) {
+              return <ErrorView />;
+            } else {
+              return (
+                <CardPayment
+                  paymentLink={paymentLink}
+                  paymentMethodId={id}
+                  publicKey={env.CLIENT_CHECKOUT_API_KEY}
+                />
+              );
+            }
+          })
+          .with({ name: "Direct Debit" }, () => (
+            <SddPayment
+              nonEeaCountries={nonEeaCountries}
+              paymentLink={paymentLink}
+              setMandateUrl={setMandateUrl}
+            />
+          ))
+          .otherwise(() => null)}
+      </WithPartnerAccentColor>
     </>
   );
 };

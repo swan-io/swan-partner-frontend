@@ -8,6 +8,7 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
       status
     }
     merchantProfile {
+      accentColor
       merchantLogoUrl
       merchantName
       merchantPaymentMethods {
@@ -41,6 +42,7 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
     }
     paymentMethods {
       type
+      id
     }
   }
 }
@@ -74,6 +76,46 @@ mutation InitiateSddPaymentCollection(
     }
     ... on InternalErrorRejection {
       message
+    }
+    ... on ValidationRejection {
+      fields {
+        code
+        message
+        path
+      }
+    }
+  }
+}
+
+mutation AddCardPaymentMandate($input: AddCardPaymentMandateInput!) {
+  unauthenticatedAddCardPaymentMandate(input: $input) {
+    __typename
+    ... on AddCardPaymentMandateSuccessPayload {
+      paymentMandate {
+        id
+        __typename
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation InitiateCardMerchantPayment(
+  $input: UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput!
+) {
+  unauthenticatedInitiateMerchantCardPaymentFromPaymentLink(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+    ... on ValidationRejection {
+      fields {
+        code
+        message
+        path
+      }
     }
   }
 }

@@ -1,0 +1,20 @@
+.card-number-frame,
+.expiry-date-frame,
+.cvv-frame {
+  height: var(--spacing-40);
+  background-color: #fff;
+  height: 40px;
+  border-radius: 6px;
+  border-style: solid;
+  border-width: 1px;
+  border-color: #e8e7e8;
+  box-sizing: border-box;
+  display: "flex";
+  flex-grow: 1;
+}
+
+.card-number-frame-with-logo {
+  border-right-width: 0;
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+}

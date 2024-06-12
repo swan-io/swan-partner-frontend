@@ -6,9 +6,8 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
-import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -29,10 +28,9 @@ const styles = StyleSheet.create({
 
 type Props = {
   mandateUrl?: string;
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
 };
 
-export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
+export const SuccessPage = ({ mandateUrl }: Props) => {
   const { desktop } = useResponsive();
 
   return (
@@ -48,21 +46,11 @@ export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
         {t("paymentLink.success.subtitle")}
       </LakeText>
 
-      <Space height={32} />
+      {isNotNullishOrEmpty(mandateUrl) && (
+        <>
+          <Space height={32} />
 
-      <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
-        <LakeButton
-          ariaLabel={t("paymentLink.button.returnToWebsite")}
-          mode="secondary"
-          href={paymentLink.redirectUrl}
-        >
-          {t("paymentLink.button.returnToWebsite")}
-        </LakeButton>
-
-        {isNotNullish(mandateUrl) && (
-          <>
-            <Space height={12} width={16} />
-
+          <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
             <LakeButton
               color="current"
               ariaLabel={t("paymentLink.button.downloadMandate")}
@@ -72,9 +60,9 @@ export const SuccessPage = ({ paymentLink, mandateUrl }: Props) => {
             >
               {t("paymentLink.button.downloadMandate")}
             </LakeButton>
-          </>
-        )}
-      </Box>
+          </Box>
+        </>
+      )}
     </Box>
   );
 };

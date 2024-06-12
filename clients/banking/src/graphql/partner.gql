@@ -728,7 +728,7 @@ fragment CardListPageData on CardConnection {
   }
 }
 
-query CardListPageWithAccount($filters: CardFiltersInput, $first: Int!, $after: String) {
+query CardListPage($filters: CardFiltersInput, $first: Int!, $after: String) {
   cards(
     filters: $filters
     orderBy: { field: createdAt, direction: Desc }
@@ -739,7 +739,7 @@ query CardListPageWithAccount($filters: CardFiltersInput, $first: Int!, $after: 
   }
 }
 
-query CardListPageWithoutAccount(
+query AccountMembershipCardListPage(
   $accountMembershipId: ID!
   $filters: CardFiltersInput
   $first: Int!
@@ -759,28 +759,13 @@ query CardListPageWithoutAccount(
   }
 }
 
-query CardCountWithAccount($filters: CardFiltersInput, $first: Int!) {
+query CardCount($filters: CardFiltersInput, $first: Int!) {
   cards(filters: $filters, orderBy: { field: createdAt, direction: Desc }, first: $first) {
     totalCount
     edges {
       cursor
       node {
         id
-      }
-    }
-  }
-}
-
-query CardCountWithoutAccount($accountMembershipId: ID!, $filters: CardFiltersInput, $first: Int!) {
-  accountMembership(id: $accountMembershipId) {
-    id
-    cards(filters: $filters, orderBy: { field: createdAt, direction: Desc }, first: $first) {
-      totalCount
-      edges {
-        cursor
-        node {
-          id
-        }
       }
     }
   }

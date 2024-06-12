@@ -15,7 +15,10 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { AccountMembershipFragment, CardListPageWithoutAccountDocument } from "../graphql/partner";
+import {
+  AccountMembershipCardListPageDocument,
+  AccountMembershipFragment,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CardList } from "./CardList";
@@ -96,11 +99,14 @@ export const AccountMembersDetailsCardList = ({
     .with("Canceled", () => CANCELED_STATUSES)
     .exhaustive();
 
-  const [data, { isLoading, reload, setVariables }] = useQuery(CardListPageWithoutAccountDocument, {
-    first: PER_PAGE,
-    filters: { statuses, types: filters.type, search: filters.search },
-    accountMembershipId: editingAccountMembershipId,
-  });
+  const [data, { isLoading, reload, setVariables }] = useQuery(
+    AccountMembershipCardListPageDocument,
+    {
+      first: PER_PAGE,
+      filters: { statuses, types: filters.type, search: filters.search },
+      accountMembershipId: editingAccountMembershipId,
+    },
+  );
 
   const empty = (
     <FixedListViewEmpty

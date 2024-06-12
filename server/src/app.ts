@@ -776,6 +776,25 @@ export const start = async ({
   });
 
   /**
+   * Log request issue to mezmo
+   */
+  app.post("/api/errors/report", async (request, reply) => {
+    const success = Option.fromNullable(request.body)
+      .flatMap(body => (typeof body === "string" ? Option.Some(body) : Option.None()))
+      .toResult("Invalid body")
+      .flatMap(body => Result.fromExecution(() => JSON.parse(body) as unknown))
+      .tapOk(body => {
+        request.log.warn({
+          name: "ClientSideError",
+          contents: body,
+        });
+      })
+      .isOk();
+
+    return reply.send({ success });
+  });
+
+  /**
    * Exposes environement variables to the client apps at runtime.
    * The client simply has to load `<script src="/env.js"></script>`
    */

@@ -106,6 +106,16 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
     .flatMapError(error => filterOutUnauthorizedError(operationName, error))
     .tapError(errors => {
       ClientError.forEach(errors, error => {
+        try {
+          navigator.sendBeacon(
+            "/api/errors/report",
+            JSON.stringify({
+              clientRequestId: requestId,
+              clientErrorName: error.name,
+              clientErrorMessage: error.message,
+            }),
+          );
+        } catch (err) {}
         errorToRequestId.set(error, requestId);
       });
     });

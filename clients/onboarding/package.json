@@ -13,7 +13,7 @@
   "dependencies": {
     "@formatjs/intl": "2.10.4",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/react": "8.7.0",
+    "@sentry/browser": "8.9.2",
     "@swan-io/boxed": "2.3.0",
     "@swan-io/chicane": "2.0.0",
     "@swan-io/graphql-client": "0.1.4",

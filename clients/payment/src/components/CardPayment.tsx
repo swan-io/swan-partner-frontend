@@ -22,13 +22,7 @@ import {
 } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import {
-  AmericanExpressLogo,
-  CarteBancaireLogo,
-  MaestroLogo,
-  MastercardLogo,
-  VisaLogo,
-} from "./CardLogos";
+import { CarteBancaireLogo, MaestroLogo, MastercardLogo, VisaLogo } from "./CardLogos";
 
 const styles = StyleSheet.create({
   grow: {
@@ -54,7 +48,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type PaymentMethod = "visa" | "maestro" | "mastercard" | "american express" | "cartes bancaires";
+type PaymentMethod = "visa" | "maestro" | "mastercard" | "cartes bancaires";
 
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
@@ -76,8 +70,9 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
   const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
 
   type FieldState = "untouched" | "empty" | "invalid" | "valid";
+  type CardFieldState = FieldState | "cardNotSupported";
 
-  const [cardNumberState, setCardNumberState] = useState<FieldState>("untouched");
+  const [cardNumberState, setCardNumberState] = useState<CardFieldState>("untouched");
   const [expiryDateState, setExpiryDateState] = useState<FieldState>("untouched");
   const [cvvState, setCvvState] = useState<FieldState>("untouched");
 
@@ -137,22 +132,19 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
         .with({ element: "cvv", isValid: true }, () => setCvvState("valid"))
         .exhaustive();
     });
-
     //@ts-expect-error addEventHandler isn't typed correctly
     Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
       const cardType = event.paymentMethod;
+      if (cardType === "American Express") {
+        setCardNumberState("cardNotSupported");
+      }
 
       if (isNullish(cardType)) {
         setPaymentMethod(Option.None());
       } else {
         match(cardType.toLowerCase())
-          .with(
-            "visa",
-            "maestro",
-            "mastercard",
-            "american express",
-            "cartes bancaires",
-            paymentMethod => setPaymentMethod(Option.Some(paymentMethod)),
+          .with("visa", "maestro", "mastercard", "cartes bancaires", paymentMethod =>
+            setPaymentMethod(Option.Some(paymentMethod)),
           )
           .otherwise(() => setPaymentMethod(Option.None()));
       }
@@ -216,7 +208,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                 <div
                   className={`card-number-frame ${paymentMethod.isSome() ? "card-number-frame-with-logo" : ""}`}
                   style={match(cardNumberState)
-                    .with("invalid", "empty", () => ({
+                    .with("invalid", "empty", "cardNotSupported", () => ({
                       borderColor: colors.negative[400],
                     }))
                     .with("untouched", "valid", () => undefined)
@@ -227,11 +219,6 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
                 {match(paymentMethod)
                   .with(Option.P.None, () => null)
-                  .with(Option.P.Some("american express"), () => (
-                    <View style={styles.cardLogo}>
-                      <AmericanExpressLogo />
-                    </View>
-                  ))
                   .with(Option.P.Some("cartes bancaires"), () => (
                     <View style={styles.cardLogo}>
                       <CarteBancaireLogo />
@@ -259,6 +246,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                 <LakeText variant="smallRegular" color={colors.negative[500]}>
                   {match(cardNumberState)
                     .with("invalid", () => t("paymentLink.invalidCardNumber"))
+                    .with("cardNotSupported", () => t("paymentLink.cardNotSupported"))
                     .with("empty", () => t("paymentLink.cardNumberRequired"))
                     .with("untouched", "valid", () => " ")
                     .exhaustive()}

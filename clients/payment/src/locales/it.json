@@ -9,6 +9,7 @@
   "paymentLink.card.cardNumber": "Numero della carta",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Data di scadenza",
+  "paymentLink.cardNotSupported": "Le carte American Express non sono supportate. Per favore prova con un'altra carta.",
   "paymentLink.cardNumberRequired": "Il numero della tua carta è obbligatorio",
   "paymentLink.city": "Città",
   "paymentLink.country": "Paese",

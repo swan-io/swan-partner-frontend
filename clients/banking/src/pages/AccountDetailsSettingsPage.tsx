@@ -392,14 +392,14 @@ const UpdateAccountForm = ({
 };
 
 type Props = {
-  accountLanguage: AccountLanguage;
+  accountMembershipLanguage: AccountLanguage;
   accountId: string;
   canManageAccountMembership: boolean;
   largeBreakpoint: boolean;
 };
 
 export const AccountDetailsSettingsPage = ({
-  accountLanguage,
+  accountMembershipLanguage,
   accountId,
   canManageAccountMembership,
   largeBreakpoint,
@@ -407,7 +407,7 @@ export const AccountDetailsSettingsPage = ({
   const [data] = useQuery(AccountDetailsSettingsPageDocument, {
     accountId,
     filters: { status: "Active", type: "SwanTCU" },
-    language: accountLanguage,
+    language: accountMembershipLanguage,
   });
 
   return (

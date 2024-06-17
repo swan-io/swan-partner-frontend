@@ -9,6 +9,7 @@
   "paymentLink.card.cardNumber": "Kortin numero",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Vanhenemispäivä",
+  "paymentLink.cardNotSupported": "American Express -kortteja ei tueta. Yritä toisella kortilla.",
   "paymentLink.cardNumberRequired": "Korttinumerosi vaaditaan",
   "paymentLink.city": "Kaupunki",
   "paymentLink.country": "Maa",

@@ -139,7 +139,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountLanguage: AccountLanguage;
+  accountMembershipLanguage: AccountLanguage;
   accountMembershipId: string;
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   user: NonNullable<AccountAreaQuery["user"]>;
@@ -177,7 +177,7 @@ type Props = {
 };
 
 export const AccountArea = ({
-  accountLanguage,
+  accountMembershipLanguage,
   accountMembershipId,
   accountMembership,
   projectInfo,
@@ -514,7 +514,7 @@ export const AccountArea = ({
                           <ErrorView />
                         ) : (
                           <AccountDetailsArea
-                            accountLanguage={accountLanguage}
+                            accountMembershipLanguage={accountMembershipLanguage}
                             accountId={accountId}
                             accountMembershipId={accountMembershipId}
                             canManageAccountMembership={permissions.canManageAccountMembership}

@@ -318,7 +318,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
         sections,
       }) => (
         <AccountArea
-          accountLanguage={accountMembership.account?.language ?? "en"}
+          accountMembershipLanguage={accountMembership.account?.language ?? "en"}
           accountMembershipId={accountMembershipId}
           user={user}
           accountMembership={accountMembership}

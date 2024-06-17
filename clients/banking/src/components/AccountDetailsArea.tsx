@@ -22,7 +22,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accountLanguage: AccountLanguage;
+  accountMembershipLanguage: AccountLanguage;
   accountId: string;
   accountMembershipId: string;
   canManageAccountMembership: boolean;
@@ -31,7 +31,7 @@ type Props = {
 };
 
 export const AccountDetailsArea = ({
-  accountLanguage,
+  accountMembershipLanguage,
   accountId,
   accountMembershipId,
   canManageAccountMembership,
@@ -105,7 +105,7 @@ export const AccountDetailsArea = ({
             ))
             .with({ name: "AccountDetailsSettings" }, () => (
               <AccountDetailsSettingsPage
-                accountLanguage={accountLanguage}
+                accountMembershipLanguage={accountMembershipLanguage}
                 accountId={accountId}
                 largeBreakpoint={large}
                 canManageAccountMembership={canManageAccountMembership}

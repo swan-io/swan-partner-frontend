@@ -1,27 +1,10 @@
 import chalk from "chalk";
-import childProcess from "node:child_process";
 import fs from "node:fs";
-import util from "node:util";
 import path from "pathe";
 import prompts from "prompts";
 import semver from "semver";
 import { PackageJson } from "type-fest";
-
-const logError = (...error: string[]) =>
-  console.error(`${chalk.red("ERROR")} ${error.join("\n")}` + "\n");
-
-const promisifiedExec = util.promisify(childProcess.exec);
-
-const exec = (cmd: string): Promise<string> =>
-  promisifiedExec(cmd)
-    .then(({ stdout, stderr }) => ({
-      stdout: stdout === '""' ? "" : stdout.trim(),
-      stderr: stderr === '""' ? "" : stderr.trim(),
-    }))
-    .then(({ stdout, stderr }) => stdout || stderr);
-
-const isOk = (promise: Promise<unknown>) => promise.then(() => true).catch(() => false);
-const isKo = (promise: Promise<unknown>) => promise.then(() => false).catch(() => true);
+import { exec, isExecKo, isExecOk, logError, updateGhPagerConfig } from "./helpers";
 
 const rootDir = path.resolve(__dirname, "../..");
 const pkgPath = path.join(rootDir, "package.json");
@@ -33,10 +16,10 @@ if (currentVersion == null) {
   process.exit(1);
 }
 
-const isProgramMissing = (program: string) => isKo(exec(`which ${program}`));
+const isProgramMissing = (program: string) => isExecKo(`which ${program}`);
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-repo
-const isNotGitRepo = () => isKo(exec("git rev-parse --git-dir"));
+const isNotGitRepo = () => isExecKo("git rev-parse --git-dir");
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-current-branch
 const getGitBranch = () => exec("git rev-parse --abbrev-ref HEAD");
@@ -45,10 +28,10 @@ const getGitBranch = () => exec("git rev-parse --abbrev-ref HEAD");
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-show-skipped
 const isGitRepoDirty = () =>
   Promise.all([
-    isOk(exec("git diff-index --cached --quiet --ignore-submodules --exit-code HEAD --")),
-    isOk(exec("! git diff --no-ext-diff --ignore-submodules --quiet --exit-code")),
-    isOk(exec("nbr=$(git ls-files --other --exclude-standard | wc -l); [ $nbr -gt 0 ]")),
-    isOk(exec('nbr=$(git ls-files -v | grep "^S" | cut -c3- | wc -l); test $nbr -eq 0')),
+    isExecOk("git diff-index --cached --quiet --ignore-submodules --exit-code HEAD --"),
+    isExecOk("! git diff --no-ext-diff --ignore-submodules --quiet --exit-code"),
+    isExecOk("nbr=$(git ls-files --other --exclude-standard | wc -l); [ $nbr -gt 0 ]"),
+    isExecOk('nbr=$(git ls-files -v | grep "^S" | cut -c3- | wc -l); test $nbr -eq 0'),
   ]).then(([isIndexClean, hasUnstagedChanges, hasUntrackedFiles, isSkipped]) => {
     const isWorktreeClean = !hasUnstagedChanges && !hasUntrackedFiles;
     return !isIndexClean || !isWorktreeClean || !isSkipped;
@@ -60,8 +43,6 @@ const fetchGitRemote = (remote: string) =>
 const getLastGitCommitHash = (branch: string) =>
   exec(`git log -n 1 ${branch} --pretty=format:"%H"`);
 
-const updateGhPagerConfig = () => exec('gh config set pager "less -F -X"');
-
 const resetGitBranch = (branch: string, remote: string) =>
   exec(`git switch -C ${branch} ${remote}/${branch}`);
 
@@ -70,25 +51,24 @@ const getGitCommits = (from: string | undefined, to: string) =>
     .then(_ => _.split("\n"))
     .then(entries =>
       entries
-        .filter(entry => !entry.startsWith("[release]"))
+        .filter(entry => !/^v\d+\.\d+.\d+/.test(entry))
         .map(entry => "- " + entry.trim().replace(/["]/g, "*"))
         .toReversed(),
     );
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-local-branch-exists
 const hasGitLocalBranch = (branch: string) =>
-  isOk(exec(`git show-ref --heads --quiet --verify -- "refs/heads/${branch}"`));
+  isExecOk(`git show-ref --heads --quiet --verify -- "refs/heads/${branch}"`);
 
 // https://github.com/nvie/git-toolbelt/blob/v1.9.0/git-remote-branch-exists
 const hasGitRemoteBranch = (branch: string, remote: string) =>
-  isOk(exec(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`));
+  isExecOk(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`);
 
 const getWorkspacePackages = () =>
   exec("yarn workspaces info --json").then(
     info => JSON.parse(info) as Record<string, { location: string }>,
   );
 
-const createGhPullRequest = (title: string) => exec(`gh pr create -t "${title}" -b ""`);
 const gitAddAll = () => exec("git add . -u");
 const gitCheckout = (branch: string) => exec(`git checkout ${branch}`);
 const gitCheckoutNewBranch = (branch: string) => exec(`git checkout -b ${branch}`);
@@ -96,7 +76,13 @@ const gitCommit = (message: string) => exec(`git commit -m "${message}"`);
 const gitDeleteLocalBranch = (branch: string) => exec(`git branch -D ${branch}`);
 const gitPush = (branch: string, remote: string) => exec(`git push -u ${remote} ${branch}`);
 
-void (async () => {
+const createGhPullRequest = (title: string, body: string) =>
+  exec(`gh pr create -t "${title}" -b "${body}"`);
+
+const createGhCompareUrl = (from: string | undefined, to: string) =>
+  `https://github.com/swan-io/swan-partner-frontend/compare/${from != null ? `${from}..${to}` : ""}`;
+
+(async () => {
   if (await isProgramMissing("git")) {
     logError("git needs to be installed", "https://git-scm.com");
     process.exit(1);
@@ -138,7 +124,7 @@ void (async () => {
   const commits = await getGitCommits(currentVersionTag, "main");
 
   if (commits.length > 0) {
-    console.log("\n" + chalk.bold("Commits"));
+    console.log("\n" + chalk.bold("What's Included"));
     console.log(commits.join("\n") + "\n");
   }
 
@@ -195,11 +181,20 @@ void (async () => {
   await gitPush(releaseBranch, "origin");
 
   await updateGhPagerConfig();
-  const url = await createGhPullRequest(releaseTag);
+
+  const body = [
+    ...(commits.length > 0 ? ["### What's Included", commits.join("\n")] : []),
+    `**Diff**: ${createGhCompareUrl(currentVersionTag, releaseBranch)}`,
+  ].join("\n\n");
+
+  const url = await createGhPullRequest(releaseTag, body);
 
   console.log("\n" + chalk.bold("✨ Pull request created:"));
   console.log(url + "\n");
 
   await gitCheckout("main");
   await gitDeleteLocalBranch(releaseBranch);
-})();
+})().catch(error => {
+  console.error(error);
+  process.exit(1);
+});

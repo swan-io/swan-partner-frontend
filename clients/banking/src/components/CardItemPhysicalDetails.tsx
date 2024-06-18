@@ -441,8 +441,14 @@ const CardItemPhysicalPermanentlyBlockForm = ({
       </Field>
 
       <LakeButtonGroup>
-        <LakeButton color="negative" onPress={onPressSubmit} grow={true} loading={isLoading}>
-          {t("card.physical.cancel")}
+        <LakeButton
+          color="negative"
+          onPress={onPressSubmit}
+          grow={true}
+          loading={isLoading}
+          icon="subtract-circle-filled"
+        >
+          {t("card.physical.cancelModalButton")}
         </LakeButton>
       </LakeButtonGroup>
     </>
@@ -1831,7 +1837,7 @@ export const CardItemPhysicalDetails = ({
       <LakeModal
         visible={isPermanentlyBlockModalOpen}
         icon="subtract-circle-regular"
-        title={t("card.physical.cancel")}
+        title={t("card.physical.cancelTitle")}
         onPressClose={() => setIsPermanentlyBlockModalOpen(false)}
         color="negative"
       >

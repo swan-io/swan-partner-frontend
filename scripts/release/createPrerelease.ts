@@ -1,10 +1,5 @@
 import semver from "semver";
-import { exec, logError, updateGhPagerConfig } from "./helpers";
-
-const getLatestGhRelease = () =>
-  exec("gh release list --json tagName --limit 1")
-    .then(output => JSON.parse(output) as { tagName: string }[])
-    .then(output => output[0]?.tagName);
+import { exec, getLatestGhRelease, logError, updateGhPagerConfig } from "./helpers";
 
 const getGhPrereleasePullRequest = () =>
   exec("gh pr list --state merged --json title")

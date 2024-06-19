@@ -1,4 +1,5 @@
 import { useQuery } from "@swan-io/graphql-client";
+import { FlatList } from "@swan-io/lake/src/components/FlatList";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -17,7 +18,7 @@ import {
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { forwardRef, useCallback, useEffect, useState } from "react";
-import { FlatList, GestureResponderEvent, Pressable, StyleSheet, View } from "react-native";
+import { GestureResponderEvent, Pressable, StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import {
   AccountAreaQuery,
@@ -208,7 +209,6 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
                     role="list"
                     style={styles.list}
                     data={accountMemberships.edges}
-                    disableVirtualization={true}
                     keyExtractor={item => `AccountSelector${item.node.id}`}
                     onScroll={handleScroll}
                     renderItem={({ item }) => (

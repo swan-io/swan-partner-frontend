@@ -26,3 +26,8 @@ export const isExecKo = (cmd: string) =>
     .catch(() => true);
 
 export const updateGhPagerConfig = () => exec('gh config set pager "less -F -X"');
+
+export const getLatestGhRelease = () =>
+  exec("gh release list --json tagName --limit 1")
+    .then(output => JSON.parse(output) as { tagName: string }[])
+    .then(output => output[0]?.tagName);

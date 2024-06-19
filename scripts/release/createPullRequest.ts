@@ -4,14 +4,21 @@ import path from "pathe";
 import prompts from "prompts";
 import semver from "semver";
 import { PackageJson } from "type-fest";
-import { exec, isExecKo, isExecOk, logError, updateGhPagerConfig } from "./helpers";
+import {
+  exec,
+  getLatestGhRelease,
+  isExecKo,
+  isExecOk,
+  logError,
+  updateGhPagerConfig,
+} from "./helpers";
 
 const rootDir = path.resolve(__dirname, "../..");
 const pkgPath = path.join(rootDir, "package.json");
 const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8")) as PackageJson;
-const currentVersion = semver.parse(pkg.version);
+const currentPkgVersion = semver.parse(pkg.version);
 
-if (currentVersion == null) {
+if (currentPkgVersion == null) {
   logError("Invalid current package version");
   process.exit(1);
 }
@@ -118,9 +125,9 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
 
   await resetGitBranch("main", "origin");
 
-  console.log(`🚀 Let's release ${pkg.name} (currently at ${currentVersion.raw})`);
+  console.log(`🚀 Let's release ${pkg.name} (currently at ${currentPkgVersion.raw})`);
 
-  const currentVersionTag = `v${currentVersion.raw}`;
+  const currentVersionTag = await getLatestGhRelease();
   const commits = await getGitCommits(currentVersionTag, "main");
 
   if (commits.length > 0) {
@@ -128,9 +135,9 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
     console.log(commits.join("\n") + "\n");
   }
 
-  const patch = semver.inc(currentVersion, "patch");
-  const minor = semver.inc(currentVersion, "minor");
-  const major = semver.inc(currentVersion, "major");
+  const patch = semver.inc(currentPkgVersion, "patch");
+  const minor = semver.inc(currentPkgVersion, "minor");
+  const major = semver.inc(currentPkgVersion, "major");
 
   const response = await prompts({
     type: "select",

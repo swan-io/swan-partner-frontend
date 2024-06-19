@@ -60,7 +60,7 @@ jobs:
         with:
           registry: ${{ secrets.DOCKER_REGISTRY }}
 
-     - name: Get version
+      - name: Get version
         id: version
         run: echo version="$REF_BRANCH" | sed -e 's/release-//g' >> $GITHUB_OUTPUT
 

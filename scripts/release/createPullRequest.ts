@@ -48,7 +48,7 @@ const resetGitBranch = (branch: string, remote: string) =>
 
 const getGitCommits = (from: string | undefined, to: string) =>
   exec(`git log ${from != null ? `${from}..${to}` : ""} --pretty="format:%s"`)
-    .then(_ => _.split("\n"))
+    .then(output => (output !== "" ? output.split("\n") : []))
     .then(entries =>
       entries
         .filter(entry => !/^v\d+\.\d+.\d+/.test(entry))

@@ -28,9 +28,6 @@ const styles = StyleSheet.create({
   segmentedControl: {
     maxWidth: "100%",
   },
-  // grow: {
-  //   flexGrow: 1,
-  // },
 });
 
 type Props = {
@@ -68,7 +65,8 @@ export const PaymentPage = ({
         Option.Some({
           id: distinctPaymentMethods.id,
           name: "Card",
-          icon: <Icon name="lake-card" size={24} />,
+          icon: <Icon name="payment-regular" size={24} />,
+          activeIcon: <Icon name="payment-filled" size={24} />,
         }),
       )
       .with({ type: "SepaDirectDebitB2b" }, () =>
@@ -81,66 +79,73 @@ export const PaymentPage = ({
       .exhaustive(),
   );
 
+  if (paymentMethods[0]?.name === "Card") {
+    paymentMethods.reverse();
+  }
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
 
   return (
-    <>
-      <WithPartnerAccentColor
-        color={paymentLink.merchantProfile.accentColor ?? invariantColors.defaultAccentColor}
-      >
-        <LakeText variant="medium" align="center" color={colors.gray[700]}>
-          {paymentLink.label}
-        </LakeText>
+    <WithPartnerAccentColor
+      color={paymentLink.merchantProfile.accentColor ?? invariantColors.defaultAccentColor}
+    >
+      <LakeText variant="medium" align="center" color={colors.gray[700]}>
+        {paymentLink.label}
+      </LakeText>
 
-        <Space height={12} />
+      <Space height={12} />
 
-        <LakeHeading variant="h1" level={2} align="center">
-          {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
-        </LakeHeading>
+      <LakeHeading variant="h1" level={2} align="center">
+        {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
+      </LakeHeading>
 
-        <Space height={32} />
+      <Space height={32} />
 
-        {isNotNullish(selectedPaymentMethod) && (
-          <LakeLabel
-            style={desktop ? styles.segmentedControlDesktop : styles.segmentedControl}
-            label={t("paymentLink.paymentMethod")}
-            render={() => (
-              <SegmentedControl
-                selected={selectedPaymentMethod.id}
-                items={paymentMethods}
-                onValueChange={id => {
-                  setSelectedPaymentMethod(paymentMethods.find(method => method.id === id));
-                }}
-              />
-            )}
-          />
-        )}
-
-        <Space height={24} />
-
-        {match(selectedPaymentMethod)
-          .with({ name: "Card" }, ({ id }) => {
-            if (isNullish(env.CLIENT_CHECKOUT_API_KEY)) {
-              return <ErrorView />;
-            } else {
-              return (
-                <CardPayment
-                  paymentLink={paymentLink}
-                  paymentMethodId={id}
-                  publicKey={env.CLIENT_CHECKOUT_API_KEY}
-                />
-              );
-            }
-          })
-          .with({ name: "Direct Debit" }, () => (
-            <SddPayment
-              nonEeaCountries={nonEeaCountries}
-              paymentLink={paymentLink}
-              setMandateUrl={setMandateUrl}
+      {isNotNullish(selectedPaymentMethod) && (
+        <LakeLabel
+          style={
+            desktop && paymentMethods.length === 1
+              ? styles.segmentedControlDesktop
+              : styles.segmentedControl
+          }
+          label={t("paymentLink.paymentMethod")}
+          render={() => (
+            <SegmentedControl
+              minItemWidth={250}
+              selected={selectedPaymentMethod.id}
+              items={paymentMethods}
+              onValueChange={id => {
+                setSelectedPaymentMethod(paymentMethods.find(method => method.id === id));
+              }}
             />
-          ))
-          .otherwise(() => null)}
-      </WithPartnerAccentColor>
-    </>
+          )}
+        />
+      )}
+
+      <Space height={24} />
+
+      {match(selectedPaymentMethod)
+        .with({ name: "Card" }, ({ id }) => {
+          if (isNullish(env.CLIENT_CHECKOUT_API_KEY)) {
+            return <ErrorView />;
+          } else {
+            return (
+              <CardPayment
+                paymentLink={paymentLink}
+                paymentMethodId={id}
+                publicKey={env.CLIENT_CHECKOUT_API_KEY}
+              />
+            );
+          }
+        })
+        .with({ name: "Direct Debit" }, () => (
+          <SddPayment
+            nonEeaCountries={nonEeaCountries}
+            paymentLink={paymentLink}
+            setMandateUrl={setMandateUrl}
+          />
+        ))
+        .otherwise(() => null)}
+    </WithPartnerAccentColor>
   );
 };

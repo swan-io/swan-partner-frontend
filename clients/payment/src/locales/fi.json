@@ -1,6 +1,6 @@
 {
   "button.pay": "Maksa",
-  "common.back": "Takaisin",
+  "common.cancel": "Peruuta",
   "error.pageNotFound": "Sivua ei löytynyt",
   "form.invalidField": "Virheellinen kenttä",
   "paymentLink.addressLine1": "Katuosoite",

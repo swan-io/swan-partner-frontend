@@ -9,7 +9,6 @@ import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useEffect, useState } from "react";
@@ -54,12 +53,6 @@ type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   paymentMethodId: string;
   publicKey: string;
-};
-
-type FrameEvent = {
-  element: "card-number" | "expiry-date" | "cvv";
-  isValid: boolean;
-  isEmpty: boolean;
 };
 
 export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) => {
@@ -113,31 +106,30 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
   useEffect(() => {
     Frames.addEventHandler(
       "paymentMethodChanged",
-      //@ts-expect-error addEventHandler isn't typed correctly
-      (event: { paymentMethod: string; isPaymentMethodAccepted: boolean; isValid: boolean }) => {
+      // @ts-expect-error addEventHandler isn't typed correctly
+      (event: unknown) => {
         match(event)
-          .with({ isPaymentMethodAccepted: false }, () => {
-            setIsPaymentMethodValid(false);
+          .with({ isPaymentMethodAccepted: P.boolean }, ({ isPaymentMethodAccepted }) => {
+            setIsPaymentMethodValid(isPaymentMethodAccepted);
           })
-          .with({ isPaymentMethodAccepted: true }, () => setIsPaymentMethodValid(true))
-          .exhaustive();
+          .otherwise(() => {});
 
-        const cardType = event.paymentMethod;
+        const cardType = match(event)
+          .with({ paymentMethod: P.string }, ({ paymentMethod }) => paymentMethod)
+          .otherwise(() => {});
 
-        if (isNullish(cardType)) {
-          setPaymentMethod(Option.None());
-        } else {
-          match(cardType.toLowerCase())
-            .with("visa", "maestro", "mastercard", "cartes bancaires", paymentMethod =>
-              setPaymentMethod(Option.Some(paymentMethod)),
-            )
-            .otherwise(() => setPaymentMethod(Option.None()));
-        }
+        match(cardType?.toLowerCase())
+          .with("visa", "maestro", "mastercard", "cartes bancaires", paymentMethod => {
+            setPaymentMethod(Option.Some(paymentMethod));
+          })
+          .otherwise(() => {
+            setPaymentMethod(Option.None());
+          });
       },
     );
 
     //@ts-expect-error addEventHandler isn't typed correctly
-    Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
+    Frames.addEventHandler("frameValidationChanged", (event: unknown) => {
       match({ event, cardNumberState })
         .with({ event: { element: "card-number", isEmpty: true } }, () => {
           setCardNumberState("empty");
@@ -170,7 +162,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
           setCvvState("invalid");
         })
         .with({ event: { element: "cvv", isValid: true } }, () => setCvvState("valid"))
-        .exhaustive();
+        .otherwise(() => {});
     });
   }, [cardNumberState]);
 
@@ -246,22 +238,66 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                 {match(paymentMethod)
                   .with(Option.P.None, () => null)
                   .with(Option.P.Some("cartes bancaires"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false ||
+                          cardNumberState === "cardNotSupported" ||
+                          cardNumberState === "empty" ||
+                          cardNumberState === "invalid" ||
+                          cardNumberState === "untouched") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <CarteBancaireLogo />
                     </View>
                   ))
                   .with(Option.P.Some("maestro"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false ||
+                          cardNumberState === "cardNotSupported" ||
+                          cardNumberState === "empty" ||
+                          cardNumberState === "invalid" ||
+                          cardNumberState === "untouched") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <MaestroLogo />
                     </View>
                   ))
                   .with(Option.P.Some("mastercard"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false ||
+                          cardNumberState === "cardNotSupported" ||
+                          cardNumberState === "empty" ||
+                          cardNumberState === "invalid" ||
+                          cardNumberState === "untouched") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <MastercardLogo />
                     </View>
                   ))
                   .with(Option.P.Some("visa"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false ||
+                          cardNumberState === "cardNotSupported" ||
+                          cardNumberState === "empty" ||
+                          cardNumberState === "invalid" ||
+                          cardNumberState === "untouched") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <VisaLogo />
                     </View>
                   ))

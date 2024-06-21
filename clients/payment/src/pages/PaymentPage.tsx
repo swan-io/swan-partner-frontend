@@ -101,7 +101,7 @@ export const PaymentPage = ({
 
       <Space height={32} />
 
-      {isNotNullish(selectedPaymentMethod) && (
+      {paymentMethods.length > 1 && isNotNullish(selectedPaymentMethod) && (
         <LakeLabel
           style={
             desktop && paymentMethods.length === 1

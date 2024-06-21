@@ -8,6 +8,9 @@ import "core-js/proposals/object-from-entries";
 import "core-js/proposals/relative-indexing-method";
 import "core-js/proposals/string-replace-all-stage-4";
 
+// overrides shared-business supported languages
+import "./utils/i18n";
+
 import { Option } from "@swan-io/boxed";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AppRegistry } from "react-native";

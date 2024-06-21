@@ -1,7 +1,7 @@
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
+import { setClipboardText } from "@swan-io/lake/src/utils/clipboard";
 import { useState } from "react";
-import { Clipboard } from "react-native";
 import { t } from "../utils/i18n";
 
 export const CopyTextButton = ({
@@ -29,7 +29,7 @@ export const CopyTextButton = ({
         icon="copy-regular"
         ariaLabel={t("copyButton.copyTooltip")}
         onPress={() => {
-          Clipboard.setString(value);
+          setClipboardText(value);
           setVisibleState("copied");
         }}
       />

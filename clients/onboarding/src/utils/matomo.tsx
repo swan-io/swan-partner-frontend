@@ -2,8 +2,8 @@ import { Dict } from "@swan-io/boxed";
 import { Location, encodeSearch, getLocation, subscribeToLocation } from "@swan-io/chicane";
 import { emptyToUndefined, isNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { capitalize } from "@swan-io/lake/src/utils/string";
+import { windowSize } from "@swan-io/lake/src/utils/windowSize";
 import { ReactNode, createContext, useContext, useEffect, useMemo, useRef } from "react";
-import { Dimensions } from "react-native";
 import { P, match } from "ts-pattern";
 import { env } from "./env";
 import { Router, routes } from "./routes";
@@ -42,7 +42,7 @@ export const sendMatomoEvent = (
   }
 
   const route = Router.getRoute(finiteRouteNames);
-  const windowSize = Dimensions.get("window");
+  const { width, height } = windowSize.get();
 
   // https://developer.matomo.org/api-reference/tracking-api
   const params = {
@@ -51,7 +51,7 @@ export const sendMatomoEvent = (
     apiv: API_VERSION,
 
     rand: Date.now().toString(), // random number to prevent caching
-    res: `${windowSize.width}x${windowSize.height}`,
+    res: `${width}x${height}`,
 
     action_name: event.type,
 

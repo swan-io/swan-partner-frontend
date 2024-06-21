@@ -106,7 +106,6 @@ export const PaymentPage = ({
             label={t("paymentLink.paymentMethod")}
             render={() => (
               <SegmentedControl
-                mode="desktop"
                 selected={selectedPaymentMethod.id}
                 items={paymentMethods}
                 onValueChange={id => {

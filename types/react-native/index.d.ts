@@ -208,6 +208,7 @@ declare module "react-native" {
     onKeyDownCapture?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
     onKeyUp?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
     onKeyUpCapture?: (event: NativeSyntheticEvent<React.KeyboardEvent>) => void;
+    onScroll?: (event: NativeSyntheticEvent<React.UIEvent>) => void;
   }
 
   // https://github.com/necolas/react-native-web/blob/0.19.1/packages/react-native-web/src/types/styles.js
@@ -450,6 +451,7 @@ declare module "react-native" {
     scrollBehavior?: "auto" | "smooth";
     scrollSnapAlign?: "start" | "end" | "center";
     scrollSnapType?: string;
+    scrollbarWidth?: "auto" | "thin" | "none";
     transform?: string;
     visibility?: VisibilityValue;
 

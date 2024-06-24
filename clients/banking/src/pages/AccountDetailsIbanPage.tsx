@@ -9,6 +9,7 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -18,7 +19,7 @@ import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/n
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { useMemo } from "react";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";

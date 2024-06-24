@@ -8,6 +8,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Popover } from "@swan-io/lake/src/components/Popover";
 import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
+import { ScrollView, ScrollViewRef } from "@swan-io/lake/src/components/ScrollView";
 import { SidebarNavigationTracker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -26,14 +27,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  View,
-} from "react-native";
+import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
@@ -194,7 +188,8 @@ export const AccountArea = ({
   const { desktop } = useResponsive();
 
   const [isScrolled, setIsScrolled] = useState(false);
-  const scrollView = useRef<ScrollView | null>(null);
+  const scrollView = useRef<ScrollViewRef | null>(null);
+
   const scrollToTop = useCallback(() => {
     scrollView.current?.scrollTo({ y: 0, animated: true });
   }, []);

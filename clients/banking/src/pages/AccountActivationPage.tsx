@@ -13,6 +13,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Stack } from "@swan-io/lake/src/components/Stack";
@@ -26,7 +27,7 @@ import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
 import { ReactNode, useCallback, useRef, useState } from "react";
-import { Pressable, ScrollView, StyleSheet, View } from "react-native";
+import { Pressable, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { LakeCopyTextLine } from "../components/LakeCopyTextLine";

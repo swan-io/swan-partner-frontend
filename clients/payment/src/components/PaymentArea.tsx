@@ -1,9 +1,4 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
-import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { ScrollView, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
-
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -12,12 +7,17 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { backgroundColor, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
+import { StyleSheet, View } from "react-native";
+import { P, match } from "ts-pattern";
 import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";

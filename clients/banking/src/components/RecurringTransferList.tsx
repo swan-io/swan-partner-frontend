@@ -24,6 +24,7 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -39,7 +40,7 @@ import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback, useMemo, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   CancelStandingOrderDocument,

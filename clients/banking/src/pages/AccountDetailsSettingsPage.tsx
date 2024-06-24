@@ -11,6 +11,7 @@ import { Item, LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile, TileGrid } from "@swan-io/lake/src/components/Tile";
 import { TilePlaceholder } from "@swan-io/lake/src/components/TilePlaceholder";
@@ -36,7 +37,7 @@ import {
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useMemo } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import {

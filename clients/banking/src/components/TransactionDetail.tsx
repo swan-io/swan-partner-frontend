@@ -10,6 +10,7 @@ import { Link } from "@swan-io/lake/src/components/Link";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useIsSuspendable } from "@swan-io/lake/src/components/Suspendable";
@@ -25,7 +26,7 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
-import { ScrollView, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDocument } from "../graphql/partner";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";

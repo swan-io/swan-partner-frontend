@@ -4,6 +4,7 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
@@ -14,7 +15,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
-import { ScrollView, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   AccountMembershipFragment,

@@ -7,6 +7,7 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -16,7 +17,6 @@ import { forwardRef, useCallback, useImperativeHandle, useMemo, useState } from 
 import {
   NativeScrollEvent,
   NativeSyntheticEvent,
-  ScrollView,
   StyleProp,
   StyleSheet,
   View,

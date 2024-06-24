@@ -53,8 +53,7 @@ export const PaymentPage = ({
     (acc, { type, id }) => {
       match(type)
         .with("Card", () => (acc["Card"] = id))
-        .with("SepaDirectDebitB2b", () => (acc["DirectDebit"] = id))
-        .with("SepaDirectDebitCore", () => (acc["DirectDebit"] = id))
+        .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () => (acc["DirectDebit"] = id))
         .otherwise(() => acc);
       return acc;
     },

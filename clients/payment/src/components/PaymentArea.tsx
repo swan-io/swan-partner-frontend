@@ -19,6 +19,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
 import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
+import { CardErrorPage } from "../pages/CardErrorPage";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { PaymentPage } from "../pages/PaymentPage";
@@ -138,19 +139,26 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
                 <Space height={24} />
 
-                {match({ route: route?.name, mandateUrlStatus })
+                {match({ route: route?.name, params: route?.params, mandateUrlStatus })
                   .with({ route: "PaymentForm", mandateUrlStatus: "Active" }, () =>
-                    match(merchantPaymentLink.paymentMethods)
-                      .with([P.nonNullable, ...P.array()], merchantPaymentMethods => (
-                        <PaymentPage
-                          merchantPaymentMethods={merchantPaymentMethods}
-                          paymentLink={merchantPaymentLink}
-                          setMandateUrl={setMandateUrl}
-                          nonEeaCountries={nonEEACountries}
-                        />
-                      ))
+                    match({
+                      paymentMethods: merchantPaymentLink.paymentMethods,
+                      params: route?.params,
+                    })
+                      .with(
+                        { paymentMethods: [P.nonNullable, ...P.array()] },
+                        ({ paymentMethods }) => (
+                          <PaymentPage
+                            merchantPaymentMethods={paymentMethods}
+                            paymentLink={merchantPaymentLink}
+                            setMandateUrl={setMandateUrl}
+                            nonEeaCountries={nonEEACountries}
+                          />
+                        ),
+                      )
                       .otherwise(() => <ErrorView />),
                   )
+                  .with({ params: { error: "true" } }, () => <CardErrorPage />)
                   .with({ route: "PaymentSuccess", mandateUrlStatus: "Completed" }, () => (
                     <SuccessPage mandateUrl={mandateUrl} />
                   ))

@@ -20,7 +20,6 @@ import {
   InitiateCardMerchantPaymentDocument,
 } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
 import { CarteBancaireLogo, MaestroLogo, MastercardLogo, VisaLogo } from "./CardLogos";
 
 const styles = StyleSheet.create({
@@ -202,8 +201,8 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
             .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
             .mapOkToResult(filterRejectionsToResult),
         )
-        .tapOk(() => {
-          Router.replace("PaymentSuccess", { paymentLinkId: paymentLink.id });
+        .tapOk(({ redirectUrl }) => {
+          window.location.replace(redirectUrl);
         })
         .tapError(error => {
           showToast({ variant: "error", error, title: translateError(error) });

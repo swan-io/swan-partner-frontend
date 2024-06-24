@@ -19,7 +19,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export const ErrorPage = () => {
+type CardErrorPage = {
+  paymentLinkId: string;
+};
+export const CardErrorPage = () => {
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
       <BorderedIcon name={"lake-warning"} color="negative" size={70} padding={16} />
@@ -32,6 +35,8 @@ export const ErrorPage = () => {
       <LakeText align="center" color={colors.gray[500]} style={styles.subtitle}>
         {t("paymentLink.error.subtitle")}
       </LakeText>
+
+      <Space height={32} />
     </Box>
   );
 };

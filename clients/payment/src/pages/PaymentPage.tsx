@@ -11,7 +11,7 @@ import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
 import { ErrorView } from "../components/ErrorView";
@@ -30,6 +30,10 @@ const styles = StyleSheet.create({
   },
 });
 
+type SupportedMethodType = "Card" | "DirectDebit";
+
+const orderedSupportedMethodTypes: SupportedMethodType[] = ["DirectDebit", "Card"];
+
 type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   setMandateUrl: (value: string) => void;
@@ -45,43 +49,36 @@ export const PaymentPage = ({
 }: Props) => {
   const { desktop } = useResponsive();
 
-  const distinctPaymentMethods = [
-    ...new Set(
-      Array.filterMap(merchantPaymentMethods, paymentMethod => {
-        return match(paymentMethod)
-          .returnType<Option<{ type: "Card" | "SepaDirectDebitB2b"; id: string }>>()
-          .with({ type: "Card" }, () => Option.Some({ type: "Card", id: paymentMethod.id }))
-          .with({ type: P.union("SepaDirectDebitB2b", "SepaDirectDebitCore") }, () =>
-            Option.Some({ type: "SepaDirectDebitB2b", id: paymentMethod.id }),
-          )
-          .otherwise(() => Option.None());
-      }),
-    ),
-  ];
+  const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
+    (acc, { type, id }) => {
+      if (type === "Card") {
+        acc["Card"] = id;
+      } else if (type === "SepaDirectDebitB2b" || type === "SepaDirectDebitCore") {
+        acc["DirectDebit"] = id;
+      }
 
-  const paymentMethods = Array.filterMap(distinctPaymentMethods, distinctPaymentMethods =>
-    match(distinctPaymentMethods)
-      .with({ type: "Card" }, () =>
-        Option.Some({
-          id: distinctPaymentMethods.id,
+      return acc;
+    },
+    {},
+  );
+
+  const paymentMethods = Array.filterMap(orderedSupportedMethodTypes, type =>
+    Option.fromNullable(methodIds[type]).map(id =>
+      match(type)
+        .with("Card", () => ({
+          id,
           name: "Card",
           icon: <Icon name="payment-regular" size={24} />,
           activeIcon: <Icon name="payment-filled" size={24} />,
-        }),
-      )
-      .with({ type: "SepaDirectDebitB2b" }, () =>
-        Option.Some({
-          id: distinctPaymentMethods.id,
+        }))
+        .with("DirectDebit", () => ({
+          id,
           name: "Direct Debit",
           icon: <SepaLogo height={15} />,
-        }),
-      )
-      .exhaustive(),
+        }))
+        .exhaustive(),
+    ),
   );
-
-  if (paymentMethods[0]?.name === "Card") {
-    paymentMethods.reverse();
-  }
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
 

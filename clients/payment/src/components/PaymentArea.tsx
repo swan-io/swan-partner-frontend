@@ -92,14 +92,14 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                   <>
                     <Box direction="row" alignItems="center">
                       <LakeButton
-                        ariaLabel={t("common.back")}
-                        icon="arrow-left-filled"
+                        ariaLabel={t("common.cancel")}
+                        icon="dismiss-regular"
                         mode="tertiary"
                         onPress={() => {
                           window.location.replace(cancelRedirectUrl);
                         }}
                       >
-                        {desktop ? t("common.back") : null}
+                        {desktop ? t("common.cancel") : null}
                       </LakeButton>
 
                       <Fill minWidth={16} />

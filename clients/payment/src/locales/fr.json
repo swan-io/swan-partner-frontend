@@ -1,6 +1,6 @@
 {
   "button.pay": "Payer",
-  "common.back": "Retour",
+  "common.cancel": "Annuler",
   "error.pageNotFound": "Page non trouvée",
   "form.invalidField": "Champ invalide",
   "paymentLink.addressLine1": "Adresse",

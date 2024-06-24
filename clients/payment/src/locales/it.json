@@ -1,6 +1,6 @@
 {
   "button.pay": "Paga",
-  "common.back": "Indietro",
+  "common.cancel": "Annulla",
   "error.pageNotFound": "Pagina non trovata",
   "form.invalidField": "Campo non valido",
   "paymentLink.addressLine1": "Indirizzo",

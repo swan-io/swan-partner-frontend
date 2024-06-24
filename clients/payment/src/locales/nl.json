@@ -1,6 +1,6 @@
 {
   "button.pay": "Betalen",
-  "common.back": "Terug",
+  "common.cancel": "Annuleren",
   "error.pageNotFound": "Pagina niet gevonden",
   "form.invalidField": "Ongeldig veld",
   "paymentLink.addressLine1": "Adresregel",

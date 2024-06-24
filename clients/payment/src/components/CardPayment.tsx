@@ -9,12 +9,11 @@ import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import {
   AddCardPaymentMandateDocument,
   GetMerchantPaymentLinkQuery,
@@ -56,12 +55,6 @@ type Props = {
   publicKey: string;
 };
 
-type FrameEvent = {
-  element: "card-number" | "expiry-date" | "cvv";
-  isValid: boolean;
-  isEmpty: boolean;
-};
-
 export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) => {
   const { desktop } = useResponsive();
 
@@ -73,6 +66,8 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
   type CardFieldState = FieldState | "cardNotSupported";
 
   const [cardNumberState, setCardNumberState] = useState<CardFieldState>("untouched");
+  const [isPaymentMethodValid, setIsPaymentMethodValid] = useState<boolean>(true);
+
   const [expiryDateState, setExpiryDateState] = useState<FieldState>("untouched");
   const [cvvState, setCvvState] = useState<FieldState>("untouched");
 
@@ -104,52 +99,72 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
         expiryYearPlaceholder: "YY",
       },
       schemeChoice: true,
-    });
-
-    //@ts-expect-error addEventHandler isn't typed correctly
-    Frames.addEventHandler("frameValidationChanged", (event: FrameEvent) => {
-      match(event)
-        .with({ element: "card-number", isEmpty: true }, () => {
-          setCardNumberState("empty");
-        })
-        .with({ element: "card-number", isValid: false }, () => {
-          setCardNumberState("invalid");
-        })
-        .with({ element: "card-number", isValid: true }, () => setCardNumberState("valid"))
-        .with({ element: "expiry-date", isEmpty: true }, () => {
-          setExpiryDateState("empty");
-        })
-        .with({ element: "expiry-date", isValid: false }, () => {
-          setExpiryDateState("invalid");
-        })
-        .with({ element: "expiry-date", isValid: true }, () => setExpiryDateState("valid"))
-        .with({ element: "cvv", isEmpty: true }, () => {
-          setCvvState("empty");
-        })
-        .with({ element: "cvv", isValid: false }, () => {
-          setCvvState("invalid");
-        })
-        .with({ element: "cvv", isValid: true }, () => setCvvState("valid"))
-        .exhaustive();
-    });
-    //@ts-expect-error addEventHandler isn't typed correctly
-    Frames.addEventHandler("paymentMethodChanged", (event: { paymentMethod: string }) => {
-      const cardType = event.paymentMethod;
-      if (cardType === "American Express") {
-        setCardNumberState("cardNotSupported");
-      }
-
-      if (isNullish(cardType)) {
-        setPaymentMethod(Option.None());
-      } else {
-        match(cardType.toLowerCase())
-          .with("visa", "maestro", "mastercard", "cartes bancaires", paymentMethod =>
-            setPaymentMethod(Option.Some(paymentMethod)),
-          )
-          .otherwise(() => setPaymentMethod(Option.None()));
-      }
+      acceptedPaymentMethods: ["Visa", "Maestro", "Mastercard", "Cartes Bancaires"],
     });
   }, [publicKey]);
+
+  useEffect(() => {
+    Frames.addEventHandler(
+      "paymentMethodChanged",
+      // @ts-expect-error addEventHandler isn't typed correctly
+      (event: unknown) => {
+        match(event)
+          .with({ isPaymentMethodAccepted: P.boolean }, ({ isPaymentMethodAccepted }) => {
+            setIsPaymentMethodValid(isPaymentMethodAccepted);
+          })
+          .otherwise(() => {});
+
+        const cardType = match(event)
+          .with({ paymentMethod: P.string }, ({ paymentMethod }) => paymentMethod)
+          .otherwise(() => {});
+
+        match(cardType?.toLowerCase())
+          .with("visa", "maestro", "mastercard", "cartes bancaires", paymentMethod => {
+            setPaymentMethod(Option.Some(paymentMethod));
+          })
+          .otherwise(() => {
+            setPaymentMethod(Option.None());
+          });
+      },
+    );
+
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("frameValidationChanged", (event: unknown) => {
+      match({ event, cardNumberState })
+        .with({ event: { element: "card-number", isEmpty: true } }, () => {
+          setCardNumberState("empty");
+        })
+        .with({ event: { element: "card-number", isValid: false } }, () => {
+          setCardNumberState("invalid");
+        })
+        .with(
+          { event: { element: "card-number", isValid: true }, cardNumberState: "cardNotSupported" },
+          () => {
+            setCardNumberState("cardNotSupported");
+          },
+        )
+        .with({ event: { element: "card-number", isValid: true } }, () =>
+          setCardNumberState("valid"),
+        )
+        .with({ event: { element: "expiry-date", isEmpty: true } }, () => {
+          setExpiryDateState("empty");
+        })
+        .with({ event: { element: "expiry-date", isValid: false } }, () => {
+          setExpiryDateState("invalid");
+        })
+        .with({ event: { element: "expiry-date", isValid: true } }, () =>
+          setExpiryDateState("valid"),
+        )
+        .with({ event: { element: "cvv", isEmpty: true } }, () => {
+          setCvvState("empty");
+        })
+        .with({ event: { element: "cvv", isValid: false } }, () => {
+          setCvvState("invalid");
+        })
+        .with({ event: { element: "cvv", isValid: true } }, () => setCvvState("valid"))
+        .otherwise(() => {});
+    });
+  }, [cardNumberState]);
 
   const onPressSubmit = () => {
     if (cardNumberState === "untouched") {
@@ -207,12 +222,15 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
               <Box direction="row" grow={1} shrink={1}>
                 <div
                   className={`card-number-frame ${paymentMethod.isSome() ? "card-number-frame-with-logo" : ""}`}
-                  style={match(cardNumberState)
-                    .with("invalid", "empty", "cardNotSupported", () => ({
-                      borderColor: colors.negative[400],
-                    }))
-                    .with("untouched", "valid", () => undefined)
-                    .exhaustive()}
+                  style={match({ cardNumberState, isPaymentMethodValid })
+                    .with(
+                      { cardNumberState: P.union("invalid", "empty", "cardNotSupported") },
+                      { isPaymentMethodValid: false },
+                      () => ({
+                        borderColor: colors.negative[400],
+                      }),
+                    )
+                    .otherwise(() => undefined)}
                 >
                   {/* <!-- card number will be added here --> */}
                 </div>
@@ -220,22 +238,50 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                 {match(paymentMethod)
                   .with(Option.P.None, () => null)
                   .with(Option.P.Some("cartes bancaires"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false || cardNumberState !== "valid") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <CarteBancaireLogo />
                     </View>
                   ))
                   .with(Option.P.Some("maestro"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false || cardNumberState !== "valid") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <MaestroLogo />
                     </View>
                   ))
                   .with(Option.P.Some("mastercard"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false || cardNumberState !== "valid") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <MastercardLogo />
                     </View>
                   ))
                   .with(Option.P.Some("visa"), () => (
-                    <View style={styles.cardLogo}>
+                    <View
+                      style={[
+                        styles.cardLogo,
+                        (isPaymentMethodValid === false || cardNumberState !== "valid") && {
+                          borderColor: colors.negative[500],
+                        },
+                      ]}
+                    >
                       <VisaLogo />
                     </View>
                   ))
@@ -244,12 +290,14 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
               <Box direction="row" style={styles.errorContainer}>
                 <LakeText variant="smallRegular" color={colors.negative[500]}>
-                  {match(cardNumberState)
-                    .with("invalid", () => t("paymentLink.invalidCardNumber"))
-                    .with("cardNotSupported", () => t("paymentLink.cardNotSupported"))
-                    .with("empty", () => t("paymentLink.cardNumberRequired"))
-                    .with("untouched", "valid", () => " ")
-                    .exhaustive()}
+                  {match({ cardNumberState, isPaymentMethodValid })
+                    .with({ cardNumberState: "invalid" }, () => t("paymentLink.invalidCardNumber"))
+                    .with({ cardNumberState: "cardNotSupported" }, () =>
+                      t("paymentLink.cardNotSupported"),
+                    )
+                    .with({ cardNumberState: "empty" }, () => t("paymentLink.cardNumberRequired"))
+                    .with({ isPaymentMethodValid: false }, () => t("paymentLink.cardNotSupported"))
+                    .otherwise(() => " ")}
                 </LakeText>
               </Box>
             </>

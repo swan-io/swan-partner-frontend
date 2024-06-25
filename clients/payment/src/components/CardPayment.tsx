@@ -240,7 +240,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                     <View
                       style={[
                         styles.cardLogo,
-                        (isPaymentMethodValid === false || cardNumberState !== "valid") && {
+                        (isPaymentMethodValid === false ||
+                          cardNumberState === "cardNotSupported" ||
+                          cardNumberState === "empty" ||
+                          cardNumberState === "invalid") && {
                           borderColor: colors.negative[500],
                         },
                       ]}

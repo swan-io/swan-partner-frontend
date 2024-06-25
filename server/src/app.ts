@@ -40,6 +40,7 @@ import { HttpsConfig, startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import availableLocales from "./locales.json";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
@@ -772,6 +773,41 @@ export const start = async ({
     } else {
       request.session.delete();
       return reply.send({ success: true });
+    }
+  });
+
+  app.get("/locales.js", async (request, reply) => {
+    const host = new URL(`${request.protocol}://${request.hostname}`).hostname;
+    const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+    const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
+
+    switch (host) {
+      case BANKING_HOST:
+        return reply
+          .header("Content-Type", "application/javascript")
+          .header("cache-control", `public, max-age=0`)
+          .send(
+            `window.__availableLocales = ${JSON.stringify(Object.keys(availableLocales.banking))};`,
+          );
+      case ONBOARDING_HOST:
+        return reply
+          .header("Content-Type", "application/javascript")
+          .header("cache-control", `public, max-age=0`)
+          .send(
+            `window.__availableLocales = ${JSON.stringify(Object.keys(availableLocales.onboarding))};`,
+          );
+      case PAYMENT_HOST:
+        return reply
+          .header("Content-Type", "application/javascript")
+          .header("cache-control", `public, max-age=0`)
+          .send(
+            `window.__availableLocales = ${JSON.stringify(Object.keys(availableLocales.payment))};`,
+          );
+      default:
+        return reply
+          .header("Content-Type", "application/javascript")
+          .header("cache-control", `public, max-age=0`)
+          .send(`window.__availableLocales = ["en"];`);
     }
   });
 

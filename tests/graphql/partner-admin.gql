@@ -2,7 +2,7 @@ mutation CreateSandboxUser($firstName: String!, $lastName: String!) {
   createSandboxUser(
     input: {
       autoConsent: true
-      birthDate: "01/01/1070"
+      birthDate: "01/01/1970"
       firstName: $firstName
       lastName: $lastName
       nationalityCCA3: "FRA"

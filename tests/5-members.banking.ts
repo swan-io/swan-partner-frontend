@@ -32,7 +32,7 @@ test("Members - create french", async ({ page }) => {
 
   await modal.getByLabel(t("banking.membershipDetail.edit.firstName")).fill("Nicolas");
   await modal.getByLabel(t("banking.membershipDetail.edit.lastName")).fill("Saison");
-  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1070");
+  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1970");
   await modal.getByLabel(t("banking.membershipDetail.edit.phoneNumber")).fill(env.PHONE_NUMBER);
   await modal.getByLabel(t("banking.membershipDetail.edit.email")).fill(saison.email);
 
@@ -66,7 +66,7 @@ test("Members - create german", async ({ page }) => {
 
   await modal.getByLabel(t("banking.membershipDetail.edit.firstName")).fill("Nicolas");
   await modal.getByLabel(t("banking.membershipDetail.edit.lastName")).fill("Saison");
-  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1070");
+  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1970");
   await modal.getByLabel(t("banking.membershipDetail.edit.phoneNumber")).fill(env.PHONE_NUMBER);
   await modal.getByLabel(t("banking.membershipDetail.edit.email")).fill(saison.email);
 

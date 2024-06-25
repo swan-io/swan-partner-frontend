@@ -11,6 +11,7 @@ import { NotFoundPage } from "../pages/NotFoundPage";
 import { TransferPage } from "../pages/TransferPage";
 import { t } from "../utils/i18n";
 import { paymentRoutes, Router } from "../utils/routes";
+import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
 import { TransferBulkWizard } from "./TransferBulkWizard";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
@@ -64,6 +65,7 @@ export const TransferArea = ({
             { name: "AccountPaymentsRoot" },
             { name: "AccountPaymentsRecurringTransferList" },
             { name: "AccountPaymentsRecurringTransferDetailsArea" },
+            { name: "AccountPaymentsBeneficiariesList" },
             () => (
               <TransferPage
                 accountId={accountId}
@@ -118,6 +120,9 @@ export const TransferArea = ({
               <NotFoundPage />
             ),
           )
+          .with({ name: "AccountPaymentsBeneficiariesNew" }, () => (
+            <BeneficiaryTypePicker accountMembershipId={accountMembershipId} />
+          ))
           .otherwise(() => (
             <NotFoundPage />
           ))}

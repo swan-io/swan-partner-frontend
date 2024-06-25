@@ -1729,6 +1729,25 @@ query TransactionListPage(
   }
 }
 
+query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
+  account(accountId: $accountId) {
+    id
+    trustedBeneficiaries(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+}
+
 query Transaction($id: ID!, $canViewAccount: Boolean!, $canQueryCardOnTransaction: Boolean!) {
   transaction(id: $id) {
     ...TransactionDetails

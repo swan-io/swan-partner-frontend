@@ -975,6 +975,7 @@
   "transfer.newBulkTransfer": "New bulk transfer",
   "transfer.newRecurringTransfer": "New standing order",
   "transfer.newTransfer": "New transfer",
+  "transfer.tabs.beneficiaries": "Beneficiaries",
   "transfer.tabs.recurringTransfer": "Standing orders",
   "transfer.tabs.transfers": "Transfers",
   "transfer.tile.bulkTransfer.subtitle": "Send up to 1000 SEPA transfers at once",

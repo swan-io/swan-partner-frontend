@@ -40,6 +40,13 @@ jobs:
           write_key: ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
           groups: banking
 
+      - name: Download payment translation keys
+        uses: localazy/download@v1
+        with:
+          read_key: ${{ secrets.LOCALAZY_PAYMENT_READ_KEY }}
+          write_key: ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
+          groups: payment
+
       - name: Sort locales
         run: yarn sort-locales
 

@@ -87,6 +87,47 @@
         "group": "banking",
         "lang": "pt",
         "pattern": "clients/banking/src/locales/pt.json"
+      },
+
+      {
+        "group": "payment",
+        "lang": "en",
+        "pattern": "clients/payment/src/locales/en.json"
+      },
+      {
+        "group": "payment",
+        "lang": "de",
+        "pattern": "clients/payment/src/locales/de.json"
+      },
+      {
+        "group": "payment",
+        "lang": "es",
+        "pattern": "clients/payment/src/locales/es.json"
+      },
+      {
+        "group": "payment",
+        "lang": "fi",
+        "pattern": "clients/payment/src/locales/fi.json"
+      },
+      {
+        "group": "payment",
+        "lang": "fr",
+        "pattern": "clients/payment/src/locales/fr.json"
+      },
+      {
+        "group": "payment",
+        "lang": "it",
+        "pattern": "clients/payment/src/locales/it.json"
+      },
+      {
+        "group": "payment",
+        "lang": "nl",
+        "pattern": "clients/payment/src/locales/nl.json"
+      },
+      {
+        "group": "payment",
+        "lang": "pt",
+        "pattern": "clients/payment/src/locales/pt.json"
       }
     ]
   },
@@ -101,6 +142,10 @@
       {
         "group": "banking",
         "output": "clients/banking/src/locales/${lang}.json"
+      },
+      {
+        "group": "payment",
+        "output": "clients/payment/src/locales/${lang}.json"
       }
     ]
   }

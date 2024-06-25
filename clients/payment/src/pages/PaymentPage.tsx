@@ -51,11 +51,10 @@ export const PaymentPage = ({
 
   const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
-      match(type)
-        .with("Card", () => (acc["Card"] = id))
-        .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () => (acc["DirectDebit"] = id))
+      return match(type)
+        .with("Card", () => ({ ...acc, Card: id }))
+        .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () => ({ ...acc, DirectDebit: id }))
         .otherwise(() => acc);
-      return acc;
     },
     {},
   );

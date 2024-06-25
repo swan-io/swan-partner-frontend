@@ -11,11 +11,12 @@
   "paymentLink.card.cvv": "CVV",
   "paymentLink.cardNumberRequired": "Your card number is required",
   "paymentLink.expiryDateRequired": "Your expiry date is required",
-  "paymentLink.cardNotSupported": "American Express cards are not supported. Please try with another card.",
+  "paymentLink.cardNotSupported": "Your card isn't supported. Please try with another card.",
   "paymentLink.cvvRequired": "Your CVV is required",
   "paymentLink.city": "City",
   "paymentLink.country": "Country",
-  "paymentLink.error.subtitle": "We couldn't set up your Direct Debit with Swan.\n Please try again or contact the support system.",
+  "paymentLink.error.retry": "Try again",
+  "paymentLink.error.subtitle": "We couldn't set up your payment with Swan.\n Please try again or contact the Customer Support.",
   "paymentLink.error.title": "Something went wrong",
   "paymentLink.iban": "IBAN",
   "paymentLink.invalidCardNumber": "Invalid card number",
@@ -27,7 +28,7 @@
   "paymentLink.postalCode": "Postal code",
   "paymentLink.poweredBySwan": "Powered by",
   "paymentLink.state": "State",
-  "paymentLink.success.subtitle": "Your payment setup was successful.\nYou can close this window.",
+  "paymentLink.success.subtitle": "Your payment was successful.\nYou can close this window.",
   "paymentLink.success.title": "Thanks!",
-  "paymentLink.termsAndConditions": "By clicking Pay, you're agreeing a direct debit mandate electronically. The mandate authorizes: (1) {merchantName} to share payment information with Swan, and (2) Swan to debit your account accordingly. Refund requests will be processed according to your bank's terms and conditions."
+  "paymentLink.termsAndConditions": "By clicking Pay, you're agreeing to a direct debit mandate electronically. The mandate authorizes: (1) {merchantName} to share payment information with Swan, and (2) Swan to debit your account accordingly. Refund requests will be processed according to your bank's terms and conditions."
 }

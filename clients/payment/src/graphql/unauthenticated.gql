@@ -107,6 +107,9 @@ mutation InitiateCardMerchantPayment(
 ) {
   unauthenticatedInitiateMerchantCardPaymentFromPaymentLink(input: $input) {
     __typename
+    ... on UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload {
+      redirectUrl
+    }
     ... on Rejection {
       message
     }

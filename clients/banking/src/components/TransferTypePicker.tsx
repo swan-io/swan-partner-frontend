@@ -1,28 +1,32 @@
-import { Box } from "@swan-io/lake/src/components/Box";
 import { Breadcrumbs, useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Stack } from "@swan-io/lake/src/components/Stack";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
-import { StyleSheet } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { TypePickerLink } from "./TypePickerLink";
 
 const styles = StyleSheet.create({
-  container: {
-    margin: "auto",
-    maxWidth: 600,
-    padding: spacings[24],
+  fill: {
+    ...commonStyles.fill,
   },
-  header: {
-    paddingTop: spacings[24],
+  base: {
+    ...commonStyles.fill,
     paddingHorizontal: spacings[24],
+    paddingTop: spacings[24],
   },
-  headerDesktop: {
-    paddingTop: spacings[40],
+  desktop: {
     paddingHorizontal: spacings[40],
+    paddingTop: spacings[40],
+  },
+  stack: {
+    margin: "auto",
+    maxWidth: 500,
+    paddingVertical: spacings[24],
   },
 });
 
@@ -34,16 +38,17 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
 
   useCrumb(
-    useMemo(() => {
-      return {
+    useMemo(
+      () => ({
         label: t("transfer.newTransfer"),
         link: Router.AccountPaymentsNew({ accountMembershipId }),
-      };
-    }, [accountMembershipId]),
+      }),
+      [accountMembershipId],
+    ),
   );
 
-  const links = useMemo(() => {
-    return [
+  const links = useMemo(
+    () => [
       {
         url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
         icon: "arrow-swap-regular" as const,
@@ -72,31 +77,30 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         title: t("transfer.tile.bulkTransfer.title"),
         subtitle: t("transfer.tile.bulkTransfer.subtitle"),
       },
-    ];
-  }, [ictEnabled, accountMembershipId]);
+    ],
+    [ictEnabled, accountMembershipId],
+  );
 
   return (
-    <>
-      <ResponsiveContainer breakpoint={breakpoints.large}>
-        {({ small }) => (
-          <Box direction="row" style={small ? styles.header : styles.headerDesktop}>
-            <Breadcrumbs />
-          </Box>
-        )}
-      </ResponsiveContainer>
+    <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
+      {({ large }) => (
+        <View style={[styles.base, large && styles.desktop]}>
+          <Breadcrumbs />
 
-      <Stack alignItems="stretch" space={12} style={styles.container}>
-        {links.map(({ url, icon, title, subtitle }, index) => (
-          <TypePickerLink
-            key={index}
-            icon={icon}
-            title={title}
-            subtitle={subtitle}
-            url={url}
-            style={{ animationDelay: `${index * 150}ms` }}
-          />
-        ))}
-      </Stack>
-    </>
+          <Stack alignItems="stretch" space={12} style={styles.stack}>
+            {links.map(({ url, icon, title, subtitle }, index) => (
+              <TypePickerLink
+                key={index}
+                icon={icon}
+                title={title}
+                subtitle={subtitle}
+                url={url}
+                style={{ animationDelay: `${index * 150}ms` }}
+              />
+            ))}
+          </Stack>
+        </View>
+      )}
+    </ResponsiveContainer>
   );
 };

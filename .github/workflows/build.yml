@@ -51,6 +51,10 @@ jobs:
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
         run: yarn localazy upload banking -r ${{ secrets.LOCALAZY_BANKING_READ_KEY }} -w ${{ secrets.LOCALAZY_BANKING_WRITE_KEY }}
 
+      - name: Push payment translation keys
+        if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref)}}
+        run: yarn localazy upload payment -r ${{ secrets.LOCALAZY_PAYMENT_READ_KEY }} -w ${{ secrets.LOCALAZY_PAYMENT_WRITE_KEY }}
+
       - name: Configure AWS Credentials
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' && contains('refs/heads/main', github.ref) || contains(github.event.head_commit.message, '[dockerize]')}}
         uses: aws-actions/configure-aws-credentials@v4

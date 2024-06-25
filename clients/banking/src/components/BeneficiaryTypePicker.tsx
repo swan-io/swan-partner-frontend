@@ -73,11 +73,11 @@ export const BeneficiaryTypePicker = ({ accountMembershipId }: { accountMembersh
             style={[
               {
                 margin: "auto",
-                width: 600,
-                padding: spacings[24],
+                maxWidth: 500,
+                paddingVertical: spacings[24],
               },
               large && {
-                padding: spacings[40],
+                paddingVertical: spacings[40],
               },
             ]}
           >

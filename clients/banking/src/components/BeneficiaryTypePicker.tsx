@@ -1,21 +1,13 @@
-import { Box } from "@swan-io/lake/src/components/Box";
 import { Breadcrumbs, useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
-import { Fill } from "@swan-io/lake/src/components/Fill";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Space } from "@swan-io/lake/src/components/Space";
 import { Stack } from "@swan-io/lake/src/components/Stack";
-import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { View } from "react-native";
-import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
+import { TypePickerLink } from "./TypePickerLink";
 
 export const BeneficiaryTypePicker = ({ accountMembershipId }: { accountMembershipId: string }) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
@@ -35,31 +27,19 @@ export const BeneficiaryTypePicker = ({ accountMembershipId }: { accountMembersh
       {
         url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
         icon: "arrow-swap-regular" as const,
-        title: t("transfer.tile.transfer.title"),
-        subtitle: t("transfer.tile.transfer.subtitle"),
-      },
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "recurring" }),
-        icon: "lake-clock-arrow-swap" as const,
-        title: t("transfer.tile.recurringTransfer.title"),
-        subtitle: t("transfer.tile.recurringTransfer.subtitle"),
+        title: "SEPA",
+        subtitle: "Save beneficiaries with accounts based in euros",
       },
       ...(ictEnabled.getOr(false)
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
               icon: "earth-regular" as const,
-              title: t("transfer.tile.internationalTransfer.title"),
-              subtitle: t("transfer.tile.internationalTransfer.subtitle"),
+              title: "International",
+              subtitle: "Save beneficiaries with accounts based in currencies other than euros",
             },
           ]
         : []),
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
-        icon: "lake-document-csv" as const,
-        title: t("transfer.tile.bulkTransfer.title"),
-        subtitle: t("transfer.tile.bulkTransfer.subtitle"),
-      },
     ],
     [ictEnabled, accountMembershipId],
   );
@@ -88,14 +68,12 @@ export const BeneficiaryTypePicker = ({ accountMembershipId }: { accountMembersh
           <Breadcrumbs />
 
           <Stack
-            grow={1}
-            alignItems="center"
-            justifyContent="center"
+            alignItems="stretch"
             space={12}
             style={[
               {
-                alignItems: "stretch",
                 margin: "auto",
+                width: 600,
                 padding: spacings[24],
               },
               large && {
@@ -104,41 +82,14 @@ export const BeneficiaryTypePicker = ({ accountMembershipId }: { accountMembersh
             ]}
           >
             {links.map(({ url, icon, title, subtitle }, index) => (
-              <Pressable
+              <TypePickerLink
                 key={index}
-                role="button"
-                // onPress={() => pushUnsafe(url)}
-                style={[
-                  {
-                    ...animations.fadeAndSlideInFromTop.enter,
-                    animationFillMode: "backwards",
-                  },
-                  {
-                    animationDelay: `${index * 150}ms`,
-                  },
-                ]}
-              >
-                {({ hovered }) => (
-                  // TODO: Extract this and reuse it in TransferTypePicker
-                  <Tile hovered={hovered}>
-                    <Box direction="row" alignItems="center">
-                      <Icon name={icon} size={42} color={colors.current[500]} />
-                      <Space width={24} />
-
-                      <View style={{}}>
-                        <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
-                          {title}
-                        </LakeHeading>
-
-                        <LakeText variant="smallRegular">{subtitle}</LakeText>
-                      </View>
-
-                      <Fill minWidth={24} />
-                      <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
-                    </Box>
-                  </Tile>
-                )}
-              </Pressable>
+                icon={icon}
+                title={title}
+                subtitle={subtitle}
+                url={url}
+                style={{ animationDelay: `${index * 150}ms` }}
+              />
             ))}
           </Stack>
         </View>

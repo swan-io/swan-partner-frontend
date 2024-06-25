@@ -49,6 +49,7 @@ export const TypePickerLink = ({ icon, style, title, subtitle, url }: Props) => 
             {title}
           </LakeHeading>
 
+          <Space height={4} />
           <LakeText variant="smallRegular">{subtitle}</LakeText>
         </View>
 

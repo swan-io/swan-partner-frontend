@@ -50,6 +50,8 @@ const routes = {
       New: "/new?:type",
       RecurringTransferList: "/recurring-transfer/list",
       RecurringTransferNew: "/recurring-transfer/new",
+      BeneficiariesList: "/beneficiaries",
+      BeneficiariesNew: "/beneficiaries/new",
 
       ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
         Area: "/*",
@@ -91,18 +93,26 @@ const routes = {
 
 export type RouteName = keyof typeof routes;
 
-export const accountMinimalRoutes = ["AccountRoot", "AccountProfile"] as const;
+export const accountMinimalRoutes = [
+  "AccountRoot",
+  "AccountProfile",
+] as const satisfies RouteName[];
 
-export const historyMenuRoutes = ["AccountTransactionsArea", "AccountActivation"] as const;
+export const historyMenuRoutes = [
+  "AccountTransactionsArea",
+  "AccountActivation",
+] as const satisfies RouteName[];
 
-export const paymentMenuRoutes = ["AccountPaymentsArea"] as const;
+export const paymentMenuRoutes = ["AccountPaymentsArea"] as const satisfies RouteName[];
 
 export const paymentRoutes = [
   "AccountPaymentsRoot",
   "AccountPaymentsNew",
   "AccountPaymentsRecurringTransferList",
   "AccountPaymentsRecurringTransferDetailsArea",
-] as const;
+  "AccountPaymentsBeneficiariesList",
+  "AccountPaymentsBeneficiariesNew",
+] as const satisfies RouteName[];
 
 export const accountAreaRoutes = [
   "AccountTransactionsArea",
@@ -110,22 +120,25 @@ export const accountAreaRoutes = [
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",
-] as const;
+] as const satisfies RouteName[];
 
 export const accountTransactionsRoutes = [
   "AccountTransactionsListRoot",
   "AccountTransactionsListStatementsArea",
   "AccountTransactionsUpcoming",
   "AccountTransactionsListDetail",
-] as const;
+] as const satisfies RouteName[];
 
-export const membershipsRoutes = ["AccountMembersList", "AccountMembersDetailsArea"] as const;
+export const membershipsRoutes = [
+  "AccountMembersList",
+  "AccountMembersDetailsArea",
+] as const satisfies RouteName[];
 
 export const membershipsDetailRoutes = [
   "AccountMembersDetailsRoot",
   "AccountMembersDetailsRights",
   "AccountMembersDetailsCardList",
-] as const;
+] as const satisfies RouteName[];
 
 export const Router = createRouter(routes, {
   basePath: match(projectConfiguration)

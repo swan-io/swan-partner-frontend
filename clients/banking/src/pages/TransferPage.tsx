@@ -7,6 +7,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
+import { BeneficiaryList } from "../components/BeneficiaryList";
 import { ErrorView } from "../components/ErrorView";
 import { RecurringTransferList } from "../components/RecurringTransferList";
 import { TransferList } from "../components/TransferList";
@@ -89,6 +90,10 @@ export const TransferPage = ({
                 label: t("transfer.tabs.recurringTransfer"),
                 url: Router.AccountPaymentsRecurringTransferList({ accountMembershipId }),
               },
+              {
+                label: t("transfer.tabs.beneficiaries"),
+                url: Router.AccountPaymentsBeneficiariesList({ accountMembershipId }),
+              },
             ]}
             otherLabel={t("common.tabs.other")}
           />
@@ -117,6 +122,9 @@ export const TransferPage = ({
                 />
               ),
             )
+            .with({ name: "AccountPaymentsBeneficiariesList" }, () => (
+              <BeneficiaryList accountId={accountId} accountMembershipId={accountMembershipId} />
+            ))
             .otherwise(() => (
               <ErrorView />
             ))}

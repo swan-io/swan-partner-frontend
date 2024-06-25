@@ -12,8 +12,8 @@ import { TypePickerLink } from "./TypePickerLink";
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "stretch",
     margin: "auto",
+    maxWidth: 600,
     padding: spacings[24],
   },
   header: {
@@ -85,7 +85,7 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         )}
       </ResponsiveContainer>
 
-      <Stack space={12} style={styles.container}>
+      <Stack alignItems="stretch" space={12} style={styles.container}>
         {links.map(({ url, icon, title, subtitle }, index) => (
           <TypePickerLink
             key={index}

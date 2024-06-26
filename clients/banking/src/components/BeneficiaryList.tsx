@@ -122,9 +122,9 @@ export const BeneficiaryList = ({
           .with(AsyncData.P.Loading, () => (
             <PlainListViewPlaceholder
               count={NUM_TO_RENDER}
-              groupHeaderHeight={48}
               headerHeight={48}
-              rowHeight={48}
+              paddingHorizontal={24}
+              rowHeight={56}
               rowVerticalSpacing={0}
             />
           ))

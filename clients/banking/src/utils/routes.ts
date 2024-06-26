@@ -47,11 +47,11 @@ const routes = {
     ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
       Area: "/*",
       Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
-      New: "/new?:type",
+      New: "/new?:type{transfer|recurring|international|bulk}",
       RecurringTransferList: "/recurring-transfer/list",
       RecurringTransferNew: "/recurring-transfer/new",
       BeneficiariesList: "/beneficiaries",
-      BeneficiariesNew: "/beneficiaries/new",
+      BeneficiariesNew: "/beneficiaries/new?:type{sepa}",
 
       ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
         Area: "/*",
@@ -148,3 +148,8 @@ export const Router = createRouter(routes, {
     )
     .otherwise(() => undefined),
 });
+
+export type GetRouteParams<K extends RouteName> = Extract<
+  ReturnType<typeof Router.getRoute>,
+  { name: K }
+>["params"];

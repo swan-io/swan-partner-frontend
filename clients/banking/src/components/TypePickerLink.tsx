@@ -41,7 +41,7 @@ export const TypePickerLink = ({ icon, style, title, subtitle, url }: Props) => 
   >
     {({ hovered }) => (
       <Tile hovered={hovered} style={styles.tile}>
-        <Icon name={icon} size={42} color={colors.current[500]} />
+        <Icon name={icon} size={32} color={colors.current[500]} />
         <Space width={24} />
 
         <View style={styles.fill}>

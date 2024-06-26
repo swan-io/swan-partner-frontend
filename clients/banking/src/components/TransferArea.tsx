@@ -1,6 +1,5 @@
 import { Option } from "@swan-io/boxed";
 import { BreadcrumbsRoot } from "@swan-io/lake/src/components/Breadcrumbs";
-import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { useMemo } from "react";
 import { View } from "react-native";
@@ -12,10 +11,6 @@ import { TransferPage } from "../pages/TransferPage";
 import { t } from "../utils/i18n";
 import { paymentRoutes, Router } from "../utils/routes";
 import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
-import { TransferBulkWizard } from "./TransferBulkWizard";
-import { TransferInternationalWizard } from "./TransferInternationalWizard";
-import { TransferRecurringWizard } from "./TransferRecurringWizard";
-import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TransferTypePicker } from "./TransferTypePicker";
 
 type Props = {
@@ -78,50 +73,23 @@ export const TransferArea = ({
           )
           .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
             transferCreationVisible ? (
-              <>
-                <TransferTypePicker accountMembershipId={accountMembershipId} />
-
-                <FullViewportLayer visible={type === "transfer"}>
-                  <TransferRegularWizard
-                    accountCountry={accountCountry}
-                    accountId={accountId}
-                    accountMembershipId={accountMembershipId}
-                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                  />
-                </FullViewportLayer>
-
-                <FullViewportLayer visible={type === "recurring"}>
-                  <TransferRecurringWizard
-                    accountCountry={accountCountry}
-                    accountId={accountId}
-                    accountMembershipId={accountMembershipId}
-                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                  />
-                </FullViewportLayer>
-
-                <FullViewportLayer visible={type === "international"}>
-                  <TransferInternationalWizard
-                    accountId={accountId}
-                    accountMembershipId={accountMembershipId}
-                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                  />
-                </FullViewportLayer>
-
-                <FullViewportLayer visible={type === "bulk"}>
-                  <TransferBulkWizard
-                    accountCountry={accountCountry}
-                    accountId={accountId}
-                    accountMembershipId={accountMembershipId}
-                    onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
-                  />
-                </FullViewportLayer>
-              </>
+              <TransferTypePicker
+                accountCountry={accountCountry}
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                type={type}
+              />
             ) : (
               <NotFoundPage />
             ),
           )
-          .with({ name: "AccountPaymentsBeneficiariesNew" }, () => (
-            <BeneficiaryTypePicker accountMembershipId={accountMembershipId} />
+          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) => (
+            <BeneficiaryTypePicker
+              accountCountry={accountCountry}
+              accountId={accountId}
+              accountMembershipId={accountMembershipId}
+              type={type}
+            />
           ))
           .otherwise(() => (
             <NotFoundPage />

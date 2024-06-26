@@ -1,13 +1,19 @@
 import { Breadcrumbs, useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
+import { TransferBulkWizard } from "./TransferBulkWizard";
+import { TransferInternationalWizard } from "./TransferInternationalWizard";
+import { TransferRecurringWizard } from "./TransferRecurringWizard";
+import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TypePickerLink } from "./TypePickerLink";
 
 const styles = StyleSheet.create({
@@ -32,9 +38,17 @@ const styles = StyleSheet.create({
 
 type Props = {
   accountMembershipId: string;
+  accountId: string;
+  accountCountry: AccountCountry;
+  type: GetRouteParams<"AccountPaymentsNew">["type"];
 };
 
-export const TransferTypePicker = ({ accountMembershipId }: Props) => {
+export const TransferTypePicker = ({
+  accountMembershipId,
+  accountId,
+  accountCountry,
+  type,
+}: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
 
   useCrumb(
@@ -82,25 +96,62 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
   );
 
   return (
-    <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
-      {({ large }) => (
-        <View style={[styles.base, large && styles.desktop]}>
-          <Breadcrumbs />
+    <>
+      <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
+        {({ large }) => (
+          <View style={[styles.base, large && styles.desktop]}>
+            <Breadcrumbs />
 
-          <Stack alignItems="stretch" space={12} style={styles.stack}>
-            {links.map(({ url, icon, title, subtitle }, index) => (
-              <TypePickerLink
-                key={index}
-                icon={icon}
-                title={title}
-                subtitle={subtitle}
-                url={url}
-                style={{ animationDelay: `${index * 150}ms` }}
-              />
-            ))}
-          </Stack>
-        </View>
-      )}
-    </ResponsiveContainer>
+            <Stack alignItems="stretch" space={12} style={styles.stack}>
+              {links.map(({ url, icon, title, subtitle }, index) => (
+                <TypePickerLink
+                  key={index}
+                  icon={icon}
+                  title={title}
+                  subtitle={subtitle}
+                  url={url}
+                  style={{ animationDelay: `${index * 150}ms` }}
+                />
+              ))}
+            </Stack>
+          </View>
+        )}
+      </ResponsiveContainer>
+
+      <FullViewportLayer visible={type === "transfer"}>
+        <TransferRegularWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
+
+      <FullViewportLayer visible={type === "recurring"}>
+        <TransferRecurringWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
+
+      <FullViewportLayer visible={type === "international"}>
+        <TransferInternationalWizard
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
+
+      <FullViewportLayer visible={type === "bulk"}>
+        <TransferBulkWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
+    </>
   );
 };

@@ -18,16 +18,16 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  Beneficiary,
+  BeneficiaryWizard,
+  TransferWizardBeneficiarySummary,
+} from "./BeneficiaryWizard";
+import {
   Details,
   TransferRegularWizardDetails,
   TransferRegularWizardDetailsSummary,
 } from "./TransferRegularWizardDetails";
 import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
-import {
-  Beneficiary,
-  TransferWizardBeneficiary,
-  TransferWizardBeneficiarySummary,
-} from "./TransferWizardBeneficiary";
 
 const styles = StyleSheet.create({
   root: {
@@ -204,7 +204,7 @@ export const TransferRegularWizard = ({
 
                     <Space height={32} />
 
-                    <TransferWizardBeneficiary
+                    <BeneficiaryWizard
                       accountCountry={accountCountry}
                       accountId={accountId}
                       initialBeneficiary={beneficiary}

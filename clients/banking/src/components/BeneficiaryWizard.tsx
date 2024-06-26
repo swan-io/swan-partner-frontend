@@ -10,7 +10,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
@@ -34,6 +34,12 @@ const styles = StyleSheet.create({
   summaryContents: {
     ...commonStyles.fill,
   },
+  loaderBox: {
+    backgroundColor: colors.gray[50],
+    borderTopColor: colors.gray[200],
+    borderTopWidth: 1,
+    padding: spacings[24],
+  },
 });
 
 type Props = {
@@ -43,7 +49,7 @@ type Props = {
   onSave: (beneficiary: Beneficiary) => void;
 };
 
-export const TransferWizardBeneficiary = ({
+export const BeneficiaryWizard = ({
   accountCountry,
   accountId,
   initialBeneficiary,
@@ -51,6 +57,7 @@ export const TransferWizardBeneficiary = ({
 }: Props) => {
   const [ibanVerification, { query: queryIbanVerification, reset: resetIbanVerification }] =
     useDeferredQuery(GetIbanValidationDocument, { debounce: 500 });
+
   const [
     beneficiaryVerification,
     { query: queryBeneficiaryVerification, reset: resetBeneficiaryVerification },
@@ -145,9 +152,9 @@ export const TransferWizardBeneficiary = ({
                 { beneficiaryVerification: AsyncData.P.Loading },
                 { ibanVerification: AsyncData.P.Loading },
                 () => (
-                  <LakeAlert anchored={true} variant="neutral" title="">
+                  <Box alignItems="center" justifyContent="center" style={styles.loaderBox}>
                     <ActivityIndicator color={colors.gray[700]} />
-                  </LakeAlert>
+                  </Box>
                 ),
               )
               .with(

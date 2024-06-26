@@ -14,6 +14,7 @@
   "paymentLink.city": "Città",
   "paymentLink.country": "Paese",
   "paymentLink.cvvRequired": "Il tuo CVV è obbligatorio",
+  "paymentLink.error.retry": "Try again",
   "paymentLink.error.subtitle": "Non siamo riusciti a configurare il tuo addebito diretto con Swan.\nPer favore riprova o contatta il sistema di supporto.",
   "paymentLink.error.title": "Qualcosa è andato storto",
   "paymentLink.expiryDateRequired": "La data di scadenza è obbligatoria",

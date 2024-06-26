@@ -14,6 +14,7 @@
   "paymentLink.city": "Kaupunki",
   "paymentLink.country": "Maa",
   "paymentLink.cvvRequired": "CVV-koodisi vaaditaan",
+  "paymentLink.error.retry": "Try again",
   "paymentLink.error.subtitle": "Emme voineet luoda suoraveloitusta Swanin kanssa.\n Yritä uudelleen tai ota yhteyttä tukijärjestelmään.",
   "paymentLink.error.title": "Jotain meni pieleen",
   "paymentLink.expiryDateRequired": "Vanhenemispäiväsi vaaditaan",

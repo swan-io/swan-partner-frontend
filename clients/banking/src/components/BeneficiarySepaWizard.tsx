@@ -104,7 +104,7 @@ export const BeneficiarySepaWizard = ({
               mode="add"
               accountCountry={accountCountry}
               accountId={accountId}
-              onPressPrevious={() => {}}
+              onPressPrevious={onPressClose}
               onPressSubmit={beneficiary => {
                 console.log(beneficiary);
               }}

@@ -81,6 +81,7 @@ const BeneficiaryListImpl = ({
             icon="lake-person-arrow-swap"
             title="You haven't added any beneficiaries yet"
             subtitle="Once you do, they'll be displayed here"
+            borderedIconPadding={16}
           >
             <Space height={24} />
 

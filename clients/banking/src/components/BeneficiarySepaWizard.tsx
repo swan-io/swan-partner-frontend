@@ -6,12 +6,10 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
 import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Beneficiary, BeneficiaryWizard } from "./BeneficiaryWizard";
+import { BeneficiaryWizard } from "./BeneficiaryWizard";
 
 const styles = StyleSheet.create({
   root: {
@@ -44,20 +42,14 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
+    paddingVertical: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
-    paddingVertical: spacings[24],
   },
 });
-
-type Step = {
-  name: "Beneficiary";
-  beneficiary?: Beneficiary;
-};
 
 type Props = {
   onPressClose?: () => void;
@@ -72,8 +64,6 @@ export const BeneficiarySepaWizard = ({
   accountId,
   accountMembershipId,
 }: Props) => {
-  const [step, setStep] = useState<Step>({ name: "Beneficiary" });
-
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
       {({ large }) => (
@@ -104,28 +94,21 @@ export const BeneficiarySepaWizard = ({
           <Separator />
 
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
-            {match(step)
-              .with({ name: "Beneficiary" }, ({ beneficiary }) => {
-                return (
-                  <>
-                    <LakeHeading level={2} variant="h3">
-                      Beneficiary’s info
-                    </LakeHeading>
+            <LakeHeading level={2} variant="h3">
+              Beneficiary’s info
+            </LakeHeading>
 
-                    <Space height={32} />
+            <Space height={32} />
 
-                    <BeneficiaryWizard
-                      accountCountry={accountCountry}
-                      accountId={accountId}
-                      initialBeneficiary={beneficiary}
-                      onSave={beneficiary => {
-                        // setStep({ name: "Details", beneficiary })
-                      }}
-                    />
-                  </>
-                );
-              })
-              .exhaustive()}
+            <BeneficiaryWizard
+              mode="add"
+              accountCountry={accountCountry}
+              accountId={accountId}
+              onPressPrevious={() => {}}
+              onPressSubmit={beneficiary => {
+                console.log(beneficiary);
+              }}
+            />
           </ScrollView>
         </View>
       )}

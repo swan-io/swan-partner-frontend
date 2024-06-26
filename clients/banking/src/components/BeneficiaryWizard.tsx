@@ -11,6 +11,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
@@ -46,14 +47,18 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary?: Beneficiary;
-  onSave: (beneficiary: Beneficiary) => void;
+  mode: "add" | "continue";
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressPrevious?: () => void;
 };
 
 export const BeneficiaryWizard = ({
   accountCountry,
   accountId,
   initialBeneficiary,
-  onSave,
+  mode,
+  onPressSubmit,
+  onPressPrevious,
 }: Props) => {
   const [ibanVerification, { query: queryIbanVerification, reset: resetIbanVerification }] =
     useDeferredQuery(GetIbanValidationDocument, { debounce: 500 });
@@ -128,10 +133,10 @@ export const BeneficiaryWizard = ({
     resetBeneficiaryVerification,
   ]);
 
-  const onPressSubmit = () => {
+  const handleOnPressSubmit = () => {
     submitForm({
       onSuccess: values => {
-        Option.allFromDict(values).map(beneficiary => onSave(beneficiary));
+        Option.allFromDict(values).map(beneficiary => onPressSubmit(beneficiary));
       },
     });
   };
@@ -372,8 +377,19 @@ export const BeneficiaryWizard = ({
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
-              {t("common.continue")}
+            {isNotNullish(onPressPrevious) && (
+              <LakeButton mode="secondary" color="gray" onPress={onPressPrevious} grow={small}>
+                {t("common.previous")}
+              </LakeButton>
+            )}
+
+            <LakeButton
+              color="current"
+              onPress={handleOnPressSubmit}
+              grow={small}
+              icon={mode === "add" ? "add-circle-filled" : undefined}
+            >
+              {mode === "add" ? t("common.add") : t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>
         )}

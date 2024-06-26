@@ -61,13 +61,12 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
+    paddingVertical: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
-    paddingVertical: spacings[24],
   },
 });
 
@@ -213,10 +212,11 @@ export const TransferRecurringWizard = ({
                     <Space height={32} />
 
                     <BeneficiaryWizard
+                      mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}
                       initialBeneficiary={beneficiary}
-                      onSave={beneficiary => setStep({ name: "Details", beneficiary })}
+                      onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                     />
                   </>
                 );

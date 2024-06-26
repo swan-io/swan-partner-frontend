@@ -156,10 +156,10 @@ export const TransferList = ({
             Loading: () => (
               <PlainListViewPlaceholder
                 count={NUM_TO_RENDER}
-                rowVerticalSpacing={0}
-                groupHeaderHeight={48}
                 headerHeight={48}
-                rowHeight={48}
+                paddingHorizontal={24}
+                rowHeight={56}
+                rowVerticalSpacing={0}
               />
             ),
             Done: result =>

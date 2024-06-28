@@ -53,6 +53,7 @@ import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./Acco
 import { CardsArea } from "./CardsArea";
 import { ErrorView } from "./ErrorView";
 import { MembershipsArea } from "./MembershipsArea";
+import { MerchantArea } from "./MerchantArea";
 import { NavigationTabBar, navigationTabBarHeight } from "./NavigationTabBar";
 import { ProfileButton } from "./ProfileButton";
 import { Redirect } from "./Redirect";
@@ -166,6 +167,7 @@ type Props = {
     transfer: boolean;
     cards: boolean;
     members: boolean;
+    merchants: boolean;
   };
   reload: () => void;
 };
@@ -274,18 +276,13 @@ export const AccountArea = ({
             hidden: !sections.cards,
           },
           {
-            matchRoutes: ["AccountMembersArea"],
-            iconActive: "people-filled",
-            icon: "people-regular",
-            name: t("navigation.members"),
-            to: Router.AccountMembersList({ accountMembershipId }),
-            hidden: !sections.members,
-            hasNotifications: Option.fromNullable(accountMembership.account)
-              .map(
-                ({ accountMembershipsWithBindingUserError }) =>
-                  accountMembershipsWithBindingUserError.totalCount > 0,
-              )
-              .getOr(false),
+            separator: true,
+            matchRoutes: ["AccountMerchantsArea"],
+            iconActive: "building-shop-regular", // TODO: replace with building-shop-filled
+            icon: "building-shop-regular",
+            name: t("navigation.merchant"),
+            to: Router.AccountMerchantsRoot({ accountMembershipId }),
+            hidden: !sections.merchants,
           },
         ];
 
@@ -297,6 +294,7 @@ export const AccountArea = ({
       ...(sections.transfer ? paymentMenuRoutes : []),
       ...(sections.cards ? (["AccountCardsArea"] as const) : []),
       ...(sections.members ? (["AccountMembersArea"] as const) : []),
+      ...(sections.merchants ? (["AccountMerchantsArea"] as const) : []),
     ];
   }, [sections]);
 
@@ -589,6 +587,7 @@ export const AccountArea = ({
                           )
                           .otherwise(() => <ErrorView />),
                       )
+                      .with({ name: "AccountMerchantsArea" }, () => <MerchantArea />)
                       .with({ name: "AccountActivation" }, () => (
                         <AccountActivationPage
                           hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}

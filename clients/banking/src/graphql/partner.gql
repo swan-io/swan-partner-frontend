@@ -341,6 +341,9 @@ query AccountArea($accountMembershipId: ID!) {
         }
         verificationStatus
       }
+      merchantProfiles(first: 0) {
+        totalCount
+      }
       transactions(first: 0) {
         totalCount
       }
@@ -374,6 +377,13 @@ query AccountArea($accountMembershipId: ID!) {
       transferCreationVisible: canInitiatePaymentsToNewBeneficiaries
       virtualCardOrderVisible: canOrderVirtualCards
       virtualIbansVisible: canManageVirtualIbans
+      merchantProfileCreationVisible: canCreateMerchantProfile
+      merchantProfileCardVisible: canRequestOnlineCardsPaymentMethod
+      merchantProfileSepaDirectDebitCoreVisible: canRequestSepaDirectDebitCorePaymentMethod
+      merchantProfileSepaDirectDebitB2BVisible: canRequestSepaDirectDebitB2BPaymentMethod
+      merchantProfileInternalDirectDebitCoreVisible: canRequestInternalDirectDebitCorePaymentMethod
+      merchantProfileInternalDirectDebitB2BVisible: canRequestInternalDirectDebitB2BPaymentMethod
+      merchantProfileCheckVisible: canRequestChecksPaymentMethod
     }
     supportingDocumentSettings {
       collectMode

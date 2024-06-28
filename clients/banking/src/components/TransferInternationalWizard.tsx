@@ -112,7 +112,8 @@ export const TransferInternationalWizard = ({
         },
         internationalCreditTransferDetails: details.results,
         consentRedirectUrl:
-          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
       },
     })
       .mapOk(data => data.initiateInternationalCreditTransfer)

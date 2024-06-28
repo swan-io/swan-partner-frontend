@@ -101,7 +101,8 @@ export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipI
       input: {
         accountId,
         consentRedirectUrl:
-          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
         creditTransfers: creditTransferInputs.map(creditTransferInput => ({
           ...creditTransferInput,
           ...match(schedule)

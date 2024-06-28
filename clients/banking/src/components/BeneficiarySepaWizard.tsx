@@ -122,7 +122,10 @@ export const BeneficiarySepaWizard = ({
                     name: beneficiary.name,
                     consentRedirectUrl:
                       window.location.origin +
-                      Router.AccountPaymentsBeneficiariesList({ accountMembershipId }),
+                      Router.AccountPaymentsBeneficiariesList({
+                        accountMembershipId,
+                        kind: "beneficiary",
+                      }),
                   },
                 })
                   .mapOk(data => data.addTrustedSepaBeneficiary)

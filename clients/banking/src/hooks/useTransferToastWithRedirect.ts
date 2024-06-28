@@ -7,7 +7,7 @@ import { match, P } from "ts-pattern";
 import { t } from "../utils/i18n";
 
 export const useTransferToastWithRedirect = (
-  transferConsent: Option<{ status: string; isStandingOrder: boolean }>,
+  transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>,
   replace: () => void,
 ) => {
   const isFirstMount = useFirstMountState();
@@ -17,46 +17,67 @@ export const useTransferToastWithRedirect = (
       const newTransferConsent = transferConsent.toUndefined();
 
       match(newTransferConsent)
-        .with({ status: "Accepted", isStandingOrder: true }, () => {
+        .with({ kind: "transfer", status: "Accepted" }, () => {
           showToast({
             variant: "success",
-            title: t("recurringTransfer.consent.success.title"),
-            description: t("recurringTransfer.consent.success.description"),
             autoClose: false,
-          });
-        })
-        .with({ status: "Accepted", isStandingOrder: false }, () => {
-          showToast({
-            variant: "success",
             title: t("transfer.consent.success.title"),
             description: t("transfer.consent.success.description"),
-            autoClose: false,
           });
         })
-        .with({ status: "Canceled", isStandingOrder: true }, () => {
-          showToast({
-            variant: "error",
-            title: t("recurringTransfer.consent.error.canceled.title"),
-          });
-        })
-        .with({ status: "Canceled", isStandingOrder: false }, () => {
+        .with({ kind: "transfer", status: "Canceled" }, () => {
           showToast({
             variant: "error",
             title: t("transfer.consent.error.canceled.title"),
           });
         })
-        .with({ isStandingOrder: true }, () => {
+        .with({ kind: "transfer" }, () => {
+          showToast({
+            variant: "error",
+            title: t("transfer.consent.error.rejected.title"),
+            description: t("transfer.consent.error.rejected.description"),
+          });
+        })
+        .with({ kind: "standingOrder", status: "Accepted" }, () => {
+          showToast({
+            variant: "success",
+            autoClose: false,
+            title: t("recurringTransfer.consent.success.title"),
+            description: t("recurringTransfer.consent.success.description"),
+          });
+        })
+        .with({ kind: "standingOrder", status: "Canceled" }, () => {
+          showToast({
+            variant: "error",
+            title: t("recurringTransfer.consent.error.canceled.title"),
+          });
+        })
+        .with({ kind: "standingOrder" }, () => {
           showToast({
             variant: "error",
             title: t("recurringTransfer.consent.error.rejected.title"),
             description: t("recurringTransfer.consent.error.rejected.description"),
           });
         })
-        .with({ isStandingOrder: false }, () => {
+        .with({ kind: "beneficiary", status: "Accepted" }, () => {
+          showToast({
+            variant: "success",
+            autoClose: false,
+            title: t("beneficiary.consent.success.title"),
+            description: t("beneficiary.consent.success.description"),
+          });
+        })
+        .with({ kind: "beneficiary", status: "Canceled" }, () => {
           showToast({
             variant: "error",
-            title: t("transfer.consent.error.rejected.title"),
-            description: t("transfer.consent.error.rejected.description"),
+            title: t("beneficiary.consent.error.canceled.title"),
+          });
+        })
+        .with({ kind: "beneficiary" }, () => {
+          showToast({
+            variant: "error",
+            title: t("beneficiary.consent.error.rejected.title"),
+            description: t("beneficiary.consent.error.rejected.description"),
           });
         })
         .with(P.nullish, noop)

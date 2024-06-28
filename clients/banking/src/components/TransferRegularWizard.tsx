@@ -107,7 +107,8 @@ export const TransferRegularWizard = ({
       input: {
         accountId,
         consentRedirectUrl:
-          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
         creditTransfers: [
           {
             amount: details.amount,

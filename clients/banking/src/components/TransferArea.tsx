@@ -19,7 +19,7 @@ type Props = {
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
   canViewAccount: boolean;
-  transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
+  transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>;
   transferCreationVisible: boolean;
 };
 
@@ -34,14 +34,15 @@ export const TransferArea = ({
 }: Props) => {
   const route = Router.useRoute(paymentRoutes);
 
-  useTransferToastWithRedirect(transferConsent, () =>
-    Router.replace(
-      route?.name === "AccountPaymentsRecurringTransferList"
-        ? "AccountPaymentsRecurringTransferList"
-        : "AccountPaymentsRoot",
-      { accountMembershipId },
-    ),
-  );
+  useTransferToastWithRedirect(transferConsent, () => {
+    match(route?.name)
+      .with("AccountPaymentsBeneficiariesList", "AccountPaymentsRecurringTransferList", name => {
+        Router.replace(name, { accountMembershipId });
+      })
+      .otherwise(() => {
+        Router.replace("AccountPaymentsRoot", { accountMembershipId });
+      });
+  });
 
   const rootLevelCrumbs = useMemo(() => {
     return [

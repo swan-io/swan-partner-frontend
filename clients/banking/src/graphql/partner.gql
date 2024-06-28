@@ -1741,7 +1741,18 @@ query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
         cursor
         node {
           id
+          label
           name
+          type
+          ... on TrustedInternalBeneficiary {
+            accountId
+          }
+          ... on TrustedInternationalBeneficiary {
+            currency
+          }
+          ... on TrustedSepaBeneficiary {
+            iban
+          }
         }
       }
     }

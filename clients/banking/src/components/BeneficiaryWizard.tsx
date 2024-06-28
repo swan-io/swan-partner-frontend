@@ -48,6 +48,7 @@ type Props = {
   accountId: string;
   initialBeneficiary?: Beneficiary;
   mode: "add" | "continue";
+  submitting?: boolean;
   onPressSubmit: (beneficiary: Beneficiary) => void;
   onPressPrevious?: () => void;
 };
@@ -57,6 +58,7 @@ export const BeneficiaryWizard = ({
   accountId,
   initialBeneficiary,
   mode,
+  submitting = false,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
@@ -165,10 +167,7 @@ export const BeneficiaryWizard = ({
               .with(
                 {
                   ibanVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "ValidIban",
-                      bank: P.select(),
-                    }),
+                    Result.P.Ok({ __typename: "ValidIban", bank: P.select() }),
                   ),
                 },
                 ({ name, address }) => (
@@ -177,29 +176,25 @@ export const BeneficiaryWizard = ({
                     variant="neutral"
                     title={t("transfer.new.bankInformation")}
                   >
-                    <>
-                      <LakeText>{name}</LakeText>
+                    <LakeText>{name}</LakeText>
 
-                      {match(address)
-                        .with(
-                          { addressLine1: P.string, postalCode: P.string, city: P.string },
-                          ({ addressLine1, postalCode, city }) => (
-                            <LakeText>
-                              {addressLine1}, {postalCode} {city}
-                            </LakeText>
-                          ),
-                        )
-                        .otherwise(() => null)}
-                    </>
+                    {match(address)
+                      .with(
+                        { addressLine1: P.string, postalCode: P.string, city: P.string },
+                        ({ addressLine1, postalCode, city }) => (
+                          <LakeText>
+                            {addressLine1}, {postalCode} {city}
+                          </LakeText>
+                        ),
+                      )
+                      .otherwise(() => null)}
                   </LakeAlert>
                 ),
               )
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "BeneficiaryMatch",
-                    }),
+                    Result.P.Ok({ __typename: "BeneficiaryMatch" }),
                   ),
                 },
                 () => (
@@ -215,9 +210,7 @@ export const BeneficiaryWizard = ({
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok(
                       P.union(
-                        {
-                          __typename: "InvalidBeneficiaryVerification",
-                        },
+                        { __typename: "InvalidBeneficiaryVerification" },
                         { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
                       ),
                     ),
@@ -279,9 +272,7 @@ export const BeneficiaryWizard = ({
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
-                    }),
+                    Result.P.Ok({ __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo") }),
                   ),
                 },
                 () => (
@@ -290,9 +281,7 @@ export const BeneficiaryWizard = ({
                     variant="error"
                     title={t(
                       "transfer.new.beneficiaryVerification.mismatchOrTypo.withoutSuggestion",
-                      {
-                        name: beneficiaryName.value,
-                      },
+                      { name: beneficiaryName.value },
                     )}
                   />
                 ),
@@ -312,6 +301,7 @@ export const BeneficiaryWizard = ({
                         () => true,
                       )
                       .otherwise(() => false);
+
                     return (
                       <LakeTextInput
                         id={id}
@@ -341,9 +331,7 @@ export const BeneficiaryWizard = ({
                         AsyncData.P.Done(
                           Result.P.Ok(
                             P.union(
-                              {
-                                __typename: "InvalidBeneficiaryVerification",
-                              },
+                              { __typename: "InvalidBeneficiaryVerification" },
                               { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
                             ),
                           ),
@@ -351,6 +339,7 @@ export const BeneficiaryWizard = ({
                         () => true,
                       )
                       .otherwise(() => false);
+
                     return (
                       <LakeTextInput
                         id={id}
@@ -378,7 +367,13 @@ export const BeneficiaryWizard = ({
         {({ small }) => (
           <LakeButtonGroup>
             {isNotNullish(onPressPrevious) && (
-              <LakeButton mode="secondary" color="gray" onPress={onPressPrevious} grow={small}>
+              <LakeButton
+                mode="secondary"
+                color="gray"
+                onPress={onPressPrevious}
+                grow={small}
+                disabled={submitting}
+              >
                 {t("common.previous")}
               </LakeButton>
             )}
@@ -387,6 +382,7 @@ export const BeneficiaryWizard = ({
               color="current"
               onPress={handleOnPressSubmit}
               grow={small}
+              loading={submitting}
               icon={mode === "add" ? "add-circle-filled" : undefined}
             >
               {mode === "add" ? t("common.add") : t("common.continue")}

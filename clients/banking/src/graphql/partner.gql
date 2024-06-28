@@ -1748,6 +1748,34 @@ query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
   }
 }
 
+mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
+  addTrustedSepaBeneficiary(input: $input) {
+    __typename
+
+    ... on AddTrustedSepaBeneficiarySuccessPayload {
+      __typename
+
+      trustedBeneficiary {
+        id
+        statusInfo {
+          __typename
+
+          ... on TrustedBeneficiaryStatusInfoConsentPending {
+            consent {
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
+  }
+}
+
 query Transaction($id: ID!, $canViewAccount: Boolean!, $canQueryCardOnTransaction: Boolean!) {
   transaction(id: $id) {
     ...TransactionDetails

@@ -86,6 +86,11 @@ const routes = {
         }),
       },
     ),
+
+    ...createGroup("Merchants", "/merchants", {
+      Area: "/*",
+      Root: "/",
+    }),
   }),
 } as const;
 
@@ -110,6 +115,7 @@ export const accountAreaRoutes = [
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",
+  "AccountMerchantsArea",
 ] as const;
 
 export const accountTransactionsRoutes = [

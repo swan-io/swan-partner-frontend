@@ -29,7 +29,7 @@ const routes = {
         "List",
         // transactionStatus[] is for filters
         // status is the consent status automatically set by consent redirection
-        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]&:standingOrder&:consentId&:status",
+        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]&:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
         {
           Area: "/*",
           Root: "/",
@@ -44,21 +44,25 @@ const routes = {
       Upcoming: "/upcoming",
     }),
 
-    ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
-      Area: "/*",
-      Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
-      New: "/new?:type{transfer|recurring|international|bulk}",
-      RecurringTransferList: "/recurring-transfer/list",
-      RecurringTransferNew: "/recurring-transfer/new",
-      BeneficiariesList: "/beneficiaries",
-      BeneficiariesNew: "/beneficiaries/new?:type{sepa}",
-
-      ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
+    ...createGroup(
+      "Payments",
+      "/payments?:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
+      {
         Area: "/*",
-        Root: "/",
-        History: "/history",
-      }),
-    }),
+        Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
+        New: "/new?:type{transfer|recurring|international|bulk}",
+        RecurringTransferList: "/recurring-transfer/list",
+        RecurringTransferNew: "/recurring-transfer/new",
+        BeneficiariesList: "/beneficiaries",
+        BeneficiariesNew: "/beneficiaries/new?:type{sepa}",
+
+        ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
+          Area: "/*",
+          Root: "/",
+          History: "/history",
+        }),
+      },
+    ),
 
     ...createGroup("Cards", "/cards?:new", {
       Area: "/*",

@@ -83,7 +83,8 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
           ),
           paymentLink => {
             const { merchantPaymentLink, nonEEACountries } = paymentLink;
-            const { cancelRedirectUrl, merchantProfile, statusInfo } = merchantPaymentLink;
+            const { cancelRedirectUrl, merchantProfile, statusInfo, redirectUrl } =
+              merchantPaymentLink;
             const { merchantLogoUrl, merchantName } = merchantProfile;
             const mandateUrlStatus = isNullish(mandateUrl) ? statusInfo.status : "Completed";
 
@@ -139,7 +140,12 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
                 <Space height={24} />
 
-                {match({ route: route?.name, params: route?.params, mandateUrlStatus })
+                {match({
+                  route: route?.name,
+                  params: route?.params,
+                  mandateUrlStatus,
+                  merchantPaymentLink,
+                })
                   .with({ route: "PaymentForm", mandateUrlStatus: "Active" }, () =>
                     match({
                       paymentMethods: merchantPaymentLink.paymentMethods,
@@ -158,11 +164,25 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                       )
                       .otherwise(() => <ErrorView />),
                   )
+                  .with(
+                    {
+                      merchantPaymentLink: {
+                        statusInfo: { status: "Completed" },
+                      },
+                    },
+                    () => <SuccessPage mandateUrl={mandateUrl} redirectUrl={redirectUrl} />,
+                  )
                   .with({ params: { error: "true" } }, () => <CardErrorPage />)
-                  .with({ route: "PaymentSuccess", mandateUrlStatus: "Completed" }, () => (
-                    <SuccessPage mandateUrl={mandateUrl} />
+                  .with(
+                    {
+                      route: "PaymentSuccess",
+                      mandateUrlStatus: "Completed",
+                    },
+                    () => <SuccessPage mandateUrl={mandateUrl} redirectUrl={redirectUrl} />,
+                  )
+                  .with({ route: "PaymentSuccess" }, () => (
+                    <SuccessPage redirectUrl={redirectUrl} />
                   ))
-                  .with({ route: "PaymentSuccess" }, () => <SuccessPage />)
                   .with({ mandateUrlStatus: "Expired" }, () => (
                     <ExpiredPage paymentLink={merchantPaymentLink} />
                   ))

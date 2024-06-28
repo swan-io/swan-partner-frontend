@@ -3,7 +3,7 @@
   "common.cancel": "Cancel",
   "error.pageNotFound": "Page not found",
   "form.invalidField": "Invalid field",
-  "paymentLink.addressLine1": "Address line",
+  "paymentLink.addressLine1": "Address",
   "paymentLink.button.downloadMandate": "Download mandate",
   "paymentLink.button.returnToWebsite": "Return to website",
   "paymentLink.card.cardNumber": "Card number",

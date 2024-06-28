@@ -11,14 +11,10 @@ export const exec = (cmd: string): Promise<string> =>
         return reject(error);
       }
 
+      const out = stdout === '""' ? "" : stdout.trim();
       const err = stderr === '""' ? "" : stderr.trim();
 
-      if (err) {
-        return reject(new Error(err));
-      }
-
-      const out = stdout === '""' ? "" : stdout.trim();
-      return resolve(out);
+      resolve(out || err);
     });
   });
 

@@ -13,7 +13,11 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { validateIban, validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import {
+  printIbanFormat,
+  validateIban,
+  validateRequired,
+} from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -198,7 +202,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Prop
             label={t("paymentLink.iban")}
             render={() => (
               <LakeTextInput
-                value={value}
+                value={printIbanFormat(value)}
                 valid={valid}
                 error={error}
                 onBlur={onBlur}

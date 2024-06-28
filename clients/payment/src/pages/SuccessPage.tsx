@@ -28,9 +28,10 @@ const styles = StyleSheet.create({
 
 type Props = {
   mandateUrl?: string;
+  redirectUrl?: string;
 };
 
-export const SuccessPage = ({ mandateUrl }: Props) => {
+export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
   const { desktop } = useResponsive();
 
   return (
@@ -59,6 +60,23 @@ export const SuccessPage = ({ mandateUrl }: Props) => {
               href={mandateUrl}
             >
               {t("paymentLink.button.downloadMandate")}
+            </LakeButton>
+          </Box>
+        </>
+      )}
+
+      {isNotNullishOrEmpty(redirectUrl) && (
+        <>
+          <Space height={32} />
+
+          <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
+            <LakeButton
+              color="gray"
+              ariaLabel={t("paymentLink.button.returnToWebsite")}
+              mode="secondary"
+              href={redirectUrl}
+            >
+              {t("paymentLink.button.returnToWebsite")}
             </LakeButton>
           </Box>
         </>

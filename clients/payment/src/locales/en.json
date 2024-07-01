@@ -17,7 +17,7 @@
   "paymentLink.error.retry": "Try again",
   "paymentLink.error.subtitle": "We couldn't set up your payment with Swan.\nPlease try again or contact Customer Support.",
   "paymentLink.error.title": "Something went wrong.",
-  "paymentLink.expiryDateRequired": "Your expiry date is required.",
+  "paymentLink.expiryDateRequired": "Your expiry date is required",
   "paymentLink.iban": "IBAN",
   "paymentLink.invalidCardNumber": "Invalid card number",
   "paymentLink.invalidCvv": "Invalid CVV",

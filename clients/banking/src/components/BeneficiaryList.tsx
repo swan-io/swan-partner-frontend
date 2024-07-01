@@ -15,7 +15,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { printFormat } from "iban";
@@ -313,9 +312,6 @@ export const BeneficiaryList = ({
   accountId: string;
   accountMembershipId: string;
 }) => {
-  const { desktop } = useResponsive();
-  const rowHeight = desktop ? 56 : 72;
-
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
@@ -327,8 +323,10 @@ export const BeneficiaryList = ({
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
-      {({ large }) =>
-        match(beneficiaries)
+      {({ large }) => {
+        const rowHeight = large ? 56 : 72;
+
+        return match(beneficiaries)
           .with(AsyncData.P.NotAsked, () => null)
           .with(AsyncData.P.Loading, () => (
             <PlainListViewPlaceholder
@@ -350,8 +348,8 @@ export const BeneficiaryList = ({
             />
           ))
           .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-          .exhaustive()
-      }
+          .exhaustive();
+      }}
     </ResponsiveContainer>
   );
 };

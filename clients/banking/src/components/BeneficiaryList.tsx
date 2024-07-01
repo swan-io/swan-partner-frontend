@@ -10,9 +10,11 @@ import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
@@ -38,10 +40,13 @@ const currencyResolver = Lazy(() =>
 );
 
 const styles = StyleSheet.create({
+  fill: {
+    ...commonStyles.fill,
+  },
   header: {
     paddingHorizontal: spacings[24],
   },
-  headerDesktop: {
+  headerLarge: {
     paddingHorizontal: spacings[40],
   },
   cell: {
@@ -62,6 +67,43 @@ const Cell = (props: BoxProps) => (
     style={[styles.cell, props.style]}
   />
 );
+
+const smallColumns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
+  {
+    id: "name",
+    title: t("beneficiaries.name.title"),
+    width: "grow",
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item }) => (
+      <Cell>
+        <Tag
+          color="gray"
+          icon={match(item.type)
+            .returnType<IconName>()
+            .with("International", () => "earth-regular")
+            .otherwise(() => "person-regular")}
+        />
+
+        <Space width={16} />
+
+        <Box>
+          <LakeText variant="smallRegular" color={colors.gray[600]} numberOfLines={1}>
+            {item.label || item.name}
+          </LakeText>
+
+          <LakeText variant="smallMedium" color={colors.gray[700]}>
+            {match(item)
+              .returnType<string>()
+              .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => accountId)
+              .with({ __typename: "TrustedInternationalBeneficiary" }, () => "TODO")
+              .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => printFormat(iban))
+              .otherwise(() => "")}
+          </LakeText>
+        </Box>
+      </Cell>
+    ),
+  },
+];
 
 const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
   {
@@ -185,23 +227,26 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
 ];
 
 const BeneficiaryListImpl = ({
+  rowHeight,
+  large,
   accountMembershipId,
   beneficiaries,
   isLoading,
   setVariables,
 }: {
+  rowHeight: number;
+  large: boolean;
   accountMembershipId: string;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
 }) => {
-  const { desktop } = useResponsive();
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
 
   const AddButton = (
     <LakeButton
-      grow={!desktop}
+      grow={!large}
       icon="add-circle-filled"
       size="small"
       color="current"
@@ -217,7 +262,7 @@ const BeneficiaryListImpl = ({
         <Box
           alignItems="center"
           direction="row"
-          style={[styles.header, desktop && styles.headerDesktop]}
+          style={[styles.header, large && styles.headerLarge]}
         >
           {AddButton}
         </Box>
@@ -228,10 +273,11 @@ const BeneficiaryListImpl = ({
       <PlainListView
         data={nodes}
         keyExtractor={item => item.id}
-        rowHeight={56}
+        rowHeight={rowHeight}
         groupHeaderHeight={0}
         extraInfo={undefined}
         columns={columns}
+        smallColumns={smallColumns}
         headerHeight={48}
         loading={{
           isLoading,
@@ -267,6 +313,9 @@ export const BeneficiaryList = ({
   accountId: string;
   accountMembershipId: string;
 }) => {
+  const { desktop } = useResponsive();
+  const rowHeight = desktop ? 56 : 72;
+
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
@@ -276,25 +325,33 @@ export const BeneficiaryList = ({
     Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
   );
 
-  return match(beneficiaries)
-    .with(AsyncData.P.NotAsked, () => null)
-    .with(AsyncData.P.Loading, () => (
-      <PlainListViewPlaceholder
-        count={NUM_TO_RENDER}
-        headerHeight={48}
-        paddingHorizontal={24}
-        rowHeight={56}
-        rowVerticalSpacing={0}
-      />
-    ))
-    .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
-      <BeneficiaryListImpl
-        accountMembershipId={accountMembershipId}
-        beneficiaries={beneficiaries}
-        isLoading={isLoading}
-        setVariables={setVariables}
-      />
-    ))
-    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .exhaustive();
+  return (
+    <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
+      {({ large }) =>
+        match(beneficiaries)
+          .with(AsyncData.P.NotAsked, () => null)
+          .with(AsyncData.P.Loading, () => (
+            <PlainListViewPlaceholder
+              count={NUM_TO_RENDER}
+              headerHeight={48}
+              paddingHorizontal={24}
+              rowHeight={rowHeight}
+              rowVerticalSpacing={0}
+            />
+          ))
+          .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
+            <BeneficiaryListImpl
+              rowHeight={rowHeight}
+              large={large}
+              accountMembershipId={accountMembershipId}
+              beneficiaries={beneficiaries}
+              isLoading={isLoading}
+              setVariables={setVariables}
+            />
+          ))
+          .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+          .exhaustive()
+      }
+    </ResponsiveContainer>
+  );
 };

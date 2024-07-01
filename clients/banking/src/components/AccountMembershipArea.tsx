@@ -321,7 +321,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
             )
             .otherwise(() => Result.Error(undefined));
         }),
-    [data, lastRelevantIdentification],
+    [data, lastRelevantIdentification, isMerchantFlagActive],
   );
 
   return match(info)

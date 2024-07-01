@@ -278,7 +278,7 @@ export const AccountArea = ({
           {
             separator: true,
             matchRoutes: ["AccountMerchantsArea"],
-            iconActive: "building-shop-regular", // TODO: replace with building-shop-filled
+            iconActive: "building-shop-filled",
             icon: "building-shop-regular",
             name: t("navigation.merchant"),
             to: Router.AccountMerchantsRoot({ accountMembershipId }),

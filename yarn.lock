@@ -2122,6 +2122,29 @@
     "@swan-io/request" "^1.0.6"
     ts-pattern "^5.1.0"
 
+"@swan-io/lake@8.8.4":
+  version "8.8.4"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.8.4.tgz#a1a7c98be54856906b79384d4734a880e83b4ec8"
+  integrity sha512-EWin4DZU9FGX2BK9JhsgrOmEfovW0f3hIhY/0I+lzErROo0QDl7NUs9lFoKVjXzv6RJOk37UPONYHg/nB2uHBA==
+  dependencies:
+    "@react-three/drei" "^9.106.0"
+    "@react-three/fiber" "^8.16.7"
+    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/chicane" "^2.0.0"
+    "@swan-io/use-form" "^2.0.4"
+    dayjs "^1.11.11"
+    polished "^4.3.1"
+    prism-react-renderer "^2.3.1"
+    react "^18.3.1"
+    react-atomic-state "^2.0.0"
+    react-dom "^18.3.1"
+    react-native-web "^0.19.12"
+    rifm "^0.12.1"
+    three "^0.163.0"
+    ts-dedent "^2.2.0"
+    ts-pattern "^5.1.2"
+    uuid "^9.0.1"
+
 "@swan-io/lake@8.9.3":
   version "8.9.3"
   resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.9.3.tgz#53ddbe5995a34a11c0203cc4fe5c036a80ed536c"
@@ -2149,6 +2172,27 @@
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.6.tgz#e46c7a92d4088a484bfd60e180bd2768adb68568"
   integrity sha512-HirhY0gu6aZk95YGXONcmwrfwQ0u5+uZGAtwtSDmrXfCLEGubXb1qIdRMex1e65TroXnTzBG3A65M5EvUB28ZQ==
+
+"@swan-io/shared-business@8.8.4":
+  version "8.8.4"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.8.4.tgz#0382ce6d77255e781eaaedb29ec14d9e0b33f8d4"
+  integrity sha512-QRexBwCKgtpCKaR3JTtIu3WRa3Fc0Bg2rR3TMU/hgcm5Tfog7CQd9S7Bul9LNeU91eKFWubIoCzKp9xNXO6SeQ==
+  dependencies:
+    "@formatjs/intl" "^2.10.4"
+    "@placekit/client-js" "^2.3.0"
+    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/request" "^1.0.6"
+    "@swan-io/use-form" "^2.0.4"
+    dayjs "^1.11.11"
+    iban "^0.0.14"
+    react "^18.3.1"
+    react-atomic-state "^2.0.0"
+    react-dom "^18.3.1"
+    react-dropzone "^14.2.3"
+    react-native-web "^0.19.12"
+    rifm "^0.12.1"
+    ts-pattern "^5.1.2"
+    uuid "^9.0.1"
 
 "@swan-io/shared-business@8.9.3":
   version "8.9.3"

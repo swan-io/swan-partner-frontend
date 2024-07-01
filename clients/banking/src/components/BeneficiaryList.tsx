@@ -267,8 +267,6 @@ export const BeneficiaryList = ({
   accountId: string;
   accountMembershipId: string;
 }) => {
-  const { desktop } = useResponsive();
-
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,

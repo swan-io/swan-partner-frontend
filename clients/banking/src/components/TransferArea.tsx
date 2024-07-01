@@ -19,6 +19,7 @@ import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedir
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router, paymentRoutes } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
 import { TransferTypePicker } from "./TransferTypePicker";
 
@@ -57,6 +58,7 @@ export const TransferArea = ({
   transferConsent,
   transferCreationVisible,
 }: Props) => {
+  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const route = Router.useRoute(paymentRoutes);
 
   useTransferToastWithRedirect(transferConsent, () => {
@@ -132,17 +134,23 @@ export const TransferArea = ({
                           label: t("transfer.tabs.recurringTransfer"),
                           url: Router.AccountPaymentsRecurringTransferList({ accountMembershipId }),
                         },
-                        {
-                          label: t("transfer.tabs.beneficiaries"),
-                          url: Router.AccountPaymentsBeneficiariesList({ accountMembershipId }),
-                        },
+                        ...(beneficiariesEnabled
+                          ? [
+                              {
+                                label: t("transfer.tabs.beneficiaries"),
+                                url: Router.AccountPaymentsBeneficiariesList({
+                                  accountMembershipId,
+                                }),
+                              },
+                            ]
+                          : []),
                       ]}
                       otherLabel={t("common.tabs.other")}
                     />
 
                     <Space height={24} />
 
-                    {match(route)
+                    {match({ ...route, beneficiariesEnabled })
                       .with({ name: "AccountPaymentsRoot" }, ({ params }) => (
                         <TransferList
                           accountId={accountId}
@@ -164,12 +172,15 @@ export const TransferArea = ({
                           />
                         ),
                       )
-                      .with({ name: "AccountPaymentsBeneficiariesList" }, () => (
-                        <BeneficiaryList
-                          accountId={accountId}
-                          accountMembershipId={accountMembershipId}
-                        />
-                      ))
+                      .with(
+                        { name: "AccountPaymentsBeneficiariesList", beneficiariesEnabled: true },
+                        () => (
+                          <BeneficiaryList
+                            accountId={accountId}
+                            accountMembershipId={accountMembershipId}
+                          />
+                        ),
+                      )
                       .otherwise(() => (
                         <ErrorView />
                       ))}
@@ -190,14 +201,17 @@ export const TransferArea = ({
               <NotFoundPage />
             ),
           )
-          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) => (
-            <BeneficiaryTypePicker
-              accountCountry={accountCountry}
-              accountId={accountId}
-              accountMembershipId={accountMembershipId}
-              type={type}
-            />
-          ))
+          .with(
+            { name: "AccountPaymentsBeneficiariesNew", beneficiariesEnabled: true },
+            ({ params: { type } }) => (
+              <BeneficiaryTypePicker
+                accountCountry={accountCountry}
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                type={type}
+              />
+            ),
+          )
           .otherwise(() => (
             <NotFoundPage />
           ))}

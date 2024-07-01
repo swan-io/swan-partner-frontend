@@ -12,6 +12,9 @@ import { useCallback } from "react";
 import { StyleProp, StyleSheet, View, ViewStyle } from "react-native";
 
 const styles = StyleSheet.create({
+  fill: {
+    ...commonStyles.fill,
+  },
   base: {
     ...animations.fadeAndSlideInFromTop.enter,
     animationFillMode: "backwards",
@@ -19,9 +22,6 @@ const styles = StyleSheet.create({
   tile: {
     flexDirection: "row",
     alignItems: "center",
-  },
-  fill: {
-    ...commonStyles.fill,
   },
 });
 

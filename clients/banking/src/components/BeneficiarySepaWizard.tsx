@@ -11,18 +11,16 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { BeneficiaryWizard } from "./BeneficiaryWizard";
+import { Beneficiary, BeneficiaryWizard } from "./BeneficiaryWizard";
 
 const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
-  container: {
+  fill: {
     ...commonStyles.fill,
   },
   header: {
@@ -35,9 +33,6 @@ const styles = StyleSheet.create({
     maxWidth: 1336,
     marginHorizontal: "auto",
     paddingHorizontal: spacings[96],
-  },
-  headerTitle: {
-    ...commonStyles.fill,
   },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],
@@ -73,28 +68,60 @@ export const BeneficiarySepaWizard = ({
 }: Props) => {
   const [addSepaBeneficiary] = useMutation(AddSepaBeneficiaryDocument);
 
+  const handleOnSubmit = useCallback(
+    (beneficiary: Beneficiary) => {
+      addSepaBeneficiary({
+        input: {
+          accountId,
+          iban: beneficiary.iban,
+          name: beneficiary.name,
+          consentRedirectUrl:
+            window.location.origin +
+            Router.AccountPaymentsBeneficiariesList({
+              accountMembershipId,
+              kind: "beneficiary",
+            }),
+        },
+      })
+        .mapOk(data => data.addTrustedSepaBeneficiary)
+        .mapOkToResult(data => Option.fromNullable(data).toResult(data))
+        .mapOkToResult(filterRejectionsToResult)
+        .tapOk(({ trustedBeneficiary }) => {
+          match(trustedBeneficiary.statusInfo)
+            .with({ __typename: "TrustedBeneficiaryStatusInfoConsentPending" }, ({ consent }) =>
+              window.location.assign(consent.consentUrl),
+            )
+            .otherwise(() => {});
+        })
+        .tapError(error => {
+          showToast({ variant: "error", error, title: translateError(error) });
+        });
+    },
+    [accountId, accountMembershipId, addSepaBeneficiary],
+  );
+
   return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
+    <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
       {({ large }) => (
-        <View style={styles.container}>
+        <View style={styles.fill}>
           <View style={styles.header}>
             <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
               {onPressClose != null && (
                 <>
                   <LakeButton
+                    ariaLabel={t("common.closeButton")}
                     mode="tertiary"
                     icon="dismiss-regular"
                     onPress={onPressClose}
-                    ariaLabel={t("common.closeButton")}
                   />
 
                   <Space width={large ? 32 : 8} />
                 </>
               )}
 
-              <View style={styles.headerTitle}>
+              <View style={styles.fill}>
                 <LakeHeading level={2} variant="h3">
-                  New beneficiary
+                  {t("beneficiaries.wizards.sepa.title")}
                 </LakeHeading>
               </View>
             </View>
@@ -104,7 +131,7 @@ export const BeneficiarySepaWizard = ({
 
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
             <LakeHeading level={2} variant="h3">
-              Beneficiary’s info
+              {t("beneficiaries.wizards.sepa.subtitle")}
             </LakeHeading>
 
             <Space height={32} />
@@ -114,35 +141,7 @@ export const BeneficiarySepaWizard = ({
               accountCountry={accountCountry}
               accountId={accountId}
               onPressPrevious={onPressClose}
-              onPressSubmit={beneficiary => {
-                addSepaBeneficiary({
-                  input: {
-                    accountId,
-                    iban: beneficiary.iban,
-                    name: beneficiary.name,
-                    consentRedirectUrl:
-                      window.location.origin +
-                      Router.AccountPaymentsBeneficiariesList({
-                        accountMembershipId,
-                        kind: "beneficiary",
-                      }),
-                  },
-                })
-                  .mapOk(data => data.addTrustedSepaBeneficiary)
-                  .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-                  .mapOkToResult(filterRejectionsToResult)
-                  .tapOk(({ trustedBeneficiary }) => {
-                    match(trustedBeneficiary.statusInfo)
-                      .with(
-                        { __typename: "TrustedBeneficiaryStatusInfoConsentPending" },
-                        ({ consent }) => window.location.assign(consent.consentUrl),
-                      )
-                      .otherwise(() => {});
-                  })
-                  .tapError(error => {
-                    showToast({ variant: "error", error, title: translateError(error) });
-                  });
-              }}
+              onPressSubmit={handleOnSubmit}
             />
           </ScrollView>
         </View>

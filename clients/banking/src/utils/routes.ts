@@ -89,7 +89,18 @@ const routes = {
 
     ...createGroup("Merchants", "/merchants", {
       Area: "/*",
-      Root: "/",
+      Root: "/?:new{true}",
+      ...createGroup("Item", "/:merchantProfileId", {
+        ...createGroup("Payments", "/payments", {
+          Root: "/",
+          New: "/new?:type{paymentLink}",
+        }),
+        ...createGroup("PaymentLinks", "/links", {
+          Root: "/",
+          New: "/new",
+        }),
+        Settings: "/settings",
+      }),
     }),
   }),
 } as const;

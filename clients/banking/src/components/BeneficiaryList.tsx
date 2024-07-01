@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Lazy, Option, Result } from "@swan-io/boxed";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
 import {
@@ -15,6 +15,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { printFormat } from "iban";
 import { useMemo } from "react";
@@ -25,12 +26,28 @@ import {
   BeneficiariesListPageQuery,
   BeneficiariesListPageQueryVariables,
 } from "../graphql/partner";
+import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
 
+const currencyResolver = Lazy(() =>
+  "Intl" in window && "DisplayNames" in window.Intl
+    ? new Intl.DisplayNames([locale.language], { type: "currency" })
+    : undefined,
+);
+
 const styles = StyleSheet.create({
+  fill: {
+    ...commonStyles.fill,
+  },
+  header: {
+    paddingHorizontal: spacings[24],
+  },
+  hedaerLarge: {
+    paddingHorizontal: spacings[40],
+  },
   cell: {
     paddingHorizontal: spacings[16],
   },
@@ -53,8 +70,8 @@ const Cell = (props: BoxProps) => (
 const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
   {
     id: "name",
+    title: t("beneficiaries.name.title"),
     width: "grow",
-    title: "Name",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => (
       <Cell>
@@ -76,25 +93,27 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
   },
   {
     id: "identifier",
+    title: t("beneficiaries.accountIdentifier.title"),
     width: "grow",
-    title: "Account identifier",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
       const [text, value] = match(item)
         .returnType<[string, string]>()
         .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => [
-          "Account ID",
+          t("beneficiaries.accountIdentifier.accountId"),
           accountId,
         ])
         .with({ __typename: "TrustedInternationalBeneficiary" }, () => ["TODO", "TODO"])
-        .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => ["IBAN", printFormat(iban)])
+        .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => [
+          t("beneficiaries.accountIdentifier.iban"),
+          printFormat(iban),
+        ])
         .otherwise(() => ["", ""]);
 
       return (
         <Cell>
           <LakeText variant="smallRegular" color={colors.gray[400]} numberOfLines={1}>
-            {`${text}: `}
-
+            {text}:{" "}
             <LakeText variant="smallMedium" color={colors.gray[700]}>
               {value}
             </LakeText>
@@ -105,35 +124,46 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
   },
   {
     id: "currency",
+    title: t("beneficiaries.currency.title"),
     width: 200,
-    title: "Currency",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item }) => (
-      <Cell>
-        <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
-          {match(item)
-            .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
-            .otherwise(() => "EUR") + " "}
+    renderCell: ({ item }) => {
+      const currency = match(item)
+        .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
+        .otherwise(() => "EUR");
 
-          <LakeText variant="smallRegular" color={colors.gray[400]}>
-            (Euro)
+      const resolver = currencyResolver.get();
+
+      return (
+        <Cell>
+          <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
+            {currency}
+
+            {isNotNullish(resolver) && (
+              <>
+                {" "}
+                <LakeText variant="smallRegular" color={colors.gray[400]}>
+                  ({resolver.of(currency)})
+                </LakeText>
+              </>
+            )}
           </LakeText>
-        </LakeText>
-      </Cell>
-    ),
+        </Cell>
+      );
+    },
   },
   {
     id: "type",
+    title: t("beneficiaries.type.title"),
     width: 200,
-    title: "Type",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => (
       <Cell>
         <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
           {match(item.__typename)
-            .with("TrustedInternalBeneficiary", () => "Internal")
-            .with("TrustedInternationalBeneficiary", () => "International")
-            .with("TrustedSepaBeneficiary", () => "SEPA")
+            .with("TrustedInternalBeneficiary", () => t("beneficiaries.type.internal"))
+            .with("TrustedInternationalBeneficiary", () => t("beneficiaries.type.international"))
+            .with("TrustedSepaBeneficiary", () => t("beneficiaries.type.sepa"))
             .otherwise(() => "")}
         </LakeText>
       </Cell>
@@ -173,7 +203,6 @@ const BeneficiaryListImpl = ({
 }) => {
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
-  const isEmpty = nodes.length === 0;
 
   const AddButton = (
     <LakeButton
@@ -183,24 +212,17 @@ const BeneficiaryListImpl = ({
       color="current"
       onPress={() => Router.push("AccountPaymentsBeneficiariesNew", { accountMembershipId })}
     >
-      Add
+      {t("common.add")}
     </LakeButton>
   );
 
   return (
     <>
-      {!isEmpty && (
+      {nodes.length > 0 && (
         <Box
-          direction="row"
           alignItems="center"
-          style={[
-            {
-              paddingHorizontal: spacings[24],
-            },
-            large && {
-              paddingHorizontal: spacings[40],
-            },
-          ]}
+          direction="row"
+          style={[styles.header, large && styles.hedaerLarge]}
         >
           {AddButton}
         </Box>
@@ -227,11 +249,11 @@ const BeneficiaryListImpl = ({
         }}
         renderEmptyList={() => (
           <FixedListViewEmpty
-            borderedIcon={true}
             icon="lake-person-arrow-swap"
-            title="You haven't added any beneficiaries yet"
-            subtitle="Once you do, they'll be displayed here"
+            borderedIcon={true}
             borderedIconPadding={16}
+            title={t("beneficiaries.empty.title")}
+            subtitle={t("beneficiaries.empty.subtitle")}
           >
             <Space height={24} />
 
@@ -260,12 +282,7 @@ export const BeneficiaryList = ({
   );
 
   return (
-    <ResponsiveContainer
-      breakpoint={breakpoints.large}
-      style={{
-        ...commonStyles.fill,
-      }}
-    >
+    <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
       {({ large }) =>
         match(beneficiaries)
           .with(AsyncData.P.NotAsked, () => null)

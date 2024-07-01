@@ -5,11 +5,35 @@ import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
-import { View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
+import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiarySepaWizard } from "./BeneficiarySepaWizard";
 import { TypePickerLink } from "./TypePickerLink";
+
+const styles = StyleSheet.create({
+  fill: {
+    ...commonStyles.fill,
+  },
+  root: {
+    ...commonStyles.fill,
+    paddingHorizontal: spacings[24],
+    paddingTop: spacings[24],
+  },
+  rootLarge: {
+    paddingHorizontal: spacings[40],
+    paddingTop: spacings[40],
+  },
+  stack: {
+    margin: "auto",
+    maxWidth: 500,
+    paddingVertical: spacings[24],
+  },
+  stackLarge: {
+    paddingVertical: spacings[40],
+  },
+});
 
 type Props = {
   accountMembershipId: string;
@@ -24,12 +48,10 @@ export const BeneficiaryTypePicker = ({
   accountCountry,
   type,
 }: Props) => {
-  // const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
-
   useCrumb(
     useMemo(
       () => ({
-        label: "New beneficiary",
+        label: t("beneficiaries.wizards.picker.crumb"),
         link: Router.AccountPaymentsBeneficiariesNew({ accountMembershipId }),
       }),
       [accountMembershipId],
@@ -41,60 +63,24 @@ export const BeneficiaryTypePicker = ({
       {
         url: Router.AccountPaymentsBeneficiariesNew({ accountMembershipId, type: "sepa" }),
         icon: "lake-euro" as const,
-        title: "SEPA",
-        subtitle: "Save beneficiaries with accounts based in euros",
+        title: t("beneficiaries.wizards.picker.sepa.title"),
+        subtitle: t("beneficiaries.wizards.picker.sepa.subtitle"),
       },
-      // ...(ictEnabled.getOr(false)
-      //   ? [
-      //       {
-      //         url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
-      //         icon: "earth-regular" as const,
-      //         title: "International",
-      //         subtitle: "Save beneficiaries with accounts based in currencies other than euros",
-      //       },
-      //     ]
-      //   : []),
     ],
-    [/*ictEnabled,*/ accountMembershipId],
+    [accountMembershipId],
   );
 
   return (
     <>
-      <ResponsiveContainer
-        breakpoint={breakpoints.large}
-        style={{
-          ...commonStyles.fill,
-        }}
-      >
+      <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
         {({ large }) => (
-          <View
-            style={[
-              {
-                ...commonStyles.fill,
-                paddingHorizontal: spacings[24],
-                paddingTop: spacings[24],
-              },
-              large && {
-                paddingHorizontal: spacings[40],
-                paddingTop: spacings[40],
-              },
-            ]}
-          >
+          <View style={[styles.root, large && styles.rootLarge]}>
             <Breadcrumbs />
 
             <Stack
               alignItems="stretch"
               space={12}
-              style={[
-                {
-                  margin: "auto",
-                  maxWidth: 500,
-                  paddingVertical: spacings[24],
-                },
-                large && {
-                  paddingVertical: spacings[40],
-                },
-              ]}
+              style={[styles.stack, large && styles.stackLarge]}
             >
               {links.map(({ url, icon, title, subtitle }, index) => (
                 <TypePickerLink

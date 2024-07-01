@@ -125,6 +125,7 @@ export const TransferArea = ({
                     <TabView
                       padding={small ? 24 : 40}
                       sticky={true}
+                      otherLabel={t("common.tabs.other")}
                       tabs={[
                         {
                           label: t("transfer.tabs.transfers"),
@@ -145,12 +146,11 @@ export const TransferArea = ({
                             ]
                           : []),
                       ]}
-                      otherLabel={t("common.tabs.other")}
                     />
 
                     <Space height={24} />
 
-                    {match({ ...route, beneficiariesEnabled })
+                    {match(route)
                       .with({ name: "AccountPaymentsRoot" }, ({ params }) => (
                         <TransferList
                           accountId={accountId}
@@ -172,15 +172,12 @@ export const TransferArea = ({
                           />
                         ),
                       )
-                      .with(
-                        { name: "AccountPaymentsBeneficiariesList", beneficiariesEnabled: true },
-                        () => (
-                          <BeneficiaryList
-                            accountId={accountId}
-                            accountMembershipId={accountMembershipId}
-                          />
-                        ),
-                      )
+                      .with({ name: "AccountPaymentsBeneficiariesList" }, () => (
+                        <BeneficiaryList
+                          accountId={accountId}
+                          accountMembershipId={accountMembershipId}
+                        />
+                      ))
                       .otherwise(() => (
                         <ErrorView />
                       ))}
@@ -201,17 +198,14 @@ export const TransferArea = ({
               <NotFoundPage />
             ),
           )
-          .with(
-            { name: "AccountPaymentsBeneficiariesNew", beneficiariesEnabled: true },
-            ({ params: { type } }) => (
-              <BeneficiaryTypePicker
-                accountCountry={accountCountry}
-                accountId={accountId}
-                accountMembershipId={accountMembershipId}
-                type={type}
-              />
-            ),
-          )
+          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) => (
+            <BeneficiaryTypePicker
+              accountCountry={accountCountry}
+              accountId={accountId}
+              accountMembershipId={accountMembershipId}
+              type={type}
+            />
+          ))
           .otherwise(() => (
             <NotFoundPage />
           ))}

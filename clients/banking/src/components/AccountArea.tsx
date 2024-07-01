@@ -303,7 +303,7 @@ export const AccountArea = ({
             icon: "building-shop-regular",
             name: t("navigation.merchant"),
             to: Router.AccountMerchantsRoot({ accountMembershipId }),
-            hidden: !sections.merchants,
+            hidden: account?.holder.info.type !== "Company" || !sections.merchants,
           },
         ];
 

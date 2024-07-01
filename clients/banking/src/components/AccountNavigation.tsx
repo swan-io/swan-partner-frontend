@@ -8,6 +8,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor";
 import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
+import { Fragment } from "react/jsx-runtime";
 import { t } from "../utils/i18n";
 import { RouteName, Router, accountAreaRoutes } from "../utils/routes";
 
@@ -111,12 +112,11 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
         }
 
         return (
-          <>
+          <Fragment key={`navigation-${item.to}`}>
             {item.separator === true ? <Separator space={12} /> : null}
 
             <WithCurrentColor
               style={styles.linkContainer}
-              key={`navigation-${item.to}`}
               variant={item.hasNotifications === true ? "negative" : "partner"}
             >
               <Link
@@ -175,7 +175,7 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
                 }}
               </Link>
             </WithCurrentColor>
-          </>
+          </Fragment>
         );
       })}
     </View>

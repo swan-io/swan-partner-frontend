@@ -159,6 +159,13 @@ type Props = {
     memberListVisible: boolean;
     physicalCardOrderVisible: boolean;
     virtualCardOrderVisible: boolean;
+    merchantProfileCreationVisible: boolean;
+    merchantProfileCardVisible: boolean;
+    merchantProfileSepaDirectDebitCoreVisible: boolean;
+    merchantProfileSepaDirectDebitB2BVisible: boolean;
+    merchantProfileInternalDirectDebitCoreVisible: boolean;
+    merchantProfileInternalDirectDebitB2BVisible: boolean;
+    merchantProfileCheckVisible: boolean;
   };
   activationTag: AccountActivationTag;
   sections: {
@@ -274,6 +281,20 @@ export const AccountArea = ({
             name: t("navigation.cards"),
             to: Router.AccountCardsList({ accountMembershipId }),
             hidden: !sections.cards,
+          },
+          {
+            matchRoutes: ["AccountMembersArea"],
+            iconActive: "people-filled",
+            icon: "people-regular",
+            name: t("navigation.members"),
+            to: Router.AccountMembersList({ accountMembershipId }),
+            hidden: !sections.members,
+            hasNotifications: Option.fromNullable(accountMembership.account)
+              .map(
+                ({ accountMembershipsWithBindingUserError }) =>
+                  accountMembershipsWithBindingUserError.totalCount > 0,
+              )
+              .getOr(false),
           },
           {
             separator: true,
@@ -587,7 +608,27 @@ export const AccountArea = ({
                           )
                           .otherwise(() => <ErrorView />),
                       )
-                      .with({ name: "AccountMerchantsArea" }, () => <MerchantArea />)
+                      .with({ name: "AccountMerchantsArea" }, () => (
+                        <MerchantArea
+                          accountId={accountId}
+                          accountMembershipId={accountMembershipId}
+                          merchantProfileCreationVisible={features.merchantProfileCreationVisible}
+                          merchantProfileCardVisible={features.merchantProfileCardVisible}
+                          merchantProfileSepaDirectDebitCoreVisible={
+                            features.merchantProfileSepaDirectDebitCoreVisible
+                          }
+                          merchantProfileSepaDirectDebitB2BVisible={
+                            features.merchantProfileSepaDirectDebitB2BVisible
+                          }
+                          merchantProfileInternalDirectDebitCoreVisible={
+                            features.merchantProfileInternalDirectDebitCoreVisible
+                          }
+                          merchantProfileInternalDirectDebitB2BVisible={
+                            features.merchantProfileInternalDirectDebitB2BVisible
+                          }
+                          merchantProfileCheckVisible={features.merchantProfileCheckVisible}
+                        />
+                      ))
                       .with({ name: "AccountActivation" }, () => (
                         <AccountActivationPage
                           hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}

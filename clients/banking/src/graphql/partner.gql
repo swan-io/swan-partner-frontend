@@ -2333,6 +2333,23 @@ query GetInternationalCreditTransferTransactionDetailsDynamicForm(
   }
 }
 
+query MerchantRoot($accountId: ID!) {
+  account(accountId: $accountId) {
+    merchantProfiles(
+      first: 1
+      orderBy: { field: createdAt, direction: Desc }
+      filters: { status: [PendingReview, Enabled] }
+    ) {
+      totalCount
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2771,6 +2788,65 @@ mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCredit
           }
         }
       }
+    }
+  }
+}
+
+fragment MerchantProfile on MerchantProfile {
+  id
+  accentColor
+  accountId
+  createdAt
+  updatedAt
+  expectedAverageBasket {
+    value
+    currency
+  }
+  expectedMonthlyPaymentVolume {
+    value
+    currency
+  }
+  merchantLogoUrl
+  merchantName
+  merchantWebsite
+  productType
+  statusInfo {
+    status
+  }
+  merchantPaymentMethods {
+    id
+    type
+    methodId
+    updatedAt
+    version
+    rollingReserve {
+      percentage
+      rollingDays
+    }
+    statusInfo {
+      __typename
+      status
+    }
+    ... on SepaDirectDebitB2BMerchantPaymentMethod {
+      sepaCreditorIdentifier
+      useSwanSepaCreditorIdentifier
+    }
+    ... on SepaDirectDebitCoreMerchantPaymentMethod {
+      sepaCreditorIdentifier
+      useSwanSepaCreditorIdentifier
+    }
+  }
+}
+
+mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
+  addMerchantProfile(input: $input) {
+    ... on AddMerchantProfileSuccessPayload {
+      merchantProfile {
+        ...MerchantProfile
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

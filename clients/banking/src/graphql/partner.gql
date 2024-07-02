@@ -2798,6 +2798,31 @@ mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCredit
   }
 }
 
+fragment MerchantPaymentMethod on MerchantPaymentMethod {
+  __typename
+  id
+  type
+  methodId
+  updatedAt
+  version
+  rollingReserve {
+    percentage
+    rollingDays
+  }
+  statusInfo {
+    __typename
+    status
+  }
+  ... on SepaDirectDebitB2BMerchantPaymentMethod {
+    sepaCreditorIdentifier
+    useSwanSepaCreditorIdentifier
+  }
+  ... on SepaDirectDebitCoreMerchantPaymentMethod {
+    sepaCreditorIdentifier
+    useSwanSepaCreditorIdentifier
+  }
+}
+
 fragment MerchantProfile on MerchantProfile {
   id
   accentColor
@@ -2820,27 +2845,7 @@ fragment MerchantProfile on MerchantProfile {
     status
   }
   merchantPaymentMethods {
-    id
-    type
-    methodId
-    updatedAt
-    version
-    rollingReserve {
-      percentage
-      rollingDays
-    }
-    statusInfo {
-      __typename
-      status
-    }
-    ... on SepaDirectDebitB2BMerchantPaymentMethod {
-      sepaCreditorIdentifier
-      useSwanSepaCreditorIdentifier
-    }
-    ... on SepaDirectDebitCoreMerchantPaymentMethod {
-      sepaCreditorIdentifier
-      useSwanSepaCreditorIdentifier
-    }
+    ...MerchantPaymentMethod
   }
 }
 
@@ -2864,6 +2869,18 @@ mutation RequestMerchantPaymentMethods($input: RequestMerchantPaymentMethodsInpu
       merchantProfile {
         id
       }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantPaymentMethodsUpdate($input: RequestMerchantPaymentMethodsUpdateInput!) {
+  requestMerchantPaymentMethodsUpdate(input: $input) {
+    __typename
+    ... on RequestMerchantPaymentMethodsUpdateSuccessPayload {
+      paymentMethodId
     }
     ... on Rejection {
       message

@@ -507,6 +507,7 @@
   "merchantProfile.settings.paymentMethods.sepaDirectDebitCore.title": "SEPA Direct Debit Core",
   "merchantProfile.settings.paymentMethods.sepaDirectDebitCore.description": "Accept payments by debiting a customer's company or individual bank account",
   "merchantProfile.settings.paymentMethods.request": "Request",
+  "merchantProfile.settings.paymentMethods.requestUpdate": "Request update",
   "merchantProfile.settings.paymentMethods.swanReview": "Swan reviews all requested payment methods before they can be used to collect merchant payments.",
   "merchantProfile.settings.paymentMethods.title": "Payment methods",
   "merchantProfile.settings.paymentMethods.status.Disabled": "Disabled",

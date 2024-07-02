@@ -24,9 +24,8 @@ import { CSSProperties, ReactNode, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
-  MerchantPaymentMethod,
+  MerchantPaymentMethodFragment,
   MerchantPaymentMethodStatus,
-  MerchantPaymentMethodType,
   MerchantProfileFragment,
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
@@ -38,6 +37,7 @@ import {
   MerchantProfilePaymentMethodInternalDirectDebitStandardRequestModal,
   MerchantProfilePaymentMethodSepaDirectDebitB2BRequestModal,
   MerchantProfilePaymentMethodSepaDirectDebitCoreRequestModal,
+  MerchantProfilePaymentMethodSepaDirectDebitUpdateModal,
 } from "./MerchantProfilePaymentMethodModals";
 import { SepaLogo } from "./SepaLogo";
 
@@ -95,6 +95,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   recommended,
   status,
   renderRequestEditor,
+  renderUpdateEditor,
   onDisable,
 }: {
   title: string;
@@ -103,9 +104,11 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   recommended: boolean;
   status?: MerchantPaymentMethodStatus;
   renderRequestEditor: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
+  renderUpdateEditor?: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   onDisable: () => Future<Result<unknown, unknown>>;
 }) => {
   const [isRequestEditorOpen, setIsRequestEditorOpen] = useState(false);
+  const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [isDisabling, setIsDisabling] = useState(false);
 
@@ -167,8 +170,20 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             </LakeText>
           </Box>
 
+          {match({ status, renderUpdateEditor })
+            .with({ status: "Enabled", renderUpdateEditor: P.nonNullable }, () => (
+              <LakeButton
+                mode="tertiary"
+                color="gray"
+                icon="edit-regular"
+                ariaLabel={t("common.edit")}
+                onPress={() => setIsUpdateEditorOpen(true)}
+              />
+            ))
+            .otherwise(() => null)}
+
           {match(status)
-            .with(P.nullish, () => (
+            .with(P.nullish, "Disabled", () => (
               <LakeButton
                 mode="tertiary"
                 color="gray"
@@ -192,6 +207,11 @@ const MerchantProfileSettingsPaymentMethodTile = ({
         <Space height={12} />
         <LakeText color={colors.gray[500]}>{description}</LakeText>
       </Tile>
+
+      {renderUpdateEditor?.({
+        visible: isUpdateEditorOpen,
+        onPressClose: () => setIsUpdateEditorOpen(false),
+      })}
 
       {renderRequestEditor({
         visible: isRequestEditorOpen,
@@ -234,26 +254,39 @@ const MerchantProfileSettingsPaymentMethodTile = ({
 // - Some(Some(paymentMethod)) shows a payment method that exists
 // - Some(None) shows no payment method, but the right to create one
 // - None shows that this type of payment method is not allowed
-const getPaymentMethod = ({
+const getPaymentMethod = <T extends MerchantPaymentMethodFragment["__typename"]>({
   merchantPaymentMethods,
   isVisible,
   type,
 }: {
-  merchantPaymentMethods: MerchantPaymentMethod[];
+  merchantPaymentMethods: MerchantPaymentMethodFragment[];
   isVisible: boolean;
-  type: MerchantPaymentMethodType;
-}) =>
-  match({
+  type: T;
+}): Option<Option<MerchantPaymentMethodFragment & { __typename: T }>> => {
+  const paymentMethod = Array.findMap(
+    merchantPaymentMethods.toSorted((a, b) => {
+      const aDate = new Date(a.updatedAt).getTime();
+      const bDate = new Date(b.updatedAt).getTime();
+      return bDate < aDate ? -1 : 1;
+    }),
+    paymentMethod =>
+      match(paymentMethod)
+        .with({ __typename: type }, () =>
+          Option.Some(paymentMethod as MerchantPaymentMethodFragment & { __typename: T }),
+        )
+        .otherwise(() => Option.None()),
+  );
+
+  return match({
     isVisible,
-    paymentMethod: Array.findMap(merchantPaymentMethods, paymentMethod =>
-      paymentMethod.type === type ? Option.Some(paymentMethod) : Option.None(),
-    ),
+    paymentMethod,
   })
     .with({ paymentMethod: Option.P.Some(P.select()) }, paymentMethod =>
       Option.Some(Option.Some(paymentMethod)),
     )
     .with({ isVisible: true }, () => Option.Some(Option.None()))
     .otherwise(() => Option.None());
+};
 
 type Props = {
   merchantProfile: MerchantProfileFragment;
@@ -294,37 +327,37 @@ export const MerchantProfileSettings = ({
   const cardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileCardVisible,
-    type: "Card",
+    type: "CardMerchantPaymentMethod",
   });
 
   const internalDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileInternalDirectDebitB2BVisible,
-    type: "InternalDirectDebitB2b",
+    type: "InternalDirectDebitB2BMerchantPaymentMethod",
   });
 
   const internalDirectDebitStandardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileInternalDirectDebitCoreVisible,
-    type: "InternalDirectDebitStandard",
+    type: "InternalDirectDebitStandardMerchantPaymentMethod",
   });
 
   const sepaDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileSepaDirectDebitB2BVisible,
-    type: "SepaDirectDebitB2b",
+    type: "SepaDirectDebitB2BMerchantPaymentMethod",
   });
 
   const sepaDirectDebitCorePaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileSepaDirectDebitCoreVisible,
-    type: "SepaDirectDebitCore",
+    type: "SepaDirectDebitCoreMerchantPaymentMethod",
   });
 
   const checkPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
     isVisible: merchantProfileCheckVisible,
-    type: "Check",
+    type: "CheckMerchantPaymentMethod",
   });
 
   return (
@@ -686,6 +719,33 @@ export const MerchantProfileSettings = ({
                       }}
                     />
                   )}
+                  renderUpdateEditor={paymentMethod
+                    .map(
+                      paymentMethod =>
+                        ({
+                          visible,
+                          onPressClose,
+                        }: {
+                          visible: boolean;
+                          onPressClose: () => void;
+                        }) => (
+                          <MerchantProfilePaymentMethodSepaDirectDebitUpdateModal
+                            paymentMethodId={paymentMethod.id}
+                            visible={visible}
+                            onPressClose={onPressClose}
+                            onSuccess={() => {
+                              onUpdate();
+                            }}
+                            initialValues={{
+                              useSwanSepaCreditorIdentifier:
+                                paymentMethod.useSwanSepaCreditorIdentifier,
+                              sepaCreditorIdentifier:
+                                paymentMethod.sepaCreditorIdentifier ?? undefined,
+                            }}
+                          />
+                        ),
+                    )
+                    .toUndefined()}
                   onDisable={() =>
                     requestMerchantPaymentMethods({
                       input: {
@@ -733,6 +793,33 @@ export const MerchantProfileSettings = ({
                       }}
                     />
                   )}
+                  renderUpdateEditor={paymentMethod
+                    .map(
+                      paymentMethod =>
+                        ({
+                          visible,
+                          onPressClose,
+                        }: {
+                          visible: boolean;
+                          onPressClose: () => void;
+                        }) => (
+                          <MerchantProfilePaymentMethodSepaDirectDebitUpdateModal
+                            paymentMethodId={paymentMethod.id}
+                            visible={visible}
+                            onPressClose={onPressClose}
+                            onSuccess={() => {
+                              onUpdate();
+                            }}
+                            initialValues={{
+                              useSwanSepaCreditorIdentifier:
+                                paymentMethod.useSwanSepaCreditorIdentifier,
+                              sepaCreditorIdentifier:
+                                paymentMethod.sepaCreditorIdentifier ?? undefined,
+                            }}
+                          />
+                        ),
+                    )
+                    .toUndefined()}
                   onDisable={() =>
                     requestMerchantPaymentMethods({
                       input: {

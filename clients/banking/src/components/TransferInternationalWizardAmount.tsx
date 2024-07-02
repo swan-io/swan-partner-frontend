@@ -84,7 +84,9 @@ export const TransferInternationalWizardAmount = ({
     }
   }, [input, accountId, queryQuote, resetQuote]);
 
-  const { Field, submitForm, listenFields } = useForm({
+  const { Field, submitForm, listenFields } = useForm<{
+    amount: { value: string; currency: Currency };
+  }>({
     amount: {
       initialValue: initialAmount ?? {
         value: FIXED_AMOUNT_DEFAULT_VALUE,
@@ -108,7 +110,7 @@ export const TransferInternationalWizardAmount = ({
         amount: {
           value: { currency, value },
         },
-      }) => setInput(value && value !== "0" ? ({ currency, value } as Amount) : undefined),
+      }) => setInput(value && value !== "0" ? { currency, value } : undefined),
     );
   }, [listenFields]);
 
@@ -208,7 +210,7 @@ export const TransferInternationalWizardAmount = ({
                     onChange({ currency, value: nextValue.replace(/,/g, ".") });
                   }}
                   onBlur={onBlur}
-                  units={currencies.toSorted() as unknown as string[]}
+                  units={currencies}
                   unit={currency}
                   inputMode="numeric"
                   onUnitChange={nextCurrency => {
@@ -255,8 +257,7 @@ export const TransferInternationalWizardAmount = ({
                 submitForm({
                   onSuccess: ({ amount }) => {
                     if (amount.isSome() && isNotNullish(metadata)) {
-                      const { value, currency } = amount.get();
-                      onSave({ value, currency: currency as Currency });
+                      onSave(amount.get());
                     }
                   },
                 })

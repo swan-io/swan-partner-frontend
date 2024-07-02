@@ -302,7 +302,7 @@ export const accountLanguages = {
   }, []),
 };
 
-export const currencies = [
+const currenciesTuple = [
   "AUD",
   "BRL",
   "CAD",
@@ -325,4 +325,6 @@ export const currencies = [
   "UYU",
   "VND",
 ] as const;
-export type Currency = (typeof currencies)[number];
+
+export const currencies = currenciesTuple.toSorted();
+export type Currency = (typeof currenciesTuple)[number];

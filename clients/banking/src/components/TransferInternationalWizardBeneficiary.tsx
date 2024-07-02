@@ -13,7 +13,11 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNotNullishOrEmpty,
+  isNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
@@ -50,7 +54,7 @@ type Props = {
   initialBeneficiary?: Beneficiary;
   amount: Amount;
   errors?: string[];
-  onPressPrevious: () => void;
+  onPressPrevious?: () => void;
   onSave: (details: Beneficiary) => void;
 };
 
@@ -71,7 +75,7 @@ export const TransferInternationalWizardBeneficiary = ({
     dynamicFields,
     amountValue: amount.value,
     currency: amount.currency,
-    //TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
+    // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
     language: locale.language === "fi" ? "en" : locale.language,
   });
 
@@ -233,9 +237,11 @@ export const TransferInternationalWizardBeneficiary = ({
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-              {t("common.previous")}
-            </LakeButton>
+            {isNotNullish(onPressPrevious) && (
+              <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
+                {t("common.previous")}
+              </LakeButton>
+            )}
 
             <LakeButton
               color="current"

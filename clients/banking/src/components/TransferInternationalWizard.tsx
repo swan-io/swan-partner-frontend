@@ -218,11 +218,14 @@ export const TransferInternationalWizard = ({
                     <Space height={32} />
 
                     <TransferInternationalWizardBeneficiary
+                      mode="continue"
                       initialBeneficiary={beneficiary}
                       amount={amount}
                       errors={errors}
                       onPressPrevious={() => setStep({ name: "Amount", amount })}
-                      onSave={beneficiary => setStep({ name: "Details", amount, beneficiary })}
+                      onPressSubmit={beneficiary =>
+                        setStep({ name: "Details", amount, beneficiary })
+                      }
                     />
                   </>
                 );

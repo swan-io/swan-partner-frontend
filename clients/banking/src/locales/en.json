@@ -947,6 +947,7 @@
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "The value does not match the expected pattern (example: {example})",
   "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "This field type hasn't been implemented.",
   "transfer.new.internationalTransfer.beneficiary.name": "Beneficiary name",
+  "transfer.new.internationalTransfer.beneficiary.currency": "Currency",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "I have my beneficiary's:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiary:",
   "transfer.new.internationalTransfer.beneficiary.title": "Who are you sending money to?",

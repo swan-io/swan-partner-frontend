@@ -6,11 +6,15 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { match } from "ts-pattern";
 import { AccountCountry } from "../graphql/partner";
-import { t } from "../utils/i18n";
-import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
+import { Currency, t } from "../utils/i18n";
+import {
+  Beneficiary,
+  TransferInternationalWizardBeneficiary,
+} from "./TransferInternationalWizardBeneficiary";
 
 const styles = StyleSheet.create({
   fill: {
@@ -59,6 +63,11 @@ export const BeneficiaryInternationalWizard = ({
   accountId,
   accountMembershipId,
 }: Props) => {
+  const [amount, setAmount] = useState<{ value: string; currency: Currency }>(() => ({
+    value: "1000",
+    currency: "USD",
+  }));
+
   const handleOnSubmit = useCallback((beneficiary: Beneficiary) => {}, []);
 
   return (
@@ -96,6 +105,25 @@ export const BeneficiaryInternationalWizard = ({
             </LakeHeading>
 
             <Space height={32} />
+
+            <TransferInternationalWizardBeneficiary
+              mode="add"
+              amount={amount}
+              onPressPrevious={onPressClose}
+              onPressSubmit={handleOnSubmit}
+              onCurrencyChange={currency => {
+                setAmount(prevAmount =>
+                  prevAmount.currency === currency
+                    ? prevAmount
+                    : {
+                        currency,
+                        value: match(currency)
+                          .with("IDR", "VND", () => "50000")
+                          .otherwise(() => "1000"),
+                      },
+                );
+              }}
+            />
           </ScrollView>
         </View>
       )}

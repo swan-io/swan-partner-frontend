@@ -209,7 +209,7 @@ const MerchantProfileEditor = ({
                   showToast({ variant: "error", error, title: translateError(error) });
                 })
                 .tapOk(payload => {
-                  Router.push("AccountMerchantsItemPaymentsRoot", {
+                  Router.push("AccountMerchantsProfileSettings", {
                     accountMembershipId,
                     merchantProfileId: payload.merchantProfile.id,
                   });

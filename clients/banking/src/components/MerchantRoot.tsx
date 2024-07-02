@@ -39,7 +39,7 @@ export const MerchantRoot = ({
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(Option.P.Some(P.select()))), merchantProfileId => (
       <Redirect
-        to={Router.AccountMerchantsItemPaymentsRoot({ accountMembershipId, merchantProfileId })}
+        to={Router.AccountMerchantsProfilePaymentsRoot({ accountMembershipId, merchantProfileId })}
       />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(Option.P.None)), () => {

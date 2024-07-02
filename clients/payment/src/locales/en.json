@@ -9,7 +9,7 @@
   "paymentLink.card.cardNumber": "Card number",
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Expiry date",
-  "paymentLink.cardNotSupported": "Your card isn't supported. Please try with another card.",
+  "paymentLink.cardNotSupported": "{cardType} cards are not supported. Please try with another card.",
   "paymentLink.cardNumberRequired": "Your card number is required.",
   "paymentLink.city": "City",
   "paymentLink.country": "Country",

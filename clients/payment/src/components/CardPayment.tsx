@@ -9,6 +9,7 @@ import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useEffect, useState } from "react";
@@ -67,6 +68,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
   const [cardNumberState, setCardNumberState] = useState<CardFieldState>("untouched");
   const [isPaymentMethodValid, setIsPaymentMethodValid] = useState<boolean>(true);
   const [cardNumberHasBeenBlurred, setCardNumberHasBeenBlurred] = useState(false);
+  const [cardTypeValue, setCardTypeValue] = useState<string | undefined>(undefined);
 
   const [expiryDateState, setExpiryDateState] = useState<FieldState>("untouched");
   const [expiryDateHasBeenBlurred, setExpiryDateHasBeenBlurred] = useState(false);
@@ -126,6 +128,9 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
             setPaymentMethod(Option.Some(paymentMethod));
           })
           .otherwise(() => {
+            if (isNotNullish(cardType) && typeof cardType === "string") {
+              setCardTypeValue(cardType);
+            }
             setPaymentMethod(Option.None());
           });
       },
@@ -293,7 +298,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                     )
                     .with(
                       { cardNumberState: "cardNotSupported", cardNumberHasBeenBlurred: true },
-                      () => t("paymentLink.cardNotSupported"),
+                      () =>
+                        t("paymentLink.cardNotSupported", {
+                          cardType: isNotNullish(cardTypeValue) ? cardTypeValue : "",
+                        }),
                     )
                     .with({ cardNumberState: "empty", cardNumberHasBeenBlurred: true }, () =>
                       t("paymentLink.cardNumberRequired"),

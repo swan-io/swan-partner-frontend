@@ -5,6 +5,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
 import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
@@ -34,13 +35,15 @@ export const ExpiredPage = ({ paymentLink }: Props) => {
 
       <Space height={32} />
 
-      <LakeButton
-        ariaLabel={t("paymentLink.button.returnToWebsite")}
-        mode="secondary"
-        href={paymentLink.redirectUrl}
-      >
-        {t("paymentLink.button.returnToWebsite")}
-      </LakeButton>
+      {isNotNullish(paymentLink.redirectUrl) && (
+        <LakeButton
+          ariaLabel={t("paymentLink.button.returnToWebsite")}
+          mode="secondary"
+          href={paymentLink.redirectUrl}
+        >
+          {t("paymentLink.button.returnToWebsite")}
+        </LakeButton>
+      )}
     </Box>
   );
 };

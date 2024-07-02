@@ -2,11 +2,13 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
+import { Separator } from "@swan-io/lake/src/components/Separator";
 import { SidebarNavigationTrackerActiveMarker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor";
 import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
+import { Fragment } from "react/jsx-runtime";
 import { t } from "../utils/i18n";
 import { RouteName, Router, accountAreaRoutes } from "../utils/routes";
 
@@ -88,6 +90,7 @@ export type Menu = {
   name: string;
   hidden: boolean;
   hasNotifications?: boolean;
+  separator?: boolean;
 }[];
 
 type Props = {
@@ -109,67 +112,70 @@ export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) 
         }
 
         return (
-          <WithCurrentColor
-            style={styles.linkContainer}
-            key={`navigation-${item.to}`}
-            variant={item.hasNotifications === true ? "negative" : "partner"}
-          >
-            <Link
-              to={item.to}
-              aria-label={item.name}
-              onPress={onPressLink}
-              numberOfLines={1}
-              style={({ hovered }) => [
-                styles.navItem,
-                isActive ? styles.active : hovered && styles.hovered,
-                isActive && item.hasNotifications === true && styles.activeWithNotification,
-              ]}
+          <Fragment key={`navigation-${item.to}`}>
+            {item.separator === true ? <Separator space={12} /> : null}
+
+            <WithCurrentColor
+              style={styles.linkContainer}
+              variant={item.hasNotifications === true ? "negative" : "partner"}
             >
-              {({ hovered }) => {
-                const inactiveColor = hovered ? colors.gray[900] : colors.gray[500];
+              <Link
+                to={item.to}
+                aria-label={item.name}
+                onPress={onPressLink}
+                numberOfLines={1}
+                style={({ hovered }) => [
+                  styles.navItem,
+                  isActive ? styles.active : hovered && styles.hovered,
+                  isActive && item.hasNotifications === true && styles.activeWithNotification,
+                ]}
+              >
+                {({ hovered }) => {
+                  const inactiveColor = hovered ? colors.gray[900] : colors.gray[500];
 
-                return (
-                  <>
-                    <Icon
-                      name={isActive ? item.iconActive : item.icon}
-                      size={22}
-                      color={isActive ? "currentColor" : inactiveColor}
-                    />
-
-                    <Space width={12} />
-
-                    <LakeText color={isActive ? "currentColor" : inactiveColor} variant="medium">
-                      {item.name}
-                    </LakeText>
-
-                    {item.hasNotifications === true ? (
-                      <>
-                        <Fill minWidth={24} />
-
-                        <View
-                          role="alert"
-                          aria-label={t("common.actionRequired")}
-                          style={styles.notificationPill}
-                        >
-                          {isActive ? null : <View style={styles.notificationPillAnimation} />}
-                        </View>
-                      </>
-                    ) : null}
-
-                    {isActive ? (
-                      <SidebarNavigationTrackerActiveMarker
-                        color={
-                          item.hasNotifications === true
-                            ? colors.negative[500]
-                            : colors.current[500]
-                        }
+                  return (
+                    <>
+                      <Icon
+                        name={isActive ? item.iconActive : item.icon}
+                        size={22}
+                        color={isActive ? "currentColor" : inactiveColor}
                       />
-                    ) : null}
-                  </>
-                );
-              }}
-            </Link>
-          </WithCurrentColor>
+
+                      <Space width={12} />
+
+                      <LakeText color={isActive ? "currentColor" : inactiveColor} variant="medium">
+                        {item.name}
+                      </LakeText>
+
+                      {item.hasNotifications === true ? (
+                        <>
+                          <Fill minWidth={24} />
+
+                          <View
+                            role="alert"
+                            aria-label={t("common.actionRequired")}
+                            style={styles.notificationPill}
+                          >
+                            {isActive ? null : <View style={styles.notificationPillAnimation} />}
+                          </View>
+                        </>
+                      ) : null}
+
+                      {isActive ? (
+                        <SidebarNavigationTrackerActiveMarker
+                          color={
+                            item.hasNotifications === true
+                              ? colors.negative[500]
+                              : colors.current[500]
+                          }
+                        />
+                      ) : null}
+                    </>
+                  );
+                }}
+              </Link>
+            </WithCurrentColor>
+          </Fragment>
         );
       })}
     </View>

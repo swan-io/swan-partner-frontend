@@ -86,6 +86,25 @@ const routes = {
         }),
       },
     ),
+
+    ...createGroup("Merchants", "/merchants", {
+      Area: "/*",
+      Root: "/?:new{true}",
+      ...createGroup("Profile", "/:merchantProfileId", {
+        Area: "/*",
+        ...createGroup("Payments", "/payments", {
+          Area: "/*",
+          Root: "/",
+          New: "/new?:type{paymentLink}",
+        }),
+        ...createGroup("PaymentLinks", "/links", {
+          Area: "/*",
+          Root: "/",
+          New: "/new",
+        }),
+        Settings: "/settings",
+      }),
+    }),
   }),
 } as const;
 
@@ -110,6 +129,7 @@ export const accountAreaRoutes = [
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",
+  "AccountMerchantsArea",
 ] as const;
 
 export const accountTransactionsRoutes = [

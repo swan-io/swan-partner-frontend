@@ -1,7 +1,7 @@
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
-import { Validator } from "@swan-io/use-form";
+import { Validator, combineValidators } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { P, match } from "ts-pattern";
 import { locale, t } from "./i18n";
@@ -268,3 +268,42 @@ export const validatePattern =
         : t("transfer.new.internationalTransfer.beneficiary.form.field.invalid");
     }
   };
+
+export const validateNumeric = (params?: { min?: number; max?: number }): Validator<string> =>
+  combineValidators<string>(validateRequired, value => {
+    // first regex test integer and the second one test float
+    if (!/^-?\d+$/.test(value) && !/^-?\d+\.\d+$/.test(value)) {
+      return t("common.form.number");
+    }
+    const parsed = parseFloat(value);
+    if (params?.min != null && parsed < params.min) {
+      return t("common.form.number.upperThan", { value: params.min });
+    }
+    if (params?.max != null && parsed > params.max) {
+      return t("common.form.number.lowerThan", { value: params.max });
+    }
+  });
+
+export const validateUrl: Validator<string> = combineValidators<string>(validateRequired, value => {
+  const [protocol, remainingUrl] = value.split("://");
+  const regexProtocol = /^(http|https)$/g; // Switch to /^[A-Za-z][A-Za-z0-9+-.]{0,}$/ if we support PKCE one day // https://www.ietf.org/rfc/rfc2396.txt
+  const regexRemainingUrl = /^[A-Za-z0-9\-._~:/?#[\]@!$&'()*+,;=]+$/g;
+
+  // <string>.split("://")[0] always returns a string
+  if (!regexProtocol.test(protocol as string)) {
+    return t("common.form.url.invalidProtocol");
+  }
+
+  // If <string> includes "://", then <string>.split("://")[1] will always returns a string
+  if (!value.includes("://") || !regexRemainingUrl.test(remainingUrl as string)) {
+    return t("common.form.url.invalidFormat");
+  }
+});
+
+const HEX_COLOR_RE = /^[a-fA-F0-9]{6}$/;
+
+export const validateHexColor: Validator<string> = value => {
+  if (!HEX_COLOR_RE.test(value)) {
+    return t("common.form.invalidColor");
+  }
+};

@@ -96,12 +96,15 @@ const routes = {
     ...createGroup("Merchants", "/merchants", {
       Area: "/*",
       Root: "/?:new{true}",
-      ...createGroup("Item", "/:merchantProfileId", {
+      ...createGroup("Profile", "/:merchantProfileId", {
+        Area: "/*",
         ...createGroup("Payments", "/payments", {
+          Area: "/*",
           Root: "/",
           New: "/new?:type{paymentLink}",
         }),
         ...createGroup("PaymentLinks", "/links", {
+          Area: "/*",
           Root: "/",
           New: "/new",
         }),

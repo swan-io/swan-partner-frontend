@@ -2350,6 +2350,12 @@ query MerchantRoot($accountId: ID!) {
   }
 }
 
+query MerchantProfile($merchantProfileId: ID!) {
+  merchantProfile(id: $merchantProfileId) {
+    ...MerchantProfile
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2843,6 +2849,20 @@ mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
     ... on AddMerchantProfileSuccessPayload {
       merchantProfile {
         ...MerchantProfile
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantPaymentMethods($input: RequestMerchantPaymentMethodsInput!) {
+  requestMerchantPaymentMethods(input: $input) {
+    __typename
+    ... on RequestMerchantPaymentMethodsSuccessPayload {
+      merchantProfile {
+        id
       }
     }
     ... on Rejection {

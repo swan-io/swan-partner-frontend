@@ -15,7 +15,10 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { StyleSheet, View } from "react-native";
-import { RequestMerchantPaymentMethodsDocument } from "../graphql/partner";
+import {
+  RequestMerchantPaymentMethodsDocument,
+  RequestMerchantPaymentMethodsUpdateDocument,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { SepaLogo } from "./SepaLogo";
 
@@ -569,6 +572,138 @@ export const MerchantProfilePaymentMethodCheckRequestModal = ({
             onPress={onPressSubmit}
           >
             {t("merchantProfile.settings.paymentMethods.request")}
+          </LakeButton>
+        </LakeButtonGroup>
+      </View>
+    </LakeModal>
+  );
+};
+
+type UpdateProps = {
+  paymentMethodId: string;
+  visible: boolean;
+  onPressClose: () => void;
+  onSuccess: () => void;
+  initialValues: { useSwanSepaCreditorIdentifier: boolean; sepaCreditorIdentifier?: string };
+};
+
+export const MerchantProfilePaymentMethodSepaDirectDebitUpdateModal = ({
+  paymentMethodId,
+  visible,
+  onPressClose,
+  onSuccess,
+  initialValues,
+}: UpdateProps) => {
+  const [requestMerchantPaymentMethodsUpdate, merchantPaymentMethodUpdateRequest] = useMutation(
+    RequestMerchantPaymentMethodsUpdateDocument,
+  );
+
+  const { Field, submitForm } = useForm({
+    useSwanSepaCreditorIdentifier: {
+      initialValue: initialValues.useSwanSepaCreditorIdentifier,
+    },
+    sepaCreditorIdentifier: {
+      initialValue: initialValues.sepaCreditorIdentifier ?? "",
+      validate: (value, { getFieldValue }) => {
+        if (getFieldValue("useSwanSepaCreditorIdentifier") === false && value.trim() === "") {
+          return t("common.form.required");
+        }
+      },
+    },
+  });
+
+  const onPressSubmit = () => {
+    submitForm({
+      onSuccess: values =>
+        requestMerchantPaymentMethodsUpdate({
+          input: {
+            paymentMethodId,
+            sepaDirectDebit: {
+              useSwanSepaCreditorIdentifier: values.useSwanSepaCreditorIdentifier.getOr(true),
+              sepaCreditorIdentifier: values.sepaCreditorIdentifier.toUndefined(),
+            },
+          },
+        })
+          .mapOkToResult(data =>
+            Option.fromNullable(data.requestMerchantPaymentMethodsUpdate).toResult("No data"),
+          )
+          .mapOkToResult(filterRejectionsToResult)
+          .tapError(error => {
+            showToast({ variant: "error", title: translateError(error), error });
+          })
+          .tapOk(onSuccess),
+    });
+  };
+
+  return (
+    <LakeModal visible={visible} onPressClose={onPressClose}>
+      <View style={styles.modalContents}>
+        <SepaLogo height={24} />
+
+        <LakeLabel
+          label={t("merchantProfile.settings.paymentMethods.sepa.creditorIdentifier")}
+          render={() => (
+            <Field name="useSwanSepaCreditorIdentifier">
+              {({ value, error, onChange }) => (
+                <>
+                  <Space height={8} />
+
+                  <RadioGroup
+                    hideErrors={true}
+                    onValueChange={onChange}
+                    value={value}
+                    error={error}
+                    items={[
+                      {
+                        value: true,
+                        name: t(
+                          "merchantProfile.settings.paymentMethods.sepa.creditorIdentifier.swan",
+                        ),
+                      },
+                      {
+                        value: false,
+                        name: t(
+                          "merchantProfile.settings.paymentMethods.sepa.creditorIdentifier.merchant",
+                        ),
+                      },
+                    ]}
+                  />
+
+                  {value ? null : (
+                    <>
+                      <Space height={8} />
+
+                      <Field name="sepaCreditorIdentifier">
+                        {({ value, onChange, error, valid, ref }) => (
+                          <LakeTextInput
+                            value={value}
+                            onChangeText={onChange}
+                            error={error}
+                            valid={valid}
+                            ref={ref}
+                            autoFocus={true}
+                          />
+                        )}
+                      </Field>
+                    </>
+                  )}
+                </>
+              )}
+            </Field>
+          )}
+        />
+
+        <Space height={8} />
+
+        <LakeButtonGroup paddingBottom={0}>
+          <LakeButton
+            grow={true}
+            mode="primary"
+            color="current"
+            loading={merchantPaymentMethodUpdateRequest.isLoading()}
+            onPress={onPressSubmit}
+          >
+            {t("merchantProfile.settings.paymentMethods.requestUpdate")}
           </LakeButton>
         </LakeButtonGroup>
       </View>

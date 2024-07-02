@@ -245,7 +245,6 @@ const BeneficiaryListImpl = ({
 
   const AddButton = (
     <LakeButton
-      grow={!large}
       icon="add-circle-filled"
       size="small"
       color="current"

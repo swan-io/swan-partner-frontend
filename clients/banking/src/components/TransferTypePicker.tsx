@@ -1,64 +1,68 @@
-import { pushUnsafe } from "@swan-io/chicane";
-import { Box } from "@swan-io/lake/src/components/Box";
 import { Breadcrumbs, useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
-import { Fill } from "@swan-io/lake/src/components/Fill";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Space } from "@swan-io/lake/src/components/Space";
-import { Tile } from "@swan-io/lake/src/components/Tile";
+import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { animations, breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { Fragment, useMemo } from "react";
+import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
+import { TransferBulkWizard } from "./TransferBulkWizard";
+import { TransferInternationalWizard } from "./TransferInternationalWizard";
+import { TransferRecurringWizard } from "./TransferRecurringWizard";
+import { TransferRegularWizard } from "./TransferRegularWizard";
+import { TypePickerLink } from "./TypePickerLink";
 
 const styles = StyleSheet.create({
-  container: {
-    padding: 24,
-    alignItems: "stretch",
-    justifyContent: "center",
-    margin: "auto",
-  },
-  link: {
-    ...animations.fadeAndSlideInFromTop.enter,
-    animationFillMode: "backwards",
-  },
-  header: {
-    paddingTop: 24,
-    paddingHorizontal: 24,
-  },
-  headerDesktop: {
-    paddingTop: 40,
-    paddingHorizontal: 40,
-  },
   fill: {
     ...commonStyles.fill,
+  },
+  base: {
+    ...commonStyles.fill,
+    paddingHorizontal: spacings[24],
+    paddingTop: spacings[24],
+  },
+  desktop: {
+    paddingHorizontal: spacings[40],
+    paddingTop: spacings[40],
+  },
+  stack: {
+    margin: "auto",
+    maxWidth: 500,
+    paddingVertical: spacings[24],
   },
 });
 
 type Props = {
   accountMembershipId: string;
+  accountId: string;
+  accountCountry: AccountCountry;
+  type: GetRouteParams<"AccountPaymentsNew">["type"];
 };
 
-export const TransferTypePicker = ({ accountMembershipId }: Props) => {
-  useCrumb(
-    useMemo(() => {
-      return {
-        label: t("transfer.newTransfer"),
-        link: Router.AccountPaymentsNew({ accountMembershipId }),
-      };
-    }, [accountMembershipId]),
-  );
-
+export const TransferTypePicker = ({
+  accountMembershipId,
+  accountId,
+  accountCountry,
+  type,
+}: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
 
-  const links = useMemo(() => {
-    return [
+  useCrumb(
+    useMemo(
+      () => ({
+        label: t("transfer.newTransfer"),
+        link: Router.AccountPaymentsNew({ accountMembershipId }),
+      }),
+      [accountMembershipId],
+    ),
+  );
+
+  const links = useMemo(
+    () => [
       {
         url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
         icon: "arrow-swap-regular" as const,
@@ -87,54 +91,67 @@ export const TransferTypePicker = ({ accountMembershipId }: Props) => {
         title: t("transfer.tile.bulkTransfer.title"),
         subtitle: t("transfer.tile.bulkTransfer.subtitle"),
       },
-    ];
-  }, [ictEnabled, accountMembershipId]);
+    ],
+    [ictEnabled, accountMembershipId],
+  );
 
   return (
     <>
-      <ResponsiveContainer breakpoint={breakpoints.large}>
-        {({ small }) => (
-          <Box direction="row" style={small ? styles.header : styles.headerDesktop}>
+      <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
+        {({ large }) => (
+          <View style={[styles.base, large && styles.desktop]}>
             <Breadcrumbs />
-          </Box>
+
+            <Stack alignItems="stretch" space={12} style={styles.stack}>
+              {links.map(({ url, icon, title, subtitle }, index) => (
+                <TypePickerLink
+                  key={index}
+                  icon={icon}
+                  title={title}
+                  subtitle={subtitle}
+                  url={url}
+                  style={{ animationDelay: `${index * 150}ms` }}
+                />
+              ))}
+            </Stack>
+          </View>
         )}
       </ResponsiveContainer>
 
-      <Box direction={"column"} style={styles.container}>
-        {links.map(({ url, icon, title, subtitle }, index) => {
-          return (
-            <Fragment key={index}>
-              {index > 0 ? <Space width={24} height={12} /> : null}
+      <FullViewportLayer visible={type === "transfer"}>
+        <TransferRegularWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
 
-              <Pressable
-                role="button"
-                onPress={() => pushUnsafe(url)}
-                style={[styles.link, { animationDelay: `${index * 150}ms` }]}
-              >
-                {({ hovered }) => (
-                  <Tile flexGrow={1} flexShrink={1} hovered={hovered}>
-                    <Box direction="row" alignItems="center">
-                      <Icon name={icon} size={42} color={colors.current[500]} />
-                      <Space width={24} />
+      <FullViewportLayer visible={type === "recurring"}>
+        <TransferRecurringWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
 
-                      <View style={styles.fill}>
-                        <LakeHeading level={2} variant="h5" color={colors.gray[900]}>
-                          {title}
-                        </LakeHeading>
+      <FullViewportLayer visible={type === "international"}>
+        <TransferInternationalWizard
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
 
-                        <LakeText variant="smallRegular">{subtitle}</LakeText>
-                      </View>
-
-                      <Fill minWidth={24} />
-                      <Icon name="chevron-right-filled" size={24} color={colors.gray[500]} />
-                    </Box>
-                  </Tile>
-                )}
-              </Pressable>
-            </Fragment>
-          );
-        })}
-      </Box>
+      <FullViewportLayer visible={type === "bulk"}>
+        <TransferBulkWizard
+          accountCountry={accountCountry}
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+        />
+      </FullViewportLayer>
     </>
   );
 };

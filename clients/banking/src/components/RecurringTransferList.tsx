@@ -741,10 +741,11 @@ export const RecurringTransferList = ({
             NotAsked: () => null,
             Loading: () => (
               <PlainListViewPlaceholder
+                count={PAGE_SIZE}
                 headerHeight={48}
+                paddingHorizontal={24}
                 rowHeight={56}
                 rowVerticalSpacing={0}
-                count={PAGE_SIZE}
               />
             ),
             Done: result =>

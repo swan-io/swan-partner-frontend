@@ -60,7 +60,7 @@ type Props = {
   canQueryCardOnTransaction: boolean;
   accountStatementsVisible: boolean;
   canViewAccount: boolean;
-  transferConsent: Option<{ status: string; isStandingOrder: boolean }>;
+  transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>;
   params: {
     isAfterUpdatedAt?: string | undefined;
     isBeforeUpdatedAt?: string | undefined;

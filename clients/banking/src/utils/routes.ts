@@ -29,7 +29,7 @@ const routes = {
         "List",
         // transactionStatus[] is for filters
         // status is the consent status automatically set by consent redirection
-        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]&:standingOrder&:consentId&:status",
+        "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:paymentProduct[]&:search&:transactionStatus[]&:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
         {
           Area: "/*",
           Root: "/",
@@ -44,19 +44,25 @@ const routes = {
       Upcoming: "/upcoming",
     }),
 
-    ...createGroup("Payments", "/payments?:standingOrder&:consentId&:status", {
-      Area: "/*",
-      Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
-      New: "/new?:type",
-      RecurringTransferList: "/recurring-transfer/list",
-      RecurringTransferNew: "/recurring-transfer/new",
-
-      ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
+    ...createGroup(
+      "Payments",
+      "/payments?:kind{transfer|standingOrder|beneficiary}&:consentId&:status",
+      {
         Area: "/*",
-        Root: "/",
-        History: "/history",
-      }),
-    }),
+        Root: "/?:isAfterUpdatedAt&:isBeforeUpdatedAt&:search&:transactionStatus[]",
+        New: "/new?:type{transfer|recurring|international|bulk}",
+        RecurringTransferList: "/recurring-transfer/list",
+        RecurringTransferNew: "/recurring-transfer/new",
+        BeneficiariesList: "/beneficiaries",
+        BeneficiariesNew: "/beneficiaries/new?:type{sepa}",
+
+        ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
+          Area: "/*",
+          Root: "/",
+          History: "/history",
+        }),
+      },
+    ),
 
     ...createGroup("Cards", "/cards?:new", {
       Area: "/*",
@@ -91,18 +97,26 @@ const routes = {
 
 export type RouteName = keyof typeof routes;
 
-export const accountMinimalRoutes = ["AccountRoot", "AccountProfile"] as const;
+export const accountMinimalRoutes = [
+  "AccountRoot",
+  "AccountProfile",
+] as const satisfies RouteName[];
 
-export const historyMenuRoutes = ["AccountTransactionsArea", "AccountActivation"] as const;
+export const historyMenuRoutes = [
+  "AccountTransactionsArea",
+  "AccountActivation",
+] as const satisfies RouteName[];
 
-export const paymentMenuRoutes = ["AccountPaymentsArea"] as const;
+export const paymentMenuRoutes = ["AccountPaymentsArea"] as const satisfies RouteName[];
 
 export const paymentRoutes = [
   "AccountPaymentsRoot",
   "AccountPaymentsNew",
   "AccountPaymentsRecurringTransferList",
   "AccountPaymentsRecurringTransferDetailsArea",
-] as const;
+  "AccountPaymentsBeneficiariesList",
+  "AccountPaymentsBeneficiariesNew",
+] as const satisfies RouteName[];
 
 export const accountAreaRoutes = [
   "AccountTransactionsArea",
@@ -110,22 +124,25 @@ export const accountAreaRoutes = [
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",
-] as const;
+] as const satisfies RouteName[];
 
 export const accountTransactionsRoutes = [
   "AccountTransactionsListRoot",
   "AccountTransactionsListStatementsArea",
   "AccountTransactionsUpcoming",
   "AccountTransactionsListDetail",
-] as const;
+] as const satisfies RouteName[];
 
-export const membershipsRoutes = ["AccountMembersList", "AccountMembersDetailsArea"] as const;
+export const membershipsRoutes = [
+  "AccountMembersList",
+  "AccountMembersDetailsArea",
+] as const satisfies RouteName[];
 
 export const membershipsDetailRoutes = [
   "AccountMembersDetailsRoot",
   "AccountMembersDetailsRights",
   "AccountMembersDetailsCardList",
-] as const;
+] as const satisfies RouteName[];
 
 export const Router = createRouter(routes, {
   basePath: match(projectConfiguration)
@@ -135,3 +152,8 @@ export const Router = createRouter(routes, {
     )
     .otherwise(() => undefined),
 });
+
+export type GetRouteParams<K extends RouteName> = Extract<
+  ReturnType<typeof Router.getRoute>,
+  { name: K }
+>["params"];

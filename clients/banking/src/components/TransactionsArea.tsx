@@ -21,7 +21,6 @@ import {
   spacings,
   texts,
 } from "@swan-io/lake/src/constants/design";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -413,13 +412,7 @@ export const TransactionsArea = ({
                   { name: "AccountTransactionsListDetail" },
                   ({
                     name,
-                    params: {
-                      accountMembershipId,
-                      consentId,
-                      standingOrder,
-                      status: consentStatus,
-                      ...params
-                    },
+                    params: { accountMembershipId, consentId, kind, status, ...params },
                   }) => {
                     return (
                       <>
@@ -428,11 +421,8 @@ export const TransactionsArea = ({
                           params={params}
                           accountId={accountId}
                           transferConsent={
-                            consentId != null && consentStatus != null
-                              ? Option.Some({
-                                  status: consentStatus,
-                                  isStandingOrder: isNotEmpty(standingOrder ?? ""),
-                                })
+                            consentId != null && kind != null && status != null
+                              ? Option.Some({ kind, status })
                               : Option.None()
                           }
                           canQueryCardOnTransaction={canQueryCardOnTransaction}

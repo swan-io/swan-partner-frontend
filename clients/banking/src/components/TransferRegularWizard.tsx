@@ -18,16 +18,16 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  Beneficiary,
+  BeneficiaryWizard,
+  TransferWizardBeneficiarySummary,
+} from "./BeneficiaryWizard";
+import {
   Details,
   TransferRegularWizardDetails,
   TransferRegularWizardDetailsSummary,
 } from "./TransferRegularWizardDetails";
 import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
-import {
-  Beneficiary,
-  TransferWizardBeneficiary,
-  TransferWizardBeneficiarySummary,
-} from "./TransferWizardBeneficiary";
 
 const styles = StyleSheet.create({
   root: {
@@ -60,13 +60,12 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
+    paddingVertical: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
-    paddingVertical: spacings[24],
   },
 });
 
@@ -108,7 +107,8 @@ export const TransferRegularWizard = ({
       input: {
         accountId,
         consentRedirectUrl:
-          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
         creditTransfers: [
           {
             amount: details.amount,
@@ -204,11 +204,12 @@ export const TransferRegularWizard = ({
 
                     <Space height={32} />
 
-                    <TransferWizardBeneficiary
+                    <BeneficiaryWizard
+                      mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}
                       initialBeneficiary={beneficiary}
-                      onSave={beneficiary => setStep({ name: "Details", beneficiary })}
+                      onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                     />
                   </>
                 );

@@ -93,16 +93,18 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                 {route?.name === "PaymentForm" && (
                   <>
                     <Box direction="row" alignItems="center">
-                      <LakeButton
-                        ariaLabel={t("common.cancel")}
-                        icon="dismiss-regular"
-                        mode="tertiary"
-                        onPress={() => {
-                          window.location.replace(cancelRedirectUrl);
-                        }}
-                      >
-                        {desktop ? t("common.cancel") : null}
-                      </LakeButton>
+                      {isNotNullish(cancelRedirectUrl) && (
+                        <LakeButton
+                          ariaLabel={t("common.cancel")}
+                          icon="dismiss-regular"
+                          mode="tertiary"
+                          onPress={() => {
+                            window.location.replace(cancelRedirectUrl);
+                          }}
+                        >
+                          {desktop ? t("common.cancel") : null}
+                        </LakeButton>
+                      )}
 
                       <Fill minWidth={16} />
 

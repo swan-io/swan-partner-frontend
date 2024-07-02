@@ -66,9 +66,13 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
   const [cardNumberState, setCardNumberState] = useState<CardFieldState>("untouched");
   const [isPaymentMethodValid, setIsPaymentMethodValid] = useState<boolean>(true);
+  const [cardNumberHasBeenBlurred, setCardNumberHasBeenBlurred] = useState(false);
 
   const [expiryDateState, setExpiryDateState] = useState<FieldState>("untouched");
+  const [expiryDateHasBeenBlurred, setExpiryDateHasBeenBlurred] = useState(false);
+
   const [cvvState, setCvvState] = useState<FieldState>("untouched");
+  const [cvvHasBeenBlurred, setCvvNumberHasBeenBlurred] = useState(false);
 
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<Option<PaymentMethod>>(Option.None());
@@ -132,6 +136,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
       match({ event, cardNumberState })
         .with({ event: { element: "card-number", isEmpty: true } }, () => {
           setCardNumberState("empty");
+          setPaymentMethod(Option.None());
         })
         .with({ event: { element: "card-number", isValid: false } }, () => {
           setCardNumberState("invalid");
@@ -161,6 +166,15 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
           setCvvState("invalid");
         })
         .with({ event: { element: "cvv", isValid: true } }, () => setCvvState("valid"))
+        .otherwise(() => {});
+    });
+
+    //@ts-expect-error addEventHandler isn't typed correctly
+    Frames.addEventHandler("frameBlur", (event: unknown) => {
+      match(event)
+        .with({ element: "card-number" }, () => setCardNumberHasBeenBlurred(true))
+        .with({ element: "expiry-date" }, () => setExpiryDateHasBeenBlurred(true))
+        .with({ element: "cvv" }, () => setCvvNumberHasBeenBlurred(true))
         .otherwise(() => {});
     });
   }, [cardNumberState]);
@@ -221,10 +235,13 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
               <Box direction="row" grow={1} shrink={1}>
                 <div
                   className={`card-number-frame ${paymentMethod.isSome() ? "card-number-frame-with-logo" : ""}`}
-                  style={match({ cardNumberState, isPaymentMethodValid })
+                  style={match({ cardNumberState, isPaymentMethodValid, cardNumberHasBeenBlurred })
                     .with(
-                      { cardNumberState: P.union("invalid", "empty", "cardNotSupported") },
-                      { isPaymentMethodValid: false },
+                      {
+                        cardNumberState: P.union("invalid", "empty", "cardNotSupported"),
+                        cardNumberHasBeenBlurred: true,
+                      },
+                      { isPaymentMethodValid: false, cardNumberHasBeenBlurred: true },
                       () => ({
                         borderColor: colors.negative[400],
                       }),
@@ -236,78 +253,54 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
                 {match(paymentMethod)
                   .with(Option.P.None, () => null)
-                  .with(Option.P.Some("cartes bancaires"), () => (
-                    <View
-                      style={[
-                        styles.cardLogo,
-                        (isPaymentMethodValid === false ||
-                          cardNumberState === "cardNotSupported" ||
-                          cardNumberState === "empty" ||
-                          cardNumberState === "invalid") && {
-                          borderColor: colors.negative[500],
-                        },
-                      ]}
-                    >
-                      <CarteBancaireLogo />
-                    </View>
-                  ))
-                  .with(Option.P.Some("maestro"), () => (
-                    <View
-                      style={[
-                        styles.cardLogo,
-                        (isPaymentMethodValid === false ||
-                          cardNumberState === "cardNotSupported" ||
-                          cardNumberState === "empty" ||
-                          cardNumberState === "invalid") && {
-                          borderColor: colors.negative[500],
-                        },
-                      ]}
-                    >
-                      <MaestroLogo />
-                    </View>
-                  ))
-                  .with(Option.P.Some("mastercard"), () => (
-                    <View
-                      style={[
-                        styles.cardLogo,
-                        (isPaymentMethodValid === false ||
-                          cardNumberState === "cardNotSupported" ||
-                          cardNumberState === "empty" ||
-                          cardNumberState === "invalid") && {
-                          borderColor: colors.negative[500],
-                        },
-                      ]}
-                    >
-                      <MastercardLogo />
-                    </View>
-                  ))
-                  .with(Option.P.Some("visa"), () => (
-                    <View
-                      style={[
-                        styles.cardLogo,
-                        (isPaymentMethodValid === false ||
-                          cardNumberState === "cardNotSupported" ||
-                          cardNumberState === "empty" ||
-                          cardNumberState === "invalid") && {
-                          borderColor: colors.negative[500],
-                        },
-                      ]}
-                    >
-                      <VisaLogo />
-                    </View>
-                  ))
-                  .exhaustive()}
+                  .with(
+                    Option.P.Some(P.union("cartes bancaires", "maestro", "mastercard", "visa")),
+                    () => (
+                      <View
+                        style={[
+                          styles.cardLogo,
+                          match({ cardNumberState, isPaymentMethodValid, cardNumberHasBeenBlurred })
+                            .with(
+                              {
+                                cardNumberState: P.union("invalid", "empty", "cardNotSupported"),
+                                cardNumberHasBeenBlurred: true,
+                              },
+                              { isPaymentMethodValid: false, cardNumberHasBeenBlurred: true },
+                              () => ({
+                                borderColor: colors.negative[500],
+                              }),
+                            )
+                            .otherwise(() => undefined),
+                        ]}
+                      >
+                        {match(paymentMethod)
+                          .with(Option.Some("cartes bancaires"), () => <CarteBancaireLogo />)
+                          .with(Option.Some("maestro"), () => <MaestroLogo />)
+                          .with(Option.Some("mastercard"), () => <MastercardLogo />)
+                          .with(Option.Some("visa"), () => <VisaLogo />)
+                          .otherwise(() => undefined)}
+                      </View>
+                    ),
+                  )
+                  .otherwise(() => undefined)}
               </Box>
 
               <Box direction="row" style={styles.errorContainer}>
                 <LakeText variant="smallRegular" color={colors.negative[500]}>
-                  {match({ cardNumberState, isPaymentMethodValid })
-                    .with({ cardNumberState: "invalid" }, () => t("paymentLink.invalidCardNumber"))
-                    .with({ cardNumberState: "cardNotSupported" }, () =>
+                  {match({ cardNumberState, isPaymentMethodValid, cardNumberHasBeenBlurred })
+                    .with({ cardNumberState: "invalid", cardNumberHasBeenBlurred: true }, () =>
+                      t("paymentLink.invalidCardNumber"),
+                    )
+                    .with(
+                      { cardNumberState: "cardNotSupported", cardNumberHasBeenBlurred: true },
+                      () => t("paymentLink.cardNotSupported"),
+                    )
+                    .with({ cardNumberState: "empty", cardNumberHasBeenBlurred: true }, () =>
+                      t("paymentLink.cardNumberRequired"),
+                    )
+                    .with({ isPaymentMethodValid: false, cardNumberHasBeenBlurred: true }, () =>
                       t("paymentLink.cardNotSupported"),
                     )
-                    .with({ cardNumberState: "empty" }, () => t("paymentLink.cardNumberRequired"))
-                    .with({ isPaymentMethodValid: false }, () => t("paymentLink.cardNotSupported"))
                     .otherwise(() => " ")}
                 </LakeText>
               </Box>
@@ -336,11 +329,14 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
                 <Box direction="row" style={styles.errorContainer}>
                   <LakeText variant="smallRegular" color={colors.negative[500]}>
-                    {match(expiryDateState)
-                      .with("invalid", () => t("paymentLink.invalidExpiryDate"))
-                      .with("empty", () => t("paymentLink.expiryDateRequired"))
-                      .with("untouched", "valid", () => " ")
-                      .exhaustive()}
+                    {match({ expiryDateState, expiryDateHasBeenBlurred })
+                      .with({ expiryDateState: "invalid", expiryDateHasBeenBlurred: true }, () =>
+                        t("paymentLink.invalidExpiryDate"),
+                      )
+                      .with({ expiryDateState: "empty", expiryDateHasBeenBlurred: true }, () =>
+                        t("paymentLink.expiryDateRequired"),
+                      )
+                      .otherwise(() => " ")}
                   </LakeText>
                 </Box>
               </>
@@ -369,11 +365,14 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
 
                 <Box direction="row" style={styles.errorContainer}>
                   <LakeText variant="smallRegular" color={colors.negative[500]}>
-                    {match(cvvState)
-                      .with("invalid", () => t("paymentLink.invalidCvv"))
-                      .with("empty", () => t("paymentLink.cvvRequired"))
-                      .with("untouched", "valid", () => " ")
-                      .exhaustive()}
+                    {match({ cvvState, cvvHasBeenBlurred })
+                      .with({ cvvState: "invalid", cvvHasBeenBlurred: true }, () =>
+                        t("paymentLink.invalidCvv"),
+                      )
+                      .with({ cvvState: "empty", cvvHasBeenBlurred: true }, () =>
+                        t("paymentLink.cvvRequired"),
+                      )
+                      .otherwise(() => " ")}
                   </LakeText>
                 </Box>
               </>

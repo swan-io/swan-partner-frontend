@@ -221,8 +221,10 @@ export const TransferInternationalWizardBeneficiary = ({
           />
         )}
 
+        <Space height={8} />
+
         {data.isLoading() && !schemes.length ? (
-          <ActivityIndicator color={colors.gray[900]} />
+          <ActivityIndicator color={colors.gray[800]} />
         ) : (
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
             <LakeLabel
@@ -230,8 +232,6 @@ export const TransferInternationalWizardBeneficiary = ({
               style={routes.length < 2 && styles.hidden}
               render={() => (
                 <>
-                  <Space height={8} />
-
                   <Field name="route">
                     {({ onChange, value }) => (
                       <>

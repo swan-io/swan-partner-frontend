@@ -1771,7 +1771,7 @@ mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
         statusInfo {
           __typename
 
-          ... on TrustedBeneficiaryStatusInfoConsentPending {
+          ... on TrustedBeneficiaryConsentPendingStatusInfo {
             consent {
               consentUrl
             }

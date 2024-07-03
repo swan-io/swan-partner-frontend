@@ -1,3 +1,18 @@
+input AcceptConsentInput {
+  consentId: String!
+}
+
+"""Rejection returned when the Consent purpose is not allowed"""
+type AcceptConsentNotAllowedForConsentPurposeRejection implements Rejection {
+  message: String!
+}
+
+union AcceptConsentPayload = AcceptConsentSuccessPayload | ConsentNotFoundRejection | OperationNotAllowedRejection | UserNotFoundRejection | AcceptConsentNotAllowedForConsentPurposeRejection | NotAllowedUserStatusRejection | NotReachableConsentStatusRejection
+
+type AcceptConsentSuccessPayload {
+  consent: Consent
+}
+
 """
 Whether you call it a wallet, monetary account, payment account or bank account, the notion of account is fundamental at Swan. All payment flows necessarily go through an account.
 """
@@ -313,6 +328,17 @@ type Account {
     """a filtering table you can apply to your list of connections"""
     filters: TrustedBeneficiaryFiltersInput
   ): TrustedBeneficiaryConnection!
+}
+
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
 }
 
 """A list of balances regarding an account."""
@@ -957,11 +983,18 @@ type AccountMembership {
     filters: CardFiltersInput
   ): CardConnection!
 
+  """
+  Refers to the country of the account. It will determine the country code of the local IBAN of the account.
+  
+  Available Account Country: CCA3
+  """
+  accountCountry: AccountCountry!
+
   """Periodic Spending"""
   spending: Spending
 }
 
-"""when a user is binded with the error to the account membership"""
+"""when a user is bound with the error to the account membership"""
 type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipStatusInfo {
   """
   AccountMembership status (always BindingUserError for type AccountMembershipBindingUserErrorStatusInfo)
@@ -969,7 +1002,7 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user binded doesn't match with the invitation
+  `true` if the first name of the user bound doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
 
@@ -977,17 +1010,17 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user binded doesn't match with the invitation
+  `true` if the last name of the user bound doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user binded doesn't match with the invitation
+  `true` if the phone number of the user bound doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user binded doesn't match with the invitation
+  `true` if the birth date of the user bound doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -1062,7 +1095,7 @@ type AccountMembershipEnabledStatusInfo implements AccountMembershipStatusInfo {
 }
 
 """
-when a new account membership is invited and there is no user binded yet
+when a new account membership is invited and there is no user bound yet
 """
 type AccountMembershipInvitationSentStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -1143,15 +1176,6 @@ input AccountMembershipsFilterInput {
   search: String
 }
 
-"""List of account memberships permission"""
-enum AccountMembershipsPermission {
-  canInitiatePayments
-  canManageAccountMembership
-  canManageCards
-  canManageBeneficiaries
-  canViewAccount
-}
-
 """AccountMembership enabled"""
 enum AccountMembershipStatus {
   """when the consent to invite the account membership is pending"""
@@ -1160,7 +1184,7 @@ enum AccountMembershipStatus {
   """when the account membership is invited"""
   InvitationSent
 
-  """when the user binded with errors to the account membership"""
+  """when the user bound with errors to the account membership"""
   BindingUserError
 
   """when the account membership is enabled"""
@@ -1736,39 +1760,6 @@ type AddInternalDirectDebitPaymentMandateSuccessPayload {
   paymentMandate: InternalPaymentDirectDebitMandate!
 }
 
-"""Input to add an international trusted beneficiary"""
-input AddInternationalTrustedBeneficiaryInput {
-  """Account ID of the account on which the beneficiary will be created"""
-  accountId: ID!
-
-  """Currency of the international beneficiary account"""
-  currency: Currency!
-
-  """Currency-specific details of the beneficiary"""
-  details: [InternationalBeneficiaryDetailsInput!]!
-
-  """Name of the created beneficiary"""
-  label: String
-
-  """Account holder name of the international trusted beneficiary"""
-  name: String!
-
-  """Route that Swan will use to transfer the funds to that beneficiary"""
-  route: InternationalCreditTransferRouteInput!
-
-  """When the consent flow is finished the user is redirected to this URL"""
-  consentRedirectUrl: String!
-}
-
-"""Add international trusted beneficiary payload"""
-union AddInternationalTrustedBeneficiaryPayload = AddInternationalTrustedBeneficiarySuccessPayload | ForbiddenRejection | AccountNotFoundRejection | ValidationRejection | InternalErrorRejection
-
-"""Add international trusted beneficiary success payload"""
-type AddInternationalTrustedBeneficiarySuccessPayload {
-  """The created beneficiary"""
-  trustedBeneficiary: TrustedInternationalBeneficiary!
-}
-
 """Input to add a Merchant Profile"""
 input AddMerchantProfileInput {
   """ID of the Swan account which the merchantProfile is associated to"""
@@ -1966,19 +1957,19 @@ type AddressInformation {
 """Address"""
 input AddressInformationInput {
   """Address"""
-  addressLine1: String!
+  addressLine1: String
 
   """Address"""
   addressLine2: String
 
   """City"""
-  city: String!
+  city: String
 
   """Country"""
   country: CCA3!
 
   """Postal code"""
-  postalCode: String!
+  postalCode: String
 
   """State"""
   state: String
@@ -2093,6 +2084,39 @@ type AddSingleUseVirtualCardSuccessForProjectOwnerPayload {
 type AddSingleUseVirtualCardSuccessForUserPayload {
   """The new card added"""
   card: Card!
+}
+
+"""Input to add an international trusted beneficiary"""
+input AddTrustedInternationalBeneficiaryInput {
+  """Account ID of the account on which the beneficiary will be created"""
+  accountId: ID!
+
+  """Currency of the international beneficiary account"""
+  currency: Currency!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalBeneficiaryDetailsInput!]!
+
+  """Name of the created beneficiary"""
+  label: String
+
+  """Account holder name of the international trusted beneficiary"""
+  name: String!
+
+  """Route that Swan will use to transfer the funds to that beneficiary"""
+  route: InternationalCreditTransferRouteInput!
+
+  """When the consent flow is finished the user is redirected to this URL"""
+  consentRedirectUrl: String!
+}
+
+"""Add international trusted beneficiary payload"""
+union AddTrustedInternationalBeneficiaryPayload = AddTrustedInternationalBeneficiarySuccessPayload | ForbiddenRejection | AccountNotFoundRejection | ValidationRejection | InternalErrorRejection
+
+"""Add international trusted beneficiary success payload"""
+type AddTrustedInternationalBeneficiarySuccessPayload {
+  """The created beneficiary"""
+  trustedBeneficiary: TrustedInternationalBeneficiary!
 }
 
 """Input to add a SEPA trusted beneficiary"""
@@ -2373,6 +2397,8 @@ type BasicPhysicalCardInfo {
   isExpired: Boolean!
 }
 
+union Beneficiary = TrustedSepaBeneficiary | UnsavedSepaBeneficiary
+
 """BeneficiaryAccountHolderType"""
 enum BeneficiaryAccountHolderType {
   Individual
@@ -2464,6 +2490,10 @@ type BindAccountMembershipSuccessPayload {
   accountMembership: AccountMembership!
 }
 
+type BlacklistedPhoneNumberRejection implements Rejection {
+  message: String!
+}
+
 """Booked transaction status information"""
 type BookedTransactionStatusInfo implements TransactionStatusInfo {
   """status of the transaction"""
@@ -2498,6 +2528,10 @@ enum BusinessActivity {
   RealEstate
   ScientificActivities
   Transportation
+}
+
+type CalledByABotRejection implements Rejection {
+  message: String!
 }
 
 """Inputs to cancel a card"""
@@ -3333,6 +3367,12 @@ input CardPaymentMethodInput {
   activate: Boolean = false
 }
 
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -3352,7 +3392,12 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
+
+union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
 
 """Card design of a Card Product"""
 type CardProductDesign {
@@ -3430,6 +3475,13 @@ type CardProductSuspendedRejection implements Rejection {
 }
 
 type CardProductUsedRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when the card sensitive info are no longer available
+"""
+type CardSensitiveInfoNoLongerAvailableRejection implements Rejection {
   message: String!
 }
 
@@ -3665,6 +3717,9 @@ type CardTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """enriched data of the merchant"""
+  enrichedTransactionInfo: EnrichedTransactionInfo
 }
 
 enum CardTransactionCategory {
@@ -4067,6 +4122,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -4100,6 +4161,19 @@ type CompletedMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatus
 
   """The time when the customer completed the payment."""
   completedAt: DateTime!
+}
+
+input CompleteUserCreationInput {
+  requestId: String!
+  code: String!
+  userInfo: CreateUserInfo!
+}
+
+union CompleteUserCreationPayload = CompleteUserCreationSuccessPayload | WrongCodeRejection | UserBlockedRejection | OperationNotAllowedRejection | SmsProviderRejection
+
+type CompleteUserCreationSuccessPayload {
+  user: User!
+  userAlreadyExisted: Boolean!
 }
 
 """Inputs to confirm physical card renewal"""
@@ -4298,8 +4372,8 @@ enum ConsentPurpose {
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
 
-  """when returning a transaction"""
-  ReturnTransaction
+  """when returning a transaction for direct debit"""
+  ReturnTransactionForDirectDebit
 }
 
 """
@@ -4395,6 +4469,28 @@ type CreateCapitalDepositCaseSuccessPayload {
   capitalDepositCase: CapitalDepositCase!
 }
 
+"""Input for the `createDownloadLink` mutation."""
+input CreateDownloadLinkInput {
+  """
+  The `exportId` generated by a previous call to any export mutation.
+  
+  NB: The export needs to be completed for the link to be generated.
+  """
+  exportId: String!
+}
+
+union CreateDownloadLinkPayload = CreateDownloadLinkSuccessPayload | UnknownExportRejection | StillExportingRejection
+
+"""Payload of the `createDownloadLink` mutation in case of success."""
+type CreateDownloadLinkSuccessPayload {
+  """
+  A temporary link to download the related export file.
+  
+  NB: This link lasts a few minutes only.
+  """
+  link: String!
+}
+
 input CreateMerchantPaymentLinkInput {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfileId: ID!
@@ -4405,10 +4501,10 @@ input CreateMerchantPaymentLinkInput {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: URL!
+  redirectUrl: URL
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: URL!
+  cancelRedirectUrl: URL
 
   """
   The customer billing Address
@@ -4501,6 +4597,12 @@ type CreateMultiConsentSuccessPayload {
   consent: Consent
 }
 
+input CreateUserInfo {
+  firstName: String!
+  lastName: String!
+  birthDate: Date!
+}
+
 """Credit transfer"""
 input CreditTransferInput {
   """
@@ -4540,6 +4642,12 @@ input CreditTransferInput {
   if the transfer will execute as instant and fallbacked to a regular one if an error happend during the instant transfer
   """
   mode: CreditTransferMode
+
+  """
+  * COMING SOON *
+  if the transfer will credit an existing beneficiary
+  """
+  trustedBeneficiaryId: ID
 }
 
 enum CreditTransferMode {
@@ -4627,6 +4735,24 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+"""Input for the `deleteExportFile` mutation."""
+input DeleteExportFileInput {
+  """
+  The `exportId` generated by a previous call to any export mutation.
+  
+  NB: The export needs to be completed for the file to be deleted.
+  """
+  exportId: String!
+}
+
+union DeleteExportFilePayload = DeleteExportFileSuccessPayload | UnknownExportRejection | StillExportingRejection
+
+"""Payload of the `deleteExportFile` mutation in case of success."""
+type DeleteExportFileSuccessPayload {
+  """The exportId of the deleted file."""
+  exportId: String!
+}
+
 input DeleteSupportingDocumentInput {
   """Id of the supporting document to delete"""
   id: ID!
@@ -4689,6 +4815,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -5132,6 +5264,53 @@ type EnableReceivedDirectDebitMandateSuccessPayload {
   receivedDirectDebitMandate: ReceivedDirectDebitMandate!
 }
 
+type EnrichedTransactionInfo {
+  """Well formatted merchant name"""
+  enrichedMerchantName: String
+
+  """URL of the merchant logo"""
+  logoUrl: String
+
+  """Merchant category"""
+  category: MerchantCategory
+
+  """Merchant subcategory"""
+  subcategory: MerchantSubCategory
+
+  """Merchant country"""
+  country: CCA3
+
+  """Merchant city"""
+  city: String
+
+  """Merchant address"""
+  address: String
+
+  """Merchant location longitude"""
+  longitude: String
+
+  """Merchant location latitude"""
+  latitude: String
+
+  """Merchant postal code"""
+  postalCode: String
+
+  """Is merchant a subcription"""
+  isSubscription: Boolean
+
+  """Merchant carbon footprint"""
+  carbonFootprint: String
+
+  """Merchant email"""
+  contactEmail: String
+
+  """Merchant phone"""
+  contactPhone: String
+
+  """Merchant website"""
+  contactWebsite: String
+}
+
 enum EnvType {
   Live
   Sandbox
@@ -5156,6 +5335,26 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   By default the payment link expires 120 days after it was created.
   """
   expiredAt: DateTime!
+}
+
+union ExportDataPayload = ExportDataSuccessPayload | MaximumSimultaneousExportsRejection | MaximumDailyExportsReachedRejection
+
+"""Payload of any export mutation in case of success."""
+type ExportDataSuccessPayload {
+  """
+  The unique identifier of the data export process running on our end.
+  
+  Used to generate a temporary download link when the process is completed.
+  """
+  exportId: String!
+}
+
+"""Input for the `exportUserData` mutation."""
+input ExportUserDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
 }
 
 type ExternalAccount {
@@ -5429,6 +5628,53 @@ enum FeesTypeEnum {
   """Other banking fee"""
   BankingFee
 
+  """Online payment made with card issued by American Express"""
+  CardAcquiringAmex
+
+  """Chargeback on an online card payment"""
+  CardAcquiringChargeback
+
+  """Online payment made with a consumer card issued by Cartes Bancaires"""
+  CardAcquiringConsumerCB
+
+  """Online payment made with a commercial card issued by Cartes Bancaires"""
+  CardAcquiringCommercialCB
+
+  """
+  Online payment made with a commercial card within the European Economic Area
+  """
+  CardAcquiringCommercialWithinEEA
+
+  """
+  Online payment made with a consumer card within the European Economic Area
+  """
+  CardAcquiringConsumerWithinEEA
+
+  """
+  Online payment made with a consumer card issued by Visa or Mastercard within the European Economic Area
+  """
+  CardAcquiringConsumerVisaMcWithinEEA
+
+  """
+  Online payment made with a commercial card issued by Visa or Mastercard within the European Economic Area
+  """
+  CardAcquiringCommercialVisaMcWithinEEA
+
+  """
+  Online payment made with a consumer card issued by Visa or Mastercard outside the European Economic Area
+  """
+  CardAcquiringConsumerVisaMcOutsideEEA
+
+  """
+  Online payment made with a commercial card issued by Visa or Mastercard outside the European Economic Area
+  """
+  CardAcquiringCommercialVisaMcOutsideEEA
+
+  """
+  Online payment made with a consumer or commercial card issued outside the European Economic Area
+  """
+  CardAcquiringOutsideEEA
+
   """Card transaction in foreign currency"""
   CardPaymentsOutsideSEPA
 
@@ -5508,6 +5754,9 @@ enum FeesTypeEnum {
   """Delivery of physical cards outside of France"""
   PhysicalCardDeliveryIntl
 
+  """Delivery of physical cards within Spain"""
+  PhysicalCardDeliverySpain
+
   """Process of printing physical cards"""
   PhysicalCardPrinting
 
@@ -5549,6 +5798,9 @@ enum FeesTypeEnum {
 
   """Fee for sending or receiving a SEPA Credit Transfer"""
   SepaCreditTransferOut
+
+  """SEPA creditor identifier request"""
+  SepaCreditorIdentifierRequest
 
   """Fee for sending or receiving a SEPA Instant Credit Transfer"""
   InstantSepaCreditTransferIn
@@ -6763,10 +7015,7 @@ type InitiateFundingRequestSuccessPayload {
   payment: Payment!
 }
 
-"""
-*COMING SOON*
-Input to create a quote and an international beneficiary
-"""
+"""Input to create a quote and an international beneficiary"""
 input InitiateInternationalCreditTransferInput {
   """Account ID of the originator of the international credit transfer"""
   accountId: ID
@@ -7484,6 +7733,20 @@ input InternationalAddressInput {
   state: String
 }
 
+interface InternationalBeneficiary {
+  """Currency of the international beneficiary"""
+  currency: Currency!
+
+  """Route that Swan will use to transfer the funds"""
+  route: InternationalCreditTransferRoute!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalCreditTransferDetails!]!
+
+  """name of the beneficiary"""
+  name: String!
+}
+
 """International Beneficiary Details"""
 input InternationalBeneficiaryDetailsInput {
   """Key"""
@@ -7493,22 +7756,13 @@ input InternationalBeneficiaryDetailsInput {
   value: String!
 }
 
-"""
-*COMING SOON*
-International Beneficiary Dynamic Forms
-"""
+"""International Beneficiary Dynamic Forms"""
 type InternationalBeneficiaryDynamicForms {
-  """
-  *COMING SOON*
-  Schemes
-  """
+  """Schemes"""
   schemes: [Scheme!]!
 }
 
-"""
-*COMING SOON*
-International Beneficiary
-"""
+"""International Beneficiary"""
 input InternationalBeneficiaryInput {
   """Account holder name"""
   name: String!
@@ -7516,16 +7770,10 @@ input InternationalBeneficiaryInput {
   """Currency of the international beneficiary account"""
   currency: Currency!
 
-  """
-  *COMING SOON*
-  Currency-specific details of the beneficiary
-  """
+  """Currency-specific details of the beneficiary"""
   details: [InternationalBeneficiaryDetailsInput!]!
 
-  """
-  *COMING SOON*
-  Route that Swan will use to transfer the funds
-  """
+  """Route that Swan will use to transfer the funds"""
   route: InternationalCreditTransferRouteInput!
 
   """
@@ -7564,21 +7812,12 @@ type InternationalCreditTransferDetails {
   value: String!
 }
 
-"""
-*COMING SOON*
-International Credit Transfer Details
-"""
+"""International Credit Transfer Details"""
 input InternationalCreditTransferDetailsInput {
-  """
-  *COMING SOON*
-  Key
-  """
+  """Key"""
   key: String!
 
-  """
-  *COMING SOON*
-  Value
-  """
+  """Value"""
   value: String!
 }
 
@@ -7606,16 +7845,12 @@ enum InternationalCreditTransferDisplayLanguage {
   es
 }
 
-"""
-*COMING SOON*
-International Credit Transfer Dynamic Form
-"""
+"""International Credit Transfer Dynamic Form"""
 type InternationalCreditTransferDynamicForm {
   """List of international transaction fields"""
   fields: [Field!]!
 
   """
-  *COMING SOON*
   Number of fields that need to be updated to fill the form completely. Please re run the query internationalCreditTransferTransactionDetailsDynamicForm with updated refreshableFields if the value of this field is not 0
   """
   remainingFieldsToRefreshCount: Int!
@@ -7675,10 +7910,7 @@ type InternationalCreditTransferOutDebtor {
   name: String!
 }
 
-"""
-*COMING SOON*
-International Quote
-"""
+"""International Quote"""
 type InternationalCreditTransferQuote {
   """Rate of the quote"""
   exchangeRate: String!
@@ -8077,6 +8309,9 @@ type InternationalCreditTransferTransaction implements Transaction {
 
   """updated date"""
   updatedAt: DateTime!
+
+  """International beneficiary linked to the transaction"""
+  beneficiary: InternationalBeneficiary
 }
 
 """Rejection returned on invalid argument error"""
@@ -8154,6 +8389,7 @@ enum InvalidMerchantPaymentMethodErrorCode {
   AlreadyInactive
   Suspended
   MissingPaymentMethod
+  InvalidSepaDirectDebitConfiguration
 }
 
 type InvalidPaymentMethodRequestRejection implements Rejection {
@@ -8382,6 +8618,20 @@ enum MandateLanguage {
   fi
 }
 
+"""
+Rejection returned when the project has already reached the maximum daily exports
+"""
+type MaximumDailyExportsReachedRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when the project has already started exports of the same type
+"""
+type MaximumSimultaneousExportsRejection implements Rejection {
+  message: String!
+}
+
 input MembershipInfoInput {
   """Email address"""
   email: String!
@@ -8455,6 +8705,23 @@ input MembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+}
+
+enum MerchantCategory {
+  Culture
+  Entertainment
+  Finance
+  Groceries
+  HealthAndBeauty
+  HomeAndUtilities
+  Other
+  ProfessionalServices
+  PublicAdministrations
+  Restaurants
+  Shopping
+  Software
+  Transport
+  Travel
 }
 
 """MerchantCategoryDescription"""
@@ -8782,10 +9049,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String!
+  redirectUrl: String
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String!
+  cancelRedirectUrl: String
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -9042,9 +9309,6 @@ enum MerchantProfileStatus {
   """Rejected"""
   Rejected
 
-  """Canceled"""
-  Canceled
-
   """Suspended"""
   Suspended
 
@@ -9064,6 +9328,76 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   message: String!
   currentStatus: MerchantProfileStatus!
   expectedStatus: MerchantProfileStatus!
+}
+
+enum MerchantSubCategory {
+  Education
+  Museums
+  CinemasAndShows
+  GamblingAndBettingActivities
+  OtherLeisureActivities
+  StreamingPlatforms
+  ThemeParks
+  TicketsAndEvents
+  VideoGames
+  FinancialServices
+  Insurance
+  LiquorStore
+  SupermarketsAndOtherGroceryStores
+  FitnessAndSports
+  Hairdressing
+  Healthcare
+  Pharmacies
+  SpaAndBeautyTreatments
+  ConstructionAndOddJobs
+  EnergyProviders
+  Gardening
+  Laundries
+  PhoneAndInternetServicesProviders
+  RealEstate
+  CharityAndNonProfitOrganizations
+  ReligiousOrganizations
+  AdvertisingAndMarketing
+  BookkeepingAndConsultancy
+  CourierAndLogistics
+  IndustrialCleaning
+  LegalActivities
+  OtherProfessionalServices
+  StationaryServices
+  GovernmentAndCityCouncils
+  BarsAndRestaurants
+  CoffeeAndBakeries
+  FoodDelivery
+  PubsAndNightclubs
+  BooksAndNewspapers
+  CigarShops
+  ClothingShoesAndAccessories
+  ComputersAndElectronicDevices
+  DepartmentStores
+  Furniture
+  GamesAndToys
+  HardwareStores
+  HouseholdItems
+  Pets
+  SoftwareServices
+  CarRental
+  MetroBusAndTrains
+  MotorVehiclesRepairsAndAccessories
+  OtherTransportProviders
+  PrivateMobilityServices
+  ServiceStations
+  TollsAndParkings
+  Airlines
+  FerriesAndBoats
+  HotelsAndAccommodation
+  TravelAgents
+  ATM
+  OfficeRental
+  HrAndRecruiting
+  Flowers
+  OtherStores
+  PerfumesAndCosmetics
+  Other
 }
 
 """Rejection returned when mandatory fields are missing from the call."""
@@ -9369,6 +9703,15 @@ type Mutation {
   viewCardNumbers(input: ViewCardNumbersInput!): ViewCardNumbersPayload!
 
   """
+  Obtain individual iframes containing sensitive card information from an accepted consent
+  
+  This mutation is restricted to user access token ([Learn More](https://docs.swan.io/developers/using-api/authentication/#tokens-user)).
+  
+  Conditions apply
+  """
+  viewCardNumbersWithConsent(input: ViewCardNumbersWithConsentInput!): ViewCardNumbersWithConsentPayload!
+
+  """
   Reveal the physical card numbers in the consent page once consent has been given by the cardholder
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
@@ -9417,8 +9760,27 @@ type Mutation {
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
 
+  """Create a temporary download link for a completed export."""
+  createDownloadLink(input: CreateDownloadLinkInput!): CreateDownloadLinkPayload
+
+  """Delete file with exported data."""
+  deleteExportFile(input: DeleteExportFileInput!): DeleteExportFilePayload
+
+  """
+  Export all users of a project (`projectId` found in context).
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportUserData(input: ExportUserDataInput!): ExportDataPayload
+
   """Cancels a consent."""
   cancelConsent(input: CancelConsentInput!): CancelConsentPayload!
+
+  """COMING SOON"""
+  acceptConsent(input: AcceptConsentInput!): AcceptConsentPayload
+
+  """COMING SOON : Complete User Creation"""
+  completeUserCreation(input: CompleteUserCreationInput!): CompleteUserCreationPayload!
 
   """
   Create a multi consent, which represents a consent of several other consents,
@@ -9433,6 +9795,9 @@ type Mutation {
 
   """Grant consent with a server signature"""
   grantConsentWithServerSignature(input: GrantConsentWithServerSignatureInput!): GrantConsentWithServerSignaturePayload!
+
+  """COMING SOON"""
+  startUserCreation(input: StartUserCreationInput!): StartUserCreationPayload!
 
   """
   Updates user preferred consent notification channel.
@@ -9542,7 +9907,7 @@ type Mutation {
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
   """
-  addInternationalTrustedBeneficiary(input: AddInternationalTrustedBeneficiaryInput!): AddInternationalTrustedBeneficiaryPayload
+  addTrustedInternationalBeneficiary(input: AddTrustedInternationalBeneficiaryInput!): AddTrustedInternationalBeneficiaryPayload
 
   """
   Add a trusted SEPA beneficiary to an account
@@ -9571,16 +9936,17 @@ type Mutation {
   """
   initiateFundingRequest(input: InitiateFundingRequestInput!): InitiateFundingRequestPayload
 
-  """
-  *COMING SOON*
-  Create an international transfer
-  """
+  """Create an international transfer"""
   initiateInternationalCreditTransfer(input: InitiateInternationalCreditTransferInput!): InitiateInternationalCreditTransferResponsePayload
 
   """
   COMING SOON
   
-  Returns a transaction
+  Initiates a refund on a booked transaction.
+  
+  This mutation is restricted to a User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have an account membership for this account with the attribute `canInitiatePayments=true`.
   """
   returnTransaction(input: ReturnTransactionInput!): ReturnTransactionPayload!
 
@@ -9624,6 +9990,11 @@ input NestedWebhookEventLogFiltersInput {
   resourceId: ID
 }
 
+"""Rejection returned when the User status is not allowed"""
+type NotAllowedUserStatusRejection implements Rejection {
+  message: String!
+}
+
 """
 Rejection returned if the entity was not found or if the user does not have the rights to know that the account exists
 """
@@ -9640,11 +10011,12 @@ type NotReachableConsentStatusRejection implements Rejection {
 }
 
 """
+@deprecated Use 'StartedIdentificationLevelStatusInfo' instead. Deprecated to ensure consistency and clear identification status behavior
 Describes an identification level that hasn't started for the process of the current identification
 """
 type NotStartedIdentificationLevelStatusInfo {
   """Always set to `NotStarted`"""
-  status: SwanIdentificationStatus!
+  status: SwanIdentificationStatus! @deprecated(reason: "Use 'Started' instead. Deprecated to ensure consistency and clear identification status behavior.")
 }
 
 """
@@ -10184,9 +10556,56 @@ type OnboardingValidStatusInfo implements OnboardingStatusInfo {
   status: OnboardingStatus!
 }
 
+type OperationNotAllowedRejection implements Rejection {
+  message: String!
+}
+
 enum OrderByDirection {
   Asc
   Desc
+}
+
+"""https://www.twilio.com/docs/verify/supported-languages"""
+enum OtpLocale {
+  af
+  ar
+  ca
+  cs
+  da
+  de
+  el
+  en
+  es
+  et
+  fi
+  fr
+  he
+  hi
+  hr
+  hu
+  id
+  it
+  ja
+  kn
+  ko
+  lt
+  mr
+  ms
+  nb
+  nl
+  pl
+  pt
+  ro
+  ru
+  sk
+  sv
+  te
+  th
+  tl
+  tr
+  uk
+  vi
+  zh
 }
 
 """
@@ -10759,6 +11178,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -10937,6 +11362,9 @@ input PhysicalCardCustomOptionsForGroupDeliveryInput {
   Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
   """
   additionalPrintedLine: String
+
+  """Alternative printed card owner."""
+  customCardHolderName: String
 }
 
 input PhysicalCardCustomOptionsForPrintInput {
@@ -10949,6 +11377,9 @@ input PhysicalCardCustomOptionsForPrintInput {
   Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
   """
   additionalPrintedLine: String
+
+  """Alternative printed card owner."""
+  customCardHolderName: String
 }
 
 input PhysicalCardCustomOptionsInput {
@@ -10961,6 +11392,9 @@ input PhysicalCardCustomOptionsInput {
   Characters allowed: alphanumeric’*’ ‘.’ ‘-’ ‘/’ apostrophe
   """
   additionalPrintedLine: String
+
+  """Alternative printed card owner."""
+  customCardHolderName: String
 }
 
 """Rejection returned when the Physical Card does not exist"""
@@ -11666,6 +12100,7 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
+  cardProductById(id: ID): CardProductByIdResultPayload
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -11725,7 +12160,7 @@ type Query {
   internationalCreditTransferTransactionDetailsDynamicForm(targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage, internationalBeneficiary: InternationalBeneficiaryInput!, refreshableFields: [InternationalCreditTransferDetailsInput!]): InternationalCreditTransferDynamicForm
 
   """Request an international credit transfer quote."""
-  internationalCreditTransferQuote(accountId: ID!, targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage): InternationalCreditTransferQuote
+  internationalCreditTransferQuote(accountId: ID!, route: InternationalCreditTransferRouteInput, targetAmount: AmountInput!, language: InternationalCreditTransferDisplayLanguage): InternationalCreditTransferQuote
 
   """Returns standing order from its id."""
   standingOrder(standingOrderId: ID!): StandingOrder
@@ -12745,16 +13180,18 @@ input ReturnTransactionInput {
   consentRedirectUrl: String!
 }
 
-type ReturnTransactionNotFound implements Rejection {
-  message: String!
-}
+union ReturnTransactionPayload = ReturnTransactionSuccessPayload | ReturnTransactionRejection | TransactionNotFoundRejection
 
-union ReturnTransactionPayload = ReturnTransactionSuccessPayload | ReturnTransactionRejection | ReturnTransactionNotFound
-
+"""
+Rejection returned if the refund is not applicable for this transaction
+"""
 type ReturnTransactionRejection implements Rejection {
   message: String!
 }
 
+"""
+Return type in case of a successful response of the RefundTransaction mutation
+"""
 type ReturnTransactionSuccessPayload {
   consent: Consent!
 }
@@ -13158,6 +13595,9 @@ type SEPACreditTransferTransaction implements Transaction {
 
   """r-transaction reason"""
   returnReason: TransactionReasonCode
+
+  """SEPA beneficiary linked to the transaction"""
+  beneficiary: Beneficiary
 }
 
 """SepaDirectDebitB2BMerchantPaymentMethod"""
@@ -13937,6 +14377,10 @@ input SingleUseVirtualCardConfigInput {
   spendingLimit: SpendingLimitInput!
 }
 
+type SmsProviderRejection implements Rejection {
+  message: String!
+}
+
 """Spending"""
 type Spending {
   """period concerned"""
@@ -14047,7 +14491,10 @@ type StandingOrder {
   """Latest date the Standing Order will be executed"""
   lastExecutionDate: DateTime
 
-  """SEPA beneficiary of the Standing Order"""
+  """
+  *SOON TO BE DEPRECATED*
+  SEPA beneficiary of the Standing Order
+  """
   sepaBeneficiary: SEPABeneficiary!
 
   """Status of the Standing Order"""
@@ -14126,6 +14573,17 @@ Describes an identification level that has started for the process of the curren
 type StartedIdentificationLevelStatusInfo {
   """Always set to `Started`"""
   status: SwanIdentificationStatus!
+}
+
+input StartUserCreationInput {
+  mobilePhoneNumber: PhoneNumber!
+  locale: OtpLocale
+}
+
+union StartUserCreationPayload = StartUserCreationSuccess | BlacklistedPhoneNumberRejection | CalledByABotRejection
+
+type StartUserCreationSuccess {
+  requestId: String!
 }
 
 """
@@ -14236,6 +14694,11 @@ enum StatusText {
   Failure
 }
 
+"""Rejection returned when the corresponding export is still ongoing"""
+type StillExportingRejection implements Rejection {
+  message: String!
+}
+
 """Supporting document used for compliance"""
 type SupportingDocument {
   """Unique identifier of the document"""
@@ -14298,6 +14761,7 @@ type SupportingDocumentCollection {
   """
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
+  transaction: SupportingDocumentTransaction!
 }
 
 """Supporting document collection with Approved status"""
@@ -14624,6 +15088,10 @@ type SupportingDocumentStatusNotAllowedRejection implements Rejection {
   message: String!
 }
 
+type SupportingDocumentTransaction {
+  id: ID
+}
+
 """Specific type for document"""
 enum SupportingDocumentType {
   """Selfie"""
@@ -14945,7 +15413,7 @@ enum SwanIdentificationStatus {
   NotSupported
 
   """When the identification hasn't been started yet"""
-  NotStarted
+  NotStarted @deprecated(reason: "Use 'Started' instead. Deprecated to ensure consistency and clear identification status behavior.")
 
   """When the identification has been started"""
   Started
@@ -15626,6 +16094,9 @@ enum TransactionTypeEnum {
   When an International Credit Transfer debited a Swan account and Swan or the Swan debtor returned it.
   """
   InternationalCreditTransferOutReturn
+
+  """When a card credit credited a Swan account."""
+  CardInCredit
 }
 
 """TrustedBeneficiary"""
@@ -15664,11 +16135,29 @@ interface TrustedBeneficiary {
   type: BeneficiaryType!
 }
 
+"""TrustedBeneficiary status canceled"""
+type TrustedBeneficiaryCanceledStatusInfo implements TrustedBeneficiaryStatusInfo {
+  """status of the beneficiary (set to `Canceled`)"""
+  status: TrustedBeneficiaryStatus!
+
+  """canceled Date"""
+  canceledAt: DateTime!
+}
+
 """Please see the Connection interface"""
 type TrustedBeneficiaryConnection implements Connection {
   pageInfo: PageInfo!
   edges: [TrustedBeneficiaryEdge!]!
   totalCount: Int!
+}
+
+"""TrustedBeneficiary status consent pending"""
+type TrustedBeneficiaryConsentPendingStatusInfo implements TrustedBeneficiaryStatusInfo {
+  """status of the beneficiary  (set to `ConsentPending`)"""
+  status: TrustedBeneficiaryStatus!
+
+  """The consent required to initiate this beneficiary"""
+  consent: Consent!
 }
 
 """Please see the Edge interface"""
@@ -15677,11 +16166,21 @@ type TrustedBeneficiaryEdge implements Edge {
   cursor: String!
 }
 
+"""TrustedBeneficiary status enabled"""
+type TrustedBeneficiaryEnabledStatusInfo implements TrustedBeneficiaryStatusInfo {
+  """status of the beneficiary (set to `Enabled`)"""
+  status: TrustedBeneficiaryStatus!
+
+  """enabled Date"""
+  enabledAt: DateTime!
+}
+
 """Filters that can be applied when listing trusted beneficiaries"""
 input TrustedBeneficiaryFiltersInput {
   status: [TrustedBeneficiaryStatus!]
   type: [BeneficiaryType!]
   label: String
+  currency: Currency
 }
 
 """
@@ -15715,33 +16214,6 @@ enum TrustedBeneficiaryStatus {
 interface TrustedBeneficiaryStatusInfo {
   """status of the beneficiary"""
   status: TrustedBeneficiaryStatus!
-}
-
-"""TrustedBeneficiary status canceled"""
-type TrustedBeneficiaryStatusInfoCanceled implements TrustedBeneficiaryStatusInfo {
-  """status of the beneficiary (set to `Canceled`)"""
-  status: TrustedBeneficiaryStatus!
-
-  """canceled Date"""
-  canceledAt: DateTime!
-}
-
-"""TrustedBeneficiary status consent pending"""
-type TrustedBeneficiaryStatusInfoConsentPending implements TrustedBeneficiaryStatusInfo {
-  """status of the beneficiary  (set to `ConsentPending`)"""
-  status: TrustedBeneficiaryStatus!
-
-  """The consent required to initiate this beneficiary"""
-  consent: Consent!
-}
-
-"""TrustedBeneficiary status enabled"""
-type TrustedBeneficiaryStatusInfoEnabled implements TrustedBeneficiaryStatusInfo {
-  """status of the beneficiary (set to `Enabled`)"""
-  status: TrustedBeneficiaryStatus!
-
-  """enabled Date"""
-  enabledAt: DateTime!
 }
 
 """Trusted Internal Beneficiary"""
@@ -15784,9 +16256,21 @@ type TrustedInternalBeneficiary implements TrustedBeneficiary {
 }
 
 """Trusted International Beneficiary"""
-type TrustedInternationalBeneficiary implements TrustedBeneficiary {
+type TrustedInternationalBeneficiary implements InternationalBeneficiary & TrustedBeneficiary {
   """unique identifier of a trusted beneficiary"""
   id: ID!
+
+  """Currency of the international beneficiary"""
+  currency: Currency!
+
+  """Route that Swan will use to transfer the funds"""
+  route: InternationalCreditTransferRoute!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalCreditTransferDetails!]!
+
+  """name of the beneficiary"""
+  name: String!
 
   """List of transactions associated with the Trusted Beneficiary."""
   transactions(
@@ -15806,9 +16290,6 @@ type TrustedInternationalBeneficiary implements TrustedBeneficiary {
   """updated date"""
   updatedAt: DateTime!
 
-  """full name of the beneficiary"""
-  name: String!
-
   """label of the beneficiary"""
   label: String!
 
@@ -15817,15 +16298,6 @@ type TrustedInternationalBeneficiary implements TrustedBeneficiary {
 
   """type of the beneficiary"""
   type: BeneficiaryType!
-
-  """Currency of the international beneficiary account"""
-  currency: Currency!
-
-  """Currency-specific details of the beneficiary"""
-  details: [KeyValue!]!
-
-  """Route that Swan will use to transfer the funds"""
-  route: InternationalCreditTransferRouteInput!
 }
 
 """Trusted SEPA Beneficiary type SEPA"""
@@ -15835,14 +16307,14 @@ type TrustedSepaBeneficiary implements TrustedBeneficiary {
 
   """List of transactions associated with the Trusted Beneficiary."""
   transactions(
-    """number of elements in the list (default value 50)"""
-    first: Int! = 50
-
     """When the list of elements needs to start after a element"""
     after: String
 
     """When the list of elements needs to be filtered"""
     filters: TransactionsFiltersInput
+
+    """number of elements in the list (default value 50)"""
+    first: Int! = 50
   ): TransactionConnection
 
   """created date"""
@@ -16002,6 +16474,36 @@ enum UltimateBeneficialOwnerType {
 
   """Indirect Company Owner (Legal person)."""
   IndirectCompany
+}
+
+"""Rejection returned when the provided `exportId` is not found"""
+type UnknownExportRejection implements Rejection {
+  message: String!
+}
+
+type UnsavedInternationalBeneficiary {
+  """Currency of the international beneficiary"""
+  currency: Currency!
+
+  """Route that Swan will use to transfer the funds"""
+  route: InternationalCreditTransferRoute!
+
+  """Currency-specific details of the beneficiary"""
+  details: [InternationalCreditTransferDetails!]!
+
+  """name of the beneficiary"""
+  name: String!
+}
+
+type UnsavedSepaBeneficiary {
+  """IBAN of the beneficiary"""
+  iban: IBAN!
+
+  """name of the beneficiary"""
+  name: String!
+
+  """address of the beneficiary"""
+  address: Address
 }
 
 """Upcoming transaction status information"""
@@ -16504,6 +17006,10 @@ type UserAlreadyDeactivatedRejection {
   message: String!
 }
 
+type UserBlockedRejection implements Rejection {
+  message: String!
+}
+
 type UserCannotBeDeactivatedRejection {
   """User id"""
   userId: ID!
@@ -16736,6 +17242,20 @@ union ViewCardNumbersPayload = ViewCardNumbersSuccessPayload | UserNotCardHolder
 type ViewCardNumbersSuccessPayload {
   """The consent required to view card numbers"""
   consent: Consent!
+}
+
+input ViewCardNumbersWithConsentInput {
+  """Unique identifier of an accepted view card number consent"""
+  consentId: String!
+}
+
+union ViewCardNumbersWithConsentPayload = ViewCardNumbersWithConsentSuccessPayload | ForbiddenRejection | CardSensitiveInfoNoLongerAvailableRejection | CardNotFoundRejection
+
+type ViewCardNumbersWithConsentSuccessPayload {
+  panIframeUrl: String!
+  expiryDateIframeUrl: String!
+  cvvIframeUrl: String!
+  cardholderName: String!
 }
 
 input ViewPhysicalCardNumbersInput {
@@ -17062,6 +17582,10 @@ interface WebhookSubscriptionStatusInfo {
 
 type WebhookSubscriptionSuccessPayload {
   webhookSubscription: WebhookSubscription!
+}
+
+type WrongCodeRejection implements Rejection {
+  message: String!
 }
 
 """Rejection returned when a parameter has a wrong value"""

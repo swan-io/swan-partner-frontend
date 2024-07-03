@@ -1,6 +1,7 @@
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -51,9 +52,6 @@ const styles = StyleSheet.create({
   contentDesktop: {
     paddingHorizontal: spacings[40],
     paddingTop: spacings[40],
-  },
-  container: {
-    paddingHorizontal: 32,
   },
   merchantNameContainer: {
     flex: 1,
@@ -312,6 +310,7 @@ export const MerchantProfileSettings = ({
   onUpdate,
 }: Props) => {
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const merchantPaymentMethods = merchantProfile.merchantPaymentMethods ?? [];
 
@@ -400,7 +399,7 @@ export const MerchantProfileSettings = ({
           ))
           .otherwise(() => null)}
       >
-        <Box direction="row" style={styles.container}>
+        <Box direction="row">
           <Box direction="row" style={styles.merchantNameContainer} alignItems="center">
             {isNotNullish(merchantProfile.merchantLogoUrl) ? (
               <img src={merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
@@ -427,6 +426,22 @@ export const MerchantProfileSettings = ({
               ))
               .with("Suspended", () => (
                 <Tag color="warning">{t("merchantProfile.status.suspended")}</Tag>
+              ))
+              .otherwise(() => null)}
+          </Box>
+
+          <Fill minWidth={32} />
+
+          <Box direction="row" alignItems="center">
+            {match(merchantProfile.statusInfo.status)
+              .with("Enabled", "PendingReview", () => (
+                <LakeButton
+                  mode="tertiary"
+                  color="gray"
+                  icon="edit-regular"
+                  ariaLabel={t("common.edit")}
+                  onPress={() => setIsEditModalOpen(true)}
+                />
               ))
               .otherwise(() => null)}
           </Box>

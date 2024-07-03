@@ -2847,6 +2847,21 @@ fragment MerchantProfile on MerchantProfile {
   merchantPaymentMethods {
     ...MerchantPaymentMethod
   }
+  requestMerchantProfileUpdate {
+    status
+    merchantName
+    merchantWebsite
+    merchantLogoUrl
+    productType
+    expectedMonthlyPaymentVolume {
+      value
+      currency
+    }
+    expectedAverageBasket {
+      value
+      currency
+    }
+  }
 }
 
 mutation AddMerchantProfile($input: AddMerchantProfileInput!) {

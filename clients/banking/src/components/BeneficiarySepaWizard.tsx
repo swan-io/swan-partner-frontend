@@ -66,7 +66,7 @@ export const BeneficiarySepaWizard = ({
   accountId,
   accountMembershipId,
 }: Props) => {
-  const [addSepaBeneficiary] = useMutation(AddSepaBeneficiaryDocument);
+  const [addSepaBeneficiary, sepaBeneficiaryAddition] = useMutation(AddSepaBeneficiaryDocument);
 
   const handleOnSubmit = useCallback(
     (beneficiary: Beneficiary) => {
@@ -138,6 +138,7 @@ export const BeneficiarySepaWizard = ({
 
             <BeneficiaryWizard
               mode="add"
+              submitting={sepaBeneficiaryAddition.isLoading()}
               accountCountry={accountCountry}
               accountId={accountId}
               onPressPrevious={onPressClose}

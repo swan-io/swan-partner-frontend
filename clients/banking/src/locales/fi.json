@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Maksu fyysisen kortin toimittamisesta express-kuljetuspalvelua käyttäen",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Maksu fyysisen kortin toimittamisesta Ranskassa",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Maksu fyysisen kortin toimittamisesta Ranskan ulkopuolella",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Maksu fyysisten korttien toimituksesta Espanjassa",
   "transaction.fees.description.PhysicalCardPrinting": "Maksu fyysisen kortin tulostamisesta",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Maksu Swanin oikeudellisesta tai hallinnollisesta väliintulosta tiliisi liittyen",
   "transaction.fees.description.SepaCreditTransferIn": "Maksu saapuvasta SEPA-tilisiirrosta",

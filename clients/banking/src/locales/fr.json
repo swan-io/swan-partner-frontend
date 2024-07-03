@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Frais pour la livraison de cartes physiques via un prestataire de services de livraison express",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Frais pour la livraison de cartes physiques en France",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Frais pour la livraison de cartes physiques en dehors de la France",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Frais de livraison des cartes physiques en Espagne",
   "transaction.fees.description.PhysicalCardPrinting": "Frais d'impression des cartes physiques",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Frais d'intervention judiciaire ou administrative exigée par Swan en rapport avec votre compte",
   "transaction.fees.description.SepaCreditTransferIn": "Frais de virement SEPA entrant",

@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Comisión por la entrega de tarjetas físicas con un proveedor de entrega exprés",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Comisión por la entrega de tarjetas físicas dentro de Francia",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Comisión por la entrega de tarjetas físicas fuera de Francia",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Tarifa por entrega de tarjetas físicas en España",
   "transaction.fees.description.PhysicalCardPrinting": "Comisión por el proceso de impresión de tarjetas físicas",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Cargo por intervención judicial o administrativa requerida por Swan en relación con tu cuenta",
   "transaction.fees.description.SepaCreditTransferIn": "Comisión por transferencia SEPA instantánea entrante",

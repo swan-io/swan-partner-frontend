@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Commissione per la consegna di carte fisiche con modalità di spedizione espressa",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Commissione per la spedizione e consegna di carte fisiche in Francia",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Commissione per la spedizione e consegna di carte fisiche al di fuori della Francia",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Commissione per la consegna delle carte fisiche in Spagna",
   "transaction.fees.description.PhysicalCardPrinting": "Commissione per la stampa di carte fisiche",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Commissione per l'intervento giudiziario o amministrativo richiesto da Swan in relazione al conto",
   "transaction.fees.description.SepaCreditTransferIn": "Commissione per bonifico SEPA in entrata",

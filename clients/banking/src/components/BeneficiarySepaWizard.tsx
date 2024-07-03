@@ -88,7 +88,7 @@ export const BeneficiarySepaWizard = ({
         .mapOkToResult(filterRejectionsToResult)
         .tapOk(({ trustedBeneficiary }) => {
           match(trustedBeneficiary.statusInfo)
-            .with({ __typename: "TrustedBeneficiaryStatusInfoConsentPending" }, ({ consent }) =>
+            .with({ __typename: "TrustedBeneficiaryConsentPendingStatusInfo" }, ({ consent }) =>
               window.location.assign(consent.consentUrl),
             )
             .otherwise(() => {});

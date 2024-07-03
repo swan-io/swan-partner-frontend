@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Gebühr für die Lieferung physischer Karten durch einen Expresszusteller",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Gebühr für die Zustellung physischer Karten innerhalb Frankreichs",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Gebühr für die Zustellung physischer Karten außerhalb Frankreichs",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Gebühr für die Lieferung physischer Karten innerhalb Spaniens",
   "transaction.fees.description.PhysicalCardPrinting": "Gebühr für den Druck physischer Karten",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Gebühr für gerichtliche oder administrative Maßnahmen, die Swan im Zusammenhang mit Ihrem Konto verlangt",
   "transaction.fees.description.SepaCreditTransferIn": "Gebühr für den Empfang einer SEPA-Überweisung",

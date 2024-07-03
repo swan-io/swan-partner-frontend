@@ -703,6 +703,7 @@
   "transaction.fees.description.PhysicalCardDeliveryExpress": "Kosten voor de levering van fysieke kaarten met een express bezorgdienst",
   "transaction.fees.description.PhysicalCardDeliveryFrance": "Kosten voor de levering van fysieke kaarten binnen Frankrijk",
   "transaction.fees.description.PhysicalCardDeliveryIntl": "Kosten voor de levering van fysieke kaarten buiten Frankrijk",
+  "transaction.fees.description.PhysicalCardDeliverySpain": "Kosten voor de levering van fysieke kaarten binnen Spanje",
   "transaction.fees.description.PhysicalCardPrinting": "Kosten voor het afdrukken van fysieke kaarten",
   "transaction.fees.description.ProcessingJudicialOrAdministrativeSeizure": "Kosten voor juridische of administratieve handelingen, door Swan vereist, die verband houden met je rekening",
   "transaction.fees.description.SepaCreditTransferIn": "Kosten voor een uitgaande SEPA overschrijving",

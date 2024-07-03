@@ -120,6 +120,17 @@ type Account {
   bankDetails: String
 }
 
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
+}
+
 """Account Closed status information"""
 type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
@@ -658,7 +669,7 @@ type AccountMembership {
   ): CardConnection!
 }
 
-"""when a user is binded with the error to the account membership"""
+"""when a user is bound with the error to the account membership"""
 type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipStatusInfo {
   """
   AccountMembership status (always BindingUserError for type AccountMembershipBindingUserErrorStatusInfo)
@@ -666,7 +677,7 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user binded doesn't match with the invitation
+  `true` if the first name of the user bound doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
 
@@ -674,17 +685,17 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user binded doesn't match with the invitation
+  `true` if the last name of the user bound doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user binded doesn't match with the invitation
+  `true` if the phone number of the user bound doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user binded doesn't match with the invitation
+  `true` if the birth date of the user bound doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -759,7 +770,7 @@ type AccountMembershipEnabledStatusInfo implements AccountMembershipStatusInfo {
 }
 
 """
-when a new account membership is invited and there is no user binded yet
+when a new account membership is invited and there is no user bound yet
 """
 type AccountMembershipInvitationSentStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -840,15 +851,6 @@ input AccountMembershipsFilterInput {
   search: String
 }
 
-"""List of account memberships permission"""
-enum AccountMembershipsPermission {
-  canInitiatePayments
-  canManageAccountMembership
-  canManageCards
-  canManageBeneficiaries
-  canViewAccount
-}
-
 """AccountMembership enabled"""
 enum AccountMembershipStatus {
   """when the consent to invite the account membership is pending"""
@@ -857,7 +859,7 @@ enum AccountMembershipStatus {
   """when the account membership is invited"""
   InvitationSent
 
-  """when the user binded with errors to the account membership"""
+  """when the user bound with errors to the account membership"""
   BindingUserError
 
   """when the account membership is enabled"""
@@ -1061,19 +1063,19 @@ type AddressInformation {
 """Address"""
 input AddressInformationInput {
   """Address"""
-  addressLine1: String!
+  addressLine1: String
 
   """Address"""
   addressLine2: String
 
   """City"""
-  city: String!
+  city: String
 
   """Country"""
   country: CCA3!
 
   """Postal code"""
-  postalCode: String!
+  postalCode: String
 
   """State"""
   state: String
@@ -1619,6 +1621,12 @@ input CardPINInfosInput {
   requestId: String!
 }
 
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -1638,6 +1646,9 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
 
 """Card design of a Card Product"""
@@ -2089,6 +2100,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -2284,8 +2301,8 @@ enum ConsentPurpose {
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
 
-  """when returning a transaction"""
-  ReturnTransaction
+  """when returning a transaction for direct debit"""
+  ReturnTransactionForDirectDebit
 }
 
 """Status of a consent"""
@@ -2386,6 +2403,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -3237,10 +3260,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String!
+  redirectUrl: String
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String!
+  cancelRedirectUrl: String
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -3459,9 +3482,6 @@ enum MerchantProfileStatus {
 
   """Rejected"""
   Rejected
-
-  """Canceled"""
-  Canceled
 
   """Suspended"""
   Suspended
@@ -4276,6 +4296,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -5172,6 +5198,7 @@ type SupportingDocumentCollection {
   """
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
+  transaction: SupportingDocumentTransaction!
 }
 
 """Supporting document collection with Approved status"""
@@ -5496,6 +5523,10 @@ type SupportingDocumentStatusNotAllowedRejection implements Rejection {
   oldStatus: SupportingDocumentStatus!
   newStatus: SupportingDocumentStatus!
   message: String!
+}
+
+type SupportingDocumentTransaction {
+  id: ID
 }
 
 """Specific type for document"""

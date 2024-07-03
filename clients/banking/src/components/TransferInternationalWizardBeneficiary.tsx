@@ -1,5 +1,6 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
@@ -9,15 +10,12 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Svg, Use } from "@swan-io/lake/src/components/Svg";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
-import { animations, colors, invariantColors } from "@swan-io/lake/src/constants/design";
+import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { getFlagGlyphName } from "@swan-io/lake/src/utils/flagCountry";
 import { noop } from "@swan-io/lake/src/utils/function";
 import {
-  isNotEmpty,
   isNotNullish,
   isNotNullishOrEmpty,
   isNullishOrEmpty,
@@ -42,21 +40,9 @@ import {
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 
-const isWindows = window.navigator.userAgent.includes("Windows NT");
-
 const styles = StyleSheet.create({
   hidden: {
     display: "none",
-  },
-  flag: {
-    // Firefox splits emo
-    //                   jis
-    whiteSpace: "nowrap",
-    userSelect: "none",
-  },
-  windowsFlag: {
-    height: 18,
-    width: 18,
   },
 });
 
@@ -87,7 +73,6 @@ export const TransferInternationalWizardBeneficiary = ({
 }: Props) => {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [route, setRoute] = useState<string | undefined>();
-  const [flagListUrl, setFlagListUrl] = useState("");
   const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
@@ -119,14 +104,6 @@ export const TransferInternationalWizardBeneficiary = ({
         validate: () => undefined,
       },
     });
-
-  useEffect(() => {
-    if (isWindows) {
-      void import("@swan-io/lake/src/assets/images/flags.svg")
-        .then(module => module.default)
-        .then(setFlagListUrl);
-    }
-  }, []);
 
   useEffect(() => {
     match(data)
@@ -180,27 +157,17 @@ export const TransferInternationalWizardBeneficiary = ({
   }, [listenFields, refresh]);
 
   const currencyItems = useMemo(() => {
-    const resolver = currencyResolver.get();
-
     return currencies.map(value => {
-      const name = resolver?.of(value);
-      const flag = currencyFlags[value];
+      const name = currencyResolver?.of(value);
+      const code = currencyFlags[value];
 
       return {
+        icon: <Flag code={code} />,
         name: isNotNullish(name) ? `${value} (${name})` : value,
         value,
-        icon: isNotEmpty(flagListUrl) ? (
-          <Svg style={styles.windowsFlag}>
-            <Use xlinkHref={`${flagListUrl}#${getFlagGlyphName(flag)}`} />
-          </Svg>
-        ) : (
-          <LakeText color={invariantColors.black} style={styles.flag}>
-            {flag}
-          </LakeText>
-        ),
       };
     });
-  }, [flagListUrl]);
+  }, []);
 
   return (
     <View>

@@ -163,18 +163,16 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
         .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
         .otherwise(() => "EUR");
 
-      const resolver = currencyResolver.get();
-
       return (
         <Cell>
           <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
             {currency}
 
-            {isNotNullish(resolver) && (
+            {isNotNullish(currencyResolver) && (
               <>
                 {" "}
                 <LakeText variant="smallRegular" color={colors.gray[400]}>
-                  ({resolver.of(currency)})
+                  ({currencyResolver.of(currency)})
                 </LakeText>
               </>
             )}

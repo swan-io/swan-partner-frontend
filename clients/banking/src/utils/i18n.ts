@@ -1,5 +1,6 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
-import { Dict, Lazy } from "@swan-io/boxed";
+import { Dict } from "@swan-io/boxed";
+import { FlagCode } from "@swan-io/lake/src/components/Flag";
 import { deriveUnion, memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { DateFormat } from "@swan-io/shared-business/src/components/DatePicker";
@@ -329,32 +330,31 @@ const currenciesTuple = [
 export type Currency = (typeof currenciesTuple)[number];
 export const currencies = currenciesTuple.toSorted();
 
-export const currencyResolver = Lazy(() =>
+export const currencyResolver =
   "Intl" in window && "DisplayNames" in window.Intl
     ? new Intl.DisplayNames([locale.language], { type: "currency" })
-    : undefined,
-);
+    : undefined;
 
-export const currencyFlags: Record<Currency, string> = {
-  AUD: "🇦🇺",
-  BRL: "🇧🇷",
-  CAD: "🇨🇦",
-  CHF: "🇨🇭",
-  CLP: "🇨🇱",
-  EUR: "🇪🇺",
-  GBP: "🇬🇧",
-  HKD: "🇭🇰",
-  IDR: "🇮🇩",
-  ILS: "🇮🇱",
-  INR: "🇮🇳",
-  JPY: "🇯🇵",
-  KRW: "🇰🇷",
-  MXN: "🇲🇽",
-  MYR: "🇲🇾",
-  NZD: "🇳🇿",
-  SGD: "🇸🇬",
-  THB: "🇹🇭",
-  USD: "🇺🇸",
-  UYU: "🇺🇾",
-  VND: "🇻🇳",
+export const currencyFlags: Record<Currency, FlagCode> = {
+  AUD: "AU",
+  BRL: "BR",
+  CAD: "CA",
+  CHF: "CH",
+  CLP: "CL",
+  EUR: "EU",
+  GBP: "GB",
+  HKD: "HK",
+  IDR: "ID",
+  ILS: "IL",
+  INR: "IN",
+  JPY: "JP",
+  KRW: "KR",
+  MXN: "MX",
+  MYR: "MY",
+  NZD: "NZ",
+  SGD: "SG",
+  THB: "TH",
+  USD: "US",
+  UYU: "UY",
+  VND: "VN",
 };

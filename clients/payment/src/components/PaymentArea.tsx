@@ -83,8 +83,8 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
           ),
           paymentLink => {
             const { merchantPaymentLink, nonEEACountries } = paymentLink;
-            const { cancelRedirectUrl, merchantProfile, statusInfo, redirectUrl } =
-              merchantPaymentLink;
+            const { cancelRedirectUrl, merchantProfile, statusInfo } = merchantPaymentLink;
+            const redirectUrl = merchantPaymentLink.redirectUrl ?? undefined;
             const { merchantLogoUrl, merchantName } = merchantProfile;
             const mandateUrlStatus = isNullish(mandateUrl) ? statusInfo.status : "Completed";
 

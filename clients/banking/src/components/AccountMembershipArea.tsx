@@ -314,6 +314,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                       canViewAccount && canManageAccountMembership && features.memberListVisible,
                     merchants:
                       isMerchantFlagActive &&
+                      canManageAccountMembership &&
                       (merchantProfilesCount > 0 || features.memberCreationVisible),
                   },
                 });

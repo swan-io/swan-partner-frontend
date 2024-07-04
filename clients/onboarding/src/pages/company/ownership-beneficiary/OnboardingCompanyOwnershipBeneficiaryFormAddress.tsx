@@ -49,6 +49,7 @@ type Props = {
 };
 
 export type OnboardingCompanyOwnershipBeneficiaryFormAddressRef = {
+  getInput: () => Input;
   submit: () => void;
 };
 
@@ -56,7 +57,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
   OnboardingCompanyOwnershipBeneficiaryFormAddressRef,
   Props
 >(({ placekitApiKey, accountCountry, initialValues, onSave }, ref) => {
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
+  const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm<FormValues>({
     residencyAddressLine1: {
       initialValue: initialValues.residencyAddressLine1 ?? "",
       sanitize: trim,
@@ -101,6 +102,13 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
 
   useImperativeHandle(ref, () => {
     return {
+      getInput: () => ({
+        residencyAddressLine1: getFieldValue("residencyAddressLine1"),
+        residencyAddressCity: getFieldValue("residencyAddressCity"),
+        residencyAddressPostalCode: getFieldValue("residencyAddressPostalCode"),
+        residencyAddressCountry: getFieldValue("residencyAddressCountry"),
+        taxIdentificationNumber: getFieldValue("taxIdentificationNumber"),
+      }),
       submit: () => {
         submitForm({
           onSuccess: ({

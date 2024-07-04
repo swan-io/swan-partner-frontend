@@ -243,8 +243,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                   style={match({ cardNumberState, isPaymentMethodValid, cardNumberHasBeenBlurred })
                     .with(
                       {
-                        cardNumberState: P.union("invalid", "empty", "cardNotSupported"),
-                        cardNumberHasBeenBlurred: true,
+                        cardNumberState: P.union("invalid", "cardNotSupported"),
+                      },
+                      {
+                        cardNumberState: P.union("empty"),
                       },
                       { isPaymentMethodValid: false, cardNumberHasBeenBlurred: true },
                       () => ({
@@ -267,10 +269,13 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                           match({ cardNumberState, isPaymentMethodValid, cardNumberHasBeenBlurred })
                             .with(
                               {
-                                cardNumberState: P.union("invalid", "empty", "cardNotSupported"),
+                                cardNumberState: P.union("invalid", "cardNotSupported"),
                                 cardNumberHasBeenBlurred: true,
                               },
-                              { isPaymentMethodValid: false, cardNumberHasBeenBlurred: true },
+                              {
+                                cardNumberState: P.union("empty"),
+                              },
+                              { isPaymentMethodValid: false, cardNumberHasBeenBlurred: false },
                               () => ({
                                 borderColor: colors.negative[500],
                               }),
@@ -296,18 +301,11 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                     .with({ cardNumberState: "invalid", cardNumberHasBeenBlurred: true }, () =>
                       t("paymentLink.invalidCardNumber"),
                     )
-                    .with(
-                      { cardNumberState: "cardNotSupported", cardNumberHasBeenBlurred: true },
-                      () =>
-                        t("paymentLink.cardNotSupported", {
-                          cardType: isNotNullish(cardTypeValue) ? cardTypeValue : "",
-                        }),
-                    )
-                    .with({ cardNumberState: "empty", cardNumberHasBeenBlurred: true }, () =>
-                      t("paymentLink.cardNumberRequired"),
-                    )
+                    .with({ cardNumberState: "empty" }, () => t("paymentLink.cardNumberRequired"))
                     .with({ isPaymentMethodValid: false, cardNumberHasBeenBlurred: true }, () =>
-                      t("paymentLink.cardNotSupported"),
+                      t("paymentLink.cardNotSupported", {
+                        cardType: isNotNullish(cardTypeValue) ? cardTypeValue : "",
+                      }),
                     )
                     .otherwise(() => " ")}
                 </LakeText>
@@ -341,9 +339,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                       .with({ expiryDateState: "invalid", expiryDateHasBeenBlurred: true }, () =>
                         t("paymentLink.invalidExpiryDate"),
                       )
-                      .with({ expiryDateState: "empty", expiryDateHasBeenBlurred: true }, () =>
-                        t("paymentLink.expiryDateRequired"),
-                      )
+                      .with({ expiryDateState: "empty" }, () => t("paymentLink.expiryDateRequired"))
                       .otherwise(() => " ")}
                   </LakeText>
                 </Box>
@@ -377,9 +373,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                       .with({ cvvState: "invalid", cvvHasBeenBlurred: true }, () =>
                         t("paymentLink.invalidCvv"),
                       )
-                      .with({ cvvState: "empty", cvvHasBeenBlurred: true }, () =>
-                        t("paymentLink.cvvRequired"),
-                      )
+                      .with({ cvvState: "empty" }, () => t("paymentLink.cvvRequired"))
                       .otherwise(() => " ")}
                   </LakeText>
                 </Box>

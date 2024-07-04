@@ -82,7 +82,10 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
         cancel: () => {
           match(step)
             .with("Common", () => onClose())
-            .with("Address", () => onStepChange("Common"))
+            .with("Address", () => {
+              addressValuesRef.current = Option.fromNullable(addressRef.current?.getInput());
+              onStepChange("Common");
+            })
             .exhaustive();
         },
         submit: () => {
@@ -95,6 +98,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
     });
 
     const commonValuesRef = useRef<Option<CommonInput>>(Option.None());
+    const addressValuesRef = useRef<Option<AddressInput>>(Option.None());
 
     return (
       <>
@@ -122,9 +126,12 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
           ))
           .with("Address", () => (
             <OnboardingCompanyOwnershipBeneficiaryFormAddress
+              ref={addressRef}
               placekitApiKey={placekitApiKey}
               accountCountry={accountCountry}
-              initialValues={initialValues}
+              initialValues={
+                addressValuesRef.current.isSome() ? addressValuesRef.current.get() : initialValues
+              }
               onSave={values => {
                 return match(commonValuesRef.current)
                   .with(Option.P.Some(P.select()), commonValues => {
@@ -137,7 +144,6 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
                   })
                   .otherwise(() => {});
               }}
-              ref={addressRef}
             />
           ))
           .exhaustive()}

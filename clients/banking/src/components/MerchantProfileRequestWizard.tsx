@@ -103,7 +103,7 @@ const MerchantProfileRequestEditor = ({
   return (
     <>
       <Tile>
-        <MerchantProfileEditor onSubmit={onSubmit} />
+        <MerchantProfileEditor ref={editorRef} onSubmit={onSubmit} />
       </Tile>
 
       <Space height={16} />

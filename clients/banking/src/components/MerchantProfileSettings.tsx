@@ -40,6 +40,7 @@ import {
   MerchantProfilePaymentMethodSepaDirectDebitCoreRequestModal,
   MerchantProfilePaymentMethodSepaDirectDebitUpdateModal,
 } from "./MerchantProfilePaymentMethodModals";
+import { MerchantProfileSettingsEditor } from "./MerchantProfileSettingsEditor";
 import { SepaLogo } from "./SepaLogo";
 
 const styles = StyleSheet.create({
@@ -90,7 +91,6 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   title,
   description,
   icon,
-  recommended,
   status,
   renderRequestEditor,
   renderUpdateEditor,
@@ -99,7 +99,6 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   title: string;
   description: string;
   icon: ReactNode;
-  recommended: boolean;
   status?: MerchantPaymentMethodStatus;
   renderRequestEditor: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   renderUpdateEditor?: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
@@ -125,8 +124,8 @@ const MerchantProfileSettingsPaymentMethodTile = ({
     <>
       <Tile selected={status === "PendingReview" || status === "Enabled"} flexGrow={1}>
         <Box direction="row" alignItems="start">
-          <Box grow={1}>
-            <Box direction="row" alignItems="center">
+          <Box grow={1} shrink={1}>
+            <Box direction="row" alignItems="center" wrap="wrap">
               {icon}
 
               <Space width={8} />
@@ -368,33 +367,40 @@ export const MerchantProfileSettings = ({
       <Space height={24} />
 
       <Tile
-        footer={match(merchantProfile.statusInfo)
-          .with({ status: "Rejected" }, () => (
+        footer={match(merchantProfile)
+          .with({ statusInfo: { status: "Rejected" } }, () => (
             <LakeAlert
               anchored={true}
               variant="error"
               title={t("merchantProfile.status.rejected.description")}
             />
           ))
-          .with({ status: "Suspended" }, () => (
+          .with({ statusInfo: { status: "Suspended" } }, () => (
             <LakeAlert
               anchored={true}
               variant="warning"
               title={t("merchantProfile.status.suspended.description")}
             />
           ))
-          .with({ status: "Canceled" }, () => (
+          .with({ statusInfo: { status: "Canceled" } }, () => (
             <LakeAlert
               anchored={true}
               variant="neutral"
               title={t("merchantProfile.status.canceled.description")}
             />
           ))
-          .with({ status: "PendingReview" }, () => (
+          .with({ statusInfo: { status: "PendingReview" } }, () => (
             <LakeAlert
               anchored={true}
               variant="info"
               title={t("merchantProfile.status.pendingReview.description")}
+            />
+          ))
+          .with({ requestMerchantProfileUpdate: P.nonNullable }, () => (
+            <LakeAlert
+              anchored={true}
+              variant="info"
+              title={t("merchantProfile.status.pendingUpdateReview.description")}
             />
           ))
           .otherwise(() => null)}
@@ -587,7 +593,6 @@ export const MerchantProfileSettings = ({
                   title={t("merchantProfile.settings.paymentMethods.card.title")}
                   description={t("merchantProfile.settings.paymentMethods.card.description")}
                   icon={<Icon name="payment-regular" color={colors.gray[900]} size={24} />}
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -627,7 +632,6 @@ export const MerchantProfileSettings = ({
                     "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.description",
                   )}
                   icon={<SwanLogo style={styles.swanLogo} />}
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -672,7 +676,6 @@ export const MerchantProfileSettings = ({
                     "merchantProfile.settings.paymentMethods.internalDirectDebitStandard.description",
                   )}
                   icon={<SwanLogo style={styles.swanLogo} />}
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -719,7 +722,6 @@ export const MerchantProfileSettings = ({
                       <SepaLogo height={16} />
                     </View>
                   }
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -793,7 +795,6 @@ export const MerchantProfileSettings = ({
                       <SepaLogo height={16} />
                     </View>
                   }
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -861,7 +862,6 @@ export const MerchantProfileSettings = ({
                   title={t("merchantProfile.settings.paymentMethods.check.title")}
                   description={t("merchantProfile.settings.paymentMethods.check.description")}
                   icon={<Icon name="check-regular" color={colors.gray[900]} size={24} />}
-                  recommended={false}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -897,6 +897,22 @@ export const MerchantProfileSettings = ({
           <Space height={24} />
         </>
       ) : null}
+
+      <LakeModal
+        visible={isEditModalOpen}
+        icon="edit-regular"
+        title={t("merchantProfile.settings.update.title")}
+        maxWidth={850}
+      >
+        <MerchantProfileSettingsEditor
+          merchantProfile={merchantProfile}
+          onSuccess={() => {
+            onUpdate();
+            setIsEditModalOpen(false);
+          }}
+          onCancel={() => setIsEditModalOpen(false)}
+        />
+      </LakeModal>
     </ScrollView>
   );
 };

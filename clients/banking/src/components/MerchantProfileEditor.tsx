@@ -117,7 +117,7 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
         validate: toOptionalValidator(validateUrl),
       },
       accentColor: {
-        initialValue: merchantProfile?.accentColor ?? "",
+        initialValue: merchantProfile?.accentColor?.slice(1) ?? "",
         validate: toOptionalValidator(validateHexColor),
       },
       merchantLogoUrl: {
@@ -190,7 +190,7 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
     );
 
     return (
-      <ResponsiveContainer breakpoint={breakpoints.medium}>
+      <ResponsiveContainer breakpoint={breakpoints.small}>
         {({ small }) => (
           <>
             <Grid numColumns={small ? 1 : 2} horizontalSpace={40}>
@@ -328,7 +328,12 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
                           <View
                             style={[
                               styles.accentColorPreviewCircle,
-                              { backgroundColor: valid ? `#${value}` : DEFAULT_ACCENT_COLOR },
+                              {
+                                backgroundColor:
+                                  validateHexColor(value) == null
+                                    ? `#${value}`
+                                    : DEFAULT_ACCENT_COLOR,
+                              },
                             ]}
                           />
 

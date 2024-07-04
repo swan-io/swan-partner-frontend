@@ -2356,6 +2356,31 @@ query MerchantProfile($merchantProfileId: ID!) {
   }
 }
 
+query MerchantProfiles(
+  $accountId: ID!
+  $filters: MerchantProfileFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  account(accountId: $accountId) {
+    merchantProfiles(filters: $filters, first: $first, after: $after) {
+      totalCount
+      edges {
+        cursor
+        node {
+          ...MerchantProfile
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2896,6 +2921,20 @@ mutation RequestMerchantPaymentMethodsUpdate($input: RequestMerchantPaymentMetho
     __typename
     ... on RequestMerchantPaymentMethodsUpdateSuccessPayload {
       paymentMethodId
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!) {
+  requestMerchantProfileUpdate(input: $input) {
+    __typename
+    ... on RequestMerchantProfileUpdateSuccessPayload {
+      requestMerchantProfileUpdate {
+        id
+      }
     }
     ... on Rejection {
       message

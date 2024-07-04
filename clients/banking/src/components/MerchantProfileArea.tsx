@@ -1,16 +1,15 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { MerchantProfileDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
@@ -18,7 +17,6 @@ import { MerchantProfileSettings } from "./MerchantProfileSettings";
 const styles = StyleSheet.create({
   root: {
     ...commonStyles.fill,
-    paddingTop: spacings[24],
   },
 });
 
@@ -43,38 +41,27 @@ export const AccountMerchantsProfileArea = ({
   merchantProfileInternalDirectDebitB2BVisible,
   merchantProfileCheckVisible,
 }: Props) => {
-  const route = Router.useRoute([
-    "AccountMerchantsProfilePaymentsArea",
-    "AccountMerchantsProfilePaymentLinksArea",
-    "AccountMerchantsProfileSettings",
-  ]);
+  const route = Router.useRoute(["AccountMerchantsProfileSettings"]);
 
   const [merchantProfile, { refresh }] = useQuery(MerchantProfileDocument, { merchantProfileId });
 
-  const tabs = useMemo(
-    () => [
-      {
-        label: t("merchantProfile.area.payments"),
-        url: Router.AccountMerchantsProfilePaymentsRoot({ accountMembershipId, merchantProfileId }),
-      },
-      {
-        label: t("merchantProfile.area.paymentLinks"),
-        url: Router.AccountMerchantsProfilePaymentLinksRoot({
-          accountMembershipId,
-          merchantProfileId,
-        }),
-      },
-      {
-        label: t("merchantProfile.area.settings"),
-        url: Router.AccountMerchantsProfileSettings({ accountMembershipId, merchantProfileId }),
-      },
-    ],
-    [accountMembershipId, merchantProfileId],
+  useCrumb(
+    useMemo(() => {
+      return merchantProfile
+        .toOption()
+        .flatMap(result => result.toOption())
+        .flatMap(merchantProfile => Option.fromNullable(merchantProfile.merchantProfile))
+        .map(merchantProfile => ({
+          label: merchantProfile.merchantName,
+          link: Router.AccountMerchantsProfileSettings({ accountMembershipId, merchantProfileId }),
+        }))
+        .toUndefined();
+    }, [merchantProfile, accountMembershipId, merchantProfileId]),
   );
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
-      {({ small, large }) =>
+      {({ large }) =>
         match(merchantProfile)
           .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
           .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
@@ -85,16 +72,7 @@ export const AccountMerchantsProfileArea = ({
             AsyncData.P.Done(Result.P.Ok({ merchantProfile: P.select(P.nonNullable) })),
             merchantProfile => (
               <>
-                <TabView
-                  sticky={true}
-                  padding={small ? 24 : 40}
-                  tabs={tabs}
-                  otherLabel={t("common.tabs.other")}
-                />
-
                 {match(route)
-                  .with({ name: "AccountMerchantsProfilePaymentsArea" }, () => null)
-                  .with({ name: "AccountMerchantsProfilePaymentLinksArea" }, () => null)
                   .with({ name: "AccountMerchantsProfileSettings" }, () => (
                     <MerchantProfileSettings
                       merchantProfile={merchantProfile}

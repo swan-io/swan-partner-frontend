@@ -354,7 +354,15 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
                   optionalLabel={t("form.optional")}
                   render={() => (
                     <FileInput
-                      value={value}
+                      value={
+                        value ??
+                        (merchantProfile?.requestMerchantProfileUpdate?.merchantLogoUrl != null
+                          ? { url: merchantProfile?.requestMerchantProfileUpdate?.merchantLogoUrl }
+                          : undefined) ??
+                        (merchantProfile?.merchantLogoUrl != null
+                          ? { url: merchantProfile?.merchantLogoUrl }
+                          : undefined)
+                      }
                       error={error}
                       icon="image-regular"
                       accept={["image/png", "image/jpeg"]}

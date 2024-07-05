@@ -1,16 +1,10 @@
 import { Browser, devices, expect, Locator, Page } from "@playwright/test";
 import { REDIRECT_URI } from "./constants";
 import { env } from "./env";
-import { assertIsDefined, wait } from "./functions";
+import { assertIsDefined } from "./functions";
 import { clickOnButton, getByText, waitForText } from "./selectors";
 import { getUserAuthLink, getUserTokens } from "./tokens";
 import { getLastMessageURL } from "./twilio";
-
-const injectTestKey = (page: Page) =>
-  page.evaluate(TEST_KEY => {
-    window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = TEST_KEY;
-    return Promise.resolve();
-  }, env.TEST_KEY);
 
 const openPage = async (browser: Browser, type: "desktop" | "mobile", url: string) => {
   const context = await browser.newContext({
@@ -18,23 +12,15 @@ const openPage = async (browser: Browser, type: "desktop" | "mobile", url: strin
     locale: "en-US",
   });
 
-  const page = await context.newPage();
-
-  // Throttle network so E2E test key can be injected before any request
-  // We throttle API calls only, not GETs are they are used to load the page (*.js, *.css)
-  await page.route("**/*", async (route, request) => {
-    const method = request.method().toUpperCase();
-
-    if (method === "POST") {
-      // It's OK to have a huge leeway since unroute will be called before
-      await wait(20000);
-    }
-
-    await route.continue();
+  await context.addInitScript({
+    content: `window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ${JSON.stringify(
+      env.TEST_KEY,
+    )}`,
   });
 
+  const page = await context.newPage();
+
   await page.goto(url);
-  await injectTestKey(page);
 
   // The page is loaded, unleash the POST requests
   await page.unroute("**/*");
@@ -63,13 +49,21 @@ const waitForConfirm = async (page: Page) => {
 };
 
 const loginWithButtonClick = async (browser: Browser, button: Locator) => {
+  await button
+    .page()
+    .context()
+    .addInitScript({
+      content: `window.__E2E_TEST_KEY_DO_NOT_USE_OR_YOU_WILL_BE_FIRED = ${JSON.stringify(
+        env.TEST_KEY,
+      )}`,
+    });
+
   const popupEventPromise = button.page().waitForEvent("popup");
+
   await button.click();
 
   const popup = await popupEventPromise;
   await popup.waitForLoadState();
-
-  await injectTestKey(popup);
 
   const input = popup.locator('[type="tel"]');
   await input.waitFor();

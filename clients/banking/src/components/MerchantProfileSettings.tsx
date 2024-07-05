@@ -1,7 +1,7 @@
 import { Array, Future, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
+import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -15,13 +15,13 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { CSSProperties, ReactNode, useState } from "react";
+import { ReactNode, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -43,6 +43,9 @@ import {
 import { MerchantProfileSettingsEditor } from "./MerchantProfileSettingsEditor";
 import { SepaLogo } from "./SepaLogo";
 
+const ONE = 1;
+const ZERO = 0;
+
 const styles = StyleSheet.create({
   content: {
     flexShrink: 1,
@@ -56,6 +59,7 @@ const styles = StyleSheet.create({
   },
   merchantNameContainer: {
     flex: 1,
+    transition: "300ms ease-in-out opacity",
   },
   merchantNameItem: {
     overflow: "hidden",
@@ -76,21 +80,25 @@ const styles = StyleSheet.create({
   sepaLogo: {
     paddingVertical: 8,
   },
+  modalContents: {
+    zIndex: -1,
+    marginTop: negativeSpacings[48],
+  },
+  swanLogoLarge: {
+    width: 80,
+    height: "auto",
+    marginVertical: spacings[12],
+  },
 });
-
-const IMAGE_STYLE: CSSProperties = {
-  top: 0,
-  left: 0,
-  maxWidth: "100px",
-  maxHeight: "50px",
-};
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
 
 const MerchantProfileSettingsPaymentMethodTile = ({
   title,
   description,
+  rollingReserve,
   icon,
+  iconLarge,
   status,
   renderRequestEditor,
   renderUpdateEditor,
@@ -99,12 +107,15 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   title: string;
   description: string;
   icon: ReactNode;
+  iconLarge: ReactNode;
+  rollingReserve: Option<{ percentage: number; rollingDays: number }>;
   status?: MerchantPaymentMethodStatus;
   renderRequestEditor: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   renderUpdateEditor?: (config: { visible: boolean; onPressClose: () => void }) => ReactNode;
   onDisable: () => Future<Result<unknown, unknown>>;
 }) => {
   const [isRequestEditorOpen, setIsRequestEditorOpen] = useState(false);
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [isUpdateEditorOpen, setIsUpdateEditorOpen] = useState(false);
   const [isDisableModalOpen, setIsDisableModalOpen] = useState(false);
   const [isDisabling, setIsDisabling] = useState(false);
@@ -167,7 +178,22 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             </LakeText>
           </Box>
 
-          {match({ status, renderUpdateEditor })
+          {match(status)
+            .with(P.nonNullable, () => (
+              <LakeButton
+                mode="tertiary"
+                color="gray"
+                icon="info-regular"
+                ariaLabel={t("common.details")}
+                onPress={() => setIsDetailsModalOpen(true)}
+              />
+            ))
+            .otherwise(() => null)}
+
+          {/*
+          Commenting for now, as the mutation doesn't work with a user token yet
+
+          match({ status, renderUpdateEditor })
             .with({ status: "Enabled", renderUpdateEditor: P.nonNullable }, () => (
               <LakeButton
                 mode="tertiary"
@@ -177,7 +203,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                 onPress={() => setIsUpdateEditorOpen(true)}
               />
             ))
-            .otherwise(() => null)}
+            .otherwise(() => null) */}
 
           {match(status)
             .with(P.nullish, "Disabled", () => (
@@ -242,6 +268,84 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             {t("merchantProfile.settings.paymentMethods.disable.confirm")}
           </LakeButton>
         </LakeButtonGroup>
+      </LakeModal>
+
+      <LakeModal visible={isDetailsModalOpen} onPressClose={() => setIsDetailsModalOpen(false)}>
+        <View style={styles.modalContents}>
+          {iconLarge}
+
+          <Space height={12} />
+
+          <LakeText variant="medium" color={colors.gray[900]}>
+            {title}
+          </LakeText>
+
+          <LakeText color={colors.gray[600]}>{description}</LakeText>
+          <Space height={24} />
+
+          {match(status)
+            .with("Disabled", () => (
+              <>
+                <LakeAlert
+                  variant="neutral"
+                  title={t("merchantProfile.settings.details.Disabled")}
+                />
+
+                <Space height={24} />
+              </>
+            ))
+            .with("PendingReview", () => (
+              <>
+                <LakeAlert
+                  variant="info"
+                  title={t("merchantProfile.settings.details.PendingReview")}
+                />
+
+                <Space height={24} />
+              </>
+            ))
+            .with("Rejected", () => (
+              <>
+                <LakeAlert variant="error" title={t("merchantProfile.settings.details.Rejected")} />
+                <Space height={24} />
+              </>
+            ))
+            .with("Suspended", () => (
+              <>
+                <LakeAlert
+                  variant="error"
+                  title={t("merchantProfile.settings.details.Suspended")}
+                />
+
+                <Space height={24} />
+              </>
+            ))
+            .otherwise(() => null)}
+
+          <LakeLabel
+            label={t("merchantProfile.settings.rollingReserve")}
+            type="view"
+            color="gray"
+            render={() => {
+              return (
+                <>
+                  <LakeText color={colors.gray[900]}>
+                    {t("merchantProfile.settings.rollingReserve.value", {
+                      percentage: String(rollingReserve.map(item => item.percentage).getOr(0)),
+                      rollingDays: String(rollingReserve.map(item => item.rollingDays).getOr(0)),
+                    })}
+                  </LakeText>
+
+                  <Space height={8} />
+
+                  <LakeText color={colors.gray[600]} variant="smallRegular">
+                    {t("merchantProfile.settings.rollingReserve.description")}
+                  </LakeText>
+                </>
+              );
+            }}
+          />
+        </View>
       </LakeModal>
     </>
   );
@@ -310,6 +414,11 @@ export const MerchantProfileSettings = ({
 }: Props) => {
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+
+  const [isImageLoaded, setIsImageLoaded] = useState(
+    merchantProfile.merchantLogoUrl == null ? true : false,
+  );
+  const [hasImageErrored, setHasImageErrored] = useState(false);
 
   const merchantPaymentMethods = merchantProfile.merchantPaymentMethods ?? [];
 
@@ -406,9 +515,18 @@ export const MerchantProfileSettings = ({
           .otherwise(() => null)}
       >
         <Box direction="row">
-          <Box direction="row" style={styles.merchantNameContainer} alignItems="center">
-            {isNotNullish(merchantProfile.merchantLogoUrl) ? (
-              <img src={merchantProfile.merchantLogoUrl} style={IMAGE_STYLE} />
+          <Box
+            direction="row"
+            style={[styles.merchantNameContainer, { opacity: isImageLoaded ? ONE : ZERO }]}
+            alignItems="center"
+          >
+            {isNotNullish(merchantProfile.merchantLogoUrl) && !hasImageErrored ? (
+              <AutoWidthImage
+                height={50}
+                sourceUri={merchantProfile.merchantLogoUrl}
+                onLoad={() => setIsImageLoaded(true)}
+                onError={() => setHasImageErrored(true)}
+              />
             ) : (
               <LakeHeading variant="h3" level={3} style={styles.merchantNameItem}>
                 {merchantProfile.merchantName}
@@ -436,6 +554,10 @@ export const MerchantProfileSettings = ({
               .otherwise(() => null)}
           </Box>
 
+          {/*
+          Let's hide the button for now, and we'll add it back
+          when the simulator API to validate an edit is available.
+
           <Fill minWidth={32} />
 
           <Box direction="row" alignItems="center">
@@ -450,7 +572,7 @@ export const MerchantProfileSettings = ({
                 />
               ))
               .otherwise(() => null)}
-          </Box>
+          </Box> */}
         </Box>
 
         <Space height={24} />
@@ -593,6 +715,10 @@ export const MerchantProfileSettings = ({
                   title={t("merchantProfile.settings.paymentMethods.card.title")}
                   description={t("merchantProfile.settings.paymentMethods.card.description")}
                   icon={<Icon name="payment-regular" color={colors.gray[900]} size={24} />}
+                  iconLarge={<Icon name="payment-regular" color={colors.gray[900]} size={42} />}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -631,7 +757,11 @@ export const MerchantProfileSettings = ({
                   description={t(
                     "merchantProfile.settings.paymentMethods.internalDirectDebitB2B.description",
                   )}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   icon={<SwanLogo style={styles.swanLogo} />}
+                  iconLarge={<SwanLogo style={styles.swanLogoLarge} />}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -675,7 +805,11 @@ export const MerchantProfileSettings = ({
                   description={t(
                     "merchantProfile.settings.paymentMethods.internalDirectDebitStandard.description",
                   )}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   icon={<SwanLogo style={styles.swanLogo} />}
+                  iconLarge={<SwanLogo style={styles.swanLogoLarge} />}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -717,11 +851,15 @@ export const MerchantProfileSettings = ({
                   description={t(
                     "merchantProfile.settings.paymentMethods.sepaDirectDebitB2B.description",
                   )}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   icon={
                     <View style={styles.sepaLogo}>
                       <SepaLogo height={16} />
                     </View>
                   }
+                  iconLarge={<SepaLogo height={24} />}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -790,11 +928,15 @@ export const MerchantProfileSettings = ({
                   description={t(
                     "merchantProfile.settings.paymentMethods.sepaDirectDebitCore.description",
                   )}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   icon={
                     <View style={styles.sepaLogo}>
                       <SepaLogo height={16} />
                     </View>
                   }
+                  iconLarge={<SepaLogo height={24} />}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}
@@ -861,7 +1003,11 @@ export const MerchantProfileSettings = ({
                 <MerchantProfileSettingsPaymentMethodTile
                   title={t("merchantProfile.settings.paymentMethods.check.title")}
                   description={t("merchantProfile.settings.paymentMethods.check.description")}
+                  rollingReserve={paymentMethod.flatMap(paymentMethod =>
+                    Option.fromNullable(paymentMethod.rollingReserve),
+                  )}
                   icon={<Icon name="check-regular" color={colors.gray[900]} size={24} />}
+                  iconLarge={<Icon name="check-regular" color={colors.gray[900]} size={42} />}
                   status={paymentMethod
                     .map(paymentMethod => paymentMethod.statusInfo.status)
                     .toUndefined()}

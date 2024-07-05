@@ -69,9 +69,29 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => (
       <StartAlignedCell>
-        <LakeText variant="medium">{item.merchantName}</LakeText>
+        <LakeText variant="medium" color={colors.gray[900]}>
+          {item.merchantName}
+        </LakeText>
       </StartAlignedCell>
     ),
+  },
+  {
+    id: "paymentMethods",
+    width: 200,
+    title: t("merchantProfile.list.paymentMethods"),
+    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderCell: ({ item }) => {
+      const paymentMethods = item.merchantPaymentMethods ?? [];
+      const activePaymentMethods = paymentMethods.filter(
+        item => item.statusInfo.status === "Enabled",
+      );
+
+      return (
+        <EndAlignedCell>
+          <LakeText variant="regular">{activePaymentMethods.length}</LakeText>
+        </EndAlignedCell>
+      );
+    },
   },
   {
     id: "status",
@@ -187,7 +207,7 @@ export const MerchantList = ({ accountId, accountMembershipId, params }: Props) 
                     data={merchantProfiles?.edges.map(({ node }) => node) ?? []}
                     keyExtractor={item => item.id}
                     headerHeight={48}
-                    rowHeight={104}
+                    rowHeight={56}
                     groupHeaderHeight={48}
                     extraInfo={undefined}
                     columns={columns}
@@ -209,7 +229,7 @@ export const MerchantList = ({ accountId, accountMembershipId, params }: Props) 
                     loading={{ isLoading, count: PER_PAGE }}
                     renderEmptyList={() => (
                       <FixedListViewEmpty
-                        icon="building-shop-regular"
+                        icon="lake-merchant"
                         borderedIcon={true}
                         title={t("merchantProfile.list.noResults")}
                       />

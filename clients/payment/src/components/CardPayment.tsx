@@ -246,7 +246,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                         cardNumberState: P.union("invalid", "cardNotSupported"),
                       },
                       {
-                        cardNumberState: P.union("empty"),
+                        cardNumberState: "empty",
                       },
                       { isPaymentMethodValid: false, cardNumberHasBeenBlurred: true },
                       () => ({
@@ -273,7 +273,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                                 cardNumberHasBeenBlurred: true,
                               },
                               {
-                                cardNumberState: P.union("empty"),
+                                cardNumberState: "empty",
                               },
                               { isPaymentMethodValid: false, cardNumberHasBeenBlurred: false },
                               () => ({

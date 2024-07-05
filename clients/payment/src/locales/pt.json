@@ -10,6 +10,8 @@
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Data de validade",
   "paymentLink.cardNotSupported": "Cartões {cardType} não são suportados. Por favor, tente com outro cartão.",
+  "paymentLink.cardNotSupported.withCardType": "Cartões {cardType} não são suportados. Por favor, tente com outro cartão.",
+  "paymentLink.cardNotSupported.withoutCardType": "Seu cartão não é suportado. Por favor, tente com outro cartão.",
   "paymentLink.cardNumberRequired": "O número do seu cartão é obrigatório",
   "paymentLink.city": "Cidade",
   "paymentLink.country": "País",

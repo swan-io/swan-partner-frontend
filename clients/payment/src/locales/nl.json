@@ -10,6 +10,8 @@
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Vervaldatum",
   "paymentLink.cardNotSupported": "{cardType}-kaarten worden niet ondersteund. Probeer het met een andere kaart.",
+  "paymentLink.cardNotSupported.withCardType": "{cardType}-kaarten worden niet ondersteund. Probeer het alsjeblieft met een andere kaart.",
+  "paymentLink.cardNotSupported.withoutCardType": "Uw kaart wordt niet ondersteund. Probeer het met een andere kaart.",
   "paymentLink.cardNumberRequired": "Uw kaartnummer is verplicht",
   "paymentLink.city": "Stad",
   "paymentLink.country": "Land",

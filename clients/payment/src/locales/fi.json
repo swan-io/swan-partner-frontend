@@ -10,6 +10,8 @@
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Vanhenemispäivä",
   "paymentLink.cardNotSupported": "{cardType} kortit eivät ole tuettuja. Ole hyvä ja kokeile toisella kortilla.",
+  "paymentLink.cardNotSupported.withCardType": "{cardType}-kortteja ei tueta. Ole hyvä ja kokeile toista korttia.",
+  "paymentLink.cardNotSupported.withoutCardType": "Korttiasi ei tueta. Ole hyvä ja kokeile toista korttia.",
   "paymentLink.cardNumberRequired": "Korttinumerosi vaaditaan",
   "paymentLink.city": "Kaupunki",
   "paymentLink.country": "Maa",

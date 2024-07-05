@@ -10,6 +10,8 @@
   "paymentLink.card.cvv": "CVV",
   "paymentLink.card.expiryDate": "Date d'expiration",
   "paymentLink.cardNotSupported": "Les cartes {cardType} ne sont pas prises en charge. Veuillez essayer avec une autre carte.",
+  "paymentLink.cardNotSupported.withCardType": "Les cartes {cardType} ne sont pas prises en charge. Veuillez essayer avec une autre carte.",
+  "paymentLink.cardNotSupported.withoutCardType": "Votre carte n'est pas prise en charge. Veuillez essayer avec une autre carte.",
   "paymentLink.cardNumberRequired": "Votre numéro de carte est requis",
   "paymentLink.city": "Ville",
   "paymentLink.country": "Pays",

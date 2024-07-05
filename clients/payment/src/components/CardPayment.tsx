@@ -224,6 +224,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
           window.location.replace(redirectUrl);
         })
         .tapError(error => {
+          setIsLoading(false);
           showToast({ variant: "error", error, title: translateError(error) });
         })
         .tap(() => setIsLoading(false));
@@ -302,11 +303,15 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
                       t("paymentLink.invalidCardNumber"),
                     )
                     .with({ cardNumberState: "empty" }, () => t("paymentLink.cardNumberRequired"))
-                    .with({ isPaymentMethodValid: false, cardNumberHasBeenBlurred: true }, () =>
-                      t("paymentLink.cardNotSupported", {
-                        cardType: isNotNullish(cardTypeValue) ? cardTypeValue : "",
-                      }),
-                    )
+                    .with({ isPaymentMethodValid: false, cardNumberHasBeenBlurred: true }, () => {
+                      if (isNotNullish(cardTypeValue)) {
+                        return t("paymentLink.cardNotSupported.withCardType", {
+                          cardType: cardTypeValue,
+                        });
+                      } else {
+                        return t("paymentLink.cardNotSupported.withoutCardType");
+                      }
+                    })
                     .otherwise(() => " ")}
                 </LakeText>
               </Box>

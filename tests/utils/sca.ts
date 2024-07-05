@@ -22,9 +22,6 @@ const openPage = async (browser: Browser, type: "desktop" | "mobile", url: strin
 
   await page.goto(url);
 
-  // The page is loaded, unleash the POST requests
-  await page.unroute("**/*");
-
   return page;
 };
 

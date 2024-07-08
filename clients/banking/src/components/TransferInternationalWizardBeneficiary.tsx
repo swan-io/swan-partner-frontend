@@ -111,9 +111,9 @@ export const TransferInternationalWizardBeneficiary = ({
 
       const selectedRoute = route.getOr(firstRoute.value);
 
-      const fields = Array.findMap(schemes, scheme =>
-        scheme.type === selectedRoute ? Option.Some(scheme.fields) : Option.None(),
-      ).getOr([]);
+      const fields = Array.find(schemes, scheme => scheme.type === selectedRoute)
+        .map(scheme => scheme.fields)
+        .getOr([]);
 
       return (
         <View>

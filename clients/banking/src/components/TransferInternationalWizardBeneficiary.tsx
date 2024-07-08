@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -12,17 +12,16 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
-  Scheme,
 } from "../graphql/partner";
+import { useDoneAsyncData } from "../hooks/useDoneAsyncData";
 import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
@@ -61,13 +60,12 @@ export const TransferInternationalWizardBeneficiary = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [schemes, setSchemes] = useState<Scheme[]>([]);
   const [route, setRoute] = useState(initialBeneficiary?.route ?? "");
   const [results, setResults] = useState(initialBeneficiary?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
-  const [data] = useQuery(GetInternationalBeneficiaryDynamicFormsDocument, {
+  const [reloadingData] = useQuery(GetInternationalBeneficiaryDynamicFormsDocument, {
     dynamicFields: results,
     amountValue: amount.value,
     currency: amount.currency,
@@ -75,34 +73,32 @@ export const TransferInternationalWizardBeneficiary = ({
     language: locale.language === "fi" ? "en" : locale.language,
   });
 
-  const isInitialLoading = data.isLoading() && schemes.length === 0;
+  const data = useDoneAsyncData(reloadingData);
+
+  const schemes = data
+    .mapOk(data => data.internationalBeneficiaryDynamicForms?.schemes)
+    .mapOkToResult(data => Option.fromNullable(data).toResult(undefined));
+
+  const routes = schemes
+    .toOption()
+    .flatMap(data => data.toOption())
+    .map(data =>
+      data.map(({ type }) => ({
+        value: type,
+        name: getInternationalTransferFormRouteLabel(type),
+      })),
+    )
+    .getOr([]);
+
+  const fields: DynamicFormField[] = schemes
+    .toOption()
+    .flatMap(data => data.toOption())
+    .flatMap(data => Option.fromNullable(data.find(({ type }) => type === route)?.fields))
+    .getOr([]);
 
   const { Field, submitForm } = useForm<{ name: string }>({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
   });
-
-  useEffect(() => {
-    match(data)
-      .with(
-        AsyncData.P.Done(
-          Result.P.Ok({ internationalBeneficiaryDynamicForms: P.select(P.nonNullable) }),
-        ),
-        ({ schemes }) => setSchemes(schemes),
-      )
-      .otherwise(noop);
-  }, [data]);
-
-  const routes = useMemo(() => {
-    return schemes.map(({ type: value }) => ({
-      value,
-      name: getInternationalTransferFormRouteLabel(value),
-    }));
-  }, [schemes]);
-
-  const fields = useMemo<DynamicFormField[]>(
-    () => (schemes.find(({ type }) => type === route)?.fields ?? []) as DynamicFormField[],
-    [schemes, route],
-  );
 
   const handleOnRouteChange = useCallback((route: string) => {
     setRoute(route);
@@ -152,10 +148,10 @@ export const TransferInternationalWizardBeneficiary = ({
 
         <Space height={8} />
 
-        {isInitialLoading ? (
+        {data.isLoading() ? (
           <ActivityIndicator color={colors.gray[500]} />
         ) : (
-          <TransitionView {...(data.isLoading() && animations.heartbeat)}>
+          <TransitionView {...(reloadingData.isLoading() && animations.heartbeat)}>
             <LakeLabel
               label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
               style={routes.length < 2 && styles.hidden}

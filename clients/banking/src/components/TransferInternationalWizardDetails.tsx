@@ -10,7 +10,6 @@ import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useForm } from "@swan-io/use-form";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -51,7 +50,7 @@ export const TransferInternationalWizardDetails = ({
   onSave,
 }: Props) => {
   const [fields, setFields] = useState<DynamicFormField[]>([]);
-  const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
+  const [results, setResults] = useState(initialDetails?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
@@ -61,17 +60,8 @@ export const TransferInternationalWizardDetails = ({
     amountValue: amount.value,
     currency: amount.currency,
     language: locale.language as InternationalCreditTransferDisplayLanguage,
-    dynamicFields,
+    dynamicFields: results,
     beneficiaryDetails: beneficiary.results,
-  });
-
-  const { Field, submitForm, getFieldValue, listenFields } = useForm<{
-    results: ResultItem[];
-  }>({
-    results: {
-      initialValue: initialDetails?.results ?? [],
-      validate: () => undefined,
-    },
   });
 
   useEffect(() => {
@@ -110,15 +100,9 @@ export const TransferInternationalWizardDetails = ({
       .otherwise(noop);
   }, [data, onPressPrevious]);
 
-  const refresh = useDebounce<void>(() => {
-    const value = getFieldValue("results");
-
-    setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
+  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
+    setResults(value.filter(({ value }) => isNotNullishOrEmpty(value)));
   }, 1000);
-
-  useEffect(() => {
-    listenFields(["results"], () => refresh());
-  }, [fields, listenFields, refresh]);
 
   return (
     <View>
@@ -127,17 +111,13 @@ export const TransferInternationalWizardDetails = ({
           <ActivityIndicator color={colors.gray[900]} />
         ) : (
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
-            <Field name="results">
-              {({ onChange, value }) => (
-                <TransferInternationalDynamicFormBuilder
-                  ref={dynamicFormApiRef}
-                  fields={fields}
-                  onChange={onChange}
-                  results={value}
-                  key={fields?.map(({ key }) => key).join(":")}
-                />
-              )}
-            </Field>
+            <TransferInternationalDynamicFormBuilder
+              key={fields.map(({ key }) => key).join(":")}
+              ref={dynamicFormApiRef}
+              fields={fields}
+              onChange={handleOnResultsChange}
+              results={results}
+            />
           </TransitionView>
         )}
       </Tile>
@@ -156,12 +136,7 @@ export const TransferInternationalWizardDetails = ({
               disabled={data.isLoading() || loading}
               grow={small}
               onPress={() => {
-                const runCallback = () =>
-                  submitForm({
-                    onSuccess: values => {
-                      Option.allFromDict(values).map(onSave);
-                    },
-                  });
+                const runCallback = () => onSave({ results });
 
                 fields.length === 0
                   ? runCallback()

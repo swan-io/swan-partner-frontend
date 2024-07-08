@@ -13,9 +13,9 @@ import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -62,38 +62,24 @@ export const TransferInternationalWizardBeneficiary = ({
   onSave,
 }: Props) => {
   const [schemes, setSchemes] = useState<Scheme[]>([]);
-  const [route, setRoute] = useState<string | undefined>();
-  const [dynamicFields, setDynamicFields] = useState(initialBeneficiary?.results ?? []);
+  const [route, setRoute] = useState(initialBeneficiary?.route ?? "");
+  const [results, setResults] = useState(initialBeneficiary?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
   const [data] = useQuery(GetInternationalBeneficiaryDynamicFormsDocument, {
-    dynamicFields,
+    dynamicFields: results,
     amountValue: amount.value,
     currency: amount.currency,
     //TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
     language: locale.language === "fi" ? "en" : locale.language,
   });
 
-  const { Field, submitForm, FieldsListener, listenFields, setFieldValue, getFieldValue } =
-    useForm<{
-      name: string;
-      route: string;
-      results: ResultItem[];
-    }>({
-      name: {
-        initialValue: initialBeneficiary?.name ?? "",
-        validate: validateRequired,
-      },
-      route: {
-        initialValue: initialBeneficiary?.route ?? "",
-        validate: () => undefined,
-      },
-      results: {
-        initialValue: initialBeneficiary?.results ?? [],
-        validate: () => undefined,
-      },
-    });
+  const isInitialLoading = data.isLoading() && schemes.length === 0;
+
+  const { Field, submitForm } = useForm<{ name: string }>({
+    name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
+  });
 
   useEffect(() => {
     match(data)
@@ -118,33 +104,13 @@ export const TransferInternationalWizardBeneficiary = ({
     [schemes, route],
   );
 
-  const refresh = useDebounce<void>(() => {
-    const value = getFieldValue("results");
+  const handleOnRouteChange = useCallback((route: string) => {
+    setRoute(route);
+  }, []);
 
-    setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
+  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
+    setResults(value.filter(({ value }) => isNotEmpty(value)));
   }, 1000);
-
-  useEffect(() => {
-    const value = getFieldValue("route");
-
-    if (value && isNullishOrEmpty(route)) {
-      setRoute(value);
-    }
-    if (routes?.length && isNullishOrEmpty(initialBeneficiary?.route) && !value && routes[0]) {
-      setFieldValue("route", routes[0].value);
-      setRoute(routes[0].value);
-    }
-  }, [route, routes, initialBeneficiary?.route, setFieldValue, getFieldValue]);
-
-  useEffect(() => {
-    const removeRouteListener = listenFields(["route"], ({ route: { value } }) => setRoute(value));
-    const removeResultsListener = listenFields(["results"], () => refresh());
-
-    return () => {
-      removeRouteListener();
-      removeResultsListener();
-    };
-  }, [listenFields, refresh]);
 
   return (
     <View>
@@ -184,8 +150,10 @@ export const TransferInternationalWizardBeneficiary = ({
           )}
         />
 
-        {data.isLoading() && !schemes.length ? (
-          <ActivityIndicator color={colors.gray[900]} />
+        <Space height={8} />
+
+        {isInitialLoading ? (
+          <ActivityIndicator color={colors.gray[500]} />
         ) : (
           <TransitionView {...(data.isLoading() && animations.heartbeat)}>
             <LakeLabel
@@ -194,36 +162,21 @@ export const TransferInternationalWizardBeneficiary = ({
               render={() => (
                 <>
                   <Space height={8} />
-
-                  <Field name="route">
-                    {({ onChange, value }) => (
-                      <>
-                        <RadioGroup items={routes} value={value} onValueChange={onChange} />
-                        <Space height={32} />
-                      </>
-                    )}
-                  </Field>
+                  <RadioGroup items={routes} value={route} onValueChange={handleOnRouteChange} />
+                  <Space height={32} />
                 </>
               )}
             />
 
-            <FieldsListener names={["route"]}>
-              {({ route }) => (
-                <Field name="results">
-                  {({ onChange, value }) =>
-                    isNotNullishOrEmpty(route?.value) ? (
-                      <TransferInternationalDynamicFormBuilder
-                        ref={dynamicFormApiRef}
-                        fields={fields}
-                        onChange={onChange}
-                        results={value}
-                        key={route.value}
-                      />
-                    ) : null
-                  }
-                </Field>
-              )}
-            </FieldsListener>
+            {isNotEmpty(route) && fields.length > 0 && (
+              <TransferInternationalDynamicFormBuilder
+                key={route}
+                ref={dynamicFormApiRef}
+                fields={fields}
+                results={results}
+                onChange={handleOnResultsChange}
+              />
+            )}
           </TransitionView>
         )}
       </Tile>
@@ -245,7 +198,9 @@ export const TransferInternationalWizardBeneficiary = ({
                 dynamicFormApiRef.current?.submitDynamicForm(() =>
                   submitForm({
                     onSuccess: values => {
-                      Option.allFromDict(values).map(details => onSave(details));
+                      Option.allFromDict(values).map(({ name }) =>
+                        onSave({ name, route, results }),
+                      );
                     },
                   }),
                 );

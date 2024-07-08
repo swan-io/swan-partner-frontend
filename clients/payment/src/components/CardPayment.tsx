@@ -21,6 +21,7 @@ import {
   InitiateCardMerchantPaymentDocument,
 } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import { CarteBancaireLogo, MaestroLogo, MastercardLogo, VisaLogo } from "./CardLogos";
 
 const styles = StyleSheet.create({
@@ -228,9 +229,15 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
           window.location.replace(redirectUrl);
         })
         .tapError(error => {
-          setIsLoading(false);
-          initFramesSession();
-          showToast({ variant: "error", error, title: translateError(error) });
+          match(error)
+            .with({ __typename: "ExpiredPaymentLinkRejection" }, () => {
+              Router.replace("PaymentExpired", { paymentLinkId: paymentLink.id });
+            })
+            .otherwise(() => {
+              initFramesSession();
+              setIsLoading(false);
+              showToast({ variant: "error", error, title: translateError(error) });
+            });
         });
     }
   };

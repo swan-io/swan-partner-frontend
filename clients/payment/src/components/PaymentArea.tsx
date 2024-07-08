@@ -57,7 +57,7 @@ type Props = {
 
 export const PaymentArea = ({ paymentLinkId }: Props) => {
   const { desktop } = useResponsive();
-  const route = Router.useRoute(["PaymentForm", "PaymentSuccess"]);
+  const route = Router.useRoute(["PaymentForm", "PaymentSuccess", "PaymentExpired"]);
   const [mandateUrl, setMandateUrl] = useState<string>();
 
   const languageOptions = useMemo(() => {
@@ -185,7 +185,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                   .with({ route: "PaymentSuccess" }, () => (
                     <SuccessPage redirectUrl={redirectUrl} />
                   ))
-                  .with({ mandateUrlStatus: "Expired" }, () => (
+                  .with({ route: "PaymentExpired" }, { mandateUrlStatus: "Expired" }, () => (
                     <ExpiredPage paymentLink={merchantPaymentLink} />
                   ))
                   .otherwise(() => (

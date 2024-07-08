@@ -22,7 +22,7 @@
     "@swan-io/use-form": "2.0.4",
     "core-js": "3.37.1",
     "dayjs": "1.11.11",
-    "frames-react": "1.1.0",
+    "frames-react": "1.1.1",
     "iban": "0.0.14",
     "nanoid": "5.0.7",
     "react": "18.3.1",

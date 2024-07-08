@@ -12,7 +12,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -79,7 +79,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<Option<PaymentMethod>>(Option.None());
 
-  useEffect(() => {
+  const initFramesSession = useCallback(() => {
     Frames.init({
       publicKey,
       style: {
@@ -107,6 +107,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
       acceptedPaymentMethods: ["Visa", "Maestro", "Mastercard", "Cartes Bancaires"],
     });
   }, [publicKey]);
+
+  useEffect(() => {
+    initFramesSession();
+  }, [initFramesSession]);
 
   useEffect(() => {
     Frames.addEventHandler(
@@ -225,9 +229,9 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
         })
         .tapError(error => {
           setIsLoading(false);
+          initFramesSession();
           showToast({ variant: "error", error, title: translateError(error) });
-        })
-        .tap(() => setIsLoading(false));
+        });
     }
   };
 

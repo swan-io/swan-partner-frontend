@@ -3327,7 +3327,7 @@ cjs-module-lexer@^1.2.2:
   resolved "https://registry.yarnpkg.com/cjs-module-lexer/-/cjs-module-lexer-1.3.1.tgz#c485341ae8fd999ca4ee5af2d7a1c9ae01e0099c"
   integrity sha512-a3KdPAANPbNE4ZUv9h6LckSl9zLsYOP4MBmhIPkRaeyybt+r4UghLvq+xw/YwUcC1gqylCkL4rdVs3Lwupjm4Q==
 
-classnames@^2.3.1:
+classnames@^2.5.1:
   version "2.5.1"
   resolved "https://registry.yarnpkg.com/classnames/-/classnames-2.5.1.tgz#ba774c614be0f016da105c858e7159eae8e7687b"
   integrity sha512-saHYOzhIQs6wy2sVxTM6bUDsQO4F50V9RQ22qBpEdCW+I+/Wmke2HOl6lS6dTpdxVhb88/I6+Hs+438c3lfUow==
@@ -4456,12 +4456,12 @@ forwarded@0.2.0, forwarded@^0.2.0:
   resolved "https://registry.yarnpkg.com/forwarded/-/forwarded-0.2.0.tgz#2269936428aad4c15c7ebe9779a84bf0b2a81811"
   integrity sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==
 
-frames-react@1.1.0:
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/frames-react/-/frames-react-1.1.0.tgz#98bd70ecd8fab9db2a18b606b210f6057dd4542a"
-  integrity sha512-4mpZsex1GL20OxCVwS7DaWXsRlJz17chy0OegFWuxrY9yhlupA8PNf7/ev/u/YBpxa3iY3f6feW6tdenGJPsLg==
+frames-react@1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/frames-react/-/frames-react-1.1.1.tgz#a047d8b19b42c818446e838e40251cac286e118a"
+  integrity sha512-qtGEbj8HdtN8DBPWCrs9casnFNFTxRHQXV3+WuSjInmI27kSe3oygnnuqkzScdsKgf114JnbgH2dPxqWp1AhCQ==
   dependencies:
-    classnames "^2.3.1"
+    classnames "^2.5.1"
 
 fs.realpath@^1.0.0:
   version "1.0.0"

@@ -12,9 +12,9 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isEmpty, isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useLayoutEffect, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -95,6 +95,12 @@ export const TransferInternationalWizardBeneficiary = ({
     .flatMap(data => data.toOption())
     .flatMap(data => Option.fromNullable(data.find(({ type }) => type === route)?.fields))
     .getOr([]);
+
+  const firstRoute = routes[0]?.value ?? "";
+
+  useLayoutEffect(() => {
+    setRoute(prevRoute => (isEmpty(prevRoute) ? firstRoute : prevRoute));
+  }, [firstRoute]);
 
   const { Field, submitForm } = useForm<{ name: string }>({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },

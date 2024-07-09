@@ -113,7 +113,7 @@ export const BeneficiaryInternationalWizardForm = ({
   const handleOnCurrencyChange = useCallback(
     (currency: Currency) => {
       setCurrency(currency);
-      setRoute(Option.None); // reset route state
+      setRoute(Option.None()); // reset route state
 
       setVariables({
         currency,

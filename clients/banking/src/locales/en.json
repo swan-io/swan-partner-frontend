@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Enter details about your transfer",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "The value does not match the expected pattern",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "The value does not match the expected pattern (example: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "This field type hasn't been implemented.",
   "transfer.new.internationalTransfer.beneficiary.name": "Beneficiary name",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "I have my beneficiary's:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiary:",

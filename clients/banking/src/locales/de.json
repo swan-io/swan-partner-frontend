@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Geben Sie Details zu Ihrer Überweisung ein",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "Der Wert entspricht nicht dem erwarteten Muster",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "Der Wert entspricht nicht dem erwarteten Muster (Beispiel: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Dieser Feldtyp wurde nicht implementiert.",
   "transfer.new.internationalTransfer.beneficiary.name": "Name des Empfängers",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Ich habe von meinem Empfänger:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Begünstigter:",

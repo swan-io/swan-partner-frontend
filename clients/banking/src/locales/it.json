@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Inserisca i dettagli del bonifico",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "Il valore non corrisponde al formato richiesto",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "Il valore non corrisponde al formato richiesto (esempio: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Questo campo non è stato implementato",
   "transfer.new.internationalTransfer.beneficiary.name": "Nome del beneficiario",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Dati del beneficiario in possesso:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiario:",

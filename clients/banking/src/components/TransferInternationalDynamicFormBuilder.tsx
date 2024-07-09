@@ -1,4 +1,3 @@
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -18,7 +17,6 @@ import {
   SelectField,
   TextField,
 } from "../graphql/partner";
-import { t } from "../utils/i18n";
 import { validatePattern, validateRequired } from "../utils/validations";
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
@@ -200,12 +198,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
                 )}
               </Field>
             ))
-            .otherwise(() => (
-              <LakeAlert
-                variant="error"
-                title={t("transfer.new.internationalTransfer.beneficiary.form.field.unknown")}
-              />
-            ))
+            .exhaustive()
         }
       />
     ));

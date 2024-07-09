@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Voer details in over je overschrijving",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "De waarde komt niet overeen met het verwachte patroon",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "De waarde komt niet overeen met het verwachte patroon (bijvoorbeeld: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Dit veld is nog niet geïmplementeerd",
   "transfer.new.internationalTransfer.beneficiary.name": "Naam van de begunstigde",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Ik heb de volgende gegevens van de begunstigde:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Begunstigde:",

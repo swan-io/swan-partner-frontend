@@ -61,6 +61,7 @@ export const TransferInternationalWizardBeneficiary = ({
   const [route, setRoute] = useState<Option<string>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
   );
+
   const [results, setResults] = useState(initialBeneficiary?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
@@ -86,24 +87,22 @@ export const TransferInternationalWizardBeneficiary = ({
     setVariables({ dynamicFields: nextResults });
   }, 1000);
 
-  return match(data)
+  return match(
+    data
+      .mapOk(data => data.internationalBeneficiaryDynamicForms)
+      .mapOkToResult(data => Option.fromNullable(data).toResult(undefined)),
+  )
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
       <ActivityIndicator color={colors.gray[500]} />
     ))
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ internationalBeneficiaryDynamicForms }) => {
-      if (internationalBeneficiaryDynamicForms == null) {
-        return <ErrorView />;
-      }
-
-      const schemes = internationalBeneficiaryDynamicForms.schemes;
-
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ schemes }) => {
       const routes = schemes.map(({ type }) => ({
         value: type,
         name: getInternationalTransferFormRouteLabel(type),
       }));
 
-      const firstRoute = routes.at(0);
+      const firstRoute = routes[0];
 
       if (firstRoute == null) {
         return <ErrorView />;

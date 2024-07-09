@@ -166,7 +166,7 @@ export const TransferInternationalWizardAmount = ({
       >
         {match(balance)
           .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-            <ActivityIndicator color={colors.gray[900]} />
+            <ActivityIndicator color={colors.gray[500]} />
           ))
           .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => {
             const availableBalance = data.accountMembership?.account?.balances?.available;

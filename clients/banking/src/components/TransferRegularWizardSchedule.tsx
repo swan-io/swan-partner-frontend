@@ -134,7 +134,7 @@ export const TransferRegularWizardSchedule = ({
         style={animations.fadeAndSlideInFromBottom.enter}
         footer={match(data)
           .with(AsyncData.P.NotAsked, () => null)
-          .with(AsyncData.P.Loading, () => <ActivityIndicator color={colors.gray[900]} />)
+          .with(AsyncData.P.Loading, () => <ActivityIndicator color={colors.gray[500]} />)
           .with(AsyncData.P.Done(Result.P.Ok(P.select())), data =>
             isScheduled
               ? null

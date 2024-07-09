@@ -32,6 +32,11 @@ import {
 } from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
 
+const DEFAULT_AMOUNT: Amount = {
+  value: "1000",
+  currency: "USD",
+};
+
 const styles = StyleSheet.create({
   hidden: {
     display: "none",
@@ -42,11 +47,6 @@ export type Beneficiary = {
   name: string;
   route: string;
   values: InternationalBeneficiaryDetailsInput[];
-};
-
-const DEFAULT_AMOUNT: Amount = {
-  value: "1000",
-  currency: "USD",
 };
 
 type Props = {

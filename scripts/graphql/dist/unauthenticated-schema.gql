@@ -120,17 +120,6 @@ type Account {
   bankDetails: String
 }
 
-"""
-Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
-"""
-type AccountAndCard {
-  """Account"""
-  account: Account!
-
-  """Requested Card"""
-  cardRequested: Card!
-}
-
 """Account Closed status information"""
 type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
@@ -1621,12 +1610,6 @@ input CardPINInfosInput {
   requestId: String!
 }
 
-"""Location where the card should be printed from"""
-enum CardPrintingHub {
-  France
-  Spain
-}
-
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -1646,9 +1629,6 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
-
-  """Card printing hub"""
-  cardPrintingHub: CardPrintingHub
 }
 
 """Card design of a Card Product"""
@@ -2100,12 +2080,6 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -2372,17 +2346,6 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
-input DeleteSupportingDocumentInput {
-  """Id of the supporting document to delete"""
-  id: ID!
-}
-
-union DeleteSupportingDocumentPayload = DeleteSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowDeletionRejection | ValidationRejection
-
-type DeleteSupportingDocumentSuccessPayload {
-  id: String!
-}
-
 """Device"""
 type Device {
   """The type of device. It can be a Phone, Tablet, Watch"""
@@ -2414,12 +2377,6 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -3249,11 +3206,6 @@ input MembershipsFilterInput {
   search: String
 }
 
-"""Rejection returned when the Merchant Card Payment is declined"""
-type MerchantCardPaymentDeclinedRejection implements Rejection {
-  message: String!
-}
-
 type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
@@ -3276,10 +3228,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String
+  redirectUrl: String!
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String
+  cancelRedirectUrl: String!
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -3499,6 +3451,9 @@ enum MerchantProfileStatus {
   """Rejected"""
   Rejected
 
+  """Canceled"""
+  Canceled
+
   """Suspended"""
   Suspended
 
@@ -3556,15 +3511,6 @@ type Mutation {
   unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
   unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
   unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
-
-  """
-  Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
-  
-  This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
-  
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
 
   """
   Generate and return a presigned URL to upload a unique file for the supporting document collection
@@ -4321,12 +4267,6 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -5924,7 +5864,7 @@ input UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput {
   paymentLinkId: ID!
 }
 
-union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | MerchantCardPaymentDeclinedRejection
+union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
 
 type UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload {
   """"""

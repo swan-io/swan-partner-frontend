@@ -3837,11 +3837,6 @@ input Merchant {
   postalCode: String = "75010"
 }
 
-"""Rejection returned when the Merchant Card Payment is declined"""
-type MerchantCardPaymentDeclinedRejection implements Rejection {
-  message: String!
-}
-
 enum MerchantCategory {
   Culture
   Entertainment
@@ -3881,10 +3876,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String
+  redirectUrl: String!
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String
+  cancelRedirectUrl: String!
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -4106,6 +4101,9 @@ enum MerchantProfileStatus {
   """Rejected"""
   Rejected
 
+  """Canceled"""
+  Canceled
+
   """Suspended"""
   Suspended
 
@@ -4189,7 +4187,6 @@ enum MerchantSubCategory {
   HotelsAndAccommodation
   TravelAgents
   ATM
-  AtmWithdrawal
   OfficeRental
   HrAndRecruiting
   Flowers
@@ -7636,6 +7633,9 @@ input SimulateUpdateMerchantProfileInput {
 
   """Desired status of the Merchant Profile"""
   merchantProfileStatus: MerchantProfileStatus
+
+  """Input to apply changes to the current underlying payment method"""
+  merchantPaymentMethod: [UpdateMerchantPaymentMethodInput!]
 }
 
 """SimulateUpdateMerchantProfilePayload"""

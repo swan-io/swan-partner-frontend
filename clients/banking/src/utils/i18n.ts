@@ -330,6 +330,9 @@ const currenciesTuple = [
 export type Currency = (typeof currenciesTuple)[number];
 export const currencies = currenciesTuple.toSorted();
 
+export const isSupportedCurrency = (value: unknown): value is Currency =>
+  typeof value === "string" && currenciesTuple.includes(value as Currency);
+
 export const currencyResolver =
   "Intl" in window && "DisplayNames" in window.Intl
     ? new Intl.DisplayNames([locale.language], { type: "currency" })

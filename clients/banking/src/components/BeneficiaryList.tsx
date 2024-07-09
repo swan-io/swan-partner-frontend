@@ -6,6 +6,7 @@ import {
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/FixedListView";
 import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import { Flag } from "@swan-io/lake/src/components/Flag";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -26,7 +27,7 @@ import {
   BeneficiariesListPageQuery,
   BeneficiariesListPageQueryVariables,
 } from "../graphql/partner";
-import { currencyResolver, t } from "../utils/i18n";
+import { currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 
@@ -165,6 +166,13 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
 
       return (
         <Cell>
+          {isSupportedCurrency(currency) && (
+            <>
+              <Flag code={currencyFlags[currency]} width={14} />
+              <Space width={8} />
+            </>
+          )}
+
           <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
             {currency}
 

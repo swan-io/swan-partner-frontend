@@ -119,7 +119,6 @@ export const BeneficiaryTypePicker = ({
 
       <FullViewportLayer visible={type === "international"}>
         <BeneficiaryInternationalWizard
-          accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={handleOnPressClose}

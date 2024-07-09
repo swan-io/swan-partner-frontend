@@ -14,7 +14,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { AccountCountry, AddInternationalBeneficiaryDocument } from "../graphql/partner";
+import { AddInternationalBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -58,14 +58,12 @@ const styles = StyleSheet.create({
 
 type Props = {
   onPressClose?: () => void;
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
 };
 
 export const BeneficiaryInternationalWizard = ({
   onPressClose,
-  accountCountry,
   accountId,
   accountMembershipId,
 }: Props) => {

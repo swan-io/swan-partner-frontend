@@ -40,7 +40,7 @@ type TransferInternationalDynamicFormBuilderProps = {
 export const TransferInternationalDynamicFormBuilder = forwardRef<
   DynamicFormApi,
   TransferInternationalDynamicFormBuilderProps
->(({ results = [], onChange, fields = [] }, forwardedRef) => {
+>(({ results, onChange, fields }, forwardedRef) => {
   const resultsRef = useRef<ResultItem[]>();
   resultsRef.current = results;
 

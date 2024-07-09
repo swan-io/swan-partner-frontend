@@ -1774,8 +1774,32 @@ mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
     __typename
 
     ... on AddTrustedSepaBeneficiarySuccessPayload {
-      __typename
+      trustedBeneficiary {
+        id
+        statusInfo {
+          __typename
 
+          ... on TrustedBeneficiaryConsentPendingStatusInfo {
+            consent {
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
+  }
+}
+
+mutation AddInternationalBeneficiary($input: AddTrustedInternationalBeneficiaryInput!) {
+  addTrustedInternationalBeneficiary(input: $input) {
+    __typename
+
+    ... on AddTrustedInternationalBeneficiarySuccessPayload {
       trustedBeneficiary {
         id
         statusInfo {

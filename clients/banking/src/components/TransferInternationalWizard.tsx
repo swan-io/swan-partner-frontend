@@ -15,10 +15,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import {
-  InitiateInternationalCreditTransferDocument,
-  InternationalCreditTransferRouteInput,
-} from "../graphql/partner";
+import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -107,7 +104,7 @@ export const TransferInternationalWizard = ({
         internationalBeneficiary: {
           name: beneficiary.name,
           currency: amount.currency,
-          route: beneficiary.route as InternationalCreditTransferRouteInput,
+          route: beneficiary.route,
           details: beneficiary.values,
         },
         internationalCreditTransferDetails: details.values,

@@ -20,6 +20,7 @@ import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
+  InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { Currency, currencies, currencyFlags, currencyResolver, locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
@@ -45,7 +46,8 @@ const styles = StyleSheet.create({
 
 export type Beneficiary = {
   name: string;
-  route: string;
+  currency: Currency;
+  route: InternationalCreditTransferRouteInput;
   values: InternationalBeneficiaryDetailsInput[];
 };
 
@@ -54,6 +56,7 @@ type Props = {
   initialBeneficiary?: Beneficiary;
   amount?: Amount;
   errors?: string[];
+  submitting?: boolean;
   onPressSubmit: (beneficiary: Beneficiary) => void;
   onPressPrevious?: () => void;
 };
@@ -63,16 +66,17 @@ export const BeneficiaryInternationalWizardForm = ({
   initialBeneficiary,
   amount = DEFAULT_AMOUNT,
   errors,
+  submitting = false,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
-  const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
-
-  const [route, setRoute] = useState<Option<string>>(() =>
+  const [route, setRoute] = useState<Option<InternationalCreditTransferRouteInput>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
   );
 
   const dynamicFormRef = useRef<DynamicFormRef>(null);
+
+  const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
 
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
@@ -236,7 +240,9 @@ export const BeneficiaryInternationalWizardForm = ({
               onSubmit={values => {
                 submitForm({
                   onSuccess: ({ name }) => {
-                    name.tapSome(name => onPressSubmit({ name, route: selectedRoute, values }));
+                    name.tapSome(name =>
+                      onPressSubmit({ name, route: selectedRoute, values, currency }),
+                    );
                   },
                 });
               }}
@@ -249,7 +255,13 @@ export const BeneficiaryInternationalWizardForm = ({
             {({ small }) => (
               <LakeButtonGroup>
                 {isNotNullish(onPressPrevious) && (
-                  <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
+                  <LakeButton
+                    mode="secondary"
+                    color="gray"
+                    onPress={onPressPrevious}
+                    grow={small}
+                    disabled={submitting}
+                  >
                     {t("common.previous")}
                   </LakeButton>
                 )}
@@ -258,6 +270,7 @@ export const BeneficiaryInternationalWizardForm = ({
                   color="current"
                   disabled={data.isLoading()}
                   grow={small}
+                  loading={submitting}
                   icon={mode === "add" ? "add-circle-filled" : undefined}
                   onPress={() => {
                     if (dynamicFormRef.current != null) {

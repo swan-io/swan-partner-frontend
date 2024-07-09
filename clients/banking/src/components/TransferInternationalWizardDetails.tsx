@@ -14,7 +14,6 @@ import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
   InternationalCreditTransferDisplayLanguage,
-  InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { Beneficiary } from "./BeneficiaryInternationalWizardForm";
@@ -53,7 +52,7 @@ export const TransferInternationalWizardDetails = ({
     GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
     {
       name: beneficiary.name,
-      route: beneficiary.route as InternationalCreditTransferRouteInput,
+      route: beneficiary.route,
       amountValue: amount.value,
       currency: amount.currency,
       language: locale.language as InternationalCreditTransferDisplayLanguage,

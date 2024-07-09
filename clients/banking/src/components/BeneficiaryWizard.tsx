@@ -53,11 +53,7 @@ type Props = {
   onPressPrevious?: () => void;
 };
 
-<<<<<<<< HEAD:clients/banking/src/components/BeneficiaryWizard.tsx
-export const BeneficiaryWizard = ({
-========
 export const BeneficiarySepaWizardForm = ({
->>>>>>>> f0890e55 (WIP):clients/banking/src/components/BeneficiarySepaWizardForm.tsx
   accountCountry,
   accountId,
   initialBeneficiary,
@@ -164,11 +160,7 @@ export const BeneficiarySepaWizardForm = ({
                 { ibanVerification: AsyncData.P.Loading },
                 () => (
                   <Box alignItems="center" justifyContent="center" style={styles.loaderBox}>
-<<<<<<<< HEAD:clients/banking/src/components/BeneficiaryWizard.tsx
                     <ActivityIndicator color={colors.gray[500]} />
-========
-                    <ActivityIndicator color={colors.gray[700]} />
->>>>>>>> f0890e55 (WIP):clients/banking/src/components/BeneficiarySepaWizardForm.tsx
                   </Box>
                 ),
               )

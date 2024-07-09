@@ -44,12 +44,16 @@ export type Beneficiary = {
   values: InternationalBeneficiaryDetailsInput[];
 };
 
+const DEFAULT_AMOUNT: Amount = {
+  value: "1000",
+  currency: "USD",
+};
+
 type Props = {
   mode: "add" | "continue";
   initialBeneficiary?: Beneficiary;
-  amount: Amount;
+  amount?: Amount;
   errors?: string[];
-  onCurrencyChange?: (currency: Currency) => void;
   onPressSubmit: (beneficiary: Beneficiary) => void;
   onPressPrevious?: () => void;
 };
@@ -57,12 +61,13 @@ type Props = {
 export const TransferInternationalWizardBeneficiary = ({
   mode,
   initialBeneficiary,
-  amount,
+  amount = DEFAULT_AMOUNT,
   errors,
-  onCurrencyChange,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
+  const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
+
   const [route, setRoute] = useState<Option<string>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
   );
@@ -101,6 +106,20 @@ export const TransferInternationalWizardBeneficiary = ({
   const onRefreshRequest = useCallback(
     (values: FormValue[]) => {
       setVariables({ dynamicFields: values.filter(({ value }) => isNotEmpty(value)) });
+    },
+    [setVariables],
+  );
+
+  const handleOnCurrencyChange = useCallback(
+    (currency: Currency) => {
+      setCurrency(currency);
+
+      setVariables({
+        currency,
+        amountValue: match(currency)
+          .with("IDR", "VND", () => "50000")
+          .otherwise(() => "1000"),
+      });
     },
     [setVariables],
   );
@@ -172,15 +191,16 @@ export const TransferInternationalWizardBeneficiary = ({
               )}
             />
 
-            {isNotNullish(onCurrencyChange) && (
+            {/* If initial amount is not specified, we show currency select in the form */}
+            {amount === DEFAULT_AMOUNT && (
               <LakeLabel
                 label={t("transfer.new.internationalTransfer.beneficiary.currency")}
                 render={id => (
                   <LakeSelect
                     id={id}
-                    value={amount.currency}
                     items={currencyItems}
-                    onValueChange={onCurrencyChange}
+                    value={currency}
+                    onValueChange={handleOnCurrencyChange}
                   />
                 )}
               />

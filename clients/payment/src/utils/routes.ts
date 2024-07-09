@@ -6,5 +6,6 @@ export const Router = createRouter(
     Form: "/?:error{true}",
     Success: "/success",
     Error: "/error",
+    Expired: "/expired",
   }),
 );

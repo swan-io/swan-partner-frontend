@@ -24,16 +24,16 @@ export type DynamicFormApi = {
 
 type TransferInternationalDynamicFormBuilderProps = {
   fields: DynamicFormField[];
-  results: FormValue[];
+  values: FormValue[];
   onChange: (results: FormValue[]) => void;
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef<
   DynamicFormApi,
   TransferInternationalDynamicFormBuilderProps
->(({ results, onChange, fields }, forwardedRef) => {
+>(({ values, onChange, fields }, forwardedRef) => {
   const resultsRef = useRef<FormValue[]>();
-  resultsRef.current = results;
+  resultsRef.current = values;
 
   const form = useMemo(
     () =>
@@ -75,7 +75,7 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
 type DynamicFormProps = {
   fields: DynamicFormField[];
   form: FormConfig<Record<string, string>>;
-  onChange: (results: FormValue[]) => void;
+  onChange: (values: FormValue[]) => void;
 };
 
 const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(

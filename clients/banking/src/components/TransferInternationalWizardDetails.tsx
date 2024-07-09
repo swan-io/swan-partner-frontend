@@ -28,7 +28,7 @@ import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
 export type Details = {
-  results: FormValue[];
+  values: FormValue[];
 };
 
 type Props = {
@@ -48,7 +48,7 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [results, setResults] = useState(initialDetails?.results ?? []);
+  const [values, setValues] = useState(initialDetails?.values ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
@@ -60,8 +60,8 @@ export const TransferInternationalWizardDetails = ({
       amountValue: amount.value,
       currency: amount.currency,
       language: locale.language as InternationalCreditTransferDisplayLanguage,
-      dynamicFields: initialDetails?.results,
-      beneficiaryDetails: beneficiary.results,
+      dynamicFields: initialDetails?.values,
+      beneficiaryDetails: beneficiary.values,
     },
   );
 
@@ -94,9 +94,9 @@ export const TransferInternationalWizardDetails = ({
   }, [data, onPressPrevious]);
 
   const handleOnResultsChange = useDebounce<FormValue[]>(value => {
-    const nextResults = value.filter(({ value }) => isNotNullishOrEmpty(value));
-    setResults(nextResults);
-    setVariables({ dynamicFields: nextResults });
+    const nextValues = value.filter(({ value }) => isNotNullishOrEmpty(value));
+    setValues(nextValues);
+    setVariables({ dynamicFields: nextValues });
   }, 1000);
 
   return match(
@@ -117,7 +117,7 @@ export const TransferInternationalWizardDetails = ({
               ref={dynamicFormApiRef}
               fields={fields}
               onChange={handleOnResultsChange}
-              results={results}
+              values={values}
             />
           </View>
         </Tile>
@@ -136,7 +136,7 @@ export const TransferInternationalWizardDetails = ({
                 disabled={data.isLoading() || loading}
                 grow={small}
                 onPress={() => {
-                  const runCallback = () => onSave({ results });
+                  const runCallback = () => onSave({ values });
 
                   fields.length === 0
                     ? runCallback()

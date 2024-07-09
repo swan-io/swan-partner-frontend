@@ -40,7 +40,7 @@ const styles = StyleSheet.create({
 export type Beneficiary = {
   name: string;
   route: string;
-  results: InternationalBeneficiaryDetailsInput[];
+  values: InternationalBeneficiaryDetailsInput[];
 };
 
 type Props = {
@@ -62,14 +62,14 @@ export const TransferInternationalWizardBeneficiary = ({
     Option.fromNullable(initialBeneficiary?.route),
   );
 
-  const [results, setResults] = useState(initialBeneficiary?.results ?? []);
+  const [values, setValues] = useState(initialBeneficiary?.values ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
-      dynamicFields: initialBeneficiary?.results,
+      dynamicFields: initialBeneficiary?.values,
       amountValue: amount.value,
       currency: amount.currency,
       // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
@@ -82,9 +82,9 @@ export const TransferInternationalWizardBeneficiary = ({
   });
 
   const handleOnResultsChange = useDebounce<FormValue[]>(value => {
-    const nextResults = value.filter(({ value }) => isNotEmpty(value));
-    setResults(nextResults);
-    setVariables({ dynamicFields: nextResults });
+    const nextValues = value.filter(({ value }) => isNotEmpty(value));
+    setValues(nextValues);
+    setVariables({ dynamicFields: nextValues });
   }, 1000);
 
   return match(
@@ -180,7 +180,7 @@ export const TransferInternationalWizardBeneficiary = ({
                   key={selectedRoute}
                   ref={dynamicFormApiRef}
                   fields={fields}
-                  results={results}
+                  values={values}
                   onChange={handleOnResultsChange}
                 />
               ) : null}
@@ -204,7 +204,7 @@ export const TransferInternationalWizardBeneficiary = ({
                     dynamicFormApiRef.current?.submitDynamicForm(() =>
                       submitForm({
                         onSuccess: ({ name }) => {
-                          name.tapSome(name => onSave({ name, route: selectedRoute, results }));
+                          name.tapSome(name => onSave({ name, route: selectedRoute, values }));
                         },
                       }),
                     );

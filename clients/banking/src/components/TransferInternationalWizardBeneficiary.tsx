@@ -1,8 +1,10 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
@@ -10,16 +12,16 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
 } from "../graphql/partner";
-import { locale, t } from "../utils/i18n";
+import { Currency, currencies, currencyFlags, currencyResolver, locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
@@ -43,19 +45,23 @@ export type Beneficiary = {
 };
 
 type Props = {
+  mode: "add" | "continue";
   initialBeneficiary?: Beneficiary;
   amount: Amount;
   errors?: string[];
-  onPressPrevious: () => void;
-  onSave: (details: Beneficiary) => void;
+  onCurrencyChange?: (currency: Currency) => void;
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressPrevious?: () => void;
 };
 
 export const TransferInternationalWizardBeneficiary = ({
+  mode,
   initialBeneficiary,
   amount,
   errors,
+  onCurrencyChange,
+  onPressSubmit,
   onPressPrevious,
-  onSave,
 }: Props) => {
   const [route, setRoute] = useState<Option<string>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
@@ -78,6 +84,19 @@ export const TransferInternationalWizardBeneficiary = ({
   const { Field, submitForm } = useForm<{ name: string }>({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
   });
+
+  const currencyItems = useMemo(() => {
+    return currencies.map(value => {
+      const name = currencyResolver?.of(value);
+      const code = currencyFlags[value];
+
+      return {
+        icon: <Flag code={code} width={18} />,
+        name: isNotNullish(name) ? `${value} (${name})` : value,
+        value,
+      };
+    });
+  }, []);
 
   const onRefreshRequest = useCallback(
     (values: FormValue[]) => {
@@ -153,6 +172,20 @@ export const TransferInternationalWizardBeneficiary = ({
               )}
             />
 
+            {isNotNullish(onCurrencyChange) && (
+              <LakeLabel
+                label={t("transfer.new.internationalTransfer.beneficiary.currency")}
+                render={id => (
+                  <LakeSelect
+                    id={id}
+                    value={amount.currency}
+                    items={currencyItems}
+                    onValueChange={onCurrencyChange}
+                  />
+                )}
+              />
+            )}
+
             <Space height={8} />
 
             <LakeLabel
@@ -182,7 +215,7 @@ export const TransferInternationalWizardBeneficiary = ({
               onSubmit={values => {
                 submitForm({
                   onSuccess: ({ name }) => {
-                    name.tapSome(name => onSave({ name, route: selectedRoute, values }));
+                    name.tapSome(name => onPressSubmit({ name, route: selectedRoute, values }));
                   },
                 });
               }}
@@ -194,21 +227,24 @@ export const TransferInternationalWizardBeneficiary = ({
           <ResponsiveContainer breakpoint={800}>
             {({ small }) => (
               <LakeButtonGroup>
-                <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-                  {t("common.previous")}
-                </LakeButton>
+                {isNotNullish(onPressPrevious) && (
+                  <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
+                    {t("common.previous")}
+                  </LakeButton>
+                )}
 
                 <LakeButton
                   color="current"
                   disabled={data.isLoading()}
                   grow={small}
+                  icon={mode === "add" ? "add-circle-filled" : undefined}
                   onPress={() => {
                     if (dynamicFormRef.current != null) {
                       dynamicFormRef.current.submit();
                     }
                   }}
                 >
-                  {t("common.continue")}
+                  {mode === "add" ? t("common.add") : t("common.continue")}
                 </LakeButton>
               </LakeButtonGroup>
             )}

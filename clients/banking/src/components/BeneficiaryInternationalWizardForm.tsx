@@ -1,5 +1,6 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -135,7 +136,9 @@ export const BeneficiaryInternationalWizardForm = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(undefined)),
   )
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-      <ActivityIndicator color={colors.gray[500]} />
+      <Box grow={1} justifyContent="center">
+        <ActivityIndicator color={colors.gray[500]} />
+      </Box>
     ))
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ schemes }) => {

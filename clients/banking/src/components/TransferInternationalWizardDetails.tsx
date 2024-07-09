@@ -4,13 +4,11 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useForm } from "@swan-io/use-form";
 import { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -20,9 +18,9 @@ import {
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
+import { ErrorView } from "./ErrorView";
 import {
   DynamicFormApi,
-  DynamicFormField,
   ResultItem,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
@@ -50,40 +48,25 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [fields, setFields] = useState<DynamicFormField[]>([]);
-  const [dynamicFields, setDynamicFields] = useState(initialDetails?.results ?? []);
+  const [results, setResults] = useState(initialDetails?.results ?? []);
 
   const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
 
-  const [data] = useQuery(GetInternationalCreditTransferTransactionDetailsDynamicFormDocument, {
-    name: beneficiary.name,
-    route: beneficiary.route as InternationalCreditTransferRouteInput,
-    amountValue: amount.value,
-    currency: amount.currency,
-    language: locale.language as InternationalCreditTransferDisplayLanguage,
-    dynamicFields,
-    beneficiaryDetails: beneficiary.results,
-  });
-
-  const { Field, submitForm, getFieldValue, listenFields } = useForm<{
-    results: ResultItem[];
-  }>({
-    results: {
-      initialValue: initialDetails?.results ?? [],
-      validate: () => undefined,
+  const [data, { isLoading, setVariables }] = useQuery(
+    GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
+    {
+      name: beneficiary.name,
+      route: beneficiary.route as InternationalCreditTransferRouteInput,
+      amountValue: amount.value,
+      currency: amount.currency,
+      language: locale.language as InternationalCreditTransferDisplayLanguage,
+      dynamicFields: initialDetails?.results,
+      beneficiaryDetails: beneficiary.results,
     },
-  });
+  );
 
   useEffect(() => {
     match(data)
-      .with(
-        AsyncData.P.Done(
-          Result.P.Ok({
-            internationalCreditTransferTransactionDetailsDynamicForm: P.select(P.nonNullable),
-          }),
-        ),
-        ({ fields }) => setFields(fields),
-      )
       .with(AsyncData.P.Done(Result.P.Error(P.select())), error => {
         const messages = Array.filterMap(ClientError.toArray(error), error => {
           return match(error)
@@ -110,69 +93,62 @@ export const TransferInternationalWizardDetails = ({
       .otherwise(noop);
   }, [data, onPressPrevious]);
 
-  const refresh = useDebounce<void>(() => {
-    const value = getFieldValue("results");
-
-    setDynamicFields(value?.filter(({ value }) => isNotNullishOrEmpty(value)) ?? []);
+  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
+    const nextResults = value.filter(({ value }) => isNotNullishOrEmpty(value));
+    setResults(nextResults);
+    setVariables({ dynamicFields: nextResults });
   }, 1000);
 
-  useEffect(() => {
-    listenFields(["results"], () => refresh());
-  }, [fields, listenFields, refresh]);
+  return match(
+    data
+      .mapOk(data => data.internationalCreditTransferTransactionDetailsDynamicForm)
+      .mapOkToResult(data => Option.fromNullable(data).toResult(undefined)),
+  )
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
+      <ActivityIndicator color={colors.gray[500]} />
+    ))
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ fields }) => (
+      <View>
+        <Tile>
+          <View {...(isLoading && animations.heartbeat)}>
+            <TransferInternationalDynamicFormBuilder
+              key={fields.map(({ key }) => key).join(":")}
+              ref={dynamicFormApiRef}
+              fields={fields}
+              onChange={handleOnResultsChange}
+              results={results}
+            />
+          </View>
+        </Tile>
 
-  return (
-    <View>
-      <Tile>
-        {data.isLoading() && !fields.length ? (
-          <ActivityIndicator color={colors.gray[900]} />
-        ) : (
-          <TransitionView {...(data.isLoading() && animations.heartbeat)}>
-            <Field name="results">
-              {({ onChange, value }) => (
-                <TransferInternationalDynamicFormBuilder
-                  ref={dynamicFormApiRef}
-                  fields={fields}
-                  onChange={onChange}
-                  results={value}
-                  key={fields?.map(({ key }) => key).join(":")}
-                />
-              )}
-            </Field>
-          </TransitionView>
-        )}
-      </Tile>
+        <Space height={32} />
 
-      <Space height={32} />
+        <ResponsiveContainer breakpoint={800}>
+          {({ small }) => (
+            <LakeButtonGroup>
+              <LakeButton color="gray" mode="secondary" onPress={() => onPressPrevious()}>
+                {t("common.previous")}
+              </LakeButton>
 
-      <ResponsiveContainer breakpoint={800}>
-        {({ small }) => (
-          <LakeButtonGroup>
-            <LakeButton color="gray" mode="secondary" onPress={() => onPressPrevious()}>
-              {t("common.previous")}
-            </LakeButton>
+              <LakeButton
+                color="current"
+                disabled={data.isLoading() || loading}
+                grow={small}
+                onPress={() => {
+                  const runCallback = () => onSave({ results });
 
-            <LakeButton
-              color="current"
-              disabled={data.isLoading() || loading}
-              grow={small}
-              onPress={() => {
-                const runCallback = () =>
-                  submitForm({
-                    onSuccess: values => {
-                      Option.allFromDict(values).map(onSave);
-                    },
-                  });
-
-                fields.length === 0
-                  ? runCallback()
-                  : dynamicFormApiRef.current?.submitDynamicForm(runCallback);
-              }}
-            >
-              {t("common.continue")}
-            </LakeButton>
-          </LakeButtonGroup>
-        )}
-      </ResponsiveContainer>
-    </View>
-  );
+                  fields.length === 0
+                    ? runCallback()
+                    : dynamicFormApiRef.current?.submitDynamicForm(runCallback);
+                }}
+              >
+                {t("common.continue")}
+              </LakeButton>
+            </LakeButtonGroup>
+          )}
+        </ResponsiveContainer>
+      </View>
+    ))
+    .exhaustive();
 };

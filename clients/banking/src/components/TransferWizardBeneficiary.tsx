@@ -146,7 +146,7 @@ export const TransferWizardBeneficiary = ({
                 { ibanVerification: AsyncData.P.Loading },
                 () => (
                   <LakeAlert anchored={true} variant="neutral" title="">
-                    <ActivityIndicator color={colors.gray[700]} />
+                    <ActivityIndicator color={colors.gray[500]} />
                   </LakeAlert>
                 ),
               )

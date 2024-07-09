@@ -9,21 +9,12 @@ import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Form, FormConfig, combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { P, match } from "ts-pattern";
-import {
-  DateField,
-  InternationalBeneficiaryDetailsInput,
-  InternationalCreditTransferDetailsInput,
-  RadioField,
-  SelectField,
-  TextField,
-} from "../graphql/partner";
+import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
 import { validatePattern, validateRequired } from "../utils/validations";
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
-export type ResultItem =
-  | InternationalBeneficiaryDetailsInput
-  | InternationalCreditTransferDetailsInput;
+export type FormValue = { key: string; value: string };
 
 type DynamicForm = Form<Record<string, string>>;
 
@@ -33,15 +24,15 @@ export type DynamicFormApi = {
 
 type TransferInternationalDynamicFormBuilderProps = {
   fields: DynamicFormField[];
-  results: ResultItem[];
-  onChange: (results: ResultItem[]) => void;
+  results: FormValue[];
+  onChange: (results: FormValue[]) => void;
 };
 
 export const TransferInternationalDynamicFormBuilder = forwardRef<
   DynamicFormApi,
   TransferInternationalDynamicFormBuilderProps
 >(({ results, onChange, fields }, forwardedRef) => {
-  const resultsRef = useRef<ResultItem[]>();
+  const resultsRef = useRef<FormValue[]>();
   resultsRef.current = results;
 
   const form = useMemo(
@@ -84,7 +75,7 @@ export const TransferInternationalDynamicFormBuilder = forwardRef<
 type DynamicFormProps = {
   fields: DynamicFormField[];
   form: FormConfig<Record<string, string>>;
-  onChange: (results: ResultItem[]) => void;
+  onChange: (results: FormValue[]) => void;
 };
 
 const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(

@@ -21,14 +21,14 @@ import { locale, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
 import {
   DynamicFormApi,
-  ResultItem,
+  FormValue,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
 export type Details = {
-  results: ResultItem[];
+  results: FormValue[];
 };
 
 type Props = {
@@ -93,7 +93,7 @@ export const TransferInternationalWizardDetails = ({
       .otherwise(noop);
   }, [data, onPressPrevious]);
 
-  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
+  const handleOnResultsChange = useDebounce<FormValue[]>(value => {
     const nextResults = value.filter(({ value }) => isNotNullishOrEmpty(value));
     setResults(nextResults);
     setVariables({ dynamicFields: nextResults });

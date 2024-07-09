@@ -26,7 +26,7 @@ import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import {
   DynamicFormApi,
-  ResultItem,
+  FormValue,
   TransferInternationalDynamicFormBuilder,
 } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
@@ -81,7 +81,7 @@ export const TransferInternationalWizardBeneficiary = ({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
   });
 
-  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
+  const handleOnResultsChange = useDebounce<FormValue[]>(value => {
     const nextResults = value.filter(({ value }) => isNotEmpty(value));
     setResults(nextResults);
     setVariables({ dynamicFields: nextResults });

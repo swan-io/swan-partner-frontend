@@ -120,17 +120,6 @@ type Account {
   bankDetails: String
 }
 
-"""
-Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
-"""
-type AccountAndCard {
-  """Account"""
-  account: Account!
-
-  """Requested Card"""
-  cardRequested: Card!
-}
-
 """Account Closed status information"""
 type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
@@ -1621,12 +1610,6 @@ input CardPINInfosInput {
   requestId: String!
 }
 
-"""Location where the card should be printed from"""
-enum CardPrintingHub {
-  France
-  Spain
-}
-
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -1646,9 +1629,6 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
-
-  """Card printing hub"""
-  cardPrintingHub: CardPrintingHub
 }
 
 """Card design of a Card Product"""
@@ -2100,12 +2080,6 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -2403,12 +2377,6 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -3260,10 +3228,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String
+  redirectUrl: String!
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String
+  cancelRedirectUrl: String!
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -3482,6 +3450,9 @@ enum MerchantProfileStatus {
 
   """Rejected"""
   Rejected
+
+  """Canceled"""
+  Canceled
 
   """Suspended"""
   Suspended
@@ -4296,12 +4267,6 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
-
-  """The project ID"""
-  projectId: ID!
-
-  """The card contract ID"""
-  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""

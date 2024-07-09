@@ -4,12 +4,11 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { useEffect, useRef, useState } from "react";
+import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { useCallback, useEffect, useRef } from "react";
 import { ActivityIndicator, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -19,11 +18,7 @@ import {
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
-import {
-  DynamicFormApi,
-  FormValue,
-  TransferInternationalDynamicFormBuilder,
-} from "./TransferInternationalDynamicFormBuilder";
+import { DynamicForm, DynamicFormRef, FormValue } from "./TransferInternationalDynamicFormBuilder";
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
@@ -48,9 +43,7 @@ export const TransferInternationalWizardDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const [values, setValues] = useState(initialDetails?.values ?? []);
-
-  const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
+  const dynamicFormRef = useRef<DynamicFormRef>(null);
 
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -93,11 +86,12 @@ export const TransferInternationalWizardDetails = ({
       .otherwise(noop);
   }, [data, onPressPrevious]);
 
-  const handleOnResultsChange = useDebounce<FormValue[]>(value => {
-    const nextValues = value.filter(({ value }) => isNotNullishOrEmpty(value));
-    setValues(nextValues);
-    setVariables({ dynamicFields: nextValues });
-  }, 1000);
+  const onRefreshRequest = useCallback(
+    (values: FormValue[]) => {
+      setVariables({ dynamicFields: values.filter(({ value }) => isNotEmpty(value)) });
+    },
+    [setVariables],
+  );
 
   return match(
     data
@@ -111,15 +105,16 @@ export const TransferInternationalWizardDetails = ({
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ fields }) => (
       <View>
         <Tile>
-          <View {...(isLoading && animations.heartbeat)}>
-            <TransferInternationalDynamicFormBuilder
-              key={fields.map(({ key }) => key).join(":")}
-              ref={dynamicFormApiRef}
-              fields={fields}
-              onChange={handleOnResultsChange}
-              values={values}
-            />
-          </View>
+          <DynamicForm
+            ref={dynamicFormRef}
+            fields={fields}
+            onRefreshRequest={onRefreshRequest}
+            refreshing={isLoading}
+            initialValues={initialDetails?.values ?? []}
+            onSubmit={values => {
+              onSave({ values });
+            }}
+          />
         </Tile>
 
         <Space height={32} />
@@ -136,11 +131,9 @@ export const TransferInternationalWizardDetails = ({
                 disabled={data.isLoading() || loading}
                 grow={small}
                 onPress={() => {
-                  const runCallback = () => onSave({ values });
-
-                  fields.length === 0
-                    ? runCallback()
-                    : dynamicFormApiRef.current?.submitDynamicForm(runCallback);
+                  if (dynamicFormRef.current != null) {
+                    dynamicFormRef.current.submit();
+                  }
                 }}
               >
                 {t("common.continue")}

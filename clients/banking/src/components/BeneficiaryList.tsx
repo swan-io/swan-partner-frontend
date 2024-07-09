@@ -1,4 +1,4 @@
-import { AsyncData, Lazy, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
 import {
@@ -26,17 +26,11 @@ import {
   BeneficiariesListPageQuery,
   BeneficiariesListPageQueryVariables,
 } from "../graphql/partner";
-import { locale, t } from "../utils/i18n";
+import { currencyResolver, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
-
-const currencyResolver = Lazy(() =>
-  "Intl" in window && "DisplayNames" in window.Intl
-    ? new Intl.DisplayNames([locale.language], { type: "currency" })
-    : undefined,
-);
 
 const styles = StyleSheet.create({
   fill: {
@@ -169,18 +163,16 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
         .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
         .otherwise(() => "EUR");
 
-      const resolver = currencyResolver.get();
-
       return (
         <Cell>
           <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
             {currency}
 
-            {isNotNullish(resolver) && (
+            {isNotNullish(currencyResolver) && (
               <>
                 {" "}
                 <LakeText variant="smallRegular" color={colors.gray[400]}>
-                  ({resolver.of(currency)})
+                  ({currencyResolver.of(currency)})
                 </LakeText>
               </>
             )}

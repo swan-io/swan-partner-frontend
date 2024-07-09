@@ -84,6 +84,7 @@
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
+      "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodWrongStatusRejection",
       "MerchantProfileNotValidRejection",

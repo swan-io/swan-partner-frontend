@@ -81,6 +81,7 @@
       "InvalidIdentificationLevelsRejection",
       "InvalidPhoneNumberRejection",
       "LastSandboxUserCannotBeDeletedRejection",
+      "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodWrongStatusRejection",
       "MerchantProfileWrongStatusRejection",

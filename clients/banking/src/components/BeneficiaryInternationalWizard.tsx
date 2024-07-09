@@ -1,5 +1,3 @@
-import { Option } from "@swan-io/boxed";
-import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -8,16 +6,15 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
-import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
-import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
-import { Beneficiary, BeneficiarySepaWizardForm } from "./BeneficiarySepaWizardForm";
+import { AccountCountry } from "../graphql/partner";
+import { Currency, t } from "../utils/i18n";
+import {
+  Beneficiary,
+  TransferInternationalWizardBeneficiary,
+} from "./TransferInternationalWizardBeneficiary";
 
 const styles = StyleSheet.create({
   fill: {
@@ -60,45 +57,18 @@ type Props = {
   accountMembershipId: string;
 };
 
-export const BeneficiarySepaWizard = ({
+export const BeneficiaryInternationalWizard = ({
   onPressClose,
   accountCountry,
   accountId,
   accountMembershipId,
 }: Props) => {
-  const [addSepaBeneficiary, sepaBeneficiaryAddition] = useMutation(AddSepaBeneficiaryDocument);
+  const [amount, setAmount] = useState<{ value: string; currency: Currency }>(() => ({
+    value: "1000",
+    currency: "USD",
+  }));
 
-  const handleOnSubmit = useCallback(
-    (beneficiary: Beneficiary) => {
-      addSepaBeneficiary({
-        input: {
-          accountId,
-          iban: beneficiary.iban,
-          name: beneficiary.name,
-          consentRedirectUrl:
-            window.location.origin +
-            Router.AccountPaymentsBeneficiariesList({
-              accountMembershipId,
-              kind: "beneficiary",
-            }),
-        },
-      })
-        .mapOk(data => data.addTrustedSepaBeneficiary)
-        .mapOkToResult(data => Option.fromNullable(data).toResult(data))
-        .mapOkToResult(filterRejectionsToResult)
-        .tapOk(({ trustedBeneficiary }) => {
-          match(trustedBeneficiary.statusInfo)
-            .with({ __typename: "TrustedBeneficiaryConsentPendingStatusInfo" }, ({ consent }) =>
-              window.location.assign(consent.consentUrl),
-            )
-            .otherwise(() => {});
-        })
-        .tapError(error => {
-          showToast({ variant: "error", error, title: translateError(error) });
-        });
-    },
-    [accountId, accountMembershipId, addSepaBeneficiary],
-  );
+  const handleOnSubmit = useCallback((beneficiary: Beneficiary) => {}, []);
 
   return (
     <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
@@ -121,7 +91,7 @@ export const BeneficiarySepaWizard = ({
 
               <View style={styles.fill}>
                 <LakeHeading level={2} variant="h3">
-                  {t("beneficiaries.wizards.sepa.title")}
+                  {t("beneficiaries.wizards.international.title")}
                 </LakeHeading>
               </View>
             </View>
@@ -131,18 +101,28 @@ export const BeneficiarySepaWizard = ({
 
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
             <LakeHeading level={2} variant="h3">
-              {t("beneficiaries.wizards.sepa.subtitle")}
+              {t("beneficiaries.wizards.international.subtitle")}
             </LakeHeading>
 
             <Space height={32} />
 
-            <BeneficiarySepaWizardForm
+            <TransferInternationalWizardBeneficiary
               mode="add"
-              submitting={sepaBeneficiaryAddition.isLoading()}
-              accountCountry={accountCountry}
-              accountId={accountId}
+              amount={amount}
               onPressPrevious={onPressClose}
               onPressSubmit={handleOnSubmit}
+              onCurrencyChange={currency => {
+                setAmount(prevAmount =>
+                  prevAmount.currency === currency
+                    ? prevAmount
+                    : {
+                        currency,
+                        value: match(currency)
+                          .with("IDR", "VND", () => "50000")
+                          .otherwise(() => "1000"),
+                      },
+                );
+              }}
             />
           </ScrollView>
         </View>

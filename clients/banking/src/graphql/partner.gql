@@ -2212,52 +2212,42 @@ query GetInternationalBeneficiaryDynamicForms(
     dynamicFields: $dynamicFields
   ) {
     schemes {
-      type
       title
+      type
       remainingFieldsToRefreshCount
+
       fields {
+        __typename
+
+        required
         key
         name
-        required
+
         ... on DateField {
           example
           validationRegex
-          key
-          name
-          required
+        }
+        ... on RadioField {
+          refreshDynamicFieldsOnChange
+          allowedValues {
+            key
+            name
+          }
+        }
+        ... on SelectField {
+          refreshDynamicFieldsOnChange
+          allowedValues {
+            key
+            name
+          }
         }
         ... on TextField {
           displayFormat
           example
-          validationRegex
-          required
-          refreshDynamicFieldsOnChange
-          name
           minLength
           maxLength
-          key
-        }
-        ... on SelectField {
-          __typename
-          required
           refreshDynamicFieldsOnChange
-          name
-          key
-          allowedValues {
-            name
-            key
-          }
-        }
-        ... on RadioField {
-          __typename
-          required
-          refreshDynamicFieldsOnChange
-          name
-          key
-          allowedValues {
-            name
-            key
-          }
+          validationRegex
         }
       }
     }

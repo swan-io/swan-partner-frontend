@@ -17,6 +17,7 @@ import {
   InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
+import { Beneficiary } from "./BeneficiaryInternationalWizardForm";
 import { ErrorView } from "./ErrorView";
 import {
   DynamicFormRef,
@@ -24,7 +25,6 @@ import {
   TransferInternationalDynamicForm,
 } from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
-import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
 export type Details = {
   values: FormValue[];

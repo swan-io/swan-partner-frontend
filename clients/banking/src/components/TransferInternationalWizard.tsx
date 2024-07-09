@@ -22,14 +22,14 @@ import {
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  Beneficiary,
+  BeneficiaryInternationalWizardForm,
+} from "./BeneficiaryInternationalWizardForm";
+import {
   Amount,
   TransferInternationalWizardAmount,
   TransferInternationamWizardAmountSummary,
 } from "./TransferInternationalWizardAmount";
-import {
-  Beneficiary,
-  TransferInternationalWizardBeneficiary,
-} from "./TransferInternationalWizardBeneficiary";
 import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 
 const styles = StyleSheet.create({
@@ -217,7 +217,7 @@ export const TransferInternationalWizard = ({
 
                     <Space height={32} />
 
-                    <TransferInternationalWizardBeneficiary
+                    <BeneficiaryInternationalWizardForm
                       mode="continue"
                       initialBeneficiary={beneficiary}
                       amount={amount}

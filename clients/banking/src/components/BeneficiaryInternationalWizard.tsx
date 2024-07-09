@@ -12,8 +12,8 @@ import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import {
   Beneficiary,
-  TransferInternationalWizardBeneficiary,
-} from "./TransferInternationalWizardBeneficiary";
+  BeneficiaryInternationalWizardForm,
+} from "./BeneficiaryInternationalWizardForm";
 
 const styles = StyleSheet.create({
   fill: {
@@ -100,7 +100,7 @@ export const BeneficiaryInternationalWizard = ({
 
             <Space height={32} />
 
-            <TransferInternationalWizardBeneficiary
+            <BeneficiaryInternationalWizardForm
               mode="add"
               onPressPrevious={onPressClose}
               onPressSubmit={handleOnSubmit}

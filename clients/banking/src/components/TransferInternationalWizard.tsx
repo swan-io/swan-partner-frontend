@@ -63,13 +63,12 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
+    paddingVertical: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
-    paddingVertical: spacings[24],
   },
 });
 
@@ -113,7 +112,8 @@ export const TransferInternationalWizard = ({
         },
         internationalCreditTransferDetails: details.results,
         consentRedirectUrl:
-          window.location.origin + Router.AccountTransactionsListRoot({ accountMembershipId }),
+          window.location.origin +
+          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
       },
     })
       .mapOk(data => data.initiateInternationalCreditTransfer)

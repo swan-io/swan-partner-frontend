@@ -10,7 +10,8 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { animations, colors } from "@swan-io/lake/src/constants/design";
+import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
@@ -34,23 +35,36 @@ const styles = StyleSheet.create({
   summaryContents: {
     ...commonStyles.fill,
   },
+  loaderBox: {
+    backgroundColor: colors.gray[50],
+    borderTopColor: colors.gray[200],
+    borderTopWidth: 1,
+    padding: spacings[24],
+  },
 });
 
 type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary?: Beneficiary;
-  onSave: (beneficiary: Beneficiary) => void;
+  mode: "add" | "continue";
+  submitting?: boolean;
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressPrevious?: () => void;
 };
 
-export const TransferWizardBeneficiary = ({
+export const BeneficiaryWizard = ({
   accountCountry,
   accountId,
   initialBeneficiary,
-  onSave,
+  mode,
+  submitting = false,
+  onPressSubmit,
+  onPressPrevious,
 }: Props) => {
   const [ibanVerification, { query: queryIbanVerification, reset: resetIbanVerification }] =
     useDeferredQuery(GetIbanValidationDocument, { debounce: 500 });
+
   const [
     beneficiaryVerification,
     { query: queryBeneficiaryVerification, reset: resetBeneficiaryVerification },
@@ -121,10 +135,10 @@ export const TransferWizardBeneficiary = ({
     resetBeneficiaryVerification,
   ]);
 
-  const onPressSubmit = () => {
+  const handleOnPressSubmit = () => {
     submitForm({
       onSuccess: values => {
-        Option.allFromDict(values).map(beneficiary => onSave(beneficiary));
+        Option.allFromDict(values).map(beneficiary => onPressSubmit(beneficiary));
       },
     });
   };
@@ -145,18 +159,15 @@ export const TransferWizardBeneficiary = ({
                 { beneficiaryVerification: AsyncData.P.Loading },
                 { ibanVerification: AsyncData.P.Loading },
                 () => (
-                  <LakeAlert anchored={true} variant="neutral" title="">
+                  <Box alignItems="center" justifyContent="center" style={styles.loaderBox}>
                     <ActivityIndicator color={colors.gray[500]} />
-                  </LakeAlert>
+                  </Box>
                 ),
               )
               .with(
                 {
                   ibanVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "ValidIban",
-                      bank: P.select(),
-                    }),
+                    Result.P.Ok({ __typename: "ValidIban", bank: P.select() }),
                   ),
                 },
                 ({ name, address }) => (
@@ -165,29 +176,25 @@ export const TransferWizardBeneficiary = ({
                     variant="neutral"
                     title={t("transfer.new.bankInformation")}
                   >
-                    <>
-                      <LakeText>{name}</LakeText>
+                    <LakeText>{name}</LakeText>
 
-                      {match(address)
-                        .with(
-                          { addressLine1: P.string, postalCode: P.string, city: P.string },
-                          ({ addressLine1, postalCode, city }) => (
-                            <LakeText>
-                              {addressLine1}, {postalCode} {city}
-                            </LakeText>
-                          ),
-                        )
-                        .otherwise(() => null)}
-                    </>
+                    {match(address)
+                      .with(
+                        { addressLine1: P.string, postalCode: P.string, city: P.string },
+                        ({ addressLine1, postalCode, city }) => (
+                          <LakeText>
+                            {addressLine1}, {postalCode} {city}
+                          </LakeText>
+                        ),
+                      )
+                      .otherwise(() => null)}
                   </LakeAlert>
                 ),
               )
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: "BeneficiaryMatch",
-                    }),
+                    Result.P.Ok({ __typename: "BeneficiaryMatch" }),
                   ),
                 },
                 () => (
@@ -203,9 +210,7 @@ export const TransferWizardBeneficiary = ({
                   beneficiaryVerification: AsyncData.P.Done(
                     Result.P.Ok(
                       P.union(
-                        {
-                          __typename: "InvalidBeneficiaryVerification",
-                        },
+                        { __typename: "InvalidBeneficiaryVerification" },
                         { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
                       ),
                     ),
@@ -267,9 +272,7 @@ export const TransferWizardBeneficiary = ({
               .with(
                 {
                   beneficiaryVerification: AsyncData.P.Done(
-                    Result.P.Ok({
-                      __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo"),
-                    }),
+                    Result.P.Ok({ __typename: P.union("BeneficiaryMismatch", "BeneficiaryTypo") }),
                   ),
                 },
                 () => (
@@ -278,9 +281,7 @@ export const TransferWizardBeneficiary = ({
                     variant="error"
                     title={t(
                       "transfer.new.beneficiaryVerification.mismatchOrTypo.withoutSuggestion",
-                      {
-                        name: beneficiaryName.value,
-                      },
+                      { name: beneficiaryName.value },
                     )}
                   />
                 ),
@@ -300,6 +301,7 @@ export const TransferWizardBeneficiary = ({
                         () => true,
                       )
                       .otherwise(() => false);
+
                     return (
                       <LakeTextInput
                         id={id}
@@ -329,9 +331,7 @@ export const TransferWizardBeneficiary = ({
                         AsyncData.P.Done(
                           Result.P.Ok(
                             P.union(
-                              {
-                                __typename: "InvalidBeneficiaryVerification",
-                              },
+                              { __typename: "InvalidBeneficiaryVerification" },
                               { __typename: "BeneficiaryMismatch", accountStatus: "Inactive" },
                             ),
                           ),
@@ -339,6 +339,7 @@ export const TransferWizardBeneficiary = ({
                         () => true,
                       )
                       .otherwise(() => false);
+
                     return (
                       <LakeTextInput
                         id={id}
@@ -365,8 +366,26 @@ export const TransferWizardBeneficiary = ({
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (
           <LakeButtonGroup>
-            <LakeButton color="current" onPress={onPressSubmit} grow={small}>
-              {t("common.continue")}
+            {isNotNullish(onPressPrevious) && (
+              <LakeButton
+                mode="secondary"
+                color="gray"
+                onPress={onPressPrevious}
+                grow={small}
+                disabled={submitting}
+              >
+                {t("common.previous")}
+              </LakeButton>
+            )}
+
+            <LakeButton
+              color="current"
+              onPress={handleOnPressSubmit}
+              grow={small}
+              loading={submitting}
+              icon={mode === "add" ? "add-circle-filled" : undefined}
+            >
+              {mode === "add" ? t("common.add") : t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>
         )}

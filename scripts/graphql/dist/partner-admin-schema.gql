@@ -694,7 +694,7 @@ type AccountMembership {
   language: AccountLanguage
 }
 
-"""when a user is binded with the error to the account membership"""
+"""when a user is bound with the error to the account membership"""
 type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipStatusInfo {
   """
   AccountMembership status (always BindingUserError for type AccountMembershipBindingUserErrorStatusInfo)
@@ -702,7 +702,7 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user binded doesn't match with the invitation
+  `true` if the first name of the user bound doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
 
@@ -710,17 +710,17 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user binded doesn't match with the invitation
+  `true` if the last name of the user bound doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user binded doesn't match with the invitation
+  `true` if the phone number of the user bound doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user binded doesn't match with the invitation
+  `true` if the birth date of the user bound doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -785,7 +785,7 @@ type AccountMembershipEnabledStatusInfo implements AccountMembershipStatusInfo {
 }
 
 """
-when a new account membership is invited and there is no user binded yet
+when a new account membership is invited and there is no user bound yet
 """
 type AccountMembershipInvitationSentStatusInfo implements AccountMembershipStatusInfo {
   """
@@ -856,7 +856,7 @@ enum AccountMembershipStatus {
   """when the account membership is invited"""
   InvitationSent
 
-  """when the user binded with errors to the account membership"""
+  """when the user bound with errors to the account membership"""
   BindingUserError
 
   """when the account membership is enabled"""
@@ -1087,19 +1087,19 @@ type AddressInformation {
 """Address"""
 input AddressInformationInput {
   """Address"""
-  addressLine1: String!
+  addressLine1: String
 
   """Address"""
   addressLine2: String
 
   """City"""
-  city: String!
+  city: String
 
   """Country"""
   country: CCA3!
 
   """Postal code"""
-  postalCode: String!
+  postalCode: String
 
   """State"""
   state: String
@@ -1828,6 +1828,7 @@ enum ConsentOperationPropertyName {
   SignatureDate
   SpendingLimit
   To
+  YourAccountNumber
 }
 
 """Purpose of a consent"""
@@ -1907,8 +1908,8 @@ enum ConsentPurpose {
   """when the consent is a multiple consent"""
   ConsentToMultipleConsents
 
-  """when returning a transaction"""
-  ReturnTransaction
+  """when returning a transaction for direct debit"""
+  ReturnTransactionForDirectDebit
 }
 
 type ConsentResponse {
@@ -2206,8 +2207,8 @@ enum DetailedConsentPurpose {
   """if the consent is a multiple consent"""
   ConsentToMultipleConsents
 
-  """when returning a transaction"""
-  ReturnTransaction
+  """when returning a transaction for direct debit"""
+  ReturnTransactionForDirectDebit
 
   """
   if the consent originates from a oauth2 flow, the purpose should be determined from its scopes
@@ -2378,6 +2379,53 @@ union EndorseSandboxUserPayload = EndorseSandboxUserSuccessPayload | ForbiddenRe
 """Success payload type"""
 type EndorseSandboxUserSuccessPayload {
   sandboxUser: SandboxUser!
+}
+
+type EnrichedTransactionInfo {
+  """Well formatted merchant name"""
+  enrichedMerchantName: String
+
+  """URL of the merchant logo"""
+  logoUrl: String
+
+  """Merchant category"""
+  category: MerchantCategory
+
+  """Merchant subcategory"""
+  subcategory: MerchantSubCategory
+
+  """Merchant country"""
+  country: CCA3
+
+  """Merchant city"""
+  city: String
+
+  """Merchant address"""
+  address: String
+
+  """Merchant location longitude"""
+  longitude: String
+
+  """Merchant location latitude"""
+  latitude: String
+
+  """Merchant postal code"""
+  postalCode: String
+
+  """Is merchant a subcription"""
+  isSubscription: Boolean
+
+  """Merchant carbon footprint"""
+  carbonFootprint: String
+
+  """Merchant email"""
+  contactEmail: String
+
+  """Merchant phone"""
+  contactPhone: String
+
+  """Merchant website"""
+  contactWebsite: String
 }
 
 enum EnvType {
@@ -3789,6 +3837,23 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+enum MerchantCategory {
+  Culture
+  Entertainment
+  Finance
+  Groceries
+  HealthAndBeauty
+  HomeAndUtilities
+  Other
+  ProfessionalServices
+  PublicAdministrations
+  Restaurants
+  Shopping
+  Software
+  Transport
+  Travel
+}
+
 type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
@@ -4060,6 +4125,76 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   expectedStatus: MerchantProfileStatus!
 }
 
+enum MerchantSubCategory {
+  Education
+  Museums
+  CinemasAndShows
+  GamblingAndBettingActivities
+  OtherLeisureActivities
+  StreamingPlatforms
+  ThemeParks
+  TicketsAndEvents
+  VideoGames
+  FinancialServices
+  Insurance
+  LiquorStore
+  SupermarketsAndOtherGroceryStores
+  FitnessAndSports
+  Hairdressing
+  Healthcare
+  Pharmacies
+  SpaAndBeautyTreatments
+  ConstructionAndOddJobs
+  EnergyProviders
+  Gardening
+  Laundries
+  PhoneAndInternetServicesProviders
+  RealEstate
+  CharityAndNonProfitOrganizations
+  ReligiousOrganizations
+  AdvertisingAndMarketing
+  BookkeepingAndConsultancy
+  CourierAndLogistics
+  IndustrialCleaning
+  LegalActivities
+  OtherProfessionalServices
+  StationaryServices
+  GovernmentAndCityCouncils
+  BarsAndRestaurants
+  CoffeeAndBakeries
+  FoodDelivery
+  PubsAndNightclubs
+  BooksAndNewspapers
+  CigarShops
+  ClothingShoesAndAccessories
+  ComputersAndElectronicDevices
+  DepartmentStores
+  Furniture
+  GamesAndToys
+  HardwareStores
+  HouseholdItems
+  Pets
+  SoftwareServices
+  CarRental
+  MetroBusAndTrains
+  MotorVehiclesRepairsAndAccessories
+  OtherTransportProviders
+  PrivateMobilityServices
+  ServiceStations
+  TollsAndParkings
+  Airlines
+  FerriesAndBoats
+  HotelsAndAccommodation
+  TravelAgents
+  ATM
+  OfficeRental
+  HrAndRecruiting
+  Flowers
+  OtherStores
+  PerfumesAndCosmetics
+  Other
+}
+
 """Monthly income."""
 enum MonthlyIncome {
   """less than 500"""
@@ -4122,6 +4257,9 @@ type Mutation {
   updateSupportingDocumentStatus(input: UpdateSupportingDocumentStatusInput!): UpdateSupportingDocumentStatusPayload!
   updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
   updateFundingLimitSettingsChangeRequest(input: UpdateFundingLimitSettingsChangeRequestInput!): UpdateFundingLimitSettingsChangeRequestPayload!
+
+  """Simulation to insert card transaction enrichment infos manualy"""
+  simulateCardTransactionEnrichment(input: SimulateCardTransactionEnrichmentInput!): SimulateCardTransactionEnrichmentPayload!
 
   """
   Mutation to simulate the generation of an account invoice
@@ -4370,11 +4508,12 @@ type NotReachableConsentStatusRejection implements Rejection {
 }
 
 """
+@deprecated Use 'StartedIdentificationLevelStatusInfo' instead. Deprecated to ensure consistency and clear identification status behavior
 Describes an identification level that hasn't started for the process of the current identification
 """
 type NotStartedIdentificationLevelStatusInfo {
   """Always set to `NotStarted`"""
-  status: SwanIdentificationStatus!
+  status: SwanIdentificationStatus! @deprecated(reason: "Use 'Started' instead. Deprecated to ensure consistency and clear identification status behavior.")
 }
 
 """
@@ -6632,6 +6771,67 @@ type SimulateCapitalDepositDocumentStatusSuccessPayload {
   id: String!
 }
 
+"""Input of simulateCardTransactionEnrichment mutation"""
+input SimulateCardTransactionEnrichmentInput {
+  """Card transaction id"""
+  transactionId: ID!
+
+  """Merchant address, if nothing entered genereted randomly"""
+  address: String
+
+  """Transaction carbon footprint, if nothing entered genereted randomly"""
+  carbonFootPrint: String
+
+  """Merchant category, if nothing entered default to 'Other'"""
+  category: MerchantCategory
+
+  """Merchant city, if nothing entered genereted randomly"""
+  city: String
+
+  """Merchant email, if nothing entered default to 'noreply@swan.io'"""
+  contactEmail: String
+
+  """Merchant phone number, if nothing entered default to '+33123456789'"""
+  contactPhone: String
+
+  """
+  Merchant website, if nothing entered default to 'https://www.swan.io/contact'
+  """
+  contactWebsite: String
+
+  """Merchant country, if nothing entered genereted randomly"""
+  country: CCA3
+
+  """Enhanced merchant name, if nothing entered genereted randomly"""
+  enrichedMerchantName: String
+
+  """Is transaction a subcription, if nothing entered default to false"""
+  isSubscription: Boolean
+
+  """Merchant latitude, if nothing entered genereted randomly"""
+  latitude: String
+
+  """Merchant longitude, if nothing entered genereted randomly"""
+  longitude: String
+
+  """Merchant postal code, if nothing entered genereted randomly"""
+  postalCode: String
+
+  """Merchant subcategory, if nothing entered default to 'Other'"""
+  subcategory: MerchantSubCategory
+}
+
+union SimulateCardTransactionEnrichmentPayload = SimulateCardTransactionEnrichmentSuccessPayload | SimulateCardTransactionEnrichmentRejection | ForbiddenRejection
+
+type SimulateCardTransactionEnrichmentRejection implements Rejection {
+  message: String!
+}
+
+type SimulateCardTransactionEnrichmentSuccessPayload {
+  transactionId: ID!
+  enrichedData: EnrichedTransactionInfo!
+}
+
 """Book an incoming check simulation input"""
 input SimulateIncomingCheckBookingInput {
   """Transaction ID to be booked"""
@@ -6878,9 +7078,15 @@ input SimulateInvoiceGenerationInput {
 
 union SimulateInvoiceGenerationPayload = SimulateInvoiceGenerationSuccessPayload | AccountNotFoundRejection | AccountNotEligibleRejection | ForbiddenRejection
 
+enum SimulateInvoiceGenerationPayloadStatus {
+  Pending
+  Succeeded
+}
+
 type SimulateInvoiceGenerationSuccessPayload {
   """The generated invoice"""
-  invoice: Invoice!
+  invoice: Invoice
+  status: SimulateInvoiceGenerationPayloadStatus!
 }
 
 """Input to simulate a manual banking fee"""
@@ -7603,6 +7809,7 @@ type SupportingDocumentCollection {
   """
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
+  transaction: SupportingDocumentTransaction!
 }
 
 """Supporting document collection with Approved status"""
@@ -7912,6 +8119,10 @@ type SupportingDocumentStatusNotAllowedRejection implements Rejection {
   message: String!
 }
 
+type SupportingDocumentTransaction {
+  id: ID
+}
+
 """Specific type for document"""
 enum SupportingDocumentType {
   """Selfie"""
@@ -8167,7 +8378,7 @@ enum SwanIdentificationStatus {
   NotSupported
 
   """When the identification hasn't been started yet"""
-  NotStarted
+  NotStarted @deprecated(reason: "Use 'Started' instead. Deprecated to ensure consistency and clear identification status behavior.")
 
   """When the identification has been started"""
   Started

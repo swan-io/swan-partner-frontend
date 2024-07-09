@@ -1729,6 +1729,64 @@ query TransactionListPage(
   }
 }
 
+query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
+  account(accountId: $accountId) {
+    id
+    trustedBeneficiaries(first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      edges {
+        cursor
+        node {
+          id
+          label
+          name
+          type
+          ... on TrustedInternalBeneficiary {
+            accountId
+          }
+          ... on TrustedInternationalBeneficiary {
+            currency
+          }
+          ... on TrustedSepaBeneficiary {
+            iban
+          }
+        }
+      }
+    }
+  }
+}
+
+mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
+  addTrustedSepaBeneficiary(input: $input) {
+    __typename
+
+    ... on AddTrustedSepaBeneficiarySuccessPayload {
+      __typename
+
+      trustedBeneficiary {
+        id
+        statusInfo {
+          __typename
+
+          ... on TrustedBeneficiaryConsentPendingStatusInfo {
+            consent {
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
+  }
+}
+
 query Transaction($id: ID!, $canViewAccount: Boolean!, $canQueryCardOnTransaction: Boolean!) {
   transaction(id: $id) {
     ...TransactionDetails

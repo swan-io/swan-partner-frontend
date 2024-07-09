@@ -108,6 +108,7 @@
       "SandboxIdentificationNotFoundRejection",
       "SandboxUserNotFoundRejection",
       "SchemeWrongRejection",
+      "SimulateCardTransactionEnrichmentRejection",
       "StandingOrderNotFoundRejection",
       "SupportingDocumentCollectionNotFoundRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection",

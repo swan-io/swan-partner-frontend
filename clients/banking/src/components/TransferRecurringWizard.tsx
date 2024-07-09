@@ -19,16 +19,16 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  Beneficiary,
+  BeneficiaryWizard,
+  TransferWizardBeneficiarySummary,
+} from "./BeneficiaryWizard";
+import {
   Details,
   TransferRecurringWizardDetails,
   TransferRecurringWizardDetailsSummary,
 } from "./TransferRecurringWizardDetails";
 import { Schedule, TransferRecurringWizardSchedule } from "./TransferRecurringWizardSchedule";
-import {
-  Beneficiary,
-  TransferWizardBeneficiary,
-  TransferWizardBeneficiarySummary,
-} from "./TransferWizardBeneficiary";
 
 const styles = StyleSheet.create({
   root: {
@@ -61,13 +61,12 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[24],
+    paddingVertical: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
-    paddingVertical: spacings[24],
   },
 });
 
@@ -109,8 +108,7 @@ export const TransferRecurringWizard = ({
   }) => {
     const consentRedirectUrl =
       window.location.origin +
-      Router.AccountPaymentsRecurringTransferList({ accountMembershipId }) +
-      `?${new URLSearchParams({ standingOrder: "true" }).toString()}`;
+      Router.AccountPaymentsRecurringTransferList({ accountMembershipId, kind: "standingOrder" });
 
     scheduleStandingOrder({
       input: {
@@ -212,11 +210,12 @@ export const TransferRecurringWizard = ({
 
                     <Space height={32} />
 
-                    <TransferWizardBeneficiary
+                    <BeneficiaryWizard
+                      mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}
                       initialBeneficiary={beneficiary}
-                      onSave={beneficiary => setStep({ name: "Details", beneficiary })}
+                      onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                     />
                   </>
                 );

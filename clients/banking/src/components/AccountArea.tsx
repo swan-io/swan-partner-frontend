@@ -24,7 +24,7 @@ import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { isNotEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
@@ -533,7 +533,7 @@ export const AccountArea = ({
 
                       .with(
                         { name: "AccountPaymentsArea" },
-                        ({ params: { consentId, standingOrder, status: consentStatus } }) =>
+                        ({ params: { consentId, kind, status } }) =>
                           isNullish(accountCountry) ? (
                             <ErrorView />
                           ) : (
@@ -544,11 +544,8 @@ export const AccountArea = ({
                               canQueryCardOnTransaction={canQueryCardOnTransaction}
                               canViewAccount={accountMembership.canViewAccount}
                               transferConsent={
-                                consentId != null && consentStatus != null
-                                  ? Option.Some({
-                                      status: consentStatus,
-                                      isStandingOrder: isNotEmpty(standingOrder ?? ""),
-                                    })
+                                consentId != null && kind != null && status != null
+                                  ? Option.Some({ kind, status })
                                   : Option.None()
                               }
                               transferCreationVisible={features.transferCreationVisible}

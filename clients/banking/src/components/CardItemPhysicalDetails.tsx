@@ -72,8 +72,7 @@ import { MaskedCard } from "./MaskedCard";
 
 const styles = StyleSheet.create({
   container: {
-    alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "center",
     flexGrow: 1,
   },
   card: {

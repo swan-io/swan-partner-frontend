@@ -481,7 +481,7 @@
   "merchantProfile.request.accentColor.label": "Cor de destaque",
   "merchantProfile.request.expectedAverageBasket.label": "Transação média esperada",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Volume mensal de pagamento esperado",
-  "merchantProfile.request.merchantLogo.acceptedImageUpload": "JPEG ou PNG, máximo 1MB",
+  "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, máximo 1MB",
   "merchantProfile.request.merchantLogo.label": "Logótipo do comerciante",
   "merchantProfile.request.merchantName.label": "Nome do comerciante",
   "merchantProfile.request.merchantWebsite.label": "Website do comerciante",

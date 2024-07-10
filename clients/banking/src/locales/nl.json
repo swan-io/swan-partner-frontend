@@ -481,7 +481,7 @@
   "merchantProfile.request.accentColor.label": "Accentkleur",
   "merchantProfile.request.expectedAverageBasket.label": "Verwacht gemiddelde transactie",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Verwacht maandelijks betalingsvolume",
-  "merchantProfile.request.merchantLogo.acceptedImageUpload": "JPEG of PNG, max 1MB",
+  "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, max 1MB",
   "merchantProfile.request.merchantLogo.label": "Bedrijfslogo",
   "merchantProfile.request.merchantName.label": "Bedrijfsnaam",
   "merchantProfile.request.merchantWebsite.label": "Bedrijfswebsite",

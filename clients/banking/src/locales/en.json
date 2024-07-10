@@ -482,7 +482,7 @@
   "merchantProfile.request.expectedAverageBasket.label": "Expected average transaction",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Expected monthly payment volume",
   "merchantProfile.request.merchantLogo.label": "Merchant logo",
-  "merchantProfile.request.merchantLogo.acceptedImageUpload": "JPEG or PNG, max 1MB",
+  "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, max 1MB",
   "merchantProfile.request.merchantName.label": "Merchant name",
   "merchantProfile.request.merchantWebsite.label": "Merchant website",
   "merchantProfile.request.merchantWebsite.placeholder": "example: https://www.swan.io",

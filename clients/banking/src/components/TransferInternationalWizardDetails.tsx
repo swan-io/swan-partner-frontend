@@ -18,7 +18,11 @@ import {
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { ErrorView } from "./ErrorView";
-import { DynamicForm, DynamicFormRef, FormValue } from "./TransferInternationalDynamicFormBuilder";
+import {
+  DynamicFormRef,
+  FormValue,
+  TransferInternationalDynamicForm,
+} from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
 import { Beneficiary } from "./TransferInternationalWizardBeneficiary";
 
@@ -105,7 +109,7 @@ export const TransferInternationalWizardDetails = ({
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ fields }) => (
       <View>
         <Tile>
-          <DynamicForm
+          <TransferInternationalDynamicForm
             ref={dynamicFormRef}
             fields={fields}
             onRefreshRequest={onRefreshRequest}

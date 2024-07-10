@@ -28,7 +28,7 @@ type Props = {
   onSubmit: (values: FormValue[]) => void;
 };
 
-export const DynamicForm = forwardRef<DynamicFormRef, Props>(
+export const TransferInternationalDynamicForm = forwardRef<DynamicFormRef, Props>(
   ({ initialValues, onRefreshRequest, refreshing, onSubmit, fields }, forwardedRef) => {
     // keep it in a ref as we only care about the values on mount
     const initialValuesRef = useRef(initialValues);

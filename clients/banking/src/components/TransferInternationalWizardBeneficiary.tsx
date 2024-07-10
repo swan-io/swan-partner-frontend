@@ -23,7 +23,11 @@ import { locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
-import { DynamicForm, DynamicFormRef, FormValue } from "./TransferInternationalDynamicFormBuilder";
+import {
+  DynamicFormRef,
+  FormValue,
+  TransferInternationalDynamicForm,
+} from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
 
 const styles = StyleSheet.create({
@@ -168,7 +172,7 @@ export const TransferInternationalWizardBeneficiary = ({
               )}
             />
 
-            <DynamicForm
+            <TransferInternationalDynamicForm
               key={route.toUndefined()}
               ref={dynamicFormRef}
               fields={fields}

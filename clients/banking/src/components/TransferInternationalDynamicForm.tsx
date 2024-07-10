@@ -8,6 +8,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
 import { validatePattern, validateRequired } from "../utils/validations";
@@ -16,8 +17,33 @@ export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
 export type FormValue = { key: string; value: string };
 
+const styles = StyleSheet.create({
+  readOnlyStyle: {
+    backgroundColor: colors.gray[50],
+    borderColor: colors.gray[50],
+    color: colors.gray[900],
+  },
+});
+
 export type DynamicFormRef = {
   submit: () => void;
+};
+
+const debounce = (func: () => void, duration: number) => {
+  let timeoutId: NodeJS.Timeout | undefined;
+  return {
+    debounced: () => {
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+      timeoutId = setTimeout(() => func(), duration);
+    },
+    cancel: () => {
+      if (timeoutId != null) {
+        clearTimeout(timeoutId);
+      }
+    },
+  };
 };
 
 type Props = {
@@ -54,7 +80,7 @@ export const TransferInternationalDynamicForm = forwardRef<DynamicFormRef, Props
       );
     }, [fields]);
 
-    const { Field, submitForm, listenFields } = useForm(form);
+    const { Field, submitForm, listenFields, getFieldValue } = useForm(form);
 
     useImperativeHandle(
       forwardedRef,
@@ -78,23 +104,41 @@ export const TransferInternationalDynamicForm = forwardRef<DynamicFormRef, Props
     );
 
     useEffect(() => {
-      const refreshingFields = Array.filterMap(fields, field =>
+      const refreshingTextFields = Array.filterMap(fields, field =>
+        match(field)
+          .with({ __typename: "TextField", refreshDynamicFieldsOnChange: true }, field =>
+            Option.Some(field.key),
+          )
+          .otherwise(() => Option.None()),
+      );
+
+      const refreshingSelectRadioFields = Array.filterMap(fields, field =>
         match(field)
           .with(
             { __typename: "RadioField", refreshDynamicFieldsOnChange: true },
             { __typename: "SelectField", refreshDynamicFieldsOnChange: true },
-            { __typename: "TextField", refreshDynamicFieldsOnChange: true },
             field => Option.Some(field.key),
           )
           .otherwise(() => Option.None()),
       );
 
-      const unsubscribe = listenFields(refreshingFields, fields => {
-        onRefreshRequest(Dict.entries(fields).map(([key, { value }]) => ({ key, value })));
-      });
+      const allFields = [...refreshingTextFields, ...refreshingSelectRadioFields];
 
-      return () => unsubscribe();
-    }, [fields, listenFields, onRefreshRequest]);
+      const refresh = () => {
+        onRefreshRequest(allFields.map(key => ({ key, value: getFieldValue(key) })));
+      };
+
+      const { debounced, cancel } = debounce(refresh, 1000);
+
+      const unsubscribeSelectRadio = listenFields(refreshingSelectRadioFields, () => refresh());
+      const unsubscribeText = listenFields(refreshingTextFields, () => debounced());
+
+      return () => {
+        unsubscribeSelectRadio();
+        unsubscribeText();
+        cancel();
+      };
+    }, [fields, listenFields, onRefreshRequest, getFieldValue]);
 
     return fields.map((field: DynamicFormField) => (
       <LakeLabel
@@ -165,7 +209,7 @@ export const TransferInternationalDynamicForm = forwardRef<DynamicFormRef, Props
                     onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
-                    readOnly={refreshing}
+                    style={refreshing ? styles.readOnlyStyle : undefined}
                   />
                 )}
               </Field>

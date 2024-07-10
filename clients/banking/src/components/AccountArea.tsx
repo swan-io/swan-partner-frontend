@@ -53,6 +53,7 @@ import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./Acco
 import { CardsArea } from "./CardsArea";
 import { ErrorView } from "./ErrorView";
 import { MembershipsArea } from "./MembershipsArea";
+import { MerchantArea } from "./MerchantArea";
 import { NavigationTabBar, navigationTabBarHeight } from "./NavigationTabBar";
 import { ProfileButton } from "./ProfileButton";
 import { Redirect } from "./Redirect";
@@ -158,6 +159,13 @@ type Props = {
     memberListVisible: boolean;
     physicalCardOrderVisible: boolean;
     virtualCardOrderVisible: boolean;
+    merchantProfileCreationVisible: boolean;
+    merchantProfileCardVisible: boolean;
+    merchantProfileSepaDirectDebitCoreVisible: boolean;
+    merchantProfileSepaDirectDebitB2BVisible: boolean;
+    merchantProfileInternalDirectDebitCoreVisible: boolean;
+    merchantProfileInternalDirectDebitB2BVisible: boolean;
+    merchantProfileCheckVisible: boolean;
   };
   activationTag: AccountActivationTag;
   sections: {
@@ -166,6 +174,7 @@ type Props = {
     transfer: boolean;
     cards: boolean;
     members: boolean;
+    merchants: boolean;
   };
   reload: () => void;
 };
@@ -287,6 +296,15 @@ export const AccountArea = ({
               )
               .getOr(false),
           },
+          {
+            separator: true,
+            matchRoutes: ["AccountMerchantsArea"],
+            iconActive: "building-shop-filled",
+            icon: "building-shop-regular",
+            name: t("navigation.merchant"),
+            to: Router.AccountMerchantsRoot({ accountMembershipId }),
+            hidden: account?.holder.info.type !== "Company" || !sections.merchants,
+          },
         ];
 
   const routes = useMemo(() => {
@@ -297,6 +315,7 @@ export const AccountArea = ({
       ...(sections.transfer ? paymentMenuRoutes : []),
       ...(sections.cards ? (["AccountCardsArea"] as const) : []),
       ...(sections.members ? (["AccountMembersArea"] as const) : []),
+      ...(sections.merchants ? (["AccountMerchantsArea"] as const) : []),
     ];
   }, [sections]);
 
@@ -589,6 +608,27 @@ export const AccountArea = ({
                           )
                           .otherwise(() => <ErrorView />),
                       )
+                      .with({ name: "AccountMerchantsArea" }, () => (
+                        <MerchantArea
+                          accountId={accountId}
+                          accountMembershipId={accountMembershipId}
+                          merchantProfileCreationVisible={features.merchantProfileCreationVisible}
+                          merchantProfileCardVisible={features.merchantProfileCardVisible}
+                          merchantProfileSepaDirectDebitCoreVisible={
+                            features.merchantProfileSepaDirectDebitCoreVisible
+                          }
+                          merchantProfileSepaDirectDebitB2BVisible={
+                            features.merchantProfileSepaDirectDebitB2BVisible
+                          }
+                          merchantProfileInternalDirectDebitCoreVisible={
+                            features.merchantProfileInternalDirectDebitCoreVisible
+                          }
+                          merchantProfileInternalDirectDebitB2BVisible={
+                            features.merchantProfileInternalDirectDebitB2BVisible
+                          }
+                          merchantProfileCheckVisible={features.merchantProfileCheckVisible}
+                        />
+                      ))
                       .with({ name: "AccountActivation" }, () => (
                         <AccountActivationPage
                           hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}

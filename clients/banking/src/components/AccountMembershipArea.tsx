@@ -11,6 +11,7 @@ import {
 } from "../graphql/partner";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { AccountArea } from "./AccountArea";
 import { AccountActivationTag } from "./AccountPicker";
 import { ErrorView } from "./ErrorView";
@@ -26,6 +27,9 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,
   );
+
+  const isMerchantFlagActive = useTgglFlag("merchantWebBanking").getOr(false);
+
   const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);
 
   useEffect(() => {
@@ -153,6 +157,20 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   memberListVisible: webBankingSettings?.memberListVisible ?? false,
                   physicalCardOrderVisible: webBankingSettings?.physicalCardOrderVisible ?? false,
                   virtualCardOrderVisible: webBankingSettings?.virtualCardOrderVisible ?? false,
+                  merchantProfileCreationVisible:
+                    webBankingSettings?.merchantProfileCreationVisible ?? false,
+                  merchantProfileCardVisible:
+                    webBankingSettings?.merchantProfileCardVisible ?? false,
+                  merchantProfileSepaDirectDebitCoreVisible:
+                    webBankingSettings?.merchantProfileSepaDirectDebitCoreVisible ?? false,
+                  merchantProfileSepaDirectDebitB2BVisible:
+                    webBankingSettings?.merchantProfileSepaDirectDebitB2BVisible ?? false,
+                  merchantProfileInternalDirectDebitCoreVisible:
+                    webBankingSettings?.merchantProfileInternalDirectDebitCoreVisible ?? false,
+                  merchantProfileInternalDirectDebitB2BVisible:
+                    webBankingSettings?.merchantProfileInternalDirectDebitB2BVisible ?? false,
+                  merchantProfileCheckVisible:
+                    webBankingSettings?.merchantProfileCheckVisible ?? false,
                 };
 
                 const account = accountMembership.account;
@@ -262,6 +280,9 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   )
                   .otherwise(() => "none");
 
+                const merchantProfilesCount =
+                  accountMembership.account?.merchantProfiles?.totalCount ?? 0;
+
                 return Result.Ok({
                   accountMembership,
                   user,
@@ -291,13 +312,17 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                       (canManageCards && features.virtualCardOrderVisible),
                     members:
                       canViewAccount && canManageAccountMembership && features.memberListVisible,
+                    merchants:
+                      isMerchantFlagActive &&
+                      canManageAccountMembership &&
+                      (merchantProfilesCount > 0 || features.merchantProfileCreationVisible),
                   },
                 });
               },
             )
             .otherwise(() => Result.Error(undefined));
         }),
-    [data, lastRelevantIdentification],
+    [data, lastRelevantIdentification, isMerchantFlagActive],
   );
 
   return match(info)

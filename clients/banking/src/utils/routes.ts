@@ -92,6 +92,16 @@ const routes = {
         }),
       },
     ),
+
+    ...createGroup("Merchants", "/merchants", {
+      Area: "/*",
+      Root: "/?:new{true}",
+      List: "/profiles?:status{Active|Inactive}",
+      ...createGroup("Profile", "/:merchantProfileId", {
+        Area: "/*",
+        Settings: "/",
+      }),
+    }),
   }),
 } as const;
 
@@ -124,6 +134,7 @@ export const accountAreaRoutes = [
   "AccountCardsArea",
   "AccountMembersArea",
   "AccountDetailsArea",
+  "AccountMerchantsArea",
 ] as const satisfies RouteName[];
 
 export const accountTransactionsRoutes = [

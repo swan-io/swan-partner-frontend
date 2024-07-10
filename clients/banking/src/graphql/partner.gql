@@ -341,6 +341,9 @@ query AccountArea($accountMembershipId: ID!) {
         }
         verificationStatus
       }
+      merchantProfiles(first: 0) {
+        totalCount
+      }
       transactions(first: 0) {
         totalCount
       }
@@ -374,6 +377,13 @@ query AccountArea($accountMembershipId: ID!) {
       transferCreationVisible: canInitiatePaymentsToNewBeneficiaries
       virtualCardOrderVisible: canOrderVirtualCards
       virtualIbansVisible: canManageVirtualIbans
+      merchantProfileCreationVisible: canCreateMerchantProfile
+      merchantProfileCardVisible: canRequestOnlineCardsPaymentMethod
+      merchantProfileSepaDirectDebitCoreVisible: canRequestSepaDirectDebitCorePaymentMethod
+      merchantProfileSepaDirectDebitB2BVisible: canRequestSepaDirectDebitB2BPaymentMethod
+      merchantProfileInternalDirectDebitCoreVisible: canRequestInternalDirectDebitCorePaymentMethod
+      merchantProfileInternalDirectDebitB2BVisible: canRequestInternalDirectDebitB2BPaymentMethod
+      merchantProfileCheckVisible: canRequestChecksPaymentMethod
     }
     supportingDocumentSettings {
       collectMode
@@ -2323,6 +2333,54 @@ query GetInternationalCreditTransferTransactionDetailsDynamicForm(
   }
 }
 
+query MerchantRoot($accountId: ID!) {
+  account(accountId: $accountId) {
+    merchantProfiles(
+      first: 1
+      orderBy: { field: createdAt, direction: Desc }
+      filters: { status: [PendingReview, Enabled] }
+    ) {
+      totalCount
+      edges {
+        node {
+          id
+        }
+      }
+    }
+  }
+}
+
+query MerchantProfile($merchantProfileId: ID!) {
+  merchantProfile(id: $merchantProfileId) {
+    ...MerchantProfile
+  }
+}
+
+query MerchantProfiles(
+  $accountId: ID!
+  $filters: MerchantProfileFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  account(accountId: $accountId) {
+    merchantProfiles(filters: $filters, first: $first, after: $after) {
+      totalCount
+      edges {
+        cursor
+        node {
+          ...MerchantProfile
+        }
+      }
+      pageInfo {
+        hasNextPage
+        hasPreviousPage
+        startCursor
+        endCursor
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2761,6 +2819,125 @@ mutation InitiateInternationalCreditTransfer($input: InitiateInternationalCredit
           }
         }
       }
+    }
+  }
+}
+
+fragment MerchantPaymentMethod on MerchantPaymentMethod {
+  __typename
+  id
+  type
+  methodId
+  updatedAt
+  version
+  rollingReserve {
+    percentage
+    rollingDays
+  }
+  statusInfo {
+    __typename
+    status
+  }
+  ... on SepaDirectDebitB2BMerchantPaymentMethod {
+    sepaCreditorIdentifier
+    useSwanSepaCreditorIdentifier
+  }
+  ... on SepaDirectDebitCoreMerchantPaymentMethod {
+    sepaCreditorIdentifier
+    useSwanSepaCreditorIdentifier
+  }
+}
+
+fragment MerchantProfile on MerchantProfile {
+  id
+  accentColor
+  accountId
+  createdAt
+  updatedAt
+  expectedAverageBasket {
+    value
+    currency
+  }
+  expectedMonthlyPaymentVolume {
+    value
+    currency
+  }
+  merchantLogoUrl
+  merchantName
+  merchantWebsite
+  productType
+  statusInfo {
+    status
+  }
+  merchantPaymentMethods {
+    ...MerchantPaymentMethod
+  }
+  requestMerchantProfileUpdate {
+    status
+    merchantName
+    merchantWebsite
+    merchantLogoUrl
+    productType
+    expectedMonthlyPaymentVolume {
+      value
+      currency
+    }
+    expectedAverageBasket {
+      value
+      currency
+    }
+  }
+}
+
+mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
+  addMerchantProfile(input: $input) {
+    ... on AddMerchantProfileSuccessPayload {
+      merchantProfile {
+        ...MerchantProfile
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantPaymentMethods($input: RequestMerchantPaymentMethodsInput!) {
+  requestMerchantPaymentMethods(input: $input) {
+    __typename
+    ... on RequestMerchantPaymentMethodsSuccessPayload {
+      merchantProfile {
+        id
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantPaymentMethodsUpdate($input: RequestMerchantPaymentMethodsUpdateInput!) {
+  requestMerchantPaymentMethodsUpdate(input: $input) {
+    __typename
+    ... on RequestMerchantPaymentMethodsUpdateSuccessPayload {
+      paymentMethodId
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!) {
+  requestMerchantProfileUpdate(input: $input) {
+    __typename
+    ... on RequestMerchantProfileUpdateSuccessPayload {
+      requestMerchantProfileUpdate {
+        id
+      }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

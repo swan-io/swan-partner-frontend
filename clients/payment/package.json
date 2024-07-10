@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/payment",
-  "version": "1.16.8",
+  "version": "1.16.9",
   "private": true,
   "engines": {
     "node": ">=18.20.0",

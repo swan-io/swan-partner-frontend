@@ -365,7 +365,7 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
                       }
                       error={error}
                       icon="image-regular"
-                      accept={["image/png", "image/jpeg"]}
+                      accept={["image/png"]}
                       maxSize={1000 * 1000} // 1MB
                       description={t("merchantProfile.request.merchantLogo.acceptedImageUpload")}
                       onFiles={files => {

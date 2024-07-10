@@ -481,7 +481,7 @@
   "merchantProfile.request.accentColor.label": "Korostusväri",
   "merchantProfile.request.expectedAverageBasket.label": "Odotettu keskimääräinen tapahtuma",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Odotettu kuukausittainen maksutapahtumien määrä",
-  "merchantProfile.request.merchantLogo.acceptedImageUpload": "JPEG tai PNG, enintään 1MB",
+  "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, enintään 1MB",
   "merchantProfile.request.merchantLogo.label": "Kauppiaan logo",
   "merchantProfile.request.merchantName.label": "Kauppiaan nimi",
   "merchantProfile.request.merchantWebsite.label": "Kauppiaan verkkosivusto",

@@ -77,7 +77,7 @@ export const BeneficiaryInternationalWizard = ({
         input: {
           accountId,
           currency: beneficiary.currency,
-          details: beneficiary.results,
+          details: beneficiary.values,
           name: beneficiary.name,
           route: beneficiary.route,
           consentRedirectUrl:

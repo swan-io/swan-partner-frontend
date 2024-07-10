@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Ingresa los detalles de tu transferencia",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "El valor no coincide con el formato esperado",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "El valor no coincide con el formato esperado (ejemplo: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Tipo de campo no implementado.",
   "transfer.new.internationalTransfer.beneficiary.name": "Nombre del beneficiario",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Tengo la siguiente información de mi beneficiario:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Beneficiario:",

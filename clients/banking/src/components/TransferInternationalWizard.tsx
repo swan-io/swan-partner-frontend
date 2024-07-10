@@ -108,9 +108,9 @@ export const TransferInternationalWizard = ({
           name: beneficiary.name,
           currency: amount.currency,
           route: beneficiary.route as InternationalCreditTransferRouteInput,
-          details: beneficiary.results,
+          details: beneficiary.values,
         },
-        internationalCreditTransferDetails: details.results,
+        internationalCreditTransferDetails: details.values,
         consentRedirectUrl:
           window.location.origin +
           Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),

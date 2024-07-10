@@ -9,11 +9,10 @@ import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { animations, colors } from "@swan-io/lake/src/constants/design";
-import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -25,10 +24,10 @@ import { getInternationalTransferFormRouteLabel } from "../utils/templateTransla
 import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import {
-  DynamicFormApi,
-  ResultItem,
-  TransferInternationalDynamicFormBuilder,
-} from "./TransferInternationalDynamicFormBuilder";
+  DynamicFormRef,
+  FormValue,
+  TransferInternationalDynamicForm,
+} from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
 
 const styles = StyleSheet.create({
@@ -40,7 +39,7 @@ const styles = StyleSheet.create({
 export type Beneficiary = {
   name: string;
   route: string;
-  results: InternationalBeneficiaryDetailsInput[];
+  values: InternationalBeneficiaryDetailsInput[];
 };
 
 type Props = {
@@ -62,30 +61,30 @@ export const TransferInternationalWizardBeneficiary = ({
     Option.fromNullable(initialBeneficiary?.route),
   );
 
-  const [results, setResults] = useState(initialBeneficiary?.results ?? []);
-
-  const dynamicFormApiRef = useRef<DynamicFormApi | null>(null);
+  const dynamicFormRef = useRef<DynamicFormRef>(null);
 
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
-      dynamicFields: initialBeneficiary?.results,
+      dynamicFields: initialBeneficiary?.values,
       amountValue: amount.value,
       currency: amount.currency,
       // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
       language: locale.language === "fi" ? "en" : locale.language,
     },
+    { normalize: false },
   );
 
   const { Field, submitForm } = useForm<{ name: string }>({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
   });
 
-  const handleOnResultsChange = useDebounce<ResultItem[]>(value => {
-    const nextResults = value.filter(({ value }) => isNotEmpty(value));
-    setResults(nextResults);
-    setVariables({ dynamicFields: nextResults });
-  }, 1000);
+  const onRefreshRequest = useCallback(
+    (values: FormValue[]) => {
+      setVariables({ dynamicFields: values.filter(({ value }) => isNotEmpty(value)) });
+    },
+    [setVariables],
+  );
 
   return match(
     data
@@ -156,35 +155,38 @@ export const TransferInternationalWizardBeneficiary = ({
 
             <Space height={8} />
 
-            <View {...(isLoading && animations.heartbeat)}>
-              <LakeLabel
-                label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
-                style={routes.length < 2 && styles.hidden}
-                render={() => (
-                  <>
-                    <Space height={8} />
+            <LakeLabel
+              label={t("transfer.new.internationalTransfer.beneficiary.route.intro")}
+              style={routes.length < 2 && styles.hidden}
+              render={() => (
+                <>
+                  <Space height={8} />
 
-                    <RadioGroup
-                      items={routes}
-                      value={selectedRoute}
-                      onValueChange={route => setRoute(Option.Some(route))}
-                    />
+                  <RadioGroup
+                    items={routes}
+                    value={selectedRoute}
+                    onValueChange={route => setRoute(Option.Some(route))}
+                  />
 
-                    <Space height={32} />
-                  </>
-                )}
-              />
+                  <Space height={32} />
+                </>
+              )}
+            />
 
-              {fields.length > 0 ? (
-                <TransferInternationalDynamicFormBuilder
-                  key={selectedRoute}
-                  ref={dynamicFormApiRef}
-                  fields={fields}
-                  results={results}
-                  onChange={handleOnResultsChange}
-                />
-              ) : null}
-            </View>
+            <TransferInternationalDynamicForm
+              ref={dynamicFormRef}
+              fields={fields}
+              initialValues={initialBeneficiary?.values ?? []}
+              onRefreshRequest={onRefreshRequest}
+              refreshing={isLoading}
+              onSubmit={values => {
+                submitForm({
+                  onSuccess: ({ name }) => {
+                    name.tapSome(name => onSave({ name, route: selectedRoute, values }));
+                  },
+                });
+              }}
+            />
           </Tile>
 
           <Space height={32} />
@@ -201,13 +203,9 @@ export const TransferInternationalWizardBeneficiary = ({
                   disabled={data.isLoading()}
                   grow={small}
                   onPress={() => {
-                    dynamicFormApiRef.current?.submitDynamicForm(() =>
-                      submitForm({
-                        onSuccess: ({ name }) => {
-                          name.tapSome(name => onSave({ name, route: selectedRoute, results }));
-                        },
-                      }),
-                    );
+                    if (dynamicFormRef.current != null) {
+                      dynamicFormRef.current.submit();
+                    }
                   }}
                 >
                   {t("common.continue")}

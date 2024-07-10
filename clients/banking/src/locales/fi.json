@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Anna tietoja siirrosta",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "Arvo ei vastaa odotettua muotoa",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "Arvo ei vastaa odotettua kuviota (esimerkki: {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Kentän tyyppiä ei ole otettu käyttöön.",
   "transfer.new.internationalTransfer.beneficiary.name": "Vastaanottajan nimi",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Minulla on vastaanottajan:",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Vastaanottaja:",

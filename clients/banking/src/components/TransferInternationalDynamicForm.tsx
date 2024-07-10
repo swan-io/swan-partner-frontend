@@ -1,4 +1,4 @@
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { Array, Dict, Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -6,129 +6,95 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
-import { Form, FormConfig, combineValidators, useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import { P, match } from "ts-pattern";
-import {
-  DateField,
-  InternationalBeneficiaryDetailsInput,
-  InternationalCreditTransferDetailsInput,
-  RadioField,
-  SelectField,
-  TextField,
-} from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { DateField, RadioField, SelectField, TextField } from "../graphql/partner";
 import { validatePattern, validateRequired } from "../utils/validations";
 
 export type DynamicFormField = SelectField | TextField | DateField | RadioField;
 
-export type ResultItem =
-  | InternationalBeneficiaryDetailsInput
-  | InternationalCreditTransferDetailsInput;
+export type FormValue = { key: string; value: string };
 
-type DynamicForm = Form<Record<string, string>>;
-
-export type DynamicFormApi = {
-  submitDynamicForm: (onSuccess: () => void) => void;
+export type DynamicFormRef = {
+  submit: () => void;
 };
 
-type TransferInternationalDynamicFormBuilderProps = {
+type Props = {
   fields: DynamicFormField[];
-  results: ResultItem[];
-  onChange: (results: ResultItem[]) => void;
+  initialValues: FormValue[];
+  refreshing: boolean;
+  onRefreshRequest: (values: FormValue[]) => void;
+  onSubmit: (values: FormValue[]) => void;
 };
 
-export const TransferInternationalDynamicFormBuilder = forwardRef<
-  DynamicFormApi,
-  TransferInternationalDynamicFormBuilderProps
->(({ results = [], onChange, fields = [] }, forwardedRef) => {
-  const resultsRef = useRef<ResultItem[]>();
-  resultsRef.current = results;
+export const TransferInternationalDynamicForm = forwardRef<DynamicFormRef, Props>(
+  ({ initialValues, onRefreshRequest, refreshing, onSubmit, fields }, forwardedRef) => {
+    // keep it in a ref as we only care about the values on mount
+    const initialValuesRef = useRef(initialValues);
 
-  const form = useMemo(
-    () =>
-      fields.reduce<FormConfig<Record<string, string>>>((acc, field) => {
-        const initialValue =
-          resultsRef.current?.find(({ key: current }) => current === field.key)?.value ?? "";
+    const form = useMemo(() => {
+      return Dict.fromEntries(
+        fields.map(field => [
+          field.key,
+          {
+            initialValue: Array.findMap(initialValuesRef.current, value =>
+              value.key === field.key ? Option.Some(value.value) : Option.None(),
+            ).getOr(""),
+            validate: combineValidators(
+              field.required && validateRequired,
+              match(field)
+                .with({ validationRegex: P.string }, ({ validationRegex, example }) =>
+                  validatePattern(validationRegex, example ?? undefined),
+                )
+                .otherwise(() => false),
+            ),
+          },
+        ]),
+      );
+    }, [fields]);
 
-        acc[field.key] = {
-          initialValue,
-          validate: combineValidators(
-            field.required && validateRequired,
-
-            match(field)
-              .with({ validationRegex: P.string }, ({ validationRegex, example }) =>
-                validatePattern(validationRegex, example ?? undefined),
-              )
-              .otherwise(() => false),
-          ),
-        };
-
-        return acc;
-      }, {}),
-    [fields],
-  );
-
-  return (
-    fields.length > 0 && (
-      <DynamicForm
-        ref={forwardedRef}
-        fields={fields}
-        form={form}
-        key={fields.map(item => item.key).join()}
-        onChange={onChange}
-      />
-    )
-  );
-});
-
-type DynamicFormProps = {
-  fields: DynamicFormField[];
-  form: FormConfig<Record<string, string>>;
-  onChange: (results: ResultItem[]) => void;
-};
-
-const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
-  ({ fields, form, onChange }, forwardedRef) => {
-    const { Field, listenFields, submitForm, validateField, getFieldValue } = useForm(form);
+    const { Field, submitForm, listenFields } = useForm(form);
 
     useImperativeHandle(
       forwardedRef,
       () => ({
-        submitDynamicForm: onSuccess => {
-          submitForm({ onSuccess });
+        submit: () => {
+          submitForm({
+            onSuccess: formValues => {
+              const values = Option.allFromDict(formValues)
+                .map(Dict.entries)
+                .getOr([])
+                .map(([key, value]) => ({
+                  key,
+                  value,
+                }));
+              onSubmit(values);
+            },
+          });
         },
       }),
-      [submitForm],
+      [submitForm, onSubmit],
     );
 
     useEffect(() => {
-      const keys = Object.keys(form);
+      const refreshingFields = Array.filterMap(fields, field =>
+        match(field)
+          .with(
+            { __typename: "RadioField", refreshDynamicFieldsOnChange: true },
+            { __typename: "SelectField", refreshDynamicFieldsOnChange: true },
+            { __typename: "TextField", refreshDynamicFieldsOnChange: true },
+            field => Option.Some(field.key),
+          )
+          .otherwise(() => Option.None()),
+      );
 
-      listenFields(keys, values => {
-        onChange(
-          Object.entries(values).map(([key, { value }]) => ({
-            key,
-            value: String(value),
-          })),
-        );
+      const unsubscribe = listenFields(refreshingFields, fields => {
+        onRefreshRequest(Dict.entries(fields).map(([key, { value }]) => ({ key, value })));
       });
-    }, [form, onChange, listenFields]);
 
-    useEffect(() => {
-      fields.forEach(({ key }) => {
-        const value = getFieldValue(key);
-
-        if (isNotNullishOrEmpty(value)) {
-          validateField(key);
-        }
-      });
-    }, [form, fields, getFieldValue, validateField]);
-
-    if (fields.length === 0) {
-      return null;
-    }
+      return () => unsubscribe();
+    }, [fields, listenFields, onRefreshRequest]);
 
     return fields.map((field: DynamicFormField) => (
       <LakeLabel
@@ -146,6 +112,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
                     items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                     value={value}
                     onValueChange={onChange}
+                    readOnly={refreshing}
                   />
                 )}
               </Field>
@@ -163,6 +130,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
                     onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
+                    readOnly={refreshing}
                   />
                 )}
               </Field>
@@ -177,6 +145,7 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
                       items={allowedValues.map(({ name, key: value }) => ({ name, value }))}
                       value={value}
                       onValueChange={onChange}
+                      disabled={refreshing}
                     />
 
                     <LakeText color={colors.negative[400]}>{error ?? " "}</LakeText>
@@ -196,16 +165,12 @@ const DynamicForm = forwardRef<DynamicFormApi, DynamicFormProps>(
                     onChangeText={onChange}
                     onBlur={onBlur}
                     inputMode="text"
+                    readOnly={refreshing}
                   />
                 )}
               </Field>
             ))
-            .otherwise(() => (
-              <LakeAlert
-                variant="error"
-                title={t("transfer.new.internationalTransfer.beneficiary.form.field.unknown")}
-              />
-            ))
+            .exhaustive()
         }
       />
     ));

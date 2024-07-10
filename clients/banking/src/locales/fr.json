@@ -1030,7 +1030,6 @@
   "transfer.new.internationalTransfer.amount.title": "Saisissez les détails de votre virement",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid": "La valeur ne correspond pas au format de référence",
   "transfer.new.internationalTransfer.beneficiary.form.field.invalid.example": "La valeur ne correspond pas au format de référence (exemple : {example})",
-  "transfer.new.internationalTransfer.beneficiary.form.field.unknown": "Cet élément n'a pas été implémenté.",
   "transfer.new.internationalTransfer.beneficiary.name": "Nom du bénéficiaire",
   "transfer.new.internationalTransfer.beneficiary.route.intro": "Je dispose des informations suivantes sur mon bénéficiaire :",
   "transfer.new.internationalTransfer.beneficiary.summary.title": "Bénéficiaire :",

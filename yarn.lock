@@ -2122,39 +2122,16 @@
     "@swan-io/request" "^1.0.6"
     ts-pattern "^5.1.0"
 
-"@swan-io/lake@8.9.2":
-  version "8.9.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.9.2.tgz#96d7a7bb03106f5b6f188ddec1c3abc88a40c5a8"
-  integrity sha512-UtmS7Hs49fbkeJ+7DVhLxXqc/qu1Tcr+ID5n6cGhrrNFhtLhOaNvE4uXmvgmL/6XaVK5sJsZMxZuRLCcet2gMA==
+"@swan-io/lake@8.10.0":
+  version "8.10.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.10.0.tgz#7e9aecb488cb034094f146e8b89a5df1a341cd87"
+  integrity sha512-seH7mWvsGOqU9GcjisK8KssqtaY3tM9+Qpg0S5yRyDgh5X+2GXpSLfy/CsakzVGl+CuzQ2pcJBz9NBa2gd/ntw==
   dependencies:
     "@react-three/drei" "^9.106.0"
     "@react-three/fiber" "^8.16.7"
     "@swan-io/boxed" "^2.3.0"
     "@swan-io/chicane" "^2.0.0"
-    "@swan-io/use-form" "^2.0.4"
-    dayjs "^1.11.11"
-    polished "^4.3.1"
-    prism-react-renderer "^2.3.1"
-    react "^18.3.1"
-    react-atomic-state "^2.0.0"
-    react-dom "^18.3.1"
-    react-native-web "^0.19.12"
-    rifm "^0.12.1"
-    three "^0.163.0"
-    ts-dedent "^2.2.0"
-    ts-pattern "^5.1.2"
-    uuid "^9.0.1"
-
-"@swan-io/lake@8.9.3":
-  version "8.9.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-8.9.3.tgz#53ddbe5995a34a11c0203cc4fe5c036a80ed536c"
-  integrity sha512-kbtTJFQGT8U1rnJ3OhEU8iniHBGTH8FzQJRp5oJtcg5dA+mZckMcKzw66Tmx6omkFGFygmlx3SFDHHkRrvJoHA==
-  dependencies:
-    "@react-three/drei" "^9.106.0"
-    "@react-three/fiber" "^8.16.7"
-    "@swan-io/boxed" "^2.3.0"
-    "@swan-io/chicane" "^2.0.0"
-    "@swan-io/use-form" "^2.0.4"
+    "@swan-io/use-form" "^2.0.5"
     dayjs "^1.11.11"
     polished "^4.3.1"
     prism-react-renderer "^2.3.1"
@@ -2173,16 +2150,16 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.6.tgz#e46c7a92d4088a484bfd60e180bd2768adb68568"
   integrity sha512-HirhY0gu6aZk95YGXONcmwrfwQ0u5+uZGAtwtSDmrXfCLEGubXb1qIdRMex1e65TroXnTzBG3A65M5EvUB28ZQ==
 
-"@swan-io/shared-business@8.9.2":
-  version "8.9.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.9.2.tgz#068c5596588677c18c5404bf9f5b9248a981fff6"
-  integrity sha512-Kd+UMumNv0fdZAVOBlXrpT3+M8JtEUyBm/O2iU73uqATvU6N3HyGBsrx2cLPgXsr9GlteuqjumrzhFGWOr/gGw==
+"@swan-io/shared-business@8.10.0":
+  version "8.10.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.10.0.tgz#c8086971a562bdcd13234f5651f927243fab27e9"
+  integrity sha512-tCwgS+Wkt/P26Um5JqvkL64TIEMi9mkbjfbCmjsC7q7+LF4LMGSV5f7CPdcHZ140tpRH5SM4mp8KtIinoG1KyA==
   dependencies:
     "@formatjs/intl" "^2.10.4"
     "@placekit/client-js" "^2.3.0"
     "@swan-io/boxed" "^2.3.0"
     "@swan-io/request" "^1.0.6"
-    "@swan-io/use-form" "^2.0.4"
+    "@swan-io/use-form" "^2.0.5"
     dayjs "^1.11.11"
     iban "^0.0.14"
     react "^18.3.1"
@@ -2194,31 +2171,10 @@
     ts-pattern "^5.1.2"
     uuid "^9.0.1"
 
-"@swan-io/shared-business@8.9.3":
-  version "8.9.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-8.9.3.tgz#05a8b5724491ad530272b8b231e9c66599bc1f8b"
-  integrity sha512-AiXUF3VWa+Ii3ZbU5qZHNnFwaO2mYG+biXTfdFAog7t8AyNolq4ZMNpc3ncLN0/HemRzjVbw1Rfn+ysry0PllA==
-  dependencies:
-    "@formatjs/intl" "^2.10.4"
-    "@placekit/client-js" "^2.3.0"
-    "@swan-io/boxed" "^2.3.0"
-    "@swan-io/request" "^1.0.6"
-    "@swan-io/use-form" "^2.0.4"
-    dayjs "^1.11.11"
-    iban "^0.0.14"
-    react "^18.3.1"
-    react-atomic-state "^2.0.0"
-    react-dom "^18.3.1"
-    react-dropzone "^14.2.3"
-    react-native-web "^0.19.12"
-    rifm "^0.12.1"
-    ts-pattern "^5.1.2"
-    uuid "^9.0.1"
-
-"@swan-io/use-form@2.0.4", "@swan-io/use-form@^2.0.4":
-  version "2.0.4"
-  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.4.tgz#791bf5e8a1fe507b7d174b877b02e688c8c8564f"
-  integrity sha512-z4K2rq+hFIS1ZHDw4Ifse/5OAS8M3lU7P+GDydQ2Q+Zki9CUVMQwvHuwQf1fn/k/dLpYd/AjrpHw7D7xFu3rTw==
+"@swan-io/use-form@2.0.5", "@swan-io/use-form@^2.0.5":
+  version "2.0.5"
+  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.5.tgz#6220148e0259fc6b1abe271d40b21ce6557d924f"
+  integrity sha512-UZbrngc1JPGJQ47APmWEQ/KVBoR/gNHZJrJNoC1qr95OZnfyxBQtNPmRbuCWqWKLIR8lYejk3Iw8VY4Gbon8CQ==
   dependencies:
     "@swan-io/boxed" "^2.3.0"
 

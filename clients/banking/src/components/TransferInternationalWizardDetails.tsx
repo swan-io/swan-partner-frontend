@@ -60,6 +60,7 @@ export const TransferInternationalWizardDetails = ({
       dynamicFields: initialDetails?.values,
       beneficiaryDetails: beneficiary.values,
     },
+    { normalize: false },
   );
 
   useEffect(() => {

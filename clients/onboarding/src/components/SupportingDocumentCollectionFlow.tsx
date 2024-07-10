@@ -113,6 +113,9 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
         }),
       ),
       supportingDocumentCollection => {
+        const requiredPurposes = new Set(
+          supportingDocumentCollection.requiredSupportingDocumentPurposes.map(item => item.name),
+        );
         const docs = Array.filterMap(supportingDocumentCollection.supportingDocuments, document =>
           match(document)
             .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
@@ -132,29 +135,35 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, () =>
               Option.None(),
             )
-            .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
-              Option.Some({
-                purpose: document.supportingDocumentPurpose,
-                file: {
-                  id: document.id,
-                  name: document.statusInfo.filename,
-                  url: document.statusInfo.downloadUrl,
-                  statusInfo: { status: "Refused", reason: document.statusInfo.reason },
-                },
-              }),
+            .with(
+              { statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } },
+              document =>
+                requiredPurposes.has(document.supportingDocumentPurpose)
+                  ? Option.Some({
+                      purpose: document.supportingDocumentPurpose,
+                      file: {
+                        id: document.id,
+                        name: document.statusInfo.filename,
+                        url: document.statusInfo.downloadUrl,
+                        statusInfo: { status: "Refused", reason: document.statusInfo.reason },
+                      },
+                    })
+                  : Option.None(),
             )
             .with(
               { statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } },
               document =>
-                Option.Some({
-                  purpose: document.supportingDocumentPurpose,
-                  file: {
-                    id: document.id,
-                    name: document.statusInfo.filename,
-                    url: document.statusInfo.downloadUrl,
-                    statusInfo: { status: "Uploaded" },
-                  },
-                }),
+                requiredPurposes.has(document.supportingDocumentPurpose)
+                  ? Option.Some({
+                      purpose: document.supportingDocumentPurpose,
+                      file: {
+                        id: document.id,
+                        name: document.statusInfo.filename,
+                        url: document.statusInfo.downloadUrl,
+                        statusInfo: { status: "Uploaded" },
+                      },
+                    })
+                  : Option.None(),
             )
             .exhaustive(),
         );

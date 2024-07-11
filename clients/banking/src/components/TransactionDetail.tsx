@@ -27,7 +27,7 @@ import {
   isNotNullishOrEmpty,
   isNullish,
 } from "@swan-io/lake/src/utils/nullish";
-import { countries } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { useState } from "react";
 import { Image, StyleSheet, Text } from "react-native";
@@ -888,13 +888,22 @@ export const TransactionDetail = ({
                   {
                     __typename: "CardTransaction",
                     merchantCity: P.select("merchantCity", P.string),
+                    merchantCountry: P.select("merchantCountry", P.string),
                     enrichedTransactionInfo: P.select("enrichedTransactionInfo", P.nonNullable),
                   },
-                  ({ merchantCity, enrichedTransactionInfo }) => {
+                  ({ merchantCity, merchantCountry, enrichedTransactionInfo }) => {
                     const contactWebsite = enrichedTransactionInfo.contactWebsite;
                     const contactEmail = enrichedTransactionInfo.contactEmail;
                     const contactPhone = enrichedTransactionInfo.contactPhone;
                     const city = enrichedTransactionInfo.city ?? merchantCity;
+                    const countryCCA3 = (enrichedTransactionInfo.country ?? merchantCountry) as
+                      | CountryCCA3
+                      | null
+                      | undefined;
+
+                    const countryName = countries.find(
+                      country => country.cca3 === countryCCA3,
+                    )?.name;
 
                     return (
                       <ReadOnlyFieldList>
@@ -991,11 +1000,8 @@ export const TransactionDetail = ({
 
                         <Line label={t("transaction.city")} text={city} />
 
-                        {enrichedTransactionInfo.country != null ? (
-                          <Line
-                            label={t("transaction.country")}
-                            text={enrichedTransactionInfo.country}
-                          />
+                        {countryName != null ? (
+                          <Line label={t("transaction.country")} text={countryName} />
                         ) : null}
                       </ReadOnlyFieldList>
                     );

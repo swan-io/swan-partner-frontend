@@ -24,7 +24,6 @@ import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
@@ -212,7 +211,7 @@ export const AccountArea = ({
     .getOr(false);
 
   const account = accountMembership.account;
-  const accountCountry = account?.country ?? undefined;
+  const accountCountry = accountMembership.accountCountry;
   const holder = account?.holder;
 
   const isIndividual = holder?.info.__typename === "AccountHolderIndividualInfo";
@@ -552,24 +551,21 @@ export const AccountArea = ({
 
                       .with(
                         { name: "AccountPaymentsArea" },
-                        ({ params: { consentId, kind, status } }) =>
-                          isNullish(accountCountry) ? (
-                            <ErrorView />
-                          ) : (
-                            <TransferArea
-                              accountCountry={accountCountry}
-                              accountId={accountId}
-                              accountMembershipId={accountMembershipId}
-                              canQueryCardOnTransaction={canQueryCardOnTransaction}
-                              canViewAccount={accountMembership.canViewAccount}
-                              transferConsent={
-                                consentId != null && kind != null && status != null
-                                  ? Option.Some({ kind, status })
-                                  : Option.None()
-                              }
-                              transferCreationVisible={features.transferCreationVisible}
-                            />
-                          ),
+                        ({ params: { consentId, kind, status } }) => (
+                          <TransferArea
+                            accountCountry={accountCountry}
+                            accountId={accountId}
+                            accountMembershipId={accountMembershipId}
+                            canQueryCardOnTransaction={canQueryCardOnTransaction}
+                            canViewAccount={accountMembership.canViewAccount}
+                            transferConsent={
+                              consentId != null && kind != null && status != null
+                                ? Option.Some({ kind, status })
+                                : Option.None()
+                            }
+                            transferCreationVisible={features.transferCreationVisible}
+                          />
+                        ),
                       )
                       .with({ name: "AccountCardsArea" }, () => (
                         <CardsArea
@@ -597,7 +593,7 @@ export const AccountArea = ({
                                   permissions.canViewAccount && permissions.canManageCards
                                 }
                                 onAccountMembershipUpdate={reload}
-                                accountCountry={currentUserAccountMembership.account.country}
+                                accountCountry={accountCountry}
                                 params={params}
                                 currentUserAccountMembership={currentUserAccountMembership}
                                 cardOrderVisible={features.virtualCardOrderVisible}

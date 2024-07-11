@@ -81,11 +81,13 @@ type Props = {
   onPressClose: () => void;
   accountId: string;
   accountMembershipId: string;
+  canViewAccount: boolean;
 };
 export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
+  canViewAccount,
 }: Props) => {
   const [step, setStep] = useState<Step>({ name: "Amount" });
 
@@ -113,7 +115,9 @@ export const TransferInternationalWizard = ({
         internationalCreditTransferDetails: details.values,
         consentRedirectUrl:
           window.location.origin +
-          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
+          (canViewAccount
+            ? Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" })
+            : Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" })),
       },
     })
       .mapOk(data => data.initiateInternationalCreditTransfer)

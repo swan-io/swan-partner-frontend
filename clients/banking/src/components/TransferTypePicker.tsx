@@ -40,6 +40,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   accountCountry: AccountCountry;
+  canViewAccount: boolean;
   type: GetRouteParams<"AccountPaymentsNew">["type"];
 };
 
@@ -47,6 +48,7 @@ export const TransferTypePicker = ({
   accountMembershipId,
   accountId,
   accountCountry,
+  canViewAccount,
   type,
 }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
@@ -124,6 +126,7 @@ export const TransferTypePicker = ({
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
@@ -133,6 +136,7 @@ export const TransferTypePicker = ({
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
@@ -141,6 +145,7 @@ export const TransferTypePicker = ({
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
@@ -150,6 +155,7 @@ export const TransferTypePicker = ({
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
     </>

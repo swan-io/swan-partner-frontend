@@ -303,7 +303,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                     history: canViewAccount,
                     account: canViewAccount && features.accountVisible,
                     transfer:
-                      canViewAccount &&
                       canInitiatePayments &&
                       accountMembership.statusInfo.status === "Enabled" &&
                       (features.transferCreationVisible || features.paymentListVisible),

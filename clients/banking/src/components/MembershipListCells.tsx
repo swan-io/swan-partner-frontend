@@ -172,7 +172,7 @@ const getRightsTag = ({ accountMembership }: { accountMembership: AccountMembers
 
           <PermissionLine
             iconName="lake-card-add"
-            isAuthorized={accountMembership.canManageAccountMembership}
+            isAuthorized={accountMembership.canManageCards}
             authorizedMessage={t("members.permission.canManageCards")}
             notAuthorizedMessage={t("members.permission.not.canManageCards")}
           />

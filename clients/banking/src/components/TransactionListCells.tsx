@@ -182,7 +182,6 @@ export const getMerchantCategorySublabel = (subcategory: MerchantSubCategory) =>
 
 export const getMerchantCategoryLabel = (category: MerchantCategory) => {
   return match(category)
-    .returnType<IconName>()
     .with("Culture", () => t("transaction.enriched.category.Culture"))
     .with("Entertainment", () => t("transaction.enriched.category.Entertainment"))
     .with("Finance", () => t("transaction.enriched.category.Finance"))

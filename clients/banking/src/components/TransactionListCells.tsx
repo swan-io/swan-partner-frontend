@@ -52,151 +52,44 @@ const styles = StyleSheet.create({
   },
 });
 
-export const getMerchantCategoryIcon = (category: MerchantCategory) => {
-  return match(category)
-    .returnType<IconName>()
-    .with("Culture", () => "music-note-2-regular")
-    .with("Entertainment", () => "movies-and-tv-regular")
-    .with("Finance", () => "calculator-regular")
-    .with("Groceries", () => "cart-regular")
-    .with("HealthAndBeauty", () => "heart-pulse-regular")
-    .with("HomeAndUtilities", () => "home-regular")
-    .with("Other", () => "payment-regular")
-    .with("ProfessionalServices", () => "people-team-toolbox-regular")
-    .with("PublicAdministrations", () => "gavel-regular")
-    .with("Restaurants", () => "food-regular")
-    .with("Shopping", () => "shopping-bag-regular")
-    .with("Software", () => "laptop-regular")
-    .with("Transport", () => "vehicle-subway-regular")
-    .with("Travel", () => "airplane-regular")
-    .exhaustive();
+const merchantCategoryIcons: Record<MerchantCategory, IconName> = {
+  Culture: "music-note-2-regular",
+  Entertainment: "movies-and-tv-regular",
+  Finance: "calculator-regular",
+  Groceries: "cart-regular",
+  HealthAndBeauty: "heart-pulse-regular",
+  HomeAndUtilities: "home-regular",
+  Other: "payment-regular",
+  ProfessionalServices: "people-team-toolbox-regular",
+  PublicAdministrations: "gavel-regular",
+  Restaurants: "food-regular",
+  Shopping: "shopping-bag-regular",
+  Software: "laptop-regular",
+  Transport: "vehicle-subway-regular",
+  Travel: "airplane-regular",
 };
 
+export const getMerchantCategoryIcon = (category: MerchantCategory) =>
+  merchantCategoryIcons[category];
+
 export const getMerchantCategorySublabel = (subcategory: MerchantSubCategory) => {
-  return match(subcategory)
-    .with("Education", () => t("transaction.enriched.subcategory.Education"))
-    .with("Museums", () => t("transaction.enriched.subcategory.Museums"))
-    .with("CinemasAndShows", () => t("transaction.enriched.subcategory.CinemasAndShows"))
-    .with("GamblingAndBettingActivities", () =>
-      t("transaction.enriched.subcategory.GamblingAndBettingActivities"),
-    )
-    .with("OtherLeisureActivities", () =>
-      t("transaction.enriched.subcategory.OtherLeisureActivities"),
-    )
-    .with("StreamingPlatforms", () => t("transaction.enriched.subcategory.StreamingPlatforms"))
-    .with("ThemeParks", () => t("transaction.enriched.subcategory.ThemeParks"))
-    .with("TicketsAndEvents", () => t("transaction.enriched.subcategory.TicketsAndEvents"))
-    .with("VideoGames", () => t("transaction.enriched.subcategory.VideoGames"))
-    .with("FinancialServices", () => t("transaction.enriched.subcategory.FinancialServices"))
-    .with("Insurance", () => t("transaction.enriched.subcategory.Insurance"))
-    .with("LiquorStore", () => t("transaction.enriched.subcategory.LiquorStore"))
-    .with("SupermarketsAndOtherGroceryStores", () =>
-      t("transaction.enriched.subcategory.SupermarketsAndOtherGroceryStores"),
-    )
-    .with("FitnessAndSports", () => t("transaction.enriched.subcategory.FitnessAndSports"))
-    .with("Hairdressing", () => t("transaction.enriched.subcategory.Hairdressing"))
-    .with("Healthcare", () => t("transaction.enriched.subcategory.Healthcare"))
-    .with("Pharmacies", () => t("transaction.enriched.subcategory.Pharmacies"))
-    .with("SpaAndBeautyTreatments", () =>
-      t("transaction.enriched.subcategory.SpaAndBeautyTreatments"),
-    )
-    .with("ConstructionAndOddJobs", () =>
-      t("transaction.enriched.subcategory.ConstructionAndOddJobs"),
-    )
-    .with("EnergyProviders", () => t("transaction.enriched.subcategory.EnergyProviders"))
-    .with("Gardening", () => t("transaction.enriched.subcategory.Gardening"))
-    .with("Laundries", () => t("transaction.enriched.subcategory.Laundries"))
-    .with("PhoneAndInternetServicesProviders", () =>
-      t("transaction.enriched.subcategory.PhoneAndInternetServicesProviders"),
-    )
-    .with("RealEstate", () => t("transaction.enriched.subcategory.RealEstate"))
-    .with("CharityAndNonProfitOrganizations", () =>
-      t("transaction.enriched.subcategory.CharityAndNonProfitOrganizations"),
-    )
-    .with("ReligiousOrganizations", () =>
-      t("transaction.enriched.subcategory.ReligiousOrganizations"),
-    )
-    .with("AdvertisingAndMarketing", () =>
-      t("transaction.enriched.subcategory.AdvertisingAndMarketing"),
-    )
-    .with("BookkeepingAndConsultancy", () =>
-      t("transaction.enriched.subcategory.BookkeepingAndConsultancy"),
-    )
-    .with("CourierAndLogistics", () => t("transaction.enriched.subcategory.CourierAndLogistics"))
-    .with("IndustrialCleaning", () => t("transaction.enriched.subcategory.IndustrialCleaning"))
-    .with("LegalActivities", () => t("transaction.enriched.subcategory.LegalActivities"))
-    .with("OtherProfessionalServices", () =>
-      t("transaction.enriched.subcategory.OtherProfessionalServices"),
-    )
-    .with("StationaryServices", () => t("transaction.enriched.subcategory.StationaryServices"))
-    .with("GovernmentAndCityCouncils", () =>
-      t("transaction.enriched.subcategory.GovernmentAndCityCouncils"),
-    )
-    .with("BarsAndRestaurants", () => t("transaction.enriched.subcategory.BarsAndRestaurants"))
-    .with("CoffeeAndBakeries", () => t("transaction.enriched.subcategory.CoffeeAndBakeries"))
-    .with("FoodDelivery", () => t("transaction.enriched.subcategory.FoodDelivery"))
-    .with("PubsAndNightclubs", () => t("transaction.enriched.subcategory.PubsAndNightclubs"))
-    .with("BooksAndNewspapers", () => t("transaction.enriched.subcategory.BooksAndNewspapers"))
-    .with("CigarShops", () => t("transaction.enriched.subcategory.CigarShops"))
-    .with("ClothingShoesAndAccessories", () =>
-      t("transaction.enriched.subcategory.ClothingShoesAndAccessories"),
-    )
-    .with("ComputersAndElectronicDevices", () =>
-      t("transaction.enriched.subcategory.ComputersAndElectronicDevices"),
-    )
-    .with("DepartmentStores", () => t("transaction.enriched.subcategory.DepartmentStores"))
-    .with("Furniture", () => t("transaction.enriched.subcategory.Furniture"))
-    .with("GamesAndToys", () => t("transaction.enriched.subcategory.GamesAndToys"))
-    .with("HardwareStores", () => t("transaction.enriched.subcategory.HardwareStores"))
-    .with("HouseholdItems", () => t("transaction.enriched.subcategory.HouseholdItems"))
-    .with("Pets", () => t("transaction.enriched.subcategory.Pets"))
-    .with("SoftwareServices", () => t("transaction.enriched.subcategory.SoftwareServices"))
-    .with("CarRental", () => t("transaction.enriched.subcategory.CarRental"))
-    .with("MetroBusAndTrains", () => t("transaction.enriched.subcategory.MetroBusAndTrains"))
-    .with("MotorVehiclesRepairsAndAccessories", () =>
-      t("transaction.enriched.subcategory.MotorVehiclesRepairsAndAccessories"),
-    )
-    .with("OtherTransportProviders", () =>
-      t("transaction.enriched.subcategory.OtherTransportProviders"),
-    )
-    .with("PrivateMobilityServices", () =>
-      t("transaction.enriched.subcategory.PrivateMobilityServices"),
-    )
-    .with("ServiceStations", () => t("transaction.enriched.subcategory.ServiceStations"))
-    .with("TollsAndParkings", () => t("transaction.enriched.subcategory.TollsAndParkings"))
-    .with("Airlines", () => t("transaction.enriched.subcategory.Airlines"))
-    .with("FerriesAndBoats", () => t("transaction.enriched.subcategory.FerriesAndBoats"))
-    .with("HotelsAndAccommodation", () =>
-      t("transaction.enriched.subcategory.HotelsAndAccommodation"),
-    )
-    .with("TravelAgents", () => t("transaction.enriched.subcategory.TravelAgents"))
-    .with("ATM", () => t("transaction.enriched.subcategory.ATM"))
-    .with("OfficeRental", () => t("transaction.enriched.subcategory.OfficeRental"))
-    .with("HrAndRecruiting", () => t("transaction.enriched.subcategory.HrAndRecruiting"))
-    .with("Flowers", () => t("transaction.enriched.subcategory.Flowers"))
-    .with("OtherStores", () => t("transaction.enriched.subcategory.OtherStores"))
-    .with("PerfumesAndCosmetics", () => t("transaction.enriched.subcategory.PerfumesAndCosmetics"))
-    .with("Other", () => t("transaction.enriched.subcategory.Other"))
-    .otherwise(value => value);
+  try {
+    return match(`transaction.enriched.subcategory.${subcategory}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return subcategory;
+  }
 };
 
 export const getMerchantCategoryLabel = (category: MerchantCategory) => {
-  return match(category)
-    .with("Culture", () => t("transaction.enriched.category.Culture"))
-    .with("Entertainment", () => t("transaction.enriched.category.Entertainment"))
-    .with("Finance", () => t("transaction.enriched.category.Finance"))
-    .with("Groceries", () => t("transaction.enriched.category.Groceries"))
-    .with("HealthAndBeauty", () => t("transaction.enriched.category.HealthAndBeauty"))
-    .with("HomeAndUtilities", () => t("transaction.enriched.category.HomeAndUtilities"))
-    .with("Other", () => t("transaction.enriched.category.Other"))
-    .with("ProfessionalServices", () => t("transaction.enriched.category.ProfessionalServices"))
-    .with("PublicAdministrations", () => t("transaction.enriched.category.PublicAdministrations"))
-    .with("Restaurants", () => t("transaction.enriched.category.Restaurants"))
-    .with("Shopping", () => t("transaction.enriched.category.Shopping"))
-    .with("Software", () => t("transaction.enriched.category.Software"))
-    .with("Transport", () => t("transaction.enriched.category.Transport"))
-    .with("Travel", () => t("transaction.enriched.category.Travel"))
-    .exhaustive();
+  try {
+    return match(`transaction.enriched.category.${category}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return category;
+  }
 };
 
 const getTransactionIcon = (transaction: Transaction): IconName =>

@@ -4,11 +4,15 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
-import { StyleSheet, View } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { TransactionDetailsFragment } from "../graphql/partner";
+import {
+  MerchantCategory,
+  MerchantSubCategory,
+  TransactionDetailsFragment,
+} from "../graphql/partner";
 import { formatCurrency, isTranslationKey, t } from "../utils/i18n";
 
 type Transaction = TransactionDetailsFragment;
@@ -41,12 +45,61 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
   },
+  merchantLogo: {
+    width: spacings[24],
+    height: spacings[24],
+    borderRadius: radii[4],
+  },
 });
 
+const merchantCategoryIcons: Record<MerchantCategory, IconName> = {
+  Culture: "music-note-2-regular",
+  Entertainment: "movies-and-tv-regular",
+  Finance: "calculator-regular",
+  Groceries: "cart-regular",
+  HealthAndBeauty: "heart-pulse-regular",
+  HomeAndUtilities: "home-regular",
+  Other: "payment-regular",
+  ProfessionalServices: "people-team-toolbox-regular",
+  PublicAdministrations: "gavel-regular",
+  Restaurants: "food-regular",
+  Shopping: "shopping-bag-regular",
+  Software: "laptop-regular",
+  Transport: "vehicle-subway-regular",
+  Travel: "airplane-regular",
+};
+
+export const getMerchantCategoryIcon = (category: MerchantCategory) =>
+  merchantCategoryIcons[category];
+
+export const getMerchantCategorySublabel = (subcategory: MerchantSubCategory) => {
+  try {
+    return match(`transaction.enriched.subcategory.${subcategory}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return subcategory;
+  }
+};
+
+export const getMerchantCategoryLabel = (category: MerchantCategory) => {
+  try {
+    return match(`transaction.enriched.category.${category}`)
+      .with(P.when(isTranslationKey), key => t(key))
+      .exhaustive();
+  } catch {
+    return category;
+  }
+};
+
 const getTransactionIcon = (transaction: Transaction): IconName =>
-  match(transaction.__typename)
+  match(transaction)
     .returnType<IconName>()
-    .with("CardTransaction", () => "payment-regular")
+    .with(
+      { __typename: "CardTransaction", enrichedTransactionInfo: { category: P.select(P.string) } },
+      category => getMerchantCategoryIcon(category),
+    )
+    .with({ __typename: "CardTransaction" }, () => "payment-regular")
     .otherwise(() => "arrow-swap-regular");
 
 export const getTransactionLabel = (transaction: Transaction): string =>
@@ -71,17 +124,27 @@ export const getTransactionLabel = (transaction: Transaction): string =>
 export const TransactionTypeCell = ({ transaction }: { transaction: Transaction }) => {
   return (
     <View style={styles.cell}>
-      <Tag
-        icon={getTransactionIcon(transaction)}
-        color={match(transaction.statusInfo)
-          .with({ __typename: "RejectedTransactionStatusInfo" }, () => "negative" as const)
-          .with(
-            { __typename: "ReleasedTransactionStatusInfo" },
-            { __typename: "BookedTransactionStatusInfo" },
-            () => (transaction.side === "Debit" ? ("gray" as const) : ("positive" as const)),
-          )
-          .otherwise(() => "gray" as const)}
-      />
+      {match(transaction)
+        .with(
+          {
+            __typename: "CardTransaction",
+            enrichedTransactionInfo: { logoUrl: P.select(P.string) },
+          },
+          logoUrl => <Image source={logoUrl} style={styles.merchantLogo} />,
+        )
+        .otherwise(() => (
+          <Tag
+            icon={getTransactionIcon(transaction)}
+            color={match(transaction.statusInfo)
+              .with({ __typename: "RejectedTransactionStatusInfo" }, () => "negative" as const)
+              .with(
+                { __typename: "ReleasedTransactionStatusInfo" },
+                { __typename: "BookedTransactionStatusInfo" },
+                () => (transaction.side === "Debit" ? ("gray" as const) : ("positive" as const)),
+              )
+              .otherwise(() => "gray" as const)}
+          />
+        ))}
     </View>
   );
 };

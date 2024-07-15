@@ -66,6 +66,21 @@ fragment TransactionDetails on Transaction {
       currency
       value
     }
+    enrichedTransactionInfo {
+      enrichedMerchantName
+      isSubscription
+      carbonFootprint
+      contactEmail
+      contactPhone
+      contactWebsite
+      logoUrl
+      category
+      subcategory
+      address
+      city
+      postalCode
+      country
+    }
     card @include(if: $canQueryCardOnTransaction) {
       id
       accountMembership {

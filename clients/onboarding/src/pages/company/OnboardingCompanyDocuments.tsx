@@ -131,7 +131,6 @@ export const OnboardingCompanyDocuments = ({
           file: {
             id: document.id,
             name: document.statusInfo.filename,
-            url: document.statusInfo.downloadUrl,
             statusInfo: { status: "Validated" },
           },
         }),
@@ -142,7 +141,6 @@ export const OnboardingCompanyDocuments = ({
           file: {
             id: document.id,
             name: document.statusInfo.filename,
-            url: document.statusInfo.downloadUrl,
             statusInfo: { status: "Refused", reason: document.statusInfo.reason },
           },
         }),
@@ -153,7 +151,6 @@ export const OnboardingCompanyDocuments = ({
           file: {
             id: document.id,
             name: document.statusInfo.filename,
-            url: document.statusInfo.downloadUrl,
             statusInfo: { status: "Uploaded" },
           },
         }),

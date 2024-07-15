@@ -113,7 +113,6 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             file: {
               id: document.id,
               name: document.statusInfo.filename,
-              url: document.statusInfo.downloadUrl,
               statusInfo: { status: "Validated" },
             },
           }),
@@ -124,7 +123,6 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             file: {
               id: document.id,
               name: document.statusInfo.filename,
-              url: document.statusInfo.downloadUrl,
               statusInfo: { status: "Refused", reason: document.statusInfo.reason },
             },
           }),
@@ -135,7 +133,6 @@ export const SupportingDocumentsForm = forwardRef<SupportingDocumentsFormRef, Pr
             file: {
               id: document.id,
               name: document.statusInfo.filename,
-              url: document.statusInfo.downloadUrl,
               statusInfo: { status: "Uploaded" },
             },
           }),

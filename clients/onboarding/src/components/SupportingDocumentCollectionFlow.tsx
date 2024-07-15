@@ -144,7 +144,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                       file: {
                         id: document.id,
                         name: document.statusInfo.filename,
-                        url: document.statusInfo.downloadUrl,
                         statusInfo: { status: "Refused", reason: document.statusInfo.reason },
                       },
                     })
@@ -159,7 +158,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                       file: {
                         id: document.id,
                         name: document.statusInfo.filename,
-                        url: document.statusInfo.downloadUrl,
                         statusInfo: { status: "Uploaded" },
                       },
                     })

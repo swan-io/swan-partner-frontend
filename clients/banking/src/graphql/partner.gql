@@ -1623,16 +1623,13 @@ query AccountActivationPage($accountMembershipId: ID!) {
                   __typename
 
                   ... on SupportingDocumentRefusedStatusInfo {
-                    downloadUrl
                     filename
                     reason
                   }
                   ... on SupportingDocumentUploadedStatusInfo {
-                    downloadUrl
                     filename
                   }
                   ... on SupportingDocumentValidatedStatusInfo {
-                    downloadUrl
                     filename
                   }
                 }

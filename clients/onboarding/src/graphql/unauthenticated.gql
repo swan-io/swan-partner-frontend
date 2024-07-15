@@ -100,15 +100,12 @@ fragment SupportingDocument on SupportingDocument {
     __typename
     status
     ... on SupportingDocumentUploadedStatusInfo {
-      downloadUrl
       filename
     }
     ... on SupportingDocumentValidatedStatusInfo {
-      downloadUrl
       filename
     }
     ... on SupportingDocumentRefusedStatusInfo {
-      downloadUrl
       reason
       filename
     }

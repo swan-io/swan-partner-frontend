@@ -83,6 +83,7 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
+  canViewAccount: boolean;
 };
 
 export const TransferRegularWizard = ({
@@ -90,6 +91,7 @@ export const TransferRegularWizard = ({
   accountCountry,
   accountId,
   accountMembershipId,
+  canViewAccount,
 }: Props) => {
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
   const [step, setStep] = useState<Step>({ name: "Beneficiary" });
@@ -108,7 +110,9 @@ export const TransferRegularWizard = ({
         accountId,
         consentRedirectUrl:
           window.location.origin +
-          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
+          (canViewAccount
+            ? Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" })
+            : Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" })),
         creditTransfers: [
           {
             amount: details.amount,

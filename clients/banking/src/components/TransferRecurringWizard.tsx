@@ -84,6 +84,7 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
+  canViewAccount: boolean;
 };
 
 export const TransferRecurringWizard = ({
@@ -91,6 +92,7 @@ export const TransferRecurringWizard = ({
   accountCountry,
   accountId,
   accountMembershipId,
+  canViewAccount,
 }: Props) => {
   const [scheduleStandingOrder, standingOrderScheduling] = useMutation(
     ScheduleStandingOrderDocument,
@@ -108,7 +110,12 @@ export const TransferRecurringWizard = ({
   }) => {
     const consentRedirectUrl =
       window.location.origin +
-      Router.AccountPaymentsRecurringTransferList({ accountMembershipId, kind: "standingOrder" });
+      (canViewAccount
+        ? Router.AccountPaymentsRecurringTransferList({
+            accountMembershipId,
+            kind: "standingOrder",
+          })
+        : Router.AccountPaymentsRoot({ accountMembershipId, kind: "standingOrder" }));
 
     scheduleStandingOrder({
       input: {

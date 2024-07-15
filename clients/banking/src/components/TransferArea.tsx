@@ -21,6 +21,7 @@ import { t } from "../utils/i18n";
 import { Router, paymentRoutes } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
+import { Redirect } from "./Redirect";
 import { TransferTypePicker } from "./TransferTypePicker";
 
 const styles = StyleSheet.create({
@@ -79,6 +80,10 @@ export const TransferArea = ({
       },
     ];
   }, [accountMembershipId]);
+
+  if (canViewAccount === false && route?.name !== "AccountPaymentsNew") {
+    return <Redirect to={Router.AccountPaymentsNew({ accountMembershipId })} />;
+  }
 
   return (
     <BreadcrumbsRoot rootLevelCrumbs={rootLevelCrumbs}>
@@ -192,6 +197,7 @@ export const TransferArea = ({
                 accountCountry={accountCountry}
                 accountId={accountId}
                 accountMembershipId={accountMembershipId}
+                canViewAccount={canViewAccount}
                 type={type}
               />
             ) : (

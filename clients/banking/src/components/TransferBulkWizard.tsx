@@ -84,9 +84,15 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
+  canViewAccount: boolean;
 };
 
-export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipId }: Props) => {
+export const TransferBulkWizard = ({
+  onPressClose,
+  accountId,
+  accountMembershipId,
+  canViewAccount,
+}: Props) => {
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
   const [step, setStep] = useState<Step>({ name: "Upload" });
 
@@ -102,7 +108,9 @@ export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipI
         accountId,
         consentRedirectUrl:
           window.location.origin +
-          Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
+          (canViewAccount
+            ? Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" })
+            : Router.AccountPaymentsRoot({ accountMembershipId })),
         creditTransfers: creditTransferInputs.map(creditTransferInput => ({
           ...creditTransferInput,
           ...match(schedule)

@@ -1763,6 +1763,10 @@ query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
           }
           ... on TrustedInternationalBeneficiary {
             currency
+            details {
+              key
+              value
+            }
           }
           ... on TrustedSepaBeneficiary {
             iban

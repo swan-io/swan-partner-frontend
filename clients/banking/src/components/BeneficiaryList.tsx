@@ -135,7 +135,31 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
           t("beneficiaries.accountIdentifier.accountId"),
           accountId,
         ])
-        .with({ __typename: "TrustedInternationalBeneficiary" }, () => ["TODO", "TODO"])
+        .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+          match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
+            .returnType<[string, string]>()
+            .with({ accountNumber: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.accountNumber"),
+              value,
+            ])
+            .with({ IBAN: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.iban"),
+              printFormat(value),
+            ])
+            .with({ customerReferenceNumber: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+              value,
+            ])
+            .with({ clabe: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.clabe"),
+              value,
+            ])
+            .with({ interacAccount: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.interacAccount"),
+              value,
+            ])
+            .otherwise(() => ["", ""]),
+        )
         .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => [
           t("beneficiaries.accountIdentifier.iban"),
           printFormat(iban),

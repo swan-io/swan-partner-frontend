@@ -76,7 +76,6 @@ export const BeneficiaryInternationalWizardForm = ({
   );
 
   const dynamicFormRef = useRef<DynamicFormRef>(null);
-
   const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
 
   const [data, { isLoading, setVariables }] = useQuery(

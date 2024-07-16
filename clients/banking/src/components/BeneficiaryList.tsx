@@ -259,7 +259,6 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
 
 const BeneficiaryListImpl = ({
   rowHeight,
-  large,
   beneficiaries,
   isLoading,
   activeBeneficiaryId,
@@ -267,7 +266,6 @@ const BeneficiaryListImpl = ({
   setVariables,
 }: {
   rowHeight: number;
-  large: boolean;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   params: Params;
@@ -283,35 +281,8 @@ const BeneficiaryListImpl = ({
     [],
   );
 
-  const AddButton = (
-    <LakeButton
-      icon="add-circle-filled"
-      size="small"
-      color="current"
-      onPress={() =>
-        Router.push("AccountPaymentsBeneficiariesNew", {
-          accountMembershipId: params.accountMembershipId,
-        })
-      }
-    >
-      {t("common.add")}
-    </LakeButton>
-  );
-
   return (
     <>
-      {nodes.length > 0 && (
-        <Box
-          alignItems="center"
-          direction="row"
-          style={[styles.header, large && styles.headerLarge]}
-        >
-          {AddButton}
-        </Box>
-      )}
-
-      <Space height={24} />
-
       <PlainListView
         data={nodes}
         keyExtractor={item => item.id}
@@ -325,7 +296,7 @@ const BeneficiaryListImpl = ({
         onActiveRowChange={onActiveRowChange}
         loading={{
           isLoading,
-          count: 2,
+          count: NUM_TO_RENDER,
         }}
         getRowLink={({ item }) => (
           <Link
@@ -347,11 +318,7 @@ const BeneficiaryListImpl = ({
             borderedIconPadding={16}
             title={t("beneficiaries.empty.title")}
             subtitle={t("beneficiaries.empty.subtitle")}
-          >
-            <Space height={24} />
-
-            {AddButton}
-          </FixedListViewEmpty>
+          />
         )}
       />
 
@@ -389,7 +356,7 @@ export const BeneficiaryList = ({
   params: Params;
   activeBeneficiaryId?: string;
 }) => {
-  const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListPageDocument, {
+  const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
   });
@@ -403,30 +370,73 @@ export const BeneficiaryList = ({
       {({ large }) => {
         const rowHeight = large ? 56 : 72;
 
-        return match(beneficiaries)
-          .with(AsyncData.P.NotAsked, () => null)
-          .with(AsyncData.P.Loading, () => (
-            <PlainListViewPlaceholder
-              count={NUM_TO_RENDER}
-              headerHeight={48}
-              paddingHorizontal={24}
-              rowHeight={rowHeight}
-              rowVerticalSpacing={0}
-            />
-          ))
-          .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
-            <BeneficiaryListImpl
-              rowHeight={rowHeight}
-              large={large}
-              beneficiaries={beneficiaries}
-              isLoading={isLoading}
-              params={params}
-              activeBeneficiaryId={activeBeneficiaryId}
-              setVariables={setVariables}
-            />
-          ))
-          .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-          .exhaustive();
+        return (
+          <>
+            <Box
+              alignItems="center"
+              direction="row"
+              style={[styles.header, large && styles.headerLarge]}
+            >
+              <LakeButton
+                icon="add-circle-filled"
+                size="small"
+                color="current"
+                onPress={() =>
+                  Router.push("AccountPaymentsBeneficiariesNew", {
+                    accountMembershipId: params.accountMembershipId,
+                  })
+                }
+              >
+                {t("common.add")}
+              </LakeButton>
+
+              {large && (
+                <>
+                  <Space width={16} />
+
+                  <LakeButton
+                    ariaLabel={t("common.refresh")}
+                    mode="secondary"
+                    size="small"
+                    icon="arrow-counterclockwise-filled"
+                    loading={beneficiaries.isLoading()}
+                    onPress={() => {
+                      reload();
+                    }}
+                  />
+                </>
+              )}
+            </Box>
+
+            <Space height={24} />
+
+            {match(beneficiaries)
+              .with(AsyncData.P.NotAsked, () => null)
+              .with(AsyncData.P.Loading, () => (
+                <PlainListViewPlaceholder
+                  count={NUM_TO_RENDER}
+                  headerHeight={48}
+                  paddingHorizontal={24}
+                  rowHeight={rowHeight}
+                  rowVerticalSpacing={0}
+                />
+              ))
+              .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
+                <BeneficiaryListImpl
+                  rowHeight={rowHeight}
+                  beneficiaries={beneficiaries}
+                  isLoading={isLoading}
+                  params={params}
+                  activeBeneficiaryId={activeBeneficiaryId}
+                  setVariables={setVariables}
+                />
+              ))
+              .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
+                <ErrorView error={error} />
+              ))
+              .exhaustive()}
+          </>
+        );
       }}
     </ResponsiveContainer>
   );

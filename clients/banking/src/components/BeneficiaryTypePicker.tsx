@@ -4,11 +4,12 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
+import { BeneficiaryInternationalWizard } from "./BeneficiaryInternationalWizard";
 import { BeneficiarySepaWizard } from "./BeneficiarySepaWizard";
 import { TypePickerLink } from "./TypePickerLink";
 
@@ -66,9 +67,19 @@ export const BeneficiaryTypePicker = ({
         title: t("beneficiaries.wizards.picker.sepa.title"),
         subtitle: t("beneficiaries.wizards.picker.sepa.subtitle"),
       },
+      {
+        url: Router.AccountPaymentsBeneficiariesNew({ accountMembershipId, type: "international" }),
+        icon: "earth-regular" as const,
+        title: t("beneficiaries.wizards.picker.international.title"),
+        subtitle: t("beneficiaries.wizards.picker.international.subtitle"),
+      },
     ],
     [accountMembershipId],
   );
+
+  const handleOnPressClose = useCallback(() => {
+    Router.push("AccountPaymentsBeneficiariesNew", { accountMembershipId });
+  }, [accountMembershipId]);
 
   return (
     <>
@@ -102,9 +113,15 @@ export const BeneficiaryTypePicker = ({
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onPressClose={() =>
-            Router.push("AccountPaymentsBeneficiariesNew", { accountMembershipId })
-          }
+          onPressClose={handleOnPressClose}
+        />
+      </FullViewportLayer>
+
+      <FullViewportLayer visible={type === "international"}>
+        <BeneficiaryInternationalWizard
+          accountId={accountId}
+          accountMembershipId={accountMembershipId}
+          onPressClose={handleOnPressClose}
         />
       </FullViewportLayer>
     </>

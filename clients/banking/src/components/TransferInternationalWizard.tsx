@@ -15,21 +15,18 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import {
-  InitiateInternationalCreditTransferDocument,
-  InternationalCreditTransferRouteInput,
-} from "../graphql/partner";
+import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import {
+  Beneficiary,
+  BeneficiaryInternationalWizardForm,
+} from "./BeneficiaryInternationalWizardForm";
 import {
   Amount,
   TransferInternationalWizardAmount,
   TransferInternationamWizardAmountSummary,
 } from "./TransferInternationalWizardAmount";
-import {
-  Beneficiary,
-  TransferInternationalWizardBeneficiary,
-} from "./TransferInternationalWizardBeneficiary";
 import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 
 const styles = StyleSheet.create({
@@ -109,7 +106,7 @@ export const TransferInternationalWizard = ({
         internationalBeneficiary: {
           name: beneficiary.name,
           currency: amount.currency,
-          route: beneficiary.route as InternationalCreditTransferRouteInput,
+          route: beneficiary.route,
           details: beneficiary.values,
         },
         internationalCreditTransferDetails: details.values,
@@ -221,12 +218,15 @@ export const TransferInternationalWizard = ({
 
                     <Space height={32} />
 
-                    <TransferInternationalWizardBeneficiary
+                    <BeneficiaryInternationalWizardForm
+                      mode="continue"
                       initialBeneficiary={beneficiary}
                       amount={amount}
                       errors={errors}
                       onPressPrevious={() => setStep({ name: "Amount", amount })}
-                      onSave={beneficiary => setStep({ name: "Details", amount, beneficiary })}
+                      onPressSubmit={beneficiary =>
+                        setStep({ name: "Details", amount, beneficiary })
+                      }
                     />
                   </>
                 );

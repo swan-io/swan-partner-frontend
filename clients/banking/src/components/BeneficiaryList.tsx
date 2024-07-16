@@ -1,4 +1,4 @@
-import { AsyncData, Lazy, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
 import {
@@ -6,6 +6,7 @@ import {
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/FixedListView";
 import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import { Flag } from "@swan-io/lake/src/components/Flag";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -26,17 +27,11 @@ import {
   BeneficiariesListPageQuery,
   BeneficiariesListPageQueryVariables,
 } from "../graphql/partner";
-import { locale, t } from "../utils/i18n";
+import { currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
-
-const currencyResolver = Lazy(() =>
-  "Intl" in window && "DisplayNames" in window.Intl
-    ? new Intl.DisplayNames([locale.language], { type: "currency" })
-    : undefined,
-);
 
 const styles = StyleSheet.create({
   fill: {
@@ -140,7 +135,31 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
           t("beneficiaries.accountIdentifier.accountId"),
           accountId,
         ])
-        .with({ __typename: "TrustedInternationalBeneficiary" }, () => ["TODO", "TODO"])
+        .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+          match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
+            .returnType<[string, string]>()
+            .with({ accountNumber: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.accountNumber"),
+              value,
+            ])
+            .with({ IBAN: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.iban"),
+              printFormat(value),
+            ])
+            .with({ customerReferenceNumber: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+              value,
+            ])
+            .with({ clabe: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.clabe"),
+              value,
+            ])
+            .with({ interacAccount: P.select(P.string) }, value => [
+              t("beneficiaries.accountIdentifier.interacAccount"),
+              value,
+            ])
+            .otherwise(() => ["", ""]),
+        )
         .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => [
           t("beneficiaries.accountIdentifier.iban"),
           printFormat(iban),
@@ -169,18 +188,23 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
         .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
         .otherwise(() => "EUR");
 
-      const resolver = currencyResolver.get();
-
       return (
         <Cell>
+          {isSupportedCurrency(currency) && (
+            <>
+              <Flag code={currencyFlags[currency]} width={14} />
+              <Space width={8} />
+            </>
+          )}
+
           <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
             {currency}
 
-            {isNotNullish(resolver) && (
+            {isNotNullish(currencyResolver) && (
               <>
                 {" "}
                 <LakeText variant="smallRegular" color={colors.gray[400]}>
-                  ({resolver.of(currency)})
+                  ({currencyResolver.of(currency)})
                 </LakeText>
               </>
             )}

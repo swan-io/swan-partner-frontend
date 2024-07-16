@@ -1,8 +1,11 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { RadioGroup } from "@swan-io/lake/src/components/RadioGroup";
@@ -10,16 +13,17 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalBeneficiaryDynamicFormsDocument,
   InternationalBeneficiaryDetailsInput,
+  InternationalCreditTransferRouteInput,
 } from "../graphql/partner";
-import { locale, t } from "../utils/i18n";
+import { Currency, currencies, currencyFlags, currencyResolver, locale, t } from "../utils/i18n";
 import { getInternationalTransferFormRouteLabel } from "../utils/templateTranslations";
 import { validateRequired } from "../utils/validations";
 import { ErrorView } from "./ErrorView";
@@ -30,6 +34,11 @@ import {
 } from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
 
+const DEFAULT_AMOUNT: Amount = {
+  value: "1000",
+  currency: "USD",
+};
+
 const styles = StyleSheet.create({
   hidden: {
     display: "none",
@@ -38,30 +47,36 @@ const styles = StyleSheet.create({
 
 export type Beneficiary = {
   name: string;
-  route: string;
+  currency: Currency;
+  route: InternationalCreditTransferRouteInput;
   values: InternationalBeneficiaryDetailsInput[];
 };
 
 type Props = {
+  mode: "add" | "continue";
   initialBeneficiary?: Beneficiary;
-  amount: Amount;
+  amount?: Amount;
   errors?: string[];
-  onPressPrevious: () => void;
-  onSave: (details: Beneficiary) => void;
+  submitting?: boolean;
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressPrevious?: () => void;
 };
 
-export const TransferInternationalWizardBeneficiary = ({
+export const BeneficiaryInternationalWizardForm = ({
+  mode,
   initialBeneficiary,
-  amount,
+  amount = DEFAULT_AMOUNT,
   errors,
+  submitting = false,
+  onPressSubmit,
   onPressPrevious,
-  onSave,
 }: Props) => {
-  const [route, setRoute] = useState<Option<string>>(() =>
+  const [route, setRoute] = useState<Option<InternationalCreditTransferRouteInput>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
   );
 
   const dynamicFormRef = useRef<DynamicFormRef>(null);
+  const [currency, setCurrency] = useState(DEFAULT_AMOUNT.currency);
 
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
@@ -79,9 +94,37 @@ export const TransferInternationalWizardBeneficiary = ({
     name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
   });
 
+  const currencyItems = useMemo(() => {
+    return currencies.map(value => {
+      const name = currencyResolver?.of(value);
+      const code = currencyFlags[value];
+
+      return {
+        icon: <Flag code={code} width={18} />,
+        name: isNotNullish(name) ? `${value} (${name})` : value,
+        value,
+      };
+    });
+  }, []);
+
   const onRefreshRequest = useCallback(
     (values: FormValue[]) => {
       setVariables({ dynamicFields: values.filter(({ value }) => isNotEmpty(value)) });
+    },
+    [setVariables],
+  );
+
+  const handleOnCurrencyChange = useCallback(
+    (currency: Currency) => {
+      setCurrency(currency);
+      setRoute(Option.None()); // reset route state
+
+      setVariables({
+        currency,
+        amountValue: match(currency)
+          .with("IDR", "VND", () => "50000")
+          .otherwise(() => "1000"),
+      });
     },
     [setVariables],
   );
@@ -92,7 +135,9 @@ export const TransferInternationalWizardBeneficiary = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(undefined)),
   )
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-      <ActivityIndicator color={colors.gray[500]} />
+      <Box grow={1} justifyContent="center">
+        <ActivityIndicator color={colors.gray[500]} />
+      </Box>
     ))
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ schemes }) => {
@@ -153,6 +198,21 @@ export const TransferInternationalWizardBeneficiary = ({
               )}
             />
 
+            {/* If initial amount is not specified, we show currency select in the form */}
+            {amount === DEFAULT_AMOUNT && (
+              <LakeLabel
+                label={t("transfer.new.internationalTransfer.beneficiary.currency")}
+                render={id => (
+                  <LakeSelect
+                    id={id}
+                    items={currencyItems}
+                    value={currency}
+                    onValueChange={handleOnCurrencyChange}
+                  />
+                )}
+              />
+            )}
+
             <Space height={8} />
 
             <LakeLabel
@@ -182,7 +242,9 @@ export const TransferInternationalWizardBeneficiary = ({
               onSubmit={values => {
                 submitForm({
                   onSuccess: ({ name }) => {
-                    name.tapSome(name => onSave({ name, route: selectedRoute, values }));
+                    name.tapSome(name =>
+                      onPressSubmit({ name, route: selectedRoute, values, currency }),
+                    );
                   },
                 });
               }}
@@ -194,21 +256,31 @@ export const TransferInternationalWizardBeneficiary = ({
           <ResponsiveContainer breakpoint={800}>
             {({ small }) => (
               <LakeButtonGroup>
-                <LakeButton color="gray" mode="secondary" onPress={onPressPrevious}>
-                  {t("common.previous")}
-                </LakeButton>
+                {isNotNullish(onPressPrevious) && (
+                  <LakeButton
+                    mode="secondary"
+                    color="gray"
+                    onPress={onPressPrevious}
+                    grow={small}
+                    disabled={submitting}
+                  >
+                    {t("common.previous")}
+                  </LakeButton>
+                )}
 
                 <LakeButton
                   color="current"
                   disabled={data.isLoading()}
                   grow={small}
+                  loading={submitting}
+                  icon={mode === "add" ? "add-circle-filled" : undefined}
                   onPress={() => {
                     if (dynamicFormRef.current != null) {
                       dynamicFormRef.current.submit();
                     }
                   }}
                 >
-                  {t("common.continue")}
+                  {mode === "add" ? t("common.add") : t("common.continue")}
                 </LakeButton>
               </LakeButtonGroup>
             )}

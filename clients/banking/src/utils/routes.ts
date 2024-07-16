@@ -54,7 +54,7 @@ const routes = {
         RecurringTransferList: "/recurring-transfer/list",
         RecurringTransferNew: "/recurring-transfer/new",
         BeneficiariesList: "/beneficiaries",
-        BeneficiariesNew: "/beneficiaries/new?:type{sepa}",
+        BeneficiariesNew: "/beneficiaries/new?:type{sepa|international}",
 
         ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
           Area: "/*",

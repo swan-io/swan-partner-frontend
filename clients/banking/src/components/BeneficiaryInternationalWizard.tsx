@@ -14,10 +14,13 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
+import { AddInternationalBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { Beneficiary, BeneficiarySepaWizardForm } from "./BeneficiarySepaWizardForm";
+import {
+  Beneficiary,
+  BeneficiaryInternationalWizardForm,
+} from "./BeneficiaryInternationalWizardForm";
 
 const styles = StyleSheet.create({
   fill: {
@@ -55,26 +58,28 @@ const styles = StyleSheet.create({
 
 type Props = {
   onPressClose?: () => void;
-  accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
 };
 
-export const BeneficiarySepaWizard = ({
+export const BeneficiaryInternationalWizard = ({
   onPressClose,
-  accountCountry,
   accountId,
   accountMembershipId,
 }: Props) => {
-  const [addSepaBeneficiary, sepaBeneficiaryAddition] = useMutation(AddSepaBeneficiaryDocument);
+  const [addInternationalBeneficiary, internationalBeneficiaryAddition] = useMutation(
+    AddInternationalBeneficiaryDocument,
+  );
 
   const handleOnSubmit = useCallback(
     (beneficiary: Beneficiary) => {
-      addSepaBeneficiary({
+      addInternationalBeneficiary({
         input: {
           accountId,
-          iban: beneficiary.iban,
+          currency: beneficiary.currency,
+          details: beneficiary.values,
           name: beneficiary.name,
+          route: beneficiary.route,
           consentRedirectUrl:
             window.location.origin +
             Router.AccountPaymentsBeneficiariesList({
@@ -83,7 +88,7 @@ export const BeneficiarySepaWizard = ({
             }),
         },
       })
-        .mapOk(data => data.addTrustedSepaBeneficiary)
+        .mapOk(data => data.addTrustedInternationalBeneficiary)
         .mapOkToResult(data => Option.fromNullable(data).toResult(data))
         .mapOkToResult(filterRejectionsToResult)
         .tapOk(({ trustedBeneficiary }) => {
@@ -97,7 +102,7 @@ export const BeneficiarySepaWizard = ({
           showToast({ variant: "error", error, title: translateError(error) });
         });
     },
-    [accountId, accountMembershipId, addSepaBeneficiary],
+    [accountId, accountMembershipId, addInternationalBeneficiary],
   );
 
   return (
@@ -121,7 +126,7 @@ export const BeneficiarySepaWizard = ({
 
               <View style={styles.fill}>
                 <LakeHeading level={2} variant="h3">
-                  {t("beneficiaries.wizards.sepa.title")}
+                  {t("beneficiaries.wizards.international.title")}
                 </LakeHeading>
               </View>
             </View>
@@ -131,16 +136,14 @@ export const BeneficiarySepaWizard = ({
 
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
             <LakeHeading level={2} variant="h3">
-              {t("beneficiaries.wizards.sepa.subtitle")}
+              {t("beneficiaries.wizards.international.subtitle")}
             </LakeHeading>
 
             <Space height={32} />
 
-            <BeneficiarySepaWizardForm
+            <BeneficiaryInternationalWizardForm
               mode="add"
-              submitting={sepaBeneficiaryAddition.isLoading()}
-              accountCountry={accountCountry}
-              accountId={accountId}
+              submitting={internationalBeneficiaryAddition.isLoading()}
               onPressPrevious={onPressClose}
               onPressSubmit={handleOnSubmit}
             />

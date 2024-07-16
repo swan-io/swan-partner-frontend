@@ -1755,7 +1755,11 @@ query TransactionListPage(
 query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
   account(accountId: $accountId) {
     id
-    trustedBeneficiaries(first: $first, after: $after) {
+    trustedBeneficiaries(
+      first: $first
+      after: $after
+      orderBy: { field: createdAt, direction: Desc }
+    ) {
       pageInfo {
         endCursor
         hasNextPage
@@ -1772,6 +1776,10 @@ query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
           }
           ... on TrustedInternationalBeneficiary {
             currency
+            details {
+              key
+              value
+            }
           }
           ... on TrustedSepaBeneficiary {
             iban
@@ -1787,8 +1795,32 @@ mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
     __typename
 
     ... on AddTrustedSepaBeneficiarySuccessPayload {
-      __typename
+      trustedBeneficiary {
+        id
+        statusInfo {
+          __typename
 
+          ... on TrustedBeneficiaryConsentPendingStatusInfo {
+            consent {
+              consentUrl
+            }
+          }
+        }
+      }
+    }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
+  }
+}
+
+mutation AddInternationalBeneficiary($input: AddTrustedInternationalBeneficiaryInput!) {
+  addTrustedInternationalBeneficiary(input: $input) {
+    __typename
+
+    ... on AddTrustedInternationalBeneficiarySuccessPayload {
       trustedBeneficiary {
         id
         statusInfo {
@@ -2225,52 +2257,42 @@ query GetInternationalBeneficiaryDynamicForms(
     dynamicFields: $dynamicFields
   ) {
     schemes {
-      type
       title
+      type
       remainingFieldsToRefreshCount
+
       fields {
+        __typename
+
+        required
         key
         name
-        required
+
         ... on DateField {
           example
           validationRegex
-          key
-          name
-          required
+        }
+        ... on RadioField {
+          refreshDynamicFieldsOnChange
+          allowedValues {
+            key
+            name
+          }
+        }
+        ... on SelectField {
+          refreshDynamicFieldsOnChange
+          allowedValues {
+            key
+            name
+          }
         }
         ... on TextField {
           displayFormat
           example
-          validationRegex
-          required
-          refreshDynamicFieldsOnChange
-          name
           minLength
           maxLength
-          key
-        }
-        ... on SelectField {
-          __typename
-          required
           refreshDynamicFieldsOnChange
-          name
-          key
-          allowedValues {
-            name
-            key
-          }
-        }
-        ... on RadioField {
-          __typename
-          required
-          refreshDynamicFieldsOnChange
-          name
-          key
-          allowedValues {
-            name
-            key
-          }
+          validationRegex
         }
       }
     }

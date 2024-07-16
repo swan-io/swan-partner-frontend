@@ -19,9 +19,9 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   Beneficiary,
-  BeneficiaryWizard,
+  BeneficiarySepaWizardForm,
   TransferWizardBeneficiarySummary,
-} from "./BeneficiaryWizard";
+} from "./BeneficiarySepaWizardForm";
 import {
   Details,
   TransferRegularWizardDetails,
@@ -208,7 +208,7 @@ export const TransferRegularWizard = ({
 
                     <Space height={32} />
 
-                    <BeneficiaryWizard
+                    <BeneficiarySepaWizardForm
                       mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}

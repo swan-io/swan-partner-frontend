@@ -94,6 +94,7 @@ export const TransferArea = ({
             { name: "AccountPaymentsRecurringTransferList" },
             { name: "AccountPaymentsRecurringTransferDetailsArea" },
             { name: "AccountPaymentsBeneficiariesList" },
+            { name: "AccountPaymentsBeneficiariesDetails" },
             () => (
               <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
                 {({ small }) => (
@@ -177,12 +178,19 @@ export const TransferArea = ({
                           />
                         ),
                       )
-                      .with({ name: "AccountPaymentsBeneficiariesList" }, () => (
-                        <BeneficiaryList
-                          accountId={accountId}
-                          accountMembershipId={accountMembershipId}
-                        />
+                      .with({ name: "AccountPaymentsBeneficiariesList" }, ({ params }) => (
+                        <BeneficiaryList accountId={accountId} params={params} />
                       ))
+                      .with(
+                        { name: "AccountPaymentsBeneficiariesDetails" },
+                        ({ params: { beneficiaryId, ...params } }) => (
+                          <BeneficiaryList
+                            accountId={accountId}
+                            params={params}
+                            activeBeneficiaryId={beneficiaryId}
+                          />
+                        ),
+                      )
                       .otherwise(() => (
                         <ErrorView />
                       ))}

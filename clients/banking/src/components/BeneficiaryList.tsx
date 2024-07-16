@@ -1,15 +1,22 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/FixedListView";
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import {
+  CellAction,
+  EndAlignedCell,
+  SimpleHeaderCell,
+} from "@swan-io/lake/src/components/FixedListViewCells";
 import { Flag } from "@swan-io/lake/src/components/Flag";
-import { IconName } from "@swan-io/lake/src/components/Icon";
+import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
+import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -19,8 +26,8 @@ import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/desig
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { printFormat } from "iban";
-import { useMemo } from "react";
-import { StyleSheet } from "react-native";
+import { useCallback, useMemo, useRef } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   BeneficiariesListPageDocument,
@@ -28,7 +35,7 @@ import {
   BeneficiariesListPageQueryVariables,
 } from "../graphql/partner";
 import { currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
@@ -50,6 +57,7 @@ const styles = StyleSheet.create({
 
 type Account = NonNullable<BeneficiariesListPageQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
+type Params = GetRouteParams<"AccountPaymentsBeneficiariesList">;
 
 const Cell = (props: BoxProps) => (
   <Box
@@ -230,49 +238,61 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
       </Cell>
     ),
   },
-  // {
-  //   id: "actions",
-  //   width: 48,
-  //   title: "",
-  //   renderTitle: () => null,
-  //   renderCell: ({ isHovered }) => (
-  //     <EndAlignedCell>
-  //       <CellAction>
-  //         <Icon
-  //           name="chevron-right-filled"
-  //           color={isHovered ? colors.gray[900] : colors.gray[500]}
-  //           size={16}
-  //         />
-  //       </CellAction>
-  //     </EndAlignedCell>
-  //   ),
-  // },
+  {
+    id: "actions",
+    width: 48,
+    title: "",
+    renderTitle: () => null,
+    renderCell: ({ isHovered }) => (
+      <EndAlignedCell>
+        <CellAction>
+          <Icon
+            name="chevron-right-filled"
+            color={isHovered ? colors.gray[900] : colors.gray[500]}
+            size={16}
+          />
+        </CellAction>
+      </EndAlignedCell>
+    ),
+  },
 ];
 
 const BeneficiaryListImpl = ({
   rowHeight,
   large,
-  accountMembershipId,
   beneficiaries,
   isLoading,
+  activeBeneficiaryId,
+  params,
   setVariables,
 }: {
   rowHeight: number;
   large: boolean;
-  accountMembershipId: string;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
+  params: Params;
+  activeBeneficiaryId?: string;
   setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
 }) => {
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
+  const panelRef = useRef<FocusTrapRef | null>(null);
+
+  const onActiveRowChange = useCallback(
+    (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
+    [],
+  );
 
   const AddButton = (
     <LakeButton
       icon="add-circle-filled"
       size="small"
       color="current"
-      onPress={() => Router.push("AccountPaymentsBeneficiariesNew", { accountMembershipId })}
+      onPress={() =>
+        Router.push("AccountPaymentsBeneficiariesNew", {
+          accountMembershipId: params.accountMembershipId,
+        })
+      }
     >
       {t("common.add")}
     </LakeButton>
@@ -301,10 +321,20 @@ const BeneficiaryListImpl = ({
         columns={columns}
         smallColumns={smallColumns}
         headerHeight={48}
+        activeRowId={activeBeneficiaryId}
+        onActiveRowChange={onActiveRowChange}
         loading={{
           isLoading,
           count: 2,
         }}
+        getRowLink={({ item }) => (
+          <Link
+            to={Router.AccountPaymentsBeneficiariesDetails({
+              ...params,
+              beneficiaryId: item.id,
+            })}
+          />
+        )}
         onEndReached={() => {
           if (pageInfo.hasNextPage ?? false) {
             setVariables({ after: pageInfo.endCursor ?? undefined });
@@ -324,16 +354,40 @@ const BeneficiaryListImpl = ({
           </FixedListViewEmpty>
         )}
       />
+
+      <ListRightPanel
+        ref={panelRef}
+        closeLabel={t("common.closeButton")}
+        nextLabel={t("common.next")}
+        previousLabel={t("common.previous")}
+        keyExtractor={item => item.id}
+        activeId={activeBeneficiaryId ?? null}
+        onActiveIdChange={beneficiaryId =>
+          Router.push("AccountPaymentsBeneficiariesDetails", {
+            ...params,
+            beneficiaryId,
+          })
+        }
+        onClose={() => Router.push("AccountPaymentsBeneficiariesList", params)}
+        items={nodes}
+        render={(item, _large) => (
+          <View>
+            <Text>{item.name}</Text>
+          </View>
+        )}
+      />
     </>
   );
 };
 
 export const BeneficiaryList = ({
   accountId,
-  accountMembershipId,
+  params,
+  activeBeneficiaryId,
 }: {
   accountId: string;
-  accountMembershipId: string;
+  params: Params;
+  activeBeneficiaryId?: string;
 }) => {
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
@@ -364,9 +418,10 @@ export const BeneficiaryList = ({
             <BeneficiaryListImpl
               rowHeight={rowHeight}
               large={large}
-              accountMembershipId={accountMembershipId}
               beneficiaries={beneficiaries}
               isLoading={isLoading}
+              params={params}
+              activeBeneficiaryId={activeBeneficiaryId}
               setVariables={setVariables}
             />
           ))

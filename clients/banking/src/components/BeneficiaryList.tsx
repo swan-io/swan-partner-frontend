@@ -30,23 +30,26 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion } from "@swan-io/lake/src/utils/function";
-import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  emptyToUndefined,
+  isNotNullish,
+  isNotNullishOrEmpty,
+} from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { printFormat } from "iban";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { Merge } from "type-fest";
 import {
   BeneficiariesListPageDocument,
   BeneficiariesListPageQuery,
   BeneficiariesListPageQueryVariables,
   BeneficiaryType,
-  TrustedBeneficiaryStatus,
 } from "../graphql/partner";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
@@ -142,6 +145,13 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
         <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
           {item.label || item.name}
         </LakeText>
+
+        {item.statusInfo.status === "Canceled" && (
+          <>
+            <Space width={16} />
+            <Tag color="negative">{t("beneficiaries.status.canceled")}</Tag>
+          </>
+        )}
       </Cell>
     ),
   },
@@ -271,28 +281,10 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
   },
 ];
 
-const beneficiaryStatuses = deriveUnion<TrustedBeneficiaryStatus>({
-  Enabled: true,
-  ConsentPending: true,
-  Canceled: true,
-});
-
 const beneficiaryTypes = deriveUnion<Exclude<BeneficiaryType, "Internal">>({
   International: true,
   Sepa: true,
 });
-
-const statusFilter: FilterCheckboxDef<TrustedBeneficiaryStatus> = {
-  type: "checkbox",
-  label: t("beneficiaries.status.title"),
-  checkAllLabel: t("common.filters.all"),
-  submitText: t("common.filters.apply"),
-  items: [
-    { value: "Enabled", label: t("beneficiaries.status.enabled") },
-    { value: "ConsentPending", label: t("beneficiaries.status.consentPending") },
-    { value: "Canceled", label: t("beneficiaries.status.canceled") },
-  ],
-};
 
 const currencyFilter: FilterRadioDef<string | undefined> = {
   type: "radio",
@@ -318,7 +310,6 @@ const typeFilter: FilterCheckboxDef<BeneficiaryType> = {
 };
 
 const filtersDefinition = {
-  statuses: statusFilter,
   type: typeFilter,
   currency: currencyFilter,
 };
@@ -424,24 +415,23 @@ export const BeneficiaryList = ({
   params: Params;
   activeBeneficiaryId?: string;
 }) => {
-  const { filters, filtersWithoutLabel, hasFilters, otherParams } = useMemo(() => {
-    const filters: Merge<Filters, { label: string | undefined }> = {
+  const { filters, canceled, label, hasFilters } = useMemo(() => {
+    const filters: Filters = {
       currency: params.currency,
-      label: params.label,
-      statuses: params.statuses?.filter(beneficiaryStatuses.is),
       type: params.type?.filter(beneficiaryTypes.is),
     };
 
-    const { label, ...filtersWithoutLabel } = filters;
-    const hasFilters = Object.values(filters).some(isNotNullish);
-    const otherParams = omit(params, Dict.keys(filters));
+    const canceled = params.canceled === "true";
+    const { label } = params;
 
-    return { filters, filtersWithoutLabel, hasFilters, otherParams };
+    const hasFilters =
+      Object.values(filters).some(isNotNullish) || canceled || isNotNullishOrEmpty(label);
+
+    return { filters, canceled, label, hasFilters };
   }, [params]);
 
   const availableFilters = useMemo<{ name: keyof Filters; label: string }[]>(
     () => [
-      { name: "statuses", label: t("beneficiaries.status.title") },
       { name: "type", label: t("beneficiaries.type.title") },
       { name: "currency", label: t("beneficiaries.currency.title") },
     ],
@@ -449,7 +439,7 @@ export const BeneficiaryList = ({
   );
 
   const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filtersWithoutLabel)
+    Dict.entries(filters)
       .filter(([, value]) => isNotNullish(value))
       .map(([name]) => name),
   );
@@ -458,22 +448,22 @@ export const BeneficiaryList = ({
     setOpenFilters(openFilters => {
       const currentlyOpenFilters = new Set(openFilters);
 
-      const openFiltersNotYetInState = Dict.entries(filtersWithoutLabel)
+      const openFiltersNotYetInState = Dict.entries(filters)
         .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
         .map(([name]) => name);
 
       return [...openFilters, ...openFiltersNotYetInState];
     });
-  }, [filtersWithoutLabel]);
+  }, [filters]);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
     filters: {
       currency: filters.currency,
-      label: filters.label,
-      status: filters.statuses,
+      label,
       type: filters.type,
+      status: canceled ? ["Canceled"] : ["Enabled"],
     },
   });
 
@@ -489,7 +479,7 @@ export const BeneficiaryList = ({
         return (
           <>
             <Box style={[styles.header, large && styles.headerLarge]}>
-              <Box alignItems="center" direction="row">
+              <Box direction="row" alignItems="center">
                 <LakeButton
                   icon="add-circle-filled"
                   size="small"
@@ -507,7 +497,7 @@ export const BeneficiaryList = ({
 
                 <FilterChooser
                   large={large}
-                  filters={filtersWithoutLabel}
+                  filters={filters}
                   availableFilters={availableFilters}
                   openFilters={openFilters}
                   label={t("common.filters")}
@@ -535,34 +525,54 @@ export const BeneficiaryList = ({
 
                 <Fill minWidth={16} />
 
-                <LakeSearchField
-                  placeholder={t("common.search")}
-                  initialValue={filters.label ?? ""}
-                  onChangeText={label => {
-                    Router.push("AccountPaymentsBeneficiariesList", {
-                      ...otherParams,
-                      label: emptyToUndefined(label),
-                    });
-                  }}
-                  renderEnd={() =>
-                    match(beneficiaries.mapOk(({ edges }) => edges.length))
-                      .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
-                        <Tag>{totalCount}</Tag>
-                      ))
-                      .otherwise(() => null)
-                  }
-                />
+                <Box grow={0} shrink={1} direction="row" alignItems="center" justifyContent="end">
+                  <Toggle
+                    mode={large ? "desktop" : "mobile"}
+                    value={!canceled}
+                    onLabel={t("beneficiaries.status.enabled")}
+                    offLabel={t("beneficiaries.status.canceled")}
+                    onToggle={on => {
+                      Router.push("AccountPaymentsBeneficiariesList", {
+                        ...omit(params, ["canceled"]),
+                        canceled: !on ? "true" : undefined,
+                      });
+                    }}
+                  />
+
+                  <Space width={16} />
+
+                  <LakeSearchField
+                    placeholder={t("common.search")}
+                    initialValue={label ?? ""}
+                    onChangeText={label => {
+                      Router.push("AccountPaymentsBeneficiariesList", {
+                        ...params,
+                        label: emptyToUndefined(label),
+                      });
+                    }}
+                    renderEnd={() =>
+                      match(beneficiaries.mapOk(({ edges }) => edges.length))
+                        .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
+                          <Tag>{totalCount}</Tag>
+                        ))
+                        .otherwise(() => null)
+                    }
+                  />
+                </Box>
               </Box>
 
               <Space height={12} />
 
               <FiltersStack
                 definition={filtersDefinition}
-                filters={filtersWithoutLabel}
+                filters={filters}
                 openedFilters={openFilters}
                 onChangeOpened={setOpenFilters}
                 onChangeFilters={filters => {
-                  Router.push("AccountPaymentsBeneficiariesList", { ...otherParams, ...filters });
+                  Router.push("AccountPaymentsBeneficiariesList", {
+                    ...params,
+                    ...filters,
+                  });
                 }}
               />
             </Box>

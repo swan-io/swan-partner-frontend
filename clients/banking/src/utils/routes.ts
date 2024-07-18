@@ -57,7 +57,7 @@ const routes = {
         BeneficiariesNew: "/beneficiaries/new?:type{sepa|international}",
 
         // share filters
-        ...createGroup("Beneficiaries", "/beneficiaries?:currency&:label&:statuses[]&:type[]", {
+        ...createGroup("Beneficiaries", "/beneficiaries?:canceled{true}&:currency&:label&:type[]", {
           List: "/",
           Details: "/:beneficiaryId",
         }),

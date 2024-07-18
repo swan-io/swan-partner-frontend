@@ -1772,6 +1772,9 @@ query BeneficiariesListPage(
           id
           label
           name
+          statusInfo {
+            status
+          }
           type
           ... on TrustedInternalBeneficiary {
             accountId

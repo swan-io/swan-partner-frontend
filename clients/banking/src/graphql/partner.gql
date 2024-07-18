@@ -1748,13 +1748,19 @@ query TransactionListPage(
   }
 }
 
-query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
+query BeneficiariesListPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: TrustedBeneficiaryFiltersInput!
+) {
   account(accountId: $accountId) {
     id
     trustedBeneficiaries(
       first: $first
       after: $after
       orderBy: { field: createdAt, direction: Desc }
+      filters: $filters
     ) {
       pageInfo {
         endCursor

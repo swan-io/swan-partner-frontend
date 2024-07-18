@@ -38,7 +38,7 @@ import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { printFormat } from "iban";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { Merge } from "type-fest";
 import {
@@ -284,19 +284,19 @@ const beneficiaryTypes = deriveUnion<Exclude<BeneficiaryType, "Internal">>({
 
 const statusFilter: FilterCheckboxDef<TrustedBeneficiaryStatus> = {
   type: "checkbox",
-  label: "Status", // TODO: update
+  label: t("beneficiaries.status.title"),
   checkAllLabel: t("common.filters.all"),
   submitText: t("common.filters.apply"),
   items: [
-    { value: "Enabled", label: "Enabled" }, // TODO: update
-    { value: "ConsentPending", label: "ConsentPending" }, // TODO: update
-    { value: "Canceled", label: "Canceled" }, // TODO: update
+    { value: "Enabled", label: t("beneficiaries.status.enabled") },
+    { value: "ConsentPending", label: t("beneficiaries.status.consentPending") },
+    { value: "Canceled", label: t("beneficiaries.status.canceled") },
   ],
 };
 
 const currencyFilter: FilterRadioDef<string | undefined> = {
   type: "radio",
-  label: "Currency", // TODO: update
+  label: t("beneficiaries.currency.title"),
   items: [
     { value: undefined, label: t("common.filters.all") },
     ...currencies.map(value => {
@@ -308,12 +308,12 @@ const currencyFilter: FilterRadioDef<string | undefined> = {
 
 const typeFilter: FilterCheckboxDef<BeneficiaryType> = {
   type: "checkbox",
-  label: "Type", // TODO: update
+  label: t("beneficiaries.type.title"),
   checkAllLabel: t("common.filters.all"),
   submitText: t("common.filters.apply"),
   items: [
-    { value: "International", label: "International" }, // TODO: update
-    { value: "Sepa", label: "Sepa" }, // TODO: update
+    { value: "International", label: t("beneficiaries.type.international") },
+    { value: "Sepa", label: t("beneficiaries.type.sepa") },
   ],
 };
 
@@ -409,11 +409,7 @@ const BeneficiaryListImpl = ({
         }
         onClose={() => Router.push("AccountPaymentsBeneficiariesList", params)}
         items={nodes}
-        render={(item, _large) => (
-          <View>
-            <Text>{item.name}</Text>
-          </View>
-        )}
+        render={(item, _large) => <LakeText>{item.name}</LakeText>}
       />
     </>
   );
@@ -445,18 +441,9 @@ export const BeneficiaryList = ({
 
   const availableFilters = useMemo<{ name: keyof Filters; label: string }[]>(
     () => [
-      {
-        name: "statuses",
-        label: "Status", // TODO: Replace text
-      },
-      {
-        name: "type",
-        label: "Type", // TODO: Replace text
-      },
-      {
-        name: "currency",
-        label: "Currency", // TODO: Replace text
-      },
+      { name: "statuses", label: t("beneficiaries.status.title") },
+      { name: "type", label: t("beneficiaries.type.title") },
+      { name: "currency", label: t("beneficiaries.currency.title") },
     ],
     [],
   );

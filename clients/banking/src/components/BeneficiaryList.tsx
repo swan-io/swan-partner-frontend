@@ -409,10 +409,12 @@ const BeneficiaryListImpl = ({
 export const BeneficiaryList = ({
   accountId,
   params,
+  canManageBeneficiaries,
   activeBeneficiaryId,
 }: {
   accountId: string;
   params: Params;
+  canManageBeneficiaries: boolean;
   activeBeneficiaryId?: string;
 }) => {
   const { filters, canceled, label, hasFilters } = useMemo(() => {
@@ -480,20 +482,24 @@ export const BeneficiaryList = ({
           <>
             <Box style={[styles.header, large && styles.headerLarge]}>
               <Box direction="row" alignItems="center">
-                <LakeButton
-                  icon="add-circle-filled"
-                  size="small"
-                  color="current"
-                  onPress={() =>
-                    Router.push("AccountPaymentsBeneficiariesNew", {
-                      accountMembershipId: params.accountMembershipId,
-                    })
-                  }
-                >
-                  {t("common.add")}
-                </LakeButton>
+                {canManageBeneficiaries && (
+                  <>
+                    <LakeButton
+                      icon="add-circle-filled"
+                      size="small"
+                      color="current"
+                      onPress={() =>
+                        Router.push("AccountPaymentsBeneficiariesNew", {
+                          accountMembershipId: params.accountMembershipId,
+                        })
+                      }
+                    >
+                      {t("common.add")}
+                    </LakeButton>
 
-                <Space width={16} />
+                    <Space width={16} />
+                  </>
+                )}
 
                 <FilterChooser
                   large={large}

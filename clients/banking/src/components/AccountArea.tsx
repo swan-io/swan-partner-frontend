@@ -360,6 +360,8 @@ export const AccountArea = ({
     accountMembership.statusInfo.status !== "BindingUserError" &&
     accountMembership.canManageAccountMembership;
 
+  const { canManageBeneficiaries } = accountMembership;
+
   if (accountMembership.user?.id !== user?.id) {
     return <Redirect to={Router.ProjectRootRedirect()} />;
   }
@@ -557,6 +559,7 @@ export const AccountArea = ({
                             accountId={accountId}
                             accountMembershipId={accountMembershipId}
                             canQueryCardOnTransaction={canQueryCardOnTransaction}
+                            canManageBeneficiaries={canManageBeneficiaries}
                             canViewAccount={accountMembership.canViewAccount}
                             transferConsent={
                               consentId != null && kind != null && status != null

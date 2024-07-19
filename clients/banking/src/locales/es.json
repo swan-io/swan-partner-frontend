@@ -110,6 +110,7 @@
   "beneficiaries.accountIdentifier.iban": "IBAN",
   "beneficiaries.accountIdentifier.interacAccount": "Correo electrónico registrado en Interac",
   "beneficiaries.accountIdentifier.title": "Identificador de cuenta",
+  "beneficiaries.additionDate": "Añadido el {date}",
   "beneficiaries.currency.title": "Moneda",
   "beneficiaries.empty.subtitle": "Una vez lo hagas, se mostrarán aquí",
   "beneficiaries.empty.title": "Todavía no has añadido ningún beneficiario",

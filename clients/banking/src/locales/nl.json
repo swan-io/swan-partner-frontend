@@ -110,6 +110,7 @@
   "beneficiaries.accountIdentifier.iban": "IBAN",
   "beneficiaries.accountIdentifier.interacAccount": "Geregistreerd Interac e-mailadres",
   "beneficiaries.accountIdentifier.title": "Rekening identificatie",
+  "beneficiaries.additionDate": "Toegevoegd op {date}",
   "beneficiaries.currency.title": "Valuta",
   "beneficiaries.empty.subtitle": "Zodra je dit doet, worden ze hier weergegeven",
   "beneficiaries.empty.title": "Je hebt nog geen begunstigden toegevoegd",

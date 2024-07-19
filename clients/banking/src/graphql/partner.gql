@@ -308,6 +308,7 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
   label
   name
   type
+  createdAt
   statusInfo {
     status
   }

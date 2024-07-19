@@ -110,6 +110,7 @@
   "beneficiaries.accountIdentifier.iban": "IBAN",
   "beneficiaries.accountIdentifier.interacAccount": "Interac-rekisteröity sähköposti",
   "beneficiaries.accountIdentifier.title": "Tilin tunniste",
+  "beneficiaries.additionDate": "Lisätty {date}",
   "beneficiaries.currency.title": "Valuutta",
   "beneficiaries.empty.subtitle": "Kun lisäät heidät, he näkyvät tässä",
   "beneficiaries.empty.title": "Et ole vielä lisännyt yhtään saajaa",

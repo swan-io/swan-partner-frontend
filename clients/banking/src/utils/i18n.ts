@@ -178,8 +178,8 @@ export const t = (key: TranslationKey, params?: TranslationParams) =>
   intl.formatMessage({ id: key, defaultMessage: translationEN[key] }, params).toString();
 
 export const formatDateTime = memoize(
-  (date: Date, format: DateTimeFormat) => dayjs(date).format(format),
-  (date: Date, format: DateTimeFormat) => `${date.toString()} - ${format}`,
+  (date: Date | string, format: DateTimeFormat) => dayjs(date).format(format),
+  (date: Date | string, format: DateTimeFormat) => `${date.toString()} - ${format}`,
 );
 
 export const formatCurrency = (value: number, currency: string) =>

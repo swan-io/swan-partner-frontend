@@ -53,6 +53,7 @@ import {
 } from "../graphql/partner";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
+import { BeneficiaryDetail } from "./BeneficiaryDetail";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
@@ -74,7 +75,8 @@ const styles = StyleSheet.create({
 
 type Account = NonNullable<BeneficiariesListPageQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
-type Params = GetRouteParams<"AccountPaymentsBeneficiariesList">;
+type Beneficiary = GetNode<Beneficiaries>;
+type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
 
 const Cell = (props: BoxProps) => (
   <Box
@@ -87,44 +89,86 @@ const Cell = (props: BoxProps) => (
   />
 );
 
-const smallColumns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
+const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
+  match(beneficiary)
+    .returnType<{ text: string; value: string }>()
+    .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => ({
+      text: t("beneficiaries.accountIdentifier.accountId"),
+      value: accountId,
+    }))
+    .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => ({
+      text: t("beneficiaries.accountIdentifier.iban"),
+      value: printFormat(iban),
+    }))
+    .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+      match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
+        .with({ accountNumber: P.select(P.string) }, value => ({
+          text: t("beneficiaries.accountIdentifier.accountNumber"),
+          value,
+        }))
+        .with({ IBAN: P.select(P.string) }, value => ({
+          text: t("beneficiaries.accountIdentifier.iban"),
+          value: printFormat(value),
+        }))
+        .with({ customerReferenceNumber: P.select(P.string) }, value => ({
+          text: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+          value,
+        }))
+        .with({ clabe: P.select(P.string) }, value => ({
+          text: t("beneficiaries.accountIdentifier.clabe"),
+          value,
+        }))
+        .with({ interacAccount: P.select(P.string) }, value => ({
+          text: t("beneficiaries.accountIdentifier.interacAccount"),
+          value,
+        }))
+        .otherwise(() => ({
+          text: "",
+          value: "",
+        })),
+    )
+    .otherwise(() => ({
+      text: "",
+      value: "",
+    }));
+
+const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
   {
     id: "name",
     title: t("beneficiaries.name.title"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item }) => (
-      <Cell>
-        <Tag
-          color="gray"
-          icon={match(item.type)
-            .returnType<IconName>()
-            .with("International", () => "earth-regular")
-            .otherwise(() => "person-regular")}
-        />
+    renderCell: ({ item }) => {
+      const identifier = getBeneficiaryIdentifier(item);
 
-        <Space width={16} />
+      return (
+        <Cell>
+          <Tag
+            color="gray"
+            icon={match(item.type)
+              .returnType<IconName>()
+              .with("International", () => "earth-regular")
+              .otherwise(() => "person-regular")}
+          />
 
-        <Box>
-          <LakeText variant="smallRegular" color={colors.gray[600]} numberOfLines={1}>
-            {item.label || item.name}
-          </LakeText>
+          <Space width={16} />
 
-          <LakeText variant="smallMedium" color={colors.gray[700]}>
-            {match(item)
-              .returnType<string>()
-              .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => accountId)
-              .with({ __typename: "TrustedInternationalBeneficiary" }, () => "TODO")
-              .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => printFormat(iban))
-              .otherwise(() => "")}
-          </LakeText>
-        </Box>
-      </Cell>
-    ),
+          <Box>
+            <LakeText variant="smallRegular" color={colors.gray[600]} numberOfLines={1}>
+              {item.label || item.name}
+            </LakeText>
+
+            <LakeText variant="smallMedium" color={colors.gray[700]}>
+              {identifier.value}
+            </LakeText>
+          </Box>
+        </Cell>
+      );
+    },
   },
 ];
 
-const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
+const columns: ColumnConfig<Beneficiary, undefined>[] = [
   {
     id: "name",
     title: t("beneficiaries.name.title"),
@@ -161,49 +205,14 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
-      const [text, value] = match(item)
-        .returnType<[string, string]>()
-        .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => [
-          t("beneficiaries.accountIdentifier.accountId"),
-          accountId,
-        ])
-        .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
-          match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
-            .returnType<[string, string]>()
-            .with({ accountNumber: P.select(P.string) }, value => [
-              t("beneficiaries.accountIdentifier.accountNumber"),
-              value,
-            ])
-            .with({ IBAN: P.select(P.string) }, value => [
-              t("beneficiaries.accountIdentifier.iban"),
-              printFormat(value),
-            ])
-            .with({ customerReferenceNumber: P.select(P.string) }, value => [
-              t("beneficiaries.accountIdentifier.customerReferenceNumber"),
-              value,
-            ])
-            .with({ clabe: P.select(P.string) }, value => [
-              t("beneficiaries.accountIdentifier.clabe"),
-              value,
-            ])
-            .with({ interacAccount: P.select(P.string) }, value => [
-              t("beneficiaries.accountIdentifier.interacAccount"),
-              value,
-            ])
-            .otherwise(() => ["", ""]),
-        )
-        .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => [
-          t("beneficiaries.accountIdentifier.iban"),
-          printFormat(iban),
-        ])
-        .otherwise(() => ["", ""]);
+      const identifier = getBeneficiaryIdentifier(item);
 
       return (
         <Cell>
           <LakeText variant="smallRegular" color={colors.gray[400]} numberOfLines={1}>
-            {text}:{" "}
+            {identifier.text}:{" "}
             <LakeText variant="smallMedium" color={colors.gray[700]}>
-              {value}
+              {identifier.value}
             </LakeText>
           </LakeText>
         </Cell>
@@ -257,7 +266,7 @@ const columns: ColumnConfig<GetNode<Beneficiaries>, undefined>[] = [
             .with("TrustedInternalBeneficiary", () => t("beneficiaries.type.internal"))
             .with("TrustedInternationalBeneficiary", () => t("beneficiaries.type.international"))
             .with("TrustedSepaBeneficiary", () => t("beneficiaries.type.sepa"))
-            .otherwise(() => "")}
+            .otherwise(() => null)}
         </LakeText>
       </Cell>
     ),
@@ -329,7 +338,7 @@ const BeneficiaryListImpl = ({
   rowHeight: number;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
-  params: Params;
+  params: RouteParams;
   activeBeneficiaryId?: string;
   setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
 }) => {
@@ -400,7 +409,7 @@ const BeneficiaryListImpl = ({
         }
         onClose={() => Router.push("AccountPaymentsBeneficiariesList", params)}
         items={nodes}
-        render={(item, _large) => <LakeText>{item.name}</LakeText>}
+        render={(item, large) => <BeneficiaryDetail id={item.id} large={large} />}
       />
     </>
   );
@@ -413,7 +422,7 @@ export const BeneficiaryList = ({
   activeBeneficiaryId,
 }: {
   accountId: string;
-  params: Params;
+  params: RouteParams;
   canManageBeneficiaries: boolean;
   activeBeneficiaryId?: string;
 }) => {

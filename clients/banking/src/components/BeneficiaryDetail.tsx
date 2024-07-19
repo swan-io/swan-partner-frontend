@@ -7,13 +7,18 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useIsSuspendable } from "@swan-io/lake/src/components/Suspendable";
+import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { spacings } from "@swan-io/lake/src/constants/design";
+import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TrustedBeneficiaryDocument } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
+import { getBeneficiaryIdentifier } from "./BeneficiaryList";
+import { DetailCopiableLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -23,7 +28,13 @@ const styles = StyleSheet.create({
   tile: {
     alignItems: "center",
   },
+  content: {
+    ...commonStyles.fill,
+    paddingVertical: spacings[24],
+  },
 });
+
+type Tab = "details" | "history";
 
 type Props = {
   id: string;
@@ -31,6 +42,7 @@ type Props = {
 };
 
 export const BeneficiaryDetail = ({ id, large }: Props) => {
+  const [activeTab, setActiveTab] = useState<Tab>("details");
   const suspense = useIsSuspendable();
   const [data] = useQuery(TrustedBeneficiaryDocument, { id }, { suspense });
 
@@ -71,6 +83,33 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
               })}
             </LakeText>
           </Tile>
+
+          <Space height={24} />
+
+          <TabView
+            activeTabId={activeTab}
+            onChange={id => setActiveTab(id as Tab)}
+            otherLabel={t("common.tabs.other")}
+            tabs={[
+              { id: "details", label: t("beneficiaries.tabs.details") },
+              { id: "history", label: t("beneficiaries.tabs.history") },
+            ]}
+          />
+
+          {match(activeTab)
+            .with("details", () => {
+              const identifier = getBeneficiaryIdentifier(beneficiary);
+
+              return (
+                <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
+                  <DetailCopiableLine label={identifier.label} text={identifier.text} />
+                </ScrollView>
+              );
+            })
+            .with("history", () => (
+              <ScrollView style={styles.fill} contentContainerStyle={styles.content}></ScrollView>
+            ))
+            .exhaustive()}
         </ListRightPanelContent>
       </ScrollView>
     ))

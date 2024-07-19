@@ -89,47 +89,47 @@ const Cell = (props: BoxProps) => (
   />
 );
 
-const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
+export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
-    .returnType<{ text: string; value: string }>()
+    .returnType<{ label: string; text: string }>()
     .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => ({
-      text: t("beneficiaries.accountIdentifier.accountId"),
-      value: accountId,
+      label: t("beneficiaries.accountIdentifier.accountId"),
+      text: accountId,
     }))
     .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => ({
-      text: t("beneficiaries.accountIdentifier.iban"),
-      value: printFormat(iban),
+      label: t("beneficiaries.accountIdentifier.iban"),
+      text: printFormat(iban),
     }))
     .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
       match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
         .with({ accountNumber: P.select(P.string) }, value => ({
-          text: t("beneficiaries.accountIdentifier.accountNumber"),
-          value,
+          label: t("beneficiaries.accountIdentifier.accountNumber"),
+          text: value,
         }))
         .with({ IBAN: P.select(P.string) }, value => ({
-          text: t("beneficiaries.accountIdentifier.iban"),
-          value: printFormat(value),
+          label: t("beneficiaries.accountIdentifier.iban"),
+          text: printFormat(value),
         }))
         .with({ customerReferenceNumber: P.select(P.string) }, value => ({
-          text: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
-          value,
+          label: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+          text: value,
         }))
         .with({ clabe: P.select(P.string) }, value => ({
-          text: t("beneficiaries.accountIdentifier.clabe"),
-          value,
+          label: t("beneficiaries.accountIdentifier.clabe"),
+          text: value,
         }))
         .with({ interacAccount: P.select(P.string) }, value => ({
-          text: t("beneficiaries.accountIdentifier.interacAccount"),
-          value,
+          label: t("beneficiaries.accountIdentifier.interacAccount"),
+          text: value,
         }))
         .otherwise(() => ({
+          label: "",
           text: "",
-          value: "",
         })),
     )
     .otherwise(() => ({
+      label: "",
       text: "",
-      value: "",
     }));
 
 const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
@@ -159,7 +159,7 @@ const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
             </LakeText>
 
             <LakeText variant="smallMedium" color={colors.gray[700]}>
-              {identifier.value}
+              {identifier.text}
             </LakeText>
           </Box>
         </Cell>
@@ -210,9 +210,9 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
       return (
         <Cell>
           <LakeText variant="smallRegular" color={colors.gray[400]} numberOfLines={1}>
-            {identifier.text}:{" "}
+            {identifier.label}:{" "}
             <LakeText variant="smallMedium" color={colors.gray[700]}>
-              {identifier.value}
+              {identifier.text}
             </LakeText>
           </LakeText>
         </Cell>

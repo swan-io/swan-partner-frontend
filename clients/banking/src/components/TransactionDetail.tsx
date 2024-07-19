@@ -1,9 +1,8 @@
 import { Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
-import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -42,6 +41,7 @@ import {
   getTransactionRejectedReasonLabel,
   getWiseIctLabel,
 } from "../utils/templateTranslations";
+import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 import {
   getMerchantCategoryIcon,
@@ -79,48 +79,6 @@ const styles = StyleSheet.create({
 
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
 const truncateTransactionId = (id: string) => id.split("#")[0] ?? id;
-
-const Line = ({ icon, label, text }: { icon?: IconName; label: string; text: React.ReactNode }) => (
-  <LakeLabel
-    type="viewSmall"
-    label={label}
-    render={() =>
-      icon ? (
-        <Box direction="row" alignItems="center">
-          <Icon name={icon} size={16} />
-          <Space width={8} />
-
-          <LakeText variant="regular" color={colors.gray[900]}>
-            {text}
-          </LakeText>
-        </Box>
-      ) : (
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {text}
-        </LakeText>
-      )
-    }
-  />
-);
-
-const CopiableLine = ({ label, text }: { label: string; text: string }) => (
-  <LakeLabel
-    type="viewSmall"
-    label={label}
-    actions={
-      <LakeCopyButton
-        valueToCopy={text}
-        copiedText={t("copyButton.copiedTooltip")}
-        copyText={t("copyButton.copyTooltip")}
-      />
-    }
-    render={() => (
-      <LakeText variant="regular" color={colors.gray[900]}>
-        {text}
-      </LakeText>
-    )}
-  />
-);
 
 type Props = {
   accountMembershipId: string;
@@ -374,7 +332,7 @@ export const TransactionDetail = ({
               {match(transaction.statusInfo)
                 .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
                   <>
-                    <Line
+                    <DetailLine
                       label={t("transaction.bookingDateTime")}
                       text={formatDateTime(new Date(bookingDate), "LLL")}
                       icon="calendar-ltr-regular"
@@ -385,7 +343,7 @@ export const TransactionDetail = ({
                 ))
                 .with({ __typename: "UpcomingTransactionStatusInfo" }, ({ executionDate }) => (
                   <>
-                    <Line
+                    <DetailLine
                       label={t("transaction.executionDateTime")}
                       text={formatDateTime(new Date(executionDate), "LLL")}
                       icon="calendar-ltr-regular"
@@ -401,7 +359,7 @@ export const TransactionDetail = ({
                   },
                   ({ canceledDate }) => (
                     <>
-                      <Line
+                      <DetailLine
                         label={t("transaction.canceledDate")}
                         text={formatDateTime(new Date(canceledDate), "LLL")}
                         icon="calendar-ltr-regular"
@@ -428,14 +386,14 @@ export const TransactionDetail = ({
                     return (
                       <ReadOnlyFieldList>
                         {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
-                          <Line
+                          <DetailLine
                             label={t("transaction.paymentDateTime")}
                             text={formatDateTime(new Date(payment.createdAt), "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.maskedPan")}
                           text={formatMaskedPan(maskedPan)}
                         />
@@ -444,7 +402,7 @@ export const TransactionDetail = ({
                           .with(
                             { firstName: P.string, lastName: P.string },
                             ({ firstName, lastName }) => (
-                              <Line
+                              <DetailLine
                                 label={t("transaction.cardHolder")}
                                 text={[firstName, lastName].join(" ")}
                                 icon="person-regular"
@@ -453,7 +411,7 @@ export const TransactionDetail = ({
                           )
                           .otherwise(() => null)}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentMethod")}
                           text={t("transactions.method.Card")}
                           icon="payment-regular"
@@ -461,7 +419,7 @@ export const TransactionDetail = ({
 
                         {match(enrichedTransactionInfo)
                           .with({ isSubscription: P.select(P.boolean) }, isSubscription => (
-                            <Line
+                            <DetailLine
                               label={t("transaction.isSubscription")}
                               text={
                                 isSubscription === true ? (
@@ -476,7 +434,7 @@ export const TransactionDetail = ({
 
                         {match(enrichedTransactionInfo)
                           .with({ carbonFootprint: P.select(P.string) }, carbonFootprint => (
-                            <Line
+                            <DetailLine
                               label={t("transaction.carbonFootprint")}
                               text={t("transaction.carbonFootprint.value", {
                                 carbonFootprint: Number(carbonFootprint) / 1_000_000,
@@ -496,39 +454,39 @@ export const TransactionDetail = ({
 
                     return (
                       <ReadOnlyFieldList>
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentDateTime")}
                           text={formatDateTime(new Date(createdAt), "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.debtorName")}
                           text={debtor.name}
                           icon="person-regular"
                         />
 
                         {isNotNullish(debtorIban) && (
-                          <CopiableLine
+                          <DetailCopiableLine
                             label={t("transaction.debtorIban")}
                             text={printIbanFormat(debtorIban)}
                           />
                         )}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.creditorName")}
                           text={creditor.name}
                           icon="person-regular"
                         />
 
                         {isNotNullish(creditorIban) && (
-                          <CopiableLine
+                          <DetailCopiableLine
                             label={t("transaction.creditorIban")}
                             text={printIbanFormat(creditorIban)}
                           />
                         )}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentMethod")}
                           text={t("transactions.method.Transfer")}
                           icon="arrow-swap-regular"
@@ -559,26 +517,26 @@ export const TransactionDetail = ({
 
                     return (
                       <ReadOnlyFieldList>
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentDateTime")}
                           text={formatDateTime(new Date(createdAt), "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.debtorName")}
                           text={debtor.name}
                           icon="person-regular"
                         />
 
                         {isNotNullish(debtor.IBAN) && (
-                          <CopiableLine
+                          <DetailCopiableLine
                             label={t("transaction.debtorIban")}
                             text={printIbanFormat(debtor.IBAN)}
                           />
                         )}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.creditorName")}
                           text={
                             isNotNullishOrEmpty(ultimateCreditorName)
@@ -589,14 +547,14 @@ export const TransactionDetail = ({
                         />
 
                         {isNotNullish(creditor.IBAN) && (
-                          <CopiableLine
+                          <DetailCopiableLine
                             label={t("transaction.creditorIban")}
                             text={printIbanFormat(creditor.IBAN)}
                           />
                         )}
 
                         {isNotNullish(reservedAmount) && (
-                          <Line
+                          <DetailLine
                             label={t("transaction.reservedAmount")}
                             text={formatCurrency(
                               Number(reservedAmount.value),
@@ -606,14 +564,14 @@ export const TransactionDetail = ({
                         )}
 
                         {isNotNullish(reservedAmountReleasedAt) && (
-                          <Line
+                          <DetailLine
                             label={t("transaction.reservedUntil")}
                             text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
 
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentMethod")}
                           text={t("transactions.method.DirectDebit")}
                           icon="arrow-swap-regular"
@@ -626,14 +584,14 @@ export const TransactionDetail = ({
                   { __typename: "InternalDirectDebitTransaction" },
                   ({ creditor, reservedAmount, reservedAmountReleasedAt, createdAt }) => (
                     <ReadOnlyFieldList>
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentDateTime")}
                         text={formatDateTime(new Date(createdAt), "LLL")}
                         icon="calendar-ltr-regular"
                       />
 
                       {isNotNullish(reservedAmount) && (
-                        <Line
+                        <DetailLine
                           label={t("transaction.reservedAmount")}
                           text={formatCurrency(
                             Number(reservedAmount.value),
@@ -643,16 +601,16 @@ export const TransactionDetail = ({
                       )}
 
                       {isNotNullish(reservedAmountReleasedAt) && (
-                        <Line
+                        <DetailLine
                           label={t("transaction.reservedUntil")}
                           text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                           icon="calendar-ltr-regular"
                         />
                       )}
 
-                      <Line label={t("transaction.creditorName")} text={creditor.accountId} />
+                      <DetailLine label={t("transaction.creditorName")} text={creditor.accountId} />
 
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentMethod")}
                         text={t("transactions.method.DirectDebit")}
                         icon="arrow-swap-regular"
@@ -662,19 +620,19 @@ export const TransactionDetail = ({
                 )
                 .with({ __typename: "InternalCreditTransfer" }, ({ creditor, createdAt }) => (
                   <ReadOnlyFieldList>
-                    <Line
+                    <DetailLine
                       label={t("transaction.paymentDateTime")}
                       text={formatDateTime(new Date(createdAt), "LLL")}
                       icon="calendar-ltr-regular"
                     />
 
-                    <Line
+                    <DetailLine
                       label={t("transaction.creditorName")}
                       text={creditor.name}
                       icon="person-regular"
                     />
 
-                    <Line
+                    <DetailLine
                       label={t("transaction.paymentMethod")}
                       text={t("transactions.method.Transfer")}
                       icon="arrow-swap-regular"
@@ -685,13 +643,13 @@ export const TransactionDetail = ({
                   { __typename: "FeeTransaction" },
                   ({ counterparty, feesType, originTransaction, createdAt }) => (
                     <ReadOnlyFieldList>
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentDateTime")}
                         text={formatDateTime(new Date(createdAt), "LLL")}
                         icon="calendar-ltr-regular"
                       />
 
-                      <Line
+                      <DetailLine
                         label={t("transaction.creditorName")}
                         text={counterparty}
                         icon="person-regular"
@@ -730,7 +688,7 @@ export const TransactionDetail = ({
 
                           {match(feesType)
                             .with("CashWithdrawalsOutsideSEPA", "CardPaymentsOutsideSEPA", () => (
-                              <Line
+                              <DetailLine
                                 label={t("transaction.originalTransactionAmount")}
                                 text={formatCurrency(
                                   Number(originTransaction.amount.value),
@@ -739,7 +697,7 @@ export const TransactionDetail = ({
                               />
                             ))
                             .with("DirectDebitRejection", () => (
-                              <Line
+                              <DetailLine
                                 label={t("transaction.rejectedAmount")}
                                 text={formatCurrency(
                                   Number(originTransaction.amount.value),
@@ -751,7 +709,7 @@ export const TransactionDetail = ({
                         </ReadOnlyFieldList>
                       )}
 
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentMethod")}
                         text={t("transactions.method.Fees")}
                         icon="arrow-swap-regular"
@@ -767,14 +725,14 @@ export const TransactionDetail = ({
 
                     return (
                       <ReadOnlyFieldList>
-                        <Line
+                        <DetailLine
                           label={t("transaction.paymentDateTime")}
                           text={formatDateTime(new Date(createdAt), "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
                         {isNotNullish(reservedAmount) && (
-                          <Line
+                          <DetailLine
                             label={t("transaction.reservedAmount")}
                             text={formatCurrency(
                               Number(reservedAmount.value),
@@ -784,18 +742,22 @@ export const TransactionDetail = ({
                         )}
 
                         {isNotNullish(reservedAmountReleasedAt) && (
-                          <Line
+                          <DetailLine
                             label={t("transaction.reservedUntil")}
                             text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
 
-                        <CopiableLine label={t("transaction.cmc7")} text={cmc7} />
-                        <CopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
-                        <CopiableLine label={t("transaction.checkNumber")} text={checkNumber} />
+                        <DetailCopiableLine label={t("transaction.cmc7")} text={cmc7} />
+                        <DetailCopiableLine label={t("transaction.rlmcKey")} text={rlmcKey} />
 
-                        <Line
+                        <DetailCopiableLine
+                          label={t("transaction.checkNumber")}
+                          text={checkNumber}
+                        />
+
+                        <DetailLine
                           label={t("transaction.paymentMethod")}
                           text={t("transactions.method.Check")}
                           icon="arrow-swap-regular"
@@ -808,7 +770,7 @@ export const TransactionDetail = ({
                   { __typename: "InternationalCreditTransferTransaction" },
                   ({ createdAt, creditor, internationalCurrencyExchange }) => (
                     <ReadOnlyFieldList>
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentDateTime")}
                         text={formatDateTime(new Date(createdAt), "LLL")}
                         icon="calendar-ltr-regular"
@@ -819,14 +781,14 @@ export const TransactionDetail = ({
                           { __typename: "InternationalCreditTransferOutCreditor" },
                           ({ name, details }) => (
                             <ReadOnlyFieldList>
-                              <Line
+                              <DetailLine
                                 label={t("transaction.creditorName")}
                                 text={name}
                                 icon="person-regular"
                               />
 
                               {details.map(detail => (
-                                <Line
+                                <DetailLine
                                   key={getWiseIctLabel(detail.key)}
                                   label={getWiseIctLabel(detail.key)}
                                   text={getWiseIctLabel(detail.value)}
@@ -837,12 +799,12 @@ export const TransactionDetail = ({
                         )
                         .otherwise(() => null)}
 
-                      <Line
+                      <DetailLine
                         label={t("transactionDetail.internationalCreditTransfer.exchangeRate")}
                         text={internationalCurrencyExchange.exchangeRate}
                       />
 
-                      <Line
+                      <DetailLine
                         label={t("transaction.paymentMethod")}
                         text={t("transactions.method.Transfer")}
                         icon="arrow-swap-regular"
@@ -857,12 +819,12 @@ export const TransactionDetail = ({
 
               {/* common fields */}
               <ReadOnlyFieldList>
-                <CopiableLine
+                <DetailCopiableLine
                   label={t("transaction.reference")}
                   text={isNotEmpty(transaction.reference) ? transaction.reference : "—"}
                 />
 
-                <CopiableLine
+                <DetailCopiableLine
                   label={t("transaction.id")}
                   text={truncateTransactionId(transaction.id)}
                 />
@@ -896,7 +858,7 @@ export const TransactionDetail = ({
                     return (
                       <ReadOnlyFieldList>
                         {enrichedTransactionInfo.category != null ? (
-                          <Line
+                          <DetailLine
                             label={t("transaction.category")}
                             text={getMerchantCategoryLabel(enrichedTransactionInfo.category)}
                             icon={getMerchantCategoryIcon(enrichedTransactionInfo.category)}
@@ -980,7 +942,7 @@ export const TransactionDetail = ({
                         ) : null}
 
                         {enrichedTransactionInfo.address != null ? (
-                          <Line
+                          <DetailLine
                             label={t("transaction.address")}
                             text={enrichedTransactionInfo.address}
                             icon="pin-regular"
@@ -988,16 +950,16 @@ export const TransactionDetail = ({
                         ) : null}
 
                         {enrichedTransactionInfo.postalCode != null ? (
-                          <Line
+                          <DetailLine
                             label={t("transaction.postalCode")}
                             text={enrichedTransactionInfo.postalCode}
                           />
                         ) : null}
 
-                        <Line label={t("transaction.city")} text={city} />
+                        <DetailLine label={t("transaction.city")} text={city} />
 
                         {countryName != null ? (
-                          <Line label={t("transaction.country")} text={countryName} />
+                          <DetailLine label={t("transaction.country")} text={countryName} />
                         ) : null}
                       </ReadOnlyFieldList>
                     );

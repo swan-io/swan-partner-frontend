@@ -117,6 +117,8 @@
   "beneficiaries.name.title": "Nimi",
   "beneficiaries.status.canceled": "Peruutettu",
   "beneficiaries.status.enabled": "Käytössä",
+  "beneficiaries.tabs.details": "Tiedot",
+  "beneficiaries.tabs.history": "Historia",
   "beneficiaries.type.internal": "Sisäinen",
   "beneficiaries.type.international": "Kansainvälinen",
   "beneficiaries.type.sepa": "SEPA",

@@ -117,6 +117,8 @@
   "beneficiaries.name.title": "Nome",
   "beneficiaries.status.canceled": "Annullato",
   "beneficiaries.status.enabled": "Abilitato",
+  "beneficiaries.tabs.details": "Dettagli",
+  "beneficiaries.tabs.history": "Cronologia",
   "beneficiaries.type.internal": "Interno",
   "beneficiaries.type.international": "Internazionale",
   "beneficiaries.type.sepa": "SEPA",

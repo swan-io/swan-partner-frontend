@@ -117,6 +117,8 @@
   "beneficiaries.name.title": "Naam",
   "beneficiaries.status.canceled": "Geannuleerd",
   "beneficiaries.status.enabled": "Ingeschakeld",
+  "beneficiaries.tabs.details": "Details",
+  "beneficiaries.tabs.history": "Geschiedenis",
   "beneficiaries.type.internal": "Intern",
   "beneficiaries.type.international": "Internationaal",
   "beneficiaries.type.sepa": "SEPA",

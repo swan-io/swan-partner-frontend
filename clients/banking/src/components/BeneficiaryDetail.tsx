@@ -4,6 +4,7 @@ import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { useIsSuspendable } from "@swan-io/lake/src/components/Suspendable";
@@ -102,7 +103,9 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
 
               return (
                 <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
-                  <DetailCopiableLine label={identifier.label} text={identifier.text} />
+                  <ReadOnlyFieldList>
+                    <DetailCopiableLine label={identifier.label} text={identifier.text} />
+                  </ReadOnlyFieldList>
                 </ScrollView>
               );
             })

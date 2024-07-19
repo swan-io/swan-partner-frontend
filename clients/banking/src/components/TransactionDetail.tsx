@@ -140,6 +140,7 @@ export const TransactionDetail = ({
   canViewAccount,
 }: Props) => {
   const suspense = useIsSuspendable();
+
   const [data] = useQuery(
     TransactionDocument,
     {

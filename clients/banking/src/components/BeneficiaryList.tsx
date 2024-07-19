@@ -557,7 +557,7 @@ export const BeneficiaryList = ({
                       });
                     }}
                     renderEnd={() =>
-                      match(beneficiaries.mapOk(({ edges }) => edges.length))
+                      match(beneficiaries.mapOk(({ totalCount }) => totalCount))
                         .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
                           <Tag>{totalCount}</Tag>
                         ))

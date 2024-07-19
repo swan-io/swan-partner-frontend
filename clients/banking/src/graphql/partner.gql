@@ -302,6 +302,32 @@ fragment Identification on Identification {
   process
 }
 
+fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
+  __typename
+  id
+  label
+  name
+  type
+  statusInfo {
+    status
+  }
+  ... on TrustedInternalBeneficiary {
+    accountId
+  }
+  ... on TrustedInternationalBeneficiary {
+    currency
+    details {
+      key
+      value
+    }
+  }
+  ... on TrustedSepaBeneficiary {
+    iban
+  }
+}
+
+# Queries
+
 query LastRelevantIdentification(
   $accountMembershipId: ID!
   $identificationProcess: [IdentificationProcess!]
@@ -1762,6 +1788,7 @@ query BeneficiariesListPage(
       orderBy: { field: createdAt, direction: Desc }
       filters: $filters
     ) {
+      totalCount
       pageInfo {
         endCursor
         hasNextPage
@@ -1769,29 +1796,16 @@ query BeneficiariesListPage(
       edges {
         cursor
         node {
-          id
-          label
-          name
-          statusInfo {
-            status
-          }
-          type
-          ... on TrustedInternalBeneficiary {
-            accountId
-          }
-          ... on TrustedInternationalBeneficiary {
-            currency
-            details {
-              key
-              value
-            }
-          }
-          ... on TrustedSepaBeneficiary {
-            iban
-          }
+          ...TrustedBeneficiaryDetails
         }
       }
     }
+  }
+}
+
+query TrustedBeneficiary($id: String!) {
+  trustedBeneficiary(id: $id) {
+    ...TrustedBeneficiaryDetails
   }
 }
 

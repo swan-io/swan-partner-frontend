@@ -19,7 +19,7 @@ import { P, match } from "ts-pattern";
 import { TrustedBeneficiaryDocument } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
-import { DetailCopiableLine } from "./DetailLine";
+import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -73,7 +73,7 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
             <Space height={12} />
 
             <LakeHeading variant="h1" level={2} align="center">
-              {beneficiary.name}
+              {beneficiary.label}
             </LakeHeading>
 
             <Space height={12} />
@@ -105,6 +105,7 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
                 <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
                   <ReadOnlyFieldList>
                     <DetailCopiableLine label={identifier.label} text={identifier.text} />
+                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
                   </ReadOnlyFieldList>
                 </ScrollView>
               );

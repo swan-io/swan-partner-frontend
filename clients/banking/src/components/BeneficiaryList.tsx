@@ -135,7 +135,7 @@ export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
 const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
   {
     id: "name",
-    title: t("beneficiaries.name.title"),
+    title: t("beneficiaries.label.title"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
@@ -155,7 +155,7 @@ const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
 
           <Box>
             <LakeText variant="smallRegular" color={colors.gray[600]} numberOfLines={1}>
-              {item.label || item.name}
+              {item.label}
             </LakeText>
 
             <LakeText variant="smallMedium" color={colors.gray[700]}>
@@ -171,7 +171,7 @@ const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
 const columns: ColumnConfig<Beneficiary, undefined>[] = [
   {
     id: "name",
-    title: t("beneficiaries.name.title"),
+    title: t("beneficiaries.label.title"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => (
@@ -187,7 +187,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
         <Space width={24} />
 
         <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
-          {item.label || item.name}
+          {item.label}
         </LakeText>
 
         {item.statusInfo.status === "Canceled" && (

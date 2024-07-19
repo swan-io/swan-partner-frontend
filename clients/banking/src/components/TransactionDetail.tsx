@@ -197,7 +197,7 @@ export const TransactionDetail = ({
                   anchored={true}
                   variant="info"
                   title={t("transaction.pendingTransaction.description", {
-                    executionDate: formatDateTime(new Date(pendingEndDate), "LL"),
+                    executionDate: formatDateTime(pendingEndDate, "LL"),
                   })}
                 />
               ),
@@ -334,7 +334,7 @@ export const TransactionDetail = ({
                   <>
                     <DetailLine
                       label={t("transaction.bookingDateTime")}
-                      text={formatDateTime(new Date(bookingDate), "LLL")}
+                      text={formatDateTime(bookingDate, "LLL")}
                       icon="calendar-ltr-regular"
                     />
 
@@ -345,7 +345,7 @@ export const TransactionDetail = ({
                   <>
                     <DetailLine
                       label={t("transaction.executionDateTime")}
-                      text={formatDateTime(new Date(executionDate), "LLL")}
+                      text={formatDateTime(executionDate, "LLL")}
                       icon="calendar-ltr-regular"
                     />
 
@@ -361,7 +361,7 @@ export const TransactionDetail = ({
                     <>
                       <DetailLine
                         label={t("transaction.canceledDate")}
-                        text={formatDateTime(new Date(canceledDate), "LLL")}
+                        text={formatDateTime(canceledDate, "LLL")}
                         icon="calendar-ltr-regular"
                       />
 
@@ -388,7 +388,7 @@ export const TransactionDetail = ({
                         {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
                           <DetailLine
                             label={t("transaction.paymentDateTime")}
-                            text={formatDateTime(new Date(payment.createdAt), "LLL")}
+                            text={formatDateTime(payment.createdAt, "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
@@ -456,7 +456,7 @@ export const TransactionDetail = ({
                       <ReadOnlyFieldList>
                         <DetailLine
                           label={t("transaction.paymentDateTime")}
-                          text={formatDateTime(new Date(createdAt), "LLL")}
+                          text={formatDateTime(createdAt, "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
@@ -519,7 +519,7 @@ export const TransactionDetail = ({
                       <ReadOnlyFieldList>
                         <DetailLine
                           label={t("transaction.paymentDateTime")}
-                          text={formatDateTime(new Date(createdAt), "LLL")}
+                          text={formatDateTime(createdAt, "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
@@ -566,7 +566,7 @@ export const TransactionDetail = ({
                         {isNotNullish(reservedAmountReleasedAt) && (
                           <DetailLine
                             label={t("transaction.reservedUntil")}
-                            text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                            text={formatDateTime(reservedAmountReleasedAt, "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
@@ -586,7 +586,7 @@ export const TransactionDetail = ({
                     <ReadOnlyFieldList>
                       <DetailLine
                         label={t("transaction.paymentDateTime")}
-                        text={formatDateTime(new Date(createdAt), "LLL")}
+                        text={formatDateTime(createdAt, "LLL")}
                         icon="calendar-ltr-regular"
                       />
 
@@ -603,7 +603,7 @@ export const TransactionDetail = ({
                       {isNotNullish(reservedAmountReleasedAt) && (
                         <DetailLine
                           label={t("transaction.reservedUntil")}
-                          text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                          text={formatDateTime(reservedAmountReleasedAt, "LLL")}
                           icon="calendar-ltr-regular"
                         />
                       )}
@@ -622,7 +622,7 @@ export const TransactionDetail = ({
                   <ReadOnlyFieldList>
                     <DetailLine
                       label={t("transaction.paymentDateTime")}
-                      text={formatDateTime(new Date(createdAt), "LLL")}
+                      text={formatDateTime(createdAt, "LLL")}
                       icon="calendar-ltr-regular"
                     />
 
@@ -645,7 +645,7 @@ export const TransactionDetail = ({
                     <ReadOnlyFieldList>
                       <DetailLine
                         label={t("transaction.paymentDateTime")}
-                        text={formatDateTime(new Date(createdAt), "LLL")}
+                        text={formatDateTime(createdAt, "LLL")}
                         icon="calendar-ltr-regular"
                       />
 
@@ -680,7 +680,7 @@ export const TransactionDetail = ({
                                 <Space width={8} />
 
                                 <LakeText variant="regular" color={colors.gray[900]}>
-                                  {formatDateTime(new Date(originTransaction.executionDate), "LLL")}
+                                  {formatDateTime(originTransaction.executionDate, "LLL")}
                                 </LakeText>
                               </Box>
                             )}
@@ -727,7 +727,7 @@ export const TransactionDetail = ({
                       <ReadOnlyFieldList>
                         <DetailLine
                           label={t("transaction.paymentDateTime")}
-                          text={formatDateTime(new Date(createdAt), "LLL")}
+                          text={formatDateTime(createdAt, "LLL")}
                           icon="calendar-ltr-regular"
                         />
 
@@ -744,7 +744,7 @@ export const TransactionDetail = ({
                         {isNotNullish(reservedAmountReleasedAt) && (
                           <DetailLine
                             label={t("transaction.reservedUntil")}
-                            text={formatDateTime(new Date(reservedAmountReleasedAt), "LLL")}
+                            text={formatDateTime(reservedAmountReleasedAt, "LLL")}
                             icon="calendar-ltr-regular"
                           />
                         )}
@@ -772,7 +772,7 @@ export const TransactionDetail = ({
                     <ReadOnlyFieldList>
                       <DetailLine
                         label={t("transaction.paymentDateTime")}
-                        text={formatDateTime(new Date(createdAt), "LLL")}
+                        text={formatDateTime(createdAt, "LLL")}
                         icon="calendar-ltr-regular"
                       />
 

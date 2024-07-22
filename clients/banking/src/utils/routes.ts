@@ -53,8 +53,14 @@ const routes = {
         New: "/new?:type{transfer|recurring|international|bulk}",
         RecurringTransferList: "/recurring-transfer/list",
         RecurringTransferNew: "/recurring-transfer/new",
-        BeneficiariesList: "/beneficiaries",
+
         BeneficiariesNew: "/beneficiaries/new?:type{sepa|international}",
+
+        // share filters
+        ...createGroup("Beneficiaries", "/beneficiaries?:canceled{true}&:currency&:label&:type[]", {
+          List: "/",
+          Details: "/:beneficiaryId",
+        }),
 
         ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {
           Area: "/*",
@@ -125,6 +131,7 @@ export const paymentRoutes = [
   "AccountPaymentsRecurringTransferList",
   "AccountPaymentsRecurringTransferDetailsArea",
   "AccountPaymentsBeneficiariesList",
+  "AccountPaymentsBeneficiariesDetails",
   "AccountPaymentsBeneficiariesNew",
 ] as const satisfies RouteName[];
 

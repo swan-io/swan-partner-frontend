@@ -274,7 +274,7 @@ const RecurringTransferPanel = ({
             {recurringTransfer.nextExecutionDate != null && (
               <LakeText color={colors.gray[700]} align="center">
                 {t("recurringTransfer.details.nextExecutionDate", {
-                  date: formatDateTime(new Date(recurringTransfer.nextExecutionDate), "LLL"),
+                  date: formatDateTime(recurringTransfer.nextExecutionDate, "LLL"),
                 })}
               </LakeText>
             )}
@@ -364,7 +364,7 @@ const RecurringTransferPanel = ({
                     render={() => (
                       <LakeText variant="regular" color={colors.gray[900]}>
                         {recurringTransfer.firstExecutionDate != null
-                          ? formatDateTime(new Date(recurringTransfer.firstExecutionDate), "LLL")
+                          ? formatDateTime(recurringTransfer.firstExecutionDate, "LLL")
                           : "-"}
                       </LakeText>
                     )}
@@ -376,7 +376,7 @@ const RecurringTransferPanel = ({
                     render={() => (
                       <LakeText variant="regular" color={colors.gray[900]}>
                         {recurringTransfer.lastExecutionDate != null
-                          ? formatDateTime(new Date(recurringTransfer.lastExecutionDate), "LLL")
+                          ? formatDateTime(recurringTransfer.lastExecutionDate, "LLL")
                           : "-"}
                       </LakeText>
                     )}
@@ -388,7 +388,7 @@ const RecurringTransferPanel = ({
                     render={() => (
                       <LakeText variant="regular" color={colors.gray[900]}>
                         {recurringTransfer.nextExecutionDate != null
-                          ? formatDateTime(new Date(recurringTransfer.nextExecutionDate), "LLL")
+                          ? formatDateTime(recurringTransfer.nextExecutionDate, "LLL")
                           : "-"}
                       </LakeText>
                     )}
@@ -498,9 +498,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
         .with({ status: P.union("Enabled", "ConsentPending") }, () => (
           <SimpleRegularTextCell
             textAlign="right"
-            text={
-              nextExecutionDate != null ? formatDateTime(new Date(nextExecutionDate), "LLL") : "-"
-            }
+            text={nextExecutionDate != null ? formatDateTime(nextExecutionDate, "LLL") : "-"}
           />
         ))
         .exhaustive(),

@@ -45,6 +45,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canQueryCardOnTransaction: boolean;
+  canManageBeneficiaries: boolean;
   canViewAccount: boolean;
   transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>;
   transferCreationVisible: boolean;
@@ -55,6 +56,7 @@ export const TransferArea = ({
   accountId,
   accountMembershipId,
   canQueryCardOnTransaction,
+  canManageBeneficiaries,
   canViewAccount,
   transferConsent,
   transferCreationVisible,
@@ -94,6 +96,7 @@ export const TransferArea = ({
             { name: "AccountPaymentsRecurringTransferList" },
             { name: "AccountPaymentsRecurringTransferDetailsArea" },
             { name: "AccountPaymentsBeneficiariesList" },
+            { name: "AccountPaymentsBeneficiariesDetails" },
             () => (
               <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
                 {({ small }) => (
@@ -177,12 +180,24 @@ export const TransferArea = ({
                           />
                         ),
                       )
-                      .with({ name: "AccountPaymentsBeneficiariesList" }, () => (
+                      .with({ name: "AccountPaymentsBeneficiariesList" }, ({ params }) => (
                         <BeneficiaryList
                           accountId={accountId}
-                          accountMembershipId={accountMembershipId}
+                          params={params}
+                          canManageBeneficiaries={canManageBeneficiaries}
                         />
                       ))
+                      .with(
+                        { name: "AccountPaymentsBeneficiariesDetails" },
+                        ({ params: { beneficiaryId, ...params } }) => (
+                          <BeneficiaryList
+                            accountId={accountId}
+                            params={params}
+                            canManageBeneficiaries={canManageBeneficiaries}
+                            activeBeneficiaryId={beneficiaryId}
+                          />
+                        ),
+                      )
                       .otherwise(() => (
                         <ErrorView />
                       ))}
@@ -204,14 +219,18 @@ export const TransferArea = ({
               <NotFoundPage />
             ),
           )
-          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) => (
-            <BeneficiaryTypePicker
-              accountCountry={accountCountry}
-              accountId={accountId}
-              accountMembershipId={accountMembershipId}
-              type={type}
-            />
-          ))
+          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) =>
+            canManageBeneficiaries ? (
+              <BeneficiaryTypePicker
+                accountCountry={accountCountry}
+                accountId={accountId}
+                accountMembershipId={accountMembershipId}
+                type={type}
+              />
+            ) : (
+              <NotFoundPage />
+            ),
+          )
           .otherwise(() => (
             <NotFoundPage />
           ))}

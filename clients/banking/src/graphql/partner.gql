@@ -302,6 +302,33 @@ fragment Identification on Identification {
   process
 }
 
+fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
+  __typename
+  id
+  label
+  name
+  type
+  createdAt
+  statusInfo {
+    status
+  }
+  ... on TrustedInternalBeneficiary {
+    accountId
+  }
+  ... on TrustedInternationalBeneficiary {
+    currency
+    details {
+      key
+      value
+    }
+  }
+  ... on TrustedSepaBeneficiary {
+    iban
+  }
+}
+
+# Queries
+
 query LastRelevantIdentification(
   $accountMembershipId: ID!
   $identificationProcess: [IdentificationProcess!]
@@ -1254,7 +1281,6 @@ query EditStandingOrderPage($id: ID!) {
       status
     }
     sepaBeneficiary {
-      id
       name
     }
     targetAvailableBalance {
@@ -1302,7 +1328,6 @@ query StandingOrdersHistoryPage(
       value
     }
     sepaBeneficiary {
-      id
       name
     }
     payments(first: $first, after: $after, filters: $filters, orderBy: $orderBy) {
@@ -1352,7 +1377,6 @@ query StandingOrdersPage($accountId: ID!) {
           reference
           label
           sepaBeneficiary {
-            id
             name
           }
           targetAvailableBalance {
@@ -1397,7 +1421,6 @@ query getStandingOrders(
             status
           }
           sepaBeneficiary {
-            id
             name
           }
           targetAvailableBalance {
@@ -1752,14 +1775,21 @@ query TransactionListPage(
   }
 }
 
-query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
+query BeneficiariesListPage(
+  $accountId: ID!
+  $first: Int!
+  $after: String
+  $filters: TrustedBeneficiaryFiltersInput!
+) {
   account(accountId: $accountId) {
     id
     trustedBeneficiaries(
       first: $first
       after: $after
       orderBy: { field: createdAt, direction: Desc }
+      filters: $filters
     ) {
+      totalCount
       pageInfo {
         endCursor
         hasNextPage
@@ -1767,26 +1797,16 @@ query BeneficiariesListPage($accountId: ID!, $first: Int!, $after: String) {
       edges {
         cursor
         node {
-          id
-          label
-          name
-          type
-          ... on TrustedInternalBeneficiary {
-            accountId
-          }
-          ... on TrustedInternationalBeneficiary {
-            currency
-            details {
-              key
-              value
-            }
-          }
-          ... on TrustedSepaBeneficiary {
-            iban
-          }
+          ...TrustedBeneficiaryDetails
         }
       }
     }
+  }
+}
+
+query TrustedBeneficiary($id: String!) {
+  trustedBeneficiary(id: $id) {
+    ...TrustedBeneficiaryDetails
   }
 }
 

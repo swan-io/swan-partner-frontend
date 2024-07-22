@@ -46,6 +46,7 @@ import { ErrorView } from "./ErrorView";
 import {
   getMerchantCategoryIcon,
   getMerchantCategoryLabel,
+  getMerchantCategorySublabel,
   getTransactionLabel,
 } from "./TransactionListCells";
 
@@ -417,17 +418,11 @@ export const TransactionDetail = ({
                   ({
                     card,
                     maskedPan,
-                    merchantCity,
-                    merchantCountry,
                     payment,
                     enrichedTransactionInfo,
                     statusInfo: { status },
                   }) => {
                     const user = card?.accountMembership.user;
-
-                    const merchantCountryName = countries.find(
-                      country => country.cca3 === merchantCountry,
-                    )?.name;
 
                     return (
                       <ReadOnlyFieldList>
@@ -438,15 +433,6 @@ export const TransactionDetail = ({
                             icon="calendar-ltr-regular"
                           />
                         )}
-
-                        {match(merchantCountryName)
-                          .with(P.string, name => (
-                            <Line
-                              label={t("transaction.place")}
-                              text={isNotEmpty(merchantCity) ? `${merchantCity} - ${name}` : name}
-                            />
-                          ))
-                          .otherwise(() => null)}
 
                         <Line
                           label={t("transaction.maskedPan")}
@@ -460,6 +446,7 @@ export const TransactionDetail = ({
                               <Line
                                 label={t("transaction.cardHolder")}
                                 text={[firstName, lastName].join(" ")}
+                                icon="person-regular"
                               />
                             ),
                           )
@@ -915,6 +902,13 @@ export const TransactionDetail = ({
                           />
                         ) : null}
 
+                        {enrichedTransactionInfo.subcategory != null ? (
+                          <Line
+                            label={t("transaction.subcategory")}
+                            text={getMerchantCategorySublabel(enrichedTransactionInfo.subcategory)}
+                          />
+                        ) : null}
+
                         {contactWebsite != null ? (
                           <LakeLabel
                             type="viewSmall"
@@ -988,6 +982,7 @@ export const TransactionDetail = ({
                           <Line
                             label={t("transaction.address")}
                             text={enrichedTransactionInfo.address}
+                            icon="pin-regular"
                           />
                         ) : null}
 

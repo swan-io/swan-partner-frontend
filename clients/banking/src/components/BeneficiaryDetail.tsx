@@ -104,7 +104,12 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
               return (
                 <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
                   <ReadOnlyFieldList>
-                    <DetailCopiableLine label={identifier.label} text={identifier.text} />
+                    {match(identifier)
+                      .with(Option.P.Some(P.select()), ({ label, text }) => (
+                        <DetailCopiableLine label={label} text={text} />
+                      ))
+                      .otherwise(() => null)}
+
                     <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
                   </ReadOnlyFieldList>
                 </ScrollView>

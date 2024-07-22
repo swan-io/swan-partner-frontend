@@ -91,46 +91,54 @@ const Cell = (props: BoxProps) => (
 
 export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
-    .returnType<{ label: string; text: string }>()
-    .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) => ({
-      label: t("beneficiaries.accountIdentifier.accountId"),
-      text: accountId,
-    }))
-    .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) => ({
-      label: t("beneficiaries.accountIdentifier.iban"),
-      text: printFormat(iban),
-    }))
+    .returnType<Option<{ label: string; text: string }>>()
+    .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) =>
+      Option.Some({
+        label: t("beneficiaries.accountIdentifier.accountId"),
+        text: accountId,
+      }),
+    )
+    .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) =>
+      Option.Some({
+        label: t("beneficiaries.accountIdentifier.iban"),
+        text: printFormat(iban),
+      }),
+    )
     .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
       match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
-        .with({ accountNumber: P.select(P.string) }, value => ({
-          label: t("beneficiaries.accountIdentifier.accountNumber"),
-          text: value,
-        }))
-        .with({ IBAN: P.select(P.string) }, value => ({
-          label: t("beneficiaries.accountIdentifier.iban"),
-          text: printFormat(value),
-        }))
-        .with({ customerReferenceNumber: P.select(P.string) }, value => ({
-          label: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
-          text: value,
-        }))
-        .with({ clabe: P.select(P.string) }, value => ({
-          label: t("beneficiaries.accountIdentifier.clabe"),
-          text: value,
-        }))
-        .with({ interacAccount: P.select(P.string) }, value => ({
-          label: t("beneficiaries.accountIdentifier.interacAccount"),
-          text: value,
-        }))
-        .otherwise(() => ({
-          label: "",
-          text: "",
-        })),
+        .with({ accountNumber: P.select(P.string) }, value =>
+          Option.Some({
+            label: t("beneficiaries.accountIdentifier.accountNumber"),
+            text: value,
+          }),
+        )
+        .with({ IBAN: P.select(P.string) }, value =>
+          Option.Some({
+            label: t("beneficiaries.accountIdentifier.iban"),
+            text: printFormat(value),
+          }),
+        )
+        .with({ customerReferenceNumber: P.select(P.string) }, value =>
+          Option.Some({
+            label: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+            text: value,
+          }),
+        )
+        .with({ clabe: P.select(P.string) }, value =>
+          Option.Some({
+            label: t("beneficiaries.accountIdentifier.clabe"),
+            text: value,
+          }),
+        )
+        .with({ interacAccount: P.select(P.string) }, value =>
+          Option.Some({
+            label: t("beneficiaries.accountIdentifier.interacAccount"),
+            text: value,
+          }),
+        )
+        .otherwise(() => Option.None()),
     )
-    .otherwise(() => ({
-      label: "",
-      text: "",
-    }));
+    .otherwise(() => Option.None());
 
 const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
   {
@@ -158,9 +166,13 @@ const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
               {item.label}
             </LakeText>
 
-            <LakeText variant="smallMedium" color={colors.gray[700]}>
-              {identifier.text}
-            </LakeText>
+            {match(identifier)
+              .with(Option.P.Some(P.select()), ({ text }) => (
+                <LakeText variant="smallMedium" color={colors.gray[700]}>
+                  {text}
+                </LakeText>
+              ))
+              .otherwise(() => null)}
           </Box>
         </Cell>
       );
@@ -209,12 +221,16 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
 
       return (
         <Cell>
-          <LakeText variant="smallRegular" color={colors.gray[400]} numberOfLines={1}>
-            {identifier.label}:{" "}
-            <LakeText variant="smallMedium" color={colors.gray[700]}>
-              {identifier.text}
-            </LakeText>
-          </LakeText>
+          {match(identifier)
+            .with(Option.P.Some(P.select()), ({ label, text }) => (
+              <LakeText variant="smallRegular" color={colors.gray[400]} numberOfLines={1}>
+                {label}:{" "}
+                <LakeText variant="smallMedium" color={colors.gray[700]}>
+                  {text}
+                </LakeText>
+              </LakeText>
+            ))
+            .otherwise(() => null)}
         </Cell>
       );
     },

@@ -324,6 +324,13 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
   }
   ... on TrustedSepaBeneficiary {
     iban
+    address {
+      addressLine1
+      addressLine2
+      postalCode
+      city
+      country
+    }
   }
 }
 

@@ -13,6 +13,8 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -104,13 +106,34 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
               return (
                 <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
                   <ReadOnlyFieldList>
+                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
+
                     {match(identifier)
                       .with(Option.P.Some(P.select()), ({ label, text }) => (
                         <DetailCopiableLine label={label} text={text} />
                       ))
                       .otherwise(() => null)}
 
-                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
+                    {match(beneficiary)
+                      .with(
+                        { __typename: "TrustedSepaBeneficiary", address: P.select(P.nonNullable) },
+                        ({ addressLine1, addressLine2, postalCode, city, country }) => {
+                          const address = [
+                            addressLine1,
+                            addressLine2,
+                            ...[postalCode, city].filter(isNotNullishOrEmpty).join(" "),
+                            isCountryCCA3(country) ? getCountryName(country) : undefined,
+                          ].filter(isNotNullishOrEmpty);
+
+                          return address.length === 0 ? null : (
+                            <DetailLine
+                              label={t("beneficiaries.details.address")}
+                              text={address.join(", ")}
+                            />
+                          );
+                        },
+                      )
+                      .otherwise(() => null)}
                   </ReadOnlyFieldList>
                 </ScrollView>
               );

@@ -112,6 +112,7 @@
   "beneficiaries.accountIdentifier.title": "Identificador de cuenta",
   "beneficiaries.additionDate": "Añadido el {date}",
   "beneficiaries.currency.title": "Moneda",
+  "beneficiaries.details.address": "Dirección",
   "beneficiaries.details.name": "Nombre del titular de la cuenta",
   "beneficiaries.empty.subtitle": "Una vez lo hagas, se mostrarán aquí",
   "beneficiaries.empty.title": "Todavía no has añadido ningún beneficiario",

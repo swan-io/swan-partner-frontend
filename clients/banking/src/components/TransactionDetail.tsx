@@ -866,7 +866,7 @@ export const TransactionDetail = ({
                         ) : null}
 
                         {enrichedTransactionInfo.subcategory != null ? (
-                          <Line
+                          <DetailLine
                             label={t("transaction.subcategory")}
                             text={getMerchantCategorySublabel(enrichedTransactionInfo.subcategory)}
                           />

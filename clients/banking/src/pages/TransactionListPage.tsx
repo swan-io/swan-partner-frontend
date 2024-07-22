@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const NUM_TO_RENDER = 20;
+const PAGE_SIZE = 20;
 
 type Props = {
   accountId: string;
@@ -143,7 +143,7 @@ export const TransactionListPage = ({
 
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
-    first: NUM_TO_RENDER,
+    first: PAGE_SIZE,
     filters: {
       ...filters,
       paymentProduct,
@@ -203,7 +203,7 @@ export const TransactionListPage = ({
             NotAsked: () => null,
             Loading: () => (
               <PlainListViewPlaceholder
-                count={NUM_TO_RENDER}
+                count={PAGE_SIZE}
                 rowVerticalSpacing={0}
                 groupHeaderHeight={48}
                 headerHeight={48}
@@ -223,12 +223,12 @@ export const TransactionListPage = ({
                           getRowLink={({ item }) => (
                             <Pressable onPress={() => setActiveTransactionId(item.id)} />
                           )}
-                          pageSize={NUM_TO_RENDER}
+                          pageSize={PAGE_SIZE}
                           activeRowId={activeTransactionId ?? undefined}
                           onActiveRowChange={onActiveRowChange}
                           loading={{
                             isLoading,
-                            count: 2,
+                            count: PAGE_SIZE,
                           }}
                           onEndReached={() => {
                             if (transactions?.pageInfo.hasNextPage ?? false) {

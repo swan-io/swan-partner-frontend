@@ -89,18 +89,18 @@ const Cell = (props: BoxProps) => (
   />
 );
 
-export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
+const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
     .returnType<Option<{ label: string; text: string }>>()
     .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) =>
       Option.Some({
-        label: t("beneficiaries.accountIdentifier.accountId"),
+        label: t("beneficiaries.details.accountId"),
         text: accountId,
       }),
     )
     .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) =>
       Option.Some({
-        label: t("beneficiaries.accountIdentifier.iban"),
+        label: t("beneficiaries.details.iban"),
         text: printFormat(iban),
       }),
     )
@@ -108,31 +108,31 @@ export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
       match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
         .with({ accountNumber: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.accountNumber"),
+            label: t("beneficiaries.details.accountNumber"),
             text: value,
           }),
         )
         .with({ IBAN: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.iban"),
+            label: t("beneficiaries.details.iban"),
             text: printFormat(value),
           }),
         )
         .with({ customerReferenceNumber: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+            label: t("beneficiaries.details.customerReferenceNumber"),
             text: value,
           }),
         )
         .with({ clabe: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.clabe"),
+            label: t("beneficiaries.details.clabe"),
             text: value,
           }),
         )
         .with({ interacAccount: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.interacAccount"),
+            label: t("beneficiaries.details.interacAccount"),
             text: value,
           }),
         )
@@ -213,7 +213,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
   },
   {
     id: "identifier",
-    title: t("beneficiaries.accountIdentifier.title"),
+    title: t("beneficiaries.details.title"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {

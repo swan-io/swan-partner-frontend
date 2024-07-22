@@ -15,13 +15,14 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { printFormat } from "iban";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TrustedBeneficiaryDocument } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
-import { getBeneficiaryIdentifier } from "./BeneficiaryList";
-import { DetailCopiableLine, DetailLine } from "./DetailLine";
+import { getWiseIctLabel } from "../utils/templateTranslations";
+import { DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
@@ -100,44 +101,58 @@ export const BeneficiaryDetail = ({ id, large }: Props) => {
           />
 
           {match(activeTab)
-            .with("details", () => {
-              const identifier = getBeneficiaryIdentifier(beneficiary);
+            .with("details", () => (
+              <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
+                <ReadOnlyFieldList>
+                  <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
 
-              return (
-                <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
-                  <ReadOnlyFieldList>
-                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
+                  {match(beneficiary)
+                    .with({ __typename: "TrustedSepaBeneficiary" }, ({ address, iban }) => {
+                      return (
+                        <>
+                          <DetailLine
+                            label={t("beneficiaries.details.iban")}
+                            text={printFormat(iban)}
+                          />
 
-                    {match(identifier)
-                      .with(Option.P.Some(P.select()), ({ label, text }) => (
-                        <DetailCopiableLine label={label} text={text} />
-                      ))
-                      .otherwise(() => null)}
+                          {match(address)
+                            .with(
+                              P.nonNullable,
+                              ({ addressLine1, addressLine2, postalCode, city, country }) => {
+                                const items = [
+                                  addressLine1,
+                                  addressLine2,
+                                  ...[postalCode, city].filter(isNotNullishOrEmpty).join(" "),
+                                  isCountryCCA3(country) ? getCountryName(country) : undefined,
+                                ].filter(isNotNullishOrEmpty);
 
-                    {match(beneficiary)
-                      .with(
-                        { __typename: "TrustedSepaBeneficiary", address: P.select(P.nonNullable) },
-                        ({ addressLine1, addressLine2, postalCode, city, country }) => {
-                          const address = [
-                            addressLine1,
-                            addressLine2,
-                            ...[postalCode, city].filter(isNotNullishOrEmpty).join(" "),
-                            isCountryCCA3(country) ? getCountryName(country) : undefined,
-                          ].filter(isNotNullishOrEmpty);
-
-                          return address.length === 0 ? null : (
-                            <DetailLine
-                              label={t("beneficiaries.details.address")}
-                              text={address.join(", ")}
-                            />
-                          );
-                        },
-                      )
-                      .otherwise(() => null)}
-                  </ReadOnlyFieldList>
-                </ScrollView>
-              );
-            })
+                                return items.length === 0 ? null : (
+                                  <DetailLine
+                                    label={t("beneficiaries.details.address")}
+                                    text={items.join(", ")}
+                                  />
+                                );
+                              },
+                            )
+                            .otherwise(() => null)}
+                        </>
+                      );
+                    })
+                    .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+                      details.map(detail => (
+                        <DetailLine
+                          key={detail.key}
+                          label={getWiseIctLabel(detail.key)}
+                          text={match(detail)
+                            .with({ key: "IBAN" }, ({ value }) => printFormat(value))
+                            .otherwise(({ value }) => value)}
+                        />
+                      )),
+                    )
+                    .otherwise(() => null)}
+                </ReadOnlyFieldList>
+              </ScrollView>
+            ))
             .with("history", () => (
               <ScrollView style={styles.fill} contentContainerStyle={styles.content}></ScrollView>
             ))

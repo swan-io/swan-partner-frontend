@@ -5,12 +5,13 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { ReactNode } from "react";
 import { t } from "../utils/i18n";
 
 type DetailLineProps = {
   icon?: IconName;
   label: string;
-  text: React.ReactNode;
+  text: ReactNode;
 };
 
 export const DetailLine = ({ icon, label, text }: DetailLineProps) => (

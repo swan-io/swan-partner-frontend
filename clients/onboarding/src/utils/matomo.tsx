@@ -67,8 +67,9 @@ export const sendMatomoEvent = (
     ...match(event)
       .with({ type: "Action" }, event => ({
         ca: "1",
-        e_a: event.type,
         e_c: event.category,
+        e_a: event.type,
+        e_n: event.name,
       }))
       .otherwise(() => ({})),
   };

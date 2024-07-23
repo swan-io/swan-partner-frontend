@@ -1786,7 +1786,7 @@ query BeneficiariesListPage(
   $accountId: ID!
   $first: Int!
   $after: String
-  $filters: TrustedBeneficiaryFiltersInput!
+  $filters: TrustedBeneficiaryFiltersInput
 ) {
   account(accountId: $accountId) {
     id

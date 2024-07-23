@@ -212,7 +212,7 @@ export const TransferRecurringWizard = ({
                 return (
                   <>
                     <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.benefiary.title")}
+                      {t("transfer.new.beneficiary.title")}
                     </LakeHeading>
 
                     <Space height={32} />

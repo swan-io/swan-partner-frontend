@@ -307,18 +307,14 @@ export const TransactionDetail = ({
               <>
                 <TabView
                   activeTabId={activeTab}
-                  tabs={[
-                    {
-                      label: t("transaction.tabs.details"),
-                      id: "Details",
-                    },
-                    {
-                      label: t("transaction.tabs.merchantInfo"),
-                      id: "MerchantInfo",
-                    },
-                  ]}
                   onChange={tab => setActiveTab(tab as Tab)}
                   otherLabel={t("common.tabs.other")}
+                  tabs={
+                    [
+                      { id: "Details", label: t("transaction.tabs.details") },
+                      { id: "MerchantInfo", label: t("transaction.tabs.merchantInfo") },
+                    ] satisfies { id: Tab; label: string }[]
+                  }
                 />
 
                 <Space height={24} />

@@ -19,7 +19,7 @@ import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/cons
 import { printFormat } from "iban";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { TrustedBeneficiaryDetailsDocument } from "../graphql/partner";
+import { TrustedBeneficiaryDetailsDocument, TrustedSepaBeneficiary } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
@@ -50,6 +50,23 @@ const tabs = deriveUnion<Tab>({
   history: true,
   details: true,
 });
+
+export const concatSepaBeneficiaryAddress = (address: TrustedSepaBeneficiary["address"]) => {
+  if (address == null) {
+    return;
+  }
+
+  const items = [
+    address.addressLine1,
+    address.addressLine2,
+    ...[address.postalCode, address.city].filter(isNotNullishOrEmpty).join(" "),
+    isCountryCCA3(address.country) ? getCountryName(address.country) : undefined,
+  ].filter(isNotNullishOrEmpty);
+
+  if (items.length > 0) {
+    return items.join(", ");
+  }
+};
 
 type Props = {
   id: string;
@@ -161,25 +178,13 @@ export const BeneficiaryDetail = ({
                               text={printFormat(iban)}
                             />
 
-                            {match(address)
-                              .with(
-                                P.nonNullable,
-                                ({ addressLine1, addressLine2, postalCode, city, country }) => {
-                                  const items = [
-                                    addressLine1,
-                                    addressLine2,
-                                    ...[postalCode, city].filter(isNotNullishOrEmpty).join(" "),
-                                    isCountryCCA3(country) ? getCountryName(country) : undefined,
-                                  ].filter(isNotNullishOrEmpty);
-
-                                  return items.length === 0 ? null : (
-                                    <DetailLine
-                                      label={t("beneficiaries.details.address")}
-                                      text={items.join(", ")}
-                                    />
-                                  );
-                                },
-                              )
+                            {match(concatSepaBeneficiaryAddress(address))
+                              .with(P.nonNullable, address => (
+                                <DetailLine
+                                  label={t("beneficiaries.details.address")}
+                                  text={address}
+                                />
+                              ))
                               .otherwise(() => null)}
                           </>
                         );

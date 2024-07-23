@@ -89,7 +89,7 @@ const Cell = (props: BoxProps) => (
   />
 );
 
-const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
+export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
     .returnType<Option<{ label: string; text: string }>>()
     .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) =>

@@ -45,7 +45,7 @@ const initiate = async (page: Page, options: Options) => {
   const layer = page.locator("#full-page-layer-root");
   const beneficiary = `${label.replace(/\d+/g, "")} - beneficiary`;
 
-  await waitForText(layer, t("banking.transfer.new.benefiary.title"));
+  await waitForText(layer, t("banking.transfer.new.beneficiary.title"));
   await layer.getByLabel(t("banking.transfer.new.beneficiary.name")).fill(beneficiary);
   await layer.getByLabel(t("banking.transfer.new.iban.label")).fill(options.iban);
 

@@ -202,6 +202,8 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/fr/articles/5000716-qui-sont-les-beneficiaires-effectifs-de-mon-entreprise",
   "supportingDocument.noFilename": "Sans titre",
+  "supportingDocumentCollection.pendingReview": "Nous avons bien reçu vos documents",
+  "supportingDocumentCollection.pendingReview.subtitle": "Veuillez patienter pendant que nous les examinons.\nCela prend généralement un maximum de 72 heures.",
   "supportingDocumentCollection.success.subtitle": "Vos documents sont en cours de vérification.\nVous pouvez fermer cette fenêtre.",
   "supportingDocumentCollection.success.title": "Merci !",
   "supportingDocumentCollection.title": "Veuillez télécharger tous les documents demandés ci-dessous",

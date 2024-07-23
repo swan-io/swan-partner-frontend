@@ -1,5 +1,7 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -187,6 +189,18 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
 
               {match(route)
                 .with(Router.P.SupportingDocumentCollectionRoot(P._), () => {
+                  if (supportingDocumentCollection.statusInfo.status === "PendingReview") {
+                    return (
+                      <Box grow={1} alignItems="center" justifyContent="center">
+                        <FixedListViewEmpty
+                          icon="lake-clock"
+                          borderedIcon={true}
+                          title={t("supportingDocumentCollection.pendingReview")}
+                          subtitle={t("supportingDocumentCollection.pendingReview.subtitle")}
+                        />
+                      </Box>
+                    );
+                  }
                   if (supportingDocumentCollection.statusInfo.status !== "WaitingForDocument") {
                     return <NotFoundPage />;
                   }

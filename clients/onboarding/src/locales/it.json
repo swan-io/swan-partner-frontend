@@ -202,6 +202,8 @@
   "supportLink.individualAvailableCountries": "https://support.swan.io/hc/en-150/articles/5767279299741-Am-I-eligible-to-open-an-account-",
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "Senza titolo",
+  "supportingDocumentCollection.pendingReview": "Abbiamo ricevuto i tuoi documenti",
+  "supportingDocumentCollection.pendingReview.subtitle": "Ti preghiamo di pazientare mentre li esaminiamo.\nDi solito ciò richiede al massimo 72 ore.",
   "supportingDocumentCollection.success.subtitle": "I tuoi documenti sono in fase di revisione.\nPuoi chiudere questa finestra.",
   "supportingDocumentCollection.success.title": "Grazie!",
   "supportingDocumentCollection.title": "Carica tutti i documenti richiesti di seguito",

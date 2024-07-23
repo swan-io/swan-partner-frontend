@@ -346,7 +346,8 @@ const BeneficiaryListImpl = ({
   rowHeight,
   beneficiaries,
   isLoading,
-  activeBeneficiaryId,
+  canViewAccount,
+  canQueryCardOnTransaction,
   params,
   setVariables,
 }: {
@@ -355,9 +356,12 @@ const BeneficiaryListImpl = ({
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   params: RouteParams;
-  activeBeneficiaryId?: string;
+  canViewAccount: boolean;
+  canQueryCardOnTransaction: boolean;
   setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
 }) => {
+  const route = Router.useRoute(["AccountPaymentsBeneficiariesDetails"]);
+
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
   const panelRef = useRef<FocusTrapRef | null>(null);
@@ -378,7 +382,7 @@ const BeneficiaryListImpl = ({
         columns={columns}
         smallColumns={smallColumns}
         headerHeight={48}
-        activeRowId={activeBeneficiaryId}
+        activeRowId={route?.params.beneficiaryId}
         onActiveRowChange={onActiveRowChange}
         loading={{
           isLoading,
@@ -410,23 +414,37 @@ const BeneficiaryListImpl = ({
         )}
       />
 
-      <ListRightPanel
-        ref={panelRef}
-        closeLabel={t("common.closeButton")}
-        nextLabel={t("common.next")}
-        previousLabel={t("common.previous")}
-        keyExtractor={item => item.id}
-        activeId={activeBeneficiaryId ?? null}
-        onActiveIdChange={beneficiaryId =>
-          Router.push("AccountPaymentsBeneficiariesDetails", {
-            ...params,
-            beneficiaryId,
-          })
-        }
-        onClose={() => Router.push("AccountPaymentsBeneficiariesList", params)}
-        items={nodes}
-        render={(item, large) => <BeneficiaryDetail id={item.id} large={large} />}
-      />
+      {match(route)
+        .with(Router.P.AccountPaymentsBeneficiariesDetails(P.select()), params => (
+          <ListRightPanel
+            ref={panelRef}
+            closeLabel={t("common.closeButton")}
+            nextLabel={t("common.next")}
+            previousLabel={t("common.previous")}
+            keyExtractor={item => item.id}
+            activeId={params.beneficiaryId}
+            onActiveIdChange={beneficiaryId =>
+              Router.push("AccountPaymentsBeneficiariesDetails", {
+                ...params,
+                beneficiaryId,
+              })
+            }
+            onClose={() => {
+              Router.push("AccountPaymentsBeneficiariesList", params);
+            }}
+            items={nodes}
+            render={(item, large) => (
+              <BeneficiaryDetail
+                id={item.id}
+                canViewAccount={canViewAccount}
+                canQueryCardOnTransaction={canQueryCardOnTransaction}
+                large={large}
+                params={params}
+              />
+            )}
+          />
+        ))
+        .otherwise(() => null)}
     </>
   );
 };
@@ -435,12 +453,14 @@ export const BeneficiaryList = ({
   accountId,
   params,
   canManageBeneficiaries,
-  activeBeneficiaryId,
+  canViewAccount,
+  canQueryCardOnTransaction,
 }: {
   accountId: string;
   params: RouteParams;
   canManageBeneficiaries: boolean;
-  activeBeneficiaryId?: string;
+  canViewAccount: boolean;
+  canQueryCardOnTransaction: boolean;
 }) => {
   const { filters, canceled, label, hasFilters } = useMemo(() => {
     const filters: Filters = {
@@ -628,7 +648,8 @@ export const BeneficiaryList = ({
                   beneficiaries={beneficiaries}
                   isLoading={isLoading}
                   params={params}
-                  activeBeneficiaryId={activeBeneficiaryId}
+                  canViewAccount={canViewAccount}
+                  canQueryCardOnTransaction={canQueryCardOnTransaction}
                   setVariables={setVariables}
                 />
               ))

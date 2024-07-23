@@ -1811,9 +1811,29 @@ query BeneficiariesListPage(
   }
 }
 
-query TrustedBeneficiary($id: String!) {
+query TrustedBeneficiaryDetails(
+  $id: String!
+  $first: Int!
+  $canQueryCardOnTransaction: Boolean!
+  $canViewAccount: Boolean!
+  $after: String
+  $filters: TransactionsFiltersInput
+) {
   trustedBeneficiary(id: $id) {
     ...TrustedBeneficiaryDetails
+
+    transactions(first: $first, after: $after, filters: $filters) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      totalCount
+      edges {
+        node {
+          ...TransactionDetails
+        }
+      }
+    }
   }
 }
 

@@ -1,4 +1,4 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
@@ -105,10 +105,16 @@ const styles = StyleSheet.create({
   },
 });
 
-const SavedBeneficiariesForm = ({ accountId }: { accountId: string }) => {
+const SavedBeneficiariesForm = ({
+  accountId,
+  onPressSubmit,
+}: {
+  accountId: string;
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+}) => {
   const [search, setSearch] = useState("");
-  const trimmedSearch = search.trim();
   const [selected, setSelected] = useState<string>();
+  const trimmedSearch = search.trim();
 
   const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -123,6 +129,17 @@ const SavedBeneficiariesForm = ({ accountId }: { accountId: string }) => {
   const beneficiaries = data.mapOkToResult(data =>
     Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
   );
+
+  const selectedBeneficiary = data
+    .mapOk(data => data.account?.trustedBeneficiaries.edges ?? [])
+    .toOption()
+    .flatMap(edges =>
+      Array.findMap(edges.getOr([]), ({ node }) =>
+        node.__typename === "TrustedSepaBeneficiary"
+          ? Option.Some({ name: node.name, iban: node.iban })
+          : Option.None(),
+      ),
+    );
 
   useEffect(() => {
     match(beneficiaries)
@@ -224,7 +241,17 @@ const SavedBeneficiariesForm = ({ accountId }: { accountId: string }) => {
           <Space height={16} />
 
           <LakeButtonGroup>
-            <LakeButton color="current" onPress={noop} grow={small} loading={false}>
+            <LakeButton
+              color="current"
+              grow={small}
+              loading={false}
+              disabled={selectedBeneficiary.isNone()}
+              onPress={() => {
+                if (selectedBeneficiary.isSome()) {
+                  onPressSubmit(selectedBeneficiary.get());
+                }
+              }}
+            >
               {t("common.continue")}
             </LakeButton>
           </LakeButtonGroup>
@@ -281,7 +308,9 @@ const BeneficiaryStep = ({
             onPressSubmit={onPressSubmit}
           />
         ))
-        .with("saved", () => <SavedBeneficiariesForm accountId={accountId} />)
+        .with("saved", () => (
+          <SavedBeneficiariesForm accountId={accountId} onPressSubmit={onPressSubmit} />
+        ))
         .exhaustive()}
     </>
   );

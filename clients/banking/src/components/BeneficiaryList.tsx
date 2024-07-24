@@ -509,7 +509,7 @@ export const BeneficiaryList = ({
     filters: {
       currency: filters.currency,
       label,
-      type: filters.type,
+      type: filters.type ?? ["International", "Sepa"],
       status: canceled ? ["Canceled"] : ["Enabled"],
     },
   });

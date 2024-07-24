@@ -170,25 +170,23 @@ export const BeneficiaryDetail = ({
                     <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
 
                     {match(beneficiary)
-                      .with({ __typename: "TrustedSepaBeneficiary" }, ({ address, iban }) => {
-                        return (
-                          <>
-                            <DetailLine
-                              label={t("beneficiaries.details.iban")}
-                              text={printFormat(iban)}
-                            />
+                      .with({ __typename: "TrustedSepaBeneficiary" }, ({ address, iban }) => (
+                        <>
+                          <DetailLine
+                            label={t("beneficiaries.details.iban")}
+                            text={printFormat(iban)}
+                          />
 
-                            {match(concatSepaBeneficiaryAddress(address))
-                              .with(P.nonNullable, address => (
-                                <DetailLine
-                                  label={t("beneficiaries.details.address")}
-                                  text={address}
-                                />
-                              ))
-                              .otherwise(() => null)}
-                          </>
-                        );
-                      })
+                          {match(concatSepaBeneficiaryAddress(address))
+                            .with(P.nonNullable, address => (
+                              <DetailLine
+                                label={t("beneficiaries.details.address")}
+                                text={address}
+                              />
+                            ))
+                            .otherwise(() => null)}
+                        </>
+                      ))
                       .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
                         details.map(detail => (
                           <DetailLine

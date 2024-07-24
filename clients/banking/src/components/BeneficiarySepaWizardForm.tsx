@@ -361,7 +361,7 @@ export const BeneficiarySepaWizardForm = ({
         )}
       </FieldsListener>
 
-      <Space height={32} />
+      <Space height={16} />
 
       <ResponsiveContainer breakpoint={800}>
         {({ small }) => (

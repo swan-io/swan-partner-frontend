@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeRadio } from "@swan-io/lake/src/components/LakeRadio";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -22,6 +22,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
+import { printFormat } from "iban";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -34,7 +35,6 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
-import { getBeneficiaryIdentifier } from "./BeneficiaryList";
 import {
   Beneficiary,
   BeneficiarySepaWizardForm,
@@ -52,10 +52,7 @@ import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizard
 const NUM_TO_RENDER = 20;
 
 const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
-  container: {
+  fill: {
     ...commonStyles.fill,
   },
   header: {
@@ -69,9 +66,6 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     paddingHorizontal: spacings[96],
   },
-  headerTitle: {
-    ...commonStyles.fill,
-  },
   mobileZonePadding: {
     paddingHorizontal: spacings[24],
     flexGrow: 1,
@@ -82,7 +76,8 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1172,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[32],
+    paddingTop: spacings[32],
+    paddingBottom: spacings[16],
     width: "100%",
   },
   desktopContents: {
@@ -90,10 +85,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[96],
   },
   tile: {
+    ...animations.fadeAndSlideInFromBottom.enter,
     flexShrink: 1,
     flexGrow: 1,
-    paddingHorizontal: spacings[32],
+    paddingHorizontal: spacings[24],
     paddingVertical: spacings[24],
+  },
+  tileLarge: {
+    paddingHorizontal: spacings[32],
   },
   beneficiary: {
     flexDirection: "row",
@@ -106,9 +105,10 @@ const styles = StyleSheet.create({
   },
 });
 
-const SavedBeneficiaries = ({ accountId }: { accountId: string }) => {
-  const [selected, setSelected] = useState<string>();
+const SavedBeneficiariesForm = ({ accountId }: { accountId: string }) => {
   const [search, setSearch] = useState("");
+  const trimmedSearch = search.trim();
+  const [selected, setSelected] = useState<string>();
 
   const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -116,7 +116,7 @@ const SavedBeneficiaries = ({ accountId }: { accountId: string }) => {
     filters: {
       status: ["Enabled"],
       type: ["Sepa"],
-      label: search.length >= 3 ? search : undefined,
+      label: trimmedSearch.length >= 3 ? trimmedSearch : "",
     },
   });
 
@@ -137,93 +137,100 @@ const SavedBeneficiaries = ({ accountId }: { accountId: string }) => {
   }, [beneficiaries]);
 
   return (
-    <Tile style={[styles.tile, animations.fadeAndSlideInFromBottom.enter]}>
-      <Box>
-        <LakeTextInput
-          icon="search-filled"
-          placeholder={t("common.search")}
-          hideErrors={true}
-          value={search}
-          onChangeText={setSearch}
-        />
-      </Box>
+    <ResponsiveContainer breakpoint={800} style={styles.fill}>
+      {({ small, large }) => (
+        <>
+          <Tile style={[styles.tile, large && styles.tileLarge]}>
+            <Box>
+              <LakeTextInput
+                icon="search-filled"
+                placeholder={t("common.search")}
+                hideErrors={true}
+                value={search}
+                onChangeText={setSearch}
+              />
+            </Box>
 
-      {match(beneficiaries)
-        .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-          <LoadingView color={colors.partner[500]} />
-        ))
-        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-          return (
-            <Connection connection={beneficiaries}>
-              {({ edges, pageInfo }) => (
-                <FlatList
-                  role="radiogroup"
-                  keyExtractor={({ node }) => node.id}
-                  data={edges}
-                  ListHeaderComponent={<Space height={8} />}
-                  ItemSeparatorComponent={<Separator />}
-                  contentContainerStyle={edges.length === 0 && styles.emptyContent}
-                  ListEmptyComponent={
-                    <FixedListViewEmpty
-                      icon="lake-person-arrow-swap"
-                      borderedIcon={true}
-                      borderedIconPadding={16}
-                      title={t("common.list.noResults")}
-                      subtitle={t("common.list.noResultsSuggestion")}
+            {match(beneficiaries)
+              .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
+              .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
+                <ErrorView error={error} />
+              ))
+              .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
+                <Connection connection={beneficiaries}>
+                  {({ edges, pageInfo }) => (
+                    <FlatList
+                      role="radiogroup"
+                      keyExtractor={({ node }) => node.id}
+                      data={edges}
+                      ListHeaderComponent={<Space height={8} />}
+                      ItemSeparatorComponent={<Separator />}
+                      contentContainerStyle={edges.length === 0 && styles.emptyContent}
+                      ListEmptyComponent={
+                        <FixedListViewEmpty
+                          icon="lake-person-arrow-swap"
+                          borderedIcon={true}
+                          borderedIconPadding={16}
+                          title={t("common.list.noResults")}
+                          subtitle={t("common.list.noResultsSuggestion")}
+                        />
+                      }
+                      renderItem={({ item: { node } }) => {
+                        if (node.__typename !== "TrustedSepaBeneficiary") {
+                          return null; // Could not happen with type: ["Sepa"] filter
+                        }
+
+                        return (
+                          <Pressable
+                            role="radio"
+                            style={() => [styles.beneficiary]} // TODO: Add hover / pressed style
+                            onPress={() => setSelected(node.id)}
+                          >
+                            <LakeRadio value={node.id === selected} />
+                            <Space width={small ? 16 : 24} />
+
+                            <Box shrink={1}>
+                              <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
+                                {node.label}
+                              </LakeText>
+
+                              <Space height={4} />
+                              <LakeText numberOfLines={1}>{printFormat(node.iban)}</LakeText>
+
+                              {match(concatSepaBeneficiaryAddress(node.address))
+                                .with(P.nonNullable, address => (
+                                  <>
+                                    <Space height={4} />
+                                    <LakeText numberOfLines={1}>{address}</LakeText>
+                                  </>
+                                ))
+                                .otherwise(() => null)}
+                            </Box>
+                          </Pressable>
+                        );
+                      }}
+                      onEndReached={() => {
+                        if (pageInfo.hasNextPage ?? false) {
+                          setVariables({ after: pageInfo.endCursor });
+                        }
+                      }}
                     />
-                  }
-                  renderItem={({ item: { node } }) => {
-                    const identifier = getBeneficiaryIdentifier(node);
+                  )}
+                </Connection>
+              ))
+              .exhaustive()}
+          </Tile>
 
-                    return (
-                      <Pressable
-                        role="radio"
-                        style={() => [styles.beneficiary]}
-                        onPress={() => setSelected(node.id)}
-                      >
-                        <LakeRadio value={node.id === selected} />
-                        <Space width={24} />
+          <Space height={16} />
 
-                        <View>
-                          <LakeText variant="medium" color={colors.gray[900]}>
-                            {node.label}
-                          </LakeText>
-
-                          {match(identifier)
-                            .with(Option.P.Some(P.select()), ({ text }) => (
-                              <>
-                                <Space height={4} />
-                                <LakeText variant="smallRegular">{text}</LakeText>
-                              </>
-                            ))
-                            .otherwise(() => null)}
-
-                          {node.__typename === "TrustedSepaBeneficiary" &&
-                            match(concatSepaBeneficiaryAddress(node.address))
-                              .with(P.nonNullable, address => (
-                                <>
-                                  <Space height={4} />
-                                  <LakeText>{address}</LakeText>
-                                </>
-                              ))
-                              .otherwise(() => null)}
-                        </View>
-                      </Pressable>
-                    );
-                  }}
-                  onEndReached={() => {
-                    if (pageInfo.hasNextPage ?? false) {
-                      setVariables({ after: pageInfo.endCursor });
-                    }
-                  }}
-                />
-              )}
-            </Connection>
-          );
-        })
-        .exhaustive()}
-    </Tile>
+          <LakeButtonGroup>
+            <LakeButton color="current" onPress={noop} grow={small} loading={false}>
+              {t("common.continue")}
+            </LakeButton>
+          </LakeButtonGroup>
+        </>
+      )}
+    </ResponsiveContainer>
   );
 };
 
@@ -274,7 +281,7 @@ const BeneficiaryStep = ({
             onPressSubmit={onPressSubmit}
           />
         ))
-        .with("saved", () => <SavedBeneficiaries accountId={accountId} />)
+        .with("saved", () => <SavedBeneficiariesForm accountId={accountId} />)
         .exhaustive()}
     </>
   );
@@ -387,9 +394,9 @@ export const TransferRegularWizard = ({
   };
 
   return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
+    <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
       {({ large }) => (
-        <View style={styles.container}>
+        <View style={styles.fill}>
           <View style={styles.header}>
             <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
               {onPressClose != null && (
@@ -405,7 +412,7 @@ export const TransferRegularWizard = ({
                 </>
               )}
 
-              <View style={styles.headerTitle}>
+              <View style={styles.fill}>
                 <LakeHeading level={2} variant="h3">
                   {t("transfer.newTransfer")}
                 </LakeHeading>

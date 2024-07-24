@@ -46,9 +46,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
-  BeneficiariesListPageDocument,
-  BeneficiariesListPageQuery,
-  BeneficiariesListPageQueryVariables,
+  BeneficiariesListDocument,
+  BeneficiariesListQuery,
+  BeneficiariesListQueryVariables,
   BeneficiaryType,
 } from "../graphql/partner";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type Account = NonNullable<BeneficiariesListPageQuery["account"]>;
+type Account = NonNullable<BeneficiariesListQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
 type Beneficiary = GetNode<Beneficiaries>;
 type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
@@ -358,7 +358,7 @@ const BeneficiaryListImpl = ({
   params: RouteParams;
   canViewAccount: boolean;
   canQueryCardOnTransaction: boolean;
-  setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
+  setVariables: (variables: Partial<BeneficiariesListQueryVariables>) => void;
 }) => {
   const route = Router.useRoute(["AccountPaymentsBeneficiariesDetails"]);
 
@@ -503,7 +503,7 @@ export const BeneficiaryList = ({
     });
   }, [filters]);
 
-  const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListPageDocument, {
+  const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
     first: NUM_TO_RENDER,
     filters: {

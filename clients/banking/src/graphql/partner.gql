@@ -1782,7 +1782,7 @@ query TransactionListPage(
   }
 }
 
-query BeneficiariesListPage(
+query BeneficiariesList(
   $accountId: ID!
   $first: Int!
   $after: String

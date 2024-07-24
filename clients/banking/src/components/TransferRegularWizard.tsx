@@ -27,7 +27,7 @@ import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
-  BeneficiariesListPageDocument,
+  BeneficiariesListDocument,
   InitiateSepaCreditTransfersDocument,
 } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
@@ -110,11 +110,12 @@ const SavedBeneficiaries = ({ accountId }: { accountId: string }) => {
   const [selected, setSelected] = useState<string>();
   const [search, setSearch] = useState("");
 
-  const [data, { setVariables }] = useQuery(BeneficiariesListPageDocument, {
+  const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
     first: NUM_TO_RENDER,
     filters: {
       status: ["Enabled"],
+      type: ["Sepa"],
       label: search.length >= 3 ? search : undefined,
     },
   });

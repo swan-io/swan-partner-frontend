@@ -32,7 +32,12 @@ if (process.env.TRACING_SERVICE_NAME != null) {
 
   registerInstrumentations({
     instrumentations: [
-      new PinoInstrumentation(),
+      new PinoInstrumentation({
+        formatters: {
+          level: (label: string): object => {
+            return { level: label };
+          }    
+      }),
       new HttpInstrumentation({
         ignoreIncomingPaths: [/\/health/],
       }),

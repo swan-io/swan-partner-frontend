@@ -33,30 +33,41 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);
 
   useEffect(() => {
-    const request = query({ accountMembershipId }).tapOk(({ accountMembership, user }) => {
-      if (accountMembership?.user?.id !== user?.id) {
-        Router.replace("ProjectRootRedirect");
-      }
-      const hasRequiredIdentificationLevel =
-        accountMembership?.hasRequiredIdentificationLevel ?? undefined;
-      const recommendedIdentificationLevel = accountMembership?.recommendedIdentificationLevel;
+    const request = query({ accountMembershipId })
+      .mapOkToResult(data => {
+        const accountMembership = Option.fromNullable(data.accountMembership);
+        const user = Option.fromNullable(data.user);
 
-      const accountId = accountMembership?.account?.id;
-      const language = accountMembership?.account?.language;
-      const iban = accountMembership?.account?.IBAN;
-      const bankDetails = accountMembership?.account?.bankDetails;
+        return Option.allFromDict({ accountMembership, user }).toResult(
+          new Error("No available user / account membership"),
+        );
+      })
+      .tapOk(({ accountMembership, user }) => {
+        if (accountMembership.user?.id !== user.id) {
+          Router.replace("ProjectRootRedirect");
+        }
 
-      if (accountId != null && language != null && iban != null && bankDetails == null) {
-        void updateAccountLanguage({ id: accountId, language });
-      }
+        const hasRequiredIdentificationLevel =
+          accountMembership?.hasRequiredIdentificationLevel ?? undefined;
+        const recommendedIdentificationLevel = accountMembership?.recommendedIdentificationLevel;
 
-      if (hasRequiredIdentificationLevel === false) {
-        return queryLastRelevantIdentification({
-          accountMembershipId,
-          identificationProcess: recommendedIdentificationLevel,
-        });
-      }
-    });
+        const accountId = accountMembership?.account?.id;
+        const language = accountMembership?.account?.language;
+        const iban = accountMembership?.account?.IBAN;
+        const bankDetails = accountMembership?.account?.bankDetails;
+
+        if (accountId != null && language != null && iban != null && bankDetails == null) {
+          void updateAccountLanguage({ id: accountId, language });
+        }
+
+        if (hasRequiredIdentificationLevel === false) {
+          return queryLastRelevantIdentification({
+            accountMembershipId,
+            identificationProcess: recommendedIdentificationLevel,
+          });
+        }
+      });
+
     return () => request.cancel();
   }, [accountMembershipId, query, queryLastRelevantIdentification, updateAccountLanguage]);
 

@@ -26,7 +26,7 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type Beneficiary = {
+export type Beneficiary = ({ type: "trusted"; id: string } | { type: "unsaved" }) & {
   name: string;
   iban: string;
 };
@@ -138,7 +138,9 @@ export const BeneficiarySepaWizardForm = ({
   const handleOnPressSubmit = () => {
     submitForm({
       onSuccess: values => {
-        Option.allFromDict(values).map(beneficiary => onPressSubmit(beneficiary));
+        Option.allFromDict(values).map(beneficiary =>
+          onPressSubmit({ type: "unsaved", ...beneficiary }),
+        );
       },
     });
   };

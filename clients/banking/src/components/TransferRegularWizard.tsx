@@ -113,8 +113,8 @@ const SavedBeneficiariesForm = ({
   onPressSubmit: (beneficiary: Beneficiary) => void;
 }) => {
   const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState<string>();
   const trimmedSearch = search.trim();
+  const [selected, setSelected] = useState<string>();
 
   const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -130,15 +130,22 @@ const SavedBeneficiariesForm = ({
     Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
   );
 
-  const selectedBeneficiary = data
+  const selectedBeneficiary: Option<Beneficiary> = data
     .mapOk(data => data.account?.trustedBeneficiaries.edges ?? [])
     .toOption()
     .flatMap(edges =>
-      Array.findMap(edges.getOr([]), ({ node }) =>
-        node.__typename === "TrustedSepaBeneficiary"
-          ? Option.Some({ name: node.name, iban: node.iban })
-          : Option.None(),
-      ),
+      Array.findMap(edges.getOr([]), ({ node }) => {
+        if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
+          return Option.None();
+        }
+
+        return Option.Some({
+          type: "trusted",
+          id: node.id,
+          name: node.name,
+          iban: node.iban,
+        });
+      }),
     );
 
   useEffect(() => {
@@ -372,6 +379,7 @@ export const TransferRegularWizard = ({
             amount: details.amount,
             label: details.label,
             reference: details.reference,
+
             ...match(schedule)
               .with({ isScheduled: true }, ({ scheduledDate, scheduledTime }) => ({
                 requestedExecutionAt: encodeDateTime(scheduledDate, `${scheduledTime}:00`),
@@ -379,12 +387,20 @@ export const TransferRegularWizard = ({
               .otherwise(({ isInstant }) => ({
                 mode: isInstant ? "InstantWithFallback" : "Regular",
               })),
-            sepaBeneficiary: {
-              name: beneficiary.name,
-              save: false,
-              iban: beneficiary.iban,
-              isMyOwnIban: false, // TODO
-            },
+
+            ...match(beneficiary)
+              .with({ type: "trusted" }, ({ id }) => ({
+                trustedBeneficiaryId: id,
+              }))
+              .with({ type: "unsaved" }, () => ({
+                sepaBeneficiary: {
+                  name: beneficiary.name,
+                  save: false,
+                  iban: beneficiary.iban,
+                  isMyOwnIban: false, // TODO
+                },
+              }))
+              .exhaustive(),
           },
         ],
       },

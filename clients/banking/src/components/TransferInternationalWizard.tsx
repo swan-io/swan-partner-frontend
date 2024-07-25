@@ -182,87 +182,79 @@ export const TransferInternationalWizard = ({
 
           <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
             {match(step)
-              .with({ name: "Amount" }, ({ amount }) => {
-                return (
-                  <>
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.internationalTransfer.amount.title")}
-                    </LakeHeading>
+              .with({ name: "Amount" }, ({ amount }) => (
+                <>
+                  <LakeHeading level={2} variant="h3">
+                    {t("transfer.new.internationalTransfer.amount.title")}
+                  </LakeHeading>
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <TransferInternationalWizardAmount
-                      initialAmount={amount}
-                      accountId={accountId}
-                      accountMembershipId={accountMembershipId}
-                      onPressPrevious={onPressClose}
-                      onSave={amount => setStep({ name: "Beneficiary", amount })}
-                    />
-                  </>
-                );
-              })
-              .with({ name: "Beneficiary" }, ({ amount, beneficiary, errors }) => {
-                return (
-                  <>
-                    <TransferInternationamWizardAmountSummary
-                      isMobile={!large}
-                      amount={amount}
-                      onPressEdit={() => setStep({ name: "Amount", amount })}
-                    />
+                  <TransferInternationalWizardAmount
+                    initialAmount={amount}
+                    accountId={accountId}
+                    accountMembershipId={accountMembershipId}
+                    onPressPrevious={onPressClose}
+                    onSave={amount => setStep({ name: "Beneficiary", amount })}
+                  />
+                </>
+              ))
+              .with({ name: "Beneficiary" }, ({ amount, beneficiary, errors }) => (
+                <>
+                  <TransferInternationamWizardAmountSummary
+                    isMobile={!large}
+                    amount={amount}
+                    onPressEdit={() => setStep({ name: "Amount", amount })}
+                  />
 
-                    <Space height={24} />
+                  <Space height={24} />
 
-                    <LakeHeading level={3} variant="h3">
-                      {t("transfer.new.internationalTransfer.beneficiary.title")}
-                    </LakeHeading>
+                  <LakeHeading level={3} variant="h3">
+                    {t("transfer.new.internationalTransfer.beneficiary.title")}
+                  </LakeHeading>
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <BeneficiaryInternationalWizardForm
-                      mode="continue"
-                      initialBeneficiary={beneficiary}
-                      amount={amount}
-                      errors={errors}
-                      onPressPrevious={() => setStep({ name: "Amount", amount })}
-                      onPressSubmit={beneficiary =>
-                        setStep({ name: "Details", amount, beneficiary })
-                      }
-                    />
-                  </>
-                );
-              })
-              .with({ name: "Details" }, ({ amount, beneficiary, details }) => {
-                return (
-                  <>
-                    <TransferInternationamWizardAmountSummary
-                      isMobile={!large}
-                      amount={amount}
-                      onPressEdit={() => setStep({ name: "Amount", amount })}
-                    />
+                  <BeneficiaryInternationalWizardForm
+                    mode="continue"
+                    initialBeneficiary={beneficiary}
+                    amount={amount}
+                    errors={errors}
+                    onPressPrevious={() => setStep({ name: "Amount", amount })}
+                    onPressSubmit={beneficiary => setStep({ name: "Details", amount, beneficiary })}
+                  />
+                </>
+              ))
+              .with({ name: "Details" }, ({ amount, beneficiary, details }) => (
+                <>
+                  <TransferInternationamWizardAmountSummary
+                    isMobile={!large}
+                    amount={amount}
+                    onPressEdit={() => setStep({ name: "Amount", amount })}
+                  />
 
-                    <Space height={24} />
+                  <Space height={24} />
 
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.internationalTransfer.details.title")}
-                    </LakeHeading>
+                  <LakeHeading level={2} variant="h3">
+                    {t("transfer.new.internationalTransfer.details.title")}
+                  </LakeHeading>
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <TransferInternationalWizardDetails
-                      initialDetails={details}
-                      amount={amount}
-                      beneficiary={beneficiary}
-                      onPressPrevious={errors =>
-                        setStep({ name: "Beneficiary", amount, beneficiary, errors })
-                      }
-                      loading={transfer.isLoading()}
-                      onSave={details => {
-                        initiateTransfer({ amount, beneficiary, details });
-                      }}
-                    />
-                  </>
-                );
-              })
+                  <TransferInternationalWizardDetails
+                    initialDetails={details}
+                    amount={amount}
+                    beneficiary={beneficiary}
+                    onPressPrevious={errors =>
+                      setStep({ name: "Beneficiary", amount, beneficiary, errors })
+                    }
+                    loading={transfer.isLoading()}
+                    onSave={details => {
+                      initiateTransfer({ amount, beneficiary, details });
+                    }}
+                  />
+                </>
+              ))
               .otherwise(() => null)}
           </ScrollView>
         </View>

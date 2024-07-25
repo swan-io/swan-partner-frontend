@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export type Beneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
+export type InternationalBeneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
@@ -55,11 +55,11 @@ export type Beneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
 
 type Props = {
   mode: "add" | "continue";
-  initialBeneficiary?: Beneficiary;
+  initialBeneficiary?: InternationalBeneficiary;
   amount?: Amount;
   errors?: string[];
   submitting?: boolean;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious?: () => void;
 };
 

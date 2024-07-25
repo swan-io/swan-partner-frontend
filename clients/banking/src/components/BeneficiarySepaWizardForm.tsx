@@ -27,7 +27,7 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type Beneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
+export type SepaBeneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
   name: string;
   iban: string;
 };
@@ -47,10 +47,10 @@ const styles = StyleSheet.create({
 type Props = {
   accountCountry: AccountCountry;
   accountId: string;
-  initialBeneficiary?: Beneficiary;
+  initialBeneficiary?: SepaBeneficiary;
   mode: "add" | "continue";
   submitting?: boolean;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressSubmit: (beneficiary: SepaBeneficiary) => void;
   onPressPrevious?: () => void;
 };
 
@@ -402,7 +402,7 @@ export const BeneficiarySepaWizardForm = ({
 };
 
 type SummaryProps = {
-  beneficiary: Beneficiary;
+  beneficiary: SepaBeneficiary;
   isMobile: boolean;
   onPressEdit: () => void;
 };

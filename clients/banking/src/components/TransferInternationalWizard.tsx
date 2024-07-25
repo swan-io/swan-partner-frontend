@@ -20,8 +20,8 @@ import { InitiateInternationalCreditTransferDocument } from "../graphql/partner"
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  Beneficiary,
   BeneficiaryInternationalWizardForm,
+  InternationalBeneficiary,
 } from "./BeneficiaryInternationalWizardForm";
 import {
   Amount,
@@ -79,8 +79,8 @@ const BeneficiaryStep = ({
 }: {
   amount: Amount | undefined;
   errors?: string[] | undefined;
-  initialBeneficiary: Beneficiary | undefined;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  initialBeneficiary: InternationalBeneficiary | undefined;
+  onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious: () => void;
 }) => {
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.type ?? "new");
@@ -95,13 +95,13 @@ const BeneficiaryStep = ({
 
       <TabView
         activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as Beneficiary["type"])}
+        onChange={tab => setActiveTab(tab as InternationalBeneficiary["type"])}
         otherLabel={t("common.tabs.other")}
         tabs={
           [
             { id: "new", label: t("transfer.new.beneficiary.new") },
             { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: Beneficiary["type"]; label: string }[]
+          ] satisfies { id: InternationalBeneficiary["type"]; label: string }[]
         }
       />
 
@@ -137,13 +137,13 @@ type Step =
   | {
       name: "Beneficiary";
       amount: Amount;
-      beneficiary?: Beneficiary;
+      beneficiary?: InternationalBeneficiary;
       errors?: string[];
     }
   | {
       name: "Details";
       amount: Amount;
-      beneficiary: Beneficiary;
+      beneficiary: InternationalBeneficiary;
       details?: Details;
     };
 
@@ -169,7 +169,7 @@ export const TransferInternationalWizard = ({
     details,
   }: {
     amount: Amount;
-    beneficiary: Beneficiary;
+    beneficiary: InternationalBeneficiary;
     details: Details;
   }) => {
     initiateTransfers({

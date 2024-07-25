@@ -30,7 +30,7 @@ import {
   validateTime,
   validateTodayOrAfter,
 } from "../utils/validations";
-import { Beneficiary } from "./BeneficiarySepaWizardForm";
+import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 
 const styles = StyleSheet.create({
   field: {
@@ -57,7 +57,7 @@ export type Schedule =
 type Props = {
   onPressPrevious: () => void;
   onSave: (schedule: Schedule) => void;
-  beneficiary?: Beneficiary;
+  beneficiary?: SepaBeneficiary;
   loading: boolean;
 };
 

@@ -19,8 +19,8 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  Beneficiary,
   BeneficiarySepaWizardForm,
+  SepaBeneficiary,
   TransferWizardBeneficiarySummary,
 } from "./BeneficiarySepaWizardForm";
 import {
@@ -71,13 +71,20 @@ const styles = StyleSheet.create({
 });
 
 type Step =
-  | { name: "Beneficiary"; beneficiary?: Beneficiary }
+  | {
+      name: "Beneficiary";
+      beneficiary?: SepaBeneficiary;
+    }
   | {
       name: "Details";
-      beneficiary: Beneficiary;
+      beneficiary: SepaBeneficiary;
       details?: Details;
     }
-  | { name: "Schedule"; beneficiary: Beneficiary; details: Details };
+  | {
+      name: "Schedule";
+      beneficiary: SepaBeneficiary;
+      details: Details;
+    };
 
 type Props = {
   onPressClose?: () => void;
@@ -104,7 +111,7 @@ export const TransferRecurringWizard = ({
     details,
     schedule,
   }: {
-    beneficiary: Beneficiary;
+    beneficiary: SepaBeneficiary;
     details: Details;
     schedule: Schedule;
   }) => {

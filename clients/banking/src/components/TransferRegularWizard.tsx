@@ -19,8 +19,8 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  Beneficiary,
   BeneficiarySepaWizardForm,
+  SepaBeneficiary,
   TransferWizardBeneficiarySummary,
 } from "./BeneficiarySepaWizardForm";
 import { SavedBeneficiariesForm } from "./SavedBeneficiariesForm";
@@ -74,8 +74,8 @@ const BeneficiaryStep = ({
 }: {
   accountCountry: AccountCountry;
   accountId: string;
-  initialBeneficiary: Beneficiary | undefined;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  initialBeneficiary: SepaBeneficiary | undefined;
+  onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.type ?? "new");
 
@@ -89,13 +89,13 @@ const BeneficiaryStep = ({
 
       <TabView
         activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as Beneficiary["type"])}
+        onChange={tab => setActiveTab(tab as SepaBeneficiary["type"])}
         otherLabel={t("common.tabs.other")}
         tabs={
           [
             { id: "new", label: t("transfer.new.beneficiary.new") },
             { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: Beneficiary["type"]; label: string }[]
+          ] satisfies { id: SepaBeneficiary["type"]; label: string }[]
         }
       />
 
@@ -122,16 +122,16 @@ const BeneficiaryStep = ({
 type Step =
   | {
       name: "Beneficiary";
-      beneficiary?: Beneficiary;
+      beneficiary?: SepaBeneficiary;
     }
   | {
       name: "Details";
-      beneficiary: Beneficiary;
+      beneficiary: SepaBeneficiary;
       details?: Details;
     }
   | {
       name: "Schedule";
-      beneficiary: Beneficiary;
+      beneficiary: SepaBeneficiary;
       details: Details;
     };
 
@@ -158,7 +158,7 @@ export const TransferRegularWizard = ({
     details,
     schedule,
   }: {
-    beneficiary: Beneficiary;
+    beneficiary: SepaBeneficiary;
     details: Details;
     schedule: Schedule;
   }) => {

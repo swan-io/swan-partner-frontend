@@ -23,7 +23,7 @@ import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
-import { Beneficiary } from "./BeneficiarySepaWizardForm";
+import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
@@ -68,7 +68,7 @@ const defaultFilters: TrustedBeneficiaryFiltersInput = {
 
 type Props = {
   accountId: string;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 };
 
 export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
@@ -122,7 +122,7 @@ export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
       <ErrorView error={error} style={styles.loadingOrError} />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-      const selectedBeneficiary: Option<Beneficiary> = Array.findMap(
+      const selectedBeneficiary: Option<SepaBeneficiary> = Array.findMap(
         beneficiaries.edges,
         ({ node }) => {
           if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {

@@ -16,7 +16,7 @@ import {
   InternationalCreditTransferDisplayLanguage,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
-import { Beneficiary } from "./BeneficiaryInternationalWizardForm";
+import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { ErrorView } from "./ErrorView";
 import {
   DynamicFormRef,
@@ -32,7 +32,7 @@ export type Details = {
 type Props = {
   initialDetails?: Details;
   amount: Amount;
-  beneficiary: Beneficiary;
+  beneficiary: InternationalBeneficiary;
   loading: boolean;
   onPressPrevious: (errors?: string[]) => void;
   onSave: (details: Details) => void;

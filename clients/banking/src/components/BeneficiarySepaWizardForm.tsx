@@ -11,6 +11,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -26,7 +27,7 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type Beneficiary = ({ type: "trusted"; id: string } | { type: "unsaved" }) & {
+export type Beneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
   name: string;
   iban: string;
 };
@@ -72,11 +73,15 @@ export const BeneficiarySepaWizardForm = ({
 
   const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
-      initialValue: initialBeneficiary?.name ?? "",
+      initialValue: match(initialBeneficiary)
+        .with({ type: "new", name: P.select(P.string) }, identity)
+        .otherwise(() => ""),
       validate: validateBeneficiaryName,
     },
     iban: {
-      initialValue: initialBeneficiary?.iban ?? "",
+      initialValue: match(initialBeneficiary)
+        .with({ type: "new", iban: P.select(P.string) }, identity)
+        .otherwise(() => ""),
       sanitize: electronicFormat,
       validate: combineValidators(validateRequired, validateIban),
     },
@@ -139,7 +144,7 @@ export const BeneficiarySepaWizardForm = ({
     submitForm({
       onSuccess: values => {
         Option.allFromDict(values).map(beneficiary =>
-          onPressSubmit({ type: "unsaved", ...beneficiary }),
+          onPressSubmit({ type: "new", ...beneficiary }),
         );
       },
     });

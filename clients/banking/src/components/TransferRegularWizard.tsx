@@ -181,7 +181,7 @@ const SavedBeneficiariesForm = ({
           }
 
           return Option.Some({
-            type: "trusted",
+            type: "saved",
             id: node.id,
             name: node.name,
             iban: node.iban,
@@ -298,8 +298,6 @@ const SavedBeneficiariesForm = ({
     .exhaustive();
 };
 
-type BeneficiaryTab = "new" | "saved";
-
 const BeneficiaryStep = ({
   accountCountry,
   accountId,
@@ -311,7 +309,7 @@ const BeneficiaryStep = ({
   beneficiary: Beneficiary | undefined;
   onPressSubmit: (beneficiary: Beneficiary) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState<BeneficiaryTab>("new");
+  const [activeTab, setActiveTab] = useState(beneficiary?.type ?? "new");
 
   return (
     <>
@@ -323,13 +321,13 @@ const BeneficiaryStep = ({
 
       <TabView
         activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as BeneficiaryTab)}
+        onChange={tab => setActiveTab(tab as Beneficiary["type"])}
         otherLabel={t("common.tabs.other")}
         tabs={
           [
             { id: "new", label: t("transfer.new.beneficiary.new") },
             { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: BeneficiaryTab; label: string }[]
+          ] satisfies { id: Beneficiary["type"]; label: string }[]
         }
       />
 
@@ -419,16 +417,16 @@ export const TransferRegularWizard = ({
               })),
 
             ...match(beneficiary)
-              .with({ type: "trusted" }, ({ id }) => ({
-                trustedBeneficiaryId: id,
-              }))
-              .with({ type: "unsaved" }, () => ({
+              .with({ type: "new" }, () => ({
                 sepaBeneficiary: {
                   name: beneficiary.name,
                   save: false,
                   iban: beneficiary.iban,
                   isMyOwnIban: false, // TODO
                 },
+              }))
+              .with({ type: "saved" }, ({ id }) => ({
+                trustedBeneficiaryId: id,
               }))
               .exhaustive(),
           },
@@ -509,68 +507,64 @@ export const TransferRegularWizard = ({
                   }}
                 />
               ))
-              .with({ name: "Details" }, ({ beneficiary, details }) => {
-                return (
-                  <>
-                    <TransferWizardBeneficiarySummary
-                      isMobile={!large}
-                      beneficiary={beneficiary}
-                      onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
-                    />
+              .with({ name: "Details" }, ({ beneficiary, details }) => (
+                <>
+                  <TransferWizardBeneficiarySummary
+                    isMobile={!large}
+                    beneficiary={beneficiary}
+                    onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+                  />
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.details.title")}
-                    </LakeHeading>
+                  <LakeHeading level={2} variant="h3">
+                    {t("transfer.new.details.title")}
+                  </LakeHeading>
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <TransferRegularWizardDetails
-                      accountMembershipId={accountMembershipId}
-                      initialDetails={details}
-                      onPressPrevious={() => setStep({ name: "Beneficiary", beneficiary })}
-                      onSave={details => setStep({ name: "Schedule", beneficiary, details })}
-                    />
+                  <TransferRegularWizardDetails
+                    accountMembershipId={accountMembershipId}
+                    initialDetails={details}
+                    onPressPrevious={() => setStep({ name: "Beneficiary", beneficiary })}
+                    onSave={details => setStep({ name: "Schedule", beneficiary, details })}
+                  />
 
-                    <Space height={32} />
-                  </>
-                );
-              })
-              .with({ name: "Schedule" }, ({ beneficiary, details }) => {
-                return (
-                  <>
-                    <TransferWizardBeneficiarySummary
-                      isMobile={!large}
-                      beneficiary={beneficiary}
-                      onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
-                    />
+                  <Space height={32} />
+                </>
+              ))
+              .with({ name: "Schedule" }, ({ beneficiary, details }) => (
+                <>
+                  <TransferWizardBeneficiarySummary
+                    isMobile={!large}
+                    beneficiary={beneficiary}
+                    onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+                  />
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <TransferRegularWizardDetailsSummary
-                      isMobile={!large}
-                      details={details}
-                      onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
-                    />
+                  <TransferRegularWizardDetailsSummary
+                    isMobile={!large}
+                    details={details}
+                    onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
+                  />
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.schedule.title")}
-                    </LakeHeading>
+                  <LakeHeading level={2} variant="h3">
+                    {t("transfer.new.schedule.title")}
+                  </LakeHeading>
 
-                    <Space height={32} />
+                  <Space height={32} />
 
-                    <TransferRegularWizardSchedule
-                      beneficiary={beneficiary}
-                      loading={transfer.isLoading()}
-                      onPressPrevious={() => setStep({ name: "Details", beneficiary, details })}
-                      onSave={schedule => initiateTransfer({ beneficiary, details, schedule })}
-                    />
-                  </>
-                );
-              })
+                  <TransferRegularWizardSchedule
+                    beneficiary={beneficiary}
+                    loading={transfer.isLoading()}
+                    onPressPrevious={() => setStep({ name: "Details", beneficiary, details })}
+                    onSave={schedule => initiateTransfer({ beneficiary, details, schedule })}
+                  />
+                </>
+              ))
               .otherwise(() => null)}
           </ScrollView>
         </View>

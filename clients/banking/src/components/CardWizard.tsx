@@ -623,7 +623,7 @@ export const CardWizard = ({
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
                                     : account != null
-                                      ? members?.edges.map(({ node }) => node) ?? []
+                                      ? (members?.edges.map(({ node }) => node) ?? [])
                                       : [accountMembership];
 
                                 if (canOrderPhysicalCard) {

@@ -478,7 +478,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                           inputMode="decimal"
                           disabled={!canManageCards}
                           error={
-                            validation?.includes("InvalidAmount") ?? false
+                            (validation?.includes("InvalidAmount") ?? false)
                               ? t("common.form.invalidAmount")
                               : undefined
                           }

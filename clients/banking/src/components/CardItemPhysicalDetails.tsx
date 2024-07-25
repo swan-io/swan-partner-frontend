@@ -993,8 +993,8 @@ export const CardItemPhysicalDetails = ({
                                     }
                                     expiryDate={
                                       selectedCard === "previous"
-                                        ? previousCard.expiryDate ?? ""
-                                        : physicalCard.expiryDate ?? ""
+                                        ? (previousCard.expiryDate ?? "")
+                                        : (physicalCard.expiryDate ?? "")
                                     }
                                     status={
                                       selectedCard === "previous"

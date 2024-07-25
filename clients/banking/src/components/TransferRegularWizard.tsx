@@ -24,13 +24,14 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { printFormat } from "iban";
-import { useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
   BeneficiariesListDocument,
   InitiateSepaCreditTransfersDocument,
+  TrustedBeneficiaryFiltersInput,
 } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
@@ -100,11 +101,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingVertical: spacings[16],
   },
+  loadingOrError: {
+    justifyContent: "flex-start",
+    paddingVertical: spacings[48],
+  },
   emptyContent: {
-    flexGrow: 1,
-    justifyContent: "center",
+    paddingTop: spacings[48],
+    paddingBottom: spacings[32],
   },
 });
+
+const defaultFilters: TrustedBeneficiaryFiltersInput = {
+  type: ["Sepa"],
+  status: ["Enabled"],
+};
 
 const SavedBeneficiariesForm = ({
   accountId,
@@ -114,40 +124,34 @@ const SavedBeneficiariesForm = ({
   onPressSubmit: (beneficiary: Beneficiary) => void;
 }) => {
   const [search, setSearch] = useState("");
-  const trimmedSearch = search.trim();
   const [selected, setSelected] = useState<string>();
 
-  const [data, { setVariables }] = useQuery(BeneficiariesListDocument, {
+  const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
     first: NUM_TO_RENDER,
-    filters: {
-      status: ["Enabled"],
-      type: ["Sepa"],
-      label: trimmedSearch.length >= 3 ? trimmedSearch : "",
-    },
+    filters: defaultFilters,
   });
 
   const beneficiaries = data.mapOkToResult(data =>
     Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
   );
 
-  const selectedBeneficiary: Option<Beneficiary> = data
-    .mapOk(data => data.account?.trustedBeneficiaries.edges ?? [])
-    .toOption()
-    .flatMap(edges =>
-      Array.findMap(edges.getOr([]), ({ node }) => {
-        if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
-          return Option.None();
-        }
+  const onSearchChange = useCallback(
+    (text: string) => {
+      setSearch(text);
 
-        return Option.Some({
-          type: "trusted",
-          id: node.id,
-          name: node.name,
-          iban: node.iban,
-        });
-      }),
-    );
+      const trimmed = text.trim();
+
+      setVariables({
+        after: null,
+        filters: {
+          ...defaultFilters,
+          label: trimmed.length >= 3 ? trimmed : "",
+        },
+      });
+    },
+    [setVariables],
+  );
 
   useEffect(() => {
     match(beneficiaries)
@@ -161,34 +165,49 @@ const SavedBeneficiariesForm = ({
       .otherwise(noop);
   }, [beneficiaries]);
 
-  return (
-    <ResponsiveContainer breakpoint={800} style={styles.fill}>
-      {({ small, large }) => (
-        <>
-          <Tile style={[styles.tile, large && styles.tileLarge]}>
-            <Box>
-              <LakeTextInput
-                icon="search-filled"
-                placeholder={t("common.search")}
-                hideErrors={true}
-                value={search}
-                onChangeText={setSearch}
-                renderEnd={() =>
-                  match(beneficiaries.mapOk(({ totalCount }) => totalCount))
-                    .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
-                      <Tag>{totalCount}</Tag>
-                    ))
-                    .otherwise(() => null)
-                }
-              />
-            </Box>
+  return match(beneficiaries)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
+      <LoadingView style={styles.loadingOrError} />
+    ))
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
+      <ErrorView error={error} style={styles.loadingOrError} />
+    ))
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
+      const selectedBeneficiary = Array.findMap(beneficiaries.edges, ({ node }) => {
+        if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
+          return Option.None();
+        }
 
-            {match(beneficiaries)
-              .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
-              .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
-                <ErrorView error={error} />
-              ))
-              .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
+        return Option.Some({
+          type: "trusted",
+          id: node.id,
+          name: node.name,
+          iban: node.iban,
+        });
+      });
+
+      return (
+        <ResponsiveContainer breakpoint={800}>
+          {({ small, large }) => (
+            <>
+              <Tile style={[styles.tile, large && styles.tileLarge]}>
+                <Box>
+                  <LakeTextInput
+                    icon="search-filled"
+                    placeholder={t("common.search")}
+                    value={search}
+                    onChangeText={onSearchChange}
+                    hideErrors={true}
+                    renderEnd={() =>
+                      isLoading ? (
+                        <ActivityIndicator color={colors.partner[500]} size={18} />
+                      ) : (
+                        <Tag>{beneficiaries.totalCount}</Tag>
+                      )
+                    }
+                  />
+                </Box>
+
                 <Connection connection={beneficiaries}>
                   {({ edges, pageInfo }) => (
                     <FlatList
@@ -249,31 +268,31 @@ const SavedBeneficiariesForm = ({
                     />
                   )}
                 </Connection>
-              ))
-              .exhaustive()}
-          </Tile>
+              </Tile>
 
-          <Space height={16} />
+              <Space height={16} />
 
-          <LakeButtonGroup>
-            <LakeButton
-              color="current"
-              grow={small}
-              loading={false}
-              disabled={selectedBeneficiary.isNone()}
-              onPress={() => {
-                if (selectedBeneficiary.isSome()) {
-                  onPressSubmit(selectedBeneficiary.get());
-                }
-              }}
-            >
-              {t("common.continue")}
-            </LakeButton>
-          </LakeButtonGroup>
-        </>
-      )}
-    </ResponsiveContainer>
-  );
+              <LakeButtonGroup>
+                <LakeButton
+                  color="current"
+                  grow={small}
+                  loading={false}
+                  disabled={selectedBeneficiary.isNone()}
+                  onPress={() => {
+                    if (selectedBeneficiary.isSome()) {
+                      onPressSubmit(selectedBeneficiary.get());
+                    }
+                  }}
+                >
+                  {t("common.continue")}
+                </LakeButton>
+              </LakeButtonGroup>
+            </>
+          )}
+        </ResponsiveContainer>
+      );
+    })
+    .exhaustive();
 };
 
 type BeneficiaryTab = "new" | "saved";

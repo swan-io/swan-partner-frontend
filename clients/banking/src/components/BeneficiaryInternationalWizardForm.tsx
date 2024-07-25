@@ -13,6 +13,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -45,7 +46,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export type Beneficiary = {
+export type Beneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
@@ -81,9 +82,11 @@ export const BeneficiaryInternationalWizardForm = ({
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
-      dynamicFields: initialBeneficiary?.values,
       amountValue: amount.value,
       currency: amount.currency,
+      dynamicFields: match(initialBeneficiary)
+        .with({ type: "new", values: P.select(P.nonNullable) }, identity)
+        .otherwise(() => undefined),
       // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
       language: locale.language === "fi" ? "en" : locale.language,
     },
@@ -91,7 +94,12 @@ export const BeneficiaryInternationalWizardForm = ({
   );
 
   const { Field, submitForm } = useForm<{ name: string }>({
-    name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
+    name: {
+      initialValue: match(initialBeneficiary)
+        .with({ type: "new", name: P.select(P.string) }, identity)
+        .otherwise(() => ""),
+      validate: validateRequired,
+    },
   });
 
   const currencyItems = useMemo(() => {
@@ -243,7 +251,7 @@ export const BeneficiaryInternationalWizardForm = ({
                 submitForm({
                   onSuccess: ({ name }) => {
                     name.tapSome(name =>
-                      onPressSubmit({ name, route: selectedRoute, values, currency }),
+                      onPressSubmit({ type: "new", name, route: selectedRoute, values, currency }),
                     );
                   },
                 });

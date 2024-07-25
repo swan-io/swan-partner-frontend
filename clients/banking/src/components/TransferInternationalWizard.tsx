@@ -6,6 +6,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -69,10 +70,82 @@ const styles = StyleSheet.create({
   },
 });
 
+const BeneficiaryStep = ({
+  amount,
+  errors,
+  initialBeneficiary,
+  onPressSubmit,
+  onPressPrevious,
+}: {
+  amount: Amount | undefined;
+  errors?: string[] | undefined;
+  initialBeneficiary: Beneficiary | undefined;
+  onPressSubmit: (beneficiary: Beneficiary) => void;
+  onPressPrevious: () => void;
+}) => {
+  const [activeTab, setActiveTab] = useState(initialBeneficiary?.type ?? "new");
+
+  return (
+    <>
+      <LakeHeading level={3} variant="h3">
+        {t("transfer.new.internationalTransfer.beneficiary.title")}
+      </LakeHeading>
+
+      <Space height={24} />
+
+      <TabView
+        activeTabId={activeTab}
+        onChange={tab => setActiveTab(tab as Beneficiary["type"])}
+        otherLabel={t("common.tabs.other")}
+        tabs={
+          [
+            { id: "new", label: t("transfer.new.beneficiary.new") },
+            { id: "saved", label: t("transfer.new.beneficiary.saved") },
+          ] satisfies { id: Beneficiary["type"]; label: string }[]
+        }
+      />
+
+      <Space height={32} />
+
+      {match(activeTab)
+        .with("new", () => (
+          <BeneficiaryInternationalWizardForm
+            mode="continue"
+            initialBeneficiary={initialBeneficiary}
+            amount={amount}
+            errors={errors}
+            onPressSubmit={onPressSubmit}
+            onPressPrevious={onPressPrevious}
+          />
+        ))
+        .with(
+          "saved",
+          () =>
+            // <SavedBeneficiariesForm accountId={accountId} onPressSubmit={onPressSubmit} />
+            null,
+        )
+        .exhaustive()}
+    </>
+  );
+};
+
 type Step =
-  | { name: "Amount"; amount?: Amount }
-  | { name: "Beneficiary"; amount: Amount; beneficiary?: Beneficiary; errors?: string[] }
-  | { name: "Details"; amount: Amount; beneficiary: Beneficiary; details?: Details };
+  | {
+      name: "Amount";
+      amount?: Amount;
+    }
+  | {
+      name: "Beneficiary";
+      amount: Amount;
+      beneficiary?: Beneficiary;
+      errors?: string[];
+    }
+  | {
+      name: "Details";
+      amount: Amount;
+      beneficiary: Beneficiary;
+      details?: Details;
+    };
 
 type Props = {
   onPressClose: () => void;
@@ -80,15 +153,15 @@ type Props = {
   accountMembershipId: string;
   canViewAccount: boolean;
 };
+
 export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
   canViewAccount,
 }: Props) => {
-  const [step, setStep] = useState<Step>({ name: "Amount" });
-
   const [initiateTransfers, transfer] = useMutation(InitiateInternationalCreditTransferDocument);
+  const [step, setStep] = useState<Step>({ name: "Amount" });
 
   const initiateTransfer = ({
     amount,
@@ -102,13 +175,25 @@ export const TransferInternationalWizard = ({
     initiateTransfers({
       input: {
         accountId,
-        targetAmount: { value: amount.value, currency: amount.currency },
-        internationalBeneficiary: {
-          name: beneficiary.name,
+        targetAmount: {
+          value: amount.value,
           currency: amount.currency,
-          route: beneficiary.route,
-          details: beneficiary.values,
         },
+
+        ...match(beneficiary)
+          .with({ type: "new" }, () => ({
+            internationalBeneficiary: {
+              name: beneficiary.name,
+              currency: amount.currency,
+              route: beneficiary.route,
+              details: beneficiary.values,
+            },
+          }))
+          .with({ type: "saved" }, ({ id }) => ({
+            trustedBeneficiaryId: id,
+          }))
+          .exhaustive(),
+
         internationalCreditTransferDetails: details.values,
         consentRedirectUrl:
           window.location.origin +
@@ -209,19 +294,14 @@ export const TransferInternationalWizard = ({
 
                   <Space height={24} />
 
-                  <LakeHeading level={3} variant="h3">
-                    {t("transfer.new.internationalTransfer.beneficiary.title")}
-                  </LakeHeading>
-
-                  <Space height={32} />
-
-                  <BeneficiaryInternationalWizardForm
-                    mode="continue"
+                  <BeneficiaryStep
                     initialBeneficiary={beneficiary}
                     amount={amount}
                     errors={errors}
                     onPressPrevious={() => setStep({ name: "Amount", amount })}
-                    onPressSubmit={beneficiary => setStep({ name: "Details", amount, beneficiary })}
+                    onPressSubmit={beneficiary => {
+                      setStep({ name: "Details", amount, beneficiary });
+                    }}
                   />
                 </>
               ))

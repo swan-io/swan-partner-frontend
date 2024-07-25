@@ -114,6 +114,7 @@
   "companyType.company": "Società",
   "companyType.other": "Altro",
   "companyType.selfEmployed": "Lavoratore autonomo",
+  "companyType.selfEmployed.FRA": "Lavoratore autonomo, imprenditore individuale o professionista libero",
   "emailPage.firstLink": "Termini e condizioni di Swan",
   "emailPage.secondLink": "Termini e condizioni di {partner}",
   "emailPage.terms": "Cliccando \"Avanti\", accetta {firstLink} e {secondLink}",

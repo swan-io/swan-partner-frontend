@@ -114,6 +114,7 @@
   "companyType.company": "Entreprise",
   "companyType.other": "Autre",
   "companyType.selfEmployed": "Travailleur indépendant ou entrepreneur individuel",
+  "companyType.selfEmployed.FRA": "Travailleur indépendant, entrepreneur individuel ou profession libérale",
   "emailPage.firstLink": "Conditions générales de Swan",
   "emailPage.secondLink": "Conditions de partenariat de {partner}",
   "emailPage.terms": "En cliquant sur \"Suivant\" vous acceptez {firstLink} et {secondLink}",

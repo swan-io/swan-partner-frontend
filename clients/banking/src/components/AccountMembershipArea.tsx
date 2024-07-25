@@ -47,18 +47,15 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
           Router.replace("ProjectRootRedirect");
         }
 
-        const hasRequiredIdentificationLevel =
-          accountMembership?.hasRequiredIdentificationLevel ?? undefined;
-        const recommendedIdentificationLevel = accountMembership?.recommendedIdentificationLevel;
+        const { account, recommendedIdentificationLevel } = accountMembership;
+        const { id: accountId, language, IBAN, bankDetails } = account ?? {};
 
-        const accountId = accountMembership?.account?.id;
-        const language = accountMembership?.account?.language;
-        const iban = accountMembership?.account?.IBAN;
-        const bankDetails = accountMembership?.account?.bankDetails;
-
-        if (accountId != null && language != null && iban != null && bankDetails == null) {
+        if (accountId != null && language != null && IBAN != null && bankDetails == null) {
           void updateAccountLanguage({ id: accountId, language });
         }
+
+        const hasRequiredIdentificationLevel =
+          accountMembership.hasRequiredIdentificationLevel ?? undefined;
 
         if (hasRequiredIdentificationLevel === false) {
           return queryLastRelevantIdentification({

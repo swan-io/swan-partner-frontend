@@ -23,6 +23,7 @@ import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
+import { getBeneficiaryIdentifier } from "./BeneficiaryList";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { SavedInternationalBeneficiary } from "./NewInternationalBeneficiaryForm";
@@ -223,6 +224,17 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
                                       .otherwise(() => null)}
                                   </>
                                 ),
+                              )
+                              .with(
+                                { __typename: "TrustedInternationalBeneficiary" },
+                                beneficiary =>
+                                  match(getBeneficiaryIdentifier(beneficiary))
+                                    .with(Option.P.Some(P.select()), ({ label, text }) => (
+                                      <LakeText numberOfLines={1}>
+                                        {label}: {text}
+                                      </LakeText>
+                                    ))
+                                    .otherwise(() => null),
                               )
                               .otherwise(() => null)}
                           </Box>

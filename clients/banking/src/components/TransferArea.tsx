@@ -180,24 +180,19 @@ export const TransferArea = ({
                           />
                         ),
                       )
-                      .with({ name: "AccountPaymentsBeneficiariesList" }, ({ params }) => (
-                        <BeneficiaryList
-                          accountId={accountId}
-                          params={params}
-                          canManageBeneficiaries={canManageBeneficiaries}
-                          canViewAccount={canViewAccount}
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
-                        />
-                      ))
-                      .with({ name: "AccountPaymentsBeneficiariesDetails" }, ({ params }) => (
-                        <BeneficiaryList
-                          accountId={accountId}
-                          params={params}
-                          canManageBeneficiaries={canManageBeneficiaries}
-                          canViewAccount={canViewAccount}
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
-                        />
-                      ))
+                      .with(
+                        { name: "AccountPaymentsBeneficiariesList" },
+                        { name: "AccountPaymentsBeneficiariesDetails" },
+                        ({ params }) => (
+                          <BeneficiaryList
+                            accountId={accountId}
+                            params={params}
+                            canManageBeneficiaries={canManageBeneficiaries}
+                            canViewAccount={canViewAccount}
+                            canQueryCardOnTransaction={canQueryCardOnTransaction}
+                          />
+                        ),
+                      )
                       .otherwise(() => (
                         <ErrorView />
                       ))}

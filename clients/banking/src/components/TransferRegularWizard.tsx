@@ -100,6 +100,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: spacings[16],
+    opacity: 1,
+  },
+  benificiaryPress: {
+    opacity: 0.7,
+    transitionDuration: "150ms",
+    transitionProperty: "opacity",
   },
   loadingOrError: {
     justifyContent: "flex-start",
@@ -237,8 +243,11 @@ const SavedBeneficiariesForm = ({
                         return (
                           <Pressable
                             role="radio"
-                            style={() => [styles.beneficiary]} // TODO: Add hover / pressed style
                             onPress={() => setSelected(node.id)}
+                            style={({ pressed }) => [
+                              styles.beneficiary,
+                              pressed && styles.benificiaryPress,
+                            ]}
                           >
                             <LakeRadio value={node.id === selected} />
                             <Space width={small ? 16 : 24} />

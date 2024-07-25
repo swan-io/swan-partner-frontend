@@ -66,6 +66,7 @@
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
+      "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
       "MerchantPaymentMethodWrongStatusRejection",
@@ -489,6 +490,12 @@
       "SupportingDocumentUploadedStatusInfo",
       "SupportingDocumentValidatedStatusInfo",
       "SupportingDocumentWaitingForUploadStatusInfo"
+    ],
+    "TransactionStatementStatusInfo": [
+      "TransactionStatementStatusInfoExpired",
+      "TransactionStatementStatusInfoFailed",
+      "TransactionStatementStatusInfoGenerated",
+      "TransactionStatementStatusInfoPending"
     ],
     "TrustedBeneficiaryStatusInfo": [
       "TrustedBeneficiaryCanceledStatusInfo",

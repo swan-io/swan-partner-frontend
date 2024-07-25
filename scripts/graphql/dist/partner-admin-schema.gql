@@ -2415,7 +2415,7 @@ type EnrichedTransactionInfo {
   """Is merchant a subcription"""
   isSubscription: Boolean
 
-  """Merchant carbon footprint"""
+  """Transaction carbon footprint in micrograms of CO2 emitted"""
   carbonFootprint: String
 
   """Merchant email"""
@@ -3837,6 +3837,11 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+"""Rejection returned when the Merchant Card Payment is declined"""
+type MerchantCardPaymentDeclinedRejection implements Rejection {
+  message: String!
+}
+
 enum MerchantCategory {
   Culture
   Entertainment
@@ -3876,10 +3881,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String!
+  redirectUrl: String
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String!
+  cancelRedirectUrl: String
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -4101,9 +4106,6 @@ enum MerchantProfileStatus {
   """Rejected"""
   Rejected
 
-  """Canceled"""
-  Canceled
-
   """Suspended"""
   Suspended
 
@@ -4187,6 +4189,7 @@ enum MerchantSubCategory {
   HotelsAndAccommodation
   TravelAgents
   ATM
+  AtmWithdrawal
   OfficeRental
   HrAndRecruiting
   Flowers
@@ -5371,6 +5374,9 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
 type PhysicalCardCustomOptions {
   """Additional line embossed on the card."""
   additionalPrintedLine: String
+
+  """Custom Card Holder Name"""
+  customCardHolderName: String
 }
 
 """when the physical card is in the process of being ready to use"""
@@ -6779,7 +6785,9 @@ input SimulateCardTransactionEnrichmentInput {
   """Merchant address, if nothing entered genereted randomly"""
   address: String
 
-  """Transaction carbon footprint, if nothing entered genereted randomly"""
+  """
+  Transaction carbon footprint in micrograms of CO2 emitted, if nothing entered genereted randomly
+  """
   carbonFootPrint: String
 
   """Merchant category, if nothing entered default to 'Other'"""
@@ -7633,9 +7641,6 @@ input SimulateUpdateMerchantProfileInput {
 
   """Desired status of the Merchant Profile"""
   merchantProfileStatus: MerchantProfileStatus
-
-  """Input to apply changes to the current underlying payment method"""
-  merchantPaymentMethod: [UpdateMerchantPaymentMethodInput!]
 }
 
 """SimulateUpdateMerchantProfilePayload"""
@@ -8048,6 +8053,36 @@ enum SupportingDocumentPurposeEnum {
 
   """Proof of address of the Ultimate Beneficial Owner"""
   UltimateBeneficialOwnerProofOfAddress
+
+  """Personal Income"""
+  PersonalIncome
+
+  """Personal Savings"""
+  PersonalSavings
+
+  """Investment"""
+  Investment
+
+  """Donation"""
+  Donation
+
+  """Inheritance"""
+  Inheritance
+
+  """Real Estate Income"""
+  RealEstateIncome
+
+  """Gambling Prize Winnings"""
+  GamblingPrizeWinnings
+
+  """Trade"""
+  Trade
+
+  """Company Treasury"""
+  CompanyTreasury
+
+  """Company Obligations"""
+  CompanyObligations
 }
 
 """Supporting document with Refused status"""
@@ -8234,6 +8269,12 @@ enum SupportingDocumentType {
 
   """Financial Statements"""
   FinancialStatements
+
+  """Winnings Certificate"""
+  WinningsCertificate
+
+  """Invoice"""
+  Invoice
 }
 
 """Supporting document with Uploaded status"""

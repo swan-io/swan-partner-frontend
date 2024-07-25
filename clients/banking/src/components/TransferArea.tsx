@@ -201,26 +201,26 @@ export const TransferArea = ({
               </ResponsiveContainer>
             ),
           )
-          .with({ name: "AccountPaymentsNew" }, ({ params: { type } }) =>
+          .with({ name: "AccountPaymentsNew" }, ({ params }) =>
             transferCreationVisible ? (
               <TransferTypePicker
                 accountCountry={accountCountry}
                 accountId={accountId}
                 accountMembershipId={accountMembershipId}
+                params={params}
                 canViewAccount={canViewAccount}
-                type={type}
               />
             ) : (
               <NotFoundPage />
             ),
           )
-          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params: { type } }) =>
+          .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params }) =>
             canManageBeneficiaries ? (
               <BeneficiaryTypePicker
                 accountCountry={accountCountry}
                 accountId={accountId}
                 accountMembershipId={accountMembershipId}
-                type={type}
+                params={params}
               />
             ) : (
               <NotFoundPage />

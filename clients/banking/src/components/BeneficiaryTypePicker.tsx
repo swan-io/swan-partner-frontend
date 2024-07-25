@@ -40,14 +40,14 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   accountCountry: AccountCountry;
-  type: GetRouteParams<"AccountPaymentsBeneficiariesNew">["type"];
+  params: GetRouteParams<"AccountPaymentsBeneficiariesNew">;
 };
 
 export const BeneficiaryTypePicker = ({
   accountMembershipId,
   accountId,
   accountCountry,
-  type,
+  params,
 }: Props) => {
   useCrumb(
     useMemo(
@@ -108,7 +108,7 @@ export const BeneficiaryTypePicker = ({
         )}
       </ResponsiveContainer>
 
-      <FullViewportLayer visible={type === "sepa"}>
+      <FullViewportLayer visible={params.type === "sepa"}>
         <BeneficiarySepaWizard
           accountCountry={accountCountry}
           accountId={accountId}
@@ -117,7 +117,7 @@ export const BeneficiaryTypePicker = ({
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={type === "international"}>
+      <FullViewportLayer visible={params.type === "international"}>
         <BeneficiaryInternationalWizard
           accountId={accountId}
           accountMembershipId={accountMembershipId}

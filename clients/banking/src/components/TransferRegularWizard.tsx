@@ -173,18 +173,21 @@ const SavedBeneficiariesForm = ({
       <ErrorView error={error} style={styles.loadingOrError} />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-      const selectedBeneficiary = Array.findMap(beneficiaries.edges, ({ node }) => {
-        if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
-          return Option.None();
-        }
+      const selectedBeneficiary: Option<Beneficiary> = Array.findMap(
+        beneficiaries.edges,
+        ({ node }) => {
+          if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
+            return Option.None();
+          }
 
-        return Option.Some({
-          type: "trusted",
-          id: node.id,
-          name: node.name,
-          iban: node.iban,
-        });
-      });
+          return Option.Some({
+            type: "trusted",
+            id: node.id,
+            name: node.name,
+            iban: node.iban,
+          });
+        },
+      );
 
       return (
         <ResponsiveContainer breakpoint={800}>

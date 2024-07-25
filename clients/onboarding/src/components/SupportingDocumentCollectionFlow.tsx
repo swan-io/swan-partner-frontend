@@ -16,9 +16,11 @@ import {
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
-import { ReactNode, useRef } from "react";
+import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
+import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";
 import {
+  DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   RequestSupportingDocumentCollectionReviewDocument,
   SupportingDocumentCollectionDocument,
@@ -55,6 +57,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
   const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
   );
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
   const [
     requestSupportingDocumentCollectionReviewDocument,
     supportingDocumentCollectionReviewDocumentRequest,
@@ -83,6 +86,15 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
       .mapOkToResult(filterRejectionsToResult)
       .mapOk(({ upload, supportingDocumentId }) => ({ upload, id: supportingDocumentId }));
   };
+
+  const onRemoveFile = useCallback(
+    (file: SwanFile) => {
+      return deleteSupportingDocument({ input: { id: file.id } })
+        .mapOk(data => data.deleteSupportingDocument)
+        .mapOkToResult(filterRejectionsToResult);
+    },
+    [deleteSupportingDocument],
+  );
 
   const onPressNext = ({ force } = { force: false }) => {
     const supportingDocumentCollection = supportingDocumentCollectionRef.current;
@@ -223,6 +235,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                                 generateUpload={generateUpload}
                                 status={supportingDocumentCollection.statusInfo.status}
                                 templateLanguage={locale.language}
+                                onRemoveFile={onRemoveFile}
                               />
                             </DocumentsStepTile>
                           </>

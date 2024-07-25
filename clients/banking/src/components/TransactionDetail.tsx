@@ -28,6 +28,7 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
+import { printFormat } from "iban";
 import { useState } from "react";
 import { Image, StyleSheet, Text } from "react-native";
 import { P, match } from "ts-pattern";
@@ -306,18 +307,14 @@ export const TransactionDetail = ({
               <>
                 <TabView
                   activeTabId={activeTab}
-                  tabs={[
-                    {
-                      label: t("transaction.tabs.details"),
-                      id: "Details",
-                    },
-                    {
-                      label: t("transaction.tabs.merchantInfo"),
-                      id: "MerchantInfo",
-                    },
-                  ]}
                   onChange={tab => setActiveTab(tab as Tab)}
                   otherLabel={t("common.tabs.other")}
+                  tabs={
+                    [
+                      { id: "Details", label: t("transaction.tabs.details") },
+                      { id: "MerchantInfo", label: t("transaction.tabs.merchantInfo") },
+                    ] satisfies { id: Tab; label: string }[]
+                  }
                 />
 
                 <Space height={24} />
@@ -779,23 +776,27 @@ export const TransactionDetail = ({
                       {match(creditor)
                         .with(
                           { __typename: "InternationalCreditTransferOutCreditor" },
-                          ({ name, details }) => (
-                            <ReadOnlyFieldList>
-                              <DetailLine
-                                label={t("transaction.creditorName")}
-                                text={name}
-                                icon="person-regular"
-                              />
-
-                              {details.map(detail => (
+                          ({ name, details }) => {
+                            return (
+                              <ReadOnlyFieldList>
                                 <DetailLine
-                                  key={getWiseIctLabel(detail.key)}
-                                  label={getWiseIctLabel(detail.key)}
-                                  text={getWiseIctLabel(detail.value)}
+                                  label={t("transaction.creditorName")}
+                                  text={name}
+                                  icon="person-regular"
                                 />
-                              ))}
-                            </ReadOnlyFieldList>
-                          ),
+
+                                {details.map(detail => (
+                                  <DetailLine
+                                    key={detail.key}
+                                    label={getWiseIctLabel(detail.key)}
+                                    text={match(detail)
+                                      .with({ key: "IBAN" }, ({ value }) => printFormat(value))
+                                      .otherwise(({ value }) => value)}
+                                  />
+                                ))}
+                              </ReadOnlyFieldList>
+                            );
+                          },
                         )
                         .otherwise(() => null)}
 

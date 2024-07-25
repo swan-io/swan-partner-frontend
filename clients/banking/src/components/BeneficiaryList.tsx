@@ -46,9 +46,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
-  BeneficiariesListPageDocument,
-  BeneficiariesListPageQuery,
-  BeneficiariesListPageQueryVariables,
+  BeneficiariesListDocument,
+  BeneficiariesListQuery,
+  BeneficiariesListQueryVariables,
   BeneficiaryType,
 } from "../graphql/partner";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
@@ -73,7 +73,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type Account = NonNullable<BeneficiariesListPageQuery["account"]>;
+type Account = NonNullable<BeneficiariesListQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
 type Beneficiary = GetNode<Beneficiaries>;
 type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
@@ -94,13 +94,13 @@ export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
     .returnType<Option<{ label: string; text: string }>>()
     .with({ __typename: "TrustedInternalBeneficiary" }, ({ accountId }) =>
       Option.Some({
-        label: t("beneficiaries.accountIdentifier.accountId"),
+        label: t("beneficiaries.details.accountId"),
         text: accountId,
       }),
     )
     .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban }) =>
       Option.Some({
-        label: t("beneficiaries.accountIdentifier.iban"),
+        label: t("beneficiaries.details.iban"),
         text: printFormat(iban),
       }),
     )
@@ -108,31 +108,31 @@ export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
       match(Object.fromEntries(details.map(({ key, value }): [string, string] => [key, value])))
         .with({ accountNumber: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.accountNumber"),
+            label: t("beneficiaries.details.accountNumber"),
             text: value,
           }),
         )
         .with({ IBAN: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.iban"),
+            label: t("beneficiaries.details.iban"),
             text: printFormat(value),
           }),
         )
         .with({ customerReferenceNumber: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.customerReferenceNumber"),
+            label: t("beneficiaries.details.customerReferenceNumber"),
             text: value,
           }),
         )
         .with({ clabe: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.clabe"),
+            label: t("beneficiaries.details.clabe"),
             text: value,
           }),
         )
         .with({ interacAccount: P.select(P.string) }, value =>
           Option.Some({
-            label: t("beneficiaries.accountIdentifier.interacAccount"),
+            label: t("beneficiaries.details.interacAccount"),
             text: value,
           }),
         )
@@ -213,7 +213,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
   },
   {
     id: "identifier",
-    title: t("beneficiaries.accountIdentifier.title"),
+    title: t("beneficiaries.details.title"),
     width: "grow",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
     renderCell: ({ item }) => {
@@ -346,7 +346,8 @@ const BeneficiaryListImpl = ({
   rowHeight,
   beneficiaries,
   isLoading,
-  activeBeneficiaryId,
+  canViewAccount,
+  canQueryCardOnTransaction,
   params,
   setVariables,
 }: {
@@ -355,9 +356,12 @@ const BeneficiaryListImpl = ({
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   params: RouteParams;
-  activeBeneficiaryId?: string;
-  setVariables: (variables: Partial<BeneficiariesListPageQueryVariables>) => void;
+  canViewAccount: boolean;
+  canQueryCardOnTransaction: boolean;
+  setVariables: (variables: Partial<BeneficiariesListQueryVariables>) => void;
 }) => {
+  const route = Router.useRoute(["AccountPaymentsBeneficiariesDetails"]);
+
   const { edges, pageInfo } = useForwardPagination(beneficiaries);
   const nodes = useMemo(() => edges.map(edge => edge.node), [edges]);
   const panelRef = useRef<FocusTrapRef | null>(null);
@@ -378,7 +382,7 @@ const BeneficiaryListImpl = ({
         columns={columns}
         smallColumns={smallColumns}
         headerHeight={48}
-        activeRowId={activeBeneficiaryId}
+        activeRowId={route?.params.beneficiaryId}
         onActiveRowChange={onActiveRowChange}
         loading={{
           isLoading,
@@ -410,23 +414,37 @@ const BeneficiaryListImpl = ({
         )}
       />
 
-      <ListRightPanel
-        ref={panelRef}
-        closeLabel={t("common.closeButton")}
-        nextLabel={t("common.next")}
-        previousLabel={t("common.previous")}
-        keyExtractor={item => item.id}
-        activeId={activeBeneficiaryId ?? null}
-        onActiveIdChange={beneficiaryId =>
-          Router.push("AccountPaymentsBeneficiariesDetails", {
-            ...params,
-            beneficiaryId,
-          })
-        }
-        onClose={() => Router.push("AccountPaymentsBeneficiariesList", params)}
-        items={nodes}
-        render={(item, large) => <BeneficiaryDetail id={item.id} large={large} />}
-      />
+      {match(route)
+        .with(Router.P.AccountPaymentsBeneficiariesDetails(P.select()), params => (
+          <ListRightPanel
+            ref={panelRef}
+            closeLabel={t("common.closeButton")}
+            nextLabel={t("common.next")}
+            previousLabel={t("common.previous")}
+            keyExtractor={item => item.id}
+            activeId={params.beneficiaryId}
+            onActiveIdChange={beneficiaryId =>
+              Router.push("AccountPaymentsBeneficiariesDetails", {
+                ...params,
+                beneficiaryId,
+              })
+            }
+            onClose={() => {
+              Router.push("AccountPaymentsBeneficiariesList", params);
+            }}
+            items={nodes}
+            render={(item, large) => (
+              <BeneficiaryDetail
+                id={item.id}
+                canViewAccount={canViewAccount}
+                canQueryCardOnTransaction={canQueryCardOnTransaction}
+                large={large}
+                params={params}
+              />
+            )}
+          />
+        ))
+        .otherwise(() => null)}
     </>
   );
 };
@@ -435,12 +453,14 @@ export const BeneficiaryList = ({
   accountId,
   params,
   canManageBeneficiaries,
-  activeBeneficiaryId,
+  canViewAccount,
+  canQueryCardOnTransaction,
 }: {
   accountId: string;
   params: RouteParams;
   canManageBeneficiaries: boolean;
-  activeBeneficiaryId?: string;
+  canViewAccount: boolean;
+  canQueryCardOnTransaction: boolean;
 }) => {
   const { filters, canceled, label, hasFilters } = useMemo(() => {
     const filters: Filters = {
@@ -483,13 +503,13 @@ export const BeneficiaryList = ({
     });
   }, [filters]);
 
-  const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListPageDocument, {
+  const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
     first: NUM_TO_RENDER,
     filters: {
       currency: filters.currency,
       label,
-      type: filters.type,
+      type: filters.type ?? ["International", "Sepa"],
       status: canceled ? ["Canceled"] : ["Enabled"],
     },
   });
@@ -628,7 +648,8 @@ export const BeneficiaryList = ({
                   beneficiaries={beneficiaries}
                   isLoading={isLoading}
                   params={params}
-                  activeBeneficiaryId={activeBeneficiaryId}
+                  canViewAccount={canViewAccount}
+                  canQueryCardOnTransaction={canQueryCardOnTransaction}
                   setVariables={setVariables}
                 />
               ))

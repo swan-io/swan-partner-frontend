@@ -46,24 +46,36 @@ const styles = StyleSheet.create({
   },
 });
 
-export type InternationalBeneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
+export type NewInternationalBeneficiary = {
+  type: "international";
+  kind: "new";
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
   values: InternationalBeneficiaryDetailsInput[];
 };
 
+export type SavedInternationalBeneficiary = {
+  type: "international";
+  kind: "saved";
+  id: string;
+  name: string;
+  currency: Currency;
+};
+
+export type InternationalBeneficiary = NewInternationalBeneficiary | SavedInternationalBeneficiary;
+
 type Props = {
   mode: "add" | "continue";
-  initialBeneficiary?: InternationalBeneficiary;
+  initialBeneficiary?: NewInternationalBeneficiary;
   amount?: Amount;
   errors?: string[];
   submitting?: boolean;
-  onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
+  onPressSubmit: (beneficiary: NewInternationalBeneficiary) => void;
   onPressPrevious?: () => void;
 };
 
-export const BeneficiaryInternationalWizardForm = ({
+export const NewInternationalBeneficiaryForm = ({
   mode,
   initialBeneficiary,
   amount = DEFAULT_AMOUNT,
@@ -82,11 +94,9 @@ export const BeneficiaryInternationalWizardForm = ({
   const [data, { isLoading, setVariables }] = useQuery(
     GetInternationalBeneficiaryDynamicFormsDocument,
     {
+      dynamicFields: initialBeneficiary?.values,
       amountValue: amount.value,
       currency: amount.currency,
-      dynamicFields: match(initialBeneficiary)
-        .with({ type: "new", values: P.select(P.nonNullable) }, identity)
-        .otherwise(() => undefined),
       // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
       language: locale.language === "fi" ? "en" : locale.language,
     },
@@ -96,7 +106,7 @@ export const BeneficiaryInternationalWizardForm = ({
   const { Field, submitForm } = useForm<{ name: string }>({
     name: {
       initialValue: match(initialBeneficiary)
-        .with({ type: "new", name: P.select(P.string) }, identity)
+        .with({ kind: "new", name: P.select(P.string) }, identity)
         .otherwise(() => ""),
       validate: validateRequired,
     },
@@ -251,7 +261,14 @@ export const BeneficiaryInternationalWizardForm = ({
                 submitForm({
                   onSuccess: ({ name }) => {
                     name.tapSome(name =>
-                      onPressSubmit({ type: "new", name, route: selectedRoute, values, currency }),
+                      onPressSubmit({
+                        type: "international",
+                        kind: "new",
+                        name,
+                        currency,
+                        route: selectedRoute,
+                        values,
+                      }),
                     );
                   },
                 });

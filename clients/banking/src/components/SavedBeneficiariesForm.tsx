@@ -17,15 +17,16 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { printFormat } from "iban";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
-import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { SavedInternationalBeneficiary } from "./NewInternationalBeneficiaryForm";
+import { SavedSepaBeneficiary } from "./NewSepaBeneficiaryForm";
 
 const NUM_TO_RENDER = 20;
 
@@ -61,24 +62,27 @@ const styles = StyleSheet.create({
   },
 });
 
-const defaultFilters: TrustedBeneficiaryFiltersInput = {
-  type: ["Sepa"],
-  status: ["Enabled"],
-};
+type SavedBeneficiary = SavedSepaBeneficiary | SavedInternationalBeneficiary;
 
 type Props = {
+  type: "Sepa" | "International";
   accountId: string;
-  onPressSubmit: (beneficiary: SepaBeneficiary) => void;
+  onPressSubmit: (beneficiary: SavedBeneficiary) => void;
 };
 
-export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
+export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props) => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string>();
 
+  const defaultFilters = useMemo<TrustedBeneficiaryFiltersInput>(
+    () => ({ type: [type], status: ["Enabled"] }),
+    [type],
+  );
+
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
-    first: NUM_TO_RENDER,
     filters: defaultFilters,
+    first: NUM_TO_RENDER,
   });
 
   const beneficiaries = data.mapOkToResult(data =>
@@ -99,7 +103,7 @@ export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
         },
       });
     },
-    [setVariables],
+    [defaultFilters, setVariables],
   );
 
   useEffect(() => {
@@ -122,21 +126,26 @@ export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
       <ErrorView error={error} style={styles.loadingOrError} />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-      const selectedBeneficiary: Option<SepaBeneficiary> = Array.findMap(
-        beneficiaries.edges,
-        ({ node }) => {
-          if (node.__typename !== "TrustedSepaBeneficiary" || node.id !== selected) {
-            return Option.None();
-          }
+      const selectedBeneficiary = Array.findMap(beneficiaries.edges, ({ node }) => {
+        if (node.id !== selected) {
+          return Option.None();
+        }
 
-          return Option.Some({
-            type: "saved",
-            id: node.id,
-            name: node.name,
-            iban: node.iban,
-          });
-        },
-      );
+        return match(node)
+          .returnType<Option<SavedBeneficiary>>()
+          .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
+            Option.Some({ type: "sepa", kind: "saved", id, name, iban }),
+          )
+          .with(
+            {
+              __typename: "TrustedInternationalBeneficiary",
+              currency: P.when(isSupportedCurrency),
+            },
+            ({ id, name, currency }) =>
+              Option.Some({ type: "international", kind: "saved", id, name, currency }),
+          )
+          .otherwise(() => Option.None());
+      });
 
       return (
         <ResponsiveContainer breakpoint={800}>
@@ -178,43 +187,47 @@ export const SavedBeneficiariesForm = ({ accountId, onPressSubmit }: Props) => {
                           subtitle={t("common.list.noResultsSuggestion")}
                         />
                       }
-                      renderItem={({ item: { node } }) => {
-                        if (node.__typename !== "TrustedSepaBeneficiary") {
-                          return null; // Could not happen with type: ["Sepa"] filter
-                        }
+                      renderItem={({ item: { node } }) => (
+                        <Pressable
+                          role="radio"
+                          onPress={() => setSelected(node.id)}
+                          style={({ pressed }) => [
+                            styles.beneficiary,
+                            pressed && styles.benificiaryPress,
+                          ]}
+                        >
+                          <LakeRadio value={node.id === selected} />
+                          <Space width={small ? 16 : 24} />
 
-                        return (
-                          <Pressable
-                            role="radio"
-                            onPress={() => setSelected(node.id)}
-                            style={({ pressed }) => [
-                              styles.beneficiary,
-                              pressed && styles.benificiaryPress,
-                            ]}
-                          >
-                            <LakeRadio value={node.id === selected} />
-                            <Space width={small ? 16 : 24} />
+                          <Box shrink={1}>
+                            <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
+                              {node.label}
+                            </LakeText>
 
-                            <Box shrink={1}>
-                              <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
-                                {node.label}
-                              </LakeText>
+                            <Space height={4} />
 
-                              <Space height={4} />
-                              <LakeText numberOfLines={1}>{printFormat(node.iban)}</LakeText>
-
-                              {match(concatSepaBeneficiaryAddress(node.address))
-                                .with(P.nonNullable, address => (
+                            {match(node)
+                              .with(
+                                { __typename: "TrustedSepaBeneficiary" },
+                                ({ address, iban }) => (
                                   <>
-                                    <Space height={4} />
-                                    <LakeText numberOfLines={1}>{address}</LakeText>
+                                    <LakeText numberOfLines={1}>{printFormat(iban)}</LakeText>
+
+                                    {match(concatSepaBeneficiaryAddress(address))
+                                      .with(P.nonNullable, address => (
+                                        <>
+                                          <Space height={4} />
+                                          <LakeText numberOfLines={1}>{address}</LakeText>
+                                        </>
+                                      ))
+                                      .otherwise(() => null)}
                                   </>
-                                ))
-                                .otherwise(() => null)}
-                            </Box>
-                          </Pressable>
-                        );
-                      }}
+                                ),
+                              )
+                              .otherwise(() => null)}
+                          </Box>
+                        </Pressable>
+                      )}
                       onEndReached={() => {
                         if (pageInfo.hasNextPage ?? false) {
                           setVariables({ after: pageInfo.endCursor });

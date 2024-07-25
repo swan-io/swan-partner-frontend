@@ -19,10 +19,10 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  BeneficiarySepaWizardForm,
+  NewSepaBeneficiaryForm,
   SepaBeneficiary,
   TransferWizardBeneficiarySummary,
-} from "./BeneficiarySepaWizardForm";
+} from "./NewSepaBeneficiaryForm";
 import { SavedBeneficiariesForm } from "./SavedBeneficiariesForm";
 import {
   Details,
@@ -77,7 +77,7 @@ const BeneficiaryStep = ({
   initialBeneficiary: SepaBeneficiary | undefined;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState(initialBeneficiary?.type ?? "new");
+  const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
   return (
     <>
@@ -89,13 +89,13 @@ const BeneficiaryStep = ({
 
       <TabView
         activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as SepaBeneficiary["type"])}
+        onChange={tab => setActiveTab(tab as SepaBeneficiary["kind"])}
         otherLabel={t("common.tabs.other")}
         tabs={
           [
             { id: "new", label: t("transfer.new.beneficiary.new") },
             { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: SepaBeneficiary["type"]; label: string }[]
+          ] satisfies { id: SepaBeneficiary["kind"]; label: string }[]
         }
       />
 
@@ -103,7 +103,7 @@ const BeneficiaryStep = ({
 
       {match(activeTab)
         .with("new", () => (
-          <BeneficiarySepaWizardForm
+          <NewSepaBeneficiaryForm
             mode="continue"
             accountCountry={accountCountry}
             accountId={accountId}
@@ -112,7 +112,15 @@ const BeneficiaryStep = ({
           />
         ))
         .with("saved", () => (
-          <SavedBeneficiariesForm accountId={accountId} onPressSubmit={onPressSubmit} />
+          <SavedBeneficiariesForm
+            type="Sepa"
+            accountId={accountId}
+            onPressSubmit={beneficiary => {
+              if (beneficiary.type === "sepa") {
+                onPressSubmit(beneficiary);
+              }
+            }}
+          />
         ))
         .exhaustive()}
     </>
@@ -185,7 +193,7 @@ export const TransferRegularWizard = ({
               })),
 
             ...match(beneficiary)
-              .with({ type: "new" }, () => ({
+              .with({ kind: "new" }, () => ({
                 sepaBeneficiary: {
                   name: beneficiary.name,
                   save: false,
@@ -193,7 +201,7 @@ export const TransferRegularWizard = ({
                   isMyOwnIban: false, // TODO
                 },
               }))
-              .with({ type: "saved" }, ({ id }) => ({
+              .with({ kind: "saved" }, ({ id }) => ({
                 trustedBeneficiaryId: id,
               }))
               .exhaustive(),

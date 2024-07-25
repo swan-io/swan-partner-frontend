@@ -27,10 +27,22 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type SepaBeneficiary = ({ type: "new" } | { type: "saved"; id: string }) & {
+export type NewSepaBeneficiary = {
+  type: "sepa";
+  kind: "new";
   name: string;
   iban: string;
 };
+
+export type SavedSepaBeneficiary = {
+  type: "sepa";
+  kind: "saved";
+  id: string;
+  name: string;
+  iban: string;
+};
+
+export type SepaBeneficiary = NewSepaBeneficiary | SavedSepaBeneficiary;
 
 const styles = StyleSheet.create({
   summaryContents: {
@@ -54,7 +66,7 @@ type Props = {
   onPressPrevious?: () => void;
 };
 
-export const BeneficiarySepaWizardForm = ({
+export const NewSepaBeneficiaryForm = ({
   accountCountry,
   accountId,
   initialBeneficiary,
@@ -74,13 +86,13 @@ export const BeneficiarySepaWizardForm = ({
   const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
       initialValue: match(initialBeneficiary)
-        .with({ type: "new", name: P.select(P.string) }, identity)
+        .with({ kind: "new", name: P.select(P.string) }, identity)
         .otherwise(() => ""),
       validate: validateBeneficiaryName,
     },
     iban: {
       initialValue: match(initialBeneficiary)
-        .with({ type: "new", iban: P.select(P.string) }, identity)
+        .with({ kind: "new", iban: P.select(P.string) }, identity)
         .otherwise(() => ""),
       sanitize: electronicFormat,
       validate: combineValidators(validateRequired, validateIban),
@@ -144,7 +156,7 @@ export const BeneficiarySepaWizardForm = ({
     submitForm({
       onSuccess: values => {
         Option.allFromDict(values).map(beneficiary =>
-          onPressSubmit({ type: "new", ...beneficiary }),
+          onPressSubmit({ type: "sepa", kind: "new", ...beneficiary }),
         );
       },
     });

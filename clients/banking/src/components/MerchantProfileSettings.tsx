@@ -491,11 +491,11 @@ export const MerchantProfileSettings = ({
               title={t("merchantProfile.status.suspended.description")}
             />
           ))
-          .with({ statusInfo: { status: "Canceled" } }, () => (
+          .with({ statusInfo: { status: "Disabled" } }, () => (
             <LakeAlert
               anchored={true}
               variant="neutral"
-              title={t("merchantProfile.status.canceled.description")}
+              title={t("merchantProfile.status.disabled.description")}
             />
           ))
           .with({ statusInfo: { status: "PendingReview" } }, () => (
@@ -536,8 +536,8 @@ export const MerchantProfileSettings = ({
             <Space width={24} />
 
             {match(merchantProfile.statusInfo.status)
-              .with("Canceled", () => (
-                <Tag color="gray">{t("merchantProfile.status.canceled")}</Tag>
+              .with("Disabled", () => (
+                <Tag color="gray">{t("merchantProfile.status.disabled")}</Tag>
               ))
               .with("Enabled", () => (
                 <Tag color="positive">{t("merchantProfile.status.enabled")}</Tag>

@@ -120,6 +120,17 @@ type Account {
   bankDetails: String
 }
 
+"""
+Account and Requested Card, it the return type of accountByCardToken & accountByCardId;
+"""
+type AccountAndCard {
+  """Account"""
+  account: Account!
+
+  """Requested Card"""
+  cardRequested: Card!
+}
+
 """Account Closed status information"""
 type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
@@ -1610,6 +1621,12 @@ input CardPINInfosInput {
   requestId: String!
 }
 
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
+}
+
 """when the card is in the process of being ready to use"""
 type CardProcessingStatusInfo implements CardStatusInfo {
   """Card status (always Processing for type CardProcessingStatusInfo)"""
@@ -1629,6 +1646,9 @@ type CardProduct {
   defaultCardProduct: Boolean!
   individualSpendingLimit: SpendingLimit!
   companySpendingLimit: SpendingLimit!
+
+  """Card printing hub"""
+  cardPrintingHub: CardPrintingHub
 }
 
 """Card design of a Card Product"""
@@ -2080,6 +2100,12 @@ type CompleteDigitalCard implements DigitalCard {
   In this type the status will be either ConsentPending or Pending
   """
   statusInfo: CompleteDigitalCardStatusInfo!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Complete Digital Card Status"""
@@ -2346,6 +2372,17 @@ type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
 }
 
+input DeleteSupportingDocumentInput {
+  """Id of the supporting document to delete"""
+  id: ID!
+}
+
+union DeleteSupportingDocumentPayload = DeleteSupportingDocumentSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowDeletionRejection | ValidationRejection
+
+type DeleteSupportingDocumentSuccessPayload {
+  id: String!
+}
+
 """Device"""
 type Device {
   """The type of device. It can be a Phone, Tablet, Watch"""
@@ -2377,6 +2414,12 @@ interface DigitalCard {
 
   """Wallet Provider (ApplePay, GooglePay ...)"""
   walletProvider: WalletProvider!
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Digital Card Canceled Status Information"""
@@ -3206,6 +3249,11 @@ input MembershipsFilterInput {
   search: String
 }
 
+"""Rejection returned when the Merchant Card Payment is declined"""
+type MerchantCardPaymentDeclinedRejection implements Rejection {
+  message: String!
+}
+
 type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
@@ -3228,10 +3276,10 @@ type MerchantPaymentLink {
   """
   Merchant Website URL to redirect the user to when the payment is completed.
   """
-  redirectUrl: String!
+  redirectUrl: String
 
   """URL to redirect the user to if they cancel their payment"""
-  cancelRedirectUrl: String!
+  cancelRedirectUrl: String
 
   """
   Controls if the payment mandate created from this payment link is for one-time use or can be reused
@@ -3451,9 +3499,6 @@ enum MerchantProfileStatus {
   """Rejected"""
   Rejected
 
-  """Canceled"""
-  Canceled
-
   """Suspended"""
   Suspended
 
@@ -3511,6 +3556,15 @@ type Mutation {
   unauthenticatedOnboardPublicIndividualAccountHolder(input: UnauthenticatedOnboardPublicIndividualAccountHolderInput): UnauthenticatedOnboardPublicIndividualAccountHolderPayload!
   unauthenticatedUpdateCompanyOnboarding(input: UnauthenticatedUpdateCompanyOnboardingInput): UnauthenticatedUpdateCompanyOnboardingPayload!
   unauthenticatedUpdateIndividualOnboarding(input: UnauthenticatedUpdateIndividualOnboardingInput!): UnauthenticatedUpdateIndividualOnboardingPayload!
+
+  """
+  Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
+  
+  This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
 
   """
   Generate and return a presigned URL to upload a unique file for the supporting document collection
@@ -4267,6 +4321,12 @@ type PendingDigitalCard implements DigitalCard {
   - type: InApp
   """
   inAppProvisioningData(signatureData: SignatureData): InAppProvisioningData
+
+  """The project ID"""
+  projectId: ID!
+
+  """The card contract ID"""
+  cardContractId: ID!
 }
 
 """Pending Digital Card Status"""
@@ -4385,6 +4445,9 @@ type PhysicalCardConsentPendingStatusInfo implements PhysicalCardStatusInfo {
 type PhysicalCardCustomOptions {
   """Additional line embossed on the card."""
   additionalPrintedLine: String
+
+  """Custom Card Holder Name"""
+  customCardHolderName: String
 }
 
 """Rejection returned when the Physical Card does not exist"""
@@ -5306,6 +5369,7 @@ type SupportingDocumentCollectionWaitingForDocumentStatusInfo implements Support
 enum SupportingDocumentCollectMode {
   API
   EndCustomer
+  EndCustomerCcPartner
   Partner
 }
 
@@ -5413,6 +5477,36 @@ enum SupportingDocumentPurposeEnum {
 
   """Proof of address of the Ultimate Beneficial Owner"""
   UltimateBeneficialOwnerProofOfAddress
+
+  """Personal Income"""
+  PersonalIncome
+
+  """Personal Savings"""
+  PersonalSavings
+
+  """Investment"""
+  Investment
+
+  """Donation"""
+  Donation
+
+  """Inheritance"""
+  Inheritance
+
+  """Real Estate Income"""
+  RealEstateIncome
+
+  """Gambling Prize Winnings"""
+  GamblingPrizeWinnings
+
+  """Trade"""
+  Trade
+
+  """Company Treasury"""
+  CompanyTreasury
+
+  """Company Obligations"""
+  CompanyObligations
 }
 
 """Supporting document with Refused status"""
@@ -5605,6 +5699,12 @@ enum SupportingDocumentType {
 
   """Financial Statements"""
   FinancialStatements
+
+  """Winnings Certificate"""
+  WinningsCertificate
+
+  """Invoice"""
+  Invoice
 }
 
 """Supporting document with Uploaded status"""
@@ -5864,7 +5964,7 @@ input UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput {
   paymentLinkId: ID!
 }
 
-union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection
+union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | MerchantCardPaymentDeclinedRejection
 
 type UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload {
   """"""
@@ -5891,8 +5991,16 @@ type UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkSuccessPa
 }
 
 input UnauthenticatedOnboardPublicCompanyAccountHolderInput {
+  """ID of the project."""
   projectId: ID!
+
+  """
+  Verification Flow.
+  - Default value to 'Upfront' if not provided.
+  """
   verificationFlow: VerificationFlow! = Upfront
+
+  """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
 }
 
@@ -5903,8 +6011,16 @@ type UnauthenticatedOnboardPublicCompanyAccountHolderSuccessPayload {
 }
 
 input UnauthenticatedOnboardPublicIndividualAccountHolderInput {
+  """ID of the project."""
   projectId: ID!
+
+  """
+  Verification Flow.
+  - Default value to 'Upfront' if not provided.
+  """
   verificationFlow: VerificationFlow! = Upfront
+
+  """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
 }
 
@@ -5915,23 +6031,126 @@ type UnauthenticatedOnboardPublicIndividualAccountHolderSuccessPayload {
 }
 
 input UnauthenticatedUpdateCompanyOnboardingInput {
+  """
+  Account name of the company account holder.
+  - Length must be from 0 to 100 characters.
+  """
   accountName: String
+
+  """Business activity."""
   businessActivity: BusinessActivity
+
+  """
+  Description of the business activity.
+  - Length must be from 0 to 1024 characters.
+  """
   businessActivityDescription: String
+
+  """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
+
+  """Type of the company (Association ...)."""
   companyType: CompanyType
+
+  """
+  Email of the legal representative.
+  - Length must be from 0 to 255 characters.
+  - Valid format (regex):
+    ```
+    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    ```
+  - Some email providers are not accepted by our system.
+  """
   email: String
+
+  """
+  The ultimate beneficial owner is defined as the natural person (s) who own or control, directly and/or indirectly, the reporting company.
+  
+  The ultimate beneficial owner is :
+  - either the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company;
+  - either the natural person (s) who exercise, by other means, a power of control of the company;
+  """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwnerInput!]
+
+  """Is company registered at RCS in its country."""
   isRegistered: Boolean
+
+  """
+  Language of the onboarding process.
+  - Must be compliant with RFC 5646.
+  """
   language: String
+
+  """Estimated monthly payment volume (euro)."""
   monthlyPaymentVolume: MonthlyPaymentVolume
+
+  """
+  Company name.
+  - Length must be from 0 to 100 characters.
+  - Valid format (regex):
+    ```
+    /^(?:(?<!http(s)*:\/\/|www\.|&lt;|&gt;)[!-.\/-;A-Z[-`a-zÀ-ÖÙ-öº-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ/]|¿|¡| |'|-|Ά|Ό|=|\?|@|\[|]|\||‘|’)*$/
+    ```
+  """
   name: String
+
+  """ID of the onboarding to update."""
   onboardingId: ID!
+
+  """
+  Registration number of the company (SIRET, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
+
+  """
+  Residency address of the head office.
+  - Must be in a European country.
+  """
   residencyAddress: ResidencyAddressInput
+
+  """
+  VAT number of the company.
+  - (AT)?U[0-9]{8} |                              # Austria
+  - (BE)?0[0-9]{9} |                              # Belgium
+  - (BG)?[0-9]{9,10} |                            # Bulgaria
+  - (CY)?[0-9]{8}L |                              # Cyprus
+  - (CZ)?[0-9]{8,10} |                            # Czech Republic
+  - (DE)?[0-9]{9} |                               # Germany
+  - (DK)?[0-9]{8} |                               # Denmark
+  - (EE)?[0-9]{9} |                               # Estonia
+  - (EL|GR)?[0-9]{9} |                            # Greece
+  - (ES)?[0-9A-Z][0-9]{7}[0-9A-Z] |               # Spain
+  - (FI)?[0-9]{8} |                               # Finland
+  - (FR)?[0-9A-Z]{2}[0-9]{9} |                    # France
+  - (GB)?([0-9]{9}([0-9]{3})?|[A-Z]{2}[0-9]{3}) | # United Kingdom
+  - (HU)?[0-9]{8} |                               # Hungary
+  - (IE)?[0-9]S[0-9]{5}L |                        # Ireland
+  - (IT)?[0-9]{11} |                              # Italy
+  - (LT)?([0-9]{9}|[0-9]{12}) |                   # Lithuania
+  - (LU)?[0-9]{8} |                               # Luxembourg
+  - (LV)?[0-9]{11} |                              # Latvia
+  - (MT)?[0-9]{8} |                               # Malta
+  - (NL)?[0-9]{9}B[0-9]{2} |                      # Netherlands
+  - (PL)?[0-9]{10} |                              # Poland
+  - (PT)?[0-9]{9} |                               # Portugal
+  - (RO)?[0-9]{2,10} |                            # Romania
+  - (SE)?[0-9]{12} |                              # Sweden
+  - (SI)?[0-9]{8} |                               # Slovenia
+  - (SK)?[0-9]{10}                                # Slovakia
+  """
   vatNumber: String
+
+  """
+    Tax Identification Number.
+  - Must be from 0 to 16 characters.
+  """
   taxIdentificationNumber: String
+
+  """Type of representation (legal representative or power of attorney)."""
   typeOfRepresentation: TypeOfRepresentation
+
+  """Legal representative personal address."""
   legalRepresentativePersonalAddress: AddressInformationInput
 }
 
@@ -5942,14 +6161,51 @@ type UnauthenticatedUpdateCompanyOnboardingSuccessPayload {
 }
 
 input UnauthenticatedUpdateIndividualOnboardingInput {
+  """
+  Account name of the individual account holder.
+  - Length must be from 0 to 100 characters.
+  """
   accountName: String
+
+  """Country of the account created at the end of onboarding."""
   accountCountry: AccountCountry
+
+  """
+  Email of the legal representative.
+  - Length must be from 0 to 255 characters.
+  - Valid format (regex):
+    ```
+    /^[A-Z0-9_+.-]*[A-Z0-9_+-]@([A-Z0-9][A-Z0-9-]*\.)+[A-Z]{2,}$/i
+    ```
+  - Some email providers are not accepted by our system.
+  """
   email: String
+
+  """Employment status of the individual account holder."""
   employmentStatus: EmploymentStatus
+
+  """
+  Language of the onboarding process.
+  - Must be compliant with RFC 5646.
+  """
   language: String
+
+  """Monthly income of the individual account holder (euro)."""
   monthlyIncome: MonthlyIncome
+
+  """ID of the onboarding to update."""
   onboardingId: ID!
+
+  """
+  Residency address of the individual account holder.
+  - Must be in a European country.
+  """
   residencyAddress: ResidencyAddressInput
+
+  """
+    Tax Identification Number.
+  - Must be from 0 to 16 characters.
+  """
   taxIdentificationNumber: String
 }
 

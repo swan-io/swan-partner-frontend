@@ -101,7 +101,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     renderCell: ({ item }) => (
       <EndAlignedCell>
         {match(item.statusInfo.status)
-          .with("Canceled", () => <Tag color="gray">{t("merchantProfile.status.canceled")}</Tag>)
+          .with("Disabled", () => <Tag color="gray">{t("merchantProfile.status.disabled")}</Tag>)
           .with("Enabled", () => <Tag color="positive">{t("merchantProfile.status.enabled")}</Tag>)
           .with("PendingReview", () => (
             <Tag color="shakespear">{t("merchantProfile.status.pendingReview")}</Tag>

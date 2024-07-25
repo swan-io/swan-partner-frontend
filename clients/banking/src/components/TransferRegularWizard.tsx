@@ -15,6 +15,7 @@ import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
@@ -172,6 +173,13 @@ const SavedBeneficiariesForm = ({
                 hideErrors={true}
                 value={search}
                 onChangeText={setSearch}
+                renderEnd={() =>
+                  match(beneficiaries.mapOk(({ totalCount }) => totalCount))
+                    .with(AsyncData.P.Done(Result.P.Ok(P.select())), totalCount => (
+                      <Tag>{totalCount}</Tag>
+                    ))
+                    .otherwise(() => null)
+                }
               />
             </Box>
 

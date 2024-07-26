@@ -140,18 +140,22 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
           .with(
             {
               __typename: "TrustedInternationalBeneficiary",
+              route: P.not("Unknown"),
               currency: P.when(isSupportedCurrency),
             },
-            ({ id, name, currency, route, details }) =>
-              Option.Some({
+            ({ id, name, currency, route, details }) => {
+              const values = details.map(({ key, value }) => ({ key, value })); // remove typenames
+
+              return Option.Some({
                 type: "international",
                 kind: "saved",
                 id,
                 name,
                 currency,
-                route: route as InternationalBeneficiary["route"], // TODO: Fix this
-                values: details.map(({ key, value }) => ({ key, value })), // remove typenames
-              }),
+                route,
+                values,
+              });
+            },
           )
           .otherwise(() => Option.None());
       });

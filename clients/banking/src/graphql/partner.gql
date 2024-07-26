@@ -317,6 +317,7 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
   }
   ... on TrustedInternationalBeneficiary {
     currency
+    route
     details {
       key
       value

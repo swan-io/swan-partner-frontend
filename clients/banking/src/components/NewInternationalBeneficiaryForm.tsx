@@ -61,6 +61,8 @@ export type SavedInternationalBeneficiary = {
   id: string;
   name: string;
   currency: Currency;
+  route: InternationalCreditTransferRouteInput;
+  values: InternationalBeneficiaryDetailsInput[];
 };
 
 export type InternationalBeneficiary = NewInternationalBeneficiary | SavedInternationalBeneficiary;

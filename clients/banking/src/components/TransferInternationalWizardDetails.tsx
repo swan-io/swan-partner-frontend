@@ -1,15 +1,16 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { ClientError, useQuery } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useEffect, useRef } from "react";
-import { ActivityIndicator, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   GetInternationalCreditTransferTransactionDetailsDynamicFormDocument,
@@ -24,6 +25,13 @@ import {
   TransferInternationalDynamicForm,
 } from "./TransferInternationalDynamicForm";
 import { Amount } from "./TransferInternationalWizardAmount";
+
+const styles = StyleSheet.create({
+  loadingOrError: {
+    justifyContent: "flex-start",
+    paddingVertical: spacings[48],
+  },
+});
 
 export type Details = {
   values: FormValue[];
@@ -103,28 +111,30 @@ export const TransferInternationalWizardDetails = ({
       .mapOkToResult(data => Option.fromNullable(data).toResult(undefined)),
   )
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-      <ActivityIndicator color={colors.gray[500]} />
+      <LoadingView style={styles.loadingOrError} />
     ))
-    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
+      <ErrorView error={error} style={styles.loadingOrError} />
+    ))
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ fields }) => (
-      <View>
-        <Tile>
-          <TransferInternationalDynamicForm
-            ref={dynamicFormRef}
-            fields={fields}
-            onRefreshRequest={onRefreshRequest}
-            refreshing={isLoading}
-            initialValues={initialDetails?.values ?? []}
-            onSubmit={values => {
-              onSave({ values });
-            }}
-          />
-        </Tile>
+      <ResponsiveContainer breakpoint={800}>
+        {({ small }) => (
+          <>
+            <Tile>
+              <TransferInternationalDynamicForm
+                ref={dynamicFormRef}
+                fields={fields}
+                onRefreshRequest={onRefreshRequest}
+                refreshing={isLoading}
+                initialValues={initialDetails?.values ?? []}
+                onSubmit={values => {
+                  onSave({ values });
+                }}
+              />
+            </Tile>
 
-        <Space height={32} />
+            <Space height={32} />
 
-        <ResponsiveContainer breakpoint={800}>
-          {({ small }) => (
             <LakeButtonGroup>
               <LakeButton color="gray" mode="secondary" onPress={() => onPressPrevious()}>
                 {t("common.previous")}
@@ -143,9 +153,9 @@ export const TransferInternationalWizardDetails = ({
                 {t("common.continue")}
               </LakeButton>
             </LakeButtonGroup>
-          )}
-        </ResponsiveContainer>
-      </View>
+          </>
+        )}
+      </ResponsiveContainer>
     ))
     .exhaustive();
 };

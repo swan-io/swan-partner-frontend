@@ -777,7 +777,7 @@ export const CardWizard = ({
                               onSubmit={groupedDeliveryConfig => {
                                 setCardOrder(AsyncData.Loading());
 
-                                return addCardsWithGroupDelivery({
+                                addCardsWithGroupDelivery({
                                   input: {
                                     cardProductId: cardProduct.id,
                                     consentRedirectUrl:

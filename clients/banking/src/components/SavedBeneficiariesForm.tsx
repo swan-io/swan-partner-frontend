@@ -23,9 +23,9 @@ import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
-import { SavedInternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
+import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
-import { SavedSepaBeneficiary } from "./BeneficiarySepaWizardForm";
+import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
@@ -63,12 +63,12 @@ const styles = StyleSheet.create({
   },
 });
 
-type SavedBeneficiary = SavedSepaBeneficiary | SavedInternationalBeneficiary;
+type AnyBeneficiary = SepaBeneficiary | InternationalBeneficiary;
 
 type Props = {
   type: "Sepa" | "International";
   accountId: string;
-  onPressSubmit: (beneficiary: SavedBeneficiary) => void;
+  onPressSubmit: (beneficiary: AnyBeneficiary) => void;
 };
 
 export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props) => {
@@ -133,7 +133,7 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
         }
 
         return match(node)
-          .returnType<Option<SavedBeneficiary>>()
+          .returnType<Option<AnyBeneficiary>>()
           .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
             Option.Some({ type: "sepa", kind: "saved", id, name, iban }),
           )
@@ -142,8 +142,16 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
               __typename: "TrustedInternationalBeneficiary",
               currency: P.when(isSupportedCurrency),
             },
-            ({ id, name, currency }) =>
-              Option.Some({ type: "international", kind: "saved", id, name, currency }),
+            ({ id, name, currency, route, details }) =>
+              Option.Some({
+                type: "international",
+                kind: "saved",
+                id,
+                name,
+                currency,
+                route: route as InternationalBeneficiary["route"], // TODO: Fix this
+                values: details.map(({ key, value }) => ({ key, value })), // remove typenames
+              }),
           )
           .otherwise(() => Option.None());
       });

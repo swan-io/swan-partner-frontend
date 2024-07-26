@@ -142,15 +142,9 @@ export const SavedBeneficiariesForm = <T extends keyof Types>({
 
         return match(node)
           .returnType<Option<AnyBeneficiary>>()
-          .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) => {
-            return Option.Some({
-              kind: "saved",
-              type: "sepa",
-              id,
-              name,
-              iban,
-            });
-          })
+          .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
+            Option.Some({ kind: "saved", id, name, iban }),
+          )
           .with(
             {
               __typename: "TrustedInternationalBeneficiary",
@@ -159,16 +153,7 @@ export const SavedBeneficiariesForm = <T extends keyof Types>({
             },
             ({ id, name, currency, route, details }) => {
               const values = details.map(({ key, value }) => ({ key, value })); // remove typenames
-
-              return Option.Some({
-                kind: "saved",
-                type: "international",
-                id,
-                name,
-                currency,
-                route,
-                values,
-              });
+              return Option.Some({ kind: "saved", id, name, currency, route, values });
             },
           )
           .otherwise(() => Option.None());

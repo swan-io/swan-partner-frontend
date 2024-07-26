@@ -27,7 +27,6 @@ import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
 export type SepaBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
-  type: "sepa";
   name: string;
   iban: string;
 };
@@ -141,7 +140,7 @@ export const BeneficiarySepaWizardForm = ({
     submitForm({
       onSuccess: values => {
         Option.allFromDict(values).map(beneficiary =>
-          onPressSubmit({ type: "sepa", kind: "new", ...beneficiary }),
+          onPressSubmit({ kind: "new", ...beneficiary }),
         );
       },
     });

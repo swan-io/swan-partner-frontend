@@ -46,7 +46,6 @@ const styles = StyleSheet.create({
 });
 
 export type InternationalBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
-  type: "international";
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
@@ -248,14 +247,7 @@ export const BeneficiaryInternationalWizardForm = ({
                 submitForm({
                   onSuccess: ({ name }) => {
                     name.tapSome(name =>
-                      onPressSubmit({
-                        type: "international",
-                        kind: "new",
-                        name,
-                        currency,
-                        route: selectedRoute,
-                        values,
-                      }),
+                      onPressSubmit({ kind: "new", name, currency, route: selectedRoute, values }),
                     );
                   },
                 });

@@ -205,14 +205,11 @@ export const CardsArea = ({
                       accountMembership={accountMembership}
                       onPressClose={() => {
                         match(route)
-                          .with({ name: P.string }, ({ name, params }) => {
-                            Router.push(
-                              name === "AccountCardsItemArea" ? "AccountCardsItem" : name,
-                              {
-                                ...params,
-                                new: undefined,
-                              },
-                            );
+                          .with({ name: "AccountCardsList" }, ({ params }) => {
+                            Router.push("AccountCardsList", { ...params, new: undefined });
+                          })
+                          .with({ name: "AccountCardsItemArea" }, ({ params }) => {
+                            Router.push("AccountCardsItem", { ...params, new: undefined });
                           })
                           .otherwise(() => {});
                       }}

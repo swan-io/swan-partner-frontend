@@ -136,7 +136,7 @@ const convertFetchUboToInput = (
   const birthCountryCode = isCountryCCA3(fetchedUbo.birthCountryCode)
     ? fetchedUbo.birthCountryCode
     : isCountryCCA2(fetchedUbo.birthCountryCode)
-      ? getCCA3forCCA2(fetchedUbo.birthCountryCode) ?? accountCountry
+      ? (getCCA3forCCA2(fetchedUbo.birthCountryCode) ?? accountCountry)
       : accountCountry;
 
   const ubo = {

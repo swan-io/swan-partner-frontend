@@ -96,7 +96,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
 
   const ubos = useMemo(() => {
     return onboarding.info.__typename === "OnboardingCompanyAccountHolderInfo"
-      ? onboarding.info.individualUltimateBeneficialOwners ?? []
+      ? (onboarding.info.individualUltimateBeneficialOwners ?? [])
       : [];
   }, [onboarding.info]);
 
@@ -104,7 +104,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const country = address?.country;
   const companyCountry = isCompanyCountryCCA3(country)
     ? country
-    : accountCountry ?? companyFallbackCountry;
+    : (accountCountry ?? companyFallbackCountry);
   const companyAddressLine1 = address?.addressLine1 ?? "";
   const companyCity = address?.city ?? "";
   const companyPostalCode = address?.postalCode ?? "";
@@ -113,7 +113,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   const legalRepresentativeCountry =
     legalRepresentativeAddress != null && isCompanyCountryCCA3(legalRepresentativeAddress.country)
       ? legalRepresentativeAddress.country
-      : accountCountry ?? companyFallbackCountry;
+      : (accountCountry ?? companyFallbackCountry);
   const legalRepresentativeAddressLine1 = legalRepresentativeAddress?.addressLine1 ?? "";
   const legalRepresentativeCity = legalRepresentativeAddress?.city ?? "";
   const legalRepresentativePostalCode = legalRepresentativeAddress?.postalCode ?? "";

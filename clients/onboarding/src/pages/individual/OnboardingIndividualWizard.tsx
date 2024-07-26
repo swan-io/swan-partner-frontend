@@ -59,7 +59,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
   const addressCountry = address?.country;
   const country = isCountryCCA3(addressCountry)
     ? addressCountry
-    : accountCountry ?? individualFallbackCountry;
+    : (accountCountry ?? individualFallbackCountry);
   const addressLine1 = address?.addressLine1 ?? "";
   const city = address?.city ?? "";
   const postalCode = address?.postalCode ?? "";

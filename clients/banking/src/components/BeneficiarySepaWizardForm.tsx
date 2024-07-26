@@ -66,7 +66,7 @@ type Props = {
   onPressPrevious?: () => void;
 };
 
-export const NewSepaBeneficiaryForm = ({
+export const BeneficiarySepaWizardForm = ({
   accountCountry,
   accountId,
   initialBeneficiary,

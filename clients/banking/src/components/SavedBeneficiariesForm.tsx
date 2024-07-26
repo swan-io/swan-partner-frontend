@@ -23,11 +23,11 @@ import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
+import { SavedInternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
+import { SavedSepaBeneficiary } from "./BeneficiarySepaWizardForm";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
-import { SavedInternationalBeneficiary } from "./NewInternationalBeneficiaryForm";
-import { SavedSepaBeneficiary } from "./NewSepaBeneficiaryForm";
 
 const NUM_TO_RENDER = 20;
 

@@ -16,8 +16,8 @@ import {
   InternationalCreditTransferDisplayLanguage,
 } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
+import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { ErrorView } from "./ErrorView";
-import { InternationalBeneficiary } from "./NewInternationalBeneficiaryForm";
 import {
   DynamicFormRef,
   FormValue,

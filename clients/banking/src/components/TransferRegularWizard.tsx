@@ -19,10 +19,10 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  NewSepaBeneficiaryForm,
+  BeneficiarySepaWizardForm,
   SepaBeneficiary,
   TransferWizardBeneficiarySummary,
-} from "./NewSepaBeneficiaryForm";
+} from "./BeneficiarySepaWizardForm";
 import { SavedBeneficiariesForm } from "./SavedBeneficiariesForm";
 import {
   Details,
@@ -103,7 +103,7 @@ const BeneficiaryStep = ({
 
       {match(activeTab)
         .with("new", () => (
-          <NewSepaBeneficiaryForm
+          <BeneficiarySepaWizardForm
             mode="continue"
             accountCountry={accountCountry}
             accountId={accountId}

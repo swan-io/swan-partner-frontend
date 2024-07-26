@@ -30,7 +30,7 @@ import {
   validateTime,
   validateTodayOrAfter,
 } from "../utils/validations";
-import { SepaBeneficiary } from "./NewSepaBeneficiaryForm";
+import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 
 const styles = StyleSheet.create({
   field: {

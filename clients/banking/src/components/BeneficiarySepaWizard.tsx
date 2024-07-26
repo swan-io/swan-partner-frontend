@@ -17,7 +17,7 @@ import { match } from "ts-pattern";
 import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { NewSepaBeneficiaryForm, SepaBeneficiary } from "./NewSepaBeneficiaryForm";
+import { BeneficiarySepaWizardForm, SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 
 const styles = StyleSheet.create({
   fill: {
@@ -136,7 +136,7 @@ export const BeneficiarySepaWizard = ({
 
             <Space height={32} />
 
-            <NewSepaBeneficiaryForm
+            <BeneficiarySepaWizardForm
               mode="add"
               submitting={sepaBeneficiaryAddition.isLoading()}
               accountCountry={accountCountry}

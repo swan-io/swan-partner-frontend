@@ -19,10 +19,10 @@ import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  NewSepaBeneficiaryForm,
+  BeneficiarySepaWizardForm,
   SepaBeneficiary,
   TransferWizardBeneficiarySummary,
-} from "./NewSepaBeneficiaryForm";
+} from "./BeneficiarySepaWizardForm";
 import {
   Details,
   TransferRecurringWizardDetails,
@@ -224,7 +224,7 @@ export const TransferRecurringWizard = ({
 
                     <Space height={32} />
 
-                    <NewSepaBeneficiaryForm
+                    <BeneficiarySepaWizardForm
                       mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}

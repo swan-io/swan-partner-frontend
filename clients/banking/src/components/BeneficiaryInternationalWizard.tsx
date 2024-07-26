@@ -18,9 +18,9 @@ import { AddInternationalBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  BeneficiaryInternationalWizardForm,
   NewInternationalBeneficiary,
-  NewInternationalBeneficiaryForm,
-} from "./NewInternationalBeneficiaryForm";
+} from "./BeneficiaryInternationalWizardForm";
 
 const styles = StyleSheet.create({
   fill: {
@@ -141,7 +141,7 @@ export const BeneficiaryInternationalWizard = ({
 
             <Space height={32} />
 
-            <NewInternationalBeneficiaryForm
+            <BeneficiaryInternationalWizardForm
               mode="add"
               submitting={internationalBeneficiaryAddition.isLoading()}
               onPressPrevious={onPressClose}

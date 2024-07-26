@@ -77,7 +77,7 @@ type Props = {
   onPressPrevious?: () => void;
 };
 
-export const NewInternationalBeneficiaryForm = ({
+export const BeneficiaryInternationalWizardForm = ({
   mode,
   initialBeneficiary,
   amount = DEFAULT_AMOUNT,

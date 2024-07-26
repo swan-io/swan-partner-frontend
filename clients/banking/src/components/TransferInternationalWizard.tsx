@@ -21,9 +21,9 @@ import { InitiateInternationalCreditTransferDocument } from "../graphql/partner"
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
+  BeneficiaryInternationalWizardForm,
   InternationalBeneficiary,
-  NewInternationalBeneficiaryForm,
-} from "./NewInternationalBeneficiaryForm";
+} from "./BeneficiaryInternationalWizardForm";
 import { SavedBeneficiariesForm } from "./SavedBeneficiariesForm";
 import {
   Amount,
@@ -113,7 +113,7 @@ const BeneficiaryStep = ({
 
       {match(activeTab)
         .with("new", () => (
-          <NewInternationalBeneficiaryForm
+          <BeneficiaryInternationalWizardForm
             mode="continue"
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)

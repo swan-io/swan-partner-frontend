@@ -1,7 +1,11 @@
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { Link } from "@swan-io/lake/src/components/Link";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import {
@@ -10,16 +14,11 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
-
-import { Fill } from "@swan-io/lake/src/components/Fill";
-import { Icon } from "@swan-io/lake/src/components/Icon";
-import { Link } from "@swan-io/lake/src/components/Link";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Image, StyleSheet } from "react-native";
 import merchantProfileDocsImage from "../assets/images/merchant/merchant-profile-docs.jpg";
 import merchantProfileImage from "../assets/images/merchant/merchant-profile.jpg";
+import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   container: {

@@ -9,11 +9,12 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
@@ -107,8 +108,11 @@ const BeneficiaryStep = ({
             mode="continue"
             accountCountry={accountCountry}
             accountId={accountId}
-            initialBeneficiary={initialBeneficiary}
             onPressSubmit={onPressSubmit}
+            initialBeneficiary={match(initialBeneficiary)
+              .with({ kind: "new" }, identity)
+              .with({ kind: "saved" }, P.nullish, () => undefined)
+              .exhaustive()}
           />
         ))
         .with("saved", () => (

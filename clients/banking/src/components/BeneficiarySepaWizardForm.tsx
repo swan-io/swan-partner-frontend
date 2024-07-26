@@ -11,7 +11,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { identity } from "@swan-io/lake/src/utils/function";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -27,22 +26,11 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type NewSepaBeneficiary = {
+export type SepaBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
   type: "sepa";
-  kind: "new";
   name: string;
   iban: string;
 };
-
-export type SavedSepaBeneficiary = {
-  type: "sepa";
-  kind: "saved";
-  id: string;
-  name: string;
-  iban: string;
-};
-
-export type SepaBeneficiary = NewSepaBeneficiary | SavedSepaBeneficiary;
 
 const styles = StyleSheet.create({
   summaryContents: {
@@ -57,21 +45,22 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
+  mode: "add" | "continue";
   accountCountry: AccountCountry;
   accountId: string;
-  initialBeneficiary?: SepaBeneficiary;
-  mode: "add" | "continue";
   submitting?: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
   onPressPrevious?: () => void;
+  // Enforce prefill with new beneficiary data only
+  initialBeneficiary?: Extract<SepaBeneficiary, { kind: "new" }>;
 };
 
 export const BeneficiarySepaWizardForm = ({
+  mode,
   accountCountry,
   accountId,
-  initialBeneficiary,
-  mode,
   submitting = false,
+  initialBeneficiary,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
@@ -85,15 +74,11 @@ export const BeneficiarySepaWizardForm = ({
 
   const { Field, listenFields, submitForm, FieldsListener, setFieldValue } = useForm({
     name: {
-      initialValue: match(initialBeneficiary)
-        .with({ kind: "new", name: P.select(P.string) }, identity)
-        .otherwise(() => ""),
+      initialValue: initialBeneficiary?.name ?? "",
       validate: validateBeneficiaryName,
     },
     iban: {
-      initialValue: match(initialBeneficiary)
-        .with({ kind: "new", iban: P.select(P.string) }, identity)
-        .otherwise(() => ""),
+      initialValue: initialBeneficiary?.iban ?? "",
       sanitize: electronicFormat,
       validate: combineValidators(validateRequired, validateIban),
     },

@@ -13,7 +13,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { identity } from "@swan-io/lake/src/utils/function";
 import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -46,43 +45,31 @@ const styles = StyleSheet.create({
   },
 });
 
-export type NewInternationalBeneficiary = {
+export type InternationalBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
   type: "international";
-  kind: "new";
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
   values: InternationalBeneficiaryDetailsInput[];
 };
-
-export type SavedInternationalBeneficiary = {
-  type: "international";
-  kind: "saved";
-  id: string;
-  name: string;
-  currency: Currency;
-  route: InternationalCreditTransferRouteInput;
-  values: InternationalBeneficiaryDetailsInput[];
-};
-
-export type InternationalBeneficiary = NewInternationalBeneficiary | SavedInternationalBeneficiary;
 
 type Props = {
   mode: "add" | "continue";
-  initialBeneficiary?: NewInternationalBeneficiary;
   amount?: Amount;
-  errors?: string[];
   submitting?: boolean;
-  onPressSubmit: (beneficiary: NewInternationalBeneficiary) => void;
+  errors?: string[];
+  onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious?: () => void;
+  // Enforce prefill with new beneficiary data only
+  initialBeneficiary?: Extract<InternationalBeneficiary, { kind: "new" }>;
 };
 
 export const BeneficiaryInternationalWizardForm = ({
   mode,
-  initialBeneficiary,
   amount = DEFAULT_AMOUNT,
   errors,
   submitting = false,
+  initialBeneficiary,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
@@ -107,9 +94,7 @@ export const BeneficiaryInternationalWizardForm = ({
 
   const { Field, submitForm } = useForm<{ name: string }>({
     name: {
-      initialValue: match(initialBeneficiary)
-        .with({ kind: "new", name: P.select(P.string) }, identity)
-        .otherwise(() => ""),
+      initialValue: initialBeneficiary?.name ?? "",
       validate: validateRequired,
     },
   });

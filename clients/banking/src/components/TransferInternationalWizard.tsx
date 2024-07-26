@@ -16,7 +16,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -115,13 +115,14 @@ const BeneficiaryStep = ({
         .with("new", () => (
           <BeneficiaryInternationalWizardForm
             mode="continue"
-            initialBeneficiary={match(initialBeneficiary)
-              .with({ kind: "new" }, identity)
-              .otherwise(() => undefined)}
             amount={amount}
             errors={errors}
             onPressSubmit={onPressSubmit}
             onPressPrevious={onPressPrevious}
+            initialBeneficiary={match(initialBeneficiary)
+              .with({ kind: "new" }, identity)
+              .with({ kind: "saved" }, P.nullish, () => undefined)
+              .exhaustive()}
           />
         ))
         .with("saved", () => (

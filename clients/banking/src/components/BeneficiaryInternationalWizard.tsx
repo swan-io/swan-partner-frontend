@@ -19,7 +19,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   BeneficiaryInternationalWizardForm,
-  NewInternationalBeneficiary,
+  InternationalBeneficiary,
 } from "./BeneficiaryInternationalWizardForm";
 
 const styles = StyleSheet.create({
@@ -72,7 +72,7 @@ export const BeneficiaryInternationalWizard = ({
   );
 
   const handleOnSubmit = useCallback(
-    (beneficiary: NewInternationalBeneficiary) => {
+    (beneficiary: InternationalBeneficiary) => {
       addInternationalBeneficiary({
         input: {
           accountId,

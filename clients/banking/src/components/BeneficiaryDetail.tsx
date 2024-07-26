@@ -1,9 +1,11 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
+import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
+import { ListRightPanel, ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -12,12 +14,13 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { spacings } from "@swan-io/lake/src/constants/design";
-import { deriveUnion, identity, noop } from "@swan-io/lake/src/utils/function";
+import { negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
+import { deriveUnion, identity } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { printFormat } from "iban";
-import { StyleSheet, View } from "react-native";
+import { useCallback, useRef, useState } from "react";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { TrustedBeneficiaryDetailsDocument, TrustedSepaBeneficiary } from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
@@ -26,9 +29,10 @@ import { getWiseIctLabel } from "../utils/templateTranslations";
 import { Connection } from "./Connection";
 import { DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
+import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
 
-const NUM_TO_RENDER = 20;
+const PAGE_SIZE = 20;
 
 const styles = StyleSheet.create({
   fill: {
@@ -36,6 +40,10 @@ const styles = StyleSheet.create({
   },
   tile: {
     alignItems: "center",
+  },
+  transactions: {
+    marginLeft: negativeSpacings[24],
+    marginRight: negativeSpacings[20],
   },
   content: {
     ...commonStyles.fill,
@@ -85,12 +93,19 @@ export const BeneficiaryDetail = ({
 }: Props) => {
   const activeTab: Tab = params.tab ?? "details";
   const suspense = useIsSuspendable();
+  const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
+  const panelRef = useRef<FocusTrapRef | null>(null);
 
-  const [data] = useQuery(
+  const onActiveRowChange = useCallback(
+    (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
+    [],
+  );
+
+  const [data, { isLoading, setVariables }] = useQuery(
     TrustedBeneficiaryDetailsDocument,
     {
       id,
-      first: NUM_TO_RENDER,
+      first: PAGE_SIZE,
       canViewAccount,
       canQueryCardOnTransaction,
     },
@@ -203,21 +218,58 @@ export const BeneficiaryDetail = ({
                 </ScrollView>
               ))
               .with("history", () => (
-                <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
-                  <Connection connection={beneficiary.transactions}>
-                    {transactions => (
-                      <TransactionList
-                        withStickyTabs={true}
-                        transactions={transactions?.edges ?? []}
-                        pageSize={NUM_TO_RENDER}
-                        getRowLink={() => <View />}
-                        onEndReached={noop}
-                        onActiveRowChange={noop}
-                        renderEmptyList={() => null}
+                <>
+                  <ScrollView style={styles.transactions} contentContainerStyle={styles.content}>
+                    <Connection connection={beneficiary.transactions}>
+                      {transactions => (
+                        <TransactionList
+                          withStickyTabs={true}
+                          withGrouping={false}
+                          transactions={transactions?.edges ?? []}
+                          getRowLink={({ item }) => (
+                            <Pressable onPress={() => setActiveTransactionId(item.id)} />
+                          )}
+                          pageSize={PAGE_SIZE}
+                          activeRowId={activeTransactionId ?? undefined}
+                          onActiveRowChange={onActiveRowChange}
+                          loading={{
+                            isLoading,
+                            count: PAGE_SIZE,
+                          }}
+                          onEndReached={() => {
+                            if (transactions?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: transactions?.pageInfo.endCursor ?? undefined,
+                              });
+                            }
+                          }}
+                          renderEmptyList={() => null} // TODO: render something
+                        />
+                      )}
+                    </Connection>
+                  </ScrollView>
+
+                  <ListRightPanel
+                    ref={panelRef}
+                    keyExtractor={item => item.node.id}
+                    items={transactions?.edges ?? []}
+                    activeId={activeTransactionId}
+                    onActiveIdChange={setActiveTransactionId}
+                    onClose={() => setActiveTransactionId(null)}
+                    previousLabel={t("common.previous")}
+                    nextLabel={t("common.next")}
+                    closeLabel={t("common.closeButton")}
+                    render={({ node }, large) => (
+                      <TransactionDetail
+                        accountMembershipId={params.accountMembershipId}
+                        large={large}
+                        transactionId={node.id}
+                        canQueryCardOnTransaction={canQueryCardOnTransaction}
+                        canViewAccount={canViewAccount}
                       />
                     )}
-                  </Connection>
-                </ScrollView>
+                  />
+                </>
               ))
               .exhaustive()}
           </ListRightPanelContent>

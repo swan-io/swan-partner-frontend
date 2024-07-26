@@ -20,6 +20,7 @@ import { printFormat } from "iban";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
+import { ValueOf } from "type-fest";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
@@ -63,15 +64,22 @@ const styles = StyleSheet.create({
   },
 });
 
-type AnyBeneficiary = SepaBeneficiary | InternationalBeneficiary;
-
-type Props = {
-  type: "Sepa" | "International";
-  accountId: string;
-  onPressSubmit: (beneficiary: AnyBeneficiary) => void;
+type Types = {
+  Sepa: SepaBeneficiary;
+  International: InternationalBeneficiary;
 };
 
-export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props) => {
+type AnyBeneficiary = ValueOf<Types>;
+
+export const SavedBeneficiariesForm = <T extends keyof Types>({
+  accountId,
+  type,
+  onPressSubmit,
+}: {
+  accountId: string;
+  type: T;
+  onPressSubmit: (beneficiary: Types[T]) => void;
+}) => {
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string>();
 
@@ -134,9 +142,15 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
 
         return match(node)
           .returnType<Option<AnyBeneficiary>>()
-          .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
-            Option.Some({ type: "sepa", kind: "saved", id, name, iban }),
-          )
+          .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) => {
+            return Option.Some({
+              kind: "saved",
+              type: "sepa",
+              id,
+              name,
+              iban,
+            });
+          })
           .with(
             {
               __typename: "TrustedInternationalBeneficiary",
@@ -147,8 +161,8 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
               const values = details.map(({ key, value }) => ({ key, value })); // remove typenames
 
               return Option.Some({
-                type: "international",
                 kind: "saved",
+                type: "international",
                 id,
                 name,
                 currency,
@@ -272,7 +286,7 @@ export const SavedBeneficiariesForm = ({ type, accountId, onPressSubmit }: Props
                   disabled={selectedBeneficiary.isNone()}
                   onPress={() => {
                     if (selectedBeneficiary.isSome()) {
-                      onPressSubmit(selectedBeneficiary.get());
+                      onPressSubmit(selectedBeneficiary.get() as Types[T]);
                     }
                   }}
                 >

@@ -129,11 +129,7 @@ const BeneficiaryStep = ({
           <SavedBeneficiariesForm
             type="International"
             accountId={accountId}
-            onPressSubmit={beneficiary => {
-              if (beneficiary.type === "international") {
-                onPressSubmit(beneficiary);
-              }
-            }}
+            onPressSubmit={onPressSubmit}
           />
         ))
         .exhaustive()}

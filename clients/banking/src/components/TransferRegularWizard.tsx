@@ -116,15 +116,7 @@ const BeneficiaryStep = ({
           />
         ))
         .with("saved", () => (
-          <SavedBeneficiariesForm
-            type="Sepa"
-            accountId={accountId}
-            onPressSubmit={beneficiary => {
-              if (beneficiary.type === "sepa") {
-                onPressSubmit(beneficiary);
-              }
-            }}
-          />
+          <SavedBeneficiariesForm type="Sepa" accountId={accountId} onPressSubmit={onPressSubmit} />
         ))
         .exhaustive()}
     </>

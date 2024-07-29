@@ -1,13 +1,19 @@
 import { Future, Option } from "@swan-io/boxed";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  allCountries,
+  isCountryCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle, useState } from "react";
+import { P, match } from "ts-pattern";
 import { CompleteAddressInput } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { validateAddressLine, validateRequired } from "../utils/validations";
@@ -53,7 +59,10 @@ export const CardItemPhysicalDeliveryAddressForm = forwardRef<
       validate: validateRequired,
     },
     country: {
-      initialValue: (initialEditorState?.country as CountryCCA3) ?? "FRA",
+      initialValue: match(initialEditorState?.country)
+        .returnType<CountryCCA3>()
+        .with(P.when(isCountryCCA3), identity)
+        .otherwise(() => "FRA"),
       validate: validateRequired,
     },
   });

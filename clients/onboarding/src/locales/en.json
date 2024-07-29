@@ -114,6 +114,7 @@
   "companyType.company": "Company",
   "companyType.other": "Other",
   "companyType.selfEmployed": "Self-employed",
+  "companyType.selfEmployed.FRA": "Self-employed, individual entrepreneur or liberal profession",
   "emailPage.firstLink": "Swan's Terms and Conditions",
   "emailPage.secondLink": "{partner}'s partnership conditions",
   "emailPage.terms": "By clicking \"Next\", you accept {firstLink} and {secondLink}.",

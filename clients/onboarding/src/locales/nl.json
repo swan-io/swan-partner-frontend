@@ -114,6 +114,7 @@
   "companyType.company": "Bedrijf",
   "companyType.other": "Eenmanszaak (ZZP)",
   "companyType.selfEmployed": "Zelfstandige",
+  "companyType.selfEmployed.FRA": "Zelfstandige, individuele ondernemer of vrij beroep",
   "emailPage.firstLink": "De algemene voorwaarden van Swan",
   "emailPage.secondLink": "{partner}s partnership voorwaarden",
   "emailPage.terms": "Door te klikken op 'volgende' gaat je akkoord met {firstLink} en {secondLink}",

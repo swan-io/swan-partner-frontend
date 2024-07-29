@@ -79,7 +79,10 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
   }
 
   items.push(
-    { name: t("companyType.selfEmployed"), value: "SelfEmployed" },
+    {
+      name: country === "FRA" ? t("companyType.selfEmployed.FRA") : t("companyType.selfEmployed"),
+      value: "SelfEmployed",
+    },
     { name: t("companyType.other"), value: "Other" },
   );
 

@@ -875,7 +875,7 @@ export const CardWizard = ({
                                     }
                               }
                               onSubmit={individualDeliveryConfig => {
-                                addCardsWrapper({
+                                return addCardsWrapper({
                                   cardProductId: cardProduct.id,
                                   consentRedirectUrl:
                                     window.location.origin +

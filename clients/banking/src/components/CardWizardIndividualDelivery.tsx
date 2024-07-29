@@ -1,3 +1,4 @@
+import { Future, Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
@@ -14,14 +15,17 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { P, match } from "ts-pattern";
 import {
   CompleteAddressWithContactInput,
   GetEligibleCardMembershipsQuery,
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
+import { useTgglFlag } from "../utils/tggl";
 import { validateAddressLine } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
+import { CardWizardChoosePinModal } from "./CardWizardChoosePinModal";
 
 const styles = StyleSheet.create({
   erroredTile: {
@@ -35,24 +39,31 @@ type Member = GetNode<NonNullable<GetEligibleCardMembershipsQuery["account"]>["m
 type CardIndividualDeliveryConfig = {
   address: CompleteAddressWithContactInput;
   member: Member;
+  choosePin: boolean;
 }[];
 
 type Props = {
   members: Member[];
   address?: CompleteAddressWithContactInput;
-  onSubmit: (cardDeliveryConfig: CardIndividualDeliveryConfig) => void;
+  onSubmit: (cardDeliveryConfig: CardIndividualDeliveryConfig) => Future<unknown>;
 };
 
 export type CardWizardIndividualDeliveryRef = { submit: () => void };
 
-type PropsWithAddress = Omit<Props, "address"> & { address: CompleteAddressWithContactInput };
+type PropsWithAddress = {
+  members: Member[];
+  address: CompleteAddressWithContactInput;
+  onSubmit: (cardDeliveryConfig: CardIndividualDeliveryConfig) => void;
+};
 
 const CardWizardIndividualDeliveryWithAddress = forwardRef<
   CardWizardIndividualDeliveryRef,
   PropsWithAddress
 >(({ members, address, onSubmit }: PropsWithAddress, ref) => {
   const [currentCardIndividualDeliveryConfig, setCardIndividualDeliveryConfig] =
-    useState<CardIndividualDeliveryConfig>(() => members.map(member => ({ member, address })));
+    useState<CardIndividualDeliveryConfig>(() =>
+      members.map(member => ({ member, address, choosePin: false })),
+    );
 
   const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
 
@@ -184,37 +195,67 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
 
 export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliveryRef, Props>(
   ({ members, address, onSubmit }: Props, ref) => {
-    if (address != null) {
-      return (
-        <CardWizardIndividualDeliveryWithAddress
-          ref={ref}
-          members={members}
-          address={address}
-          onSubmit={onSubmit}
-        />
-      );
-    }
+    const isChoosePinActive = useTgglFlag("account_contract_choose_pin_code_enabled").getOr(false);
+
+    const [choosePinModal, setChoosePinModal] = useState<Option<CardIndividualDeliveryConfig>>(
+      Option.None(),
+    );
+
     return (
-      <Tile>
-        <CardWizardAddressForm
-          ref={ref}
-          initialAddress={{ addressLine1: "", postalCode: "", city: "" }}
-          showButtons={false}
-          onSubmit={address =>
-            onSubmit(
-              members.map(member => ({
-                member,
-                address: {
-                  ...address,
-                  firstName: member.user?.firstName ?? "",
-                  lastName: member.user?.lastName ?? "",
-                  phoneNumber: member.user?.mobilePhoneNumber ?? "",
-                },
-              })),
-            )
+      <>
+        {address != null ? (
+          <CardWizardIndividualDeliveryWithAddress
+            ref={ref}
+            members={members}
+            address={address}
+            onSubmit={value => {
+              console.log(1);
+              if (isChoosePinActive) {
+                setChoosePinModal(Option.Some(value));
+              } else {
+                onSubmit(value);
+              }
+            }}
+          />
+        ) : (
+          <Tile>
+            <CardWizardAddressForm
+              ref={ref}
+              initialAddress={{ addressLine1: "", postalCode: "", city: "" }}
+              showButtons={false}
+              onSubmit={address => {
+                const config = members.map(member => ({
+                  member,
+                  address: {
+                    ...address,
+                    firstName: member.user?.firstName ?? "",
+                    lastName: member.user?.lastName ?? "",
+                    phoneNumber: member.user?.mobilePhoneNumber ?? "",
+                  },
+                  choosePin: false,
+                }));
+                if (isChoosePinActive) {
+                  setChoosePinModal(Option.Some(config));
+                } else {
+                  onSubmit(config);
+                }
+              }}
+            />
+          </Tile>
+        )}
+
+        <CardWizardChoosePinModal
+          visible={choosePinModal.isSome()}
+          onPressClose={() => setChoosePinModal(Option.None())}
+          onSubmit={({ choosePin }) =>
+            match(choosePinModal)
+              .with(Option.P.Some(P.select()), config => {
+                return onSubmit(config.map(item => ({ ...item, choosePin })));
+              })
+              .otherwise(() => Future.value(undefined))
           }
         />
-      </Tile>
+      </>
     );
   },
 );

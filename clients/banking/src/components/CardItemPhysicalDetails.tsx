@@ -22,18 +22,10 @@ import { breakpoints, colors, invariantColors } from "@swan-io/lake/src/constant
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { pick } from "@swan-io/lake/src/utils/object";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
-import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
-import {
-  CountryCCA3,
-  allCountries,
-  getCountryName,
-  isCountryCCA3,
-} from "@swan-io/shared-business/src/constants/countries";
+import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import dayjs from "dayjs";
@@ -60,14 +52,13 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
-import { formatCurrency, locale, t } from "../utils/i18n";
+import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import {
-  validateAddressLine,
-  validateNullableRequired,
-  validateRequired,
-} from "../utils/validations";
+import { validateNullableRequired, validateRequired } from "../utils/validations";
 import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
+import { Address } from "./CardItemPhysicalDeliveryAddressForm";
+import { CardItemPhysicalDeliveryWizard } from "./CardItemPhysicalDeliveryWizard";
+import { CardItemPhysicalRenewalWizard } from "./CardItemPhysicalRenewalWizard";
 import { MaskedCard } from "./MaskedCard";
 
 const styles = StyleSheet.create({
@@ -186,199 +177,6 @@ const DotIndicator = ({ active, onPress }: { active: boolean; onPress: () => voi
 );
 
 type Card = NonNullable<CardPageQuery["card"]>;
-
-type Address = {
-  addressLine1?: string | null | undefined;
-  addressLine2?: string | null | undefined;
-  city?: string | null | undefined;
-  country?: string | null | undefined;
-  postalCode?: string | null | undefined;
-  state?: string | null | undefined;
-};
-
-type CardItemPhysicalShippingFormProps = {
-  initialAddress?: Address;
-  mode?: "order" | "renewal";
-  onPressClose: () => void;
-  onSubmit: (input: CompleteAddressInput) => void;
-  isLoading: boolean;
-};
-
-const CardItemPhysicalShippingForm = ({
-  initialAddress,
-  mode = "order",
-  onPressClose,
-  onSubmit,
-  isLoading,
-}: CardItemPhysicalShippingFormProps) => {
-  const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
-    addressLine1: {
-      initialValue: initialAddress?.addressLine1 ?? "",
-      validate: combineValidators(validateRequired, validateAddressLine),
-    },
-    addressLine2: {
-      initialValue: initialAddress?.addressLine2 ?? "",
-    },
-    postalCode: {
-      initialValue: initialAddress?.postalCode ?? "",
-      validate: validateRequired,
-    },
-    city: {
-      initialValue: initialAddress?.city ?? "",
-      validate: validateRequired,
-    },
-    country: {
-      initialValue: (initialAddress?.country as CountryCCA3) ?? "FRA",
-      validate: validateRequired,
-    },
-  });
-
-  const onPressSubmit = () => {
-    submitForm({
-      onSuccess: values => {
-        const option = Option.allFromDict(
-          pick(values, ["addressLine1", "city", "country", "postalCode"]),
-        );
-
-        if (option.isSome()) {
-          onSubmit({
-            ...option.get(),
-            addressLine2: values.addressLine2
-              .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
-              .toUndefined(),
-          });
-        }
-      },
-    });
-  };
-
-  return (
-    <>
-      <Field name="country">
-        {({ value, error, onChange, ref }) => (
-          <LakeLabel
-            label={t("card.physical.order.shippingAddress.country")}
-            render={id => (
-              <CountryPicker
-                readOnly={isLoading}
-                id={id}
-                ref={ref}
-                error={error}
-                value={value}
-                placeholder={t("members.form.address.countryPlaceholder")}
-                countries={allCountries}
-                onValueChange={onChange}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <FieldsListener names={["country"]}>
-        {({ country }) => {
-          return (
-            <Field name="addressLine1">
-              {({ value, error, onChange }) => (
-                <LakeLabel
-                  label={t("card.physical.order.shippingAddress.addressLine1")}
-                  render={id => (
-                    <PlacekitAddressSearchInput
-                      apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                      country={country.value}
-                      value={value}
-                      onValueChange={onChange}
-                      onSuggestion={suggestion => {
-                        setFieldValue("addressLine1", suggestion.completeAddress);
-                        setFieldValue("city", suggestion.city);
-                        setFieldValue("postalCode", suggestion.postalCode ?? "");
-                      }}
-                      language={locale.language}
-                      placeholder={t("addressInput.placeholder")}
-                      emptyResultText={t("common.noResults")}
-                      error={error}
-                      id={id}
-                      disabled={isLoading}
-                    />
-                  )}
-                />
-              )}
-            </Field>
-          );
-        }}
-      </FieldsListener>
-
-      <Field name="addressLine2">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("card.physical.order.shippingAddress.addressLine2")}
-            render={id => (
-              <LakeTextInput
-                readOnly={isLoading}
-                id={id}
-                ref={ref}
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="postalCode">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("card.physical.order.shippingAddress.postalCode")}
-            render={id => (
-              <LakeTextInput
-                readOnly={isLoading}
-                id={id}
-                ref={ref}
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <Field name="city">
-        {({ value, valid, error, onChange, onBlur, ref }) => (
-          <LakeLabel
-            label={t("card.physical.order.shippingAddress.city")}
-            render={id => (
-              <LakeTextInput
-                readOnly={isLoading}
-                id={id}
-                ref={ref}
-                value={value}
-                valid={valid}
-                error={error}
-                onChangeText={onChange}
-                onBlur={onBlur}
-              />
-            )}
-          />
-        )}
-      </Field>
-
-      <LakeButtonGroup>
-        <LakeButton mode="secondary" grow={true} onPress={onPressClose} disabled={isLoading}>
-          {t("common.cancel")}
-        </LakeButton>
-
-        <LakeButton color="current" onPress={onPressSubmit} grow={true} loading={isLoading}>
-          {mode === "renewal" ? t("common.update") : t("common.validate")}
-        </LakeButton>
-      </LakeButtonGroup>
-    </>
-  );
-};
 
 type CardItemPhysicalPermanentlyBlockProps = {
   initialAddress?: AddressInfo;
@@ -547,12 +345,14 @@ export const CardItemPhysicalDetails = ({
 }: Props) => {
   const { desktop } = useResponsive(breakpoints.medium);
 
-  const [orderModalStatus, setOrderModalStatus] = useState<
-    Option<
-      | { type: "order"; initialShippingAddress?: Address }
-      | { type: "renewal"; initialShippingAddress?: Address }
-    >
-  >(Option.None());
+  const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
+    Option.None(),
+  );
+
+  const [renewalModal, setRenewalModal] = useState<Option<{ initialShippingAddress?: Address }>>(
+    Option.None(),
+  );
+
   const [isPermanentlyBlockModalOpen, setIsPermanentlyBlockModalOpen] = useState(false);
   const [isActivationModalOpen, setIsActivationModalOpen] = useState(false);
 
@@ -561,10 +361,8 @@ export const CardItemPhysicalDetails = ({
   const initialShippingAddress =
     card.accountMembership.account?.holder.residencyAddress ?? undefined;
 
-  const [confirmPhysicalCardRenewal, physicalCardRenewalConfirming] = useMutation(
-    ConfirmPhysicalCardRenewalDocument,
-  );
-  const [printPhysicalCard, physicalCardPrinting] = useMutation(PrintPhysicalCardDocument);
+  const [confirmPhysicalCardRenewal] = useMutation(ConfirmPhysicalCardRenewalDocument);
+  const [printPhysicalCard] = useMutation(PrintPhysicalCardDocument);
   const [permanentlyBlockCard, permanentBlocking] = useMutation(CancelPhysicalCardDocument);
   const [suspendPhysicalCard, cardSuspension] = useMutation(SuspendPhysicalCardDocument);
   const [unsuspendPhysicalCard, cardUnsuspension] = useMutation(ResumePhysicalCardDocument);
@@ -575,7 +373,7 @@ export const CardItemPhysicalDetails = ({
   );
 
   const onConfirmingPhysicalCardRenewal = (address: CompleteAddressInput) => {
-    confirmPhysicalCardRenewal({
+    return confirmPhysicalCardRenewal({
       input: {
         address,
         cardId,
@@ -584,7 +382,7 @@ export const CardItemPhysicalDetails = ({
       .mapOk(data => data.confirmPhysicalCardRenewal)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
-        setOrderModalStatus(Option.None());
+        setRenewalModal(Option.None());
         partnerClient.query(CardPageDocument, { cardId });
       })
       .mapOk(data => data.physicalCard.identifier)
@@ -593,14 +391,20 @@ export const CardItemPhysicalDetails = ({
       });
   };
 
-  const onShippingFormSubmit = (address: CompleteAddressInput) => {
-    printPhysicalCard({
+  const onShippingFormSubmit = ({
+    choosePin,
+    address,
+  }: {
+    choosePin: boolean;
+    address: CompleteAddressInput;
+  }) => {
+    return printPhysicalCard({
       input: {
         cardId,
         consentRedirectUrl:
           window.location.origin +
           Router.AccountCardsItemPhysicalCard({ cardId, accountMembershipId }),
-        choosePin: false,
+        choosePin,
         address,
       },
     })
@@ -616,7 +420,7 @@ export const CardItemPhysicalDetails = ({
             },
           )
           .otherwise(() => {
-            setOrderModalStatus(Option.Some({ type: "order", initialShippingAddress }));
+            setOrderModal(Option.None());
             onRefreshRequest();
           });
       })
@@ -804,9 +608,8 @@ export const CardItemPhysicalDetails = ({
                           mode="secondary"
                           style={styles.renewAlertCta}
                           onPress={() => {
-                            setOrderModalStatus(
+                            setRenewalModal(
                               Option.Some({
-                                type: "renewal",
                                 initialShippingAddress: address,
                               }),
                             );
@@ -1100,11 +903,7 @@ export const CardItemPhysicalDetails = ({
                       <LakeButton
                         icon="add-circle-filled"
                         color="current"
-                        onPress={() =>
-                          setOrderModalStatus(
-                            Option.Some({ type: "order", initialShippingAddress }),
-                          )
-                        }
+                        onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
                       >
                         {t("card.physical.orderNewCard")}
                       </LakeButton>
@@ -1783,11 +1582,7 @@ export const CardItemPhysicalDetails = ({
                         <LakeButton
                           disabled={hasBindingUserError}
                           color="current"
-                          onPress={() =>
-                            setOrderModalStatus(
-                              Option.Some({ type: "order", initialShippingAddress }),
-                            )
-                          }
+                          onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
                         >
                           {t("card.physical.order")}
                         </LakeButton>
@@ -1801,37 +1596,19 @@ export const CardItemPhysicalDetails = ({
           .exhaustive()}
       </View>
 
-      <LakeModal
-        visible={orderModalStatus.isSome()}
-        icon="pin-regular"
-        title={t("card.physical.order.shippingAddress")}
-      >
-        <LakeText color={colors.gray[600]}>
-          {t("card.physical.order.shippingAddress.description")}
-        </LakeText>
+      <CardItemPhysicalDeliveryWizard
+        visible={orderModal.isSome()}
+        onPressClose={() => setOrderModal(Option.None())}
+        onSubmit={onShippingFormSubmit}
+        initialAddress={initialShippingAddress}
+      />
 
-        <Space height={16} />
-
-        {match(orderModalStatus)
-          .with(Option.P.Some(P.select({ type: "order" })), ({ initialShippingAddress }) => (
-            <CardItemPhysicalShippingForm
-              onPressClose={() => setOrderModalStatus(Option.None())}
-              onSubmit={onShippingFormSubmit}
-              initialAddress={initialShippingAddress}
-              isLoading={physicalCardPrinting.isLoading()}
-            />
-          ))
-          .with(Option.P.Some(P.select({ type: "renewal" })), ({ initialShippingAddress }) => (
-            <CardItemPhysicalShippingForm
-              mode="renewal"
-              onPressClose={() => setOrderModalStatus(Option.None())}
-              onSubmit={onConfirmingPhysicalCardRenewal}
-              initialAddress={initialShippingAddress}
-              isLoading={physicalCardRenewalConfirming.isLoading()}
-            />
-          ))
-          .otherwise(() => null)}
-      </LakeModal>
+      <CardItemPhysicalRenewalWizard
+        visible={renewalModal.isSome()}
+        onPressClose={() => setRenewalModal(Option.None())}
+        onSubmit={onConfirmingPhysicalCardRenewal}
+        initialAddress={initialShippingAddress}
+      />
 
       <LakeModal
         visible={isPermanentlyBlockModalOpen}

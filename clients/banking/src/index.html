@@ -23,8 +23,31 @@
       window.global = window;
     </script>
     <script>
+      document.write("<" + 'script src="/locales.js"' + ">" + "<" + "/script>");
       document.write("<" + 'script src="/env.js"' + ">" + "<" + "/script>");
     </script>
-    <script type="module" src="./index.tsx"></script>
+    <script type="module">
+      (async availableLocales => {
+        const locale =
+          [
+            new URLSearchParams(location.search).get("lang"),
+            (() => {
+              try {
+                return localStorage.getItem("swan__PreferredLanguage");
+              } catch (err) {}
+            })(),
+            navigator.languages,
+          ]
+            .filter(item => item != null)
+            .map(item => item.slice(0, 2))
+            .find(item => availableLocales.has(item)) ?? "en";
+
+        window.__locales = await Promise.all([
+          import(`./locales/${locale}.json`),
+          await import(`../../../node_modules/@swan-io/shared-business/src/locales/${locale}.json`),
+        ]).then(values => Object.assign({}, ...values));
+        await import("./index.tsx");
+      })(new Set(__availableLocales));
+    </script>
   </body>
 </html>

@@ -1,6 +1,5 @@
 import { Result } from "@swan-io/boxed";
 import glob from "fast-glob";
-
 import { readFileSync, writeFileSync } from "fs";
 import path from "pathe";
 import { match } from "ts-pattern";

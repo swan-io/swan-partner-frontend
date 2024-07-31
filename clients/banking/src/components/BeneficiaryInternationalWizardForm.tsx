@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
 });
 
-export type Beneficiary = {
+export type InternationalBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
@@ -54,20 +54,21 @@ export type Beneficiary = {
 
 type Props = {
   mode: "add" | "continue";
-  initialBeneficiary?: Beneficiary;
   amount?: Amount;
-  errors?: string[];
   submitting?: boolean;
-  onPressSubmit: (beneficiary: Beneficiary) => void;
+  errors?: string[];
+  onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious?: () => void;
+  // Enforce prefill with new beneficiary data only
+  initialBeneficiary?: Extract<InternationalBeneficiary, { kind: "new" }>;
 };
 
 export const BeneficiaryInternationalWizardForm = ({
   mode,
-  initialBeneficiary,
   amount = DEFAULT_AMOUNT,
   errors,
   submitting = false,
+  initialBeneficiary,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
@@ -91,7 +92,10 @@ export const BeneficiaryInternationalWizardForm = ({
   );
 
   const { Field, submitForm } = useForm<{ name: string }>({
-    name: { initialValue: initialBeneficiary?.name ?? "", validate: validateRequired },
+    name: {
+      initialValue: initialBeneficiary?.name ?? "",
+      validate: validateRequired,
+    },
   });
 
   const currencyItems = useMemo(() => {
@@ -243,7 +247,7 @@ export const BeneficiaryInternationalWizardForm = ({
                 submitForm({
                   onSuccess: ({ name }) => {
                     name.tapSome(name =>
-                      onPressSubmit({ name, route: selectedRoute, values, currency }),
+                      onPressSubmit({ kind: "new", name, currency, route: selectedRoute, values }),
                     );
                   },
                 });

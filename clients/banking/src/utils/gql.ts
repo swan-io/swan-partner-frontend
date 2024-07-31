@@ -7,13 +7,12 @@ import {
   parseGraphQLError,
   print,
 } from "@swan-io/graphql-client";
-import { Request, badStatusToError, emptyToError } from "@swan-io/request";
-import { GraphQLError } from "graphql";
-import { P, match } from "ts-pattern";
-
 import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
+import { Request, badStatusToError, emptyToError } from "@swan-io/request";
+import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
+import { P, match } from "ts-pattern";
 import partnerSchemaConfig from "../../../../scripts/graphql/dist/partner-schema-config.json";
 import unauthenticatedSchemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { projectConfiguration } from "./projectId";

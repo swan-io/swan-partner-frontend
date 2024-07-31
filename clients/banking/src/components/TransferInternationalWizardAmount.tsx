@@ -279,7 +279,7 @@ type SummaryProps = {
   onPressEdit: () => void;
 };
 
-export const TransferInternationamWizardAmountSummary = ({
+export const TransferInternationalWizardAmountSummary = ({
   isMobile,
   amount,
   onPressEdit,

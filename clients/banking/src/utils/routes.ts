@@ -1,5 +1,5 @@
 import { Option } from "@swan-io/boxed";
-import { createGroup, createRouter } from "@swan-io/chicane";
+import { InferRoutes, createGroup, createRouter } from "@swan-io/chicane";
 import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
@@ -111,7 +111,19 @@ const routes = {
   }),
 } as const;
 
-export type RouteName = keyof typeof routes;
+export const Router = createRouter(routes, {
+  basePath: match(projectConfiguration)
+    .with(
+      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+      projectId => `/projects/${projectId}`,
+    )
+    .otherwise(() => undefined),
+});
+
+type Routes = InferRoutes<typeof Router>;
+
+export type RouteName = keyof Routes;
+export type GetRouteParams<T extends RouteName> = Routes[T];
 
 export const accountMinimalRoutes = [
   "AccountRoot",
@@ -161,17 +173,3 @@ export const membershipsDetailRoutes = [
   "AccountMembersDetailsRights",
   "AccountMembersDetailsCardList",
 ] as const satisfies RouteName[];
-
-export const Router = createRouter(routes, {
-  basePath: match(projectConfiguration)
-    .with(
-      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-      projectId => `/projects/${projectId}`,
-    )
-    .otherwise(() => undefined),
-});
-
-export type GetRouteParams<K extends RouteName> = Extract<
-  ReturnType<typeof Router.getRoute>,
-  { name: K }
->["params"];

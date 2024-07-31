@@ -6,14 +6,13 @@ import {
   parseGraphQLError,
   print,
 } from "@swan-io/graphql-client";
+import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
 import { Request, badStatusToError, emptyToError } from "@swan-io/request";
 import { GraphQLError } from "graphql";
+import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
-
-import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
-import { customAlphabet } from "nanoid";
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
 

@@ -4,7 +4,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -40,16 +40,16 @@ type Props = {
   accountMembershipId: string;
   accountId: string;
   accountCountry: AccountCountry;
+  params: GetRouteParams<"AccountPaymentsNew">;
   canViewAccount: boolean;
-  type: GetRouteParams<"AccountPaymentsNew">["type"];
 };
 
 export const TransferTypePicker = ({
   accountMembershipId,
   accountId,
   accountCountry,
+  params,
   canViewAccount,
-  type,
 }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
 
@@ -97,6 +97,11 @@ export const TransferTypePicker = ({
     [ictEnabled, accountMembershipId],
   );
 
+  const onPressClose = useCallback(
+    () => Router.push("AccountPaymentsNew", { accountMembershipId }),
+    [accountMembershipId],
+  );
+
   return (
     <>
       <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
@@ -120,41 +125,41 @@ export const TransferTypePicker = ({
         )}
       </ResponsiveContainer>
 
-      <FullViewportLayer visible={type === "transfer"}>
+      <FullViewportLayer visible={params.type === "transfer"}>
         <TransferRegularWizard
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          onPressClose={onPressClose}
           canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={type === "recurring"}>
+      <FullViewportLayer visible={params.type === "recurring"}>
         <TransferRecurringWizard
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          onPressClose={onPressClose}
           canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={type === "international"}>
+      <FullViewportLayer visible={params.type === "international"}>
         <TransferInternationalWizard
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          onPressClose={onPressClose}
           canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={type === "bulk"}>
+      <FullViewportLayer visible={params.type === "bulk"}>
         <TransferBulkWizard
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
-          onPressClose={() => Router.push("AccountPaymentsNew", { accountMembershipId })}
+          onPressClose={onPressClose}
           canViewAccount={canViewAccount}
         />
       </FullViewportLayer>

@@ -17,7 +17,7 @@ import { match } from "ts-pattern";
 import { AccountCountry, AddSepaBeneficiaryDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { Beneficiary, BeneficiarySepaWizardForm } from "./BeneficiarySepaWizardForm";
+import { BeneficiarySepaWizardForm, SepaBeneficiary } from "./BeneficiarySepaWizardForm";
 
 const styles = StyleSheet.create({
   fill: {
@@ -69,7 +69,7 @@ export const BeneficiarySepaWizard = ({
   const [addSepaBeneficiary, sepaBeneficiaryAddition] = useMutation(AddSepaBeneficiaryDocument);
 
   const handleOnSubmit = useCallback(
-    (beneficiary: Beneficiary) => {
+    (beneficiary: SepaBeneficiary) => {
       addSepaBeneficiary({
         input: {
           accountId,

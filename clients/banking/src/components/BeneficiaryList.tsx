@@ -414,37 +414,35 @@ const BeneficiaryListImpl = ({
         )}
       />
 
-      {match(route)
-        .with(Router.P.AccountPaymentsBeneficiariesDetails(P.select()), params => (
-          <ListRightPanel
-            ref={panelRef}
-            closeLabel={t("common.closeButton")}
-            nextLabel={t("common.next")}
-            previousLabel={t("common.previous")}
-            keyExtractor={item => item.id}
-            activeId={params.beneficiaryId}
-            onActiveIdChange={beneficiaryId =>
-              Router.push("AccountPaymentsBeneficiariesDetails", {
-                ...params,
-                beneficiaryId,
-              })
-            }
-            onClose={() => {
-              Router.push("AccountPaymentsBeneficiariesList", params);
-            }}
-            items={nodes}
-            render={(item, large) => (
-              <BeneficiaryDetail
-                id={item.id}
-                canViewAccount={canViewAccount}
-                canQueryCardOnTransaction={canQueryCardOnTransaction}
-                large={large}
-                params={params}
-              />
-            )}
-          />
-        ))
-        .otherwise(() => null)}
+      <ListRightPanel
+        ref={panelRef}
+        closeLabel={t("common.closeButton")}
+        nextLabel={t("common.next")}
+        previousLabel={t("common.previous")}
+        keyExtractor={item => item.id}
+        activeId={route?.params.beneficiaryId ?? null}
+        onActiveIdChange={beneficiaryId =>
+          Router.push("AccountPaymentsBeneficiariesDetails", {
+            ...params,
+            beneficiaryId,
+          })
+        }
+        onClose={() => {
+          Router.push("AccountPaymentsBeneficiariesList", params);
+        }}
+        items={nodes}
+        render={(item, large) =>
+          route != null && (
+            <BeneficiaryDetail
+              id={item.id}
+              canViewAccount={canViewAccount}
+              canQueryCardOnTransaction={canQueryCardOnTransaction}
+              large={large}
+              params={route.params}
+            />
+          )
+        }
+      />
     </>
   );
 };

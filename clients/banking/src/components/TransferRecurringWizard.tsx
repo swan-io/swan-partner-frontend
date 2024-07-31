@@ -8,19 +8,20 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { match } from "ts-pattern";
+import { P, match } from "ts-pattern";
 import { AccountCountry, ScheduleStandingOrderDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
-  Beneficiary,
   BeneficiarySepaWizardForm,
+  SepaBeneficiary,
   TransferWizardBeneficiarySummary,
 } from "./BeneficiarySepaWizardForm";
 import {
@@ -71,13 +72,20 @@ const styles = StyleSheet.create({
 });
 
 type Step =
-  | { name: "Beneficiary"; beneficiary?: Beneficiary }
+  | {
+      name: "Beneficiary";
+      beneficiary?: SepaBeneficiary;
+    }
   | {
       name: "Details";
-      beneficiary: Beneficiary;
+      beneficiary: SepaBeneficiary;
       details?: Details;
     }
-  | { name: "Schedule"; beneficiary: Beneficiary; details: Details };
+  | {
+      name: "Schedule";
+      beneficiary: SepaBeneficiary;
+      details: Details;
+    };
 
 type Props = {
   onPressClose?: () => void;
@@ -104,7 +112,7 @@ export const TransferRecurringWizard = ({
     details,
     schedule,
   }: {
-    beneficiary: Beneficiary;
+    beneficiary: SepaBeneficiary;
     details: Details;
     schedule: Schedule;
   }) => {
@@ -221,8 +229,11 @@ export const TransferRecurringWizard = ({
                       mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}
-                      initialBeneficiary={beneficiary}
                       onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
+                      initialBeneficiary={match(beneficiary)
+                        .with({ kind: "new" }, identity)
+                        .with({ kind: "saved" }, P.nullish, () => undefined)
+                        .exhaustive()}
                     />
                   </>
                 );

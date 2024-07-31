@@ -18,11 +18,7 @@ export const CardWizardChoosePinModal = ({ visible, onPressClose, onSubmit }: Pr
   const choosePinRef = useRef<CardItemPhysicalDeliveryAddressFormRef>(null);
 
   return (
-    <LakeModal
-      visible={visible}
-      icon="pin-regular"
-      title={t("card.physical.order.shippingAddress")}
-    >
+    <LakeModal visible={visible} icon="pin-regular" title={t("card.physicalCard.choosePin.title")}>
       <CardItemPhysicalChoosePinForm
         ref={choosePinRef}
         onSubmit={editorState => {

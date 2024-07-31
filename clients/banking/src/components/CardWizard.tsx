@@ -623,7 +623,7 @@ export const CardWizard = ({
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
                                     : account != null
-                                      ? (members?.edges.map(({ node }) => node) ?? [])
+                                      ? members?.edges.map(({ node }) => node) ?? []
                                       : [accountMembership];
 
                                 if (canOrderPhysicalCard) {
@@ -885,6 +885,7 @@ export const CardWizard = ({
                                   cards: individualDeliveryConfig.map(
                                     ({
                                       member,
+                                      choosePin,
                                       address: {
                                         firstName,
                                         lastName,
@@ -902,6 +903,7 @@ export const CardWizard = ({
                                       nonMainCurrencyTransactions,
                                       physicalCard: {
                                         deliveryAddress: address,
+                                        choosePin,
                                       },
                                     }),
                                   ),

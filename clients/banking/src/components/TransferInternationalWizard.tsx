@@ -28,7 +28,7 @@ import { SavedBeneficiariesForm } from "./SavedBeneficiariesForm";
 import {
   Amount,
   TransferInternationalWizardAmount,
-  TransferInternationamWizardAmountSummary,
+  TransferInternationalWizardAmountSummary,
 } from "./TransferInternationalWizardAmount";
 import { Details, TransferInternationalWizardDetails } from "./TransferInternationalWizardDetails";
 
@@ -294,7 +294,7 @@ export const TransferInternationalWizard = ({
               ))
               .with({ name: "Beneficiary" }, ({ amount, beneficiary, errors }) => (
                 <>
-                  <TransferInternationamWizardAmountSummary
+                  <TransferInternationalWizardAmountSummary
                     isMobile={!large}
                     amount={amount}
                     onPressEdit={() => setStep({ name: "Amount", amount })}
@@ -316,7 +316,7 @@ export const TransferInternationalWizard = ({
               ))
               .with({ name: "Details" }, ({ amount, beneficiary, details }) => (
                 <>
-                  <TransferInternationamWizardAmountSummary
+                  <TransferInternationalWizardAmountSummary
                     isMobile={!large}
                     amount={amount}
                     onPressEdit={() => setStep({ name: "Amount", amount })}

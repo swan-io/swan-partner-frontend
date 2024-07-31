@@ -209,7 +209,6 @@ export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliv
             members={members}
             address={address}
             onSubmit={value => {
-              console.log(1);
               if (isChoosePinActive) {
                 setChoosePinModal(Option.Some(value));
               } else {

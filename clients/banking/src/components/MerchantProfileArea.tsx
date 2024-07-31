@@ -79,16 +79,16 @@ export const AccountMerchantsProfileArea = ({
                       large={large}
                       merchantProfileCardVisible={merchantProfileCardVisible}
                       merchantProfileSepaDirectDebitCoreVisible={
-                        merchantProfileSepaDirectDebitB2BVisible
-                      }
-                      merchantProfileSepaDirectDebitB2BVisible={
                         merchantProfileSepaDirectDebitCoreVisible
                       }
+                      merchantProfileSepaDirectDebitB2BVisible={
+                        merchantProfileSepaDirectDebitB2BVisible
+                      }
                       merchantProfileInternalDirectDebitCoreVisible={
-                        merchantProfileInternalDirectDebitB2BVisible
+                        merchantProfileInternalDirectDebitCoreVisible
                       }
                       merchantProfileInternalDirectDebitB2BVisible={
-                        merchantProfileInternalDirectDebitCoreVisible
+                        merchantProfileInternalDirectDebitB2BVisible
                       }
                       merchantProfileCheckVisible={merchantProfileCheckVisible}
                       onUpdate={() => {

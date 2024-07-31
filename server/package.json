@@ -40,6 +40,8 @@
     "@opentelemetry/sdk-trace-node": "1.25.1",
     "@opentelemetry/semantic-conventions": "1.25.1",
     "@swan-io/boxed": "2.3.0",
+    "@types/escape-html": "1.0.4",
+    "escape-html": "1.0.3",
     "fast-proxy": "2.2.0",
     "fastify": "4.28.1",
     "get-port": "5.1.1",

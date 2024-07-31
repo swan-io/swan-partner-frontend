@@ -1,5 +1,6 @@
 import { HttpErrorCodes } from "@fastify/sensible/lib/httpError";
 import { Accepts } from "accepts";
+import escapeHtml from "escape-html";
 import { FastifyInstance, FastifyReply, FastifyRequest, RouteGenericInterface } from "fastify";
 import fs from "node:fs";
 import { Http2SecureServer, Http2ServerRequest, Http2ServerResponse } from "node:http2";
@@ -39,7 +40,7 @@ export const replyWithError = (
       return reply
         .type("text/html")
         .status(status)
-        .send(errorTemplate.replaceAll("{{REQUEST_ID}}", requestId));
+        .send(errorTemplate.replaceAll("{{REQUEST_ID}}", escapeHtml(requestId)));
     });
 };
 
@@ -64,6 +65,6 @@ export const replyWithAuthError = (
       return reply
         .type("text/html")
         .status(status)
-        .send(authErrorTemplate.replaceAll("{{description}}", description));
+        .send(authErrorTemplate.replaceAll("{{description}}", escapeHtml(description)));
     });
 };

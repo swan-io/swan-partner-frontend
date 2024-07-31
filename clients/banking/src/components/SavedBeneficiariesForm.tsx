@@ -20,9 +20,8 @@ import { printFormat } from "iban";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { ValueOf } from "type-fest";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
-import { isSupportedCurrency, t } from "../utils/i18n";
+import { Currency, isSupportedCurrency, t } from "../utils/i18n";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
@@ -64,28 +63,34 @@ const styles = StyleSheet.create({
   },
 });
 
-type Types = {
-  Sepa: SepaBeneficiary;
-  International: InternationalBeneficiary;
-};
-
-type AnyBeneficiary = ValueOf<Types>;
-
-export const SavedBeneficiariesForm = <T extends keyof Types>({
-  accountId,
-  type,
-  onPressSubmit,
-}: {
+type Props = {
   accountId: string;
-  type: T;
-  onPressSubmit: (beneficiary: Types[T]) => void;
-}) => {
+} & (
+  | {
+      type: "Sepa";
+      onPressSubmit: (beneficiary: SepaBeneficiary) => void;
+    }
+  | {
+      type: "International";
+      currency: Currency;
+      onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
+    }
+);
+
+export const SavedBeneficiariesForm = (props: Props) => {
+  const { accountId } = props;
+  const currency = props.type === "International" ? props.currency : undefined;
+
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<string>();
 
   const defaultFilters = useMemo<TrustedBeneficiaryFiltersInput>(
-    () => ({ type: [type], status: ["Enabled"] }),
-    [type],
+    () => ({
+      type: [props.type],
+      currency,
+      status: ["Enabled"],
+    }),
+    [props.type, currency],
   );
 
   const [data, { isLoading, setVariables }] = useQuery(BeneficiariesListDocument, {
@@ -141,7 +146,7 @@ export const SavedBeneficiariesForm = <T extends keyof Types>({
         }
 
         return match(node)
-          .returnType<Option<AnyBeneficiary>>()
+          .returnType<Option<SepaBeneficiary | InternationalBeneficiary>>()
           .with({ __typename: "TrustedSepaBeneficiary" }, ({ id, name, iban }) =>
             Option.Some({ kind: "saved", id, name, iban }),
           )
@@ -271,7 +276,26 @@ export const SavedBeneficiariesForm = <T extends keyof Types>({
                   disabled={selectedBeneficiary.isNone()}
                   onPress={() => {
                     if (selectedBeneficiary.isSome()) {
-                      onPressSubmit(selectedBeneficiary.get() as Types[T]);
+                      match({ props, value: selectedBeneficiary.get() })
+                        .with(
+                          {
+                            props: { type: "Sepa" },
+                            value: { iban: P.nonNullable },
+                          },
+                          ({ props: { onPressSubmit }, value }) => {
+                            onPressSubmit(value);
+                          },
+                        )
+                        .with(
+                          {
+                            props: { type: "International" },
+                            value: { currency: P.nonNullable },
+                          },
+                          ({ props: { onPressSubmit }, value }) => {
+                            onPressSubmit(value);
+                          },
+                        )
+                        .otherwise(noop);
                     }
                   }}
                 >

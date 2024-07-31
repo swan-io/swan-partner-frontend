@@ -81,7 +81,7 @@ const BeneficiaryStep = ({
   onPressPrevious,
 }: {
   accountId: string;
-  amount: Amount | undefined;
+  amount: Amount;
   errors?: string[] | undefined;
   initialBeneficiary: InternationalBeneficiary | undefined;
   onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
@@ -129,6 +129,7 @@ const BeneficiaryStep = ({
           <SavedBeneficiariesForm
             type="International"
             accountId={accountId}
+            currency={amount.currency}
             onPressSubmit={onPressSubmit}
           />
         ))

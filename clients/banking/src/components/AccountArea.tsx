@@ -1,4 +1,5 @@
 import { Array, Dict, Option } from "@swan-io/boxed";
+import { ClientContext } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
@@ -7,7 +8,6 @@ import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Popover } from "@swan-io/lake/src/components/Popover";
-import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
 import { ScrollView, ScrollViewRef } from "@swan-io/lake/src/components/ScrollView";
 import { SidebarNavigationTracker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -34,6 +34,7 @@ import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
 import { env } from "../utils/env";
+import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { logFrontendError, setSentryUser } from "../utils/logger";
@@ -56,6 +57,7 @@ import { MerchantArea } from "./MerchantArea";
 import { NavigationTabBar, navigationTabBarHeight } from "./NavigationTabBar";
 import { ProfileButton } from "./ProfileButton";
 import { Redirect } from "./Redirect";
+import { SandboxUserPicker } from "./SandboxUserPicker";
 import { TransactionsArea } from "./TransactionsArea";
 import { TransferArea } from "./TransferArea";
 
@@ -394,7 +396,9 @@ export const AccountArea = ({
                   <Space height={12} />
 
                   <Box alignItems="center">
-                    <ProjectEnvTag projectEnv="Sandbox" />
+                    <ClientContext.Provider value={partnerAdminClient}>
+                      <SandboxUserPicker />
+                    </ClientContext.Provider>
                   </Box>
                 </>
               )}

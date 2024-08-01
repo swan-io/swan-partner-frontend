@@ -303,7 +303,7 @@ export const start = async ({
   });
 
   app.addHook("onRequest", (request, reply, done) => {
-    if (request.url.startsWith("/api/") || !request.url.startsWith("/auth/")) {
+    if (request.url.startsWith("/api/") || request.url.startsWith("/auth/")) {
       void reply.header("cache-control", `private, max-age=0`);
     }
     done();

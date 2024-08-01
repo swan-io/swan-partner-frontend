@@ -1,9 +1,8 @@
-import { AsyncData, Dict, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FilterBooleanDef, FiltersState } from "@swan-io/lake/src/components/Filters";
 import {
   FixedListViewEmpty,
   PlainListViewPlaceholder,
@@ -35,7 +34,6 @@ import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
@@ -607,19 +605,6 @@ const keyExtractor = (item: Node) => item.id;
 
 const PAGE_SIZE = 20;
 
-const canceledFilter: FilterBooleanDef = {
-  type: "boolean",
-  label: t("recurringTransfer.filters.status.canceled"),
-};
-
-// Once we add more filters, we should update translation key `recurringTransfer.emptyWithFilters.subtitle` to:
-// "You can adjust your filters or search again."
-const filtersDefinition = {
-  canceled: canceledFilter,
-};
-
-type RecurringTransferFilters = FiltersState<typeof filtersDefinition>;
-
 export const RecurringTransferList = ({
   accountId,
   accountMembershipId,
@@ -632,14 +617,11 @@ export const RecurringTransferList = ({
   const route = Router.useRoute(["AccountPaymentsRecurringTransferDetailsArea"]);
   const [cancelRecurringTransfer, cancelResult] = useMutation(CancelStandingOrderDocument);
 
-  const [filters, setFilters] = useState<RecurringTransferFilters>(() => ({
-    canceled: undefined,
-  }));
-
-  const hasFilters = Dict.values(filters).some(isNotNullish);
+  const [canceled, setCanceled] = useState(false);
+  const hasFilters = canceled;
 
   const [data, { isLoading, reload, setVariables }] = useQuery(GetStandingOrdersDocument, {
-    status: filters.canceled === true ? "Canceled" : "Enabled",
+    status: canceled ? "Canceled" : "Enabled",
     accountId,
     first: PAGE_SIZE,
   });
@@ -726,8 +708,8 @@ export const RecurringTransferList = ({
 
             <Toggle
               mode={large ? "desktop" : "mobile"}
-              value={filters.canceled !== true}
-              onToggle={value => setFilters({ ...filters, canceled: !value })}
+              value={!canceled}
+              onToggle={value => setCanceled(!value)}
               onLabel={t("recurringTransfer.filters.status.active")}
               offLabel={t("recurringTransfer.filters.status.canceled")}
             />

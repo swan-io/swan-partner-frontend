@@ -3,7 +3,7 @@ import cors from "@fastify/cors";
 import fastifyHelmet from "@fastify/helmet";
 import replyFrom from "@fastify/reply-from";
 import secureSession from "@fastify/secure-session";
-import sensible from "@fastify/sensible";
+import sensible, { HttpErrorCodes } from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
@@ -303,7 +303,7 @@ export const start = async ({
   });
 
   app.addHook("onRequest", (request, reply, done) => {
-    if (request.url.startsWith("/api/") || !request.url.startsWith("/auth/")) {
+    if (request.url.startsWith("/api/") || request.url.startsWith("/auth/")) {
       void reply.header("cache-control", `private, max-age=0`);
     }
     done();
@@ -854,9 +854,11 @@ export const start = async ({
   app.setErrorHandler((error, request, reply) => {
     request.log.error(error);
 
+    const statusCode = error.statusCode as Exclude<HttpErrorCodes, string>;
+
     // Send error response
     return replyWithError(app, request, reply, {
-      status: 500,
+      status: statusCode ?? 500,
       requestId: String(request.id),
     });
   });

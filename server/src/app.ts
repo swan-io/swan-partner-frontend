@@ -490,7 +490,10 @@ export const start = async ({
       identificationLevel,
       projectId,
     } = request.query;
-    if (typeof redirectTo === "string" && !redirectTo.startsWith("/")) {
+    if (
+      typeof redirectTo === "string" &&
+      (!redirectTo.startsWith("/") || redirectTo.startsWith("//"))
+    ) {
       return reply.status(403).send("Invalid `redirectTo` param");
     }
 

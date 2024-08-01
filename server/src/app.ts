@@ -304,7 +304,7 @@ export const start = async ({
 
   app.addHook("onRequest", (request, reply, done) => {
     if (request.url.startsWith("/api/") || !request.url.startsWith("/auth/")) {
-      void reply.header("cache-control", `public, max-age=0`);
+      void reply.header("cache-control", `private, max-age=0`);
     }
     done();
   });
@@ -328,7 +328,7 @@ export const start = async ({
    * An no-op to extend the cookie duration.
    */
   app.post("/api/ping", async (request, reply) => {
-    return reply.header("cache-control", `public, max-age=0`).status(200).send({
+    return reply.header("cache-control", `private, max-age=0`).status(200).send({
       ok: true,
     });
   });
@@ -833,7 +833,7 @@ export const start = async ({
   });
 
   app.get("/health", async (request, reply) => {
-    return reply.header("cache-control", `public, max-age=0`).status(200).send({
+    return reply.header("cache-control", `private, max-age=0`).status(200).send({
       version: packageJson.version,
       date: new Date().toISOString(),
       env: env.NODE_ENV,

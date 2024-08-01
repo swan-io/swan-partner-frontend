@@ -23,6 +23,7 @@ import {
   SandboxUserDocument,
   SandboxUsersDocument,
 } from "../graphql/partner-admin";
+import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 
@@ -51,7 +52,7 @@ const styles = StyleSheet.create({
     textOverflow: "ellipsis",
     overflow: "hidden",
     whiteSpace: "nowrap",
-    maxWidth: 115,
+    maxWidth: 140,
   },
   separator: {
     width: 1,
@@ -94,9 +95,13 @@ const styles = StyleSheet.create({
   value: {
     justifyContent: "center",
     height: 40,
-    paddingHorizontal: spacings[16],
+    paddingHorizontal: spacings[24],
     transitionProperty: "background-color",
     transitionDuration: "150ms",
+  },
+  selectListTitle: {
+    paddingHorizontal: spacings[24],
+    paddingVertical: spacings[8],
   },
 });
 
@@ -128,6 +133,7 @@ const Item = ({ onPress, isActive, firstName, lastName }: ItemProps) => {
     >
       <Box direction="row" alignItems="center">
         <LakeText
+          variant="smallRegular"
           color={colors.gray[900]}
           numberOfLines={1}
           style={[styles.itemText, isActive && styles.selected]}
@@ -171,7 +177,7 @@ export const SandboxUserPickerContents = ({ onEndorse }: PickerContentsProps) =>
     .with(AsyncData.P.Done(Result.P.Error(P._)), () => null)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ sandboxUser, sandboxUsers }) => {
       return (
-        <View>
+        <Box grow={1}>
           <Connection connection={sandboxUsers}>
             {sandboxUsers => (
               <FlatList
@@ -203,7 +209,7 @@ export const SandboxUserPickerContents = ({ onEndorse }: PickerContentsProps) =>
               />
             )}
           </Connection>
-        </View>
+        </Box>
       );
     })
     .exhaustive();
@@ -226,7 +232,7 @@ export const SandboxUserPicker = () => {
           ({ sandboxUser: { firstName, lastName } }) => (
             <View ref={referenceRef} style={styles.root}>
               <Pressable onPress={() => setIsOpen(true)} style={styles.container}>
-                <Tag color="sandbox" label="Sandbox">
+                <Tag color="sandbox" icon="beaker-regular">
                   <Box direction="row" alignItems="center" style={styles.contents}>
                     <LakeText
                       numberOfLines={1}
@@ -264,12 +270,62 @@ export const SandboxUserPicker = () => {
         visible={isOpen}
         onDismiss={() => setIsOpen(false)}
       >
+        <LakeText variant="regular" color={colors.current.primary} style={styles.selectListTitle}>
+          {t("sandboxUser.impersonatedAs")}
+        </LakeText>
+
         <SandboxUserPickerContents
           onEndorse={() => {
             window.location.replace(Router.ProjectRootRedirect());
           }}
         />
       </Popover>
+    </>
+  );
+};
+
+export const SandboxUserTag = ({ onPress }: { onPress: () => void }) => {
+  const referenceRef = useRef<View>(null);
+
+  const [sandboxUser] = useQuery(SandboxUserDocument, {});
+
+  return (
+    <>
+      {match(sandboxUser)
+        .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <View style={styles.placeholder} />)
+        .with(
+          AsyncData.P.Done(
+            Result.P.Ok(P.select({ sandboxUser: { firstName: P.string, lastName: P.string } })),
+          ),
+          ({ sandboxUser: { firstName, lastName } }) => (
+            <View ref={referenceRef} style={styles.root}>
+              <Pressable onPress={onPress} style={styles.container}>
+                <Tag color="sandbox" icon="beaker-regular">
+                  <Box direction="row" alignItems="center" style={styles.contents}>
+                    <LakeText
+                      numberOfLines={1}
+                      variant="smallMedium"
+                      color={colors.sandbox.primary}
+                    >
+                      {firstName} {lastName}
+                    </LakeText>
+
+                    <Space width={12} />
+                    <View style={styles.separator} />
+                    <Space width={4} />
+
+                    <View style={styles.icon}>
+                      <Icon color={colors.sandbox.primary} name="chevron-right-filled" size={16} />
+                    </View>
+                  </Box>
+                </Tag>
+              </Pressable>
+            </View>
+          ),
+        )
+        .otherwise(() => (
+          <View style={styles.placeholder} />
+        ))}
     </>
   );
 };

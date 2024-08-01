@@ -721,6 +721,7 @@
   "recurringTransfer.table.nextExecution": "Next execution",
   "recurringTransfer.table.period": "Recurrence",
   "recurringTransfer.table.recipient": "Recipient",
+  "sandboxUser.impersonatedAs": "Impersonated as",
   "transaction.address": "Address",
   "transaction.bookingDateTime": "Booked date",
   "transaction.canceledDate": "Canceled date",

@@ -11,7 +11,7 @@ import {
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { TransactionStatus } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
@@ -80,21 +80,17 @@ export const defaultFiltersDefinition = {
   status: statusFilter,
 };
 
-export type TransactionFilters = Omit<
-  FiltersState<typeof defaultFiltersDefinition>,
-  "paymentProduct"
-> & {
-  search: string | undefined;
-  paymentProduct: SimplifiedPaymentProduct[] | undefined;
-};
+export type TransactionFilters = FiltersState<typeof defaultFiltersDefinition>;
 
 type TransactionListFilterProps = {
-  filters: TransactionFilters;
-  onChange: (filters: Partial<TransactionFilters>) => void;
-  onRefresh: () => void;
   available?: readonly (keyof TransactionFilters)[];
   children?: ReactNode;
   large?: boolean;
+  filters: TransactionFilters;
+  search: string | undefined;
+  onChangeFilters: (filters: Partial<TransactionFilters>) => void;
+  onRefresh: () => void;
+  onChangeSearch: (search: string | undefined) => void;
   filtersDefinition?: {
     isAfterUpdatedAt: FilterDateDef;
     isBeforeUpdatedAt: FilterDateDef;
@@ -112,21 +108,19 @@ const defaultAvailableFilters = [
 ] as const;
 
 export const TransactionListFilter = ({
-  filters,
-  children,
-  onChange,
-  onRefresh,
-  large = true,
   available = defaultAvailableFilters,
+  children,
+  large = true,
+  filters,
+  search,
+  onChangeFilters,
+  onRefresh,
+  onChangeSearch,
   filtersDefinition = defaultFiltersDefinition,
 }: TransactionListFilterProps) => {
-  const filtersWithoutSearch = useMemo(() => {
-    const { search, ...filtersWithoutSearch } = filters;
-    return filtersWithoutSearch;
-  }, [filters]);
-
   const availableSet = useMemo(() => new Set(available), [available]);
-  const availableFilters: { name: keyof typeof filtersWithoutSearch; label: string }[] = useMemo(
+
+  const availableFilters: { name: keyof TransactionFilters; label: string }[] = useMemo(
     () =>
       (
         [
@@ -152,7 +146,7 @@ export const TransactionListFilter = ({
   );
 
   const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filtersWithoutSearch)
+    Dict.entries(filters)
       .filter(([, value]) => isNotNullish(value))
       .map(([name]) => name),
   );
@@ -160,12 +154,12 @@ export const TransactionListFilter = ({
   useEffect(() => {
     setOpenFilters(openFilters => {
       const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filtersWithoutSearch)
+      const openFiltersNotYetInState = Dict.entries(filters)
         .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
         .map(([name]) => name);
       return [...openFilters, ...openFiltersNotYetInState];
     });
-  }, [filtersWithoutSearch]);
+  }, [filters]);
 
   return (
     <>
@@ -179,7 +173,7 @@ export const TransactionListFilter = ({
         ) : null}
 
         <FilterChooser
-          filters={filtersWithoutSearch}
+          filters={filters}
           openFilters={openFilters}
           label={t("common.filters")}
           onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
@@ -205,8 +199,8 @@ export const TransactionListFilter = ({
 
         <LakeSearchField
           placeholder={t("common.search")}
-          initialValue={filters.search ?? ""}
-          onChangeText={search => onChange({ ...filters, search })}
+          initialValue={search ?? ""}
+          onChangeText={text => onChangeSearch(emptyToUndefined(text))}
         />
       </Box>
 
@@ -214,9 +208,9 @@ export const TransactionListFilter = ({
 
       <FiltersStack
         definition={filtersDefinition}
-        filters={filtersWithoutSearch}
+        filters={filters}
         openedFilters={openFilters}
-        onChangeFilters={value => onChange({ ...value, search: filters.search })}
+        onChangeFilters={onChangeFilters}
         onChangeOpened={setOpenFilters}
       />
     </>

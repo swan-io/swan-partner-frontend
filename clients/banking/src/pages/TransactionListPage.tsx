@@ -14,7 +14,7 @@ import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -103,7 +103,6 @@ export const TransactionListPage = ({
               .otherwise(() => Option.None()),
           )
         : undefined,
-      search: params.search,
       status: isNotNullish(params.transactionStatus)
         ? Array.filterMap(params.transactionStatus, item =>
             match(item)
@@ -118,11 +117,8 @@ export const TransactionListPage = ({
     params.isAfterUpdatedAt,
     params.isBeforeUpdatedAt,
     params.paymentProduct,
-    params.search,
     params.transactionStatus,
   ]);
-
-  const hasFilters = Object.values(filters).some(isNotNullish);
 
   const paymentProduct = useMemo(() => {
     const actualPaymentProduct: PaymentProduct[] = [];
@@ -138,12 +134,16 @@ export const TransactionListPage = ({
     return actualPaymentProduct.length > 0 ? actualPaymentProduct : undefined;
   }, [filters]);
 
+  const search = nullishOrEmptyToUndefined(params.search);
+  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
+
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: PAGE_SIZE,
     filters: {
       ...filters,
       paymentProduct,
+      search,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
@@ -165,18 +165,27 @@ export const TransactionListPage = ({
         <>
           <Box style={[styles.filters, large && styles.filtersLarge]}>
             <TransactionListFilter
+              large={large}
               filters={filters}
-              onChange={({ status, ...filters }) =>
-                Router.push("AccountTransactionsListRoot", {
-                  accountMembershipId,
-                  transactionStatus: status,
-                  ...filters,
-                })
-              }
+              search={search}
               onRefresh={() => {
                 reload();
               }}
-              large={large}
+              onChangeFilters={({ status, ...filters }) => {
+                Router.push("AccountTransactionsListRoot", {
+                  ...params,
+                  accountMembershipId,
+                  transactionStatus: status,
+                  ...filters,
+                });
+              }}
+              onChangeSearch={search => {
+                Router.push("AccountTransactionsListRoot", {
+                  ...params,
+                  accountMembershipId,
+                  search,
+                });
+              }}
             >
               {accountStatementsVisible ? (
                 <LakeButton
@@ -235,7 +244,7 @@ export const TransactionListPage = ({
                             }
                           }}
                           renderEmptyList={() =>
-                            hasFilters ? (
+                            hasSearchOrFilters ? (
                               <FixedListViewEmpty
                                 icon="lake-transfer"
                                 borderedIcon={true}

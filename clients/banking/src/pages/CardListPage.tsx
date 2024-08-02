@@ -10,17 +10,18 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
+import { Except } from "type-fest";
 import { CardList } from "../components/CardList";
 import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { CardListPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   root: {
@@ -45,11 +46,7 @@ type Props = {
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
-  params: {
-    search?: string | undefined;
-    status?: string | undefined;
-    type?: string[] | undefined;
-  };
+  params: Except<GetRouteParams<"AccountCardsList">, "accountMembershipId">;
 };
 
 const PER_PAGE = 20;
@@ -67,10 +64,6 @@ export const CardListPage = ({
 }: Props) => {
   const filters: CardFilters = useMemo(() => {
     return {
-      search: params.search,
-      status: match(params.status)
-        .with("Active", "Canceled", item => item)
-        .otherwise(() => "Active"),
       type: isNotNullish(params.type)
         ? Array.filterMap(params.type, item =>
             match(item)
@@ -79,21 +72,20 @@ export const CardListPage = ({
           )
         : undefined,
     } as const;
-  }, [params.search, params.status, params.type]);
+  }, [params.type]);
 
-  const hasFilters = Object.values(filters).some(isNotNullish);
+  const search = nullishOrEmptyToUndefined(params.search);
+  const status = params.status === "Canceled" ? "Canceled" : "Active";
 
-  const statuses = match(filters.status)
-    .with("Active", () => ACTIVE_STATUSES)
-    .with("Canceled", () => CANCELED_STATUSES)
-    .exhaustive();
+  const hasSearchOrFilters =
+    isNotNullish(search) || status === "Canceled" || Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, setVariables, reload }] = useQuery(CardListPageDocument, {
     first: PER_PAGE,
     filters: {
-      statuses,
+      statuses: status === "Active" ? ACTIVE_STATUSES : CANCELED_STATUSES,
       types: filters.type,
-      search: filters.search,
+      search,
       accountId,
     },
   });
@@ -130,17 +122,22 @@ export const CardListPage = ({
         <>
           <Box style={[styles.filters, large && styles.filtersLarge]}>
             <CardListFilter
+              large={large}
               filters={filters}
-              onChange={filters =>
-                Router.push("AccountCardsList", {
-                  accountMembershipId,
-                  ...filters,
-                })
-              }
+              search={search}
+              status={status}
               onRefresh={() => {
                 reload();
               }}
-              large={large}
+              onChangeFilters={filters => {
+                Router.push("AccountCardsList", { accountMembershipId, ...params, ...filters });
+              }}
+              onChangeSearch={search => {
+                Router.push("AccountCardsList", { accountMembershipId, ...params, search });
+              }}
+              onChangeStatus={status => {
+                Router.push("AccountCardsList", { accountMembershipId, ...params, status });
+              }}
             >
               {canAddCard && cardOrderVisible ? (
                 <LakeButton
@@ -195,7 +192,7 @@ export const CardListPage = ({
                           }
                         }}
                         renderEmptyList={() =>
-                          hasFilters ? (
+                          hasSearchOrFilters ? (
                             <FixedListViewEmpty
                               icon="lake-card"
                               borderedIcon={true}

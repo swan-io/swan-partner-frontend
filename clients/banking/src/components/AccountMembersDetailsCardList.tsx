@@ -11,7 +11,7 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -73,10 +73,6 @@ export const AccountMembersDetailsCardList = ({
 
   const filters: CardFilters = useMemo(() => {
     return {
-      search: params.cardSearch,
-      status: match(params.cardStatus)
-        .with("Active", "Canceled", item => item)
-        .otherwise(() => "Active"),
       type: isNotNullish(params.cardType)
         ? Array.filterMap(params.cardType, item =>
             match(item)
@@ -85,21 +81,24 @@ export const AccountMembersDetailsCardList = ({
           )
         : undefined,
     } as const;
-  }, [params.cardSearch, params.cardStatus, params.cardType]);
+  }, [params.cardType]);
 
-  const hasFilters = Object.values(filters).some(isNotNullish);
+  const search = nullishOrEmptyToUndefined(params.cardSearch);
+  const status = params.cardStatus === "Canceled" ? "Canceled" : "Active";
 
-  const statuses = match(filters.status)
-    .with("Active", () => ACTIVE_STATUSES)
-    .with("Canceled", () => CANCELED_STATUSES)
-    .exhaustive();
+  const hasSearchOrFilters =
+    isNotNullish(search) || status === "Canceled" || Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
     AccountMembershipCardListPageDocument,
     {
       first: PER_PAGE,
-      filters: { statuses, types: filters.type, search: filters.search },
       accountMembershipId: params.editingAccountMembershipId,
+      filters: {
+        statuses: status === "Active" ? ACTIVE_STATUSES : CANCELED_STATUSES,
+        types: filters.type,
+        search,
+      },
     },
   );
 
@@ -141,20 +140,34 @@ export const AccountMembersDetailsCardList = ({
             <>
               <Box style={[styles.filters, large && styles.filtersLarge]}>
                 <CardListFilter
+                  large={large}
                   filters={filters}
-                  onChange={filters =>
-                    Router.push("AccountMembersDetailsCardList", {
-                      accountMembershipId: currentUserAccountMembershipId,
-                      ...params,
-                      cardSearch: filters.search,
-                      cardStatus: filters.status,
-                      cardType: filters.type,
-                    })
-                  }
+                  search={search}
+                  status={status}
                   onRefresh={() => {
                     reload();
                   }}
-                  large={large}
+                  onChangeFilters={filters => {
+                    Router.push("AccountMembersDetailsCardList", {
+                      accountMembershipId: currentUserAccountMembershipId,
+                      ...params,
+                      cardType: filters.type,
+                    });
+                  }}
+                  onChangeSearch={cardSearch => {
+                    Router.push("AccountMembersDetailsCardList", {
+                      accountMembershipId: currentUserAccountMembershipId,
+                      ...params,
+                      cardSearch,
+                    });
+                  }}
+                  onChangeStatus={cardStatus => {
+                    Router.push("AccountMembersDetailsCardList", {
+                      accountMembershipId: currentUserAccountMembershipId,
+                      ...params,
+                      cardStatus,
+                    });
+                  }}
                 >
                   {canAddCard ? (
                     <LakeButton
@@ -216,7 +229,7 @@ export const AccountMembersDetailsCardList = ({
                               }
                             }}
                             renderEmptyList={() =>
-                              hasFilters ? (
+                              hasSearchOrFilters ? (
                                 <FixedListViewEmpty
                                   icon="lake-card"
                                   borderedIcon={true}

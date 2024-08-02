@@ -90,7 +90,7 @@ export type TransactionFilters = Omit<
 
 type TransactionListFilterProps = {
   filters: TransactionFilters;
-  onChange: (values: Partial<TransactionFilters>) => void;
+  onChange: (filters: Partial<TransactionFilters>) => void;
   onRefresh: () => void;
   available?: readonly (keyof TransactionFilters)[];
   children?: ReactNode;

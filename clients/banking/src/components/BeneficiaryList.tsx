@@ -472,7 +472,7 @@ export const BeneficiaryList = ({
     const { label } = params;
 
     const hasSearchOrFilters =
-      isNotNullishOrEmpty(label) || Object.values(filters).some(isNotNullish) || canceled;
+      isNotNullishOrEmpty(label) || canceled || Object.values(filters).some(isNotNullish);
 
     return { filters, canceled, label, hasSearchOrFilters };
   }, [params]);

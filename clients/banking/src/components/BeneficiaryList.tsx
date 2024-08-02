@@ -342,7 +342,7 @@ const filtersDefinition = {
 type Filters = FiltersState<typeof filtersDefinition>;
 
 const BeneficiaryListImpl = ({
-  hasFilters,
+  hasSearchOrFilters,
   rowHeight,
   beneficiaries,
   isLoading,
@@ -351,7 +351,7 @@ const BeneficiaryListImpl = ({
   params,
   setVariables,
 }: {
-  hasFilters: boolean;
+  hasSearchOrFilters: boolean;
   rowHeight: number;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
@@ -406,9 +406,11 @@ const BeneficiaryListImpl = ({
             icon="lake-person-arrow-swap"
             borderedIcon={true}
             borderedIconPadding={16}
-            title={hasFilters ? t("common.list.noResults") : t("beneficiaries.empty.title")}
+            title={hasSearchOrFilters ? t("common.list.noResults") : t("beneficiaries.empty.title")}
             subtitle={
-              hasFilters ? t("common.list.noResultsSuggestion") : t("beneficiaries.empty.subtitle")
+              hasSearchOrFilters
+                ? t("common.list.noResultsSuggestion")
+                : t("beneficiaries.empty.subtitle")
             }
           />
         )}
@@ -460,7 +462,7 @@ export const BeneficiaryList = ({
   canViewAccount: boolean;
   canQueryCardOnTransaction: boolean;
 }) => {
-  const { filters, canceled, label, hasFilters } = useMemo(() => {
+  const { filters, canceled, label, hasSearchOrFilters } = useMemo(() => {
     const filters: Filters = {
       currency: params.currency,
       type: params.type?.filter(beneficiaryTypes.is),
@@ -469,10 +471,10 @@ export const BeneficiaryList = ({
     const canceled = params.canceled === "true";
     const { label } = params;
 
-    const hasFilters =
-      Object.values(filters).some(isNotNullish) || canceled || isNotNullishOrEmpty(label);
+    const hasSearchOrFilters =
+      isNotNullishOrEmpty(label) || canceled || Object.values(filters).some(isNotNullish);
 
-    return { filters, canceled, label, hasFilters };
+    return { filters, canceled, label, hasSearchOrFilters };
   }, [params]);
 
   const availableFilters = useMemo<{ name: keyof Filters; label: string }[]>(
@@ -641,7 +643,7 @@ export const BeneficiaryList = ({
               ))
               .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
                 <BeneficiaryListImpl
-                  hasFilters={hasFilters}
+                  hasSearchOrFilters={hasSearchOrFilters}
                   rowHeight={rowHeight}
                   beneficiaries={beneficiaries}
                   isLoading={isLoading}

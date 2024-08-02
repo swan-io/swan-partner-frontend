@@ -11,7 +11,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -22,13 +22,13 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
-import { TransactionFiltersState, TransactionListFilter } from "./TransactionListFilter";
+import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -49,21 +49,13 @@ const NUM_TO_RENDER = 20;
 type Props = {
   card: Card;
   projectId: string;
-  accountMembershipId: string;
-
-  cardId: string;
 
   isCurrentUserCardOwner: boolean;
   cardRequiresIdentityVerification: boolean;
   onRefreshAccountRequest: () => void;
   lastRelevantIdentification: Option<IdentificationFragment>;
 
-  params: {
-    isAfterUpdatedAt?: string | undefined;
-    isBeforeUpdatedAt?: string | undefined;
-    search?: string | undefined;
-    status?: string[] | undefined;
-  };
+  params: GetRouteParams<"AccountCardsItemTransactions">;
 
   canViewAccount: boolean;
 };
@@ -72,7 +64,6 @@ const availableFilters = [
   "isAfterUpdatedAt",
   "isBeforeUpdatedAt",
   "isBeforeUpdatedAt",
-  "search",
   "status",
 ] as const;
 
@@ -87,9 +78,7 @@ type Card = NonNullable<CardPageQuery["card"]>;
 
 export const CardItemTransactionList = ({
   card: cardFromProps,
-  cardId,
   projectId,
-  accountMembershipId,
   params,
   isCurrentUserCardOwner,
   cardRequiresIdentityVerification,
@@ -97,11 +86,10 @@ export const CardItemTransactionList = ({
   lastRelevantIdentification,
   canViewAccount,
 }: Props) => {
-  const filters: TransactionFiltersState = useMemo(() => {
+  const filters: TransactionFilters = useMemo(() => {
     return {
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      search: params.search,
       paymentProduct: undefined,
       status: isNotNullish(params.status)
         ? Array.filterMap(params.status, item =>
@@ -113,16 +101,18 @@ export const CardItemTransactionList = ({
           )
         : undefined,
     } as const;
-  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.search, params.status]);
+  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.status]);
 
-  const hasFilters = Object.values(filters).some(isNotNullish);
+  const search = nullishOrEmptyToUndefined(params.search);
+  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(CardTransactionsPageDocument, {
-    cardId,
+    cardId: params.cardId,
     first: NUM_TO_RENDER,
     filters: {
       ...filters,
       paymentProduct: undefined,
+      search,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction: true,
@@ -142,10 +132,10 @@ export const CardItemTransactionList = ({
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
       {({ large }) => (
         <>
-          {match({ hasFilters, data })
+          {match({ hasSearchOrFilters, data })
             .with(
               {
-                hasFilters: false,
+                hasSearchOrFilters: false,
                 data: AsyncData.P.Done(Result.P.Ok({ card: { transactions: { totalCount: 0 } } })),
               },
               () => null,
@@ -153,19 +143,19 @@ export const CardItemTransactionList = ({
             .otherwise(() => (
               <Box style={[styles.filters, large && styles.filtersLarge]}>
                 <TransactionListFilter
-                  filters={filters}
-                  onChange={filters =>
-                    Router.push("AccountCardsItemTransactions", {
-                      accountMembershipId,
-                      cardId,
-                      ...filters,
-                    })
-                  }
                   available={availableFilters}
+                  large={large}
+                  filters={filters}
+                  search={search}
                   onRefresh={() => {
                     reload();
                   }}
-                  large={large}
+                  onChangeFilters={filters => {
+                    Router.push("AccountCardsItemTransactions", { ...params, ...filters });
+                  }}
+                  onChangeSearch={search => {
+                    Router.push("AccountCardsItemTransactions", { ...params, search });
+                  }}
                 />
               </Box>
             ))}
@@ -209,7 +199,7 @@ export const CardItemTransactionList = ({
                             }
                           }}
                           renderEmptyList={() =>
-                            hasFilters ? (
+                            hasSearchOrFilters ? (
                               <FixedListViewEmpty
                                 icon="lake-transfer"
                                 borderedIcon={true}
@@ -261,7 +251,7 @@ export const CardItemTransactionList = ({
                           items={transactions?.edges.map(item => item.node) ?? []}
                           render={(transaction, large) => (
                             <TransactionDetail
-                              accountMembershipId={accountMembershipId}
+                              accountMembershipId={params.accountMembershipId}
                               large={large}
                               transactionId={transaction.id}
                               canQueryCardOnTransaction={true}

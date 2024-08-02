@@ -376,23 +376,18 @@ export const CardItemArea = ({
                     <Space height={24} />
                   </ScrollView>
                 ))
-                .with(
-                  { name: "AccountCardsItemTransactions" },
-                  ({ params: { cardId, accountMembershipId, ...params } }) => (
-                    <CardItemTransactionList
-                      projectId={projectId}
-                      card={card}
-                      accountMembershipId={accountMembershipId}
-                      cardId={cardId}
-                      params={params}
-                      isCurrentUserCardOwner={isCurrentUserCardOwner}
-                      cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                      onRefreshAccountRequest={refetchAccountAreaQuery}
-                      lastRelevantIdentification={lastRelevantIdentification}
-                      canViewAccount={canViewAccount}
-                    />
-                  ),
-                )
+                .with({ name: "AccountCardsItemTransactions" }, ({ params }) => (
+                  <CardItemTransactionList
+                    projectId={projectId}
+                    card={card}
+                    params={params}
+                    isCurrentUserCardOwner={isCurrentUserCardOwner}
+                    cardRequiresIdentityVerification={cardRequiresIdentityVerification}
+                    onRefreshAccountRequest={refetchAccountAreaQuery}
+                    lastRelevantIdentification={lastRelevantIdentification}
+                    canViewAccount={canViewAccount}
+                  />
+                ))
                 .with({ name: "AccountCardsItemSettings" }, ({ params: { cardId } }) => (
                   <ScrollView
                     style={styles.container}

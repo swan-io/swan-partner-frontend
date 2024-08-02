@@ -11,7 +11,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -23,7 +23,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import {
-  TransactionFiltersState,
+  TransactionFilters,
   TransactionListFilter,
   defaultFiltersDefinition,
 } from "./TransactionListFilter";
@@ -70,13 +70,12 @@ export const TransferList = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
-  const filters: TransactionFiltersState = useMemo(() => {
+  const filters: TransactionFilters = useMemo(() => {
     return {
       includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: undefined,
-      search: params.search,
       status: isNotNullish(params.transactionStatus)
         ? Array.filterMap(params.transactionStatus, item =>
             match(item)
@@ -87,9 +86,7 @@ export const TransferList = ({
           )
         : undefined,
     } as const;
-  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.search, params.transactionStatus]);
-
-  const hasFilters = Object.values(filters).some(isNotNullish);
+  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.transactionStatus]);
 
   const paymentProduct = useMemo(() => {
     return [
@@ -99,12 +96,16 @@ export const TransferList = ({
     ];
   }, []);
 
+  const search = nullishOrEmptyToUndefined(params.search);
+  const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
+
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
     filters: {
       ...filters,
       paymentProduct,
+      search,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
@@ -126,19 +127,28 @@ export const TransferList = ({
         <>
           <Box style={[styles.filters, large && styles.filtersLarge]}>
             <TransactionListFilter
+              available={["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"]}
+              large={large}
               filters={filters}
-              onChange={({ status, ...filters }) =>
+              search={search}
+              onRefresh={() => {
+                reload();
+              }}
+              onChangeFilters={({ status, ...filters }) =>
                 Router.push("AccountPaymentsRoot", {
+                  ...params,
                   accountMembershipId,
                   transactionStatus: status,
                   ...filters,
                 })
               }
-              onRefresh={() => {
-                reload();
+              onChangeSearch={search => {
+                Router.push("AccountPaymentsRoot", {
+                  ...params,
+                  accountMembershipId,
+                  search,
+                });
               }}
-              large={large}
-              available={["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"]}
               filtersDefinition={{
                 ...defaultFiltersDefinition,
                 paymentProduct: {
@@ -191,7 +201,7 @@ export const TransferList = ({
                             }
                           }}
                           renderEmptyList={() =>
-                            hasFilters ? (
+                            hasSearchOrFilters ? (
                               <FixedListViewEmpty
                                 icon="lake-transfer"
                                 borderedIcon={true}

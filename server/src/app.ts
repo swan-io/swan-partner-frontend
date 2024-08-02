@@ -420,7 +420,9 @@ export const start = async ({
           onboardCompanyAccountHolder({ accountCountry, projectId }),
         )
         .tapOk(onboardingId => {
-          return reply.redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
+          return reply
+            .header("cache-control", `private, max-age=0`)
+            .redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
           match(error)

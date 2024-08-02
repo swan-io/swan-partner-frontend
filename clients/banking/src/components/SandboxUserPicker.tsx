@@ -136,7 +136,7 @@ const Item = ({ onPress, isActive, firstName, lastName }: ItemProps) => {
     >
       <Box direction="row" alignItems="center">
         <LakeText
-          variant="smallRegular"
+          variant="regular"
           color={colors.gray[900]}
           numberOfLines={1}
           style={[styles.itemText, isActive && styles.selected]}
@@ -274,11 +274,7 @@ export const SandboxUserPicker = () => {
         visible={isOpen}
         onDismiss={() => setIsOpen(false)}
       >
-        <LakeText
-          variant="smallRegular"
-          color={colors.current.primary}
-          style={styles.selectListTitle}
-        >
+        <LakeText variant="regular" color={colors.current.primary} style={styles.selectListTitle}>
           {t("sandboxUser.impersonatedAs")}
         </LakeText>
 

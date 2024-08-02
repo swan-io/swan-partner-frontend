@@ -101,7 +101,10 @@ const styles = StyleSheet.create({
   },
   selectListTitle: {
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[12],
+    paddingTop: spacings[12],
+  },
+  listContent: {
+    paddingVertical: 12,
   },
 });
 
@@ -184,6 +187,7 @@ export const SandboxUserPickerContents = ({ onEndorse }: PickerContentsProps) =>
                 role="list"
                 style={styles.list}
                 data={sandboxUsers?.edges ?? []}
+                contentContainerStyle={styles.listContent}
                 keyExtractor={item => `SandboxUserSelector${item.node.id}`}
                 renderItem={({ item: { node } }) => (
                   <Item
@@ -270,7 +274,11 @@ export const SandboxUserPicker = () => {
         visible={isOpen}
         onDismiss={() => setIsOpen(false)}
       >
-        <LakeText variant="regular" color={colors.current.primary} style={styles.selectListTitle}>
+        <LakeText
+          variant="smallRegular"
+          color={colors.current.primary}
+          style={styles.selectListTitle}
+        >
           {t("sandboxUser.impersonatedAs")}
         </LakeText>
 

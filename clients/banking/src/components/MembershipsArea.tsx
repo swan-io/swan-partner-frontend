@@ -11,22 +11,23 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
+import { Except } from "type-fest";
 import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
-import { Router, membershipsRoutes } from "../utils/routes";
+import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MembershipDetailArea } from "./MembershipDetailArea";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 import { MembershipList } from "./MembershipList";
-import { MembershipFilters, MembershipListFilter } from "./MembershipListFilter";
+import { MembershipFilters, MembershipListFilter, parseBooleanParam } from "./MembershipListFilter";
 import { NewMembershipWizard } from "./NewMembershipWizard";
 
 const styles = StyleSheet.create({
@@ -52,19 +53,7 @@ type Props = {
   physicalCardOrderVisible: boolean;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
-  params: {
-    new?: string;
-    search?: string | undefined;
-    statuses?: string[] | undefined;
-    canInitiatePayments?: string | undefined;
-    canManageAccountMembership?: string | undefined;
-    canManageBeneficiaries?: string | undefined;
-    canViewAccount?: string | undefined;
-    canManageCards?: string | undefined;
-    // Params added after consent
-    resourceId?: string | undefined;
-    status?: string | undefined;
-  };
+  params: Except<GetRouteParams<"AccountMembersArea">, "accountMembershipId">;
   currentUserAccountMembership: AccountMembershipFragment;
   onAccountMembershipUpdate: () => void;
 };
@@ -97,36 +86,27 @@ export const MembershipsArea = ({
               .otherwise(() => Option.None()),
           )
         : undefined,
-      canInitiatePayments: match(params.canInitiatePayments)
-        .with("true", "false", value => value)
-        .otherwise(() => undefined),
-      canManageAccountMembership: match(params.canManageAccountMembership)
-        .with("true", "false", value => value)
-        .otherwise(() => undefined),
-      canManageBeneficiaries: match(params.canManageBeneficiaries)
-        .with("true", "false", value => value)
-        .otherwise(() => undefined),
-      canManageCards: match(params.canManageCards)
-        .with("true", "false", value => value)
-        .otherwise(() => undefined),
-      canViewAccount: match(params.canViewAccount)
-        .with("true", "false", value => value)
-        .otherwise(() => undefined),
-      search: params.search,
+      canViewAccount: parseBooleanParam(params.canViewAccount),
+      canManageCards: parseBooleanParam(params.canManageCards),
+      canInitiatePayments: parseBooleanParam(params.canInitiatePayments),
+      canManageAccountMembership: parseBooleanParam(params.canManageAccountMembership),
+      canManageBeneficiaries: parseBooleanParam(params.canManageBeneficiaries),
     } as const;
   }, [
-    params.search,
     params.statuses,
+    params.canViewAccount,
+    params.canManageCards,
     params.canInitiatePayments,
     params.canManageAccountMembership,
     params.canManageBeneficiaries,
-    params.canViewAccount,
-    params.canManageCards,
   ]);
+
+  const search = nullishOrEmptyToUndefined(params.search);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MembersPageDocument, {
     first: PER_PAGE,
     accountId,
+    search,
     status: match(filters.statuses)
       .with(undefined, () => [
         "BindingUserError" as const,
@@ -135,27 +115,11 @@ export const MembershipsArea = ({
         "Suspended" as const,
       ])
       .otherwise(() => filters.statuses),
-    canInitiatePayments: match(filters.canInitiatePayments)
-      .with("true", () => true)
-      .with("false", () => false)
-      .otherwise(() => undefined),
-    canManageAccountMembership: match(filters.canManageAccountMembership)
-      .with("true", () => true)
-      .with("false", () => false)
-      .otherwise(() => undefined),
-    canManageBeneficiaries: match(filters.canManageBeneficiaries)
-      .with("true", () => true)
-      .with("false", () => false)
-      .otherwise(() => undefined),
-    canManageCards: match(filters.canManageCards)
-      .with("true", () => true)
-      .with("false", () => false)
-      .otherwise(() => undefined),
-    canViewAccount: match(filters.canViewAccount)
-      .with("true", () => true)
-      .with("false", () => false)
-      .otherwise(() => undefined),
-    search: filters.search,
+    canViewAccount: filters.canViewAccount,
+    canManageCards: filters.canManageCards,
+    canInitiatePayments: filters.canInitiatePayments,
+    canManageAccountMembership: filters.canManageAccountMembership,
+    canManageBeneficiaries: filters.canManageBeneficiaries,
   });
 
   const editingAccountMembershipId = match(route)
@@ -235,12 +199,22 @@ export const MembershipsArea = ({
             <Box style={[styles.filters, large && styles.filtersLarge]}>
               <MembershipListFilter
                 filters={filters}
-                onChange={filters =>
+                search={search}
+                onChangeFilters={filters => {
                   Router.push("AccountMembersList", {
                     accountMembershipId,
+                    ...params,
                     ...filters,
-                  })
-                }
+                    canViewAccount: String(filters.canViewAccount),
+                    canManageCards: String(filters.canManageCards),
+                    canInitiatePayments: String(filters.canInitiatePayments),
+                    canManageAccountMembership: String(filters.canManageAccountMembership),
+                    canManageBeneficiaries: String(filters.canManageBeneficiaries),
+                  });
+                }}
+                onChangeSearch={search => {
+                  Router.push("AccountMembersList", { accountMembershipId, ...params, search });
+                }}
                 onRefresh={() => {
                   reload();
                 }}

@@ -213,6 +213,31 @@ start({
       },
     );
 
+    app.post<{ Params: { projectId: string } }>(
+      "/api/projects/:projectId/partner-admin",
+      async (request, reply) => {
+        if (request.accessToken == undefined) {
+          return reply.status(401).send("Unauthorized");
+        }
+        const projectUserToken = await exchangeToken(request.accessToken, {
+          type: "AccountMemberToken",
+          projectId: request.params.projectId,
+        }).tapError(error => {
+          request.log.error(error);
+        });
+        return reply.from(env.PARTNER_ADMIN_API_URL, {
+          rewriteRequestHeaders: (_req, headers) => ({
+            ...headers,
+            ...match(projectUserToken)
+              .with(Result.P.Ok(P.select()), token => ({
+                "x-swan-token": `Bearer ${token}`,
+              }))
+              .otherwise(() => null),
+          }),
+        });
+      },
+    );
+
     /**
      * Send an account membership invitation
      * e.g. /api/project/:projectId/invitation/:inviteeAccountMembershipId/send?inviterAccountMembershipId=1234&lang=en

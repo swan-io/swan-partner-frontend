@@ -1,6 +1,8 @@
 import { Option } from "@swan-io/boxed";
+import { ClientContext } from "@swan-io/graphql-client";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { BottomPanel } from "@swan-io/lake/src/components/BottomPanel";
+import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -31,10 +33,13 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
+import { env } from "../utils/env";
+import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { Router, accountAreaRoutes } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
+import { SandboxUserPickerContents, SandboxUserTag } from "./SandboxUserPicker";
 
 const HEIGHT = 40;
 const PADDING_TOP = 12;
@@ -124,7 +129,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[50],
   },
   accountPicker: {
-    marginHorizontal: negativeSpacings[16],
+    marginHorizontal: negativeSpacings[24],
     height: 220,
   },
 });
@@ -160,7 +165,7 @@ export const NavigationTabBar = ({
   hasRequiredIdentificationLevel,
   onScrollToTop,
 }: Props) => {
-  const [screen, setScreen] = useState<null | "menu" | "memberships">(null);
+  const [screen, setScreen] = useState<null | "menu" | "memberships" | "sandboxUsers">(null);
   const route = Router.useRoute([...accountAreaRoutes, "AccountActivation", "AccountProfile"]);
 
   const activeMenuItem =
@@ -261,6 +266,18 @@ export const NavigationTabBar = ({
             {match(screen)
               .with("menu", () => (
                 <>
+                  {env.APP_TYPE === "SANDBOX" ? (
+                    <>
+                      <Box direction="row" justifyContent="start">
+                        <ClientContext.Provider value={partnerAdminClient}>
+                          <SandboxUserTag onPress={() => setScreen("sandboxUsers")} />
+                        </ClientContext.Provider>
+                      </Box>
+
+                      <Space height={16} />
+                    </>
+                  ) : null}
+
                   <AccountPickerButton
                     selectedAccountMembership={accountMembership}
                     desktop={false}
@@ -362,6 +379,37 @@ export const NavigationTabBar = ({
                           setScreen(null);
                         }}
                       />
+                    </View>
+
+                    <Fill minHeight={24} />
+
+                    <LakeButton
+                      mode="secondary"
+                      icon="arrow-left-filled"
+                      onPress={() => setScreen("menu")}
+                    >
+                      {t("common.back")}
+                    </LakeButton>
+                  </>
+                </TransitionView>
+              ))
+              .with("sandboxUsers", () => (
+                <TransitionView {...animations.fadeAndSlideInFromRight}>
+                  <>
+                    <LakeHeading level={2} variant="h3">
+                      {t("sandboxUser.impersonatedAs")}
+                    </LakeHeading>
+
+                    <Space height={16} />
+
+                    <View style={styles.accountPicker}>
+                      <ClientContext.Provider value={partnerAdminClient}>
+                        <SandboxUserPickerContents
+                          onEndorse={() => {
+                            window.location.replace(Router.ProjectRootRedirect());
+                          }}
+                        />
+                      </ClientContext.Provider>
                     </View>
 
                     <Fill minHeight={24} />

@@ -118,6 +118,14 @@ const config: CodegenConfig = {
       documentTransforms: [{ transform: addTypenames }],
     },
 
+    [file("../../clients/banking/src/graphql/partner-admin.ts")]: {
+      documents: file("../../clients/banking/src/graphql/partner-admin.gql"),
+      schema: file("./dist/partner-admin-schema.gql"),
+      plugins: frontendPlugins.filter(item => item !== "typescript-urql-graphcache"),
+      config: frontendConfig,
+      documentTransforms: [{ transform: addTypenames }],
+    },
+
     [file("../../clients/banking/src/graphql/unauthenticated.ts")]: {
       documents: file("../../clients/banking/src/graphql/unauthenticated.gql"),
       schema: file("./dist/unauthenticated-schema.gql"),

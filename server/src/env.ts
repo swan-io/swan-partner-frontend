@@ -9,6 +9,7 @@ export const env = validate({
     LOG_LEVEL: oneOf("fatal", "error", "warn", "info", "debug", "trace", "silent"),
 
     PARTNER_API_URL: url,
+    PARTNER_ADMIN_API_URL: url,
     UNAUTHENTICATED_API_URL: url,
 
     OAUTH_SERVER_URL: url,

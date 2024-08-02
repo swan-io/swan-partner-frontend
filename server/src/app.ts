@@ -355,6 +355,20 @@ export const start = async ({
   });
 
   /**
+   * Proxies the Swan "partner-admin" GraphQL API.
+   */
+  app.post("/api/partner-admin", async (request, reply) => {
+    return reply.from(env.PARTNER_ADMIN_API_URL, {
+      rewriteRequestHeaders: (_req, headers) => ({
+        ...headers,
+        ...(request.accessToken != undefined
+          ? { Authorization: `Bearer ${request.accessToken}` }
+          : undefined),
+      }),
+    });
+  });
+
+  /**
    * Starts a new individual onboarding and redirects to the onboarding URL
    * e.g. /onboarding/individual/start?accountCountry=FRA
    */

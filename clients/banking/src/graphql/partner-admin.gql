@@ -1,0 +1,36 @@
+query SandboxUsers($first: Int!, $after: String, $orderBy: SandboxUsersOrderByInput!) {
+  sandboxUser {
+    id
+    firstName
+    lastName
+  }
+  sandboxUsers(first: $first, after: $after, orderBy: $orderBy) {
+    totalCount
+    pageInfo {
+      hasNextPage
+      endCursor
+    }
+    edges {
+      cursor
+      node {
+        id
+        firstName
+        lastName
+      }
+    }
+  }
+}
+
+query SandboxUser {
+  sandboxUser {
+    id
+    firstName
+    lastName
+  }
+}
+
+mutation EndorseSandboxUser($input: EndorseSandboxUserInput!) {
+  endorseSandboxUser(input: $input) {
+    __typename
+  }
+}

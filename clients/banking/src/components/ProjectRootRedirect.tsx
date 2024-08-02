@@ -1,15 +1,19 @@
 import { AsyncData, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { ClientContext, useQuery } from "@swan-io/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { P, match } from "ts-pattern";
 import { GetFirstAccountMembershipDocument } from "../graphql/partner";
 import { AccountNotFoundPage } from "../pages/NotFoundPage";
+import { env } from "../utils/env";
+import { partnerAdminClient } from "../utils/gql";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { Redirect } from "./Redirect";
+import { SandboxUserPicker } from "./SandboxUserPicker";
 
 type Props = {
   to?: string;
@@ -73,7 +77,18 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
 
       const projectName = data?.projectInfo?.name ?? "";
 
-      return <AccountNotFoundPage projectName={projectName} />;
+      return (
+        <AccountNotFoundPage projectName={projectName}>
+          {env.APP_TYPE === "SANDBOX" ? (
+            <>
+              <ClientContext.Provider value={partnerAdminClient}>
+                <SandboxUserPicker />
+                <Space height={24} />
+              </ClientContext.Provider>
+            </>
+          ) : null}
+        </AccountNotFoundPage>
+      );
     })
     .exhaustive();
 };

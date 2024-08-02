@@ -131,6 +131,17 @@ export const partnerClient = new Client({
   schemaConfig: partnerSchemaConfig,
 });
 
+export const partnerAdminClient = new Client({
+  url: match(projectConfiguration)
+    .with(
+      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+      projectId => `/api/projects/${projectId}/partner-admin`,
+    )
+    .otherwise(() => `/api/partner-admin`),
+  makeRequest,
+  schemaConfig: partnerSchemaConfig,
+});
+
 export const unauthenticatedClient = new Client({
   url: `/api/unauthenticated`,
   makeRequest,

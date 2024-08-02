@@ -360,24 +360,17 @@ export const MembershipDetailArea = ({
                           ),
                           ({
                             route: {
-                              params: {
-                                accountMembershipId,
-                                editingAccountMembershipId,
-                                newCard: isCardWizardOpen,
-                                ...params
-                              },
+                              params: { accountMembershipId, ...params },
                             },
                           }) => (
                             <View style={large ? styles.cardListLarge : styles.cardList}>
                               <AccountMembersDetailsCardList
                                 canAddCard={canAddCard}
-                                editingAccountMembershipId={editingAccountMembershipId}
                                 editingAccountMembership={accountMembership}
                                 currentUserAccountMembership={currentUserAccountMembership}
                                 currentUserAccountMembershipId={currentUserAccountMembershipId}
                                 totalDisplayableCardCount={accountMembership.allCards.totalCount}
                                 params={params}
-                                isCardWizardOpen={isCardWizardOpen != null}
                                 physicalCardOrderVisible={physicalCardOrderVisible}
                               />
                             </View>

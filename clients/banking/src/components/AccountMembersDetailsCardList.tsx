@@ -15,12 +15,13 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
+import { Except } from "type-fest";
 import {
   AccountMembershipCardListPageDocument,
   AccountMembershipFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { CardList } from "./CardList";
 import { CardFilters, CardListFilter } from "./CardListFilter";
 import { CardWizard } from "./CardWizard";
@@ -48,15 +49,9 @@ type Props = {
   canAddCard: boolean;
   currentUserAccountMembershipId: string;
   currentUserAccountMembership: AccountMembershipFragment;
-  editingAccountMembershipId: string;
   editingAccountMembership: AccountMembershipFragment;
   totalDisplayableCardCount: number;
-  params: {
-    cardSearch?: string | undefined;
-    cardStatus?: string | undefined;
-    cardType?: string[] | undefined;
-  };
-  isCardWizardOpen: boolean;
+  params: Except<GetRouteParams<"AccountMembersDetailsCardList">, "accountMembershipId">;
   physicalCardOrderVisible: boolean;
 };
 
@@ -69,13 +64,13 @@ export const AccountMembersDetailsCardList = ({
   canAddCard,
   currentUserAccountMembershipId,
   currentUserAccountMembership,
-  editingAccountMembershipId,
   editingAccountMembership,
   totalDisplayableCardCount,
   params,
-  isCardWizardOpen,
   physicalCardOrderVisible,
 }: Props) => {
+  const isCardWizardOpen = params.newCard != null;
+
   const filters: CardFilters = useMemo(() => {
     return {
       search: params.cardSearch,
@@ -104,7 +99,7 @@ export const AccountMembersDetailsCardList = ({
     {
       first: PER_PAGE,
       filters: { statuses, types: filters.type, search: filters.search },
-      accountMembershipId: editingAccountMembershipId,
+      accountMembershipId: params.editingAccountMembershipId,
     },
   );
 
@@ -124,7 +119,6 @@ export const AccountMembersDetailsCardList = ({
             onPress={() =>
               Router.push("AccountMembersDetailsCardList", {
                 accountMembershipId: currentUserAccountMembershipId,
-                editingAccountMembershipId,
                 ...params,
                 newCard: "",
               })
@@ -151,7 +145,6 @@ export const AccountMembersDetailsCardList = ({
                   onChange={filters =>
                     Router.push("AccountMembersDetailsCardList", {
                       accountMembershipId: currentUserAccountMembershipId,
-                      editingAccountMembershipId,
                       ...params,
                       cardSearch: filters.search,
                       cardStatus: filters.status,
@@ -171,7 +164,6 @@ export const AccountMembersDetailsCardList = ({
                       onPress={() =>
                         Router.push("AccountMembersDetailsCardList", {
                           accountMembershipId: currentUserAccountMembershipId,
-                          editingAccountMembershipId,
                           ...params,
                           newCard: "",
                         })
@@ -254,7 +246,6 @@ export const AccountMembersDetailsCardList = ({
           onPressClose={() => {
             Router.push("AccountMembersDetailsCardList", {
               accountMembershipId: currentUserAccountMembershipId,
-              editingAccountMembershipId,
               ...params,
               newCard: undefined,
             });

@@ -80,7 +80,7 @@ export const defaultFiltersDefinition = {
   status: statusFilter,
 };
 
-export type TransactionFiltersState = Omit<
+export type TransactionFilters = Omit<
   FiltersState<typeof defaultFiltersDefinition>,
   "paymentProduct"
 > & {
@@ -89,10 +89,10 @@ export type TransactionFiltersState = Omit<
 };
 
 type TransactionListFilterProps = {
-  filters: TransactionFiltersState;
-  onChange: (values: Partial<TransactionFiltersState>) => void;
+  filters: TransactionFilters;
+  onChange: (values: Partial<TransactionFilters>) => void;
   onRefresh: () => void;
-  available?: readonly (keyof TransactionFiltersState)[];
+  available?: readonly (keyof TransactionFilters)[];
   children?: ReactNode;
   large?: boolean;
   filtersDefinition?: {

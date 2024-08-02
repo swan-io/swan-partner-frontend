@@ -22,10 +22,7 @@ import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
-import {
-  TransactionFiltersState,
-  TransactionListFilter,
-} from "../components/TransactionListFilter";
+import { TransactionFilters, TransactionListFilter } from "../components/TransactionListFilter";
 import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
@@ -92,7 +89,7 @@ export const TransactionListPage = ({
   );
   const route = Router.useRoute(["AccountTransactionsListDetail"]);
 
-  const filters: TransactionFiltersState = useMemo(() => {
+  const filters: TransactionFilters = useMemo(() => {
     return {
       includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,

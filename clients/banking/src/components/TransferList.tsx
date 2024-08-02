@@ -23,7 +23,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import {
-  TransactionFiltersState,
+  TransactionFilters,
   TransactionListFilter,
   defaultFiltersDefinition,
 } from "./TransactionListFilter";
@@ -70,7 +70,7 @@ export const TransferList = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
-  const filters: TransactionFiltersState = useMemo(() => {
+  const filters: TransactionFilters = useMemo(() => {
     return {
       includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,

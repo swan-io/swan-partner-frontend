@@ -28,7 +28,7 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
-import { TransactionFiltersState, TransactionListFilter } from "./TransactionListFilter";
+import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -97,7 +97,7 @@ export const CardItemTransactionList = ({
   lastRelevantIdentification,
   canViewAccount,
 }: Props) => {
-  const filters: TransactionFiltersState = useMemo(() => {
+  const filters: TransactionFilters = useMemo(() => {
     return {
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,

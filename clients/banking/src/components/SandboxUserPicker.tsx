@@ -101,7 +101,7 @@ const styles = StyleSheet.create({
   },
   selectListTitle: {
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[8],
+    paddingVertical: spacings[12],
   },
 });
 

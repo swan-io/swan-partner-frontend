@@ -52,8 +52,12 @@ import {
 } from "./TransactionListCells";
 
 const styles = StyleSheet.create({
-  container: {
+  fill: {
     ...commonStyles.fill,
+  },
+  content: {
+    ...commonStyles.fill,
+    paddingVertical: spacings[24],
   },
   tile: {
     alignItems: "center",
@@ -128,9 +132,23 @@ export const TransactionDetail = ({
     return <ErrorView />;
   }
 
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "details", label: t("transaction.tabs.details") },
+
+    ...match(transaction.__typename)
+      .returnType<typeof tabs>()
+      .with("CardTransaction", () => [
+        { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
+      ])
+      .with("SEPACreditTransferTransaction", () => [
+        { id: "beneficiary", label: t("transaction.tabs.beneficiary") },
+      ])
+      .otherwise(() => []),
+  ];
+
   return (
-    <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
-      <ListRightPanelContent large={large} style={styles.container}>
+    <ScrollView contentContainerStyle={large ? styles.fill : undefined}>
+      <ListRightPanelContent large={large} style={styles.fill}>
         <Tile
           style={styles.tile}
           footer={match(transaction)
@@ -296,31 +314,22 @@ export const TransactionDetail = ({
           </LakeHeading>
         </Tile>
 
-        <Space height={24} />
+        {tabs.length > 1 && (
+          <>
+            <Space height={24} />
 
-        {match(transaction.__typename)
-          .with("CardTransaction", () => (
-            <>
-              <TabView
-                activeTabId={activeTab}
-                onChange={tab => setActiveTab(tab as Tab)}
-                otherLabel={t("common.tabs.other")}
-                tabs={
-                  [
-                    { id: "details", label: t("transaction.tabs.details") },
-                    { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
-                  ] satisfies { id: Tab; label: string }[]
-                }
-              />
-
-              <Space height={24} />
-            </>
-          ))
-          .otherwise(() => null)}
+            <TabView
+              activeTabId={activeTab}
+              tabs={tabs}
+              onChange={tab => setActiveTab(tab as Tab)}
+              otherLabel={t("common.tabs.other")}
+            />
+          </>
+        )}
 
         {match(activeTab)
           .with("details", () => (
-            <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction.statusInfo)
                 .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
                   <>
@@ -831,7 +840,7 @@ export const TransactionDetail = ({
             return null;
           })
           .with("merchantInfo", () => (
-            <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction)
                 .with(
                   {

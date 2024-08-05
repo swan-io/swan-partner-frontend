@@ -42,6 +42,7 @@ import {
   getTransactionRejectedReasonLabel,
   getWiseIctLabel,
 } from "../utils/templateTranslations";
+import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 import {
@@ -135,12 +136,12 @@ export const TransactionDetail = ({
   const tabs: { id: Tab; label: string }[] = [
     { id: "details", label: t("transaction.tabs.details") },
 
-    ...match(transaction.__typename)
+    ...match(transaction)
       .returnType<typeof tabs>()
-      .with("CardTransaction", () => [
+      .with({ __typename: "CardTransaction" }, () => [
         { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
       ])
-      .with("SEPACreditTransferTransaction", () => [
+      .with({ __typename: "SEPACreditTransferTransaction", beneficiary: P.nonNullable }, () => [
         { id: "beneficiary", label: t("transaction.tabs.beneficiary") },
       ])
       .otherwise(() => []),
@@ -836,9 +837,36 @@ export const TransactionDetail = ({
               </ReadOnlyFieldList>
             </ScrollView>
           ))
-          .with("beneficiary", () => {
-            return null;
-          })
+          .with("beneficiary", () => (
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
+              {match(transaction)
+                .with(
+                  {
+                    __typename: "SEPACreditTransferTransaction",
+                    beneficiary: P.select(P.nonNullable),
+                  },
+                  ({ name, iban, address }) => (
+                    <ReadOnlyFieldList>
+                      <DetailLine label={t("beneficiaries.details.name")} text={name} />
+
+                      <DetailLine
+                        label={t("beneficiaries.details.iban")}
+                        text={printFormat(iban)}
+                      />
+
+                      {match(concatSepaBeneficiaryAddress(address))
+                        .with(P.nonNullable, address => (
+                          <DetailLine label={t("beneficiaries.details.address")} text={address} />
+                        ))
+                        .otherwise(() => null)}
+                    </ReadOnlyFieldList>
+                  ),
+                )
+                .otherwise(() => (
+                  <NotFoundPage />
+                ))}
+            </ScrollView>
+          ))
           .with("merchantInfo", () => (
             <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction)

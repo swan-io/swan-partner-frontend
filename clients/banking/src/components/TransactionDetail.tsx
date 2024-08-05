@@ -89,7 +89,7 @@ type Props = {
   canViewAccount: boolean;
 };
 
-type Tab = "Details" | "MerchantInfo";
+type Tab = "details" | "beneficiary" | "merchantInfo";
 
 export const TransactionDetail = ({
   accountMembershipId,
@@ -110,7 +110,7 @@ export const TransactionDetail = ({
     { suspense },
   );
 
-  const [activeTab, setActiveTab] = useState<Tab>("Details");
+  const [activeTab, setActiveTab] = useState<Tab>("details");
 
   if (data.isNotAsked() || data.isLoading()) {
     return <LoadingView />;
@@ -298,33 +298,28 @@ export const TransactionDetail = ({
 
         <Space height={24} />
 
-        {match(transaction)
-          .with(
-            {
-              __typename: "CardTransaction",
-            },
-            () => (
-              <>
-                <TabView
-                  activeTabId={activeTab}
-                  onChange={tab => setActiveTab(tab as Tab)}
-                  otherLabel={t("common.tabs.other")}
-                  tabs={
-                    [
-                      { id: "Details", label: t("transaction.tabs.details") },
-                      { id: "MerchantInfo", label: t("transaction.tabs.merchantInfo") },
-                    ] satisfies { id: Tab; label: string }[]
-                  }
-                />
+        {match(transaction.__typename)
+          .with("CardTransaction", () => (
+            <>
+              <TabView
+                activeTabId={activeTab}
+                onChange={tab => setActiveTab(tab as Tab)}
+                otherLabel={t("common.tabs.other")}
+                tabs={
+                  [
+                    { id: "details", label: t("transaction.tabs.details") },
+                    { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
+                  ] satisfies { id: Tab; label: string }[]
+                }
+              />
 
-                <Space height={24} />
-              </>
-            ),
-          )
+              <Space height={24} />
+            </>
+          ))
           .otherwise(() => null)}
 
         {match(activeTab)
-          .with("Details", () => (
+          .with("details", () => (
             <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
               {match(transaction.statusInfo)
                 .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
@@ -832,7 +827,10 @@ export const TransactionDetail = ({
               </ReadOnlyFieldList>
             </ScrollView>
           ))
-          .with("MerchantInfo", () => (
+          .with("beneficiary", () => {
+            return null;
+          })
+          .with("merchantInfo", () => (
             <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
               {match(transaction)
                 .with(

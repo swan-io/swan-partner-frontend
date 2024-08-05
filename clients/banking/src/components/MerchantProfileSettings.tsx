@@ -206,7 +206,7 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             .otherwise(() => null) */}
 
           {match(status)
-            .with(P.nullish, "Disabled", () => (
+            .with(P.nullish, "Disabled", "Rejected", () => (
               <LakeButton
                 mode="tertiary"
                 color="gray"
@@ -320,31 +320,34 @@ const MerchantProfileSettingsPaymentMethodTile = ({
                 <Space height={24} />
               </>
             ))
+            .with("Enabled", () => (
+              <LakeLabel
+                label={t("merchantProfile.settings.rollingReserve")}
+                type="view"
+                color="gray"
+                render={() => {
+                  return (
+                    <>
+                      <LakeText color={colors.gray[900]}>
+                        {t("merchantProfile.settings.rollingReserve.value", {
+                          percentage: String(rollingReserve.map(item => item.percentage).getOr(0)),
+                          rollingDays: String(
+                            rollingReserve.map(item => item.rollingDays).getOr(0),
+                          ),
+                        })}
+                      </LakeText>
+
+                      <Space height={8} />
+
+                      <LakeText color={colors.gray[600]} variant="smallRegular">
+                        {t("merchantProfile.settings.rollingReserve.description")}
+                      </LakeText>
+                    </>
+                  );
+                }}
+              />
+            ))
             .otherwise(() => null)}
-
-          <LakeLabel
-            label={t("merchantProfile.settings.rollingReserve")}
-            type="view"
-            color="gray"
-            render={() => {
-              return (
-                <>
-                  <LakeText color={colors.gray[900]}>
-                    {t("merchantProfile.settings.rollingReserve.value", {
-                      percentage: String(rollingReserve.map(item => item.percentage).getOr(0)),
-                      rollingDays: String(rollingReserve.map(item => item.rollingDays).getOr(0)),
-                    })}
-                  </LakeText>
-
-                  <Space height={8} />
-
-                  <LakeText color={colors.gray[600]} variant="smallRegular">
-                    {t("merchantProfile.settings.rollingReserve.description")}
-                  </LakeText>
-                </>
-              );
-            }}
-          />
         </View>
       </LakeModal>
     </>

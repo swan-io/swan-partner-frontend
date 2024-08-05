@@ -219,6 +219,15 @@ fragment TransactionDetails on Transaction {
         value
       }
     }
+    beneficiary {
+      name
+      currency
+      route
+      details {
+        key
+        value
+      }
+    }
   }
   ... on InternalCreditTransfer {
     creditor {
@@ -340,11 +349,7 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
   ... on TrustedSepaBeneficiary {
     iban
     address {
-      addressLine1
-      addressLine2
-      postalCode
-      city
-      country
+      ...AddressDetails
     }
   }
 }

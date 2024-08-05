@@ -141,7 +141,7 @@ export const TransactionDetail = ({
       .with({ __typename: "CardTransaction" }, () => [
         { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
       ])
-      .with({ __typename: "SEPACreditTransferTransaction", beneficiary: P.nonNullable }, () => [
+      .with({ beneficiary: P.nonNullable }, () => [
         { id: "beneficiary", label: t("transaction.tabs.beneficiary") },
       ])
       .otherwise(() => []),
@@ -840,28 +840,46 @@ export const TransactionDetail = ({
           .with("beneficiary", () => (
             <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction)
-                .with(
-                  {
-                    __typename: "SEPACreditTransferTransaction",
-                    beneficiary: P.select(P.nonNullable),
-                  },
-                  ({ name, iban, address }) => (
-                    <ReadOnlyFieldList>
-                      <DetailLine label={t("beneficiaries.details.name")} text={name} />
+                .with({ beneficiary: P.select(P.nonNullable) }, beneficiary => (
+                  <ReadOnlyFieldList>
+                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
 
-                      <DetailLine
-                        label={t("beneficiaries.details.iban")}
-                        text={printFormat(iban)}
-                      />
+                    {match(beneficiary)
+                      .with(
+                        { __typename: "TrustedSepaBeneficiary" },
+                        { __typename: "UnsavedSepaBeneficiary" },
+                        ({ address, iban }) => (
+                          <>
+                            <DetailLine
+                              label={t("beneficiaries.details.iban")}
+                              text={printFormat(iban)}
+                            />
 
-                      {match(concatSepaBeneficiaryAddress(address))
-                        .with(P.nonNullable, address => (
-                          <DetailLine label={t("beneficiaries.details.address")} text={address} />
-                        ))
-                        .otherwise(() => null)}
-                    </ReadOnlyFieldList>
-                  ),
-                )
+                            {match(concatSepaBeneficiaryAddress(address))
+                              .with(P.nonNullable, address => (
+                                <DetailLine
+                                  label={t("beneficiaries.details.address")}
+                                  text={address}
+                                />
+                              ))
+                              .otherwise(() => null)}
+                          </>
+                        ),
+                      )
+                      .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+                        details.map(detail => (
+                          <DetailLine
+                            key={detail.key}
+                            label={getWiseIctLabel(detail.key)}
+                            text={match(detail)
+                              .with({ key: "IBAN" }, ({ value }) => printFormat(value))
+                              .otherwise(({ value }) => value)}
+                          />
+                        )),
+                      )
+                      .otherwise(() => null)}
+                  </ReadOnlyFieldList>
+                ))
                 .otherwise(() => (
                   <NotFoundPage />
                 ))}

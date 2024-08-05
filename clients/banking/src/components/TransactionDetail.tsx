@@ -26,7 +26,7 @@ import {
   isNotNullishOrEmpty,
   isNullish,
 } from "@swan-io/lake/src/utils/nullish";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import { getCountryByCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";
 import { useState } from "react";
@@ -847,14 +847,10 @@ export const TransactionDetail = ({
                     const contactEmail = enrichedTransactionInfo.contactEmail;
                     const contactPhone = enrichedTransactionInfo.contactPhone;
                     const city = enrichedTransactionInfo.city ?? merchantCity;
-                    const countryCCA3 = (enrichedTransactionInfo.country ?? merchantCountry) as
-                      | CountryCCA3
-                      | null
-                      | undefined;
 
-                    const countryName = countries.find(
-                      country => country.cca3 === countryCCA3,
-                    )?.name;
+                    const countryName = match(enrichedTransactionInfo.country ?? merchantCountry)
+                      .with(P.when(isCountryCCA3), value => getCountryByCCA3(value).name)
+                      .otherwise(() => undefined);
 
                     return (
                       <ReadOnlyFieldList>

@@ -4,6 +4,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -45,7 +46,10 @@ const styles = StyleSheet.create({
   },
 });
 
-export type InternationalBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
+export type InternationalBeneficiary = (
+  | { kind: "new"; save: boolean }
+  | { kind: "saved"; id: string }
+) & {
   name: string;
   currency: Currency;
   route: InternationalCreditTransferRouteInput;
@@ -61,6 +65,7 @@ type Props = {
   onPressPrevious?: () => void;
   // Enforce prefill with new beneficiary data only
   initialBeneficiary?: Extract<InternationalBeneficiary, { kind: "new" }>;
+  saveCheckboxVisible: boolean;
 };
 
 export const BeneficiaryInternationalWizardForm = ({
@@ -69,9 +74,14 @@ export const BeneficiaryInternationalWizardForm = ({
   errors,
   submitting = false,
   initialBeneficiary,
+  saveCheckboxVisible,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
+  const [saveBeneficiary, setSaveBeneficiary] = useState(
+    saveCheckboxVisible && initialBeneficiary?.kind === "new" && initialBeneficiary.save,
+  );
+
   const [route, setRoute] = useState<Option<InternationalCreditTransferRouteInput>>(() =>
     Option.fromNullable(initialBeneficiary?.route),
   );
@@ -247,12 +257,31 @@ export const BeneficiaryInternationalWizardForm = ({
                 submitForm({
                   onSuccess: ({ name }) => {
                     name.tapSome(name =>
-                      onPressSubmit({ kind: "new", name, currency, route: selectedRoute, values }),
+                      onPressSubmit({
+                        kind: "new",
+                        save: saveBeneficiary,
+                        name,
+                        currency,
+                        route: selectedRoute,
+                        values,
+                      }),
                     );
                   },
                 });
               }}
             />
+
+            {saveCheckboxVisible && (
+              <>
+                <Space height={4} />
+
+                <LakeLabelledCheckbox
+                  label={t("transfer.new.beneficiary.save")}
+                  value={saveBeneficiary}
+                  onValueChange={setSaveBeneficiary}
+                />
+              </>
+            )}
           </Tile>
 
           <Space height={32} />

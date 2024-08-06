@@ -77,6 +77,7 @@ const BeneficiaryStep = ({
   accountId,
   amount,
   errors,
+  canManageBeneficiaries,
   initialBeneficiary,
   onPressSubmit,
   onPressPrevious,
@@ -84,11 +85,14 @@ const BeneficiaryStep = ({
   accountId: string;
   amount: Amount;
   errors?: string[] | undefined;
+  canManageBeneficiaries: boolean;
   initialBeneficiary: InternationalBeneficiary | undefined;
   onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious: () => void;
 }) => {
   const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
+  const saveBeneficiaryCheckboxVisible = beneficiariesEnabled && canManageBeneficiaries;
+
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
   const tabs: { id: InternationalBeneficiary["kind"]; label: string }[] = [
@@ -127,6 +131,7 @@ const BeneficiaryStep = ({
             errors={errors}
             onPressSubmit={onPressSubmit}
             onPressPrevious={onPressPrevious}
+            saveCheckboxVisible={saveBeneficiaryCheckboxVisible}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)
@@ -168,6 +173,7 @@ type Props = {
   onPressClose: () => void;
   accountId: string;
   accountMembershipId: string;
+  canManageBeneficiaries: boolean;
   canViewAccount: boolean;
 };
 
@@ -175,6 +181,7 @@ export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
+  canManageBeneficiaries,
   canViewAccount,
 }: Props) => {
   const [initiateTransfers, transfer] = useMutation(InitiateInternationalCreditTransferDocument);
@@ -201,6 +208,7 @@ export const TransferInternationalWizard = ({
           .with({ kind: "new" }, ({ route, values }) => ({
             internationalBeneficiary: {
               name: beneficiary.name,
+              save: beneficiary.kind === "new" && beneficiary.save,
               currency: amount.currency,
               route,
               details: values,
@@ -313,6 +321,7 @@ export const TransferInternationalWizard = ({
 
                   <BeneficiaryStep
                     accountId={accountId}
+                    canManageBeneficiaries={canManageBeneficiaries}
                     initialBeneficiary={beneficiary}
                     amount={amount}
                     errors={errors}

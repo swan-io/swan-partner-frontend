@@ -141,6 +141,7 @@ export const BeneficiarySepaWizard = ({
               submitting={sepaBeneficiaryAddition.isLoading()}
               accountCountry={accountCountry}
               accountId={accountId}
+              saveCheckboxVisible={false}
               onPressPrevious={onPressClose}
               onPressSubmit={handleOnSubmit}
             />

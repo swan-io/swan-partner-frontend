@@ -42,6 +42,7 @@ type Props = {
   accountCountry: AccountCountry;
   params: GetRouteParams<"AccountPaymentsNew">;
   canViewAccount: boolean;
+  canManageBeneficiaries: boolean;
 };
 
 export const TransferTypePicker = ({
@@ -50,6 +51,7 @@ export const TransferTypePicker = ({
   accountCountry,
   params,
   canViewAccount,
+  canManageBeneficiaries,
 }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
 
@@ -132,6 +134,7 @@ export const TransferTypePicker = ({
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
           canViewAccount={canViewAccount}
+          canManageBeneficiaries={canManageBeneficiaries}
         />
       </FullViewportLayer>
 
@@ -151,6 +154,7 @@ export const TransferTypePicker = ({
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
           canViewAccount={canViewAccount}
+          canManageBeneficiaries={canManageBeneficiaries}
         />
       </FullViewportLayer>
 

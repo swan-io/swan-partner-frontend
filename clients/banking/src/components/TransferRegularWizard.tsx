@@ -19,6 +19,7 @@ import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import {
   BeneficiarySepaWizardForm,
   SepaBeneficiary,
@@ -78,7 +79,15 @@ const BeneficiaryStep = ({
   initialBeneficiary: SepaBeneficiary | undefined;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
+  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
+
+  const tabs: { id: SepaBeneficiary["kind"]; label: string }[] = [
+    { id: "new", label: t("transfer.new.beneficiary.new") },
+    ...(beneficiariesEnabled
+      ? [{ id: "saved" as const, label: t("transfer.new.beneficiary.saved") }]
+      : []),
+  ];
 
   return (
     <>
@@ -86,19 +95,18 @@ const BeneficiaryStep = ({
         {t("transfer.new.beneficiary.title")}
       </LakeHeading>
 
-      <Space height={24} />
+      {tabs.length > 1 && (
+        <>
+          <Space height={24} />
 
-      <TabView
-        activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as SepaBeneficiary["kind"])}
-        otherLabel={t("common.tabs.other")}
-        tabs={
-          [
-            { id: "new", label: t("transfer.new.beneficiary.new") },
-            { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: SepaBeneficiary["kind"]; label: string }[]
-        }
-      />
+          <TabView
+            activeTabId={activeTab}
+            tabs={tabs}
+            onChange={tab => setActiveTab(tab as SepaBeneficiary["kind"])}
+            otherLabel={t("common.tabs.other")}
+          />
+        </>
+      )}
 
       <Space height={32} />
 

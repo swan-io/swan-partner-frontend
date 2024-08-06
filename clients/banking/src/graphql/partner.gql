@@ -106,6 +106,20 @@ fragment TransactionDetails on Transaction {
       name
       IBAN
     }
+    beneficiary {
+      __typename
+
+      ... on TrustedBeneficiary {
+        ...TrustedBeneficiaryDetails
+      }
+      ... on UnsavedSepaBeneficiary {
+        name
+        iban
+        address {
+          ...AddressDetails
+        }
+      }
+    }
   }
   ... on InternalDirectDebitTransaction {
     reservedAmount {
@@ -202,6 +216,15 @@ fragment TransactionDetails on Transaction {
       }
       targetAmount {
         currency
+        value
+      }
+    }
+    beneficiary {
+      name
+      currency
+      route
+      details {
+        key
         value
       }
     }
@@ -326,11 +349,7 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
   ... on TrustedSepaBeneficiary {
     iban
     address {
-      addressLine1
-      addressLine2
-      postalCode
-      city
-      country
+      ...AddressDetails
     }
   }
 }

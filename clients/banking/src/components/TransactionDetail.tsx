@@ -26,7 +26,7 @@ import {
   isNotNullishOrEmpty,
   isNullish,
 } from "@swan-io/lake/src/utils/nullish";
-import { CountryCCA3, countries } from "@swan-io/shared-business/src/constants/countries";
+import { getCountryByCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";
 import { useState } from "react";
@@ -42,6 +42,8 @@ import {
   getTransactionRejectedReasonLabel,
   getWiseIctLabel,
 } from "../utils/templateTranslations";
+import { useTgglFlag } from "../utils/tggl";
+import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 import {
@@ -52,8 +54,12 @@ import {
 } from "./TransactionListCells";
 
 const styles = StyleSheet.create({
-  container: {
+  fill: {
     ...commonStyles.fill,
+  },
+  content: {
+    ...commonStyles.fill,
+    paddingVertical: spacings[24],
   },
   tile: {
     alignItems: "center",
@@ -89,7 +95,7 @@ type Props = {
   canViewAccount: boolean;
 };
 
-type Tab = "Details" | "MerchantInfo";
+type Tab = "details" | "beneficiary" | "merchantInfo";
 
 export const TransactionDetail = ({
   accountMembershipId,
@@ -98,6 +104,7 @@ export const TransactionDetail = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
+  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const suspense = useIsSuspendable();
 
   const [data] = useQuery(
@@ -110,7 +117,7 @@ export const TransactionDetail = ({
     { suspense },
   );
 
-  const [activeTab, setActiveTab] = useState<Tab>("Details");
+  const [activeTab, setActiveTab] = useState<Tab>("details");
 
   if (data.isNotAsked() || data.isLoading()) {
     return <LoadingView />;
@@ -128,9 +135,25 @@ export const TransactionDetail = ({
     return <ErrorView />;
   }
 
+  const tabs: { id: Tab; label: string }[] = [
+    { id: "details", label: t("transaction.tabs.details") },
+
+    ...match(transaction)
+      .returnType<typeof tabs>()
+      .with({ __typename: "CardTransaction" }, () => [
+        { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
+      ])
+      .with({ beneficiary: P.nonNullable }, () =>
+        beneficiariesEnabled
+          ? [{ id: "beneficiary", label: t("transaction.tabs.beneficiary") }]
+          : [],
+      )
+      .otherwise(() => []),
+  ];
+
   return (
-    <ScrollView contentContainerStyle={large ? commonStyles.fill : undefined}>
-      <ListRightPanelContent large={large} style={styles.container}>
+    <ScrollView contentContainerStyle={large ? styles.fill : undefined}>
+      <ListRightPanelContent large={large} style={styles.fill}>
         <Tile
           style={styles.tile}
           footer={match(transaction)
@@ -296,36 +319,22 @@ export const TransactionDetail = ({
           </LakeHeading>
         </Tile>
 
-        <Space height={24} />
+        {tabs.length > 1 && (
+          <>
+            <Space height={24} />
 
-        {match(transaction)
-          .with(
-            {
-              __typename: "CardTransaction",
-            },
-            () => (
-              <>
-                <TabView
-                  activeTabId={activeTab}
-                  onChange={tab => setActiveTab(tab as Tab)}
-                  otherLabel={t("common.tabs.other")}
-                  tabs={
-                    [
-                      { id: "Details", label: t("transaction.tabs.details") },
-                      { id: "MerchantInfo", label: t("transaction.tabs.merchantInfo") },
-                    ] satisfies { id: Tab; label: string }[]
-                  }
-                />
-
-                <Space height={24} />
-              </>
-            ),
-          )
-          .otherwise(() => null)}
+            <TabView
+              activeTabId={activeTab}
+              tabs={tabs}
+              onChange={tab => setActiveTab(tab as Tab)}
+              otherLabel={t("common.tabs.other")}
+            />
+          </>
+        )}
 
         {match(activeTab)
-          .with("Details", () => (
-            <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+          .with("details", () => (
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction.statusInfo)
                 .with({ __typename: "BookedTransactionStatusInfo" }, ({ bookingDate }) => (
                   <>
@@ -832,8 +841,56 @@ export const TransactionDetail = ({
               </ReadOnlyFieldList>
             </ScrollView>
           ))
-          .with("MerchantInfo", () => (
-            <ScrollView style={commonStyles.fill} contentContainerStyle={commonStyles.fill}>
+          .with("beneficiary", () => (
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
+              {match(transaction)
+                .with({ beneficiary: P.select(P.nonNullable) }, beneficiary => (
+                  <ReadOnlyFieldList>
+                    <DetailLine label={t("beneficiaries.details.name")} text={beneficiary.name} />
+
+                    {match(beneficiary)
+                      .with(
+                        { __typename: "TrustedSepaBeneficiary" },
+                        { __typename: "UnsavedSepaBeneficiary" },
+                        ({ address, iban }) => (
+                          <>
+                            <DetailLine
+                              label={t("beneficiaries.details.iban")}
+                              text={printFormat(iban)}
+                            />
+
+                            {match(concatSepaBeneficiaryAddress(address))
+                              .with(P.nonNullable, address => (
+                                <DetailLine
+                                  label={t("beneficiaries.details.address")}
+                                  text={address}
+                                />
+                              ))
+                              .otherwise(() => null)}
+                          </>
+                        ),
+                      )
+                      .with({ __typename: "TrustedInternationalBeneficiary" }, ({ details }) =>
+                        details.map(detail => (
+                          <DetailLine
+                            key={detail.key}
+                            label={getWiseIctLabel(detail.key)}
+                            text={match(detail)
+                              .with({ key: "IBAN" }, ({ value }) => printFormat(value))
+                              .otherwise(({ value }) => value)}
+                          />
+                        )),
+                      )
+                      .otherwise(() => null)}
+                  </ReadOnlyFieldList>
+                ))
+                .otherwise(() => (
+                  <NotFoundPage />
+                ))}
+            </ScrollView>
+          ))
+          .with("merchantInfo", () => (
+            <ScrollView style={styles.fill} contentContainerStyle={styles.content}>
               {match(transaction)
                 .with(
                   {
@@ -847,14 +904,10 @@ export const TransactionDetail = ({
                     const contactEmail = enrichedTransactionInfo.contactEmail;
                     const contactPhone = enrichedTransactionInfo.contactPhone;
                     const city = enrichedTransactionInfo.city ?? merchantCity;
-                    const countryCCA3 = (enrichedTransactionInfo.country ?? merchantCountry) as
-                      | CountryCCA3
-                      | null
-                      | undefined;
 
-                    const countryName = countries.find(
-                      country => country.cca3 === countryCCA3,
-                    )?.name;
+                    const countryName = match(enrichedTransactionInfo.country ?? merchantCountry)
+                      .with(P.when(isCountryCCA3), value => getCountryByCCA3(value).name)
+                      .otherwise(() => undefined);
 
                     return (
                       <ReadOnlyFieldList>

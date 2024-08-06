@@ -897,6 +897,7 @@
   "transaction.reservedUntil": "Reserved until",
   "transaction.rlmcKey": "RLMCKey",
   "transaction.subcategory": "Subcategory",
+  "transaction.tabs.beneficiary": "Beneficiary",
   "transaction.tabs.details": "Details",
   "transaction.tabs.merchantInfo": "Merchant info",
   "transaction.website": "Website",

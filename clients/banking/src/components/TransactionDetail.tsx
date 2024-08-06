@@ -448,6 +448,12 @@ export const TransactionDetail = ({
                             />
                           ))
                           .otherwise(() => null)}
+
+                        {match(enrichedTransactionInfo)
+                          .with({ enrichedMerchantName: P.string }, () => (
+                            <DetailLine label={t("transaction.label")} text={transaction.label} />
+                          ))
+                          .otherwise(() => null)}
                       </ReadOnlyFieldList>
                     );
                   },

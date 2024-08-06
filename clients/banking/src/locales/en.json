@@ -881,6 +881,7 @@
   "transaction.instantTransferUnavailable": "Instant transfer unavailable",
   "transaction.instantTransferUnavailable.description": "Unfortunately, instant transfers are not available right now. We'll send this as a standard transfer instead.",
   "transaction.isSubscription": "Subscription",
+  "transaction.label": "Label",
   "transaction.maskedPan": "Card number",
   "transaction.originalTransactionAmount": "Original transaction amount",
   "transaction.paymentDateTime": "Payment date",

@@ -53,7 +53,7 @@ type Props = {
   onPressPrevious?: () => void;
   // Enforce prefill with new beneficiary data only
   initialBeneficiary?: Extract<SepaBeneficiary, { kind: "new" }>;
-  saveCheckboxVisible: boolean;
+  canSaveBeneficiary?: boolean;
 };
 
 export const BeneficiarySepaWizardForm = ({
@@ -62,13 +62,11 @@ export const BeneficiarySepaWizardForm = ({
   accountId,
   submitting = false,
   initialBeneficiary,
-  saveCheckboxVisible,
+  canSaveBeneficiary = false,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
-  const [saveBeneficiary, setSaveBeneficiary] = useState(
-    saveCheckboxVisible && initialBeneficiary?.kind === "new" && initialBeneficiary.save,
-  );
+  const [shouldSaveBeneficiary, setShouldSaveBeneficiary] = useState(false);
 
   const [ibanVerification, { query: queryIbanVerification, reset: resetIbanVerification }] =
     useDeferredQuery(GetIbanValidationDocument, { debounce: 500 });
@@ -147,7 +145,7 @@ export const BeneficiarySepaWizardForm = ({
     submitForm({
       onSuccess: values => {
         Option.allFromDict(values).map(beneficiary =>
-          onPressSubmit({ kind: "new", save: saveBeneficiary, ...beneficiary }),
+          onPressSubmit({ kind: "new", save: shouldSaveBeneficiary, ...beneficiary }),
         );
       },
     });
@@ -368,14 +366,14 @@ export const BeneficiarySepaWizardForm = ({
               )}
             />
 
-            {saveCheckboxVisible && (
+            {canSaveBeneficiary && (
               <>
                 <Space height={4} />
 
                 <LakeLabelledCheckbox
                   label={t("transfer.new.beneficiary.save")}
-                  value={saveBeneficiary}
-                  onValueChange={setSaveBeneficiary}
+                  value={shouldSaveBeneficiary}
+                  onValueChange={setShouldSaveBeneficiary}
                 />
               </>
             )}

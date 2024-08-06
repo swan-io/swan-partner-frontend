@@ -82,7 +82,7 @@ const BeneficiaryStep = ({
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
   const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
-  const saveBeneficiaryCheckboxVisible = beneficiariesEnabled && canManageBeneficiaries;
+  const canSaveBeneficiary = beneficiariesEnabled && canManageBeneficiaries;
 
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
@@ -121,7 +121,7 @@ const BeneficiaryStep = ({
             accountCountry={accountCountry}
             accountId={accountId}
             onPressSubmit={onPressSubmit}
-            saveCheckboxVisible={saveBeneficiaryCheckboxVisible}
+            canSaveBeneficiary={canSaveBeneficiary}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)

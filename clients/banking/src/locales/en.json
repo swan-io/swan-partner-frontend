@@ -1081,6 +1081,7 @@
   "transfer.new.beneficiary": "Beneficiary",
   "transfer.new.beneficiary.name": "Beneficiary name",
   "transfer.new.beneficiary.new": "New beneficiary",
+  "transfer.new.beneficiary.save": "Save this beneficiary",
   "transfer.new.beneficiary.saved": "Saved beneficiary",
   "transfer.new.beneficiary.title": "Who are you sending money to?",
   "transfer.new.beneficiaryVerification.beneficiaryMatch": "Name and IBAN match.",

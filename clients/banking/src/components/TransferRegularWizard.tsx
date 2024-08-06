@@ -72,14 +72,18 @@ const BeneficiaryStep = ({
   accountCountry,
   accountId,
   initialBeneficiary,
+  canManageBeneficiaries,
   onPressSubmit,
 }: {
   accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary: SepaBeneficiary | undefined;
+  canManageBeneficiaries: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
   const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
+  const canSaveBeneficiary = beneficiariesEnabled && canManageBeneficiaries;
+
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
   const tabs: { id: SepaBeneficiary["kind"]; label: string }[] = [
@@ -117,6 +121,7 @@ const BeneficiaryStep = ({
             accountCountry={accountCountry}
             accountId={accountId}
             onPressSubmit={onPressSubmit}
+            canSaveBeneficiary={canSaveBeneficiary}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)
@@ -153,6 +158,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   canViewAccount: boolean;
+  canManageBeneficiaries: boolean;
 };
 
 export const TransferRegularWizard = ({
@@ -161,6 +167,7 @@ export const TransferRegularWizard = ({
   accountId,
   accountMembershipId,
   canViewAccount,
+  canManageBeneficiaries,
 }: Props) => {
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
   const [step, setStep] = useState<Step>({ name: "Beneficiary" });
@@ -200,7 +207,7 @@ export const TransferRegularWizard = ({
               .with({ kind: "new" }, () => ({
                 sepaBeneficiary: {
                   name: beneficiary.name,
-                  save: false,
+                  save: beneficiary.kind === "new" && beneficiary.save,
                   iban: beneficiary.iban,
                   isMyOwnIban: false, // TODO
                 },
@@ -282,6 +289,7 @@ export const TransferRegularWizard = ({
                   accountCountry={accountCountry}
                   accountId={accountId}
                   initialBeneficiary={beneficiary}
+                  canManageBeneficiaries={canManageBeneficiaries}
                   onPressSubmit={beneficiary => {
                     setStep({ name: "Details", beneficiary });
                   }}

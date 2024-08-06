@@ -209,6 +209,7 @@ export const TransferArea = ({
                 accountMembershipId={accountMembershipId}
                 params={params}
                 canViewAccount={canViewAccount}
+                canManageBeneficiaries={canManageBeneficiaries}
               />
             ) : (
               <NotFoundPage />

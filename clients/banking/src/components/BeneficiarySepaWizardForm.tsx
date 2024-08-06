@@ -3,6 +3,7 @@ import { useDeferredQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
@@ -15,7 +16,7 @@ import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { printIbanFormat, validateIban } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { electronicFormat } from "iban";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -26,7 +27,7 @@ import {
 import { t } from "../utils/i18n";
 import { validateBeneficiaryName, validateRequired } from "../utils/validations";
 
-export type SepaBeneficiary = ({ kind: "new" } | { kind: "saved"; id: string }) & {
+export type SepaBeneficiary = ({ kind: "new"; save: boolean } | { kind: "saved"; id: string }) & {
   name: string;
   iban: string;
 };
@@ -52,6 +53,7 @@ type Props = {
   onPressPrevious?: () => void;
   // Enforce prefill with new beneficiary data only
   initialBeneficiary?: Extract<SepaBeneficiary, { kind: "new" }>;
+  canSaveBeneficiary?: boolean;
 };
 
 export const BeneficiarySepaWizardForm = ({
@@ -60,9 +62,12 @@ export const BeneficiarySepaWizardForm = ({
   accountId,
   submitting = false,
   initialBeneficiary,
+  canSaveBeneficiary = false,
   onPressSubmit,
   onPressPrevious,
 }: Props) => {
+  const [shouldSaveBeneficiary, setShouldSaveBeneficiary] = useState(false);
+
   const [ibanVerification, { query: queryIbanVerification, reset: resetIbanVerification }] =
     useDeferredQuery(GetIbanValidationDocument, { debounce: 500 });
 
@@ -140,7 +145,7 @@ export const BeneficiarySepaWizardForm = ({
     submitForm({
       onSuccess: values => {
         Option.allFromDict(values).map(beneficiary =>
-          onPressSubmit({ kind: "new", ...beneficiary }),
+          onPressSubmit({ kind: "new", save: shouldSaveBeneficiary, ...beneficiary }),
         );
       },
     });
@@ -360,6 +365,18 @@ export const BeneficiarySepaWizardForm = ({
                 </Field>
               )}
             />
+
+            {canSaveBeneficiary && (
+              <>
+                <Space height={4} />
+
+                <LakeLabelledCheckbox
+                  label={t("transfer.new.beneficiary.save")}
+                  value={shouldSaveBeneficiary}
+                  onValueChange={setShouldSaveBeneficiary}
+                />
+              </>
+            )}
           </Tile>
         )}
       </FieldsListener>

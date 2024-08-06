@@ -42,6 +42,7 @@ import {
   getTransactionRejectedReasonLabel,
   getWiseIctLabel,
 } from "../utils/templateTranslations";
+import { useTgglFlag } from "../utils/tggl";
 import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { DetailCopiableLine, DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
@@ -103,6 +104,7 @@ export const TransactionDetail = ({
   canQueryCardOnTransaction,
   canViewAccount,
 }: Props) => {
+  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const suspense = useIsSuspendable();
 
   const [data] = useQuery(
@@ -141,9 +143,11 @@ export const TransactionDetail = ({
       .with({ __typename: "CardTransaction" }, () => [
         { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
       ])
-      .with({ beneficiary: P.nonNullable }, () => [
-        { id: "beneficiary", label: t("transaction.tabs.beneficiary") },
-      ])
+      .with({ beneficiary: P.nonNullable }, () =>
+        beneficiariesEnabled
+          ? [{ id: "beneficiary", label: t("transaction.tabs.beneficiary") }]
+          : [],
+      )
       .otherwise(() => []),
   ];
 

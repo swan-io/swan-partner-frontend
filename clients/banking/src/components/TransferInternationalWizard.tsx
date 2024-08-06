@@ -20,6 +20,7 @@ import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import {
   BeneficiaryInternationalWizardForm,
   InternationalBeneficiary,
@@ -87,7 +88,15 @@ const BeneficiaryStep = ({
   onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious: () => void;
 }) => {
+  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
+
+  const tabs: { id: InternationalBeneficiary["kind"]; label: string }[] = [
+    { id: "new", label: t("transfer.new.beneficiary.new") },
+    ...(beneficiariesEnabled
+      ? [{ id: "saved" as const, label: t("transfer.new.beneficiary.saved") }]
+      : []),
+  ];
 
   return (
     <>
@@ -95,19 +104,18 @@ const BeneficiaryStep = ({
         {t("transfer.new.internationalTransfer.beneficiary.title")}
       </LakeHeading>
 
-      <Space height={24} />
+      {tabs.length > 1 && (
+        <>
+          <Space height={24} />
 
-      <TabView
-        activeTabId={activeTab}
-        onChange={tab => setActiveTab(tab as InternationalBeneficiary["kind"])}
-        otherLabel={t("common.tabs.other")}
-        tabs={
-          [
-            { id: "new", label: t("transfer.new.beneficiary.new") },
-            { id: "saved", label: t("transfer.new.beneficiary.saved") },
-          ] satisfies { id: InternationalBeneficiary["kind"]; label: string }[]
-        }
-      />
+          <TabView
+            activeTabId={activeTab}
+            tabs={tabs}
+            onChange={tab => setActiveTab(tab as InternationalBeneficiary["kind"])}
+            otherLabel={t("common.tabs.other")}
+          />
+        </>
+      )}
 
       <Space height={32} />
 

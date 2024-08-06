@@ -154,6 +154,7 @@ export const TransferTypePicker = ({
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
           canViewAccount={canViewAccount}
+          canManageBeneficiaries={canManageBeneficiaries}
         />
       </FullViewportLayer>
 

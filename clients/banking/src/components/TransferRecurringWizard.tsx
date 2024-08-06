@@ -229,6 +229,7 @@ export const TransferRecurringWizard = ({
                       mode="continue"
                       accountCountry={accountCountry}
                       accountId={accountId}
+                      saveCheckboxVisible={false}
                       onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
                       initialBeneficiary={match(beneficiary)
                         .with({ kind: "new" }, identity)

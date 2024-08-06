@@ -144,6 +144,7 @@ export const BeneficiaryInternationalWizard = ({
             <BeneficiaryInternationalWizardForm
               mode="add"
               submitting={internationalBeneficiaryAddition.isLoading()}
+              saveCheckboxVisible={false}
               onPressPrevious={onPressClose}
               onPressSubmit={handleOnSubmit}
             />

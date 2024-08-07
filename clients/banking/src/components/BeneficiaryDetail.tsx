@@ -117,7 +117,10 @@ export const BeneficiaryDetail = ({
     {
       id,
       first: PAGE_SIZE,
-      filters: { status: DEFAULT_STATUSES },
+      filters: {
+        includeRejectedWithFallback: false,
+        status: DEFAULT_STATUSES,
+      },
       canViewAccount,
       canQueryCardOnTransaction,
     },

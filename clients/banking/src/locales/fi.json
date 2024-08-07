@@ -721,7 +721,7 @@
   "recurringTransfer.table.nextExecution": "Seuraava suoritus",
   "recurringTransfer.table.period": "Toistuvuus",
   "recurringTransfer.table.recipient": "Vastaanottaja",
-  "sandboxUser.impersonatedAs": "Tekeydytty käyttäjäksi",
+  "sandboxUser.impersonatedAs": "Esitettynä nimellä",
   "supportingDocuments.AdministratorDecisionOfAppointment.description": "Päättäjän nimittämispäätös",
   "supportingDocuments.AdministratorDecisionOfAppointment.title": "Päättäjän nimittämispäätös",
   "supportingDocuments.AssociationRegistration.description": "Tämän asiakirjan on sisällettävä ilmoituksen jättämisen päivämäärä sekä järjestön nimi, toimintaperuste ja osoite.",

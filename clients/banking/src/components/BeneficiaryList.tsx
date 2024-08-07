@@ -637,7 +637,7 @@ export const BeneficiaryList = ({
                 openedFilters={openFilters}
                 onChangeOpened={setOpenFilters}
                 onChangeFilters={filters => {
-                  Router.push("AccountPaymentsBeneficiariesList", {
+                  Router.replace("AccountPaymentsBeneficiariesList", {
                     ...params,
                     ...filters,
                   });

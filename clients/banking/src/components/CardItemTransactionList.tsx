@@ -151,10 +151,10 @@ export const CardItemTransactionList = ({
                     reload();
                   }}
                   onChangeFilters={filters => {
-                    Router.push("AccountCardsItemTransactions", { ...params, ...filters });
+                    Router.replace("AccountCardsItemTransactions", { ...params, ...filters });
                   }}
                   onChangeSearch={search => {
-                    Router.push("AccountCardsItemTransactions", { ...params, search });
+                    Router.replace("AccountCardsItemTransactions", { ...params, search });
                   }}
                 />
               </Box>

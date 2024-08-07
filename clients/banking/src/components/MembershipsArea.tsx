@@ -201,7 +201,7 @@ export const MembershipsArea = ({
                 filters={filters}
                 search={search}
                 onChangeFilters={filters => {
-                  Router.push("AccountMembersList", {
+                  Router.replace("AccountMembersList", {
                     accountMembershipId,
                     ...params,
                     ...filters,
@@ -213,7 +213,7 @@ export const MembershipsArea = ({
                   });
                 }}
                 onChangeSearch={search => {
-                  Router.push("AccountMembersList", { accountMembershipId, ...params, search });
+                  Router.replace("AccountMembersList", { accountMembershipId, ...params, search });
                 }}
                 onRefresh={() => {
                   reload();

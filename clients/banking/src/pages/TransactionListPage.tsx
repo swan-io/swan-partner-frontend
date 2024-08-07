@@ -172,7 +172,7 @@ export const TransactionListPage = ({
                 reload();
               }}
               onChangeFilters={({ status, ...filters }) => {
-                Router.push("AccountTransactionsListRoot", {
+                Router.replace("AccountTransactionsListRoot", {
                   ...params,
                   accountMembershipId,
                   transactionStatus: status,
@@ -180,7 +180,7 @@ export const TransactionListPage = ({
                 });
               }}
               onChangeSearch={search => {
-                Router.push("AccountTransactionsListRoot", {
+                Router.replace("AccountTransactionsListRoot", {
                   ...params,
                   accountMembershipId,
                   search,

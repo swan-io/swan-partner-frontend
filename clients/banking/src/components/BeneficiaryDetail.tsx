@@ -34,7 +34,7 @@ import {
   TrustedBeneficiaryDetailsDocument,
   TrustedSepaBeneficiary,
 } from "../graphql/partner";
-import { formatDateTime, t } from "../utils/i18n";
+import { formatDateTime, isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
 import { Connection } from "./Connection";
@@ -42,6 +42,7 @@ import { DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
+import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 
 const PAGE_SIZE = 20;
@@ -267,7 +268,10 @@ export const BeneficiaryDetail = ({
                           onPress={() => {
                             Router.push("AccountPaymentsBeneficiariesDetails", {
                               ...params,
-                              new: "transfer",
+                              new:
+                                beneficiary.__typename === "TrustedInternationalBeneficiary"
+                                  ? "international"
+                                  : "transfer",
                             });
                           }}
                         >
@@ -345,27 +349,48 @@ export const BeneficiaryDetail = ({
           </ScrollView>
 
           {match(beneficiary)
-            .with({ __typename: "TrustedSepaBeneficiary" }, beneficiary => (
-              <FullViewportLayer visible={params.new === "transfer"}>
-                <TransferRegularWizard
-                  accountCountry={accountCountry}
-                  accountId={accountId}
-                  accountMembershipId={params.accountMembershipId}
-                  canViewAccount={canViewAccount}
-                  canManageBeneficiaries={canManageBeneficiaries}
-                  onPressClose={() => {
-                    Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));
-                  }}
-                  initialBeneficiary={{
-                    kind: "saved",
-                    iban: beneficiary.iban,
-                    id: beneficiary.id,
-                    name: beneficiary.name,
-                  }}
-                />
-              </FullViewportLayer>
-            ))
-            .with({ __typename: "TrustedInternationalBeneficiary" }, () => {})
+            .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban, id, name }) => {
+              return (
+                <FullViewportLayer visible={params.new === "transfer"}>
+                  <TransferRegularWizard
+                    accountCountry={accountCountry}
+                    accountId={accountId}
+                    accountMembershipId={params.accountMembershipId}
+                    canViewAccount={canViewAccount}
+                    canManageBeneficiaries={canManageBeneficiaries}
+                    initialBeneficiary={{ kind: "saved", iban, id, name }}
+                    onPressClose={() => {
+                      Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));
+                    }}
+                  />
+                </FullViewportLayer>
+              );
+            })
+            .with(
+              {
+                __typename: "TrustedInternationalBeneficiary",
+                route: P.not("Unknown"),
+                currency: P.when(isSupportedCurrency),
+              },
+              ({ currency, id, name, route, details }) => {
+                const values = details.map(({ key, value }) => ({ key, value })); // remove typenames
+
+                return (
+                  <FullViewportLayer visible={params.new === "international"}>
+                    <TransferInternationalWizard
+                      accountId={accountId}
+                      accountMembershipId={params.accountMembershipId}
+                      canViewAccount={canViewAccount}
+                      canManageBeneficiaries={canManageBeneficiaries}
+                      initialBeneficiary={{ kind: "saved", currency, id, name, route, values }}
+                      onPressClose={() => {
+                        Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));
+                      }}
+                    />
+                  </FullViewportLayer>
+                );
+              },
+            )
             .otherwise(() => null)}
         </>
       );

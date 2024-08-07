@@ -380,6 +380,7 @@ export const BeneficiaryDetail = ({
                     <TransferInternationalWizard
                       accountId={accountId}
                       accountMembershipId={params.accountMembershipId}
+                      forcedCurrency={currency}
                       canViewAccount={canViewAccount}
                       canManageBeneficiaries={canManageBeneficiaries}
                       initialBeneficiary={{ kind: "saved", currency, id, name, route, values }}

@@ -18,7 +18,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { Currency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import {
@@ -173,6 +173,7 @@ type Props = {
   onPressClose: () => void;
   accountId: string;
   accountMembershipId: string;
+  forcedCurrency?: Currency;
   canManageBeneficiaries: boolean;
   canViewAccount: boolean;
   // Enforce prefill with saved beneficiary data only
@@ -183,6 +184,7 @@ export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
+  forcedCurrency,
   canManageBeneficiaries,
   canViewAccount,
   initialBeneficiary,
@@ -307,6 +309,7 @@ export const TransferInternationalWizard = ({
 
                   <TransferInternationalWizardAmount
                     initialAmount={amount}
+                    forcedCurrency={forcedCurrency}
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressPrevious={onPressClose}

@@ -121,6 +121,7 @@
   "beneficiaries.status.enabled": "Actief",
   "beneficiaries.tabs.details": "Gegevens",
   "beneficiaries.tabs.history": "Geschiedenis",
+  "beneficiaries.tabs.transfers": "Overschrijvingen",
   "beneficiaries.type.internal": "Intern",
   "beneficiaries.type.international": "Internationaal",
   "beneficiaries.type.sepa": "SEPA",

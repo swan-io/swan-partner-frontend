@@ -22,7 +22,11 @@ import { printFormat } from "iban";
 import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { TrustedBeneficiaryDetailsDocument, TrustedSepaBeneficiary } from "../graphql/partner";
+import {
+  TransactionStatus,
+  TrustedBeneficiaryDetailsDocument,
+  TrustedSepaBeneficiary,
+} from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
@@ -76,6 +80,13 @@ export const concatSepaBeneficiaryAddress = (address: TrustedSepaBeneficiary["ad
   }
 };
 
+const DEFAULT_STATUSES = [
+  "Booked",
+  "Canceled",
+  "Pending",
+  "Rejected",
+] satisfies TransactionStatus[];
+
 type Props = {
   id: string;
   canViewAccount: boolean;
@@ -106,6 +117,7 @@ export const BeneficiaryDetail = ({
     {
       id,
       first: PAGE_SIZE,
+      filters: { status: DEFAULT_STATUSES },
       canViewAccount,
       canQueryCardOnTransaction,
     },

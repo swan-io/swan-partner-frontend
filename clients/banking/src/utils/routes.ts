@@ -59,7 +59,7 @@ const routes = {
         // share filters
         ...createGroup("Beneficiaries", "/beneficiaries?:canceled{true}&:currency&:label&:type[]", {
           List: "/",
-          Details: "/:beneficiaryId?:tab{details|history}",
+          Details: "/:beneficiaryId?:tab{details|history}&:new{transfer|international}",
         }),
 
         ...createGroup("RecurringTransferDetails", "/recurring-transfer/:recurringTransferId", {

@@ -46,6 +46,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
+  AccountCountry,
   BeneficiariesListDocument,
   BeneficiariesListQuery,
   BeneficiariesListQueryVariables,
@@ -342,20 +343,28 @@ const filtersDefinition = {
 type Filters = FiltersState<typeof filtersDefinition>;
 
 const BeneficiaryListImpl = ({
+  accountId,
+  accountCountry,
+  canManageBeneficiaries,
   hasSearchOrFilters,
   rowHeight,
   beneficiaries,
   isLoading,
+  transferCreationVisible,
   canViewAccount,
   canQueryCardOnTransaction,
   params,
   setVariables,
 }: {
+  accountId: string;
+  accountCountry: AccountCountry;
+  canManageBeneficiaries: boolean;
   hasSearchOrFilters: boolean;
   rowHeight: number;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   params: RouteParams;
+  transferCreationVisible: boolean;
   canViewAccount: boolean;
   canQueryCardOnTransaction: boolean;
   setVariables: (variables: Partial<BeneficiariesListQueryVariables>) => void;
@@ -437,10 +446,14 @@ const BeneficiaryListImpl = ({
           route != null && (
             <BeneficiaryDetail
               id={item.id}
-              canViewAccount={canViewAccount}
+              accountCountry={accountCountry}
+              accountId={accountId}
+              canManageBeneficiaries={canManageBeneficiaries}
               canQueryCardOnTransaction={canQueryCardOnTransaction}
+              canViewAccount={canViewAccount}
               large={large}
               params={route.params}
+              transferCreationVisible={transferCreationVisible}
             />
           )
         }
@@ -451,13 +464,17 @@ const BeneficiaryListImpl = ({
 
 export const BeneficiaryList = ({
   accountId,
+  accountCountry,
   params,
+  transferCreationVisible,
   canManageBeneficiaries,
   canViewAccount,
   canQueryCardOnTransaction,
 }: {
   accountId: string;
+  accountCountry: AccountCountry;
   params: RouteParams;
+  transferCreationVisible: boolean;
   canManageBeneficiaries: boolean;
   canViewAccount: boolean;
   canQueryCardOnTransaction: boolean;
@@ -643,11 +660,15 @@ export const BeneficiaryList = ({
               ))
               .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (
                 <BeneficiaryListImpl
+                  accountId={accountId}
+                  accountCountry={accountCountry}
+                  canManageBeneficiaries={canManageBeneficiaries}
                   hasSearchOrFilters={hasSearchOrFilters}
                   rowHeight={rowHeight}
                   beneficiaries={beneficiaries}
                   isLoading={isLoading}
                   params={params}
+                  transferCreationVisible={transferCreationVisible}
                   canViewAccount={canViewAccount}
                   canQueryCardOnTransaction={canQueryCardOnTransaction}
                   setVariables={setVariables}

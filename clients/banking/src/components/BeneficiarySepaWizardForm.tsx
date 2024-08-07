@@ -419,7 +419,7 @@ export const BeneficiarySepaWizardForm = ({
 type SummaryProps = {
   beneficiary: SepaBeneficiary;
   isMobile: boolean;
-  onPressEdit: () => void;
+  onPressEdit?: () => void;
 };
 
 export const TransferWizardBeneficiarySummary = ({
@@ -446,14 +446,16 @@ export const TransferWizardBeneficiarySummary = ({
           </LakeText>
         </View>
 
-        <LakeButton
-          mode="tertiary"
-          icon="edit-regular"
-          ariaLabel={t("common.edit")}
-          onPress={onPressEdit}
-        >
-          {isMobile ? null : t("common.edit")}
-        </LakeButton>
+        {isNotNullish(onPressEdit) && (
+          <LakeButton
+            mode="tertiary"
+            icon="edit-regular"
+            ariaLabel={t("common.edit")}
+            onPress={onPressEdit}
+          >
+            {isMobile ? null : t("common.edit")}
+          </LakeButton>
+        )}
       </Box>
     </Tile>
   );

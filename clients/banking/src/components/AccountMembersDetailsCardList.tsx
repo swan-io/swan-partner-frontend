@@ -148,21 +148,21 @@ export const AccountMembersDetailsCardList = ({
                     reload();
                   }}
                   onChangeFilters={filters => {
-                    Router.push("AccountMembersDetailsCardList", {
+                    Router.replace("AccountMembersDetailsCardList", {
                       accountMembershipId: currentUserAccountMembershipId,
                       ...params,
                       cardType: filters.type,
                     });
                   }}
                   onChangeSearch={cardSearch => {
-                    Router.push("AccountMembersDetailsCardList", {
+                    Router.replace("AccountMembersDetailsCardList", {
                       accountMembershipId: currentUserAccountMembershipId,
                       ...params,
                       cardSearch,
                     });
                   }}
                   onChangeStatus={cardStatus => {
-                    Router.push("AccountMembersDetailsCardList", {
+                    Router.replace("AccountMembersDetailsCardList", {
                       accountMembershipId: currentUserAccountMembershipId,
                       ...params,
                       cardStatus,

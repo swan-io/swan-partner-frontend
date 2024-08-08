@@ -1,11 +1,9 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
-import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { ListRightPanel, ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
+import { ListRightPanelContent } from "@swan-io/lake/src/components/ListRightPanel";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
-import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -14,25 +12,24 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
+import { spacings } from "@swan-io/lake/src/constants/design";
 import { deriveUnion, identity } from "@swan-io/lake/src/utils/function";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { getCountryName, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { printFormat } from "iban";
-import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { TrustedBeneficiaryDetailsDocument, TrustedSepaBeneficiary } from "../graphql/partner";
+import {
+  AccountCountry,
+  TrustedBeneficiaryDetailsDocument,
+  TrustedSepaBeneficiary,
+} from "../graphql/partner";
 import { formatDateTime, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { getWiseIctLabel } from "../utils/templateTranslations";
-import { Connection } from "./Connection";
+import { BeneficiaryDetailTransferList } from "./BeneficiaryDetailTransferList";
 import { DetailLine } from "./DetailLine";
 import { ErrorView } from "./ErrorView";
-import { TransactionDetail } from "./TransactionDetail";
-import { TransactionList } from "./TransactionList";
-
-const PAGE_SIZE = 20;
 
 const styles = StyleSheet.create({
   fill: {
@@ -40,10 +37,6 @@ const styles = StyleSheet.create({
   },
   tile: {
     alignItems: "center",
-  },
-  transactions: {
-    marginLeft: negativeSpacings[24],
-    marginRight: negativeSpacings[20],
   },
   content: {
     ...commonStyles.fill,
@@ -55,8 +48,8 @@ type Params = GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
 type Tab = NonNullable<Params["tab"]>;
 
 const tabs = deriveUnion<Tab>({
-  history: true,
   details: true,
+  transfers: true,
 });
 
 export const concatSepaBeneficiaryAddress = (address: TrustedSepaBeneficiary["address"]) => {
@@ -78,39 +71,31 @@ export const concatSepaBeneficiaryAddress = (address: TrustedSepaBeneficiary["ad
 
 type Props = {
   id: string;
+  params: Params;
+  large: boolean;
+  accountCountry: AccountCountry;
+  accountId: string;
+  transferCreationVisible: boolean;
+  canManageBeneficiaries: boolean;
   canViewAccount: boolean;
   canQueryCardOnTransaction: boolean;
-  large: boolean;
-  params: Params;
 };
 
 export const BeneficiaryDetail = ({
   id,
+  params,
+  large,
+  accountCountry,
+  accountId,
+  transferCreationVisible,
+  canManageBeneficiaries,
   canViewAccount,
   canQueryCardOnTransaction,
-  large,
-  params,
 }: Props) => {
   const activeTab: Tab = params.tab ?? "details";
   const suspense = useIsSuspendable();
-  const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
-  const panelRef = useRef<FocusTrapRef | null>(null);
 
-  const onActiveRowChange = useCallback(
-    (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
-    [],
-  );
-
-  const [data, { isLoading, setVariables }] = useQuery(
-    TrustedBeneficiaryDetailsDocument,
-    {
-      id,
-      first: PAGE_SIZE,
-      canViewAccount,
-      canQueryCardOnTransaction,
-    },
-    { suspense },
-  );
+  const [data] = useQuery(TrustedBeneficiaryDetailsDocument, { id }, { suspense });
 
   const beneficiary = data.mapOkToResult(data =>
     Option.fromNullable(data.trustedBeneficiary).toResult(undefined),
@@ -119,12 +104,8 @@ export const BeneficiaryDetail = ({
   return match(beneficiary)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-    .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiary => {
-      const { transactions } = beneficiary;
-      const totalCount = transactions?.totalCount ?? 0;
-      const tabsVisible = totalCount > 0;
-
-      return (
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiary => (
+      <>
         <ScrollView contentContainerStyle={large && styles.fill}>
           <ListRightPanelContent large={large} style={styles.fill}>
             <Tile style={styles.tile}>
@@ -155,28 +136,26 @@ export const BeneficiaryDetail = ({
               </LakeText>
             </Tile>
 
-            {tabsVisible && (
-              <>
-                <Space height={24} />
+            <Space height={24} />
 
-                <TabView
-                  activeTabId={activeTab}
-                  onChange={tab => {
-                    Router.push("AccountPaymentsBeneficiariesDetails", {
-                      ...params,
-                      tab: match(tab)
-                        .with(tabs.P, identity)
-                        .otherwise(() => undefined),
-                    });
-                  }}
-                  otherLabel={t("common.tabs.other")}
-                  tabs={[
-                    { id: "details", label: t("beneficiaries.tabs.details") },
-                    { id: "history", label: t("beneficiaries.tabs.history") },
-                  ]}
-                />
-              </>
-            )}
+            <TabView
+              activeTabId={activeTab}
+              otherLabel={t("common.tabs.other")}
+              onChange={tab => {
+                Router.push("AccountPaymentsBeneficiariesDetails", {
+                  ...params,
+                  tab: match(tab)
+                    .with(tabs.P, identity)
+                    .otherwise(() => undefined),
+                });
+              }}
+              tabs={
+                [
+                  { id: "details", label: t("beneficiaries.tabs.details") },
+                  { id: "transfers", label: t("beneficiaries.tabs.transfers") },
+                ] satisfies { id: Tab; label: string }[]
+              }
+            />
 
             {match(activeTab)
               .with("details", () => (
@@ -217,64 +196,22 @@ export const BeneficiaryDetail = ({
                   </ReadOnlyFieldList>
                 </ScrollView>
               ))
-              .with("history", () => (
-                <>
-                  <ScrollView style={styles.transactions} contentContainerStyle={styles.content}>
-                    <Connection connection={beneficiary.transactions}>
-                      {transactions => (
-                        <TransactionList
-                          withStickyTabs={true}
-                          withGrouping={false}
-                          transactions={transactions?.edges ?? []}
-                          getRowLink={({ item }) => (
-                            <Pressable onPress={() => setActiveTransactionId(item.id)} />
-                          )}
-                          pageSize={PAGE_SIZE}
-                          activeRowId={activeTransactionId ?? undefined}
-                          onActiveRowChange={onActiveRowChange}
-                          loading={{
-                            isLoading,
-                            count: PAGE_SIZE,
-                          }}
-                          onEndReached={() => {
-                            if (transactions?.pageInfo.hasNextPage ?? false) {
-                              setVariables({
-                                after: transactions?.pageInfo.endCursor ?? undefined,
-                              });
-                            }
-                          }}
-                          renderEmptyList={() => null} // TODO: render something
-                        />
-                      )}
-                    </Connection>
-                  </ScrollView>
-
-                  <ListRightPanel
-                    ref={panelRef}
-                    keyExtractor={item => item.node.id}
-                    items={transactions?.edges ?? []}
-                    activeId={activeTransactionId}
-                    onActiveIdChange={setActiveTransactionId}
-                    onClose={() => setActiveTransactionId(null)}
-                    previousLabel={t("common.previous")}
-                    nextLabel={t("common.next")}
-                    closeLabel={t("common.closeButton")}
-                    render={({ node }, large) => (
-                      <TransactionDetail
-                        accountMembershipId={params.accountMembershipId}
-                        large={large}
-                        transactionId={node.id}
-                        canQueryCardOnTransaction={canQueryCardOnTransaction}
-                        canViewAccount={canViewAccount}
-                      />
-                    )}
-                  />
-                </>
+              .with("transfers", () => (
+                <BeneficiaryDetailTransferList
+                  accountCountry={accountCountry}
+                  accountId={accountId}
+                  beneficiary={beneficiary}
+                  transferCreationVisible={transferCreationVisible}
+                  canManageBeneficiaries={canManageBeneficiaries}
+                  canViewAccount={canViewAccount}
+                  canQueryCardOnTransaction={canQueryCardOnTransaction}
+                  params={params}
+                />
               ))
               .exhaustive()}
           </ListRightPanelContent>
         </ScrollView>
-      );
-    })
+      </>
+    ))
     .exhaustive();
 };

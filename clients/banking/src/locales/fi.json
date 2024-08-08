@@ -120,7 +120,7 @@
   "beneficiaries.status.canceled": "Peruutettu",
   "beneficiaries.status.enabled": "Aktiivinen",
   "beneficiaries.tabs.details": "Tiedot",
-  "beneficiaries.tabs.history": "Historia",
+  "beneficiaries.tabs.transfers": "Siirrot",
   "beneficiaries.type.internal": "Sisäinen",
   "beneficiaries.type.international": "Kansainvälinen",
   "beneficiaries.type.sepa": "SEPA",

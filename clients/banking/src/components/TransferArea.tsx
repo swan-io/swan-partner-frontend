@@ -186,7 +186,9 @@ export const TransferArea = ({
                         ({ params }) => (
                           <BeneficiaryList
                             accountId={accountId}
+                            accountCountry={accountCountry}
                             params={params}
+                            transferCreationVisible={transferCreationVisible}
                             canManageBeneficiaries={canManageBeneficiaries}
                             canViewAccount={canViewAccount}
                             canQueryCardOnTransaction={canQueryCardOnTransaction}

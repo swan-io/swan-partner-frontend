@@ -18,7 +18,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { Currency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import {
@@ -173,18 +173,25 @@ type Props = {
   onPressClose: () => void;
   accountId: string;
   accountMembershipId: string;
+  forcedCurrency?: Currency;
   canManageBeneficiaries: boolean;
   canViewAccount: boolean;
+  // Enforce prefill with saved beneficiary data only
+  initialBeneficiary?: Extract<InternationalBeneficiary, { kind: "saved" }>;
 };
 
 export const TransferInternationalWizard = ({
   onPressClose,
   accountId,
   accountMembershipId,
+  forcedCurrency,
   canManageBeneficiaries,
   canViewAccount,
+  initialBeneficiary,
 }: Props) => {
+  const hasInitialBeneficiary = isNotNullish(initialBeneficiary);
   const [initiateTransfers, transfer] = useMutation(InitiateInternationalCreditTransferDocument);
+
   const [step, setStep] = useState<Step>({ name: "Amount" });
 
   const initiateTransfer = ({
@@ -302,10 +309,15 @@ export const TransferInternationalWizard = ({
 
                   <TransferInternationalWizardAmount
                     initialAmount={amount}
+                    forcedCurrency={forcedCurrency}
                     accountId={accountId}
                     accountMembershipId={accountMembershipId}
                     onPressPrevious={onPressClose}
-                    onSave={amount => setStep({ name: "Beneficiary", amount })}
+                    onSave={amount => {
+                      hasInitialBeneficiary
+                        ? setStep({ name: "Details", amount, beneficiary: initialBeneficiary })
+                        : setStep({ name: "Beneficiary", amount });
+                    }}
                   />
                 </>
               ))
@@ -314,7 +326,9 @@ export const TransferInternationalWizard = ({
                   <TransferInternationalWizardAmountSummary
                     isMobile={!large}
                     amount={amount}
-                    onPressEdit={() => setStep({ name: "Amount", amount })}
+                    onPressEdit={() => {
+                      setStep({ name: "Amount", amount });
+                    }}
                   />
 
                   <Space height={24} />
@@ -325,7 +339,9 @@ export const TransferInternationalWizard = ({
                     initialBeneficiary={beneficiary}
                     amount={amount}
                     errors={errors}
-                    onPressPrevious={() => setStep({ name: "Amount", amount })}
+                    onPressPrevious={() => {
+                      setStep({ name: "Amount", amount });
+                    }}
                     onPressSubmit={beneficiary => {
                       setStep({ name: "Details", amount, beneficiary });
                     }}
@@ -337,7 +353,9 @@ export const TransferInternationalWizard = ({
                   <TransferInternationalWizardAmountSummary
                     isMobile={!large}
                     amount={amount}
-                    onPressEdit={() => setStep({ name: "Amount", amount })}
+                    onPressEdit={() => {
+                      setStep({ name: "Amount", amount });
+                    }}
                   />
 
                   <Space height={32} />
@@ -352,10 +370,12 @@ export const TransferInternationalWizard = ({
                     initialDetails={details}
                     amount={amount}
                     beneficiary={beneficiary}
-                    onPressPrevious={errors =>
-                      setStep({ name: "Beneficiary", amount, beneficiary, errors })
-                    }
                     loading={transfer.isLoading()}
+                    onPressPrevious={errors => {
+                      hasInitialBeneficiary
+                        ? setStep({ name: "Amount", amount })
+                        : setStep({ name: "Beneficiary", amount, beneficiary, errors });
+                    }}
                     onSave={details => {
                       initiateTransfer({ amount, beneficiary, details });
                     }}

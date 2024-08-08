@@ -1831,7 +1831,13 @@ query BeneficiariesList(
   }
 }
 
-query TrustedBeneficiaryDetails(
+query TrustedBeneficiaryDetails($id: String!) {
+  trustedBeneficiary(id: $id) {
+    ...TrustedBeneficiaryDetails
+  }
+}
+
+query TrustedBeneficiaryTransfers(
   $id: String!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
@@ -1840,8 +1846,6 @@ query TrustedBeneficiaryDetails(
   $filters: TransactionsFiltersInput
 ) {
   trustedBeneficiary(id: $id) {
-    ...TrustedBeneficiaryDetails
-
     transactions(first: $first, after: $after, filters: $filters) {
       pageInfo {
         endCursor

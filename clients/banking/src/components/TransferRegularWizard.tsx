@@ -11,6 +11,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -159,6 +160,8 @@ type Props = {
   accountMembershipId: string;
   canViewAccount: boolean;
   canManageBeneficiaries: boolean;
+  // Enforce prefill with saved beneficiary data only
+  initialBeneficiary?: Extract<SepaBeneficiary, { kind: "saved" }>;
 };
 
 export const TransferRegularWizard = ({
@@ -168,9 +171,16 @@ export const TransferRegularWizard = ({
   accountMembershipId,
   canViewAccount,
   canManageBeneficiaries,
+  initialBeneficiary,
 }: Props) => {
+  const hasInitialBeneficiary = isNotNullish(initialBeneficiary);
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
-  const [step, setStep] = useState<Step>({ name: "Beneficiary" });
+
+  const [step, setStep] = useState<Step>(() =>
+    hasInitialBeneficiary
+      ? { name: "Details", beneficiary: initialBeneficiary }
+      : { name: "Beneficiary" },
+  );
 
   const initiateTransfer = ({
     beneficiary,
@@ -300,7 +310,11 @@ export const TransferRegularWizard = ({
                   <TransferWizardBeneficiarySummary
                     isMobile={!large}
                     beneficiary={beneficiary}
-                    onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+                    onPressEdit={
+                      hasInitialBeneficiary
+                        ? undefined
+                        : () => setStep({ name: "Beneficiary", beneficiary })
+                    }
                   />
 
                   <Space height={32} />
@@ -314,8 +328,14 @@ export const TransferRegularWizard = ({
                   <TransferRegularWizardDetails
                     accountMembershipId={accountMembershipId}
                     initialDetails={details}
-                    onPressPrevious={() => setStep({ name: "Beneficiary", beneficiary })}
-                    onSave={details => setStep({ name: "Schedule", beneficiary, details })}
+                    onPressPrevious={() => {
+                      hasInitialBeneficiary
+                        ? onPressClose?.()
+                        : setStep({ name: "Beneficiary", beneficiary });
+                    }}
+                    onSave={details => {
+                      setStep({ name: "Schedule", beneficiary, details });
+                    }}
                   />
 
                   <Space height={32} />
@@ -326,7 +346,11 @@ export const TransferRegularWizard = ({
                   <TransferWizardBeneficiarySummary
                     isMobile={!large}
                     beneficiary={beneficiary}
-                    onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+                    onPressEdit={
+                      hasInitialBeneficiary
+                        ? undefined
+                        : () => setStep({ name: "Beneficiary", beneficiary })
+                    }
                   />
 
                   <Space height={32} />
@@ -334,7 +358,9 @@ export const TransferRegularWizard = ({
                   <TransferRegularWizardDetailsSummary
                     isMobile={!large}
                     details={details}
-                    onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
+                    onPressEdit={() => {
+                      setStep({ name: "Details", beneficiary, details });
+                    }}
                   />
 
                   <Space height={32} />
@@ -348,8 +374,12 @@ export const TransferRegularWizard = ({
                   <TransferRegularWizardSchedule
                     beneficiary={beneficiary}
                     loading={transfer.isLoading()}
-                    onPressPrevious={() => setStep({ name: "Details", beneficiary, details })}
-                    onSave={schedule => initiateTransfer({ beneficiary, details, schedule })}
+                    onPressPrevious={() => {
+                      setStep({ name: "Details", beneficiary, details });
+                    }}
+                    onSave={schedule => {
+                      initiateTransfer({ beneficiary, details, schedule });
+                    }}
                   />
                 </>
               ))

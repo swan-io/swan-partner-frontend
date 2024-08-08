@@ -135,7 +135,7 @@ export const TransferList = ({
                 reload();
               }}
               onChangeFilters={({ status, ...filters }) =>
-                Router.push("AccountPaymentsRoot", {
+                Router.replace("AccountPaymentsRoot", {
                   ...params,
                   accountMembershipId,
                   transactionStatus: status,
@@ -143,7 +143,7 @@ export const TransferList = ({
                 })
               }
               onChangeSearch={search => {
-                Router.push("AccountPaymentsRoot", {
+                Router.replace("AccountPaymentsRoot", {
                   ...params,
                   accountMembershipId,
                   search,

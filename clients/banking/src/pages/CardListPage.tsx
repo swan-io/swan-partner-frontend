@@ -130,13 +130,13 @@ export const CardListPage = ({
                 reload();
               }}
               onChangeFilters={filters => {
-                Router.push("AccountCardsList", { accountMembershipId, ...params, ...filters });
+                Router.replace("AccountCardsList", { accountMembershipId, ...params, ...filters });
               }}
               onChangeSearch={search => {
-                Router.push("AccountCardsList", { accountMembershipId, ...params, search });
+                Router.replace("AccountCardsList", { accountMembershipId, ...params, search });
               }}
               onChangeStatus={status => {
-                Router.push("AccountCardsList", { accountMembershipId, ...params, status });
+                Router.replace("AccountCardsList", { accountMembershipId, ...params, status });
               }}
             >
               {canAddCard && cardOrderVisible ? (

@@ -120,7 +120,7 @@
   "beneficiaries.status.canceled": "Cancelado",
   "beneficiaries.status.enabled": "Ativo",
   "beneficiaries.tabs.details": "Detalhes",
-  "beneficiaries.tabs.history": "Histórico",
+  "beneficiaries.tabs.transfers": "Transferências",
   "beneficiaries.type.internal": "Interno",
   "beneficiaries.type.international": "Internacional",
   "beneficiaries.type.sepa": "SEPA",

@@ -11,6 +11,7 @@ import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors, radii } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
@@ -55,6 +56,7 @@ const CURRENCY_DEFAULT_VALUE = "USD";
 
 type Props = {
   initialAmount?: Amount;
+  forcedCurrency?: Currency;
   onPressPrevious: () => void;
   onSave: (amount: Amount) => void;
   accountMembershipId: string;
@@ -63,6 +65,7 @@ type Props = {
 
 export const TransferInternationalWizardAmount = ({
   initialAmount,
+  forcedCurrency,
   onPressPrevious,
   accountMembershipId,
   accountId,
@@ -88,9 +91,9 @@ export const TransferInternationalWizardAmount = ({
     amount: { value: string; currency: Currency };
   }>({
     amount: {
-      initialValue: initialAmount ?? {
-        value: FIXED_AMOUNT_DEFAULT_VALUE,
-        currency: CURRENCY_DEFAULT_VALUE,
+      initialValue: {
+        value: initialAmount?.value ?? FIXED_AMOUNT_DEFAULT_VALUE,
+        currency: forcedCurrency ?? initialAmount?.currency ?? CURRENCY_DEFAULT_VALUE,
       },
       sanitize: ({ value, currency }) => ({ value: value.replace(/,/g, "."), currency }),
       validate: ({ value }) => {
@@ -206,16 +209,22 @@ export const TransferInternationalWizardAmount = ({
                   value={value}
                   error={error}
                   valid={valid}
+                  inputMode="numeric"
+                  onBlur={onBlur}
                   onChangeText={nextValue => {
                     onChange({ currency, value: nextValue.replace(/,/g, ".") });
                   }}
-                  onBlur={onBlur}
-                  units={currencies}
-                  unit={currency}
-                  inputMode="numeric"
-                  onUnitChange={nextCurrency => {
-                    onChange({ currency: nextCurrency as Currency, value });
-                  }}
+                  {...(isNotNullish(forcedCurrency)
+                    ? {
+                        renderEnd: () => <Tag>{forcedCurrency}</Tag>,
+                      }
+                    : {
+                        units: currencies,
+                        unit: currency,
+                        onUnitChange: nextCurrency => {
+                          onChange({ currency: nextCurrency as Currency, value });
+                        },
+                      })}
                 />
               )}
             </Field>

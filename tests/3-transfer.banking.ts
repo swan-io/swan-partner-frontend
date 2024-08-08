@@ -4,7 +4,7 @@ import { randomUUID } from "node:crypto";
 import { match } from "ts-pattern";
 import { env } from "./utils/env";
 import { t } from "./utils/i18n";
-import { clickOnButton, clickOnText, waitForText } from "./utils/selectors";
+import { clickOnButton, clickOnLink, clickOnText, waitForText } from "./utils/selectors";
 import { getSession } from "./utils/session";
 
 type Options = {
@@ -40,7 +40,8 @@ const initiate = async (page: Page, options: Options) => {
         )}`,
     )
     .exhaustive();
-  await clickOnButton(main, type);
+
+  await clickOnLink(main, type);
 
   const layer = page.locator("#full-page-layer-root");
   const beneficiary = `${label.replace(/\d+/g, "")} - beneficiary`;

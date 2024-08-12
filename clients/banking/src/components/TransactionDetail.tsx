@@ -30,7 +30,7 @@ import { getCountryByCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/co
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";
 import { useState } from "react";
-import { Image, StyleSheet, Text } from "react-native";
+import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { TransactionDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -74,9 +74,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   merchantLogo: {
-    width: spacings[24],
-    height: spacings[24],
-    borderRadius: radii[4],
+    width: spacings[72],
+    height: spacings[72],
+    borderRadius: radii[8],
+  },
+  merchantLogoShadow: {
+    ...StyleSheet.absoluteFillObject,
+    width: spacings[72],
+    height: spacings[72],
+    borderRadius: radii[8],
+    boxShadow: "inset 0 0 0 1px rgba(0, 0, 0, 0.1)",
   },
   icon: {
     aspectRatio: "1 / 1",
@@ -230,17 +237,43 @@ export const TransactionDetail = ({
         >
           {match(transaction.statusInfo.__typename)
             .with("PendingTransactionStatusInfo", () => (
-              <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
+              <>
+                <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
+                <Space height={12} />
+              </>
             ))
             .with("RejectedTransactionStatusInfo", () => (
-              <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
+              <>
+                <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
+                <Space height={12} />
+              </>
             ))
             .with("CanceledTransactionStatusInfo", () => (
-              <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
+              <>
+                <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
+                <Space height={12} />
+              </>
             ))
             .otherwise(() => null)}
 
-          <Space height={12} />
+          {match(transaction)
+            .with(
+              {
+                __typename: "CardTransaction",
+                enrichedTransactionInfo: { logoUrl: P.select(P.string) },
+              },
+              logoUrl => (
+                <>
+                  <View>
+                    <Image source={logoUrl} style={styles.merchantLogo} />
+                    <View style={styles.merchantLogoShadow} />
+                  </View>
+
+                  <Space height={12} />
+                </>
+              ),
+            )
+            .otherwise(() => null)}
 
           <LakeHeading
             variant="h1"
@@ -300,22 +333,7 @@ export const TransactionDetail = ({
             color={colors.gray[700]}
             style={styles.wrapText}
           >
-            {match(transaction)
-              .with(
-                {
-                  __typename: "CardTransaction",
-                  enrichedTransactionInfo: { logoUrl: P.select(P.string) },
-                },
-                logoUrl => (
-                  <>
-                    <Image source={logoUrl} style={styles.merchantLogo} />
-                    <Space width={8} />
-                  </>
-                ),
-              )
-              .otherwise(() => null)}
-
-            <Text>{getTransactionLabel(transaction)}</Text>
+            {getTransactionLabel(transaction)}
           </LakeHeading>
         </Tile>
 

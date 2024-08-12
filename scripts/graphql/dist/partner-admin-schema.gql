@@ -1297,6 +1297,9 @@ type BrowserConsent implements DetailedConsent {
   updatedAt: DateTime!
   startedAt: DateTime
   expiredAt: DateTime
+  acceptedAt: DateTime
+  refusedAt: DateTime
+  canceledAt: DateTime
   consentResponses: [ConsentResponse!]!
   purpose: DetailedConsentPurpose!
   serviceToHook: String!
@@ -1324,6 +1327,9 @@ type BrowserMultiConsent implements DetailedConsent {
   updatedAt: DateTime!
   startedAt: DateTime
   expiredAt: DateTime
+  acceptedAt: DateTime
+  refusedAt: DateTime
+  canceledAt: DateTime
   consentResponses: [ConsentResponse!]!
   purpose: DetailedConsentPurpose!
   consentOperations: [ConsentOperation!]!
@@ -1397,54 +1403,91 @@ enum CardAuthorizationOutcome {
   Accepted
   AccountClosed
   AccountSuspended
+  AmountInvalid
   AtmWithdrawalAmountLimitExceeded
   AtmWithdrawalNumberLimitExceeded
-  AuthorizationConsumed
-  AuthorizationUpdated
-  AuthorizationValidityExceeded
-  CardCanceled
+  CanceledByCardHolder
   CardExpired
-  CardholderCancelation
-  CardLost
-  CardNotProvidedToCardholderOrClosed
+  CardNotActivated
   CardNumberInvalid
-  CardOpposedCardStolen
   CardOutOfOrder
-  CardTemporarilyLocked
+  CardPermanentlyBlocked
+  CardSuspended
+  CardHolderVerificationMethodMissing
   CardUnknown
+  ChipCryptogramControlRefusal
+  ContactlessAmountLimitExceeded
+  ContactlessCumulativeAmountLimitExceeded
+  DigitalCardDeactivated
+  DigitalCardEnrollmentInvalid
+  DigitalCardRefusal
+  DigitalCardSuspended
+  DigitalCardTokenInvalid
   DoNotHonor
-  eMoneyAccount
-  eMoneyAccountLimitExceeded
-  IncorrectPinCodeAttemptsExceeded
-  InsufficientFunds
-  MerchantInvalid
+  DomesticTransactionNotAllowed
+  FraudRossAndersonRefusal
+  InconsistentEmvAmount
+  InPersonTransactionsNotAuthorized
+  InvalidAuthorizationResponse
+  InvalidExpirationDate
+  InvalidPinAttemptsExceeded
+  InvalidSecurityNumber
+  MagstripeNotSupported
+  MerchantNotFound
   MerchantShouldResubmitAuthorization
+  MissingExpirationDate
   MiscellaneousReason
-  OriginalTransactionNotFound
-  PartialApproval
   PartialCancelation
-  PeriodAmountLimitExceeded
-  PeriodNumberTransactionLimitExceeded
-  PinCodeInvalid
-  PinCodeValidationImpossible
-  SpendingLimitsReached
-  TechnicalError
+  PartialApproval
+  PinInvalid
+  PinRequired
+  SchemeAccountConversionError
+  SchemeStandInRefusal
+  SchemeTransactionBlockingRefusal
+  SecurityViolation
+  SoftDecline
+  SwanTechnicalErrorOccurred
+  SwanTimeout
+  TerminalVerificationResultsInvalid
+  ThreeDsError
   TransactionAmountLimitExceeded
   TransactionCurrencyIncorrect
+  TransactionDuplicated
   TransactionInvalid
-  TransactionNotAuthorizedForCardholder
-  TransactionNotAuthorizedForPointOfSale
-  ThreeDsError
-  PeriodTransactionNumberLimitExceeded
-  MissingExpirationDate
-  MissingPin
-  DigitalWalletDeactivated
-  DigitalWalletEnrolmentInvalid
-  DigitalWalletTokenInvalid
-  DigitalWalletRefusal
-  DigitalWalletSuspended
-  InvalidAmount
-  CardholderCancellation
+  TransactionNotAllowed
+  TransactionNotAuthorizedForCardHolder
+  UnableToDetectTransactionEnvironment
+  AuthorizationConsumed @deprecated
+  AuthorizationUpdated @deprecated
+  AuthorizationValidityExceeded @deprecated
+  CardCanceled @deprecated
+  CardholderCancelation @deprecated
+  CardLost @deprecated
+  CardNotProvidedToCardholderOrClosed @deprecated
+  CardOpposedCardStolen @deprecated
+  CardTemporarilyLocked @deprecated
+  eMoneyAccount @deprecated
+  eMoneyAccountLimitExceeded @deprecated
+  IncorrectPinCodeAttemptsExceeded @deprecated
+  InsufficientFunds @deprecated
+  MerchantInvalid @deprecated
+  OriginalTransactionNotFound @deprecated
+  PeriodAmountLimitExceeded @deprecated
+  PeriodNumberTransactionLimitExceeded @deprecated
+  PinCodeInvalid @deprecated
+  PinCodeValidationImpossible @deprecated
+  SpendingLimitsReached @deprecated
+  TechnicalError @deprecated
+  TransactionNotAuthorizedForPointOfSale @deprecated
+  PeriodTransactionNumberLimitExceeded @deprecated
+  MissingPin @deprecated
+  DigitalWalletDeactivated @deprecated
+  DigitalWalletEnrolmentInvalid @deprecated
+  DigitalWalletTokenInvalid @deprecated
+  DigitalWalletRefusal @deprecated
+  DigitalWalletSuspended @deprecated
+  InvalidAmount @deprecated
+  CardholderCancellation @deprecated
 }
 
 enum CardAuthorizationReleaseReason {
@@ -1748,6 +1791,15 @@ type Consent {
 
   """unique hash of the consent"""
   challenge: String
+
+  """date when the consent is accepted"""
+  acceptedAt: DateTime
+
+  """date when the consent is refused"""
+  refusedAt: DateTime
+
+  """date when the consent is canceled"""
+  canceledAt: DateTime
 }
 
 """
@@ -2118,6 +2170,9 @@ interface DetailedConsent {
   updatedAt: DateTime!
   startedAt: DateTime
   expiredAt: DateTime
+  acceptedAt: DateTime
+  refusedAt: DateTime
+  canceledAt: DateTime
   consentResponses: [ConsentResponse!]!
   purpose: DetailedConsentPurpose!
   consentOperations: [ConsentOperation!]!
@@ -2463,6 +2518,12 @@ type FacePhotoDocument {
 
   """The type of the document"""
   type: DocumentType!
+}
+
+type FailedThreeDs {
+  status: ThreeDsStatus!
+  reason: String!
+  code: String!
 }
 
 interface Field {
@@ -3837,6 +3898,17 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+type MerchantBalance {
+  availableToCancel: AmountValue!
+  availableToCapture: AmountValue!
+  availableToRefund: AmountValue!
+  totalAuthorized: AmountValue!
+  totalCanceled: AmountValue!
+  totalCaptured: AmountValue!
+  totalDisputed: AmountValue!
+  totalRefunded: AmountValue!
+}
+
 """Rejection returned when the Merchant Card Payment is declined"""
 type MerchantCardPaymentDeclinedRejection implements Rejection {
   message: String!
@@ -3859,6 +3931,86 @@ enum MerchantCategory {
   Travel
 }
 
+type MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+  amount: Amount!
+  paymentMandateId: ID!
+  paymentLinkId: ID
+  merchantProfileId: ID!
+  paymentMethodId: ID!
+  balance: MerchantBalance!
+  label: String
+  reference: String
+  externalReference: String
+  billingAddress: Address
+  threeDS: ThreeDS
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Merchant Payment status authorized"""
+type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+"""Merchant Payment status captured"""
+type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+type MerchantPaymentConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentEdge implements Edge {
+  node: MerchantPayment!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentStatus!]
+
+  """To filter on some Merchant Payment Method Type (all if empty)"""
+  paymentMethod: [MerchantPaymentMethodType!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+  amountSmallerThan: AmountValue
+  amountGreaterThan: AmountValue
+}
+
+"""Merchant Payment status initiated"""
+type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
 type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
@@ -3875,7 +4027,7 @@ type MerchantPaymentLink {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfile: MerchantProfile!
 
-  """Amount to be paid to sucessfully complete the payment."""
+  """Amount to be paid to successfully complete the payment."""
   amount: Amount!
 
   """
@@ -3946,6 +4098,61 @@ type MerchantPaymentLink {
   paymentMethods: [MerchantPaymentMethod!]!
 }
 
+type MerchantPaymentLinkConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentLinkEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentLinkEdge implements Edge {
+  node: MerchantPaymentLink!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentLinkFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentLinkStatus!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+
+  """
+  To filter payment links having an amount smaller than the given criteria
+  """
+  amountSmallerThan: AmountValue
+
+  """
+  To filter payment links having an amount greater than the given criteria
+  """
+  amountGreaterThan: AmountValue
+}
+
+enum MerchantPaymentLinkOrderByFieldInput {
+  createdAt
+  label
+  url
+  statusInfos
+  amount
+}
+
+input MerchantPaymentLinkOrderByInput {
+  field: MerchantPaymentLinkOrderByFieldInput
+  direction: OrderByDirection
+}
+
 enum MerchantPaymentLinkStatus {
   """Customers can still use the merchant payment link to pay."""
   Active
@@ -3955,9 +4162,6 @@ enum MerchantPaymentLinkStatus {
 
   """The customer completed the payment."""
   Completed
-
-  """The customer cancel the payment."""
-  Canceled
 }
 
 interface MerchantPaymentLinkStatusInfo {
@@ -4040,6 +4244,42 @@ type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
 
+enum MerchantPaymentOrderByFieldInput {
+  label
+  createdAt
+  externalReference
+  status
+  amount
+}
+
+input MerchantPaymentOrderByInput {
+  field: MerchantPaymentOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Merchant Payment status rejected"""
+type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """rejected reason"""
+  reason: String!
+}
+
+"""Merchant Payment status"""
+enum MerchantPaymentStatus {
+  Initiated
+  Authorized
+  Captured
+  Rejected
+}
+
+"""Merchant Payment Status Information"""
+interface MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
 """Merchant Profile"""
 type MerchantProfile {
   """The Merchant Profile ID"""
@@ -4093,6 +4333,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
+  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 """Merchant Profile Statuses"""
@@ -4322,6 +4564,9 @@ type Mutation {
   """Generate a CMC7 with its RLMC key usable for test purpose"""
   generateTestCheck(input: GenerateCheckInput!): GenerateCheckPayload!
 
+  """Simulate the authorization of a card merchant payment"""
+  simulateCardMerchantPaymentAuthorization(input: SimulateCardMerchantPaymentAuthorizationInput!): SimulateCardMerchantPaymentAuthorizationPayload
+
   """Simulate the update of a Merchant Payment Method"""
   simulateUpdateMerchantPaymentMethod(input: SimulateUpdateMerchantPaymentMethodInput!): SimulateUpdateMerchantPaymentMethodPayload
 
@@ -4536,6 +4781,9 @@ type OAuth2Consent implements DetailedConsent {
   updatedAt: DateTime!
   startedAt: DateTime
   expiredAt: DateTime
+  acceptedAt: DateTime
+  refusedAt: DateTime
+  canceledAt: DateTime
   consentResponses: [ConsentResponse!]!
   purpose: DetailedConsentPurpose!
   consentOperations: [ConsentOperation!]!
@@ -6777,6 +7025,72 @@ type SimulateCapitalDepositDocumentStatusSuccessPayload {
   id: String!
 }
 
+enum SimulateCardMerchantPaymentAuthorizationCardCategory {
+  COMMERCIAL
+  CONSUMER
+}
+
+input SimulateCardMerchantPaymentAuthorizationCardDetails {
+  scheme: SimulateCardMerchantPaymentAuthorizationCardScheme!
+  category: SimulateCardMerchantPaymentAuthorizationCardCategory!
+  type: SimulateCardMerchantPaymentAuthorizationCardType!
+  country: String!
+}
+
+enum SimulateCardMerchantPaymentAuthorizationCardScheme {
+  VISA
+  MASTERCARD
+  MAESTRO
+  CARTES_BANCAIRES
+}
+
+enum SimulateCardMerchantPaymentAuthorizationCardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  CHARGE
+  DEFERRED_DEBIT
+}
+
+input SimulateCardMerchantPaymentAuthorizationInput {
+  """ID of the related payment link"""
+  paymentLinkId: ID!
+
+  """Payment status of the simulated authorization"""
+  paymentStatus: SimulateCardMerchantPaymentAuthorizationPaymentStatus!
+}
+
+"""SimulateCardMerchantPaymentAuthorizationPayload"""
+union SimulateCardMerchantPaymentAuthorizationPayload = InternalErrorRejection | ForbiddenRejection | NotFoundRejection | SimulateCardMerchantPaymentAuthorizationSuccessPayload | ValidationRejection
+
+input SimulateCardMerchantPaymentAuthorizationPaymentStatus {
+  authorizationStatus: SimulateCardMerchantPaymentAuthorizationStatus!
+  authorizationRejectReason: String
+  cardDetails: SimulateCardMerchantPaymentAuthorizationCardDetails!
+  threeDS: SimulateCardMerchantPaymentAuthorizationThreeDS!
+  autoCapture: Boolean!
+}
+
+enum SimulateCardMerchantPaymentAuthorizationStatus {
+  Authorized
+  Rejected
+}
+
+"""SimulateCardMerchantPaymentAuthorizationSuccessPayload"""
+type SimulateCardMerchantPaymentAuthorizationSuccessPayload {
+  paymentLinkId: ID!
+}
+
+input SimulateCardMerchantPaymentAuthorizationThreeDS {
+  status: SimulateCardMerchantPaymentAuthorizationThreeDSStatus!
+  failedReason: String
+}
+
+enum SimulateCardMerchantPaymentAuthorizationThreeDSStatus {
+  Successful
+  Failed
+}
+
 """Input of simulateCardTransactionEnrichment mutation"""
 input SimulateCardTransactionEnrichmentInput {
   """Card transaction id"""
@@ -6788,7 +7102,7 @@ input SimulateCardTransactionEnrichmentInput {
   """
   Transaction carbon footprint in micrograms of CO2 emitted, if nothing entered genereted randomly
   """
-  carbonFootPrint: String
+  carbonFootprint: String
 
   """Merchant category, if nothing entered default to 'Other'"""
   category: MerchantCategory
@@ -7752,6 +8066,10 @@ type StartedIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
+type SuccessfulThreeDs {
+  status: ThreeDsStatus!
+}
+
 """Supporting document used for compliance"""
 type SupportingDocument {
   """Unique identifier of the document"""
@@ -8437,6 +8755,11 @@ type TextField implements Field {
   validationRegex: String
 }
 
+type ThreeDS {
+  requested: Boolean!
+  statusInfo: ThreeDsStatusInfo!
+}
+
 type ThreeDsConsent implements DetailedConsent {
   id: ID!
   projectId: String
@@ -8446,6 +8769,9 @@ type ThreeDsConsent implements DetailedConsent {
   updatedAt: DateTime!
   startedAt: DateTime
   expiredAt: DateTime
+  acceptedAt: DateTime
+  refusedAt: DateTime
+  canceledAt: DateTime
   consentResponses: [ConsentResponse!]!
   purpose: DetailedConsentPurpose!
   serviceToHook: String!
@@ -8465,6 +8791,15 @@ type ThreeDsConsent implements DetailedConsent {
   amount: AmountWithCurrency!
   challenge: String
   channelName: String
+}
+
+enum ThreeDsStatus {
+  Successful
+  Failed
+}
+
+interface ThreeDsStatusInfo {
+  status: ThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""

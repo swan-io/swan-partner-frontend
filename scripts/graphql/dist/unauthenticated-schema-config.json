@@ -14,6 +14,8 @@
       "ConsentConnection",
       "DigitalCardConnection",
       "FundingLimitSettingsChangeRequestConnection",
+      "MerchantPaymentConnection",
+      "MerchantPaymentLinkConnection",
       "OnboardingConnection",
       "PaymentMandateConnection",
       "SupportingDocumentCollectionConnection",
@@ -28,6 +30,8 @@
       "ConsentEdge",
       "DigitalCardEdge",
       "FundingLimitSettingsChangeRequestEdge",
+      "MerchantPaymentEdge",
+      "MerchantPaymentLinkEdge",
       "OnboardingEdge",
       "PaymentMandateEdge",
       "SupportingDocumentCollectionEdge",
@@ -204,6 +208,12 @@
       "IndividualUltimateBeneficialOwnerTypeHasCapital",
       "IndividualUltimateBeneficialOwnerTypeLegalRepresentative",
       "IndividualUltimateBeneficialOwnerTypeOther"
+    ],
+    "MerchantPaymentStatusInfo": [
+      "MerchantPaymentAuthorized",
+      "MerchantPaymentCaptured",
+      "MerchantPaymentInitiated",
+      "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [
       "OnboardingCompanyAccountHolderInfo",

@@ -2534,6 +2534,16 @@ type CalledByABotRejection implements Rejection {
   message: String!
 }
 
+input CancelCapitalDepositCaseInput {
+  id: ID!
+}
+
+union CancelCapitalDepositCasePayload = CancelCapitalDepositCaseSuccessPayload | ForbiddenRejection | InternalErrorRejection | CapitalDepositCaseCanNotBeFoundRejection | CapitalDepositCaseCanNotBeCanceledRejection
+
+type CancelCapitalDepositCaseSuccessPayload {
+  capitalDepositCase: CapitalDepositCase
+}
+
 """Inputs to cancel a card"""
 input CancelCardInput {
   """Unique identifier of a card"""
@@ -2742,6 +2752,20 @@ type CapitalDepositCase {
 
   """Updated date"""
   updatedAt: DateTime!
+}
+
+"""
+Rejection returned if the capital deposit case cannot be canceled in its current state
+"""
+type CapitalDepositCaseCanNotBeCanceledRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned if the capital deposit case cannot be found"""
+type CapitalDepositCaseCanNotBeFoundRejection implements Rejection {
+  id: String!
+  message: String!
 }
 
 """
@@ -3262,6 +3286,8 @@ enum CardDesignStatus {
   ToReview
 }
 
+union CardDetails = CardInDetails | CardOutDetails
+
 """Implements the Relay Edge interface"""
 type CardEdge implements Edge {
   """Opaque identifier pointing to this node in the pagination mechanism"""
@@ -3309,6 +3335,18 @@ input CardFiltersInput {
   """
   accountId: String
 }
+
+type CardInDetails {
+  """payment mandate id used for this transaction"""
+  paymentMandateId: String!
+}
+
+type CardInMerchant {
+  """MerchantProfile"""
+  merchantProfile: MerchantProfile!
+}
+
+union CardMerchant = CardInMerchant | CardOutMerchant
 
 """COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
@@ -3360,6 +3398,43 @@ enum CardOrderByFieldInput {
 input CardOrderByInput {
   field: CardOrderByFieldInput
   direction: OrderByDirection
+}
+
+type CardOutDetails {
+  """card used for this transaction"""
+  card: Card!
+
+  """card numbers masked (Primary Account Number)"""
+  maskedPan: String!
+}
+
+type CardOutMerchant {
+  """unique identifier of the merchant"""
+  merchantId: String!
+
+  """merchant name"""
+  merchantName: String!
+
+  """merchant city"""
+  merchantCity: String!
+
+  """merchant country"""
+  merchantCountry: CCA3
+
+  """merchant postal code"""
+  merchantPostalCode: String
+
+  """merchant category code (MCC)"""
+  merchantCategoryCode: String!
+
+  """
+  merchant category description
+  Enum that explains what the MCC corresponds to in a more readable way
+  """
+  merchantCategoryDescription: MerchantCategoryDescription!
+
+  """category of the payment flow"""
+  category: Category!
 }
 
 input CardPaymentMethodInput {
@@ -3657,16 +3732,16 @@ type CardTransaction implements Transaction {
   paymentProduct: PaymentProduct!
 
   """card numbers masked (Primary Account Number)"""
-  maskedPan: String!
+  maskedPan: String @deprecated(reason: "Use cardDetails.maskedPan instead")
 
   """unique identifier of the card"""
-  cardId: String!
+  cardId: String @deprecated(reason: "Use cardDetails.card.id instead")
 
   """card used for this transaction"""
-  card: Card!
+  card: Card @deprecated(reason: "Use cardDetails.card instead")
 
   """unique identifier of the terminal"""
-  terminalId: String!
+  terminalId: String
 
   """original amount and currency of the transaction"""
   originalAmount: Amount!
@@ -3674,32 +3749,38 @@ type CardTransaction implements Transaction {
   """currency exchange if any"""
   currencyExchange: [ReportExchangeRate!]!
 
+  """merchant associated"""
+  merchant: CardMerchant
+
+  """cardDetails associated"""
+  cardDetails: CardDetails
+
   """unique identifier of the merchant"""
-  merchantId: String!
+  merchantId: String @deprecated(reason: "Use merchant.merchantId instead")
 
   """merchant name"""
-  merchantName: String!
+  merchantName: String @deprecated(reason: "Use merchant.merchantName instead")
 
   """merchant city"""
-  merchantCity: String!
+  merchantCity: String @deprecated(reason: "Use merchant.merchantCity instead")
 
   """merchant country"""
-  merchantCountry: CCA3
+  merchantCountry: CCA3 @deprecated(reason: "Use merchant.merchantCountry instead")
 
   """merchant postal code"""
-  merchantPostalCode: String
+  merchantPostalCode: String @deprecated(reason: "Use merchant.merchantPostalCode instead")
 
   """merchant category code (MCC)"""
-  merchantCategoryCode: String!
+  merchantCategoryCode: String @deprecated(reason: "Use merchant.merchantCategoryCode instead")
 
   """
   merchant category description
   Enum that explains what the MCC corresponds to in a more readable way
   """
-  merchantCategoryDescription: MerchantCategoryDescription!
+  merchantCategoryDescription: MerchantCategoryDescription @deprecated(reason: "Use merchant.merchantCategoryDescription instead")
 
   """category of the payment flow"""
-  category: Category!
+  category: Category @deprecated(reason: "Use merchant.category instead")
 
   """
   type of the authorization.
@@ -4285,6 +4366,15 @@ type Consent {
 
   """unique hash of the consent"""
   challenge: String
+
+  """date when the consent is accepted"""
+  acceptedAt: DateTime
+
+  """date when the consent is refused"""
+  refusedAt: DateTime
+
+  """date when the consent is canceled"""
+  canceledAt: DateTime
 }
 
 """
@@ -4739,6 +4829,24 @@ Rejection returned when the Debtor does not belong to the same project as the cr
 """
 type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
+}
+
+"""Input for the `deleteExportFile` mutation."""
+input DeleteExportFileInput {
+  """
+  The `exportId` generated by a previous call to any export mutation.
+  
+  NB: The export needs to be completed for the file to be deleted.
+  """
+  exportId: String!
+}
+
+union DeleteExportFilePayload = DeleteExportFileSuccessPayload | UnknownExportRejection | StillExportingRejection
+
+"""Payload of the `deleteExportFile` mutation in case of success."""
+type DeleteExportFileSuccessPayload {
+  """The exportId of the deleted file."""
+  exportId: String!
 }
 
 input DeleteSupportingDocumentInput {
@@ -5325,6 +5433,163 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   expiredAt: DateTime!
 }
 
+"""
+An export is the process of exporting a collection of entities from a project
+"""
+type Export {
+  """Unique identifier of an export"""
+  id: ID!
+
+  """Type of data exported"""
+  type: ExportType!
+
+  """Status information of an export"""
+  statusInfo: ExportStatusInfo!
+
+  """Created date"""
+  createdAt: DateTime!
+}
+
+"""Export Completed Status Information"""
+type ExportCompletedStatusInfo implements ExportStatusInfo {
+  """Status of the export."""
+  status: ExportStatus!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of elements ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type ExportConnection implements Connection {
+  """Total number of elements in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """ExportEdge list"""
+  edges: [ExportEdge!]!
+}
+
+union ExportDataPayload = ExportDataSuccessPayload | MaximumSimultaneousExportsRejection | MaximumDailyExportsReachedRejection
+
+"""Payload of any export mutation in case of success."""
+type ExportDataSuccessPayload {
+  """
+  The unique identifier of the data export process running on our end.
+  
+  Used to generate a temporary download link when the process is completed.
+  """
+  exportId: String!
+}
+
+"""Implements the Relay Edge interface"""
+type ExportEdge implements Edge {
+  """
+  Opaque identifier pointing to this export node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The export"""
+  node: Export!
+}
+
+"""Export Expired Status Information"""
+type ExportExpiredStatusInfo implements ExportStatusInfo {
+  """Status of the export."""
+  status: ExportStatus!
+}
+
+"""Export Failed Status Information"""
+type ExportFailedStatusInfo implements ExportStatusInfo {
+  """Status of the export."""
+  status: ExportStatus!
+}
+
+input ExportFilterInput {
+  """
+  Filter to only retrieve exports of these types
+  Defaults to all types indiscriminately
+  """
+  exportTypes: [ExportType!]
+
+  """
+  Lower bound to retrieve exports created after this moment
+  Defaults to no bound
+  """
+  isAfterCreatedAt: DateTime
+
+  """
+  Upper bound to retrieve exports created before this moment
+  Defaults to no bound
+  """
+  isBeforeCreatedAt: DateTime
+
+  """
+  Filter to only retrieve exports with these statuses
+  Defaults to ally statuses indiscriminately
+  """
+  statuses: [ExportStatus!]
+}
+
+"""Input filters for the `exportOnboardingData` mutation."""
+input ExportOnboardingDataFilters {
+  """can be a partial email """
+  email: String
+
+  """Possible values for onboarding status."""
+  status: [OnboardingStatus!]
+
+  """Possible account holder type."""
+  types: [AccountHolderType!]
+}
+
+"""Input for the `exportOnboardingData` mutation."""
+input ExportOnboardingDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
+
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  filters: ExportOnboardingDataFilters
+}
+
+"""Export Running Status Information"""
+type ExportRunningStatusInfo implements ExportStatusInfo {
+  """Status of the export."""
+  status: ExportStatus!
+}
+
+"""The status of any given export"""
+enum ExportStatus {
+  Running
+  Failed
+  Completed
+  Expired
+}
+
+"""Export Status Information"""
+interface ExportStatusInfo {
+  """Status of the export."""
+  status: ExportStatus!
+}
+
+"""The type of data exported for any given export"""
+enum ExportType {
+  Users
+  Onboardings
+}
+
+"""Input for the `exportUserData` mutation."""
+input ExportUserDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
+}
+
 type ExternalAccount {
   """Unique identifier of an external account"""
   id: ID!
@@ -5532,6 +5797,12 @@ type FacePhotoDocument {
 
   """The type of the document"""
   type: DocumentType!
+}
+
+type FailedThreeDs {
+  status: ThreeDsStatus!
+  reason: String!
+  code: String!
 }
 
 """Fee creditor"""
@@ -6244,6 +6515,30 @@ union GenerateCapitalDepositDocumentUploadUrlPayload = GenerateCapitalDepositDoc
 type GenerateCapitalDepositDocumentUploadUrlSuccessPayload {
   """URL to be used to upload the document."""
   uploadUrl: String
+}
+
+"""Input for the `generateExportDownloadLink` mutation."""
+input GenerateExportDownloadLinkInput {
+  """
+  The `exportId` generated by a previous call to any export mutation.
+  
+  NB: The export needs to be completed for the link to be generated.
+  """
+  exportId: String!
+}
+
+union GenerateExportDownloadLinkPayload = GenerateExportDownloadLinkSuccessPayload | UnknownExportRejection | StillExportingRejection
+
+"""
+Payload of the `generateExportDownloadLink` mutation in case of success.
+"""
+type GenerateExportDownloadLinkSuccessPayload {
+  """
+  A temporary link to download the related export file.
+  
+  NB: This link lasts a few minutes only.
+  """
+  link: String!
 }
 
 input GenerateSupportingDocumentUploadUrlInput {
@@ -8654,6 +8949,20 @@ enum MandateLanguage {
   fi
 }
 
+"""
+Rejection returned when the project has already reached the maximum daily exports
+"""
+type MaximumDailyExportsReachedRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when the project has already started exports of the same type
+"""
+type MaximumSimultaneousExportsRejection implements Rejection {
+  message: String!
+}
+
 input MembershipInfoInput {
   """Email address"""
   email: String!
@@ -8727,6 +9036,17 @@ input MembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+}
+
+type MerchantBalance {
+  availableToCancel: AmountValue!
+  availableToCapture: AmountValue!
+  availableToRefund: AmountValue!
+  totalAuthorized: AmountValue!
+  totalCanceled: AmountValue!
+  totalCaptured: AmountValue!
+  totalDisputed: AmountValue!
+  totalRefunded: AmountValue!
 }
 
 """Rejection returned when the Merchant Card Payment is declined"""
@@ -9054,6 +9374,86 @@ enum MerchantCategoryDescription {
   WomenReadyToWearStores
 }
 
+type MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+  amount: Amount!
+  paymentMandateId: ID!
+  paymentLinkId: ID
+  merchantProfileId: ID!
+  paymentMethodId: ID!
+  balance: MerchantBalance!
+  label: String
+  reference: String
+  externalReference: String
+  billingAddress: Address
+  threeDS: ThreeDS
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Merchant Payment status authorized"""
+type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+"""Merchant Payment status captured"""
+type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+type MerchantPaymentConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentEdge implements Edge {
+  node: MerchantPayment!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentStatus!]
+
+  """To filter on some Merchant Payment Method Type (all if empty)"""
+  paymentMethod: [MerchantPaymentMethodType!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+  amountSmallerThan: AmountValue
+  amountGreaterThan: AmountValue
+}
+
+"""Merchant Payment status initiated"""
+type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
 type MerchantPaymentLink {
   """Merchant payment link's unique ID."""
   id: String!
@@ -9070,7 +9470,7 @@ type MerchantPaymentLink {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfile: MerchantProfile!
 
-  """Amount to be paid to sucessfully complete the payment."""
+  """Amount to be paid to successfully complete the payment."""
   amount: Amount!
 
   """
@@ -9141,6 +9541,61 @@ type MerchantPaymentLink {
   paymentMethods: [MerchantPaymentMethod!]!
 }
 
+type MerchantPaymentLinkConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentLinkEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentLinkEdge implements Edge {
+  node: MerchantPaymentLink!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentLinkFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentLinkStatus!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+
+  """
+  To filter payment links having an amount smaller than the given criteria
+  """
+  amountSmallerThan: AmountValue
+
+  """
+  To filter payment links having an amount greater than the given criteria
+  """
+  amountGreaterThan: AmountValue
+}
+
+enum MerchantPaymentLinkOrderByFieldInput {
+  createdAt
+  label
+  url
+  statusInfos
+  amount
+}
+
+input MerchantPaymentLinkOrderByInput {
+  field: MerchantPaymentLinkOrderByFieldInput
+  direction: OrderByDirection
+}
+
 enum MerchantPaymentLinkStatus {
   """Customers can still use the merchant payment link to pay."""
   Active
@@ -9150,9 +9605,6 @@ enum MerchantPaymentLinkStatus {
 
   """The customer completed the payment."""
   Completed
-
-  """The customer cancel the payment."""
-  Canceled
 }
 
 interface MerchantPaymentLinkStatusInfo {
@@ -9233,6 +9685,42 @@ type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
 
+enum MerchantPaymentOrderByFieldInput {
+  label
+  createdAt
+  externalReference
+  status
+  amount
+}
+
+input MerchantPaymentOrderByInput {
+  field: MerchantPaymentOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Merchant Payment status rejected"""
+type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """rejected reason"""
+  reason: String!
+}
+
+"""Merchant Payment status"""
+enum MerchantPaymentStatus {
+  Initiated
+  Authorized
+  Captured
+  Rejected
+}
+
+"""Merchant Payment Status Information"""
+interface MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
 """Merchant Profile"""
 type MerchantProfile {
   """The Merchant Profile ID"""
@@ -9286,6 +9774,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
+  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 type MerchantProfileConnection implements Connection {
@@ -9775,6 +10265,13 @@ type Mutation {
   generateAccountStatement(input: GenerateAccountStatementInput!): Statement!
 
   """
+  Cancel a capital deposit case.
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  cancelCapitalDepositCase(input: CancelCapitalDepositCaseInput!): CancelCapitalDepositCasePayload!
+
+  """
   Create a capital deposit case.
   
   This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -9787,6 +10284,26 @@ type Mutation {
   This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
   """
   generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
+
+  """Create a temporary download link for a completed export."""
+  generateExportDownloadLink(input: GenerateExportDownloadLinkInput!): GenerateExportDownloadLinkPayload
+
+  """Delete file with exported data."""
+  deleteExportFile(input: DeleteExportFileInput!): DeleteExportFilePayload
+
+  """
+  Export all onboardings of a project (`projectId` found in context).
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportOnboardingData(input: ExportOnboardingDataInput!): ExportDataPayload
+
+  """
+  Export all users of a project (`projectId` found in context).
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportUserData(input: ExportUserDataInput!): ExportDataPayload
 
   """Cancels a consent."""
   cancelConsent(input: CancelConsentInput!): CancelConsentPayload!
@@ -10152,7 +10669,9 @@ input OnboardCompanyAccountHolderInput {
   """
   redirectUrl: String
 
-  """Is company registered at RCS in its country."""
+  """
+  Is the company registered with their country's national register (for example, Registre du Commerce et des Sociétés [RCS] in France).
+  """
   isRegistered: Boolean
 
   """Extra parameters provided by partner."""
@@ -12191,6 +12710,7 @@ type Query {
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
   cardProductById(id: ID): CardProductByIdResultPayload
+  exports(after: String, before: String, filters: ExportFilterInput, first: Int! = 50): ExportConnection!
 
   """Returns the project infos you set in the dashboard."""
   projectInfo: ProjectInfo!
@@ -12607,8 +13127,98 @@ type RejectedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
 
 """The following reason code for a rejected transaction are defined:"""
 enum RejectedReasonCode {
-  """Rejected because the account is closed"""
+  """The account linked to this card is closed."""
   AccountClosed
+
+  """The card isn't activated."""
+  CardNotActivated
+
+  """The card is expired."""
+  CardExpired
+
+  """The card is permanently blocked."""
+  CardPermanentlyBlocked
+
+  """The card is suspended."""
+  CardSuspended
+
+  """The card is temporarily or permanently blocked, or it's expired."""
+  CardOutOfOrder
+
+  """The card is unknown."""
+  CardUnknown
+
+  """The card holder canceled the transaction."""
+  CanceledByCardHolder
+
+  """The digital card is deactivated."""
+  DigitalCardDeactivated
+
+  """There was a problem when enrolling the digital card."""
+  DigitalCardEnrollmentInvalid
+
+  """The digital card issuer rejected the transaction."""
+  DigitalCardRefusal
+
+  """The digital card is suspended."""
+  DigitalCardSuspended
+
+  """The digital card either is inactive, is expired, or doesn't exist."""
+  DigitalCardTokenInvalid
+
+  """This request can't be honored. Contact Support with any questions."""
+  DoNotHonor
+
+  """
+  The expiration date provided doesn't match the expiration date on the card.
+  """
+  InvalidExpirationDate
+
+  """The card holder entered the incorrect PIN too many times."""
+  InvalidPinAttemptsExceeded
+
+  """This card can't be used for in-person transactions."""
+  InPersonTransactionsNotAuthorized
+
+  """Paying with the card's magstripe isn't supported by this merchant."""
+  MagstripeNotSupported
+
+  """The merchant couldn't be found or doesn't exist."""
+  MerchantNotFound
+
+  """The merchant didn't use 3-D Secure (3DS)."""
+  MerchantShouldResubmitAuthorization
+
+  """The PIN entered by the card holder is incorrect."""
+  PinInvalid
+
+  """The card holder didn't enter their PIN."""
+  PinRequired
+
+  """
+  The card holder must enter their PIN while completing a transaction to reactivate their card.
+  """
+  PinRequiredForFurtherTransaction
+
+  """
+  The maximum number of transactions allowed during the given period is exceeded.
+  """
+  PeriodTransactionNumberLimitExceeded
+
+  """A technical error occurred."""
+  SwanTechnicalErrorOccurred
+
+  """The maximum spending limit for the given period is exceeded."""
+  TransactionAmountLimitExceeded
+
+  """The account doesn't allowed this transaction type."""
+  TransactionTypeNotAllowed
+
+  """There was an error with 3-D Secure (3DS)."""
+  ThreeDsError
+
+  """The transaction isn't in a supported currency."""
+  TransactionCurrencyIncorrect
 
   """Rejected because the account holder is deceased"""
   AccountHolderDeceased
@@ -12635,15 +13245,6 @@ enum RejectedReasonCode {
 
   """Rejected because the beneficiary is missing or incorrect"""
   BeneficiaryMissingOrIncorrect
-
-  """Rejected because the card is expired"""
-  CardExpired
-
-  """Rejected because the card has been permanently blocked"""
-  CardPermanentlyBlocked
-
-  """Rejected because the card is suspended"""
-  CardSuspended
 
   """
   Rejected because the check was received more than 30 days after it was declared to Swan
@@ -12762,19 +13363,11 @@ enum RejectedReasonCode {
   """Rejected by Swan"""
   SwanRefused
 
-  """Rejected because of a Swan technical error"""
-  SwanTechnicalErrorOccurred
-
   """Rejected because of a Swan timeout"""
   SwanTimeout
 
   """Rejected because the terms and conditions limit has been exceeded"""
-  TermsAndConditionsLimitExceeded
-
-  """
-  Rejected because the maximum amount for a transaction has been exceeded
-  """
-  TransactionAmountLimitExceeded
+  TermsAndConditionsLimitExceeded @deprecated
 
   """Rejected by bank because this transaction is duplicated"""
   TransactionDuplicated
@@ -12782,135 +13375,56 @@ enum RejectedReasonCode {
   """Rejected because the transaction is forbidden on this type of account"""
   TransactionOnAccountTypeNotAllowed
 
-  """Rejected because the type of transaction is forbidden on the account"""
-  TransactionTypeNotAllowed
-
   """Rejected because the PIN is invalid"""
-  InvalidPin
-
-  """
-  Rejected because there were too many invalid tries on the PIN validation
-  """
-  InvalidPinAttemptsExceeded
-
-  """
-  Rejected because the merchant must request a new transaction with authorisation
-  """
-  MerchantShouldResubmitAuthorization
-
-  """
-  Rejected because the expiration date entered does not match the one on the card
-  """
-  InvalidExpirationDate
-
-  """
-  Rejected because the security number entered does not match the one on the card
-  """
-  InvalidSecurityNumber
+  InvalidPin @deprecated
 
   """
   Rejected because the Swipe method is not supported, a retry using the Chip and PIN method is necessary
   """
-  RetryWithChipAndPin
+  RetryWithChipAndPin @deprecated
 
   """Rejected because the given amount is invalid"""
-  InvalidAmount
+  InvalidAmount @deprecated
 
   """Rejected because the card holder asked for the cancellation"""
-  CardholderCancellation
-
-  """
-  Rejected because the maximum number of transactions on the given period has been exceeded
-  """
-  PeriodTransactionNumberLimitExceeded
+  CardholderCancellation @deprecated
 
   """Rejected because the given card number is invalid"""
-  CardNumberInvalid
+  CardNumberInvalid @deprecated
 
   """
   Rejected because of a problem encountered during the enrolment request (for example, a token error)
   """
-  DigitalWalletEnrolmentInvalid
+  DigitalWalletEnrolmentInvalid @deprecated
 
   """
   Rejected because the digital wallet's does not exist, is not active or has an expired date
   """
-  DigitalWalletTokenInvalid
+  DigitalWalletTokenInvalid @deprecated
 
   """Rejected because the digital wallet's issuer refused the transaction"""
-  DigitalWalletRefusal
-
-  """Rejected because there was an issue with 3DS"""
-  ThreeDsError
+  DigitalWalletRefusal @deprecated
 
   """
   Rejected because purchase made by chip but without any Pin code entered
   """
-  MissingPin
+  MissingPin @deprecated
 
   """
   Rejected because the expiration date is not available in the transaction
   """
-  MissingExpirationDate
+  MissingExpirationDate @deprecated
 
   """Rejected because the digital wallet's token is deactivated"""
-  DigitalWalletDeactivated
+  DigitalWalletDeactivated @deprecated
 
   """Rejected because the digital wallet's token is suspended"""
-  DigitalWalletSuspended
-
-  """The card holder canceled the transaction."""
-  CanceledByCardHolder
-
-  """The card isn't activated."""
-  CardNotActivated
-
-  """The card is temporarily or permanently blocked, or it's expired."""
-  CardOutOfOrder
-
-  """"""
-  CardUnknown
-
-  """The digital card is deactivated."""
-  DigitalCardDeactivated
-
-  """There was a problem when enrolling the digital card."""
-  DigitalCardEnrollmentInvalid
-
-  """The digital card issuer rejected the transaction."""
-  DigitalCardRefusal
-
-  """The digital card is suspended."""
-  DigitalCardSuspended
-
-  """The digital card either is inactive, is expired, or doesn't exist."""
-  DigitalCardTokenInvalid
-
-  """This request can't be honored. Contact Support with any questions."""
-  DoNotHonor
-
-  """This card can't be used for in-person transactions."""
-  InPersonTransactionsNotAuthorized
-
-  """Paying with the card's magstripe isn't supported by this merchant."""
-  MagstripeNotSupported
-
-  """The merchant couldn't be found or doesn't exist."""
-  MerchantNotFound
-
-  """The PIN entered by the card holder is incorrect."""
-  PinInvalid
-
-  """The card holder didn't enter their PIN."""
-  PinRequired
+  DigitalWalletSuspended @deprecated
 
   """
-  The card holder must enter their PIN while completing a transaction to reactivate their card.
+  Rejected because the security number entered does not match the one on the card
   """
-  PinRequiredForFurtherTransaction
-
-  """The transaction isn't in a supported currency."""
-  TransactionCurrencyIncorrect
+  InvalidSecurityNumber @deprecated
 }
 
 """Rejected transaction status information"""
@@ -14863,6 +15377,15 @@ enum StatusText {
   Failure
 }
 
+"""Rejection returned when the corresponding export is still ongoing"""
+type StillExportingRejection implements Rejection {
+  message: String!
+}
+
+type SuccessfulThreeDs {
+  status: ThreeDsStatus!
+}
+
 """Supporting document used for compliance"""
 type SupportingDocument {
   """Unique identifier of the document"""
@@ -15642,6 +16165,20 @@ type TextField implements Field {
   refreshDynamicFieldsOnChange: Boolean!
   required: Boolean!
   validationRegex: String
+}
+
+type ThreeDS {
+  requested: Boolean!
+  statusInfo: ThreeDsStatusInfo!
+}
+
+enum ThreeDsStatus {
+  Successful
+  Failed
+}
+
+interface ThreeDsStatusInfo {
+  status: ThreeDsStatus!
 }
 
 """Individual ultimate beneficial owner title (Mr/Ms)"""
@@ -16747,6 +17284,11 @@ enum UltimateBeneficialOwnerType {
   IndirectCompany
 }
 
+"""Rejection returned when the provided `exportId` is not found"""
+type UnknownExportRejection implements Rejection {
+  message: String!
+}
+
 type UnsavedInternationalBeneficiary {
   """Currency of the international beneficiary"""
   currency: Currency!
@@ -16976,7 +17518,9 @@ input UpdateCompanyOnboardingInput {
   """
   language: String
 
-  """Is company registered at RCS in its country."""
+  """
+  Is the company registered with their country's national register (for example, Registre du Commerce et des Sociétés [RCS] in France).
+  """
   isRegistered: Boolean
 
   """ID of the onboarding to update."""

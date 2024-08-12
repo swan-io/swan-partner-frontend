@@ -22,6 +22,8 @@
       "BlacklistedPhoneNumberRejection",
       "CalledByABotRejection",
       "CannotActivatePhysicalCardRejection",
+      "CapitalDepositCaseCanNotBeCanceledRejection",
+      "CapitalDepositCaseCanNotBeFoundRejection",
       "CapitalDepositDocumentCanNotBeUploaded",
       "CapitalDepositDocumentCanNotBeUploadedRejection",
       "CardCanNotBeDigitalizedRejection",
@@ -66,6 +68,8 @@
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
+      "MaximumDailyExportsReachedRejection",
+      "MaximumSimultaneousExportsRejection",
       "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodSepaDirectDebitInvalidRejection",
@@ -115,6 +119,7 @@
       "ServerConsentSignatureNotValidRejection",
       "SmsProviderRejection",
       "StandingOrderNotFoundRejection",
+      "StillExportingRejection",
       "SupportingDocumentCollectionNotFoundRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection",
@@ -131,6 +136,7 @@
       "TooManyChildConsentsRejection",
       "TooManyItemsRejection",
       "TransactionNotFoundRejection",
+      "UnknownExportRejection",
       "UpdateUserConsentSettingsTokenRejection",
       "UserBlockedRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
@@ -158,12 +164,15 @@
       "CardConnection",
       "ConsentConnection",
       "DigitalCardConnection",
+      "ExportConnection",
       "ExternalAccountConnection",
       "ExternalBalanceConnection",
       "FundingLimitSettingsChangeRequestConnection",
       "FundingSourceConnection",
       "InvoiceConnection",
       "LegalDocumentConnection",
+      "MerchantPaymentConnection",
+      "MerchantPaymentLinkConnection",
       "MerchantProfileConnection",
       "OnboardingConnection",
       "PaymentConnection",
@@ -187,6 +196,7 @@
       "CardEdge",
       "ConsentEdge",
       "DigitalCardEdge",
+      "ExportEdge",
       "ExternalAccountEdge",
       "ExternalBalanceEdge",
       "FundingLimitSettingsChangeRequestEdge",
@@ -194,6 +204,8 @@
       "IdentificationEdge",
       "InvoiceEdge",
       "LegalDocumentEdge",
+      "MerchantPaymentEdge",
+      "MerchantPaymentLinkEdge",
       "MerchantProfileEdge",
       "OnboardingEdge",
       "PaymentEdge",
@@ -345,6 +357,12 @@
       "ReportDocumentFile",
       "ResidencePermitDocumentFile"
     ],
+    "ExportStatusInfo": [
+      "ExportCompletedStatusInfo",
+      "ExportExpiredStatusInfo",
+      "ExportFailedStatusInfo",
+      "ExportRunningStatusInfo"
+    ],
     "FeeCreditor": [
       "FeeInCreditor",
       "FeeOutCreditor"
@@ -400,6 +418,12 @@
       "LegalDocumentActiveStatusInfo",
       "LegalDocumentInactiveStatusInfo",
       "LegalDocumentUpcomingStatusInfo"
+    ],
+    "MerchantPaymentStatusInfo": [
+      "MerchantPaymentAuthorized",
+      "MerchantPaymentCaptured",
+      "MerchantPaymentInitiated",
+      "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [
       "OnboardingCompanyAccountHolderInfo",

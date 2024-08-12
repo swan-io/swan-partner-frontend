@@ -49,6 +49,12 @@ const styles = StyleSheet.create({
     flexGrow: 0,
     flexShrink: 1,
   },
+  mobileCell: {
+    paddingHorizontal: spacings[16],
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap",
+  },
 });
 
 type Props = {
@@ -137,7 +143,61 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
   },
 ];
 
-const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [];
+const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
+  {
+    id: "name",
+    width: "grow",
+    title: t("merchantProfile.list.name"),
+    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderCell: ({ item }) => (
+      <LakeText variant="medium" color={colors.gray[900]} style={styles.mobileCell}>
+        {item.merchantName}
+      </LakeText>
+    ),
+  },
+  {
+    id: "status",
+    width: 200,
+    title: "",
+    renderTitle: () => null,
+    renderCell: ({ item }) => (
+      <EndAlignedCell>
+        {match(item.statusInfo.status)
+          .with("Disabled", () => <Tag color="gray">{t("merchantProfile.status.disabled")}</Tag>)
+          .with("Enabled", () => <Tag color="positive">{t("merchantProfile.status.enabled")}</Tag>)
+          .with("PendingReview", () => (
+            <Tag color="shakespear">{t("merchantProfile.status.pendingReview")}</Tag>
+          ))
+          .with("Rejected", () => (
+            <Tag color="negative">{t("merchantProfile.status.rejected")}</Tag>
+          ))
+          .with("Suspended", () => (
+            <Tag color="warning">{t("merchantProfile.status.suspended")}</Tag>
+          ))
+          .otherwise(() => null)}
+      </EndAlignedCell>
+    ),
+  },
+  {
+    id: "actions",
+    width: 42,
+    title: "",
+    renderTitle: () => null,
+    renderCell: ({ isHovered }) => (
+      <EndAlignedCell>
+        <CellAction>
+          <Box direction="row" justifyContent="end" alignItems="center">
+            <Icon
+              name="chevron-right-filled"
+              color={isHovered ? colors.gray[900] : colors.gray[500]}
+              size={16}
+            />
+          </Box>
+        </CellAction>
+      </EndAlignedCell>
+    ),
+  },
+];
 
 export const MerchantList = ({ accountId, accountMembershipId, params }: Props) => {
   const filters: MerchantProfileFiltersInput = useMemo(() => {

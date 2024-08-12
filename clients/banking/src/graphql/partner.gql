@@ -59,9 +59,30 @@ fragment TransactionDetails on Transaction {
   executionDate
   updatedAt
   ... on CardTransaction {
-    maskedPan
-    merchantCity
-    merchantCountry
+    cardDetails @include(if: $canQueryCardOnTransaction) {
+      ... on CardOutDetails {
+        maskedPan
+        card {
+          id
+          name
+          accountMembership {
+            id
+            user {
+              id
+              firstName
+              lastName
+            }
+          }
+        }
+      }
+    }
+    merchant {
+      ... on CardOutMerchant {
+        merchantId
+        merchantCity
+        merchantCountry
+      }
+    }
     originalAmount {
       currency
       value
@@ -81,17 +102,7 @@ fragment TransactionDetails on Transaction {
       postalCode
       country
     }
-    card @include(if: $canQueryCardOnTransaction) {
-      id
-      accountMembership {
-        id
-        user {
-          id
-          firstName
-          lastName
-        }
-      }
-    }
+
     currencyExchange {
       __typename
       exchangeRate
@@ -656,31 +667,6 @@ mutation UpdateAccount(
   }
 }
 
-query AccountsListPage($first: Int!, $after: String) {
-  accounts(first: $first, after: $after) {
-    pageInfo {
-      endCursor
-      hasNextPage
-    }
-    edges {
-      node {
-        id
-        number
-        name
-        balances {
-          ...AccountBalances
-        }
-        holder {
-          id
-          info {
-            name
-          }
-        }
-      }
-    }
-  }
-}
-
 query AccountStatementsPage(
   $accountId: ID!
   $first: Int!
@@ -1093,105 +1079,6 @@ query CardTransactionsPage(
   }
 }
 
-query CardSettingsPage($cardId: ID!) {
-  card(cardId: $cardId) {
-    id
-    cardMaskedNumber
-    physicalCard {
-      identifier
-    }
-    statusInfo {
-      status
-    }
-    accountMembership {
-      id
-      account {
-        id
-        number
-        holder {
-          id
-          info {
-            name
-          }
-        }
-      }
-      user {
-        id
-        firstName
-        lastName
-      }
-    }
-    spendingLimits {
-      amount {
-        currency
-        value
-      }
-      period
-      type
-    }
-    mainCurrency
-    eCommerce
-    withdrawal
-    nonMainCurrencyTransactions
-    international
-  }
-}
-
-query OrderPhysicalCardPage($cardId: ID!) {
-  card(cardId: $cardId) {
-    id
-    accountMembership {
-      id
-      account {
-        id
-        number
-        holder {
-          id
-          info {
-            name
-            type
-          }
-          residencyAddress {
-            addressLine1
-            addressLine2
-            city
-            postalCode
-            state
-            country
-          }
-        }
-      }
-      statusInfo {
-        __typename
-        status
-        ... on AccountMembershipInvitationSentStatusInfo {
-          restrictedTo {
-            firstName
-            lastName
-          }
-        }
-        ... on AccountMembershipBindingUserErrorStatusInfo {
-          restrictedTo {
-            firstName
-            lastName
-          }
-        }
-        ... on AccountMembershipConsentPendingStatusInfo {
-          restrictedTo {
-            firstName
-            lastName
-          }
-        }
-      }
-      user {
-        id
-        firstName
-        lastName
-      }
-    }
-  }
-}
-
 mutation PrintPhysicalCard($input: PrintPhysicalCardInput!) {
   printPhysicalCard(input: $input) {
     __typename
@@ -1215,117 +1102,6 @@ query ConsentCallbackPage($consentId: ID!) {
   consent(id: $consentId) {
     id
     status
-  }
-}
-
-query EditMemberPage($id: ID!) {
-  accountMembership(id: $id) {
-    id
-    email
-    legalRepresentative
-    account {
-      id
-      country
-      statusInfo {
-        status
-      }
-    }
-    statusInfo {
-      __typename
-      status
-      ... on AccountMembershipBindingUserErrorStatusInfo {
-        restrictedTo {
-          birthDate
-          firstName
-          lastName
-          phoneNumber
-        }
-        idVerifiedMatchError
-      }
-      ... on AccountMembershipInvitationSentStatusInfo {
-        restrictedTo {
-          birthDate
-          firstName
-          lastName
-          phoneNumber
-        }
-      }
-    }
-    canInitiatePayments
-    canManageAccountMembership
-    canManageBeneficiaries
-    canViewAccount
-    user {
-      id
-      birthDate
-      firstName
-      lastName
-      mobilePhoneNumber
-    }
-    cards(filters: { statuses: Enabled }) {
-      edges {
-        node {
-          id
-          statusInfo {
-            __typename
-          }
-        }
-      }
-      totalCount
-    }
-    residencyAddress {
-      addressLine1
-      addressLine2
-      city
-      postalCode
-      state
-      country
-    }
-    taxIdentificationNumber
-  }
-}
-
-query NewStandingOrderPage($accountId: ID!) {
-  account(accountId: $accountId) {
-    IBAN
-    currency
-    name
-    id
-    number
-    balances {
-      ...AccountBalances
-    }
-  }
-}
-
-query EditStandingOrderPage($id: ID!) {
-  standingOrder(standingOrderId: $id) {
-    id
-    label
-    period
-    reference
-    statusInfo {
-      status
-    }
-    sepaBeneficiary {
-      name
-    }
-    targetAvailableBalance {
-      currency
-      value
-    }
-    amount {
-      currency
-      value
-    }
-    lastExecutionDate
-    firstExecutionDate
-    nextExecutionDate
-    createdBy {
-      id
-      firstName
-      lastName
-    }
   }
 }
 
@@ -1377,47 +1153,6 @@ query StandingOrdersHistoryPage(
             }
             totalCount
           }
-        }
-      }
-    }
-  }
-}
-
-query StandingOrdersPage($accountId: ID!) {
-  account(accountId: $accountId) {
-    id
-    number
-    name
-    holder {
-      id
-      info {
-        name
-      }
-    }
-
-    standingOrders {
-      totalCount
-      edges {
-        node {
-          id
-          period
-          reference
-          label
-          sepaBeneficiary {
-            name
-          }
-          targetAvailableBalance {
-            value
-          }
-          statusInfo {
-            status
-          }
-          amount {
-            value
-          }
-          lastExecutionDate
-          nextExecutionDate
-          firstExecutionDate
         }
       }
     }
@@ -1599,38 +1334,6 @@ query MembersPage(
         node {
           ...AccountMembership
         }
-      }
-    }
-  }
-}
-
-query NewPaymentWizard($first: Int!, $after: String) {
-  user {
-    id
-    accountMemberships(first: $first, after: $after, filters: { canInitiatePayments: true }) {
-      edges {
-        node {
-          id
-          account {
-            id
-            number
-            name
-            balances {
-              ...AccountBalances
-            }
-            holder {
-              id
-              info {
-                name
-              }
-            }
-          }
-        }
-        cursor
-      }
-      pageInfo {
-        endCursor
-        hasNextPage
       }
     }
   }
@@ -2012,24 +1715,6 @@ query GetFirstAccountMembership($filters: AccountMembershipsFilterInput!) {
   projectInfo {
     id
     name
-  }
-}
-
-query GetAccount($accountId: ID!) {
-  account(accountId: $accountId) {
-    id
-    number
-    name
-    IBAN
-    balances {
-      ...AccountBalances
-    }
-    holder {
-      id
-      info {
-        name
-      }
-    }
   }
 }
 
@@ -2611,36 +2296,6 @@ mutation InitiateSepaCreditTransfers($input: InitiateCreditTransfersInput!) {
             reason
           }
           ... on PaymentConsentPending {
-            consent {
-              id
-              consentUrl
-            }
-          }
-        }
-      }
-    }
-  }
-}
-
-mutation AddCardMembership($accountMembershipId: ID!, $consentRedirectUrl: String!) {
-  addCard(
-    input: {
-      accountMembershipId: $accountMembershipId
-      withdrawal: true
-      international: true
-      nonMainCurrencyTransactions: true
-      eCommerce: true
-      consentRedirectUrl: $consentRedirectUrl
-      cardContractExpiryDate: null
-    }
-  ) {
-    __typename
-    ... on AddCardSuccessPayload {
-      card {
-        id
-        statusInfo {
-          __typename
-          ... on CardConsentPendingStatusInfo {
             consent {
               id
               consentUrl

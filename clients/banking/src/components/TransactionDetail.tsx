@@ -380,15 +380,12 @@ export const TransactionDetail = ({
               {match(transaction)
                 .with(
                   { __typename: "CardTransaction" },
-                  ({
-                    card,
-                    maskedPan,
-                    payment,
-                    enrichedTransactionInfo,
-                    statusInfo: { status },
-                  }) => {
-                    const user = card?.accountMembership.user;
-
+                  {
+                    cardDetails: {
+                      __typename: "CardOutDetails",
+                    },
+                  },
+                  ({ cardDetails, payment, enrichedTransactionInfo, statusInfo: { status } }) => {
                     return (
                       <ReadOnlyFieldList>
                         {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
@@ -399,23 +396,27 @@ export const TransactionDetail = ({
                           />
                         )}
 
-                        <DetailLine
-                          label={t("transaction.maskedPan")}
-                          text={formatMaskedPan(maskedPan)}
-                        />
+                        {cardDetails?.__typename === "CardOutDetails" && (
+                          <>
+                            <DetailLine
+                              label={t("transaction.maskedPan")}
+                              text={formatMaskedPan(cardDetails.maskedPan)}
+                            />
 
-                        {match(user)
-                          .with(
-                            { firstName: P.string, lastName: P.string },
-                            ({ firstName, lastName }) => (
-                              <DetailLine
-                                label={t("transaction.cardHolder")}
-                                text={[firstName, lastName].join(" ")}
-                                icon="person-regular"
-                              />
-                            ),
-                          )
-                          .otherwise(() => null)}
+                            {match(cardDetails.card.accountMembership.user)
+                              .with(
+                                { firstName: P.string, lastName: P.string },
+                                ({ firstName, lastName }) => (
+                                  <DetailLine
+                                    label={t("transaction.cardHolder")}
+                                    text={[firstName, lastName].join(" ")}
+                                    icon="person-regular"
+                                  />
+                                ),
+                              )
+                              .otherwise(() => null)}
+                          </>
+                        )}
 
                         <DetailLine
                           label={t("transaction.paymentMethod")}

@@ -13,6 +13,8 @@
       "ConsentConnection",
       "FundingLimitSettingsChangeRequestConnection",
       "InvoiceConnection",
+      "MerchantPaymentConnection",
+      "MerchantPaymentLinkConnection",
       "OnboardingConnection",
       "PaymentMandateConnection",
       "ReceivedDirectDebitMandateConnection",
@@ -29,6 +31,8 @@
       "FundingLimitSettingsChangeRequestEdge",
       "IdentificationEdge",
       "InvoiceEdge",
+      "MerchantPaymentEdge",
+      "MerchantPaymentLinkEdge",
       "OnboardingEdge",
       "PaymentMandateEdge",
       "ReceivedDirectDebitMandateEdge",
@@ -234,6 +238,12 @@
     "ReceivedDirectDebitMandate": [
       "InternalReceivedDirectDebitMandate",
       "SEPAReceivedDirectDebitMandate"
+    ],
+    "MerchantPaymentStatusInfo": [
+      "MerchantPaymentAuthorized",
+      "MerchantPaymentCaptured",
+      "MerchantPaymentInitiated",
+      "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [
       "OnboardingCompanyAccountHolderInfo",

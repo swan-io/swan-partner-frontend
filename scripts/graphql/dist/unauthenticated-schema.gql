@@ -2197,6 +2197,15 @@ type Consent {
 
   """unique hash of the consent"""
   challenge: String
+
+  """date when the consent is accepted"""
+  acceptedAt: DateTime
+
+  """date when the consent is refused"""
+  refusedAt: DateTime
+
+  """date when the consent is canceled"""
+  canceledAt: DateTime
 }
 
 """
@@ -2663,6 +2672,12 @@ type ExternalAccountAlreadyExistsRejection implements Rejection {
   iban: String!
   accountHolderId: String!
   message: String!
+}
+
+type FailedThreeDs {
+  status: ThreeDsStatus!
+  reason: String!
+  code: String!
 }
 
 enum FieldValidationError {
@@ -3249,9 +3264,100 @@ input MembershipsFilterInput {
   search: String
 }
 
+type MerchantBalance {
+  availableToCancel: AmountValue!
+  availableToCapture: AmountValue!
+  availableToRefund: AmountValue!
+  totalAuthorized: AmountValue!
+  totalCanceled: AmountValue!
+  totalCaptured: AmountValue!
+  totalDisputed: AmountValue!
+  totalRefunded: AmountValue!
+}
+
 """Rejection returned when the Merchant Card Payment is declined"""
 type MerchantCardPaymentDeclinedRejection implements Rejection {
   message: String!
+}
+
+type MerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+  amount: Amount!
+  paymentMandateId: ID!
+  paymentLinkId: ID
+  merchantProfileId: ID!
+  paymentMethodId: ID!
+  balance: MerchantBalance!
+  label: String
+  reference: String
+  externalReference: String
+  billingAddress: Address
+  threeDS: ThreeDS
+
+  """created date"""
+  createdAt: DateTime!
+
+  """updated date"""
+  updatedAt: DateTime!
+}
+
+"""Merchant Payment status authorized"""
+type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+"""Merchant Payment status captured"""
+type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
+type MerchantPaymentConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentEdge implements Edge {
+  node: MerchantPayment!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentStatus!]
+
+  """To filter on some Merchant Payment Method Type (all if empty)"""
+  paymentMethod: [MerchantPaymentMethodType!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+  amountSmallerThan: AmountValue
+  amountGreaterThan: AmountValue
+}
+
+"""Merchant Payment status initiated"""
+type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
 }
 
 type MerchantPaymentLink {
@@ -3270,7 +3376,7 @@ type MerchantPaymentLink {
   """The Merchant Profile to link this Payment Link to"""
   merchantProfile: MerchantProfile!
 
-  """Amount to be paid to sucessfully complete the payment."""
+  """Amount to be paid to successfully complete the payment."""
   amount: Amount!
 
   """
@@ -3341,6 +3447,61 @@ type MerchantPaymentLink {
   paymentMethods: [MerchantPaymentMethod!]!
 }
 
+type MerchantPaymentLinkConnection implements Connection {
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """Edge list"""
+  edges: [MerchantPaymentLinkEdge!]!
+
+  """Total number of element in the list"""
+  totalCount: Int!
+}
+
+type MerchantPaymentLinkEdge implements Edge {
+  node: MerchantPaymentLink!
+
+  """Opaque identifier pointing to this node in the pagination mechanism"""
+  cursor: String!
+}
+
+input MerchantPaymentLinkFiltersInput {
+  """To filter on some Merchant Payment Link Status (all if empty)"""
+  status: [MerchantPaymentLinkStatus!]
+
+  """To filter after a createdAt value"""
+  isAfterCreatedAt: DateTime
+
+  """To filter before a createdAt value"""
+  isBeforeCreatedAt: DateTime
+
+  """To filter on some text occurrences (words or ids)"""
+  search: String
+
+  """
+  To filter payment links having an amount smaller than the given criteria
+  """
+  amountSmallerThan: AmountValue
+
+  """
+  To filter payment links having an amount greater than the given criteria
+  """
+  amountGreaterThan: AmountValue
+}
+
+enum MerchantPaymentLinkOrderByFieldInput {
+  createdAt
+  label
+  url
+  statusInfos
+  amount
+}
+
+input MerchantPaymentLinkOrderByInput {
+  field: MerchantPaymentLinkOrderByFieldInput
+  direction: OrderByDirection
+}
+
 enum MerchantPaymentLinkStatus {
   """Customers can still use the merchant payment link to pay."""
   Active
@@ -3350,9 +3511,6 @@ enum MerchantPaymentLinkStatus {
 
   """The customer completed the payment."""
   Completed
-
-  """The customer cancel the payment."""
-  Canceled
 }
 
 interface MerchantPaymentLinkStatusInfo {
@@ -3429,6 +3587,42 @@ type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
 
+enum MerchantPaymentOrderByFieldInput {
+  label
+  createdAt
+  externalReference
+  status
+  amount
+}
+
+input MerchantPaymentOrderByInput {
+  field: MerchantPaymentOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Merchant Payment status rejected"""
+type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+
+  """rejected reason"""
+  reason: String!
+}
+
+"""Merchant Payment status"""
+enum MerchantPaymentStatus {
+  Initiated
+  Authorized
+  Captured
+  Rejected
+}
+
+"""Merchant Payment Status Information"""
+interface MerchantPaymentStatusInfo {
+  """status of the merchant payment"""
+  status: MerchantPaymentStatus!
+}
+
 """Merchant Profile"""
 type MerchantProfile {
   """The Merchant Profile ID"""
@@ -3482,6 +3676,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
+  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 type MerchantProfileNotValidRejection implements Rejection {
@@ -5164,6 +5360,10 @@ enum SpendingLimitType {
   Partner
 }
 
+type SuccessfulThreeDs {
+  status: ThreeDsStatus!
+}
+
 """Supporting document used for compliance"""
 type SupportingDocument {
   """Unique identifier of the document"""
@@ -5804,6 +6004,20 @@ type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   suspendedAt: Date!
 }
 
+type ThreeDS {
+  requested: Boolean!
+  statusInfo: ThreeDsStatusInfo!
+}
+
+enum ThreeDsStatus {
+  Successful
+  Failed
+}
+
+interface ThreeDsStatusInfo {
+  status: ThreeDsStatus!
+}
+
 """Individual ultimate beneficial owner title (Mr/Ms)"""
 enum TitleEnum {
   """Identified as a man"""
@@ -6072,7 +6286,9 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
   """
   individualUltimateBeneficialOwners: [IndividualUltimateBeneficialOwnerInput!]
 
-  """Is company registered at RCS in its country."""
+  """
+  Is the company registered with their country's national register (for example, Registre du Commerce et des Sociétés [RCS] in France).
+  """
   isRegistered: Boolean
 
   """

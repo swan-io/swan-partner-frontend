@@ -920,8 +920,10 @@ export const TransactionDetail = ({
                 .with(
                   {
                     __typename: "CardTransaction",
-                    merchantCity: P.select("merchantCity", P.string),
-                    merchantCountry: P.select("merchantCountry", P.string),
+                    merchant: {
+                      merchantCity: P.select("merchantCity", P.string),
+                      merchantCountry: P.select("merchantCountry", P.string),
+                    },
                     enrichedTransactionInfo: P.select("enrichedTransactionInfo", P.nonNullable),
                   },
                   ({ merchantCity, merchantCountry, enrichedTransactionInfo }) => {

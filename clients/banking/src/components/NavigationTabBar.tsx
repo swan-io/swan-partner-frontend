@@ -245,13 +245,7 @@ export const NavigationTabBar = ({
               })
                 .with(
                   {
-                    identificationStatusInfo: P.union(
-                      "NotStarted",
-                      "Started",
-                      "Invalid",
-                      "Canceled",
-                      "Expired",
-                    ),
+                    identificationStatusInfo: P.union("Started", "Invalid", "Canceled", "Expired"),
                   },
                   { hasNotifications: true },
                   { hasActivationTag: true },
@@ -332,13 +326,7 @@ export const NavigationTabBar = ({
                                   .with(
                                     Option.P.None,
                                     Option.P.Some({
-                                      status: P.union(
-                                        "NotStarted",
-                                        "Started",
-                                        "Invalid",
-                                        "Canceled",
-                                        "Expired",
-                                      ),
+                                      status: P.union("Started", "Invalid", "Canceled", "Expired"),
                                     }),
                                     () => (
                                       <>

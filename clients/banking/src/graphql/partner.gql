@@ -315,9 +315,6 @@ fragment IdentificationLevelFragment on IdentificationLevelStatusInfo {
     status
     expiredAt
   }
-  ... on NotStartedIdentificationLevelStatusInfo {
-    status
-  }
 }
 
 fragment Identification on Identification {

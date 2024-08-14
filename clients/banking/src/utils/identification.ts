@@ -13,8 +13,8 @@ export const getIdentificationLevelStatusInfo = (identification: IdentificationF
     )
     .with({ process: "PVID", levels: { pvid: P.select() } }, statusInfo => statusInfo)
     .otherwise(() => ({
-      __typename: "NotStartedIdentificationLevelStatusInfo",
-      status: "NotStarted",
+      __typename: "StartedIdentificationLevelStatusInfo",
+      status: "Started",
     }));
 
 export const isReadyToSign = isMatching({

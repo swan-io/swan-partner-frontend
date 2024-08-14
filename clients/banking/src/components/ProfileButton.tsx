@@ -95,13 +95,7 @@ export const ProfileButton = memo<Props>(
                         .with(
                           Option.P.None,
                           Option.P.Some({
-                            status: P.union(
-                              "NotStarted",
-                              "Started",
-                              "Invalid",
-                              "Canceled",
-                              "Expired",
-                            ),
+                            status: P.union("Started", "Invalid", "Canceled", "Expired"),
                           }),
                           () => (
                             <>

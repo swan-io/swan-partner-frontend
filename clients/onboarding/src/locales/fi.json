@@ -134,6 +134,7 @@
   "error.invalidEmail": "Virheellinen sähköpostiosoite ",
   "error.invalidField": "Kenttään syötetyt tiedot ovat väärässä muodossa",
   "error.invalidFields": "Joissain kentissä on virhe",
+  "error.invalidName": "Virheellinen nimi",
   "error.network": "Ei internet-yhteyttä",
   "error.pageNotFound": "Sivua ei löydy",
   "error.requiredField": "Vaadittu kenttä",

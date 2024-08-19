@@ -134,6 +134,7 @@
   "error.invalidEmail": "Ungültige E-Mail-Adresse",
   "error.invalidField": "Ungültiges Feld",
   "error.invalidFields": "Einige Felder sind ungültig",
+  "error.invalidName": "Ungültiger Name",
   "error.network": "Es besteht keine Internetverbindung",
   "error.pageNotFound": "Seite nicht gefunden",
   "error.requiredField": "Dies ist ein Pflichtfeld",

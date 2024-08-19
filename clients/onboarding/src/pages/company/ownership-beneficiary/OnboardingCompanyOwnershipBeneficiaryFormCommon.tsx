@@ -17,13 +17,14 @@ import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constant
 import { decodeBirthDate, encodeBirthDate } from "@swan-io/shared-business/src/utils/date";
 import { rifmDateProps } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
-import { useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
 import { locale, t } from "../../../utils/i18n";
+import { validateName } from "../../../utils/validation";
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -91,12 +92,12 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     firstName: {
       initialValue: initialValues.firstName ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     lastName: {
       initialValue: initialValues.lastName ?? "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
       initialValue: isNotNullishOrEmpty(initialValues.birthDate)

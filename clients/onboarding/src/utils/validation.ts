@@ -22,6 +22,11 @@ export const validateRequired: Validator<string> = value => {
   }
 };
 
+// This regex was copied from the backend to ensure that the validation is the same
+// Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
+const VALID_NAME_RE =
+  /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ.]| |'|-|Ά|Ό|,)*$/;
+
 export const validateName: Validator<string> = value => {
   if (!value) {
     return t("error.requiredField");
@@ -32,11 +37,7 @@ export const validateName: Validator<string> = value => {
     return t("error.invalidName");
   }
 
-  // This regex was copied from the backend to ensure that the validation is the same
-  // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
-  const isValid = value.match(
-    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ.]| |'|-|Ά|Ό|,)*$/,
-  );
+  const isValid = VALID_NAME_RE.test(value);
 
   if (!isValid) {
     return t("error.invalidName");

@@ -134,6 +134,7 @@
   "error.invalidEmail": "Dit e-mailadres is ongeldig",
   "error.invalidField": "Dit veld is ongeldig",
   "error.invalidFields": "Sommige velden zijn ongeldig",
+  "error.invalidName": "Ongeldige naam",
   "error.network": "Er is geen internetverbinding",
   "error.pageNotFound": "Pagina niet gevonden",
   "error.requiredField": "Dit veld is verplicht",

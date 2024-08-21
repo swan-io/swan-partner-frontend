@@ -18,7 +18,7 @@ import {
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { StyleSheet, Text, View } from "react-native";
-import { t } from "../utils/i18n";
+import { formatNestedMessage, t } from "../utils/i18n";
 import { WizardLayout } from "./WizardLayout";
 
 const CMC7_EXAMPLE = "00000000 0000000000000 0000000000";
@@ -240,7 +240,12 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             <Box direction="row" alignItems="center">
               <NumberDot value={1} />
               <Space width={12} />
-              <LakeText variant="smallRegular">{t("check.form.modal.cmc7")}</LakeText>
+
+              <LakeText variant="smallRegular">
+                {formatNestedMessage("check.form.modal.cmc7", {
+                  bold: text => <LakeText variant="smallMedium">{text}</LakeText>,
+                })}
+              </LakeText>
             </Box>
 
             <Space height={12} />
@@ -248,7 +253,12 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             <Box direction="row" alignItems="center">
               <NumberDot value={2} />
               <Space width={12} />
-              <LakeText variant="smallRegular">{t("check.form.modal.rlmc")}</LakeText>
+
+              <LakeText variant="smallRegular">
+                {formatNestedMessage("check.form.modal.rlmc", {
+                  bold: text => <LakeText variant="smallMedium">{text}</LakeText>,
+                })}
+              </LakeText>
             </Box>
           </LakeModal>
         </>

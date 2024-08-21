@@ -1,20 +1,13 @@
 import { useMutation } from "@swan-io/graphql-client";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
-import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
@@ -33,41 +26,7 @@ import {
   TransferRegularWizardDetailsSummary,
 } from "./TransferRegularWizardDetails";
 import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
-
-const styles = StyleSheet.create({
-  fill: {
-    ...commonStyles.fill,
-  },
-  header: {
-    paddingVertical: spacings[12],
-  },
-  headerContents: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: 1336,
-    marginHorizontal: "auto",
-    paddingHorizontal: spacings[96],
-  },
-  mobileZonePadding: {
-    paddingHorizontal: spacings[24],
-    flexGrow: 1,
-  },
-  contents: {
-    flexShrink: 1,
-    flexGrow: 1,
-    marginHorizontal: "auto",
-    maxWidth: 1172,
-    paddingHorizontal: spacings[24],
-    paddingTop: spacings[32],
-    paddingBottom: spacings[16],
-    width: "100%",
-  },
-  desktopContents: {
-    marginVertical: "auto",
-    paddingHorizontal: spacings[96],
-  },
-});
+import { WizardLayout } from "./WizardLayout";
 
 const BeneficiaryStep = ({
   accountCountry,
@@ -264,129 +223,100 @@ export const TransferRegularWizard = ({
   };
 
   return (
-    <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
-      {({ large }) => (
-        <View style={styles.fill}>
-          <View style={styles.header}>
-            <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
-              {onPressClose != null && (
-                <>
-                  <LakeButton
-                    mode="tertiary"
-                    icon="dismiss-regular"
-                    onPress={onPressClose}
-                    ariaLabel={t("common.closeButton")}
-                  />
+    <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
+      {({ large }) =>
+        match(step)
+          .with({ name: "Beneficiary" }, ({ beneficiary }) => (
+            <BeneficiaryStep
+              accountCountry={accountCountry}
+              accountId={accountId}
+              initialBeneficiary={beneficiary}
+              canManageBeneficiaries={canManageBeneficiaries}
+              onPressSubmit={beneficiary => {
+                setStep({ name: "Details", beneficiary });
+              }}
+            />
+          ))
+          .with({ name: "Details" }, ({ beneficiary, details }) => (
+            <>
+              <TransferWizardBeneficiarySummary
+                isMobile={!large}
+                beneficiary={beneficiary}
+                onPressEdit={
+                  hasInitialBeneficiary
+                    ? undefined
+                    : () => setStep({ name: "Beneficiary", beneficiary })
+                }
+              />
 
-                  <Space width={large ? 32 : 8} />
-                </>
-              )}
+              <Space height={32} />
 
-              <View style={styles.fill}>
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.newTransfer")}
-                </LakeHeading>
-              </View>
-            </View>
-          </View>
+              <LakeHeading level={2} variant="h3">
+                {t("transfer.new.details.title")}
+              </LakeHeading>
 
-          <Separator />
+              <Space height={32} />
 
-          <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
-            {match(step)
-              .with({ name: "Beneficiary" }, ({ beneficiary }) => (
-                <BeneficiaryStep
-                  accountCountry={accountCountry}
-                  accountId={accountId}
-                  initialBeneficiary={beneficiary}
-                  canManageBeneficiaries={canManageBeneficiaries}
-                  onPressSubmit={beneficiary => {
-                    setStep({ name: "Details", beneficiary });
-                  }}
-                />
-              ))
-              .with({ name: "Details" }, ({ beneficiary, details }) => (
-                <>
-                  <TransferWizardBeneficiarySummary
-                    isMobile={!large}
-                    beneficiary={beneficiary}
-                    onPressEdit={
-                      hasInitialBeneficiary
-                        ? undefined
-                        : () => setStep({ name: "Beneficiary", beneficiary })
-                    }
-                  />
+              <TransferRegularWizardDetails
+                accountMembershipId={accountMembershipId}
+                initialDetails={details}
+                onPressPrevious={() => {
+                  hasInitialBeneficiary
+                    ? onPressClose?.()
+                    : setStep({ name: "Beneficiary", beneficiary });
+                }}
+                onSave={details => {
+                  setStep({ name: "Schedule", beneficiary, details });
+                }}
+              />
 
-                  <Space height={32} />
+              <Space height={32} />
+            </>
+          ))
+          .with({ name: "Schedule" }, ({ beneficiary, details }) => (
+            <>
+              <TransferWizardBeneficiarySummary
+                isMobile={!large}
+                beneficiary={beneficiary}
+                onPressEdit={
+                  hasInitialBeneficiary
+                    ? undefined
+                    : () => setStep({ name: "Beneficiary", beneficiary })
+                }
+              />
 
-                  <LakeHeading level={2} variant="h3">
-                    {t("transfer.new.details.title")}
-                  </LakeHeading>
+              <Space height={32} />
 
-                  <Space height={32} />
+              <TransferRegularWizardDetailsSummary
+                isMobile={!large}
+                details={details}
+                onPressEdit={() => {
+                  setStep({ name: "Details", beneficiary, details });
+                }}
+              />
 
-                  <TransferRegularWizardDetails
-                    accountMembershipId={accountMembershipId}
-                    initialDetails={details}
-                    onPressPrevious={() => {
-                      hasInitialBeneficiary
-                        ? onPressClose?.()
-                        : setStep({ name: "Beneficiary", beneficiary });
-                    }}
-                    onSave={details => {
-                      setStep({ name: "Schedule", beneficiary, details });
-                    }}
-                  />
+              <Space height={32} />
 
-                  <Space height={32} />
-                </>
-              ))
-              .with({ name: "Schedule" }, ({ beneficiary, details }) => (
-                <>
-                  <TransferWizardBeneficiarySummary
-                    isMobile={!large}
-                    beneficiary={beneficiary}
-                    onPressEdit={
-                      hasInitialBeneficiary
-                        ? undefined
-                        : () => setStep({ name: "Beneficiary", beneficiary })
-                    }
-                  />
+              <LakeHeading level={2} variant="h3">
+                {t("transfer.new.schedule.title")}
+              </LakeHeading>
 
-                  <Space height={32} />
+              <Space height={32} />
 
-                  <TransferRegularWizardDetailsSummary
-                    isMobile={!large}
-                    details={details}
-                    onPressEdit={() => {
-                      setStep({ name: "Details", beneficiary, details });
-                    }}
-                  />
-
-                  <Space height={32} />
-
-                  <LakeHeading level={2} variant="h3">
-                    {t("transfer.new.schedule.title")}
-                  </LakeHeading>
-
-                  <Space height={32} />
-
-                  <TransferRegularWizardSchedule
-                    beneficiary={beneficiary}
-                    loading={transfer.isLoading()}
-                    onPressPrevious={() => {
-                      setStep({ name: "Details", beneficiary, details });
-                    }}
-                    onSave={schedule => {
-                      initiateTransfer({ beneficiary, details, schedule });
-                    }}
-                  />
-                </>
-              ))
-              .otherwise(() => null)}
-          </ScrollView>
-        </View>
-      )}
-    </ResponsiveContainer>
+              <TransferRegularWizardSchedule
+                beneficiary={beneficiary}
+                loading={transfer.isLoading()}
+                onPressPrevious={() => {
+                  setStep({ name: "Details", beneficiary, details });
+                }}
+                onSave={schedule => {
+                  initiateTransfer({ beneficiary, details, schedule });
+                }}
+              />
+            </>
+          ))
+          .otherwise(() => null)
+      }
+    </WizardLayout>
   );
 };

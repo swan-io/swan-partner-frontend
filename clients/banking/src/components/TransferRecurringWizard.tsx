@@ -1,19 +1,12 @@
 import { useMutation } from "@swan-io/graphql-client";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
-import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
-import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry, ScheduleStandingOrderDocument } from "../graphql/partner";
 import { encodeDateTime } from "../utils/date";
@@ -30,46 +23,7 @@ import {
   TransferRecurringWizardDetailsSummary,
 } from "./TransferRecurringWizardDetails";
 import { Schedule, TransferRecurringWizardSchedule } from "./TransferRecurringWizardSchedule";
-
-const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
-  container: {
-    ...commonStyles.fill,
-  },
-  header: {
-    paddingVertical: spacings[12],
-  },
-  headerContents: {
-    flexDirection: "row",
-    alignItems: "center",
-    width: "100%",
-    maxWidth: 1336,
-    marginHorizontal: "auto",
-    paddingHorizontal: spacings[96],
-  },
-  headerTitle: {
-    ...commonStyles.fill,
-  },
-  mobileZonePadding: {
-    paddingHorizontal: spacings[24],
-    flexGrow: 1,
-  },
-  contents: {
-    flexShrink: 1,
-    flexGrow: 1,
-    marginHorizontal: "auto",
-    maxWidth: 1172,
-    paddingHorizontal: spacings[24],
-    paddingVertical: spacings[32],
-    width: "100%",
-  },
-  desktopContents: {
-    marginVertical: "auto",
-    paddingHorizontal: spacings[96],
-  },
-});
+import { WizardLayout } from "./WizardLayout";
 
 type Step =
   | {
@@ -186,117 +140,82 @@ export const TransferRecurringWizard = ({
   };
 
   return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
-      {({ large }) => (
-        <View style={styles.container}>
-          <View style={styles.header}>
-            <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
-              {onPressClose != null && (
-                <>
-                  <LakeButton
-                    mode="tertiary"
-                    icon="dismiss-regular"
-                    onPress={onPressClose}
-                    ariaLabel={t("common.closeButton")}
-                  />
+    <WizardLayout title={t("transfer.newRecurringTransfer")} onPressClose={onPressClose}>
+      {({ large }) =>
+        match(step)
+          .with({ name: "Beneficiary" }, ({ beneficiary }) => (
+            <>
+              <LakeHeading level={2} variant="h3">
+                {t("transfer.new.beneficiary.title")}
+              </LakeHeading>
 
-                  <Space width={large ? 32 : 8} />
-                </>
-              )}
+              <Space height={32} />
 
-              <View style={styles.headerTitle}>
-                <LakeHeading level={2} variant="h3">
-                  {t("transfer.newRecurringTransfer")}
-                </LakeHeading>
-              </View>
-            </View>
-          </View>
+              <BeneficiarySepaWizardForm
+                mode="continue"
+                accountCountry={accountCountry}
+                accountId={accountId}
+                saveCheckboxVisible={false}
+                onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
+                initialBeneficiary={match(beneficiary)
+                  .with({ kind: "new" }, identity)
+                  .with({ kind: "saved" }, P.nullish, () => undefined)
+                  .exhaustive()}
+              />
+            </>
+          ))
+          .with({ name: "Details" }, ({ beneficiary, details }) => (
+            <>
+              <TransferWizardBeneficiarySummary
+                isMobile={!large}
+                beneficiary={beneficiary}
+                onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+              />
 
-          <Separator />
+              <Space height={32} />
 
-          <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
-            {match(step)
-              .with({ name: "Beneficiary" }, ({ beneficiary }) => {
-                return (
-                  <>
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.beneficiary.title")}
-                    </LakeHeading>
+              <TransferRecurringWizardDetails
+                initialDetails={details}
+                onPressPrevious={() => setStep({ name: "Beneficiary", beneficiary })}
+                onSave={details => setStep({ name: "Schedule", beneficiary, details })}
+              />
 
-                    <Space height={32} />
+              <Space height={32} />
+            </>
+          ))
+          .with({ name: "Schedule" }, ({ beneficiary, details }) => (
+            <>
+              <TransferWizardBeneficiarySummary
+                isMobile={!large}
+                beneficiary={beneficiary}
+                onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
+              />
 
-                    <BeneficiarySepaWizardForm
-                      mode="continue"
-                      accountCountry={accountCountry}
-                      accountId={accountId}
-                      saveCheckboxVisible={false}
-                      onPressSubmit={beneficiary => setStep({ name: "Details", beneficiary })}
-                      initialBeneficiary={match(beneficiary)
-                        .with({ kind: "new" }, identity)
-                        .with({ kind: "saved" }, P.nullish, () => undefined)
-                        .exhaustive()}
-                    />
-                  </>
-                );
-              })
-              .with({ name: "Details" }, ({ beneficiary, details }) => {
-                return (
-                  <>
-                    <TransferWizardBeneficiarySummary
-                      isMobile={!large}
-                      beneficiary={beneficiary}
-                      onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
-                    />
+              <Space height={32} />
 
-                    <Space height={32} />
+              <TransferRecurringWizardDetailsSummary
+                isMobile={!large}
+                details={details}
+                onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
+              />
 
-                    <TransferRecurringWizardDetails
-                      initialDetails={details}
-                      onPressPrevious={() => setStep({ name: "Beneficiary", beneficiary })}
-                      onSave={details => setStep({ name: "Schedule", beneficiary, details })}
-                    />
+              <Space height={32} />
 
-                    <Space height={32} />
-                  </>
-                );
-              })
-              .with({ name: "Schedule" }, ({ beneficiary, details }) => {
-                return (
-                  <>
-                    <TransferWizardBeneficiarySummary
-                      isMobile={!large}
-                      beneficiary={beneficiary}
-                      onPressEdit={() => setStep({ name: "Beneficiary", beneficiary })}
-                    />
+              <LakeHeading level={2} variant="h3">
+                {t("transfer.new.schedule.title")}
+              </LakeHeading>
 
-                    <Space height={32} />
+              <Space height={32} />
 
-                    <TransferRecurringWizardDetailsSummary
-                      isMobile={!large}
-                      details={details}
-                      onPressEdit={() => setStep({ name: "Details", beneficiary, details })}
-                    />
-
-                    <Space height={32} />
-
-                    <LakeHeading level={2} variant="h3">
-                      {t("transfer.new.schedule.title")}
-                    </LakeHeading>
-
-                    <Space height={32} />
-
-                    <TransferRecurringWizardSchedule
-                      loading={standingOrderScheduling.isLoading()}
-                      onPressPrevious={() => setStep({ name: "Details", beneficiary, details })}
-                      onSave={schedule => onSave({ beneficiary, details, schedule })}
-                    />
-                  </>
-                );
-              })
-              .otherwise(() => null)}
-          </ScrollView>
-        </View>
-      )}
-    </ResponsiveContainer>
+              <TransferRecurringWizardSchedule
+                loading={standingOrderScheduling.isLoading()}
+                onPressPrevious={() => setStep({ name: "Details", beneficiary, details })}
+                onSave={schedule => onSave({ beneficiary, details, schedule })}
+              />
+            </>
+          ))
+          .otherwise(() => null)
+      }
+    </WizardLayout>
   );
 };

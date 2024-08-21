@@ -51,7 +51,7 @@ const styles = StyleSheet.create({
     borderColor: colors.gray[300],
     borderRadius: radii[8],
     borderStyle: "dashed",
-    padding: spacings[20],
+    paddingVertical: spacings[20],
   },
   check: {
     borderColor: colors.gray[200],

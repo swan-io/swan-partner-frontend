@@ -17,79 +17,121 @@ import {
 } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
-import { useState } from "react";
-import { Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { t } from "../utils/i18n";
 import { WizardLayout } from "./WizardLayout";
 
+const CMC7_EXAMPLE = "00000000 0000000000000 0000000000";
+
+const styles = StyleSheet.create({
+  numberDot: {
+    backgroundColor: colors.partner[500],
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 20,
+    height: 20,
+  },
+  numberDotText: {
+    fontFamily: fonts.primary,
+    color: invariantColors.white,
+    fontStyle: "italic",
+    textAlign: "center",
+    fontSize: 12,
+    lineHeight: 20,
+  },
+  grow: {
+    flexGrow: 1,
+  },
+  rlmcLarge: {
+    flexGrow: 1,
+    maxWidth: 220,
+  },
+  addButton: {
+    borderColor: colors.gray[300],
+    borderRadius: radii[8],
+    borderStyle: "dashed",
+    padding: spacings[20],
+  },
+  check: {
+    borderColor: colors.gray[200],
+    borderRadius: radii[8],
+    borderWidth: 1,
+    backgroundColor: invariantColors.white,
+    overflow: "hidden",
+    paddingTop: spacings[48],
+  },
+  checkSvg: {
+    paddingHorizontal: spacings[12],
+  },
+  checkRight: {
+    padding: spacings[12],
+  },
+  checkBottom: {
+    backgroundColor: colors.gray[50],
+    paddingVertical: spacings[12],
+    paddingHorizontal: spacings[16],
+  },
+  checkText: {
+    fontSize: 12,
+    fontStyle: "italic",
+  },
+});
+
 const NumberDot = ({ value }: { value: number }) => (
-  <Box
-    alignItems="center"
-    justifyContent="center"
-    style={{
-      backgroundColor: colors.partner[500],
-      height: 20,
-      width: 20,
-      borderRadius: 10,
-    }}
-  >
-    <Text
-      style={{
-        fontFamily: fonts.primary,
-        fontStyle: "italic",
-        fontSize: 12,
-        color: invariantColors.white,
-        textAlign: "center",
-        lineHeight: "1" as unknown as number,
-      }}
-    >
-      {value}
-    </Text>
-  </Box>
+  <View style={styles.numberDot}>
+    <Text style={styles.numberDotText}>{value}</Text>
+  </View>
 );
 
-const CheckForm = ({ large, onOpenHelp }: { large: boolean; onOpenHelp: () => void }) => {
+const CheckForm = ({
+  title,
+  large,
+  onOpenHelp,
+}: {
+  title: string;
+  large: boolean;
+  onOpenHelp: () => void;
+}) => {
   return (
-    <Tile title="Check 1">
+    <Tile title={title}>
       <LakeLabel
-        label={"Custom label"}
+        label={t("check.form.customLabel")}
         optionalLabel={t("form.optional")}
         render={id => <LakeTextInput id={id} />}
       />
 
       <Space height={8} />
 
-      <LakeLabel label={"Amount"} render={id => <LakeTextInput id={id} unit="EUR" />} />
+      <LakeLabel
+        label={t("check.form.amount")}
+        render={id => <LakeTextInput id={id} unit="EUR" />}
+      />
 
       <Box direction={large ? "row" : "column"} alignItems={large ? "center" : "stretch"}>
         <LakeLabel
-          label={"CMC7"}
-          style={{ flexGrow: 1 }}
+          label={t("check.form.cmc7")}
+          style={styles.grow}
           help={
             <LakeButton
               mode="tertiary"
               size="small"
               color="gray"
               icon="question-circle-regular"
-              ariaLabel={t("common.help.whatIsThis")}
               onPress={onOpenHelp}
+              ariaLabel={t("common.help.whatIsThis")}
             >
               {t("common.help.whatIsThis")}
             </LakeButton>
           }
-          render={id => <LakeTextInput id={id} placeholder="00000000 0000000000000 0000000000" />}
+          render={id => <LakeTextInput id={id} placeholder={CMC7_EXAMPLE} />}
         />
 
         <Space width={32} />
 
         <LakeLabel
-          label={"RLMC"}
-          style={
-            large && {
-              flexGrow: 1,
-              maxWidth: 220,
-            }
-          }
+          label={t("check.form.rlmc")}
+          style={large && styles.rlmcLarge}
           help={
             <LakeButton
               mode="tertiary"
@@ -115,26 +157,19 @@ type Props = {
 
 export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
   const [helpModalVisible, setHelpModal] = useDisclosure(false);
-  const [checks, setChecks] = useState([]);
 
   return (
-    <WizardLayout title={"Declare a check payment"} onPressClose={onPressClose}>
+    <WizardLayout title={t("check.form.title")} onPressClose={onPressClose}>
       {({ large }) => (
         <>
           <LakeHeading level={2} variant="h3">
-            {"Enter details about your check"}
+            {t("check.form.subtitle")}
           </LakeHeading>
 
           <Space height={8} />
-
-          <LakeText variant="smallRegular">
-            {
-              "Checks must be from a French financial institution and for an amount less than 10000€ (ten thousand euros)."
-            }
-          </LakeText>
-
+          <LakeText variant="smallRegular">{t("check.form.description")}</LakeText>
           <Space height={32} />
-          <CheckForm large={large} onOpenHelp={setHelpModal.open} />
+          <CheckForm title="Check 1" large={large} onOpenHelp={setHelpModal.open} />
           <Space height={32} />
 
           <LakeButton
@@ -142,14 +177,9 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             direction="column"
             icon="add-circle-regular"
             iconSize={24}
-            style={{
-              borderColor: colors.gray[300],
-              borderRadius: radii[8],
-              borderStyle: "dashed",
-              padding: spacings[20],
-            }}
+            style={styles.addButton}
           >
-            Add a check
+            {t("check.form.add")}
           </LakeButton>
 
           <Space height={16} />
@@ -158,36 +188,21 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             {({ small }) => (
               <LakeButtonGroup>
                 <LakeButton color="current" onPress={() => {}} grow={small} loading={false}>
-                  {"Declare"}
+                  {t("check.form.declare")}
                 </LakeButton>
               </LakeButtonGroup>
             )}
           </ResponsiveContainer>
 
           <LakeModal
-            title={"What are CMC7 and RLMC?"}
+            title={t("check.form.modal.title")}
             visible={helpModalVisible}
             onPressClose={setHelpModal.close}
           >
             <Space height={8} />
 
-            <View
-              role="img"
-              style={{
-                backgroundColor: invariantColors.white,
-                borderRadius: radii[8],
-                borderWidth: 1,
-                overflow: "hidden",
-                borderColor: colors.gray[200],
-                paddingTop: spacings[48],
-              }}
-            >
-              <Svg
-                viewBox="0 0 448 69"
-                style={{
-                  paddingHorizontal: spacings[12],
-                }}
-              >
+            <View role="img" style={styles.check}>
+              <Svg viewBox="0 0 448 69" style={styles.checkSvg}>
                 <Path
                   d="M0 1.91a1 1 0 011-1h300a1 1 0 010 2H1a1 1 0 01-1-1zm0 28a1 1 0 011-1h300a1 1 0 010 2H1a1 1 0 01-1-1zm1-15a1 1 0 100 2h300a1 1 0 000-2H1zm333 39a1 1 0 011-1h112a1 1 0 010 2H335a1 1 0 01-1-1zm1 13a1 1 0 000 2h112a1 1 0 000-2H335z"
                   fill={colors.gray[100]}
@@ -197,49 +212,25 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
               </Svg>
 
               <Box
-                direction="row"
                 alignItems="center"
+                direction="row"
                 justifyContent="end"
-                style={{
-                  padding: spacings[12],
-                }}
+                style={styles.checkRight}
               >
                 <NumberDot value={2} />
                 <Space width={8} />
 
-                <LakeText
-                  color={colors.gray[600]}
-                  numberOfLines={1}
-                  style={{
-                    fontStyle: "italic",
-                    fontSize: 12,
-                  }}
-                >
+                <LakeText color={colors.gray[600]} numberOfLines={1} style={styles.checkText}>
                   (00)
                 </LakeText>
               </Box>
 
-              <Box
-                direction="row"
-                alignItems="center"
-                style={{
-                  backgroundColor: colors.gray[50],
-                  paddingVertical: spacings[12],
-                  paddingHorizontal: spacings[16],
-                }}
-              >
+              <Box alignItems="center" direction="row" style={styles.checkBottom}>
                 <NumberDot value={1} />
                 <Space width={8} />
 
-                <LakeText
-                  color={colors.gray[600]}
-                  numberOfLines={1}
-                  style={{
-                    fontStyle: "italic",
-                    fontSize: 12,
-                  }}
-                >
-                  00000000 0000000000000 0000000000
+                <LakeText color={colors.gray[600]} numberOfLines={1} style={styles.checkText}>
+                  {CMC7_EXAMPLE}
                 </LakeText>
               </Box>
             </View>
@@ -249,10 +240,7 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             <Box direction="row" alignItems="center">
               <NumberDot value={1} />
               <Space width={12} />
-
-              <LakeText variant="smallRegular">
-                {"CMC7 is a 31-character code printed at the bottom of your check."}
-              </LakeText>
+              <LakeText variant="smallRegular">{t("check.form.modal.cmc7")}</LakeText>
             </Box>
 
             <Space height={12} />
@@ -260,10 +248,7 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
             <Box direction="row" alignItems="center">
               <NumberDot value={2} />
               <Space width={12} />
-
-              <LakeText variant="smallRegular">
-                {"RLMC is a 2-digit key printed underneath the location and date of your check."}
-              </LakeText>
+              <LakeText variant="smallRegular">{t("check.form.modal.rlmc")}</LakeText>
             </Box>
           </LakeModal>
         </>

@@ -2,6 +2,7 @@ import { Array, Future, Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -89,6 +90,11 @@ const styles = StyleSheet.create({
     height: "auto",
     marginVertical: spacings[12],
   },
+  methodTileTopRow: {
+    height: spacings[48],
+    marginTop: negativeSpacings[16],
+    marginRight: negativeSpacings[16],
+  },
 });
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
@@ -134,49 +140,39 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   return (
     <>
       <Tile selected={status === "PendingReview" || status === "Enabled"} flexGrow={1}>
-        <Box direction="row" alignItems="start">
-          <Box grow={1} shrink={1}>
-            <Box direction="row" alignItems="center" wrap="wrap">
-              {icon}
+        <Box direction="row" alignItems="center" style={styles.methodTileTopRow}>
+          {icon}
 
-              <Space width={8} />
+          <Space width={8} />
 
-              {match(status)
-                .with("Disabled", () => (
-                  <Tag color="gray">
-                    {t("merchantProfile.settings.paymentMethods.status.Disabled")}
-                  </Tag>
-                ))
-                .with("Enabled", () => (
-                  <Tag color="positive">
-                    {t("merchantProfile.settings.paymentMethods.status.Enabled")}
-                  </Tag>
-                ))
-                .with("PendingReview", () => (
-                  <Tag color="shakespear">
-                    {t("merchantProfile.settings.paymentMethods.status.PendingReview")}
-                  </Tag>
-                ))
-                .with("Rejected", () => (
-                  <Tag color="negative">
-                    {t("merchantProfile.settings.paymentMethods.status.Rejected")}
-                  </Tag>
-                ))
-                .with("Suspended", () => (
-                  <Tag color="warning">
-                    {t("merchantProfile.settings.paymentMethods.status.Suspended")}
-                  </Tag>
-                ))
-                .with(P.nullish, () => null)
-                .exhaustive()}
-            </Box>
+          {match(status)
+            .with("Disabled", () => (
+              <Tag color="gray">{t("merchantProfile.settings.paymentMethods.status.Disabled")}</Tag>
+            ))
+            .with("Enabled", () => (
+              <Tag color="positive">
+                {t("merchantProfile.settings.paymentMethods.status.Enabled")}
+              </Tag>
+            ))
+            .with("PendingReview", () => (
+              <Tag color="shakespear">
+                {t("merchantProfile.settings.paymentMethods.status.PendingReview")}
+              </Tag>
+            ))
+            .with("Rejected", () => (
+              <Tag color="negative">
+                {t("merchantProfile.settings.paymentMethods.status.Rejected")}
+              </Tag>
+            ))
+            .with("Suspended", () => (
+              <Tag color="warning">
+                {t("merchantProfile.settings.paymentMethods.status.Suspended")}
+              </Tag>
+            ))
+            .with(P.nullish, () => null)
+            .exhaustive()}
 
-            <Space height={8} />
-
-            <LakeText variant="medium" color={colors.gray[900]}>
-              {title}
-            </LakeText>
-          </Box>
+          <Fill minWidth={8} />
 
           {match(status)
             .with(P.nonNullable, () => (
@@ -227,7 +223,13 @@ const MerchantProfileSettingsPaymentMethodTile = ({
             .otherwise(() => null)}
         </Box>
 
-        <Space height={12} />
+        <Space height={4} />
+
+        <LakeText variant="medium" color={colors.gray[900]}>
+          {title}
+        </LakeText>
+
+        <Space height={4} />
         <LakeText color={colors.gray[500]}>{description}</LakeText>
       </Tile>
 

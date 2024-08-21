@@ -90,6 +90,10 @@ const styles = StyleSheet.create({
     height: "auto",
     marginVertical: spacings[12],
   },
+  methodTileTopRow: {
+    marginTop: negativeSpacings[16],
+    marginRight: negativeSpacings[16],
+  },
 });
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
@@ -135,48 +139,37 @@ const MerchantProfileSettingsPaymentMethodTile = ({
   return (
     <>
       <Tile selected={status === "PendingReview" || status === "Enabled"} flexGrow={1}>
-        <Box
-          direction="row"
-          alignItems="center"
-          style={{
-            marginRight: negativeSpacings[16],
-            marginTop: negativeSpacings[16],
-          }}
-        >
-          <Box direction="row" alignItems="center">
-            {icon}
+        <Box direction="row" alignItems="center" style={styles.methodTileTopRow}>
+          {icon}
 
-            <Space width={8} />
+          <Space width={8} />
 
-            {match(status)
-              .with("Disabled", () => (
-                <Tag color="gray">
-                  {t("merchantProfile.settings.paymentMethods.status.Disabled")}
-                </Tag>
-              ))
-              .with("Enabled", () => (
-                <Tag color="positive">
-                  {t("merchantProfile.settings.paymentMethods.status.Enabled")}
-                </Tag>
-              ))
-              .with("PendingReview", () => (
-                <Tag color="shakespear">
-                  {t("merchantProfile.settings.paymentMethods.status.PendingReview")}
-                </Tag>
-              ))
-              .with("Rejected", () => (
-                <Tag color="negative">
-                  {t("merchantProfile.settings.paymentMethods.status.Rejected")}
-                </Tag>
-              ))
-              .with("Suspended", () => (
-                <Tag color="warning">
-                  {t("merchantProfile.settings.paymentMethods.status.Suspended")}
-                </Tag>
-              ))
-              .with(P.nullish, () => null)
-              .exhaustive()}
-          </Box>
+          {match(status)
+            .with("Disabled", () => (
+              <Tag color="gray">{t("merchantProfile.settings.paymentMethods.status.Disabled")}</Tag>
+            ))
+            .with("Enabled", () => (
+              <Tag color="positive">
+                {t("merchantProfile.settings.paymentMethods.status.Enabled")}
+              </Tag>
+            ))
+            .with("PendingReview", () => (
+              <Tag color="shakespear">
+                {t("merchantProfile.settings.paymentMethods.status.PendingReview")}
+              </Tag>
+            ))
+            .with("Rejected", () => (
+              <Tag color="negative">
+                {t("merchantProfile.settings.paymentMethods.status.Rejected")}
+              </Tag>
+            ))
+            .with("Suspended", () => (
+              <Tag color="warning">
+                {t("merchantProfile.settings.paymentMethods.status.Suspended")}
+              </Tag>
+            ))
+            .with(P.nullish, () => null)
+            .exhaustive()}
 
           <Fill minWidth={8} />
 

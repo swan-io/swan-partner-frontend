@@ -130,9 +130,18 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     ["Company", "Other"].includes(companyType) ||
     match(onboarding.info)
       .with(
+        {
+          __typename: "OnboardingCompanyAccountHolderInfo",
+          residencyAddress: { country: "NLD" },
+          companyType: "Association",
+        },
+        () => true,
+      )
+      .with(
         { __typename: "OnboardingCompanyAccountHolderInfo" },
         info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
       )
+
       .otherwise(() => false);
   const hasDocumentsStep =
     onboarding?.supportingDocumentCollection.statusInfo.status === "WaitingForDocument" &&

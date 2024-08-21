@@ -186,9 +186,9 @@ export const TransferBulkUpload = ({ onSave }: Props) => {
               color="gray"
               icon="question-circle-regular"
               onPress={() => setIsHelpModalOpen(true)}
-              ariaLabel={t("transfer.bulk.help.whatIsThis")}
+              ariaLabel={t("common.help.whatIsThis")}
             >
-              {t("transfer.bulk.help.whatIsThis")}
+              {t("common.help.whatIsThis")}
             </LakeButton>
           }
           render={() => (

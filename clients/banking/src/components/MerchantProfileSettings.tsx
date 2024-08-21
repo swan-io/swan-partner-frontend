@@ -3,6 +3,7 @@ import { useMutation } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
@@ -33,6 +34,8 @@ import {
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { GetRouteParams, Router } from "../utils/routes";
+import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
   MerchantProfilePaymentMethodCheckRequestModal,
@@ -404,6 +407,7 @@ type Props = {
   merchantProfileInternalDirectDebitCoreVisible: boolean;
   merchantProfileInternalDirectDebitB2BVisible: boolean;
   merchantProfileCheckVisible: boolean;
+  params: GetRouteParams<"AccountMerchantsProfileSettings">;
   onUpdate: () => void;
 };
 
@@ -416,6 +420,7 @@ export const MerchantProfileSettings = ({
   merchantProfileInternalDirectDebitCoreVisible,
   merchantProfileInternalDirectDebitB2BVisible,
   merchantProfileCheckVisible,
+  params,
   onUpdate,
 }: Props) => {
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
@@ -1087,6 +1092,17 @@ export const MerchantProfileSettings = ({
           onCancel={() => setIsEditModalOpen(false)}
         />
       </LakeModal>
+
+      <FullViewportLayer visible={params.check === "true"}>
+        <CheckDeclarationWizard
+          onPressClose={() => {
+            Router.replace("AccountMerchantsProfileSettings", {
+              ...params,
+              check: undefined,
+            });
+          }}
+        />
+      </FullViewportLayer>
     </ScrollView>
   );
 };

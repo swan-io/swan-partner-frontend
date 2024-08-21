@@ -50,7 +50,7 @@ type Props = {
   onPressClose?: () => void;
 };
 
-export const Wizard = ({ children, title, onPressClose }: Props) => (
+export const WizardLayout = ({ children, title, onPressClose }: Props) => (
   <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
     {context => (
       <View style={styles.fill}>

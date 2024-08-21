@@ -6,7 +6,7 @@ import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { ReactNode } from "react";
+import { ComponentProps, ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { t } from "../utils/i18n";
 
@@ -45,17 +45,17 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  children: ReactNode;
+  children: ReactNode | ComponentProps<typeof ResponsiveContainer>["children"];
   title: string;
   onPressClose?: () => void;
 };
 
 export const Wizard = ({ children, title, onPressClose }: Props) => (
   <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
-    {({ large }) => (
+    {context => (
       <View style={styles.fill}>
         <View style={styles.header}>
-          <View style={[styles.headerContents, !large && styles.mobileZonePadding]}>
+          <View style={[styles.headerContents, !context.large && styles.mobileZonePadding]}>
             {onPressClose != null && (
               <>
                 <LakeButton
@@ -65,7 +65,7 @@ export const Wizard = ({ children, title, onPressClose }: Props) => (
                   onPress={onPressClose}
                 />
 
-                <Space width={large ? 32 : 8} />
+                <Space width={context.large ? 32 : 8} />
               </>
             )}
 
@@ -79,8 +79,10 @@ export const Wizard = ({ children, title, onPressClose }: Props) => (
 
         <Separator />
 
-        <ScrollView contentContainerStyle={[styles.contents, large && styles.desktopContents]}>
-          {children}
+        <ScrollView
+          contentContainerStyle={[styles.contents, context.large && styles.desktopContents]}
+        >
+          {typeof children === "function" ? children(context) : children}
         </ScrollView>
       </View>
     )}

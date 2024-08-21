@@ -91,6 +91,7 @@ const styles = StyleSheet.create({
     marginVertical: spacings[12],
   },
   methodTileTopRow: {
+    height: spacings[48],
     marginTop: negativeSpacings[16],
     marginRight: negativeSpacings[16],
   },

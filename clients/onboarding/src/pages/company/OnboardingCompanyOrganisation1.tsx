@@ -133,6 +133,7 @@ export const OnboardingCompanyOrganisation1 = ({
   const isTaxIdentificationRequired = match({ accountCountry, country })
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .otherwise(() => false);
+  const isVatNumberRequired = accountCountry === "ITA";
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
@@ -155,7 +156,7 @@ export const OnboardingCompanyOrganisation1 = ({
     vatNumber: {
       initialValue: initialVatNumber,
       sanitize: trim,
-      validate: validateVatNumber,
+      validate: combineValidators(isVatNumberRequired && validateRequired, validateVatNumber),
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
@@ -455,7 +456,7 @@ export const OnboardingCompanyOrganisation1 = ({
                   {({ value, valid, error, onChange, ref }) => (
                     <LakeLabel
                       label={t("company.step.organisation1.vatLabel")}
-                      optionalLabel={t("common.optional")}
+                      optionalLabel={isVatNumberRequired ? undefined : t("common.optional")}
                       render={id => (
                         <LakeTextInput
                           id={id}

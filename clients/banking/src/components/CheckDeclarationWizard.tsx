@@ -16,12 +16,23 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
+import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { StyleSheet, Text, View } from "react-native";
+import { Rifm } from "rifm";
 import { formatNestedMessage, t } from "../utils/i18n";
+import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
 import { WizardLayout } from "./WizardLayout";
 
-const CMC7_EXAMPLE = "00000000 0000000000000 0000000000";
+const CMC7_EXAMPLE = "0000000 000000000000 000000000000";
+
+const rifmCMC7Props = getRifmProps({
+  accept: "numeric",
+  charMap: { 7: " ", 19: " " },
+  maxLength: 31,
+});
 
 const styles = StyleSheet.create({
   numberDot: {
@@ -93,19 +104,77 @@ const CheckForm = ({
   large: boolean;
   onOpenHelp: () => void;
 }) => {
+  const { Field } = useForm({
+    label: {
+      initialValue: "",
+      sanitize: trim,
+    },
+    amount: {
+      initialValue: "",
+      sanitize: value => value.replace(/,/g, ".").replace(/\s/g, ""),
+      validate: value => {
+        const number = Number(value);
+
+        if (Number.isNaN(number) || number <= 0) {
+          return t("common.form.invalidAmount");
+        }
+        if (number > 10000) {
+          return t("check.form.error.amountTooHigh");
+        }
+      },
+    },
+    cmc7: {
+      initialValue: "",
+      validate: combineValidators(validateRequired, validateCMC7),
+    },
+    rlmc: {
+      initialValue: "",
+      validate: combineValidators(validateRequired, validateRLMC),
+    },
+  });
+
   return (
     <Tile title={title}>
       <LakeLabel
         label={t("check.form.customLabel")}
         optionalLabel={t("form.optional")}
-        render={id => <LakeTextInput id={id} />}
+        render={id => (
+          <Field name="label">
+            {({ ref, error, valid, value, onBlur, onChange }) => (
+              <LakeTextInput
+                ref={ref}
+                id={id}
+                error={error}
+                valid={valid}
+                value={value}
+                onBlur={onBlur}
+                onChangeText={onChange}
+              />
+            )}
+          </Field>
+        )}
       />
 
       <Space height={8} />
 
       <LakeLabel
         label={t("check.form.amount")}
-        render={id => <LakeTextInput id={id} unit="EUR" />}
+        render={id => (
+          <Field name="amount">
+            {({ ref, error, valid, value, onBlur, onChange }) => (
+              <LakeTextInput
+                ref={ref}
+                id={id}
+                error={error}
+                valid={valid}
+                value={value}
+                unit="EUR"
+                onBlur={onBlur}
+                onChangeText={onChange}
+              />
+            )}
+          </Field>
+        )}
       />
 
       <Box direction={large ? "row" : "column"} alignItems={large ? "center" : "stretch"}>
@@ -124,7 +193,26 @@ const CheckForm = ({
               {t("common.help.whatIsThis")}
             </LakeButton>
           }
-          render={id => <LakeTextInput id={id} placeholder={CMC7_EXAMPLE} />}
+          render={id => (
+            <Field name="cmc7">
+              {({ ref, error, valid, value, onBlur, onChange }) => (
+                <Rifm value={value} onChange={onChange} {...rifmCMC7Props}>
+                  {({ value, onChange }) => (
+                    <LakeTextInput
+                      ref={ref}
+                      id={id}
+                      error={error}
+                      valid={valid}
+                      value={value}
+                      placeholder={CMC7_EXAMPLE}
+                      onBlur={onBlur}
+                      onChange={onChange}
+                    />
+                  )}
+                </Rifm>
+              )}
+            </Field>
+          )}
         />
 
         <Space width={32} />
@@ -144,7 +232,25 @@ const CheckForm = ({
               {t("common.help.whatIsThis")}
             </LakeButton>
           }
-          render={id => <LakeTextInput id={id} placeholder="00" />}
+          render={id => (
+            <Field name="rlmc">
+              {({ ref, error, valid, value, onBlur, onChange }) => (
+                <LakeTextInput
+                  ref={ref}
+                  id={id}
+                  error={error}
+                  valid={valid}
+                  value={value}
+                  placeholder="00"
+                  onBlur={onBlur}
+                  onChangeText={text => {
+                    // replace all non-digits characters
+                    onChange(text.replace(/[^\d]/g, ""));
+                  }}
+                />
+              )}
+            </Field>
+          )}
         />
       </Box>
     </Tile>

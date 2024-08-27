@@ -415,7 +415,7 @@ export const TransactionDetail = ({
                         )}
 
                         {cardDetails?.__typename === "CardOutDetails" && (
-                          <>
+                          <ReadOnlyFieldList>
                             <DetailLine
                               label={t("transaction.maskedPan")}
                               text={formatMaskedPan(cardDetails.maskedPan)}
@@ -433,7 +433,7 @@ export const TransactionDetail = ({
                                 ),
                               )
                               .otherwise(() => null)}
-                          </>
+                          </ReadOnlyFieldList>
                         )}
 
                         <DetailLine

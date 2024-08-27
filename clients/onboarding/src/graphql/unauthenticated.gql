@@ -131,6 +131,9 @@ fragment OnboardingData on OnboardingInfo {
     name
     logoUri
     tcuDocumentUri(language: $language)
+    webBankingSettings {
+      canInitiatePaymentsToNewBeneficiaries
+    }
   }
   supportingDocumentCollection {
     id

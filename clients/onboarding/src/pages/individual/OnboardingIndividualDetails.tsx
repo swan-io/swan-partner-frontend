@@ -73,7 +73,6 @@ type Props = {
     fieldName: DetailsFieldName;
     code: ServerInvalidFieldCode;
   }[];
-  canInitiatePayments: boolean | null | undefined;
 };
 
 export const OnboardingIndividualDetails = ({
@@ -84,7 +83,6 @@ export const OnboardingIndividualDetails = ({
   country,
   accountCountry,
   serverValidationErrors,
-  canInitiatePayments,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
   const isFirstMount = useFirstMountState();
@@ -94,8 +92,8 @@ export const OnboardingIndividualDetails = ({
     (accountCountry === "ESP" && country === "ESP") ||
     (accountCountry === "ITA" && country === "ITA");
 
-  const isTaxIdentificationRequired = match({ accountCountry, country, canInitiatePayments })
-    .with({ accountCountry: "ITA", country: "ITA", canInitiatePayments: true }, () => true)
+  const isTaxIdentificationRequired = match({ accountCountry, country })
+    .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
   const { Field, submitForm, setFieldError } = useForm({
@@ -222,7 +220,7 @@ export const OnboardingIndividualDetails = ({
                   )}
                 </Field>
 
-                {canSetTaxIdentification && isTaxIdentificationRequired && (
+                {canSetTaxIdentification && (
                   <>
                     <Space height={32} />
 

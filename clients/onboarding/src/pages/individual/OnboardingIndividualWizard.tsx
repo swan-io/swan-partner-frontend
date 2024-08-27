@@ -54,8 +54,6 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
   const projectName = onboarding.projectInfo?.name ?? "";
   const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
   const accountCountry = onboarding.accountCountry ?? "FRA";
-  const canInitiatePayments =
-    onboarding.projectInfo?.webBankingSettings?.canInitiatePaymentsToNewBeneficiaries;
 
   const address = holder.residencyAddress;
   const addressCountry = address?.country;
@@ -212,7 +210,6 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
               country={country}
               accountCountry={accountCountry}
               serverValidationErrors={finalized ? detailsStepErrors : []}
-              canInitiatePayments={canInitiatePayments}
             />
           </TrackingProvider>
         ))

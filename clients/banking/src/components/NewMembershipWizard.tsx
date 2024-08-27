@@ -828,13 +828,17 @@ export const NewMembershipWizard = ({
                       </View>
                     </Box>
 
-                    <FieldsListener names={["country"]}>
+                    <FieldsListener names={["country", "canInitiatePayments"]}>
                       {({ country }) =>
-                        match({ accountCountry, country: country.value })
+                        match({ accountCountry, country: country.value, partiallySavedValues })
                           .with(
                             P.union(
                               { accountCountry: "DEU", country: "DEU" },
-                              { accountCountry: "ITA" },
+                              {
+                                country: "ITA",
+                                accountCountry: "ITA",
+                                partiallySavedValues: { canInitiatePayments: true },
+                              },
                             ),
                             () => (
                               <Field name="taxIdentificationNumber">

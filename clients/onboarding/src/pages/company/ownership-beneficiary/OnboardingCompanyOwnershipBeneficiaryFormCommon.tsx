@@ -72,6 +72,7 @@ export type Input = {
 type Props = {
   placekitApiKey: string | undefined;
   accountCountry: AccountCountry;
+  companyCountry: CountryCCA3;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -83,7 +84,7 @@ export type OnboardingCompanyOwnershipBeneficiaryFormCommonRef = {
 export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
   OnboardingCompanyOwnershipBeneficiaryFormCommonRef,
   Props
->(({ placekitApiKey, accountCountry, initialValues, onSave }, ref) => {
+>(({ placekitApiKey, accountCountry, companyCountry, initialValues, onSave }, ref) => {
   const isBirthInfoRequired = match(accountCountry)
     .with("ESP", "FRA", "NLD", "ITA", () => true)
     .otherwise(() => false);
@@ -107,7 +108,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
       validate: isBirthInfoRequired ? validateRequired : undefined,
     },
     birthCountryCode: {
-      initialValue: initialValues.birthCountryCode ?? accountCountry,
+      initialValue: initialValues.birthCountryCode ?? companyCountry,
       validate: validateRequired,
     },
     birthCity: {

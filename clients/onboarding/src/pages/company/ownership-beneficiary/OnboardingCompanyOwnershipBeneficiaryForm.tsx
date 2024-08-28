@@ -1,7 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { StepDots } from "@swan-io/lake/src/components/StepDots";
-import { isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { CountryCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import {
   validateBooleanRequired,
   validateIndividualTaxNumber,
@@ -44,6 +44,7 @@ export type SaveValue = WithReference<CommonInput & Partial<AddressInput>>;
 type Props = {
   initialValues?: Partial<Input>;
   accountCountry: AccountCountry;
+  companyCountry: CountryCCA3;
   step: BeneficiaryFormStep;
   placekitApiKey: string;
   onStepChange: (step: BeneficiaryFormStep) => void;
@@ -61,6 +62,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
     {
       initialValues = {},
       accountCountry,
+      companyCountry,
       step,
       placekitApiKey,
       onStepChange,
@@ -108,6 +110,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
               ref={commonRef}
               placekitApiKey={placekitApiKey}
               accountCountry={accountCountry}
+              companyCountry={companyCountry}
               initialValues={
                 commonValuesRef.current.isSome() ? commonValuesRef.current.get() : initialValues
               }
@@ -129,6 +132,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
               ref={addressRef}
               placekitApiKey={placekitApiKey}
               accountCountry={accountCountry}
+              companyCountry={companyCountry}
               initialValues={
                 addressValuesRef.current.isSome() ? addressValuesRef.current.get() : initialValues
               }

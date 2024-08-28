@@ -44,6 +44,7 @@ export type Input = {
 type Props = {
   placekitApiKey: string | undefined;
   accountCountry: AccountCountry;
+  companyCountry: CountryCCA3;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -56,7 +57,7 @@ export type OnboardingCompanyOwnershipBeneficiaryFormAddressRef = {
 export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
   OnboardingCompanyOwnershipBeneficiaryFormAddressRef,
   Props
->(({ placekitApiKey, accountCountry, initialValues, onSave }, ref) => {
+>(({ placekitApiKey, accountCountry, companyCountry, initialValues, onSave }, ref) => {
   const { Field, FieldsListener, getFieldValue, setFieldValue, submitForm } = useForm<FormValues>({
     residencyAddressLine1: {
       initialValue: initialValues.residencyAddressLine1 ?? "",
@@ -76,7 +77,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
     residencyAddressCountry: {
       initialValue: isCountryCCA3(initialValues.residencyAddressCountry)
         ? initialValues.residencyAddressCountry
-        : accountCountry,
+        : companyCountry,
       validate: validateRequired,
     },
     taxIdentificationNumber: {

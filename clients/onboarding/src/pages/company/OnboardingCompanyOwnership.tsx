@@ -599,6 +599,7 @@ export const OnboardingCompanyOwnership = ({
             .with({ type: "edit" }, ({ ubo }) => ubo)
             .otherwise(() => undefined)}
           accountCountry={accountCountry}
+          companyCountry={country}
           step={match(pageState)
             .with({ step: "Address" }, ({ step }) => step)
             .otherwise(() => "Common" as const)}

@@ -9,7 +9,7 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullishOrEmpty, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
@@ -59,7 +59,7 @@ export type FormValues = {
 export type Input = {
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string | null;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -167,7 +167,9 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate: birthDate.map(encodeBirthDate),
+              birthDate: birthDate.flatMap(value =>
+                isNullishOrEmpty(value) ? Option.Some(null) : birthDate.map(encodeBirthDate),
+              ),
               birthCountryCode,
               birthCity,
               birthCityPostalCode,

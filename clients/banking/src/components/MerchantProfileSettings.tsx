@@ -7,6 +7,7 @@ import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeCopyButton } from "@swan-io/lake/src/components/LakeCopyButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -590,6 +591,28 @@ export const MerchantProfileSettings = ({
               label={t("merchantProfile.request.merchantName.label")}
               render={() => (
                 <LakeText color={colors.gray[900]}>{merchantProfile.merchantName}</LakeText>
+              )}
+            />
+
+            <Separator horizontal={false} space={8} />
+          </Box>
+
+          <Box>
+            <LakeLabel
+              type="view"
+              color="gray"
+              label={t("merchantProfile.request.id")}
+              render={() => (
+                <Box direction="row" alignItems="center" justifyContent="spaceBetween">
+                  <LakeText color={colors.gray[900]}>{merchantProfile.id}</LakeText>
+
+                  <LakeCopyButton
+                    copyText={t("copyButton.copyTooltip")}
+                    copiedText={t("copyButton.copiedTooltip")}
+                    valueToCopy={merchantProfile.id}
+                    color={colors.gray[900]}
+                  />
+                </Box>
               )}
             />
 

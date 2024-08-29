@@ -499,6 +499,7 @@
   "merchantProfile.request.accentColor.label": "Accent color",
   "merchantProfile.request.expectedAverageBasket.label": "Expected average transaction",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Expected monthly payment volume",
+  "merchantProfile.request.id": "Merchant ID",
   "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, max 1MB",
   "merchantProfile.request.merchantLogo.label": "Merchant logo",
   "merchantProfile.request.merchantName.label": "Merchant name",

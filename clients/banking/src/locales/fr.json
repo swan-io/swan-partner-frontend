@@ -499,6 +499,7 @@
   "merchantProfile.request.accentColor.label": "Couleur d'accentuation",
   "merchantProfile.request.expectedAverageBasket.label": "Transaction moyenne attendue",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Volume de paiement mensuel attendu",
+  "merchantProfile.request.id": "Identifiant du commerçant",
   "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, max 1 Mo",
   "merchantProfile.request.merchantLogo.label": "Logo du commerçant",
   "merchantProfile.request.merchantName.label": "Nom du commerçant",

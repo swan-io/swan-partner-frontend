@@ -499,6 +499,7 @@
   "merchantProfile.request.accentColor.label": "Accentkleur",
   "merchantProfile.request.expectedAverageBasket.label": "Verwacht gemiddelde transactie",
   "merchantProfile.request.expectedMonthlyPaymentVolume.label": "Verwacht maandelijks betalingsvolume",
+  "merchantProfile.request.id": "Winkeliers-ID",
   "merchantProfile.request.merchantLogo.acceptedImageUpload": "PNG, maximaal 1 MB",
   "merchantProfile.request.merchantLogo.label": "Handelaarslogo",
   "merchantProfile.request.merchantName.label": "Handelaarsnaam",

@@ -17,7 +17,7 @@
   "paymentLink.country": "Country",
   "paymentLink.cvvRequired": "Your CVV is required.",
   "paymentLink.error.retry": "Try again",
-  "paymentLink.error.subtitle": "We couldn't set up your payment with Swan.\nPlease try again or contact Customer Support.",
+  "paymentLink.error.subtitle": "We couldn't process your payment with Swan.\nPlease try again or contact Customer Support.",
   "paymentLink.error.title": "Something went wrong.",
   "paymentLink.expiryDateRequired": "Your expiry date is required.",
   "paymentLink.iban": "IBAN",

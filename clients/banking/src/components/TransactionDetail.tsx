@@ -147,7 +147,7 @@ export const TransactionDetail = ({
 
     ...match(transaction)
       .returnType<typeof tabs>()
-      .with({ __typename: "CardTransaction" }, () => [
+      .with({ __typename: "CardTransaction", merchant: { __typename: "CardOutMerchant" } }, () => [
         { id: "merchantInfo", label: t("transaction.tabs.merchantInfo") },
       ])
       .with({ beneficiary: P.nonNullable }, () =>

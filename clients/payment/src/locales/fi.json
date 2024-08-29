@@ -17,7 +17,7 @@
   "paymentLink.country": "Maa",
   "paymentLink.cvvRequired": "CVV-koodisi vaaditaan.",
   "paymentLink.error.retry": "Yritä uudelleen",
-  "paymentLink.error.subtitle": "Emme voineet määrittää maksuasi Swanilla.\nYritä uudelleen tai ota yhteyttä asiakastukeen.",
+  "paymentLink.error.subtitle": "Maksua Swanin kanssa ei voitu käsitellä.\nYritä uudelleen tai ota yhteyttä asiakastukeen.",
   "paymentLink.error.title": "Jotain meni pieleen.",
   "paymentLink.expiryDateRequired": "Voimassaolon päättymispäivämäärä on pakollinen.",
   "paymentLink.iban": "IBAN",

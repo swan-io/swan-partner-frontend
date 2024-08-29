@@ -17,7 +17,7 @@
   "paymentLink.country": "Pays",
   "paymentLink.cvvRequired": "Votre CVV est requis",
   "paymentLink.error.retry": "Réessayer",
-  "paymentLink.error.subtitle": "Nous n'avons pas pu configurer votre paiement avec Swan.\nMerci de réessayer ou de contacter le service client.",
+  "paymentLink.error.subtitle": "Nous n'avons pas pu traiter votre paiement avec Swan.\nVeuillez réessayer ou contacter le service client.",
   "paymentLink.error.title": "Un problème est survenu.",
   "paymentLink.expiryDateRequired": "Votre date d'expiration est requise.",
   "paymentLink.iban": "IBAN",

@@ -106,7 +106,7 @@ const routes = {
 
       ...createGroup("Profile", "/:merchantProfileId", {
         Area: "/*",
-        Settings: "/?:check{true}",
+        Settings: "/?:check{declare}",
       }),
     }),
   }),

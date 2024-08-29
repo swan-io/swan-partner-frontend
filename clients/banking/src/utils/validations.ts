@@ -309,7 +309,7 @@ export const validateHexColor: Validator<string> = value => {
   }
 };
 
-const CMC7_RE = /^\d{7} \d{12} \d{12}$/;
+const CMC7_RE = /^\d{31}$/;
 
 export const validateCMC7 = (value: string) => {
   if (!CMC7_RE.test(value)) {

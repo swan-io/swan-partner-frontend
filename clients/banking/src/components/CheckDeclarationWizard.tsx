@@ -1,3 +1,5 @@
+import { Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -6,6 +8,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Stack } from "@swan-io/lake/src/components/Stack";
 import { Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import {
@@ -20,8 +23,10 @@ import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Rifm } from "rifm";
+import { InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
 import { WizardLayout } from "./WizardLayout";
@@ -58,12 +63,6 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     maxWidth: 220,
   },
-  addButton: {
-    borderColor: colors.gray[300],
-    borderRadius: radii[8],
-    borderStyle: "dashed",
-    paddingVertical: spacings[20],
-  },
   check: {
     borderColor: colors.gray[200],
     borderRadius: radii[8],
@@ -95,16 +94,24 @@ const NumberDot = ({ value }: { value: number }) => (
   </View>
 );
 
-const CheckForm = ({
-  title,
-  large,
-  onOpenHelp,
-}: {
-  title: string;
-  large: boolean;
-  onOpenHelp: () => void;
-}) => {
-  const { Field } = useForm({
+type Props = {
+  merchantProfileId: string;
+  onPressClose?: () => void;
+};
+
+type DeclaredCheck = {
+  label: string;
+  amount: number;
+  cmc7: string;
+  rlmcKey: string;
+};
+
+export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Props) => {
+  const [declaredChecks, setDeclaredChecks] = useState<DeclaredCheck[]>([]);
+  const [initiateCheckMerchantPayment] = useMutation(InitiateCheckMerchantPaymentDocument);
+  const [helpModalVisible, setHelpModal] = useDisclosure(false);
+
+  const { Field, formStatus, submitForm } = useForm({
     label: {
       initialValue: "",
       sanitize: trim,
@@ -125,6 +132,7 @@ const CheckForm = ({
     },
     cmc7: {
       initialValue: "",
+      sanitize: value => value.replace(/\s/g, ""),
       validate: combineValidators(validateRequired, validateCMC7),
     },
     rlmc: {
@@ -132,137 +140,6 @@ const CheckForm = ({
       validate: combineValidators(validateRequired, validateRLMC),
     },
   });
-
-  return (
-    <Tile title={title}>
-      <LakeLabel
-        label={t("check.form.customLabel")}
-        optionalLabel={t("form.optional")}
-        render={id => (
-          <Field name="label">
-            {({ ref, error, valid, value, onBlur, onChange }) => (
-              <LakeTextInput
-                ref={ref}
-                id={id}
-                error={error}
-                valid={valid}
-                value={value}
-                onBlur={onBlur}
-                onChangeText={onChange}
-              />
-            )}
-          </Field>
-        )}
-      />
-
-      <Space height={8} />
-
-      <LakeLabel
-        label={t("check.form.amount")}
-        render={id => (
-          <Field name="amount">
-            {({ ref, error, valid, value, onBlur, onChange }) => (
-              <LakeTextInput
-                ref={ref}
-                id={id}
-                error={error}
-                valid={valid}
-                value={value}
-                unit="EUR"
-                onBlur={onBlur}
-                onChangeText={onChange}
-              />
-            )}
-          </Field>
-        )}
-      />
-
-      <Box direction={large ? "row" : "column"} alignItems={large ? "center" : "stretch"}>
-        <LakeLabel
-          label={t("check.form.cmc7")}
-          style={styles.grow}
-          help={
-            <LakeButton
-              mode="tertiary"
-              size="small"
-              color="gray"
-              icon="question-circle-regular"
-              onPress={onOpenHelp}
-              ariaLabel={t("common.help.whatIsThis")}
-            >
-              {t("common.help.whatIsThis")}
-            </LakeButton>
-          }
-          render={id => (
-            <Field name="cmc7">
-              {({ ref, error, valid, value, onBlur, onChange }) => (
-                <Rifm value={value} onChange={onChange} {...rifmCMC7Props}>
-                  {({ value, onChange }) => (
-                    <LakeTextInput
-                      ref={ref}
-                      id={id}
-                      error={error}
-                      valid={valid}
-                      value={value}
-                      placeholder={CMC7_EXAMPLE}
-                      onBlur={onBlur}
-                      onChange={onChange}
-                    />
-                  )}
-                </Rifm>
-              )}
-            </Field>
-          )}
-        />
-
-        <Space width={32} />
-
-        <LakeLabel
-          label={t("check.form.rlmc")}
-          style={large && styles.rlmcLarge}
-          help={
-            <LakeButton
-              mode="tertiary"
-              size="small"
-              color="gray"
-              icon="question-circle-regular"
-              ariaLabel={t("common.help.whatIsThis")}
-              onPress={onOpenHelp}
-            >
-              {t("common.help.whatIsThis")}
-            </LakeButton>
-          }
-          render={id => (
-            <Field name="rlmc">
-              {({ ref, error, valid, value, onBlur, onChange }) => (
-                <LakeTextInput
-                  ref={ref}
-                  id={id}
-                  error={error}
-                  valid={valid}
-                  value={value}
-                  placeholder="00"
-                  onBlur={onBlur}
-                  onChangeText={text => {
-                    // replace all non-digits characters
-                    onChange(text.replace(/[^\d]/g, ""));
-                  }}
-                />
-              )}
-            </Field>
-          )}
-        />
-      </Box>
-    </Tile>
-  );
-};
-
-type Props = {
-  onPressClose?: () => void;
-};
-
-export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
-  const [helpModalVisible, setHelpModal] = useDisclosure(false);
 
   return (
     <WizardLayout title={t("check.form.title")} onPressClose={onPressClose}>
@@ -275,26 +152,180 @@ export const CheckDeclarationWizard = ({ onPressClose }: Props) => {
           <Space height={8} />
           <LakeText variant="smallRegular">{t("check.form.description")}</LakeText>
           <Space height={32} />
-          <CheckForm title="Check 1" large={large} onOpenHelp={setHelpModal.open} />
-          <Space height={32} />
 
-          <LakeButton
-            mode="secondary"
-            direction="column"
-            icon="add-circle-regular"
-            iconSize={24}
-            style={styles.addButton}
+          <Stack space={32}>
+            {declaredChecks.map(() => (
+              <Tile />
+            ))}
+          </Stack>
+
+          <Tile
+            title={t("check.form.checkTitle", {
+              number: declaredChecks.length + 1,
+            })}
           >
-            {t("check.form.add")}
-          </LakeButton>
+            <LakeLabel
+              label={t("check.form.customLabel")}
+              optionalLabel={t("form.optional")}
+              render={id => (
+                <Field name="label">
+                  {({ ref, error, valid, value, onBlur, onChange }) => (
+                    <LakeTextInput
+                      ref={ref}
+                      id={id}
+                      error={error}
+                      valid={valid}
+                      value={value}
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  )}
+                </Field>
+              )}
+            />
 
-          <Space height={16} />
+            <Space height={8} />
+
+            <LakeLabel
+              label={t("check.form.amount")}
+              render={id => (
+                <Field name="amount">
+                  {({ ref, error, valid, value, onBlur, onChange }) => (
+                    <LakeTextInput
+                      ref={ref}
+                      id={id}
+                      error={error}
+                      valid={valid}
+                      value={value}
+                      unit="EUR"
+                      onBlur={onBlur}
+                      onChangeText={onChange}
+                    />
+                  )}
+                </Field>
+              )}
+            />
+
+            <Box direction={large ? "row" : "column"} alignItems={large ? "center" : "stretch"}>
+              <LakeLabel
+                label={t("check.form.cmc7")}
+                style={styles.grow}
+                help={
+                  <LakeButton
+                    mode="tertiary"
+                    size="small"
+                    color="gray"
+                    icon="question-circle-regular"
+                    onPress={setHelpModal.open}
+                    ariaLabel={t("common.help.whatIsThis")}
+                  >
+                    {t("common.help.whatIsThis")}
+                  </LakeButton>
+                }
+                render={id => (
+                  <Field name="cmc7">
+                    {({ ref, error, valid, value, onBlur, onChange }) => (
+                      <Rifm value={value} onChange={onChange} {...rifmCMC7Props}>
+                        {({ value, onChange }) => (
+                          <LakeTextInput
+                            ref={ref}
+                            id={id}
+                            error={error}
+                            valid={valid}
+                            value={value}
+                            placeholder={CMC7_EXAMPLE}
+                            onBlur={onBlur}
+                            onChange={onChange}
+                          />
+                        )}
+                      </Rifm>
+                    )}
+                  </Field>
+                )}
+              />
+
+              <Space width={32} />
+
+              <LakeLabel
+                label={t("check.form.rlmc")}
+                style={large && styles.rlmcLarge}
+                help={
+                  <LakeButton
+                    mode="tertiary"
+                    size="small"
+                    color="gray"
+                    icon="question-circle-regular"
+                    ariaLabel={t("common.help.whatIsThis")}
+                    onPress={setHelpModal.open}
+                  >
+                    {t("common.help.whatIsThis")}
+                  </LakeButton>
+                }
+                render={id => (
+                  <Field name="rlmc">
+                    {({ ref, error, valid, value, onBlur, onChange }) => (
+                      <LakeTextInput
+                        ref={ref}
+                        id={id}
+                        error={error}
+                        valid={valid}
+                        value={value}
+                        placeholder="00"
+                        onBlur={onBlur}
+                        onChangeText={text => {
+                          // replace all non-digits characters
+                          onChange(text.replace(/[^\d]/g, ""));
+                        }}
+                      />
+                    )}
+                  </Field>
+                )}
+              />
+            </Box>
+          </Tile>
+
+          <Space height={20} />
 
           <ResponsiveContainer breakpoint={800}>
             {({ small }) => (
               <LakeButtonGroup>
-                <LakeButton color="current" onPress={() => {}} grow={small} loading={false}>
+                <LakeButton color="current" grow={small} loading={false} onPress={() => {}}>
                   {t("check.form.declare")}
+                </LakeButton>
+
+                <LakeButton
+                  icon="add-circle-regular"
+                  mode="secondary"
+                  grow={small}
+                  loading={false}
+                  onPress={() => {
+                    // setDeclaredChecks({});
+
+                    submitForm({
+                      onSuccess: values => {
+                        const option = Option.allFromDict(values);
+
+                        if (option.isSome()) {
+                          const { label, amount, cmc7, rlmc } = option.get();
+                          console.log({ label, amount, cmc7, rlmc });
+
+                          return initiateCheckMerchantPayment({
+                            input: {
+                              merchantProfileId,
+                              cmc7,
+                              rlmcKey: rlmc,
+                              amount: {
+                                currency: "EUR",
+                                value: amount,
+                              },
+                            },
+                          }); // tap rejection and shit
+                        }
+                      },
+                    });
+                  }}
+                >
+                  {t("check.form.declareAndAdd")}
                 </LakeButton>
               </LakeButtonGroup>
             )}

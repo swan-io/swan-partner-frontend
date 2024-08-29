@@ -153,6 +153,9 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                       paymentMethods: merchantPaymentLink.paymentMethods,
                       params: route?.params,
                     })
+                      .with({ params: { error: "true" } }, () => (
+                        <CardErrorPage paymentLinkId={merchantPaymentLink.id} />
+                      ))
                       .with(
                         { paymentMethods: [P.nonNullable, ...P.array()] },
                         ({ paymentMethods }) => (
@@ -174,7 +177,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                     },
                     () => <SuccessPage mandateUrl={mandateUrl} redirectUrl={redirectUrl} />,
                   )
-                  .with({ params: { error: "true" } }, () => <CardErrorPage />)
+
                   .with(
                     {
                       route: "PaymentSuccess",

@@ -2703,28 +2703,6 @@ mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!
 mutation InitiateCheckMerchantPayment($input: InitiateCheckMerchantPaymentInput!) {
   initiateCheckMerchantPayment(input: $input) {
     __typename
-    ... on CheckRejection {
-      message
-      fnciInfo {
-        cpt1
-        colorCode
-        cpt2
-        cpt3
-        holderEstablishment
-        responseCode
-      }
-    }
-    ... on ValidationRejection {
-      message
-      fields {
-        code
-        message
-        path
-      }
-    }
-    ... on Rejection {
-      message
-    }
     ... on InitiateCheckMerchantPaymentSuccessPayload {
       fnciInfo {
         colorCode
@@ -2732,15 +2710,19 @@ mutation InitiateCheckMerchantPayment($input: InitiateCheckMerchantPaymentInput!
         cpt2
         cpt3
         holderEstablishment
-        responseCode
       }
-      merchantPayment {
-        createdAt
-        id
-        statusInfo {
-          __typename
-        }
+    }
+    ... on CheckRejection {
+      fnciInfo {
+        colorCode
+        cpt1
+        cpt2
+        cpt3
+        holderEstablishment
       }
+    }
+    ... on Rejection {
+      message
     }
   }
 }

@@ -15,20 +15,27 @@ import {
   colors,
   fonts,
   invariantColors,
+  negativeSpacings,
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Rifm } from "rifm";
+import { match } from "ts-pattern";
 import { InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
+import { FoldableAlert } from "./FoldableAlert";
 import { WizardLayout } from "./WizardLayout";
 
 const CMC7_EXAMPLE = "0000000 000000000000 000000000000";
@@ -94,6 +101,85 @@ const NumberDot = ({ value }: { value: number }) => (
   </View>
 );
 
+const CollapsedCheck = ({
+  large,
+  title,
+  label,
+  amount,
+  cmc7,
+  rlmcKey,
+}: {
+  large: boolean;
+  title: string;
+  label: string;
+  amount: string;
+  cmc7: string;
+  rlmcKey: string;
+}) => {
+  const [opened, setOpened] = useDisclosure(false);
+
+  return (
+    <Tile
+      title={title}
+      headerEnd={
+        <LakeButton
+          aria-expanded={opened}
+          icon={opened ? "chevron-up-filled" : "chevron-down-filled"}
+          size="small"
+          ariaLabel="Expand / Collapse" // TODO: translate
+          mode="tertiary"
+          onPress={setOpened.toggle}
+          style={{
+            position: "absolute",
+            right: negativeSpacings[8],
+            top: negativeSpacings[8],
+          }}
+        />
+      }
+      footer={
+        <FoldableAlert
+          variant="success"
+          title="Check passed FNCI verification"
+          description="toto"
+        />
+      }
+    >
+      {opened ? (
+        <>
+          <LakeLabel
+            label={t("check.form.customLabel")}
+            optionalLabel={t("form.optional")}
+            render={id => <LakeTextInput id={id} readOnly={true} value={label} />}
+          />
+
+          <Space height={8} />
+
+          <LakeLabel
+            label={t("check.form.amount")}
+            render={id => <LakeTextInput id={id} readOnly={true} value={amount} unit="EUR" />}
+          />
+
+          <Box direction={large ? "row" : "column"} alignItems={large ? "center" : "stretch"}>
+            <LakeLabel
+              label={t("check.form.cmc7")}
+              render={id => <LakeTextInput id={id} readOnly={true} value={cmc7} />}
+              style={styles.grow}
+            />
+
+            <Space width={32} />
+
+            <LakeLabel
+              label={t("check.form.rlmc")}
+              render={id => <LakeTextInput id={id} readOnly={true} value={rlmcKey} />}
+              style={large && styles.rlmcLarge}
+            />
+          </Box>
+        </>
+      ) : null}
+    </Tile>
+  );
+};
+
 type Props = {
   merchantProfileId: string;
   onPressClose?: () => void;
@@ -101,17 +187,18 @@ type Props = {
 
 type DeclaredCheck = {
   label: string;
-  amount: number;
+  amount: string;
   cmc7: string;
   rlmcKey: string;
 };
 
 export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Props) => {
   const [declaredChecks, setDeclaredChecks] = useState<DeclaredCheck[]>([]);
-  const [initiateCheckMerchantPayment] = useMutation(InitiateCheckMerchantPaymentDocument);
   const [helpModalVisible, setHelpModal] = useDisclosure(false);
+  const [declareOnly, declareOnlyData] = useMutation(InitiateCheckMerchantPaymentDocument);
+  const [declareAndAdd, declareAndAddData] = useMutation(InitiateCheckMerchantPaymentDocument);
 
-  const { Field, formStatus, submitForm } = useForm({
+  const { Field, resetForm, submitForm } = useForm({
     label: {
       initialValue: "",
       sanitize: trim,
@@ -135,7 +222,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
       sanitize: value => value.replace(/\s/g, ""),
       validate: combineValidators(validateRequired, validateCMC7),
     },
-    rlmc: {
+    rlmcKey: {
       initialValue: "",
       validate: combineValidators(validateRequired, validateRLMC),
     },
@@ -153,16 +240,41 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
           <LakeText variant="smallRegular">{t("check.form.description")}</LakeText>
           <Space height={32} />
 
-          <Stack space={32}>
-            {declaredChecks.map(() => (
-              <Tile />
-            ))}
-          </Stack>
+          {declaredChecks.length > 0 && (
+            <>
+              <Stack space={32}>
+                {declaredChecks.map((check, index) => (
+                  <CollapsedCheck
+                    key={`${check.cmc7}-${index}`}
+                    large={large}
+                    title={t("check.form.checkTitle", {
+                      number: index + 1,
+                    })}
+                    label={check.label}
+                    amount={check.amount}
+                    cmc7={check.cmc7}
+                    rlmcKey={check.rlmcKey}
+                  />
+                ))}
+              </Stack>
+
+              <Space height={32} />
+            </>
+          )}
 
           <Tile
             title={t("check.form.checkTitle", {
               number: declaredChecks.length + 1,
             })}
+            footer={
+              // TODO: change this
+              // <FoldableAlert
+              //   variant="error"
+              //   title="Check failed FNCI verification"
+              //   description="toto"
+              // />
+              null
+            }
           >
             <LakeLabel
               label={t("check.form.customLabel")}
@@ -262,7 +374,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                   </LakeButton>
                 }
                 render={id => (
-                  <Field name="rlmc">
+                  <Field name="rlmcKey">
                     {({ ref, error, valid, value, onBlur, onChange }) => (
                       <LakeTextInput
                         ref={ref}
@@ -289,7 +401,12 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
           <ResponsiveContainer breakpoint={800}>
             {({ small }) => (
               <LakeButtonGroup>
-                <LakeButton color="current" grow={small} loading={false} onPress={() => {}}>
+                <LakeButton
+                  color="current"
+                  grow={small}
+                  loading={declareOnlyData.isLoading()}
+                  onPress={() => {}}
+                >
                   {t("check.form.declare")}
                 </LakeButton>
 
@@ -297,29 +414,54 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                   icon="add-circle-regular"
                   mode="secondary"
                   grow={small}
-                  loading={false}
+                  loading={declareAndAddData.isLoading()}
                   onPress={() => {
-                    // setDeclaredChecks({});
-
                     submitForm({
                       onSuccess: values => {
                         const option = Option.allFromDict(values);
 
                         if (option.isSome()) {
-                          const { label, amount, cmc7, rlmc } = option.get();
-                          console.log({ label, amount, cmc7, rlmc });
+                          const declaredCheck = option.get();
 
-                          return initiateCheckMerchantPayment({
+                          return declareAndAdd({
                             input: {
                               merchantProfileId,
-                              cmc7,
-                              rlmcKey: rlmc,
+                              label: emptyToUndefined(declaredCheck.label),
+                              cmc7: declaredCheck.cmc7,
+                              rlmcKey: declaredCheck.rlmcKey,
                               amount: {
                                 currency: "EUR",
-                                value: amount,
+                                value: declaredCheck.amount,
                               },
                             },
-                          }); // tap rejection and shit
+                          })
+                            .mapOk(data => data.initiateCheckMerchantPayment)
+                            .mapOkToResult(data => Option.fromNullable(data).toResult(undefined))
+                            .mapOkToResult(filterRejectionsToResult)
+                            .tapOk(({ fnciInfo }) => {
+                              setDeclaredChecks(prevChecks => [...prevChecks, declaredCheck]);
+                              resetForm();
+
+                              // match(trustedBeneficiary.statusInfo)
+                              //   .with(
+                              //     { __typename: "TrustedBeneficiaryConsentPendingStatusInfo" },
+                              //     ({ consent }) => window.location.assign(consent.consentUrl),
+                              //   )
+                              //   .otherwise(() => {});
+                            })
+                            .tapError(error => {
+                              match(error)
+                                .with({ __typename: "CheckRejection" }, () => {
+                                  // TODO: add an alert
+                                })
+                                .otherwise(error => {
+                                  showToast({
+                                    variant: "error",
+                                    error,
+                                    title: translateError(error),
+                                  });
+                                });
+                            });
                         }
                       },
                     });

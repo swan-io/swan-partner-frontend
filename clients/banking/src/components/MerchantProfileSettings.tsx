@@ -1093,8 +1093,9 @@ export const MerchantProfileSettings = ({
         />
       </LakeModal>
 
-      <FullViewportLayer visible={params.check === "true"}>
+      <FullViewportLayer visible={params.check === "declare"}>
         <CheckDeclarationWizard
+          merchantProfileId={merchantProfile.id}
           onPressClose={() => {
             Router.replace("AccountMerchantsProfileSettings", {
               ...params,

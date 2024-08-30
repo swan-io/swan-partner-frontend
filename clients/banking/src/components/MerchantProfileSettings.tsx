@@ -18,14 +18,20 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/constants/design";
+import {
+  colors,
+  fonts,
+  negativeSpacings,
+  radii,
+  spacings,
+} from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { ReactNode, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   MerchantPaymentMethodFragment,
@@ -33,8 +39,8 @@ import {
   MerchantProfileFragment,
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
-import { t } from "../utils/i18n";
-import { GetRouteParams } from "../utils/routes";
+import { formatNestedMessage, t } from "../utils/i18n";
+import { GetRouteParams, Router } from "../utils/routes";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -99,9 +105,37 @@ const styles = StyleSheet.create({
     marginTop: negativeSpacings[16],
     marginRight: negativeSpacings[16],
   },
+  stepDot: {
+    backgroundColor: colors.partner[50],
+    borderWidth: 1,
+    borderColor: colors.partner[100],
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    width: 24,
+    height: 24,
+  },
+  stepDotText: {
+    fontFamily: fonts.primary,
+    color: colors.partner[500],
+    textAlign: "center",
+    fontSize: 14,
+    lineHeight: 24,
+  },
 });
 
 const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
+
+const Step = ({ number, children }: { number: number; children: ReactNode }) => (
+  <Box direction="row">
+    <View style={styles.stepDot}>
+      <Text style={styles.stepDotText}>{number}</Text>
+    </View>
+
+    <Space width={16} />
+    <LakeText>{children}</LakeText>
+  </Box>
+);
 
 const MerchantProfileSettingsPaymentMethodTile = ({
   title,
@@ -1091,6 +1125,42 @@ export const MerchantProfileSettings = ({
           }}
           onCancel={() => setIsEditModalOpen(false)}
         />
+      </LakeModal>
+
+      <LakeModal
+        visible={params.check === "next"}
+        maxWidth={750}
+        icon="check-regular"
+        title={t("check.next.title")}
+      >
+        <LakeText>{t("check.next.description.intro")}</LakeText>
+        <Space height={24} />
+        <Step number={1}>{t("check.next.description.step1")}</Step>
+        <Space height={16} />
+
+        <Step number={2}>
+          {formatNestedMessage("check.next.description.step2", {
+            colored: text => (
+              <LakeText variant="smallMedium" color={colors.partner[500]}>
+                {text}
+              </LakeText>
+            ),
+          })}
+        </Step>
+
+        <Space height={40} />
+
+        <LakeButton
+          color="partner"
+          onPress={() => {
+            Router.push("AccountMerchantsProfileSettings", {
+              ...params,
+              check: undefined,
+            });
+          }}
+        >
+          {t("check.next.button")}
+        </LakeButton>
       </LakeModal>
 
       <FullViewportLayer visible={params.check === "declare"}>

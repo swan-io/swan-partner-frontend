@@ -864,8 +864,7 @@ export const start = async ({
   if (mode !== "production") {
     // in dev mode, we boot vite servers that we proxy
     // the additional ports are the ones they need for the livereload web sockets
-    const { additionalPorts } = await startDevServer(app, httpsConfig);
-    additionalPorts.forEach(port => ports.add(String(port)));
+    await startDevServer(app, httpsConfig);
   } else {
     // in production, simply serve the files
     const productionRequestHandler = getProductionRequestHandler();

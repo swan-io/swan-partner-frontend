@@ -26,6 +26,7 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
+import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -41,6 +42,7 @@ import {
 } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -62,11 +64,11 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexGrow: 1,
     paddingHorizontal: spacings[24],
-    paddingTop: spacings[32],
+    paddingTop: spacings[4],
   },
   contentDesktop: {
     paddingHorizontal: spacings[40],
-    paddingTop: spacings[40],
+    paddingTop: spacings[16],
   },
   merchantNameContainer: {
     flex: 1,
@@ -106,9 +108,9 @@ const styles = StyleSheet.create({
     marginRight: negativeSpacings[16],
   },
   stepDot: {
-    backgroundColor: colors.partner[50],
+    backgroundColor: colors.current[50],
     borderWidth: 1,
-    borderColor: colors.partner[100],
+    borderColor: colors.current[100],
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
   },
   stepDotText: {
     fontFamily: fonts.primary,
-    color: colors.partner[500],
+    color: colors.current[500],
     textAlign: "center",
     fontSize: 14,
     lineHeight: 24,
@@ -457,6 +459,8 @@ export const MerchantProfileSettings = ({
   params,
   onUpdate,
 }: Props) => {
+  const checkDeclarationEnabled = useTgglFlag("checks");
+
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -514,6 +518,28 @@ export const MerchantProfileSettings = ({
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
+      {Option.all([checkDeclarationEnabled, checkPaymentMethod.flatMap(identity)]).isSome() && (
+        <>
+          <Box direction="row" alignItems="center">
+            <LakeButton
+              icon="check-regular"
+              size="small"
+              color="current"
+              onPress={() => {
+                Router.push("AccountMerchantsProfileSettings", {
+                  ...params,
+                  check: "declare",
+                });
+              }}
+            >
+              {t("merchantProfile.declareCheckButton")}
+            </LakeButton>
+          </Box>
+
+          <Space height={32} />
+        </>
+      )}
+
       <LakeHeading level={2} variant="h4">
         {t("merchantProfile.settings.information.title")}
       </LakeHeading>
@@ -1141,7 +1167,7 @@ export const MerchantProfileSettings = ({
         <Step number={2}>
           {formatNestedMessage("check.next.description.step2", {
             colored: text => (
-              <LakeText variant="smallMedium" color={colors.partner[500]}>
+              <LakeText variant="smallMedium" color={colors.current[500]}>
                 {text}
               </LakeText>
             ),
@@ -1151,7 +1177,7 @@ export const MerchantProfileSettings = ({
         <Space height={40} />
 
         <LakeButton
-          color="partner"
+          color="current"
           onPress={() => {
             Router.push("AccountMerchantsProfileSettings", {
               ...params,

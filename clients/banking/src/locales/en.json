@@ -526,6 +526,7 @@
   "merchantProfile.area.paymentLinks": "Payment links",
   "merchantProfile.area.payments": "Payments",
   "merchantProfile.area.settings": "Settings",
+  "merchantProfile.declareCheckButton": "Declare checks",
   "merchantProfile.list.Active": "Active",
   "merchantProfile.list.Inactive": "Inactive",
   "merchantProfile.list.name": "Name",

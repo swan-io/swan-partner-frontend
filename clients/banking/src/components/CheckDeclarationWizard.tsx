@@ -151,29 +151,19 @@ const CollapsedCheck = ({
           variant="success"
           title={t("check.fnci.successTitle")}
           more={
-            <>
-              <LakeText variant="smallRegular">{t("check.fnci.successSubtitle")}</LakeText>
-              <Space height={16} />
+            <LakeText variant="smallRegular">
+              {`${t("check.fnci.successSubtitle")}\n\n• `}
 
-              <LakeText variant="smallRegular">
-                •{" "}
-                {formatNestedMessage("check.fnci.code", {
-                  code: capitalize(code.toLowerCase()),
-                  bold: text => <LakeText variant="smallSemibold">{text}</LakeText>,
-                })}
-              </LakeText>
+              {formatNestedMessage("check.fnci.code", {
+                code: capitalize(code.toLowerCase()),
+                bold: text => <LakeText variant="smallSemibold">{text}</LakeText>,
+              })}
 
-              <LakeText variant="smallRegular">
-                • {t("check.fnci.cpt", { cpt1, cpt2, cpt3 })}
-              </LakeText>
+              {`\n• ${t("check.fnci.cpt", { cpt1, cpt2, cpt3 })}`}
+              {`\n• ${t("check.fnci.holderBank", { bank })}\n\n`}
 
-              <LakeText variant="smallRegular">• {t("check.fnci.holderBank", { bank })}</LakeText>
-              <Space height={16} />
-
-              <LakeText variant="smallRegular" style={styles.italic}>
-                {t("check.fnci.notice")}
-              </LakeText>
-            </>
+              <Text style={styles.italic}>{t("check.fnci.notice")}</Text>
+            </LakeText>
           }
         />
       }

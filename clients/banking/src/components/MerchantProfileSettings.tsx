@@ -34,7 +34,7 @@ import {
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { GetRouteParams, Router } from "../utils/routes";
+import { GetRouteParams } from "../utils/routes";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -1094,15 +1094,7 @@ export const MerchantProfileSettings = ({
       </LakeModal>
 
       <FullViewportLayer visible={params.check === "declare"}>
-        <CheckDeclarationWizard
-          merchantProfileId={merchantProfile.id}
-          onPressClose={() => {
-            Router.replace("AccountMerchantsProfileSettings", {
-              ...params,
-              check: undefined,
-            });
-          }}
-        />
+        <CheckDeclarationWizard merchantProfileId={merchantProfile.id} params={params} />
       </FullViewportLayer>
     </ScrollView>
   );

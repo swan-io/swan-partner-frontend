@@ -34,6 +34,7 @@ import { Rifm } from "rifm";
 import { match, P } from "ts-pattern";
 import { FnciInfoFragment, InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
+import { GetRouteParams, Router } from "../utils/routes";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
 import { FoldableAlert } from "./FoldableAlert";
 import { WizardLayout } from "./WizardLayout";
@@ -146,7 +147,7 @@ const FnciAlert = ({
   />
 );
 
-type CollapsedCheck = {
+type DeclaredCheck = {
   label: string;
   amount: string;
   cmc7: string;
@@ -154,7 +155,7 @@ type CollapsedCheck = {
   fnciInfo: FnciInfoFragment;
 };
 
-const CollapsedCheck = ({
+const DeclaredCheck = ({
   label,
   amount,
   cmc7,
@@ -162,7 +163,7 @@ const CollapsedCheck = ({
   fnciInfo,
   large,
   title,
-}: CollapsedCheck & {
+}: DeclaredCheck & {
   large: boolean;
   title: string;
 }) => {
@@ -222,15 +223,17 @@ const CollapsedCheck = ({
 
 type Props = {
   merchantProfileId: string;
-  onPressClose?: () => void;
+  params: GetRouteParams<"AccountMerchantsProfileSettings">;
 };
 
-export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Props) => {
-  const [collapsedChecks, setCollapsedChecks] = useState<CollapsedCheck[]>([]);
+export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => {
+  const [declaredChecks, setDeclaredChecks] = useState<DeclaredCheck[]>([]);
   const [fnciError, setFnciError] = useState<FnciInfoFragment>();
   const [helpModalVisible, setHelpModal] = useDisclosure(false);
 
-  const [declareOnly, declareOnlyData] = useMutation(InitiateCheckMerchantPaymentDocument);
+  const hasDeclaredChecks = declaredChecks.length > 0;
+
+  const [declareOne, declareOneData] = useMutation(InitiateCheckMerchantPaymentDocument);
   const [declareAndAdd, declareAndAddData] = useMutation(InitiateCheckMerchantPaymentDocument);
 
   const { Field, resetForm, submitForm } = useForm({
@@ -263,8 +266,67 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
     },
   });
 
+  const onClose = (showNext: boolean) => {
+    Router.replace("AccountMerchantsProfileSettings", {
+      ...params,
+      check: showNext ? "next" : undefined,
+    });
+  };
+
+  const onPressDeclare = (mode: "one" | "andAdd", onSuccess: (check: DeclaredCheck) => void) => {
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+
+        if (option.isSome()) {
+          const check = option.get();
+
+          const fn = match(mode)
+            .with("one", () => declareOne)
+            .with("andAdd", () => declareAndAdd)
+            .exhaustive();
+
+          return fn({
+            input: {
+              merchantProfileId,
+              label: emptyToUndefined(check.label),
+              cmc7: check.cmc7,
+              rlmcKey: check.rlmcKey,
+              amount: {
+                currency: "EUR",
+                value: check.amount,
+              },
+            },
+          })
+            .mapOk(data => data.initiateCheckMerchantPayment)
+            .mapOkToResult(data => Option.fromNullable(data).toResult(undefined))
+            .mapOkToResult(filterRejectionsToResult)
+            .tapOk(({ fnciInfo }) => onSuccess({ ...check, fnciInfo }))
+            .tapError(error => {
+              match(error)
+                .with({ __typename: "CheckRejection" }, ({ fnciInfo }) => {
+                  setFnciError(fnciInfo);
+                })
+                .otherwise(error => {
+                  showToast({
+                    variant: "error",
+                    error,
+                    title: translateError(error),
+                  });
+                });
+            });
+        }
+      },
+    });
+  };
+
   return (
-    <WizardLayout title={t("check.form.title")} onPressClose={onPressClose}>
+    <WizardLayout
+      title={t("check.form.title")}
+      onPressClose={() => {
+        onClose(hasDeclaredChecks);
+      }}
+    >
       {({ large }) => (
         <>
           <LakeHeading level={2} variant="h3">
@@ -275,11 +337,11 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
           <LakeText variant="smallRegular">{t("check.form.description")}</LakeText>
           <Space height={32} />
 
-          {collapsedChecks.length > 0 && (
+          {hasDeclaredChecks && (
             <>
               <Stack space={32}>
-                {collapsedChecks.map((check, index) => (
-                  <CollapsedCheck
+                {declaredChecks.map((check, index) => (
+                  <DeclaredCheck
                     key={`${check.cmc7}-${index}`}
                     label={check.label}
                     amount={check.amount}
@@ -300,7 +362,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
 
           <Tile
             title={t("check.form.checkTitle", {
-              number: collapsedChecks.length + 1,
+              number: declaredChecks.length + 1,
             })}
             footer={match(fnciError)
               .with(P.nonNullable, value => (
@@ -441,8 +503,10 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                   color="current"
                   grow={small}
                   disabled={declareAndAddData.isLoading()}
-                  loading={declareOnlyData.isLoading()}
-                  onPress={() => {}}
+                  loading={declareOneData.isLoading()}
+                  onPress={() => {
+                    onPressDeclare("one", () => onClose(true));
+                  }}
                 >
                   {t("check.form.declare")}
                 </LakeButton>
@@ -451,54 +515,12 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                   icon="add-circle-regular"
                   mode="secondary"
                   grow={small}
-                  disabled={declareOnlyData.isLoading()}
+                  disabled={declareOneData.isLoading()}
                   loading={declareAndAddData.isLoading()}
                   onPress={() => {
-                    submitForm({
-                      onSuccess: values => {
-                        const option = Option.allFromDict(values);
-
-                        if (option.isSome()) {
-                          const check = option.get();
-
-                          return declareAndAdd({
-                            input: {
-                              merchantProfileId,
-                              label: emptyToUndefined(check.label),
-                              cmc7: check.cmc7,
-                              rlmcKey: check.rlmcKey,
-                              amount: {
-                                currency: "EUR",
-                                value: check.amount,
-                              },
-                            },
-                          })
-                            .mapOk(data => data.initiateCheckMerchantPayment)
-                            .mapOkToResult(data => Option.fromNullable(data).toResult(undefined))
-                            .mapOkToResult(filterRejectionsToResult)
-                            .tapOk(({ fnciInfo }) => {
-                              resetForm();
-
-                              setCollapsedChecks(prevState => [
-                                ...prevState,
-                                { ...check, fnciInfo },
-                              ]);
-                            })
-                            .tapError(error => {
-                              match(error)
-                                .with({ __typename: "CheckRejection" }, ({ fnciInfo }) => {
-                                  setFnciError(fnciInfo);
-                                })
-                                .otherwise(error => {
-                                  showToast({
-                                    variant: "error",
-                                    error,
-                                    title: translateError(error),
-                                  });
-                                });
-                            });
-                        }
-                      },
+                    onPressDeclare("andAdd", check => {
+                      setDeclaredChecks(prevState => [...prevState, check]);
+                      resetForm();
                     });
                   }}
                 >

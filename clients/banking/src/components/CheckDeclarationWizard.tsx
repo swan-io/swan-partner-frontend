@@ -149,10 +149,10 @@ const CollapsedCheck = ({
       footer={
         <FoldableAlert
           variant="success"
-          title="Check passed FNCI verification"
+          title={t("check.fnci.successTitle")}
           more={
             <>
-              <LakeText variant="smallRegular">{t("check.fnci.success")}</LakeText>
+              <LakeText variant="smallRegular">{t("check.fnci.successSubtitle")}</LakeText>
               <Space height={16} />
 
               <LakeText variant="smallRegular">

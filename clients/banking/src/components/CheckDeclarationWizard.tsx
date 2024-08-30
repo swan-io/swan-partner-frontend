@@ -112,12 +112,15 @@ const NumberDot = ({ value }: { value: number }) => (
 const FnciAlert = ({
   variant,
   info: { colorCode: code, cpt1, cpt2, cpt3, holderEstablishment: bank },
+  openedAtStart = false,
 }: {
   variant: "success" | "error";
   info: FnciInfoFragment;
+  openedAtStart?: boolean;
 }) => (
   <FoldableAlert
     variant={variant}
+    openedAtStart={openedAtStart}
     title={match(variant)
       .with("success", () => t("check.fnci.successTitle"))
       .with("error", () => t("check.fnci.failureTitle"))
@@ -300,7 +303,9 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
               number: collapsedChecks.length + 1,
             })}
             footer={match(fnciError)
-              .with(P.nonNullable, value => <FnciAlert variant="error" info={value} />)
+              .with(P.nonNullable, value => (
+                <FnciAlert variant="error" info={value} openedAtStart={true} />
+              ))
               .otherwise(() => null)}
           >
             <LakeLabel
@@ -374,7 +379,10 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                             value={value}
                             placeholder={CMC7_EXAMPLE}
                             onBlur={onBlur}
-                            onChange={onChange}
+                            onChange={event => {
+                              onChange(event);
+                              setFnciError(undefined);
+                            }}
                           />
                         )}
                       </Rifm>
@@ -414,6 +422,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                         onChangeText={text => {
                           // replace all non-digits characters
                           onChange(text.replace(/[^\d]/g, ""));
+                          setFnciError(undefined);
                         }}
                       />
                     )}

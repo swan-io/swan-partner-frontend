@@ -10,10 +10,16 @@ type FoldableAlertProps = {
   variant: ComponentProps<typeof LakeAlert>["variant"];
   title: string;
   more: ReactNode;
+  openedAtStart?: boolean;
 };
 
-export const FoldableAlert = ({ variant, title, more }: FoldableAlertProps) => {
-  const [visible, { toggle }] = useDisclosure(false);
+export const FoldableAlert = ({
+  variant,
+  title,
+  more,
+  openedAtStart = false,
+}: FoldableAlertProps) => {
+  const [visible, { toggle }] = useDisclosure(openedAtStart);
 
   return (
     <LakeAlert

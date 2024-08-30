@@ -24,7 +24,7 @@ import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
-import { trim } from "@swan-io/lake/src/utils/string";
+import { capitalize, trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
@@ -32,7 +32,7 @@ import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Rifm } from "rifm";
 import { match } from "ts-pattern";
-import { InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
+import { FnciInfoFragment, InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
 import { FoldableAlert } from "./FoldableAlert";
@@ -93,6 +93,14 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontStyle: "italic",
   },
+  italic: {
+    fontStyle: "italic",
+  },
+  expandButton: {
+    position: "absolute",
+    top: negativeSpacings[8],
+    right: negativeSpacings[8],
+  },
 });
 
 const NumberDot = ({ value }: { value: number }) => (
@@ -101,22 +109,28 @@ const NumberDot = ({ value }: { value: number }) => (
   </View>
 );
 
-const CollapsedCheck = ({
-  large,
-  title,
-  label,
-  amount,
-  cmc7,
-  rlmcKey,
-}: {
-  large: boolean;
-  title: string;
+type CollapsedCheck = {
   label: string;
   amount: string;
   cmc7: string;
   rlmcKey: string;
+  fnciInfo: FnciInfoFragment;
+};
+
+const CollapsedCheck = ({
+  label,
+  amount,
+  cmc7,
+  rlmcKey,
+  fnciInfo,
+  large,
+  title,
+}: CollapsedCheck & {
+  large: boolean;
+  title: string;
 }) => {
   const [opened, setOpened] = useDisclosure(false);
+  const { colorCode: code, cpt1, cpt2, cpt3, holderEstablishment: bank } = fnciInfo;
 
   return (
     <Tile
@@ -125,22 +139,42 @@ const CollapsedCheck = ({
         <LakeButton
           aria-expanded={opened}
           icon={opened ? "chevron-up-filled" : "chevron-down-filled"}
+          ariaLabel={opened ? t("common.collapse") : t("common.expand")}
           size="small"
-          ariaLabel="Expand / Collapse" // TODO: translate
           mode="tertiary"
           onPress={setOpened.toggle}
-          style={{
-            position: "absolute",
-            right: negativeSpacings[8],
-            top: negativeSpacings[8],
-          }}
+          style={styles.expandButton}
         />
       }
       footer={
         <FoldableAlert
           variant="success"
           title="Check passed FNCI verification"
-          description="toto"
+          more={
+            <>
+              <LakeText variant="smallRegular">{t("check.fnci.success")}</LakeText>
+              <Space height={16} />
+
+              <LakeText variant="smallRegular">
+                •{" "}
+                {formatNestedMessage("check.fnci.code", {
+                  code: capitalize(code.toLowerCase()),
+                  bold: text => <LakeText variant="smallSemibold">{text}</LakeText>,
+                })}
+              </LakeText>
+
+              <LakeText variant="smallRegular">
+                • {t("check.fnci.cpt", { cpt1, cpt2, cpt3 })}
+              </LakeText>
+
+              <LakeText variant="smallRegular">• {t("check.fnci.holderBank", { bank })}</LakeText>
+              <Space height={16} />
+
+              <LakeText variant="smallRegular" style={styles.italic}>
+                {t("check.fnci.notice")}
+              </LakeText>
+            </>
+          }
         />
       }
     >
@@ -185,15 +219,8 @@ type Props = {
   onPressClose?: () => void;
 };
 
-type DeclaredCheck = {
-  label: string;
-  amount: string;
-  cmc7: string;
-  rlmcKey: string;
-};
-
 export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Props) => {
-  const [declaredChecks, setDeclaredChecks] = useState<DeclaredCheck[]>([]);
+  const [collapsedChecks, setCollapsedChecks] = useState<CollapsedCheck[]>([]);
   const [helpModalVisible, setHelpModal] = useDisclosure(false);
   const [declareOnly, declareOnlyData] = useMutation(InitiateCheckMerchantPaymentDocument);
   const [declareAndAdd, declareAndAddData] = useMutation(InitiateCheckMerchantPaymentDocument);
@@ -240,20 +267,21 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
           <LakeText variant="smallRegular">{t("check.form.description")}</LakeText>
           <Space height={32} />
 
-          {declaredChecks.length > 0 && (
+          {collapsedChecks.length > 0 && (
             <>
               <Stack space={32}>
-                {declaredChecks.map((check, index) => (
+                {collapsedChecks.map((check, index) => (
                   <CollapsedCheck
                     key={`${check.cmc7}-${index}`}
-                    large={large}
-                    title={t("check.form.checkTitle", {
-                      number: index + 1,
-                    })}
                     label={check.label}
                     amount={check.amount}
                     cmc7={check.cmc7}
                     rlmcKey={check.rlmcKey}
+                    fnciInfo={check.fnciInfo}
+                    large={large}
+                    title={t("check.form.checkTitle", {
+                      number: index + 1,
+                    })}
                   />
                 ))}
               </Stack>
@@ -264,7 +292,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
 
           <Tile
             title={t("check.form.checkTitle", {
-              number: declaredChecks.length + 1,
+              number: collapsedChecks.length + 1,
             })}
             footer={
               // TODO: change this
@@ -404,6 +432,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                 <LakeButton
                   color="current"
                   grow={small}
+                  disabled={declareAndAddData.isLoading()}
                   loading={declareOnlyData.isLoading()}
                   onPress={() => {}}
                 >
@@ -414,6 +443,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                   icon="add-circle-regular"
                   mode="secondary"
                   grow={small}
+                  disabled={declareOnlyData.isLoading()}
                   loading={declareAndAddData.isLoading()}
                   onPress={() => {
                     submitForm({
@@ -421,17 +451,17 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                         const option = Option.allFromDict(values);
 
                         if (option.isSome()) {
-                          const declaredCheck = option.get();
+                          const check = option.get();
 
                           return declareAndAdd({
                             input: {
                               merchantProfileId,
-                              label: emptyToUndefined(declaredCheck.label),
-                              cmc7: declaredCheck.cmc7,
-                              rlmcKey: declaredCheck.rlmcKey,
+                              label: emptyToUndefined(check.label),
+                              cmc7: check.cmc7,
+                              rlmcKey: check.rlmcKey,
                               amount: {
                                 currency: "EUR",
-                                value: declaredCheck.amount,
+                                value: check.amount,
                               },
                             },
                           })
@@ -439,7 +469,11 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                             .mapOkToResult(data => Option.fromNullable(data).toResult(undefined))
                             .mapOkToResult(filterRejectionsToResult)
                             .tapOk(({ fnciInfo }) => {
-                              setDeclaredChecks(prevChecks => [...prevChecks, declaredCheck]);
+                              setCollapsedChecks(prevChecks => [
+                                ...prevChecks,
+                                { ...check, fnciInfo },
+                              ]);
+
                               resetForm();
 
                               // match(trustedBeneficiary.statusInfo)

@@ -2700,25 +2700,25 @@ mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!
   }
 }
 
+fragment FnciInfo on FnciInfo {
+  colorCode
+  cpt1
+  cpt2
+  cpt3
+  holderEstablishment
+}
+
 mutation InitiateCheckMerchantPayment($input: InitiateCheckMerchantPaymentInput!) {
   initiateCheckMerchantPayment(input: $input) {
     __typename
     ... on InitiateCheckMerchantPaymentSuccessPayload {
       fnciInfo {
-        colorCode
-        cpt1
-        cpt2
-        cpt3
-        holderEstablishment
+        ...FnciInfo
       }
     }
     ... on CheckRejection {
       fnciInfo {
-        colorCode
-        cpt1
-        cpt2
-        cpt3
-        holderEstablishment
+        ...FnciInfo
       }
     }
     ... on Rejection {

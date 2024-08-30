@@ -6,5 +6,5 @@ RUN yarn install --pure-lockfile
 FROM node:latest
 WORKDIR /app
 COPY --chown=node:node --from=builder /app ./
-CMD ["npm", "run", "start-swan"]
+CMD ["yarn", "start-swan"]
 EXPOSE 8080

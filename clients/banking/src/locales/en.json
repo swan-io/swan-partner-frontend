@@ -297,6 +297,8 @@
   "cards.title": "Cards",
   "check.fnci.code": "Verification code (2): <bold>{code}</bold>",
   "check.fnci.cpt": "(3) CPT1: {cpt1} - CPT2: {cpt2} - CPT3: {cpt3}",
+  "check.fnci.failureSubtitle": "This check was flagged as irregular by the FNCI (1) and can’t be declared.",
+  "check.fnci.failureTitle": "Check failed FNCI verification",
   "check.fnci.holderBank": "Issuing bank: {bank}",
   "check.fnci.notice": "1. FNCI is the Fichier National des Chèques Impayés, or in English, National Register of Irregular Checks.\n2. Verification codes are either Green (positive result) or Orange/Red (irregular check result).\n3. CPT refers to the number of FNCI verifications for checks issued by the account holder, either on this day (CPT1) or within the past few days (CPT2-3).",
   "check.fnci.successSubtitle": "This check returned a positive response from the FNCI (1) and can be declared.",

@@ -31,7 +31,7 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { Rifm } from "rifm";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { FnciInfoFragment, InitiateCheckMerchantPaymentDocument } from "../graphql/partner";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { validateCMC7, validateRequired, validateRLMC } from "../utils/validations";
@@ -109,6 +109,40 @@ const NumberDot = ({ value }: { value: number }) => (
   </View>
 );
 
+const FnciAlert = ({
+  variant,
+  info: { colorCode: code, cpt1, cpt2, cpt3, holderEstablishment: bank },
+}: {
+  variant: "success" | "error";
+  info: FnciInfoFragment;
+}) => (
+  <FoldableAlert
+    variant={variant}
+    title={match(variant)
+      .with("success", () => t("check.fnci.successTitle"))
+      .with("error", () => t("check.fnci.failureTitle"))
+      .exhaustive()}
+    more={
+      <LakeText variant="smallRegular">
+        {`${match(variant)
+          .with("success", () => t("check.fnci.successSubtitle"))
+          .with("error", () => t("check.fnci.failureSubtitle"))
+          .exhaustive()}\n\n• `}
+
+        {formatNestedMessage("check.fnci.code", {
+          code: capitalize(code.toLowerCase()),
+          bold: text => <LakeText variant="smallSemibold">{text}</LakeText>,
+        })}
+
+        {`\n• ${t("check.fnci.cpt", { cpt1, cpt2, cpt3 })}`}
+        {`\n• ${t("check.fnci.holderBank", { bank })}\n\n`}
+
+        <Text style={styles.italic}>{t("check.fnci.notice")}</Text>
+      </LakeText>
+    }
+  />
+);
+
 type CollapsedCheck = {
   label: string;
   amount: string;
@@ -130,11 +164,11 @@ const CollapsedCheck = ({
   title: string;
 }) => {
   const [opened, setOpened] = useDisclosure(false);
-  const { colorCode: code, cpt1, cpt2, cpt3, holderEstablishment: bank } = fnciInfo;
 
   return (
     <Tile
       title={title}
+      footer={<FnciAlert variant="success" info={fnciInfo} />}
       headerEnd={
         <LakeButton
           aria-expanded={opened}
@@ -144,27 +178,6 @@ const CollapsedCheck = ({
           mode="tertiary"
           onPress={setOpened.toggle}
           style={styles.expandButton}
-        />
-      }
-      footer={
-        <FoldableAlert
-          variant="success"
-          title={t("check.fnci.successTitle")}
-          more={
-            <LakeText variant="smallRegular">
-              {`${t("check.fnci.successSubtitle")}\n\n• `}
-
-              {formatNestedMessage("check.fnci.code", {
-                code: capitalize(code.toLowerCase()),
-                bold: text => <LakeText variant="smallSemibold">{text}</LakeText>,
-              })}
-
-              {`\n• ${t("check.fnci.cpt", { cpt1, cpt2, cpt3 })}`}
-              {`\n• ${t("check.fnci.holderBank", { bank })}\n\n`}
-
-              <Text style={styles.italic}>{t("check.fnci.notice")}</Text>
-            </LakeText>
-          }
         />
       }
     >
@@ -211,7 +224,9 @@ type Props = {
 
 export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Props) => {
   const [collapsedChecks, setCollapsedChecks] = useState<CollapsedCheck[]>([]);
+  const [fnciError, setFnciError] = useState<FnciInfoFragment>();
   const [helpModalVisible, setHelpModal] = useDisclosure(false);
+
   const [declareOnly, declareOnlyData] = useMutation(InitiateCheckMerchantPaymentDocument);
   const [declareAndAdd, declareAndAddData] = useMutation(InitiateCheckMerchantPaymentDocument);
 
@@ -284,15 +299,9 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
             title={t("check.form.checkTitle", {
               number: collapsedChecks.length + 1,
             })}
-            footer={
-              // TODO: change this
-              // <FoldableAlert
-              //   variant="error"
-              //   title="Check failed FNCI verification"
-              //   description="toto"
-              // />
-              null
-            }
+            footer={match(fnciError)
+              .with(P.nonNullable, value => <FnciAlert variant="error" info={value} />)
+              .otherwise(() => null)}
           >
             <LakeLabel
               label={t("check.form.customLabel")}
@@ -459,24 +468,17 @@ export const CheckDeclarationWizard = ({ merchantProfileId, onPressClose }: Prop
                             .mapOkToResult(data => Option.fromNullable(data).toResult(undefined))
                             .mapOkToResult(filterRejectionsToResult)
                             .tapOk(({ fnciInfo }) => {
-                              setCollapsedChecks(prevChecks => [
-                                ...prevChecks,
-                                { ...check, fnciInfo },
-                              ]);
-
                               resetForm();
 
-                              // match(trustedBeneficiary.statusInfo)
-                              //   .with(
-                              //     { __typename: "TrustedBeneficiaryConsentPendingStatusInfo" },
-                              //     ({ consent }) => window.location.assign(consent.consentUrl),
-                              //   )
-                              //   .otherwise(() => {});
+                              setCollapsedChecks(prevState => [
+                                ...prevState,
+                                { ...check, fnciInfo },
+                              ]);
                             })
                             .tapError(error => {
                               match(error)
-                                .with({ __typename: "CheckRejection" }, () => {
-                                  // TODO: add an alert
+                                .with({ __typename: "CheckRejection" }, ({ fnciInfo }) => {
+                                  setFnciError(fnciInfo);
                                 })
                                 .otherwise(error => {
                                   showToast({

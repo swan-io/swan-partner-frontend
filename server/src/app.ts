@@ -312,7 +312,9 @@ export const start = async ({
   /**
    * Used to proxy Swan GraphQL APIs
    */
-  await app.register(replyFrom);
+  await app.register(replyFrom, {
+    http: {},
+  });
 
   /**
    * Decorates the `reply` object with a `sendFile`

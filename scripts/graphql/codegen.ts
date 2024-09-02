@@ -90,7 +90,9 @@ const config: CodegenConfig = {
   overwrite: true,
 
   hooks: {
-    afterAllFileWrite: "prettier --write",
+    // afterAllFileWrite: "prettier --write",
+    // Temporary workaround for `near-operation-file` bug: https://github.com/dotansimha/graphql-code-generator/issues/8887#issuecomment-1535207397
+    afterAllFileWrite: "node -p \"child_process.execSync('\\\"node_modules/.bin/prettier\\\" --write ' + process.argv.slice(1).map((generatedFilePath) => generatedFilePath.replaceAll(String.fromCharCode('0x5c'), '')).join(' '))\""
   },
 
   generates: {

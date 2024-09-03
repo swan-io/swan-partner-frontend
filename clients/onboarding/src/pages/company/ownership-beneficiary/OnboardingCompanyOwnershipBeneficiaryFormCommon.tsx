@@ -9,21 +9,14 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
-import { isEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { InlineDatePicker } from "@swan-io/shared-business/src/components/InlineDatePicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import {
-  ExtractedDate,
-  extractDate,
-  formatExtractedDate,
-} from "@swan-io/shared-business/src/utils/date";
-import { locale } from "@swan-io/shared-business/src/utils/i18n";
-import { validateBirthdate, validateRequired } from "@swan-io/shared-business/src/utils/validation";
+import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import dayjs from "dayjs";
 import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -51,7 +44,7 @@ const beneficiaryTypes: RadioGroupItem<BeneficiaryType>[] = [
 export type FormValues = {
   firstName: string;
   lastName: string;
-  birthDate: ExtractedDate | undefined;
+  birthDate: string | undefined;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -94,18 +87,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     .with("ESP", "FRA", "NLD", "ITA", () => true)
     .otherwise(() => false);
 
-  const [initialBirthdate] = useState(
-    Option.fromNullable(initialValues.birthDate)
-      .map(value => dayjs.utc(value.trim()))
-      .flatMap(value =>
-        value.isValid() ? Option.Some(extractDate(value.format(locale.dateFormat))) : Option.None(),
-      )
-      .getOr({
-        day: "",
-        month: "",
-        year: "",
-      }),
-  );
+  const [initialBirthdate] = useState(Option.fromNullable(initialValues.birthDate).toUndefined());
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
     firstName: {
@@ -120,12 +102,6 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     },
     birthDate: {
       initialValue: initialBirthdate,
-      validate: date =>
-        Object.values(date).some(isEmpty)
-          ? t("error.birthdate.incomplete")
-          : validateBirthdate(date),
-      // validate: value =>
-      //   isBirthInfoRequired && isNullishOrEmpty(value) ? validateRequired : undefined,
     },
     birthCountryCode: {
       initialValue: initialValues.birthCountryCode ?? companyCountry,
@@ -188,7 +164,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
               firstName,
               lastName,
               birthDate: birthDate.flatMap(value =>
-                isNullish(value) ? Option.Some(null) : Option.Some(formatExtractedDate(value)),
+                isNullish(value) ? Option.Some(null) : Option.Some(value),
               ),
               birthCountryCode,
               birthCity,
@@ -276,32 +252,13 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
 
           <Box direction={small ? "column" : "row"}>
             <Field name="birthDate">
-              {({ value, onChange, error, onBlur }) => (
-                <InlineDatePicker
+              {({ value, onChange, error }) => (
+                <BirthdatePicker
                   label={t("company.step.owners.beneficiary.birthDate")}
                   value={value}
                   onValueChange={onChange}
                   error={error}
-                  onBlur={onBlur}
                 />
-                // <LakeLabel
-                //   label={t("company.step.owners.beneficiary.birthDate")}
-                //   optionalLabel={isBirthInfoRequired ? undefined : t("common.optional")}
-                //   style={styles.inputContainer}
-                //   render={id => (
-                //     <Rifm value={value ?? ""} onChange={onChange} {...rifmDateProps}>
-                //       {({ value, onChange }) => (
-                //         <LakeTextInput
-                //           error={error}
-                //           placeholder={locale.datePlaceholder}
-                //           id={id}
-                //           value={value}
-                //           onChange={onChange}
-                //         />
-                //       )}
-                //     </Rifm>
-                //   )}
-                // />
               )}
             </Field>
 

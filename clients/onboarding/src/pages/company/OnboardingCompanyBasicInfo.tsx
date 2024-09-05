@@ -70,7 +70,7 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
     },
   );
 
-  const countriesWithHomeOwnerAssociation: CountryCCA3[] = ["FRA", "BEL", "DEU", "ESP"];
+  const countriesWithHomeOwnerAssociation: CountryCCA3[] = ["FRA", "BEL", "DEU", "ESP", "NLD"];
   if (countriesWithHomeOwnerAssociation.includes(country)) {
     items.push({
       name: t("companyType.coOwnership"),

@@ -124,6 +124,7 @@
       "SupportingDocumentUploadNotAllowedRejection",
       "TooManyItemsRejection",
       "TransactionNotFoundRejection",
+      "UpdateRequestNotPendingReviewRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
       "UserNotAllowedToManageAccountMembershipRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
@@ -149,14 +150,6 @@
       "ActiveMerchantPaymentLinkStatusInfo",
       "CompletedMerchantPaymentLinkStatusInfo",
       "ExpiredMerchantPaymentLinkStatusInfo"
-    ],
-    "MerchantProfileStatusInfo": [
-      "CanceledMerchantProfileStatusInfo",
-      "DisabledMerchantProfileStatusInfo",
-      "EnabledMerchantProfileStatusInfo",
-      "PendingReviewMerchantProfileStatusInfo",
-      "RejectedMerchantProfileStatusInfo",
-      "SuspendedMerchantProfileStatusInfo"
     ],
     "CardStatusInfo": [
       "CardCanceledStatusInfo",
@@ -197,6 +190,13 @@
       "PendingMerchantPaymentMethodStatusInfo",
       "RejectedMerchantPaymentMethodStatusInfo",
       "SuspendedMerchantPaymentMethodStatusInfo"
+    ],
+    "MerchantProfileStatusInfo": [
+      "DisabledMerchantProfileStatusInfo",
+      "EnabledMerchantProfileStatusInfo",
+      "PendingReviewMerchantProfileStatusInfo",
+      "RejectedMerchantProfileStatusInfo",
+      "SuspendedMerchantProfileStatusInfo"
     ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",

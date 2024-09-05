@@ -244,6 +244,10 @@ mutation generateSupportingDocumentUploadUrl($input: GenerateSupportingDocumentU
 query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
   supportingDocumentCollection(id: $supportingDocumentCollectionId) {
     id
+    accountHolder {
+      id
+      name
+    }
     requiredSupportingDocumentPurposes {
       name
     }

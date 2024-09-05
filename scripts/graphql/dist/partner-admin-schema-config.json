@@ -77,6 +77,7 @@
       "GlobalInstantFundingLimitExceededRejection",
       "IBANNotReachableRejection",
       "IBANNotValidRejection",
+      "IncorrectTransactionTypeRejection",
       "InstantFundingLimitExceededRejection",
       "InsufficientFundsRejection",
       "InternalErrorRejection",
@@ -125,7 +126,9 @@
       "SupportingDocumentStatusNotAllowedRejection",
       "SupportingDocumentUploadNotAllowedRejection",
       "TooManyItemsRejection",
+      "TransactionAlreadyReturnedRejection",
       "TransactionNotFoundRejection",
+      "UpdateRequestNotPendingReviewRejection",
       "UserNotFoundRejection",
       "ValidationRejection",
       "WrongValueProvidedRejection"
@@ -156,14 +159,6 @@
       "OAuth2Consent",
       "ThreeDsConsent"
     ],
-    "MerchantProfileStatusInfo": [
-      "CanceledMerchantProfileStatusInfo",
-      "DisabledMerchantProfileStatusInfo",
-      "EnabledMerchantProfileStatusInfo",
-      "PendingReviewMerchantProfileStatusInfo",
-      "RejectedMerchantProfileStatusInfo",
-      "SuspendedMerchantProfileStatusInfo"
-    ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
@@ -171,6 +166,11 @@
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
       "SepaDirectDebitCoreMerchantPaymentMethod"
+    ],
+    "PaymentMandate": [
+      "CardPaymentMandate",
+      "InternalPaymentDirectDebitMandate",
+      "SEPAPaymentDirectDebitMandate"
     ],
     "Reason": [
       "CloseAccountReason",
@@ -197,6 +197,13 @@
       "RejectedMerchantPaymentMethodStatusInfo",
       "SuspendedMerchantPaymentMethodStatusInfo"
     ],
+    "MerchantProfileStatusInfo": [
+      "DisabledMerchantProfileStatusInfo",
+      "EnabledMerchantProfileStatusInfo",
+      "PendingReviewMerchantProfileStatusInfo",
+      "RejectedMerchantProfileStatusInfo",
+      "SuspendedMerchantProfileStatusInfo"
+    ],
     "DocumentFile": [
       "DriversLicenseDocumentFile",
       "IdCardDocumentFile",
@@ -220,10 +227,6 @@
       "InternalReceivedDirectDebitMandate"
     ],
     "PaymentDirectDebitMandate": [
-      "InternalPaymentDirectDebitMandate",
-      "SEPAPaymentDirectDebitMandate"
-    ],
-    "PaymentMandate": [
       "InternalPaymentDirectDebitMandate",
       "SEPAPaymentDirectDebitMandate"
     ],

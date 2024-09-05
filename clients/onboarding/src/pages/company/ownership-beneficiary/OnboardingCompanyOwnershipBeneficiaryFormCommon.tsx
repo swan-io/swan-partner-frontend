@@ -9,7 +9,6 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
-import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -17,7 +16,7 @@ import { PlacekitCityInput } from "@swan-io/shared-business/src/components/Place
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { forwardRef, useImperativeHandle, useState } from "react";
+import { forwardRef, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
@@ -87,8 +86,6 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
     .with("ESP", "FRA", "NLD", "ITA", () => true)
     .otherwise(() => false);
 
-  const [initialBirthdate] = useState(Option.fromNullable(initialValues.birthDate).toUndefined());
-
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormValues>({
     firstName: {
       initialValue: initialValues.firstName ?? "",
@@ -101,7 +98,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
       validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
-      initialValue: initialBirthdate,
+      initialValue: initialValues.birthDate ?? undefined,
     },
     birthCountryCode: {
       initialValue: initialValues.birthCountryCode ?? companyCountry,
@@ -163,9 +160,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate: birthDate.flatMap(value =>
-                isNullish(value) ? Option.Some(null) : Option.Some(value),
-              ),
+              birthDate: birthDate.flatMap(Option.fromNullable),
               birthCountryCode,
               birthCity,
               birthCityPostalCode,

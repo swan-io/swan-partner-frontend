@@ -5,7 +5,6 @@ export const Router = createRouter(
     Area: "/*",
     Form: "/?:error{true}",
     Success: "/success",
-    Error: "/error",
     Expired: "/expired",
   }),
 );

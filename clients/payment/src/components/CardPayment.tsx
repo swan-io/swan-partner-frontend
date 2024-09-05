@@ -7,10 +7,8 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -199,7 +197,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
     if (cvvState === "untouched") {
       setCvvState("empty");
     }
-    if (cardNumberState === "valid" && expiryDateState === "valid" && cvvState === "valid") {
+    if (Frames.isCardValid()) {
       setIsLoading(true);
 
       Future.fromPromise<FrameCardTokenizedEvent, Error>(Frames.submitCard())
@@ -234,9 +232,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
               Router.replace("PaymentExpired", { paymentLinkId: paymentLink.id });
             })
             .otherwise(() => {
-              initFramesSession();
-              setIsLoading(false);
-              showToast({ variant: "error", error, title: translateError(error) });
+              Router.replace("PaymentForm", { paymentLinkId: paymentLink.id, error: "true" });
             });
         });
     }
@@ -373,12 +369,16 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
               <>
                 <div
                   className="cvv-frame"
-                  style={match(cvvState)
-                    .with("invalid", "empty", () => ({
-                      borderColor: colors.negative[400],
-                    }))
-                    .with("untouched", "valid", () => undefined)
-                    .exhaustive()}
+                  style={match({ cvvState, cvvHasBeenBlurred })
+                    .with(
+                      { cvvState: "invalid", cvvHasBeenBlurred: true },
+                      { cvvState: "empty" },
+                      () => ({
+                        borderColor: colors.negative[400],
+                      }),
+                    )
+                    .with({ cvvState: P.union("untouched", "valid") }, () => undefined)
+                    .otherwise(() => undefined)}
                 >
                   {/* <!-- cvv frame will be added here --> */}
                 </div>

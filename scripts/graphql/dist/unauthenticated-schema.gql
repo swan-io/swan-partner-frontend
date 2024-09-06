@@ -325,7 +325,10 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Name of the company."""
   name: String!
 
-  """Registration number of the company (SIRET, ...)."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """Registration date of the company."""
@@ -406,6 +409,11 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 }
 
@@ -642,29 +650,16 @@ type AccountMembership {
   """Language of the account membership"""
   language: AccountLanguage
 
-  """
-  account membership's cards
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
+  """account membership's cards"""
   cards(
-    """the number of elements to load (maximum: 100)"""
     first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the preceding elements
-    """
     before: String
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
     after: String
 
-    """an order you can apply to your list of connections"""
+    """When the list of elements needs to be ordered"""
     orderBy: CardOrderByInput
 
-    """a filtering table you can apply to your list of connections"""
+    """When the list of elements needs to be filtered"""
     filters: CardFiltersInput
   ): CardConnection!
 }
@@ -1268,13 +1263,6 @@ enum BusinessActivity {
   Transportation
 }
 
-"""CanceledMerchantProfileStatusInfo"""
-type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
-  status: MerchantProfileStatus!
-  canceledAt: Date!
-  enabledAt: Date
-}
-
 """Rejection returned when the Physical Card cannot be activated"""
 type CannotActivatePhysicalCardRejection implements Rejection {
   message: String!
@@ -1285,6 +1273,27 @@ type CannotActivatePhysicalCardRejection implements Rejection {
 type Card {
   """Unique identifier of a card"""
   id: ID!
+
+  """
+  Digital Cards linked to this card
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  digitalCards(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: DigitalCardOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: DigitalCardFiltersInput
+  ): DigitalCardConnection!
 
   """Type of a card"""
   type: CardType!
@@ -1351,27 +1360,6 @@ type Card {
 
   """Issuing Country"""
   issuingCountry: CCA3!
-
-  """
-  Digital Cards linked to this card
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
-  digitalCards(
-    """the number of elements to load (maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """an order you can apply to your list of connections"""
-    orderBy: DigitalCardOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: DigitalCardFiltersInput
-  ): DigitalCardConnection!
 }
 
 """Card Canceled Status Information"""
@@ -3264,14 +3252,32 @@ input MembershipsFilterInput {
   search: String
 }
 
+"""
+The different balances of the payment. Use this to understand in details what actions have been taken on the payment and what actions can be taken moving forward.
+"""
 type MerchantBalance {
+  """The amount that can be canceled on this payment"""
   availableToCancel: AmountValue!
+
+  """The amount that can be captured on this payment"""
   availableToCapture: AmountValue!
+
+  """The amount that can be refunded on this payment"""
   availableToRefund: AmountValue!
+
+  """The amount authorised"""
   totalAuthorized: AmountValue!
+
+  """The amount canceled"""
   totalCanceled: AmountValue!
+
+  """The amount captured"""
   totalCaptured: AmountValue!
+
+  """The amount disputed"""
   totalDisputed: AmountValue!
+
+  """The amount refunded"""
   totalRefunded: AmountValue!
 }
 
@@ -3286,22 +3292,40 @@ type MerchantPayment {
 
   """status information"""
   statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
   amount: Amount!
+
+  """unique identifier of the payment mandate associated to the payment"""
   paymentMandateId: ID!
+
+  """unique identifier of the payment link associated to the payment"""
   paymentLinkId: ID
+
+  """unique identifier of the merchant profile associated to the payment"""
   merchantProfileId: ID!
+
+  """unique identifier of the payment method associated to the payment"""
   paymentMethodId: ID!
   balance: MerchantBalance!
+
+  """Label"""
   label: String
   reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
   externalReference: String
+
+  """The billing address associated to the payment"""
   billingAddress: Address
   threeDS: ThreeDS
 
-  """created date"""
+  """Created date"""
   createdAt: DateTime!
 
-  """updated date"""
+  """Updated date"""
   updatedAt: DateTime!
 }
 
@@ -3493,8 +3517,6 @@ enum MerchantPaymentLinkOrderByFieldInput {
   createdAt
   label
   url
-  statusInfos
-  amount
 }
 
 input MerchantPaymentLinkOrderByInput {
@@ -3676,8 +3698,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
-  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
-  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
+  merchantPaymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  merchantPayments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 type MerchantProfileNotValidRejection implements Rejection {
@@ -3851,7 +3873,8 @@ type Onboarding {
   finalizedAt: DateTime
 
   """
-  Language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -3864,7 +3887,7 @@ type Onboarding {
   """
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
-  onboardingUrl: String!
+  onboardingUrl: String
 
   """Current computed state of onboarding"""
   onboardingState: OnboardingState!
@@ -3912,10 +3935,13 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
   type: AccountHolderType!
 
-  """name of the company"""
+  """Name of the company."""
   name: String
 
-  """registration number of the company (SIRET, ...)"""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """legal form of the company (SAS, SCI, SASU, ...)"""
@@ -4046,7 +4072,8 @@ type OnboardingInfo {
   email: String
 
   """
-  language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -4829,14 +4856,14 @@ type ProjectCardSettings {
   """Unique identifier of a project"""
   id: ID!
 
+  """Project name"""
+  name: String
+
   """Visual Id from the issuing card processor (Monext)"""
   issuingProcessorVisualId: String
 
   """Specific card product for companies"""
   specificCardProductCodeForCompanies: String
-
-  """Project name"""
-  name: String
 
   """Project's card settings"""
   cardSettings: [CardSettings!]!
@@ -4999,9 +5026,6 @@ type PublicOnboardingDisabledRejection implements Rejection {
 }
 
 type Query {
-  cardInfos(input: CardInfosInput!): CardInfos
-  cardPINInfos(input: CardPINInfosInput!): CardPINInfos
-
   """Fetch company info (name, beneficiaries...) by Siren number"""
   companyInfoBySiren(input: CompanyInfoBySirenInput!): CompanyInfoBySirenPayload!
 
@@ -5013,6 +5037,8 @@ type Query {
 
   """Returns a supporting document collection from its id."""
   supportingDocumentCollection(id: ID!): SupportingDocumentCollection
+  cardInfos(input: CardInfosInput!): CardInfos
+  cardPINInfos(input: CardPINInfosInput!): CardPINInfos
   projectInfoById(id: ID!): ProjectInfo!
 
   """Return a merchant payment link by id"""
@@ -5100,6 +5126,9 @@ enum RequestMerchantProfileUpdateStatus {
 
   """A Request that has already been rejected"""
   Rejected
+
+  """A Request that has been canceled by the user"""
+  Canceled
 }
 
 input RequestSupportingDocumentCollectionReviewInput {
@@ -5387,6 +5416,7 @@ type SupportingDocument {
 
 type SupportingDocumentAccountHolder {
   id: ID
+  name: String
 }
 
 """
@@ -6004,8 +6034,12 @@ type SuspendedMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   suspendedAt: Date!
 }
 
+"""The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
+  """`true` if a 3DS challenge has been requested from the card holder"""
   requested: Boolean!
+
+  """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
 
@@ -6063,7 +6097,10 @@ type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwner
   """Name of the company."""
   name: String!
 
-  """Registration number."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String!
 }
 
@@ -6109,7 +6146,10 @@ type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwn
   """Name of the company."""
   name: String!
 
-  """Registration number."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String!
 }
 
@@ -6293,7 +6333,7 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -6314,7 +6354,7 @@ input UnauthenticatedUpdateCompanyOnboardingInput {
   onboardingId: ID!
 
   """
-  Registration number of the company (SIRET, ...).
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
   - Length must be from 0 to 50 characters.
   """
   registrationNumber: String
@@ -6402,7 +6442,7 @@ input UnauthenticatedUpdateIndividualOnboardingInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -6429,6 +6469,11 @@ union UnauthenticatedUpdateIndividualOnboardingPayload = ForbiddenRejection | In
 
 type UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
   onboarding: OnboardingInfo!
+}
+
+type UpdateRequestNotPendingReviewRejection implements Rejection {
+  requestUpdateId: ID
+  message: String!
 }
 
 scalar Upload

@@ -44,6 +44,9 @@
       "DebtorAccountClosedRejection",
       "DebtorAccountNotAllowedRejection",
       "DigitalCardNotFoundRejection",
+      "DocumentCanNotBeFoundRejection",
+      "DocumentCanNotBeRejectedRejection",
+      "DocumentParentLinkMissingRejection",
       "EnabledCardDesignNotFoundRejection",
       "ExternalAccountAlreadyExistsRejection",
       "ExternalAccountBalanceAlreadyExistsRejection",
@@ -120,6 +123,7 @@
       "SmsProviderRejection",
       "StandingOrderNotFoundRejection",
       "StillExportingRejection",
+      "SubscriptionLimitsRejection",
       "SupportingDocumentCollectionNotFoundRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowDeletionRejection",
       "SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection",
@@ -137,6 +141,7 @@
       "TooManyItemsRejection",
       "TransactionNotFoundRejection",
       "UnknownExportRejection",
+      "UpdateRequestNotPendingReviewRejection",
       "UpdateUserConsentSettingsTokenRejection",
       "UserBlockedRejection",
       "UserNotAllowedToDisableItsOwnAccountMembershipRejection",
@@ -265,14 +270,6 @@
       "RejectedFundingSourceStatusInfo",
       "SuspendedFundingSourceStatusInfo"
     ],
-    "MerchantProfileStatusInfo": [
-      "CanceledMerchantProfileStatusInfo",
-      "DisabledMerchantProfileStatusInfo",
-      "EnabledMerchantProfileStatusInfo",
-      "PendingReviewMerchantProfileStatusInfo",
-      "RejectedMerchantProfileStatusInfo",
-      "SuspendedMerchantProfileStatusInfo"
-    ],
     "CapitalDepositDocumentStatusInfo": [
       "CapitalDepositDocumentPendingStatusInfo",
       "CapitalDepositDocumentRefusedStatusInfo",
@@ -293,6 +290,11 @@
       "InternalDirectDebitStandardMerchantPaymentMethod",
       "SepaDirectDebitB2BMerchantPaymentMethod",
       "SepaDirectDebitCoreMerchantPaymentMethod"
+    ],
+    "PaymentMandate": [
+      "CardPaymentMandate",
+      "InternalPaymentDirectDebitMandate",
+      "SEPAPaymentDirectDebitMandate"
     ],
     "Transaction": [
       "CardTransaction",
@@ -350,12 +352,25 @@
       "RejectedMerchantPaymentMethodStatusInfo",
       "SuspendedMerchantPaymentMethodStatusInfo"
     ],
+    "MerchantProfileStatusInfo": [
+      "DisabledMerchantProfileStatusInfo",
+      "EnabledMerchantProfileStatusInfo",
+      "PendingReviewMerchantProfileStatusInfo",
+      "RejectedMerchantProfileStatusInfo",
+      "SuspendedMerchantProfileStatusInfo"
+    ],
     "DocumentFile": [
       "DriversLicenseDocumentFile",
       "IdCardDocumentFile",
       "PassportDocumentFile",
       "ReportDocumentFile",
       "ResidencePermitDocumentFile"
+    ],
+    "TransactionStatementStatusInfo": [
+      "ExpiredTransactionStatementStatusInfo",
+      "FailedTransactionStatementStatusInfo",
+      "GeneratedTransactionStatementStatusInfo",
+      "PendingTransactionStatementStatusInfo"
     ],
     "ExportStatusInfo": [
       "ExportCompletedStatusInfo",
@@ -395,10 +410,6 @@
       "InternalReceivedDirectDebitMandate"
     ],
     "PaymentDirectDebitMandate": [
-      "InternalPaymentDirectDebitMandate",
-      "SEPAPaymentDirectDebitMandate"
-    ],
-    "PaymentMandate": [
       "InternalPaymentDirectDebitMandate",
       "SEPAPaymentDirectDebitMandate"
     ],
@@ -515,12 +526,6 @@
       "SupportingDocumentValidatedStatusInfo",
       "SupportingDocumentWaitingForUploadStatusInfo"
     ],
-    "TransactionStatementStatusInfo": [
-      "TransactionStatementStatusInfoExpired",
-      "TransactionStatementStatusInfoFailed",
-      "TransactionStatementStatusInfoGenerated",
-      "TransactionStatementStatusInfoPending"
-    ],
     "TrustedBeneficiaryStatusInfo": [
       "TrustedBeneficiaryCanceledStatusInfo",
       "TrustedBeneficiaryConsentPendingStatusInfo",
@@ -532,7 +537,8 @@
       "TrustedSepaBeneficiary"
     ],
     "InternationalBeneficiary": [
-      "TrustedInternationalBeneficiary"
+      "TrustedInternationalBeneficiary",
+      "UnsavedInternationalBeneficiary"
     ],
     "UltimateBeneficialOwnerInfo": [
       "UltimateBeneficialDirectOwnerCompanyInfo",

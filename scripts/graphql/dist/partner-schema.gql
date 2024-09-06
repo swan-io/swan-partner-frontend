@@ -632,7 +632,10 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Name of the company."""
   name: String!
 
-  """Registration number of the company (SIRET, ...)."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """Registration date of the company."""
@@ -713,6 +716,11 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 }
 
@@ -958,37 +966,24 @@ type AccountMembership {
   language: AccountLanguage
 
   """
-  account membership's cards
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
-  cards(
-    """the number of elements to load (maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the preceding elements
-    """
-    before: String
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """an order you can apply to your list of connections"""
-    orderBy: CardOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: CardFiltersInput
-  ): CardConnection!
-
-  """
   Refers to the country of the account. It will determine the country code of the local IBAN of the account.
   
   Available Account Country: CCA3
   """
   accountCountry: AccountCountry!
+
+  """account membership's cards"""
+  cards(
+    first: Int! = 50
+    before: String
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: CardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: CardFiltersInput
+  ): CardConnection!
 
   """Periodic Spending"""
   spending: Spending
@@ -2618,13 +2613,6 @@ type CanceledIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-"""CanceledMerchantProfileStatusInfo"""
-type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
-  status: MerchantProfileStatus!
-  canceledAt: Date!
-  enabledAt: Date
-}
-
 """Canceled transaction status information"""
 type CanceledTransactionStatusInfo implements TransactionStatusInfo {
   """status of the transaction"""
@@ -2647,6 +2635,28 @@ union CancelFundingSourcePayload = CancelFundingSourceSuccessPayload | Forbidden
 type CancelFundingSourceSuccessPayload {
   """Canceled Funding Source"""
   fundingSource: FundingSource
+}
+
+input CancelMerchantPaymentMethodUpdateRequestInput {
+  """ID of the MerchantPaymentMethod update request"""
+  requestUpdateId: ID!
+}
+
+union CancelMerchantPaymentMethodUpdateRequestPayload = CancelMerchantPaymentMethodUpdateRequestSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | UpdateRequestNotPendingReviewRejection
+
+type CancelMerchantPaymentMethodUpdateRequestSuccessPayload {
+  requestUpdateId: ID
+}
+
+input CancelMerchantProfileUpdateRequestInput {
+  """ID of the MerchantProfile update request"""
+  requestUpdateId: ID!
+}
+
+union CancelMerchantProfileUpdateRequestPayload = CancelMerchantProfileUpdateRequestSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | UpdateRequestNotPendingReviewRejection
+
+type CancelMerchantProfileUpdateRequestSuccessPayload {
+  requestUpdateId: ID
 }
 
 """Inputs to cancel a physical card"""
@@ -2991,6 +3001,50 @@ type Card {
   """Unique identifier of a card"""
   id: ID!
 
+  """
+  Digital Cards linked to this card
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  digitalCards(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: DigitalCardOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: DigitalCardFiltersInput
+  ): DigitalCardConnection!
+
+  """
+  List of transactions of a card.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
   """Type of a card"""
   type: CardType!
 
@@ -3056,50 +3110,6 @@ type Card {
 
   """Issuing Country"""
   issuingCountry: CCA3!
-
-  """
-  Digital Cards linked to this card
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
-  digitalCards(
-    """the number of elements to load (maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """an order you can apply to your list of connections"""
-    orderBy: DigitalCardOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: DigitalCardFiltersInput
-  ): DigitalCardConnection!
-
-  """
-  List of transactions of a card.
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
-  transactions(
-    """the number of elements to load (default value 50, maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """
-    an order you can apply to your list of connections (default value UpdatedAt desc)
-    """
-    orderBy: TransactionsOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: TransactionsFiltersInput
-  ): TransactionConnection
 
   """Periodic Spending"""
   spending: Spending
@@ -3337,8 +3347,8 @@ input CardFiltersInput {
 }
 
 type CardInDetails {
-  """payment mandate id used for this transaction"""
-  paymentMandateId: String!
+  """payment mandate used for this transaction"""
+  paymentMandate: CardPaymentMandate!
 }
 
 type CardInMerchant {
@@ -3435,6 +3445,75 @@ type CardOutMerchant {
 
   """category of the payment flow"""
   category: Category!
+}
+
+type CardPaymentMandate implements PaymentMandate {
+  """Unique identifier of the Payment Mandate"""
+  id: ID!
+
+  """
+  List of transactions associated with the Card Mandate.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
+  """Custom name of the mandate"""
+  name: String
+
+  """Account Holder information"""
+  accountHolder: AccountHolder!
+
+  """Creation date of the Payment Mandate"""
+  createdAt: DateTime!
+
+  """Last Update date of the Payment Mandate"""
+  updatedAt: DateTime!
+
+  """
+  Date of the the last transaction executed for the concerned Payment Mandate
+  """
+  executedAt: DateTime
+
+  """Expiry date of the Payment Mandate"""
+  expiredAt: Date
+
+  """Payment Mandate status information"""
+  statusInfo: PaymentMandateStatusInfo!
+
+  """The card scheme"""
+  scheme: String
+
+  """The card's last digits"""
+  lastDigits: String
+
+  """The card's first 6 digits - Bank Identification Number"""
+  bin: String
+
+  """The card's expiry date"""
+  expiryDate: String
+
+  """The card's type"""
+  type: String
+
+  """The card's bank country"""
+  country: String
 }
 
 input CardPaymentMethodInput {
@@ -3818,6 +3897,9 @@ type CardTransaction implements Transaction {
 
   """enriched data of the merchant"""
   enrichedTransactionInfo: EnrichedTransactionInfo
+
+  """indicator of the transit type used (optional)"""
+  transactionTransportType: TransactionTransportType
 }
 
 enum CardTransactionCategory {
@@ -5168,6 +5250,42 @@ type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   disabledAt: Date!
 }
 
+input DisableMerchantPaymentMethodInput {
+  """ID of the merchant payment method to disable"""
+  merchantPaymentMethodId: ID!
+}
+
+union DisableMerchantPaymentMethodPayload = DisableMerchantPaymentMethodSuccessPayload | ForbiddenRejection | InternalErrorRejection | NotFoundRejection
+
+type DisableMerchantPaymentMethodSuccessPayload {
+  """Merchant Payment Method ID"""
+  merchantPaymentMethodId: ID!
+}
+
+input DisableMerchantProfileInput {
+  """ID of the merchant profile to disable"""
+  merchantProfileId: ID!
+}
+
+union DisableMerchantProfilePayload = DisableMerchantProfileSuccessPayload | ForbiddenRejection | InternalErrorRejection | NotFoundRejection
+
+type DisableMerchantProfileSuccessPayload {
+  """Merchant Profile"""
+  merchantProfile: MerchantProfile!
+}
+
+"""Rejection returned if the document cannot be found"""
+type DocumentCanNotBeFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned if the document cannot be rejected"""
+type DocumentCanNotBeRejectedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """Retrieved document extracted from the identity verification"""
 interface DocumentFile {
   downloadUrl: String!
@@ -5179,6 +5297,12 @@ enum DocumentFileSide {
   SideB
   BothSides
   Unknown
+}
+
+"""Rejection returned if the document-parent link is missing"""
+type DocumentParentLinkMissingRejection implements Rejection {
+  id: String!
+  message: String!
 }
 
 """Reason code of the document."""
@@ -5412,6 +5536,11 @@ enum EnvType {
   Sandbox
 }
 
+type EventTypeHavingReachedSubscriptionLimits {
+  eventType: String!
+  subscriptionCount: Int!
+}
+
 """
 Describes an identification level for the process associated to this identification that has expired and is no longer considered valid
 """
@@ -5430,6 +5559,14 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   The date when the payment link expired.
   By default the payment link expires 120 days after it was created.
   """
+  expiredAt: DateTime!
+}
+
+type ExpiredTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
+  """status of the transaction statement"""
+  status: TransactionStatementStatusEnum!
+
+  """date at which the document expired"""
   expiredAt: DateTime!
 }
 
@@ -5470,7 +5607,7 @@ type ExportConnection implements Connection {
   edges: [ExportEdge!]!
 }
 
-union ExportDataPayload = ExportDataSuccessPayload | MaximumSimultaneousExportsRejection | MaximumDailyExportsReachedRejection
+union ExportDataPayload = ExportDataSuccessPayload | MaximumSimultaneousExportsRejection | MaximumDailyExportsReachedRejection | ValidationRejection
 
 """Payload of any export mutation in case of success."""
 type ExportDataSuccessPayload {
@@ -5803,6 +5940,14 @@ type FailedThreeDs {
   status: ThreeDsStatus!
   reason: String!
   code: String!
+}
+
+type FailedTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
+  """status of the transaction statement"""
+  status: TransactionStatementStatusEnum!
+
+  """reason of the failure"""
+  reason: String
 }
 
 """Fee creditor"""
@@ -6517,6 +6662,17 @@ type GenerateCapitalDepositDocumentUploadUrlSuccessPayload {
   uploadUrl: String
 }
 
+type GeneratedTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
+  """status of the transaction statement"""
+  status: TransactionStatementStatusEnum!
+
+  """temporary public url on which the file can be accessed"""
+  url: URL!
+
+  """date at which the document will expire"""
+  expiresAt: DateTime!
+}
+
 """Input for the `generateExportDownloadLink` mutation."""
 input GenerateExportDownloadLinkInput {
   """
@@ -6560,6 +6716,63 @@ union GenerateSupportingDocumentUploadUrlPayload = GenerateSupportingDocumentUpl
 type GenerateSupportingDocumentUploadUrlSuccessPayload {
   """Id of the supporting document created for this uploadUrl"""
   supportingDocumentId: String!
+
+  """
+  Info to upload the document : url and fields to add along file in form (POST)
+  """
+  upload: SupportingDocumentUploadInfo!
+}
+
+"""
+***COMING SOON***
+
+Inputs to generate an account
+"""
+input GenerateTransactionStatementInput {
+  """Id of the transaction for which the statement is generated."""
+  transactionId: ID!
+
+  """
+  Language to use to generate the statement (account language will be used by default). Must be compliant with RFC 5646.
+  """
+  language: AccountLanguage
+}
+
+"""
+***COMING SOON***
+
+Result of the generation.
+"""
+union GenerateTransactionStatementPayload = GenerateTransactionStatementSuccessPayload | ValidationRejection | ForbiddenRejection | TransactionNotFoundRejection
+
+type GenerateTransactionStatementSuccessPayload {
+  transactionStatement: TransactionStatement
+}
+
+input GenerateTransactionSupportingDocumentUploadUrlInput {
+  """Transaction for which the document is uploaded"""
+  transactionId: ID!
+
+  """Type of document"""
+  supportingDocumentType: SupportingDocumentType
+
+  """Name of the document which will be sent"""
+  filename: String!
+
+  """Purpose of document"""
+  supportingDocumentPurpose: SupportingDocumentPurposeEnum!
+}
+
+union GenerateTransactionSupportingDocumentUploadUrlPayload = GenerateTransactionSupportingDocumentUploadUrlSuccessPayload | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | TransactionNotFoundRejection | ValidationRejection
+
+type GenerateTransactionSupportingDocumentUploadUrlSuccessPayload {
+  """Id of the supporting document created for this uploadUrl"""
+  supportingDocumentId: String!
+
+  """
+  Id of the supporting document collection the supporting document is related to
+  """
+  supportingDocumentCollectionId: String!
 
   """
   Info to upload the document : url and fields to add along file in form (POST)
@@ -9038,14 +9251,32 @@ input MembershipsFilterInput {
   search: String
 }
 
+"""
+The different balances of the payment. Use this to understand in details what actions have been taken on the payment and what actions can be taken moving forward.
+"""
 type MerchantBalance {
+  """The amount that can be canceled on this payment"""
   availableToCancel: AmountValue!
+
+  """The amount that can be captured on this payment"""
   availableToCapture: AmountValue!
+
+  """The amount that can be refunded on this payment"""
   availableToRefund: AmountValue!
+
+  """The amount authorised"""
   totalAuthorized: AmountValue!
+
+  """The amount canceled"""
   totalCanceled: AmountValue!
+
+  """The amount captured"""
   totalCaptured: AmountValue!
+
+  """The amount disputed"""
   totalDisputed: AmountValue!
+
+  """The amount refunded"""
   totalRefunded: AmountValue!
 }
 
@@ -9380,22 +9611,40 @@ type MerchantPayment {
 
   """status information"""
   statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
   amount: Amount!
+
+  """unique identifier of the payment mandate associated to the payment"""
   paymentMandateId: ID!
+
+  """unique identifier of the payment link associated to the payment"""
   paymentLinkId: ID
+
+  """unique identifier of the merchant profile associated to the payment"""
   merchantProfileId: ID!
+
+  """unique identifier of the payment method associated to the payment"""
   paymentMethodId: ID!
   balance: MerchantBalance!
+
+  """Label"""
   label: String
   reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
   externalReference: String
+
+  """The billing address associated to the payment"""
   billingAddress: Address
   threeDS: ThreeDS
 
-  """created date"""
+  """Created date"""
   createdAt: DateTime!
 
-  """updated date"""
+  """Updated date"""
   updatedAt: DateTime!
 }
 
@@ -9587,8 +9836,6 @@ enum MerchantPaymentLinkOrderByFieldInput {
   createdAt
   label
   url
-  statusInfos
-  amount
 }
 
 input MerchantPaymentLinkOrderByInput {
@@ -9774,8 +10021,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
-  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
-  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
+  merchantPaymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  merchantPayments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 type MerchantProfileConnection implements Connection {
@@ -9908,7 +10155,6 @@ enum MerchantSubCategory {
   FerriesAndBoats
   HotelsAndAccommodation
   TravelAgents
-  ATM
   AtmWithdrawal
   OfficeRental
   HrAndRecruiting
@@ -9951,15 +10197,6 @@ enum MonthlyPaymentVolume {
 
 type Mutation {
   """
-  Activate a Physical Card.
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have the account membership for this card
-  """
-  activatePhysicalCard(input: ActivatePhysicalCardInput!): ActivatePhysicalCardPayload!
-
-  """
   Add a new account membership to an account.
   
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
@@ -9976,44 +10213,6 @@ type Mutation {
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
   """
   addAccountMemberships(input: AddAccountMembershipsInput!): AddAccountMembershipsPayload!
-
-  """
-  Add a new card to an account membership.
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have an account membership for this account with the permission `canManageCards=true`.
-  """
-  addCard(input: AddCardInput!): AddCardPayload!
-
-  """
-  Add several cards with Group Delivery (limited to a maximum of 250 cards)
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
-  """
-  addCardsWithGroupDelivery(input: AddCardsWithGroupDeliveryInput!): AddCardsWithGroupDeliveryPayload!
-
-  """
-  Add several cards
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
-  """
-  addCards(input: AddCardsInput!): AddCardsPayload!
-
-  """
-  Add a Digital Card to push to ApplePay or GooglePay
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must be the card holder
-  
-  A digital card will only be valid for 1 hour after consent validation
-  """
-  addDigitalCard(input: AddDigitalCardInput): AddDigitalCardPayload!
 
   """
   Add an external balance to an external account.
@@ -10044,18 +10243,6 @@ type Mutation {
   """
   addOrUpdateExternalAccountBalance(input: AddOrUpdateExternalAccountBalanceInput!): AddOrUpdateExternalAccountBalancePayload!
 
-  """Add a new Single Use Virtual Card to an account membership."""
-  addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
-
-  """
-  Add several single-use virtual cards
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
-  """
-  addSingleUseVirtualCards(input: AddSingleUseVirtualCardsInput!): AddSingleUseVirtualCardsPayload!
-
   """Add a new Virtual IBAN."""
   addVirtualIbanEntry(input: AddVirtualIbanInput): AddVirtualIbanEntryPayload
 
@@ -10072,15 +10259,6 @@ type Mutation {
   """
   bindAccountMembership(input: BindAccountMembershipInput!): BindAccountMembershipPayload!
 
-  """Cancel a Card"""
-  cancelCard(input: CancelCardInput): CancelCardPayload!
-
-  """Cancel a Digital Card"""
-  cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
-
-  """Cancel a physical card."""
-  cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
-
   """Cancels a Virtual IBAN."""
   cancelVirtualIbanEntry(input: CancelVirtualIbanEntryInput!): CancelVirtualIbanEntryPayload!
 
@@ -10092,9 +10270,6 @@ type Mutation {
   *The user must have a legal representative account membership for this account.*
   """
   closeAccount(input: CloseAccountInput!): CloseAccountPayload!
-
-  """Confirm Physical Card Renewal"""
-  confirmPhysicalCardRenewal(input: ConfirmPhysicalCardRenewalInput!): ConfirmPhysicalCardRenewalPayload!
 
   """Allows to refuse all Sepa Direct Debit received on a Virtual IBAN."""
   denySddVirtualIbanEntry(input: DenySddVirtualIbanEntryInput!): DenySddVirtualIbanEntryPayload!
@@ -10119,6 +10294,13 @@ type Mutation {
   finalizeOnboarding(input: FinalizeOnboardingInput!): FinalizeOnboardingPayload!
 
   """
+  Generate and return a presigned URL to upload a file to justify a transaction
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  generateTransactionSupportingDocumentUploadUrl(input: GenerateTransactionSupportingDocumentUploadUrlInput!): GenerateTransactionSupportingDocumentUploadUrlPayload!
+
+  """
   Creates an onboarding for a new company account holder.
   
   *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
@@ -10133,13 +10315,6 @@ type Mutation {
   onboardIndividualAccountHolder(input: OnboardIndividualAccountHolderInput): OnboardIndividualAccountHolderPayload!
 
   """
-  Print Physical Card.
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  """
-  printPhysicalCard(input: PrintPhysicalCardInput!): PrintPhysicalCardPayload!
-
-  """
   Resumes an account membership already suspended.
   
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.*
@@ -10149,15 +10324,6 @@ type Mutation {
   resumeAccountMembership(input: ResumeAccountMembershipInput): ResumeAccountMembershipPayload!
 
   """
-  Resume a Physical Card.
-  
-  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
-  
-  The user must have the account membership for this card
-  """
-  resumePhysicalCard(input: ResumePhysicalCardInput): ResumePhysicalCardPayload!
-
-  """
   Suspends an account membership.
   
   *This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)).
@@ -10165,9 +10331,6 @@ type Mutation {
   *The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.*
   """
   suspendAccountMembership(input: SuspendAccountMembershipInput!): SuspendAccountMembershipPayload!
-
-  """Suspend a Physical Card."""
-  suspendPhysicalCard(input: SuspendPhysicalCardInput): SuspendPhysicalCardPayload!
   updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
 
   """
@@ -10181,9 +10344,6 @@ type Mutation {
 
   """Update an account."""
   updateAccount(input: UpdateAccountInput!): UpdateAccountPayload!
-
-  """Update a Card."""
-  updateCard(input: UpdateCardInput): UpdateCardPayload
 
   """
   Updates a company onboarding.
@@ -10201,6 +10361,153 @@ type Mutation {
   """
   updateIndividualOnboarding(input: UpdateIndividualOnboardingInput!): UpdateIndividualOnboardingPayload!
   updateSupportingDocument(input: UpdateSupportingDocumentInput!): UpdateSupportingDocumentPayload!
+
+  """
+  Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
+  
+  This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
+
+  """
+  Generate and return a presigned URL to upload a unique file for the supporting document collection
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
+
+  """
+  Ask for Swan's compliance team to review given supporting document collection.
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
+
+  """Generate an account statement"""
+  generateAccountStatement(input: GenerateAccountStatementInput!): Statement!
+
+  """
+  ***COMING SOON***
+  
+  Generate a transaction statement for a booked incoming or outgoing Credit Transfer.
+  """
+  generateTransactionStatement(input: GenerateTransactionStatementInput!): GenerateTransactionStatementPayload!
+
+  """
+  Cancel a capital deposit case.
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  cancelCapitalDepositCase(input: CancelCapitalDepositCaseInput!): CancelCapitalDepositCasePayload!
+
+  """
+  Create a capital deposit case.
+  
+  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
+
+  """
+  Generate an url allowing the upload of a document which unique identifier is specified in parameters.
+  
+  This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
+  """
+  generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
+
+  """Cancel a Card"""
+  cancelCard(input: CancelCardInput): CancelCardPayload!
+
+  """Cancel a physical card."""
+  cancelPhysicalCard(input: CancelPhysicalCardInput): CancelPhysicalCardPayload!
+
+  """
+  Resume a Physical Card.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have the account membership for this card
+  """
+  resumePhysicalCard(input: ResumePhysicalCardInput): ResumePhysicalCardPayload!
+
+  """Suspend a Physical Card."""
+  suspendPhysicalCard(input: SuspendPhysicalCardInput): SuspendPhysicalCardPayload!
+
+  """
+  Activate a Physical Card.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have the account membership for this card
+  """
+  activatePhysicalCard(input: ActivatePhysicalCardInput!): ActivatePhysicalCardPayload!
+
+  """
+  Add a new card to an account membership.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have an account membership for this account with the permission `canManageCards=true`.
+  """
+  addCard(input: AddCardInput!): AddCardPayload!
+
+  """
+  Add several cards with Group Delivery
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  """
+  addCardsWithGroupDelivery(input: AddCardsWithGroupDeliveryInput!): AddCardsWithGroupDeliveryPayload!
+
+  """
+  Add several cards
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  """
+  addCards(input: AddCardsInput!): AddCardsPayload!
+
+  """
+  Add a Digital Card to push to ApplePay or GooglePay
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must be the card holder
+  
+  A digital card will only be valid for 1 hour after consent validation
+  """
+  addDigitalCard(input: AddDigitalCardInput): AddDigitalCardPayload!
+
+  """Add a new Single Use Virtual Card to an account membership."""
+  addSingleUseVirtualCard(input: AddSingleUseVirtualCardInput!): AddSingleUseVirtualCardPayload!
+
+  """
+  Add several single-use virtual cards
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  
+  The user must have an account membership for this account with the attribute `canManageAccountMembership=true`.
+  """
+  addSingleUseVirtualCards(input: AddSingleUseVirtualCardsInput!): AddSingleUseVirtualCardsPayload!
+
+  """Cancel a Digital Card"""
+  cancelDigitalCard(input: CancelDigitalCardInput): CancelDigitalCardPayload!
+
+  """Confirm Physical Card Renewal"""
+  confirmPhysicalCardRenewal(input: ConfirmPhysicalCardRenewalInput!): ConfirmPhysicalCardRenewalPayload!
+
+  """
+  Print Physical Card.
+  
+  This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
+  """
+  printPhysicalCard(input: PrintPhysicalCardInput!): PrintPhysicalCardPayload!
+
+  """Update a Card."""
+  updateCard(input: UpdateCardInput): UpdateCardPayload
 
   """
   Reveal the card numbers in the consent page once consent has been given by the cardholder
@@ -10237,53 +10544,6 @@ type Mutation {
   The user must have the account membership for this card
   """
   viewPhysicalCardPin(input: ViewPhysicalCardPinInput!): ViewPhysicalCardPinPayload!
-
-  """
-  Delete a supporting document, in case uploaded file is not what was wanted. This action can not be undone.
-  
-  This mutation can only be used on an "Uploaded" supporting document of a "WaitingForDocument" supporting document collection.
-  
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  deleteSupportingDocument(input: DeleteSupportingDocumentInput!): DeleteSupportingDocumentPayload!
-
-  """
-  Generate and return a presigned URL to upload a unique file for the supporting document collection
-  
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  generateSupportingDocumentUploadUrl(input: GenerateSupportingDocumentUploadUrlInput!): GenerateSupportingDocumentUploadUrlPayload!
-
-  """
-  Ask for Swan's compliance team to review given supporting document collection.
-  
-  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
-  """
-  requestSupportingDocumentCollectionReview(input: RequestSupportingDocumentCollectionReviewInput): RequestSupportingDocumentCollectionReviewPayload!
-
-  """Generate an account statement"""
-  generateAccountStatement(input: GenerateAccountStatementInput!): Statement!
-
-  """
-  Cancel a capital deposit case.
-  
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
-  """
-  cancelCapitalDepositCase(input: CancelCapitalDepositCaseInput!): CancelCapitalDepositCasePayload!
-
-  """
-  Create a capital deposit case.
-  
-  This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication)).
-  """
-  createCapitalDepositCase(input: CreateCapitalDepositCaseInput!): CreateCapitalDepositCasePayload!
-
-  """
-  Generate an url allowing the upload of a document which unique identifier is specified in parameters.
-  
-  This mutation is restricted to an Project access token ([Learn More](https://docs.swan.io/api/authentication)).
-  """
-  generateCapitalDepositDocumentUploadUrl(input: GenerateCapitalDepositDocumentUploadUrlInput!): GenerateCapitalDepositDocumentUploadUrlPayload!
 
   """Create a temporary download link for a completed export."""
   generateExportDownloadLink(input: GenerateExportDownloadLinkInput!): GenerateExportDownloadLinkPayload
@@ -10387,10 +10647,22 @@ type Mutation {
   """Add a merchant profile to a company account holder"""
   addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
   addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
+
+  """Cancel a MerchantPaymentMethod update request"""
+  cancelMerchantPaymentMethodUpdateRequest(input: CancelMerchantPaymentMethodUpdateRequestInput!): CancelMerchantPaymentMethodUpdateRequestPayload
+
+  """Cancel a MerchantProfile update request"""
+  cancelMerchantProfileUpdateRequest(input: CancelMerchantProfileUpdateRequestInput!): CancelMerchantProfileUpdateRequestPayload
   initiateCheckMerchantPayment(input: InitiateCheckMerchantPaymentInput!): InitiateCheckMerchantPaymentPayload
 
   """Create a unique URL for a merchant to collect payment from a customer"""
   createMerchantPaymentLink(input: CreateMerchantPaymentLinkInput!): CreateMerchantPaymentLinkPayload!
+
+  """Disable a merchant payment method"""
+  disableMerchantPaymentMethod(input: DisableMerchantPaymentMethodInput!): DisableMerchantPaymentMethodPayload
+
+  """Disable a merchant profile"""
+  disableMerchantProfile(input: DisableMerchantProfileInput!): DisableMerchantProfilePayload
   initiateMerchantPaymentCollection(input: InitiateMerchantPaymentCollectionInput!): InitiateMerchantPaymentCollectionPayload
   requestMerchantPaymentMethodsUpdate(input: RequestMerchantPaymentMethodsUpdateInput!): RequestMerchantPaymentMethodsUpdatePayload
 
@@ -10607,7 +10879,7 @@ input OnboardCompanyAccountHolderInput {
   name: String
 
   """
-  Registration number of the company (SIRET, ...).
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
   - Length must be from 0 to 50 characters.
   """
   registrationNumber: String
@@ -10658,7 +10930,7 @@ input OnboardCompanyAccountHolderInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -10776,7 +11048,7 @@ input OnboardIndividualAccountHolderInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -10847,7 +11119,8 @@ type Onboarding {
   finalizedAt: DateTime
 
   """
-  Language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -10860,7 +11133,7 @@ type Onboarding {
   """
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
-  onboardingUrl: String!
+  onboardingUrl: String
 
   """Current computed state of onboarding"""
   onboardingState: OnboardingState!
@@ -10908,10 +11181,13 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
   type: AccountHolderType!
 
-  """name of the company"""
+  """Name of the company."""
   name: String
 
-  """registration number of the company (SIRET, ...)"""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """legal form of the company (SAS, SCI, SASU, ...)"""
@@ -11042,7 +11318,8 @@ type OnboardingInfo {
   email: String
 
   """
-  language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -11837,6 +12114,11 @@ type PendingReviewStatusInfo implements AccountVerificationStatusInfo {
   status: AccountVerificationStatus!
 }
 
+type PendingTransactionStatementStatusInfo implements TransactionStatementStatusInfo {
+  """status of the transaction statement"""
+  status: TransactionStatementStatusEnum!
+}
+
 """Pending transaction status information"""
 type PendingTransactionStatusInfo implements TransactionStatusInfo {
   """status of the transaction"""
@@ -11930,7 +12212,7 @@ input PhysicalCardConfigInput {
   """Custom options to use for physical cards."""
   physicalCardCustomOptions: PhysicalCardCustomOptionsInput
 
-  """`true` if the user must choose their PIN"""
+  """`true` if the user must choose their PIN Code"""
   choosePin: Boolean
 }
 
@@ -12236,14 +12518,14 @@ type ProjectCardSettings {
   """Unique identifier of a project"""
   id: ID!
 
+  """Project name"""
+  name: String
+
   """Visual Id from the issuing card processor (Monext)"""
   issuingProcessorVisualId: String
 
   """Specific card product for companies"""
   specificCardProductCodeForCompanies: String
-
-  """Project name"""
-  name: String
 
   """Project's card settings"""
   cardSettings: [CardSettings!]!
@@ -12530,37 +12812,6 @@ type Query {
   """
   beneficiaryVerification(input: BeneficiaryVerificationInput): BeneficiaryVerificationResult
 
-  """Returns a card from its id."""
-  card(cardId: ID!): Card
-
-  """
-  Returns the list of cards.
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  
-  *For a Project access token, this is all the cards of the project and for an User access token, these are the cards owned by the user whom have an account membership.*
-  """
-  cards(
-    """the number of elements to load (maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the preceding elements
-    """
-    before: String
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """an order you can apply to your list of connections"""
-    orderBy: CardOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: CardFiltersInput
-  ): CardConnection!
-
   """
   Returns an onboarding from its id.
   
@@ -12709,7 +12960,38 @@ type Query {
 
   """Return the Shareholder for the provided id."""
   shareholder(id: ID!): Shareholder
+
+  """Returns a card from its id."""
+  card(cardId: ID!): Card
   cardProductById(id: ID): CardProductByIdResultPayload
+
+  """
+  Returns the list of cards.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  
+  *For a Project access token, this is all the cards of the project and for an User access token, these are the cards owned by the user whom have an account membership.*
+  """
+  cards(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the preceding elements
+    """
+    before: String
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: CardOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: CardFiltersInput
+  ): CardConnection!
   exports(after: String, before: String, filters: ExportFilterInput, first: Int! = 50): ExportConnection!
 
   """Returns the project infos you set in the dashboard."""
@@ -12759,6 +13041,25 @@ type Query {
 
   """Returns a merchant profile by id."""
   merchantProfile(id: ID!): MerchantProfile
+
+  """Returns merchant profiles."""
+  merchantProfiles(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: MerchantProfileOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MerchantProfileFiltersInput
+  ): MerchantProfileConnection!
 
   """Returns funding source by id."""
   fundingSource(id: ID!): FundingSource
@@ -13679,6 +13980,9 @@ enum RequestMerchantProfileUpdateStatus {
 
   """A Request that has already been rejected"""
   Rejected
+
+  """A Request that has been canceled by the user"""
+  Canceled
 }
 
 """Add Merchant Profile Success Payload"""
@@ -15382,6 +15686,14 @@ type StillExportingRejection implements Rejection {
   message: String!
 }
 
+"""
+Rejection returned when subscription limit has been reached for specific eventTypes
+"""
+type SubscriptionLimitsRejection implements Rejection {
+  message: String!
+  subscriptionLimits: [EventTypeHavingReachedSubscriptionLimits]!
+}
+
 type SuccessfulThreeDs {
   status: ThreeDsStatus!
 }
@@ -15409,6 +15721,7 @@ type SupportingDocument {
 
 type SupportingDocumentAccountHolder {
   id: ID
+  name: String
 }
 
 """
@@ -16167,8 +16480,12 @@ type TextField implements Field {
   validationRegex: String
 }
 
+"""The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
+  """`true` if a 3DS challenge has been requested from the card holder"""
   requested: Boolean!
+
+  """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
 
@@ -16646,9 +16963,6 @@ type TransactionStatement {
   """matching account for this transaction statement"""
   account: Account!
 
-  """id of the transaction for which the statement is generated"""
-  transactionId: String!
-
   """transaction for which the statement is generated"""
   transaction: Transaction
 
@@ -16671,35 +16985,6 @@ enum TransactionStatementStatusEnum {
 }
 
 interface TransactionStatementStatusInfo {
-  """status of the transaction statement"""
-  status: TransactionStatementStatusEnum!
-}
-
-type TransactionStatementStatusInfoExpired implements TransactionStatementStatusInfo {
-  """status of the transaction statement"""
-  status: TransactionStatementStatusEnum!
-
-  """date at which the document expired"""
-  expiredAt: DateTime!
-}
-
-type TransactionStatementStatusInfoFailed implements TransactionStatementStatusInfo {
-  """status of the transaction statement"""
-  status: TransactionStatementStatusEnum!
-
-  """reason of the failure"""
-  reason: String
-}
-
-type TransactionStatementStatusInfoGenerated implements TransactionStatementStatusInfo {
-  """status of the transaction statement"""
-  status: TransactionStatementStatusEnum!
-
-  """temporary public url on which the file can be accessed"""
-  url: URL!
-}
-
-type TransactionStatementStatusInfoPending implements TransactionStatementStatusInfo {
   """status of the transaction statement"""
   status: TransactionStatementStatusEnum!
 }
@@ -16739,6 +17024,17 @@ enum TransactionStatus {
 interface TransactionStatusInfo {
   """status of the transaction"""
   status: TransactionStatus!
+}
+
+"""Indicator of the transit type used"""
+enum TransactionTransportType {
+  Prefunded
+  RealTimeAuthorized
+  PostAuthorizedAggregated
+  PostAuthorizedAggregatedMaestro
+  AuthorizedAggregatedSplitClearing
+  Other
+  DebtRecovery
 }
 
 """Transaction Type"""
@@ -17177,7 +17473,10 @@ type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwner
   """Name of the company."""
   name: String!
 
-  """Registration number."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String!
 }
 
@@ -17223,7 +17522,10 @@ type UltimateBeneficialIndirectOwnerCompanyInfo implements UltimateBeneficialOwn
   """Name of the company."""
   name: String!
 
-  """Registration number."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String!
 }
 
@@ -17289,7 +17591,7 @@ type UnknownExportRejection implements Rejection {
   message: String!
 }
 
-type UnsavedInternationalBeneficiary {
+type UnsavedInternationalBeneficiary implements InternationalBeneficiary {
   """Currency of the international beneficiary"""
   currency: Currency!
 
@@ -17466,7 +17768,7 @@ input UpdateCompanyOnboardingInput {
   name: String
 
   """
-  Registration number of the company (SIRET, ...).
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
   - Length must be from 0 to 50 characters.
   """
   registrationNumber: String
@@ -17514,7 +17816,7 @@ input UpdateCompanyOnboardingInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -17629,7 +17931,7 @@ input UpdateIndividualOnboardingInput {
 
   """
   Language of the onboarding process.
-  - Must be compliant with RFC 5646.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -17688,6 +17990,11 @@ Return type in case of a successful response of the updateReceivedSepaDirectDebi
 type UpdateReceivedSepaDirectDebitB2bMandateSuccessPayload {
   """The received direct debit mandate updated"""
   receivedDirectDebitMandate: ReceivedDirectDebitMandate!
+}
+
+type UpdateRequestNotPendingReviewRejection implements Rejection {
+  requestUpdateId: ID
+  message: String!
 }
 
 input UpdateSupportingDocumentInput {
@@ -17857,6 +18164,9 @@ type User {
   Date on which the user joined the project. Joining the project is done after the first accepted OAuth login.
   """
   joinedAt: DateTime!
+
+  """Returns the verified emails"""
+  emailAddresses: [String!]!
   identifications(
     """Maximum number of elements in the list (default value 50)"""
     first: Int! = 50
@@ -18432,7 +18742,7 @@ type WebhookSubscriptionNotFoundRejection implements Rejection {
   message: String!
 }
 
-union WebhookSubscriptionPayload = WebhookSubscriptionSuccessPayload | WebhookSubscriptionNotFoundRejection | InternalErrorRejection | InvalidArgumentRejection
+union WebhookSubscriptionPayload = WebhookSubscriptionSuccessPayload | WebhookSubscriptionNotFoundRejection | InternalErrorRejection | InvalidArgumentRejection | SubscriptionLimitsRejection
 
 """Relay Connection for Webhook Subscriptions"""
 type WebhookSubscriptionsConnection implements Connection {

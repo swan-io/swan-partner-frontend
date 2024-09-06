@@ -2,6 +2,7 @@ import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -224,6 +225,19 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                             <StepTitle isMobile={small}>
                               {t("supportingDocumentCollection.title")}
                             </StepTitle>
+
+                            {supportingDocumentCollection.accountHolder.name != null ? (
+                              <>
+                                <Space height={small ? 12 : 16} />
+
+                                <LakeText>
+                                  {t("supportingDocumentCollection.intro", {
+                                    accountHolderName:
+                                      supportingDocumentCollection.accountHolder.name,
+                                  })}
+                                </LakeText>
+                              </>
+                            ) : null}
 
                             <Space height={small ? 24 : 32} />
 

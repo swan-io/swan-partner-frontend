@@ -376,7 +376,10 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
   """Name of the company."""
   name: String!
 
-  """Registration number of the company (SIRET, ...)."""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """Registration date of the company."""
@@ -457,6 +460,11 @@ input AccountHolderFilterInput {
   firstName: String
   lastName: String
   birthDate: String
+
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 }
 
@@ -1377,13 +1385,6 @@ type CanceledIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-"""CanceledMerchantProfileStatusInfo"""
-type CanceledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
-  status: MerchantProfileStatus!
-  canceledAt: Date!
-  enabledAt: Date
-}
-
 """Status of the Capital Deposit Document"""
 enum CapitalDepositDocumentStatusInput {
   """Document is not uploaded yet."""
@@ -1457,37 +1458,6 @@ enum CardAuthorizationOutcome {
   TransactionNotAllowed
   TransactionNotAuthorizedForCardHolder
   UnableToDetectTransactionEnvironment
-  AuthorizationConsumed @deprecated
-  AuthorizationUpdated @deprecated
-  AuthorizationValidityExceeded @deprecated
-  CardCanceled @deprecated
-  CardholderCancelation @deprecated
-  CardLost @deprecated
-  CardNotProvidedToCardholderOrClosed @deprecated
-  CardOpposedCardStolen @deprecated
-  CardTemporarilyLocked @deprecated
-  eMoneyAccount @deprecated
-  eMoneyAccountLimitExceeded @deprecated
-  IncorrectPinCodeAttemptsExceeded @deprecated
-  InsufficientFunds @deprecated
-  MerchantInvalid @deprecated
-  OriginalTransactionNotFound @deprecated
-  PeriodAmountLimitExceeded @deprecated
-  PeriodNumberTransactionLimitExceeded @deprecated
-  PinCodeInvalid @deprecated
-  PinCodeValidationImpossible @deprecated
-  SpendingLimitsReached @deprecated
-  TechnicalError @deprecated
-  TransactionNotAuthorizedForPointOfSale @deprecated
-  PeriodTransactionNumberLimitExceeded @deprecated
-  MissingPin @deprecated
-  DigitalWalletDeactivated @deprecated
-  DigitalWalletEnrolmentInvalid @deprecated
-  DigitalWalletTokenInvalid @deprecated
-  DigitalWalletRefusal @deprecated
-  DigitalWalletSuspended @deprecated
-  InvalidAmount @deprecated
-  CardholderCancellation @deprecated
 }
 
 enum CardAuthorizationReleaseReason {
@@ -1544,6 +1514,58 @@ Rejection returned if the card was not found or if the user does not have the ri
 type CardNotFoundRejection implements Rejection {
   id: String!
   message: String!
+}
+
+type CardPaymentMandate implements PaymentMandate {
+  """Unique identifier of the Payment Mandate"""
+  id: ID!
+
+  """Custom name of the mandate"""
+  name: String
+
+  """Account Holder information"""
+  accountHolder: AccountHolder!
+
+  """Creation date of the Payment Mandate"""
+  createdAt: DateTime!
+
+  """Last Update date of the Payment Mandate"""
+  updatedAt: DateTime!
+
+  """
+  Date of the the last transaction executed for the concerned Payment Mandate
+  """
+  executedAt: DateTime
+
+  """Expiry date of the Payment Mandate"""
+  expiredAt: Date
+
+  """Payment Mandate status information"""
+  statusInfo: PaymentMandateStatusInfo!
+
+  """The card scheme"""
+  scheme: String
+
+  """The card's last digits"""
+  lastDigits: String
+
+  """The card's first 6 digits - Bank Identification Number"""
+  bin: String
+
+  """The card's expiry date"""
+  expiryDate: String
+
+  """The card's type"""
+  type: String
+
+  """The card's bank country"""
+  country: String
+}
+
+"""Location where the card should be printed from"""
+enum CardPrintingHub {
+  France
+  Spain
 }
 
 scalar CardToken
@@ -3221,6 +3243,19 @@ enum IncomingInternalDirectDebitReturnReasonCodeEnum {
   RegulatoryReason
 }
 
+"""Reason codes for returning an incoming international transfer"""
+enum IncomingInternationalCreditTransferReturnReasonCode {
+  BeneficiaryAccountBlocked
+  BeneficiaryAccountClosed
+  BeneficiaryAccountUnknown
+  BeneficiaryDeceased
+  ReasonNotSpecifiedByBank
+  ReasonNotSpecifiedByBeneficiary
+  RegulatoryReason
+  TransactionDuplicated
+  TransactionOnAccountTypeNotAllowed
+}
+
 """Inputs for SEPA credit transfer"""
 input IncomingSepaCreditTransferInput {
   """Credit transfer amount input"""
@@ -3270,6 +3305,11 @@ enum IncomingSepaDirectDebitReturnReasonCodeEnum {
   AccountClosed
   InsufficientFunds
   ReasonNotSpecifiedByDebtor
+}
+
+"""Rejection returned if the transaction was of incorrect type"""
+type IncorrectTransactionTypeRejection implements Rejection {
+  message: String!
 }
 
 """
@@ -3898,14 +3938,32 @@ input Merchant {
   postalCode: String = "75010"
 }
 
+"""
+The different balances of the payment. Use this to understand in details what actions have been taken on the payment and what actions can be taken moving forward.
+"""
 type MerchantBalance {
+  """The amount that can be canceled on this payment"""
   availableToCancel: AmountValue!
+
+  """The amount that can be captured on this payment"""
   availableToCapture: AmountValue!
+
+  """The amount that can be refunded on this payment"""
   availableToRefund: AmountValue!
+
+  """The amount authorised"""
   totalAuthorized: AmountValue!
+
+  """The amount canceled"""
   totalCanceled: AmountValue!
+
+  """The amount captured"""
   totalCaptured: AmountValue!
+
+  """The amount disputed"""
   totalDisputed: AmountValue!
+
+  """The amount refunded"""
   totalRefunded: AmountValue!
 }
 
@@ -3937,22 +3995,40 @@ type MerchantPayment {
 
   """status information"""
   statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
   amount: Amount!
+
+  """unique identifier of the payment mandate associated to the payment"""
   paymentMandateId: ID!
+
+  """unique identifier of the payment link associated to the payment"""
   paymentLinkId: ID
+
+  """unique identifier of the merchant profile associated to the payment"""
   merchantProfileId: ID!
+
+  """unique identifier of the payment method associated to the payment"""
   paymentMethodId: ID!
   balance: MerchantBalance!
+
+  """Label"""
   label: String
   reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
   externalReference: String
+
+  """The billing address associated to the payment"""
   billingAddress: Address
   threeDS: ThreeDS
 
-  """created date"""
+  """Created date"""
   createdAt: DateTime!
 
-  """updated date"""
+  """Updated date"""
   updatedAt: DateTime!
 }
 
@@ -4144,8 +4220,6 @@ enum MerchantPaymentLinkOrderByFieldInput {
   createdAt
   label
   url
-  statusInfos
-  amount
 }
 
 input MerchantPaymentLinkOrderByInput {
@@ -4333,8 +4407,8 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
-  paymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
-  payments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
+  merchantPaymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
+  merchantPayments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
 }
 
 """Merchant Profile Statuses"""
@@ -4430,7 +4504,6 @@ enum MerchantSubCategory {
   FerriesAndBoats
   HotelsAndAccommodation
   TravelAgents
-  ATM
   AtmWithdrawal
   OfficeRental
   HrAndRecruiting
@@ -4565,7 +4638,17 @@ type Mutation {
   generateTestCheck(input: GenerateCheckInput!): GenerateCheckPayload!
 
   """Simulate the authorization of a card merchant payment"""
-  simulateCardMerchantPaymentAuthorization(input: SimulateCardMerchantPaymentAuthorizationInput!): SimulateCardMerchantPaymentAuthorizationPayload
+  simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload
+
+  """
+  Simulate the approval or rejection of a merchant payment method update request
+  """
+  simulateMerchantPaymentMethodUpdateRequestOutcome(input: SimulateMerchantPaymentMethodUpdateRequestOutcomeInput!): SimulateMerchantPaymentMethodUpdateRequestOutcomePayload
+
+  """
+  Simulate the approval or rejection of a merchant profile update request
+  """
+  simulateMerchantProfileUpdateRequestOutcome(input: SimulateMerchantProfileUpdateRequestOutcomeInput!): SimulateMerchantProfileUpdateRequestOutcomePayload
 
   """Simulate the update of a Merchant Payment Method"""
   simulateUpdateMerchantPaymentMethod(input: SimulateUpdateMerchantPaymentMethodInput!): SimulateUpdateMerchantPaymentMethodPayload
@@ -4635,6 +4718,11 @@ type Mutation {
   After an incoming Internal Direct Debit has been sent, simulate the corresponding transaction being returned.
   """
   simulateIncomingInternalDirectDebitReturn(input: SimulateIncomingInternalDirectDebitReturnInput!): SimulateIncomingInternalDirectDebitReturnPayload!
+
+  """
+  Simulate Swan returning an Incoming International Credit Transfer Return request.
+  """
+  simulateIncomingInternationalCreditTransferReturn(input: SimulateIncomingInternationalCreditTransferReturnInput!): SimulateIncomingInternationalCreditTransferReturnPayload!
 
   """
   After an outgoing International Credit Transfer has been sent for execution to Swan, simulate the corresponding transaction being booked on the Swan debtor account.
@@ -4835,7 +4923,8 @@ type Onboarding {
   finalizedAt: DateTime
 
   """
-  Language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -4848,7 +4937,7 @@ type Onboarding {
   """
   Redirect the legal representative of a new account holder to this URL to start the onboarding process
   """
-  onboardingUrl: String!
+  onboardingUrl: String
 
   """Current computed state of onboarding"""
   onboardingState: OnboardingState!
@@ -4896,10 +4985,13 @@ type OnboardingCompanyAccountHolderInfo implements OnboardingAccountHolderInfo {
   """
   type: AccountHolderType!
 
-  """name of the company"""
+  """Name of the company."""
   name: String
 
-  """registration number of the company (SIRET, ...)"""
+  """
+  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  - Length must be from 0 to 50 characters.
+  """
   registrationNumber: String
 
   """legal form of the company (SAS, SCI, SASU, ...)"""
@@ -5030,7 +5122,8 @@ type OnboardingInfo {
   email: String
 
   """
-  language of the onboarding process. This consists of a 2-3 letter base language tag representing the language, optionally followed by additional subtags separated by '-'. The most common extra information is the country or region variant (like 'en-US' or 'fr-CA') or the type of alphabet to use (like 'sr-Latn'). Other variants like the type of orthography ('de-DE-1996') are usually not used in the context of this header. [Learn More](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Accept-Language)
+  Language of the onboarding process.
+  - Accepted languages: `["en", "fr", "nl", "de", "it", "es", "pt", "fi"]`
   """
   language: String
 
@@ -6296,6 +6389,9 @@ enum RequestMerchantProfileUpdateStatus {
 
   """A Request that has already been rejected"""
   Rejected
+
+  """A Request that has been canceled by the user"""
+  Canceled
 }
 
 input RequestSupportingDocumentsInput {
@@ -7025,72 +7121,6 @@ type SimulateCapitalDepositDocumentStatusSuccessPayload {
   id: String!
 }
 
-enum SimulateCardMerchantPaymentAuthorizationCardCategory {
-  COMMERCIAL
-  CONSUMER
-}
-
-input SimulateCardMerchantPaymentAuthorizationCardDetails {
-  scheme: SimulateCardMerchantPaymentAuthorizationCardScheme!
-  category: SimulateCardMerchantPaymentAuthorizationCardCategory!
-  type: SimulateCardMerchantPaymentAuthorizationCardType!
-  country: String!
-}
-
-enum SimulateCardMerchantPaymentAuthorizationCardScheme {
-  VISA
-  MASTERCARD
-  MAESTRO
-  CARTES_BANCAIRES
-}
-
-enum SimulateCardMerchantPaymentAuthorizationCardType {
-  CREDIT
-  DEBIT
-  PREPAID
-  CHARGE
-  DEFERRED_DEBIT
-}
-
-input SimulateCardMerchantPaymentAuthorizationInput {
-  """ID of the related payment link"""
-  paymentLinkId: ID!
-
-  """Payment status of the simulated authorization"""
-  paymentStatus: SimulateCardMerchantPaymentAuthorizationPaymentStatus!
-}
-
-"""SimulateCardMerchantPaymentAuthorizationPayload"""
-union SimulateCardMerchantPaymentAuthorizationPayload = InternalErrorRejection | ForbiddenRejection | NotFoundRejection | SimulateCardMerchantPaymentAuthorizationSuccessPayload | ValidationRejection
-
-input SimulateCardMerchantPaymentAuthorizationPaymentStatus {
-  authorizationStatus: SimulateCardMerchantPaymentAuthorizationStatus!
-  authorizationRejectReason: String
-  cardDetails: SimulateCardMerchantPaymentAuthorizationCardDetails!
-  threeDS: SimulateCardMerchantPaymentAuthorizationThreeDS!
-  autoCapture: Boolean!
-}
-
-enum SimulateCardMerchantPaymentAuthorizationStatus {
-  Authorized
-  Rejected
-}
-
-"""SimulateCardMerchantPaymentAuthorizationSuccessPayload"""
-type SimulateCardMerchantPaymentAuthorizationSuccessPayload {
-  paymentLinkId: ID!
-}
-
-input SimulateCardMerchantPaymentAuthorizationThreeDS {
-  status: SimulateCardMerchantPaymentAuthorizationThreeDSStatus!
-  failedReason: String
-}
-
-enum SimulateCardMerchantPaymentAuthorizationThreeDSStatus {
-  Successful
-  Failed
-}
-
 """Input of simulateCardTransactionEnrichment mutation"""
 input SimulateCardTransactionEnrichmentInput {
   """Card transaction id"""
@@ -7152,6 +7182,72 @@ type SimulateCardTransactionEnrichmentRejection implements Rejection {
 type SimulateCardTransactionEnrichmentSuccessPayload {
   transactionId: ID!
   enrichedData: EnrichedTransactionInfo!
+}
+
+enum SimulateIncomingCardAuthorizationCardCategory {
+  COMMERCIAL
+  CONSUMER
+}
+
+input SimulateIncomingCardAuthorizationCardDetails {
+  scheme: SimulateIncomingCardAuthorizationCardScheme!
+  category: SimulateIncomingCardAuthorizationCardCategory!
+  type: SimulateIncomingCardAuthorizationCardType!
+  country: String!
+}
+
+enum SimulateIncomingCardAuthorizationCardScheme {
+  VISA
+  MASTERCARD
+  MAESTRO
+  CARTES_BANCAIRES
+}
+
+enum SimulateIncomingCardAuthorizationCardType {
+  CREDIT
+  DEBIT
+  PREPAID
+  CHARGE
+  DEFERRED_DEBIT
+}
+
+input SimulateIncomingCardAuthorizationInput {
+  """ID of the related payment link"""
+  paymentLinkId: ID!
+
+  """Payment status of the simulated authorization"""
+  paymentStatus: SimulateIncomingCardAuthorizationPaymentStatus!
+}
+
+"""SimulateIncomingCardAuthorizationPayload"""
+union SimulateIncomingCardAuthorizationPayload = InternalErrorRejection | ForbiddenRejection | NotFoundRejection | SimulateIncomingCardAuthorizationSuccessPayload | ValidationRejection
+
+input SimulateIncomingCardAuthorizationPaymentStatus {
+  authorizationStatus: SimulateIncomingCardAuthorizationStatus!
+  authorizationRejectReason: String
+  cardDetails: SimulateIncomingCardAuthorizationCardDetails!
+  threeDS: SimulateIncomingCardAuthorizationThreeDS!
+  autoCapture: Boolean!
+}
+
+enum SimulateIncomingCardAuthorizationStatus {
+  Authorized
+  Rejected
+}
+
+"""SimulateIncomingCardAuthorizationSuccessPayload"""
+type SimulateIncomingCardAuthorizationSuccessPayload {
+  paymentLinkId: ID!
+}
+
+input SimulateIncomingCardAuthorizationThreeDS {
+  status: SimulateIncomingCardAuthorizationThreeDSStatus!
+  failedReason: String
+}
+
+enum SimulateIncomingCardAuthorizationThreeDSStatus {
+  Successful
+  Failed
 }
 
 """Book an incoming check simulation input"""
@@ -7289,6 +7385,23 @@ input SimulateIncomingInternationalCreditTransferInput {
 
 """SimulateIncomingInternationalCreditTransferPayload"""
 union SimulateIncomingInternationalCreditTransferPayload = SimulateIncomingInternationalCreditTransferSuccessPayload | AccountNotFoundRejection | ForbiddenRejection
+
+"""Return an incoming transfer simulation input"""
+input SimulateIncomingInternationalCreditTransferReturnInput {
+  """Reason of the return"""
+  reasonCode: IncomingInternationalCreditTransferReturnReasonCode!
+
+  """Transaction ID to return"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateIncomingInternationalCreditTransferReturnPayload = SimulateIncomingInternationalCreditTransferReturnSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection | IncorrectTransactionTypeRejection | TransactionAlreadyReturnedRejection
+
+"""Success payload type"""
+type SimulateIncomingInternationalCreditTransferReturnSuccessPayload {
+  transactionId: ID!
+}
 
 """SimulateIncomingInternationalCreditTransferSuccessPayload"""
 type SimulateIncomingInternationalCreditTransferSuccessPayload {
@@ -7442,6 +7555,40 @@ type SimulateManualBankingFeeSuccessPayload {
   debitedAmount: Amount
 }
 
+input SimulateMerchantPaymentMethodUpdateRequestOutcomeInput {
+  """
+  ID of the Merchant PaymentMethod update request to simulate the outcome of
+  """
+  updateRequestId: ID!
+
+  """Whether the update is approved or not"""
+  requestedUpdateApproved: Boolean!
+}
+
+"""SimulateMerchantPaymentMethodUpdateRequestOutcomePayload"""
+union SimulateMerchantPaymentMethodUpdateRequestOutcomePayload = SimulateMerchantPaymentMethodUpdateRequestOutcomeSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
+
+"""SimulateMerchantPaymentMethodUpdateRequestOutcomeSuccessPayload"""
+type SimulateMerchantPaymentMethodUpdateRequestOutcomeSuccessPayload {
+  updateRequestId: ID!
+}
+
+input SimulateMerchantProfileUpdateRequestOutcomeInput {
+  """ID of the Merchant Profile update request to simulate the outcome of"""
+  updateRequestId: ID!
+
+  """Whether the update is approved or not"""
+  requestedUpdateApproved: Boolean!
+}
+
+"""SimulateMerchantProfileUpdateRequestOutcomePayload"""
+union SimulateMerchantProfileUpdateRequestOutcomePayload = SimulateMerchantProfileUpdateRequestOutcomeSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection
+
+"""SimulateMerchantProfileUpdateRequestOutcomeSuccessPayload"""
+type SimulateMerchantProfileUpdateRequestOutcomeSuccessPayload {
+  updateRequestId: ID!
+}
+
 """Request a card advice simulation input"""
 input SimulateOutgoingCardAdviceInput {
   amount: AmountInput!
@@ -7466,6 +7613,9 @@ input SimulateOutgoingCardAdviceInput {
 
   """Expiration date time"""
   expirationDateTime: DateTime
+
+  """"""
+  transactionTransportType: TransactionTransportType
 }
 
 """Request a card authorization simulation input"""
@@ -7501,6 +7651,9 @@ input SimulateOutgoingCardAuthorizationInput {
 
   """"""
   allowsPartialAuthorization: Boolean = false
+
+  """"""
+  transactionTransportType: TransactionTransportType
 }
 
 """Union of Success payload and potential rejections"""
@@ -7509,7 +7662,8 @@ union SimulateOutgoingCardAuthorizationPayload = SimulateOutgoingCardAuthorizati
 """Reject payload type"""
 type SimulateOutgoingCardAuthorizationRejectPayload {
   transactionId: ID!
-  reason: SimulateOutgoingCardAuthorizationRejectPayloadReason!
+  reason: SimulateOutgoingCardAuthorizationRejectPayloadReason! @deprecated(reason: "Use rejectedReason instead")
+  rejectedReason: String!
 }
 
 """Reject payload reason"""
@@ -7520,6 +7674,7 @@ enum SimulateOutgoingCardAuthorizationRejectPayloadReason {
   InsufficientFunds
   NotHeld
   PartnerRefused
+  PartnerTechnicalErrorOccurred
   PeriodAmountLimitExceeded
   SwanRefused
   TransactionTypeNotAllowed
@@ -8093,6 +8248,7 @@ type SupportingDocument {
 
 type SupportingDocumentAccountHolder {
   id: ID
+  name: String
 }
 
 """
@@ -8755,8 +8911,12 @@ type TextField implements Field {
   validationRegex: String
 }
 
+"""The details of the 3DS challenge associated to the payment."""
 type ThreeDS {
+  """`true` if a 3DS challenge has been requested from the card holder"""
   requested: Boolean!
+
+  """The status of the 3DS challenge"""
   statusInfo: ThreeDsStatusInfo!
 }
 
@@ -8818,6 +8978,12 @@ type TooManyItemsRejection implements Rejection {
   message: String!
 }
 
+"""Rejection returned if the transaction was already returned"""
+type TransactionAlreadyReturnedRejection implements Rejection {
+  message: String!
+  returnTransactionId: ID!
+}
+
 """Rejection returned if the transaction was not found"""
 type TransactionNotFoundRejection implements Rejection {
   transactionId: ID!
@@ -8827,6 +8993,16 @@ type TransactionNotFoundRejection implements Rejection {
 enum TransactionSide {
   Credit
   Debit
+}
+
+enum TransactionTransportType {
+  Prefunded
+  RealTimeAuthorized
+  PostAuthorizedAggregated
+  PostAuthorizedAggregatedMaestro
+  AuthorizedAggregatedSplitClearing
+  Other
+  DebtRecovery
 }
 
 """Quality of the account holder doing the onboarding"""
@@ -8911,6 +9087,11 @@ input UpdateMerchantPaymentMethodInput {
 
   """Status to which to move the related payment product"""
   status: MerchantPaymentMethodStatus!
+}
+
+type UpdateRequestNotPendingReviewRejection implements Rejection {
+  requestUpdateId: ID
+  message: String!
 }
 
 """Update sandbox identification input payload."""

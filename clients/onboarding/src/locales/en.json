@@ -134,6 +134,7 @@
   "error.invalidEmail": "Invalid email",
   "error.invalidField": "Invalid field",
   "error.invalidFields": "Some fields are invalid",
+  "error.birthdate.incomplete": "Please enter your complete and valid birth date: month, day, and year.",
   "error.invalidName": "Invalid name",
   "error.network": "There is no internet connection.",
   "error.pageNotFound": "Page not found",

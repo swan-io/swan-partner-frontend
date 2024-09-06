@@ -149,7 +149,7 @@ const convertFetchUboToInput = (
     birthCityPostalCode: fetchedUbo.birthCityPostalCode ?? "",
     // Slice to remove the time part because the backend sends a DateTime instead of a Date
     // https://linear.app/swan/issue/ECU-2938/ubo-birthdate-is-a-datetime-instead-of-a-date
-    birthDate: fetchedUbo.birthDate != null ? fetchedUbo.birthDate.slice(0, 10) : "",
+    birthDate: fetchedUbo.birthDate != null ? fetchedUbo.birthDate.slice(0, 10) : null,
     direct: direct ?? false,
     indirect: indirect ?? false,
     totalCapitalPercentage: totalCapitalPercentage ?? undefined,

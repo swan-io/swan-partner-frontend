@@ -9,21 +9,18 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitCityInput } from "@swan-io/shared-business/src/components/PlacekitCityInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
-import { decodeBirthDate, encodeBirthDate } from "@swan-io/shared-business/src/utils/date";
-import { rifmDateProps } from "@swan-io/shared-business/src/utils/i18n";
 import { validateRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
-import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import { AccountCountry } from "../../../graphql/unauthenticated";
-import { locale, t } from "../../../utils/i18n";
+import { t } from "../../../utils/i18n";
 import { validateName } from "../../../utils/validation";
 
 const styles = StyleSheet.create({
@@ -46,7 +43,7 @@ const beneficiaryTypes: RadioGroupItem<BeneficiaryType>[] = [
 export type FormValues = {
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string | undefined;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -59,7 +56,7 @@ export type FormValues = {
 export type Input = {
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string | null;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -101,11 +98,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
       validate: combineValidators(validateRequired, validateName),
     },
     birthDate: {
-      initialValue: isNotNullishOrEmpty(initialValues.birthDate)
-        ? decodeBirthDate(initialValues.birthDate)
-        : "",
-      sanitize: trim,
-      validate: isBirthInfoRequired ? validateRequired : undefined,
+      initialValue: initialValues.birthDate ?? undefined,
     },
     birthCountryCode: {
       initialValue: initialValues.birthCountryCode ?? companyCountry,
@@ -167,7 +160,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate: birthDate.map(encodeBirthDate),
+              birthDate: birthDate.flatMap(Option.fromNullable),
               birthCountryCode,
               birthCity,
               birthCityPostalCode,
@@ -255,23 +248,11 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
           <Box direction={small ? "column" : "row"}>
             <Field name="birthDate">
               {({ value, onChange, error }) => (
-                <LakeLabel
+                <BirthdatePicker
                   label={t("company.step.owners.beneficiary.birthDate")}
-                  optionalLabel={isBirthInfoRequired ? undefined : t("common.optional")}
-                  style={styles.inputContainer}
-                  render={id => (
-                    <Rifm value={value ?? ""} onChange={onChange} {...rifmDateProps}>
-                      {({ value, onChange }) => (
-                        <LakeTextInput
-                          error={error}
-                          placeholder={locale.datePlaceholder}
-                          id={id}
-                          value={value}
-                          onChange={onChange}
-                        />
-                      )}
-                    </Rifm>
-                  )}
+                  value={value}
+                  onValueChange={onChange}
+                  error={error}
                 />
               )}
             </Field>

@@ -56,7 +56,7 @@ export type FormValues = {
 export type Input = {
   firstName: string;
   lastName: string;
-  birthDate: string | null;
+  birthDate: string | undefined;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -160,7 +160,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate: birthDate.flatMap(Option.fromNullable),
+              birthDate,
               birthCountryCode,
               birthCity,
               birthCityPostalCode,
@@ -249,6 +249,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             <Field name="birthDate">
               {({ value, onChange, error }) => (
                 <BirthdatePicker
+                  style={styles.inputContainer}
                   label={t("company.step.owners.beneficiary.birthDate")}
                   value={value}
                   onValueChange={onChange}

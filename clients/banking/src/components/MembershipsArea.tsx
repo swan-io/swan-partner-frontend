@@ -1,6 +1,6 @@
 import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
-import { useQuery } from "@swan-io/graphql-client";
+import { useDeferredQuery, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/FixedListView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
@@ -18,7 +18,12 @@ import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { Except } from "type-fest";
-import { AccountCountry, AccountMembershipFragment, MembersPageDocument } from "../graphql/partner";
+import {
+  AccountCountry,
+  AccountMembershipFragment,
+  MembersPageDocument,
+  MembershipDetailDocument,
+} from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
@@ -75,6 +80,7 @@ export const MembershipsArea = ({
   currentUserAccountMembership,
   onAccountMembershipUpdate,
 }: Props) => {
+  const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
   const filters: MembershipFilters = useMemo(() => {
@@ -160,36 +166,36 @@ export const MembershipsArea = ({
           accountMembershipInvitationMode: "EMAIL",
         },
         ({ params: { resourceId } }) => {
-          const query = new URLSearchParams();
+          queryLastCreatedMembership({ accountMembershipId: resourceId }).tapOk(membership => {
+            const query = new URLSearchParams();
 
-          query.append("inviterAccountMembershipId", accountMembershipId);
-          query.append("lang", locale.language);
+            query.append("inviterAccountMembershipId", accountMembershipId);
+            query.append("lang", membership.accountMembership?.language ?? locale.language);
 
-          const url = match(projectConfiguration)
-            .with(
-              Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-              projectId =>
-                `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
-            )
-            .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
+            const url = match(projectConfiguration)
+              .with(
+                Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+                projectId =>
+                  `/api/projects/${projectId}/invitation/${resourceId}/send?${query.toString()}`,
+              )
+              .otherwise(() => `/api/invitation/${resourceId}/send?${query.toString()}`);
 
-          const request = Request.make({
-            url,
-            method: "POST",
-          }).tap(() => {
-            Router.replace("AccountMembersList", {
-              ...params,
-              accountMembershipId,
-              resourceId: undefined,
-              status: undefined,
+            Request.make({
+              url,
+              method: "POST",
+            }).tap(() => {
+              Router.replace("AccountMembersList", {
+                ...params,
+                accountMembershipId,
+                resourceId: undefined,
+                status: undefined,
+              });
             });
           });
-
-          return () => request.cancel();
         },
       )
       .otherwise(() => {});
-  }, [params, accountMembershipId]);
+  }, [params, accountMembershipId, queryLastCreatedMembership]);
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>

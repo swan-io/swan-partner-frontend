@@ -160,9 +160,6 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate: birthDate.flatMap(date =>
-                date !== undefined ? Option.Some(date) : Option.Some(null),
-              ),
               birthCountryCode,
               birthCity,
               birthCityPostalCode,
@@ -187,6 +184,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
 
                   return onSave({
                     ...requiredFields.get(),
+                    birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
                     direct,
                     indirect,
                     totalCapitalPercentage: Number(totalCapitalPercentage),
@@ -194,7 +192,10 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
                 },
               )
               .with({ requiredFields: Option.P.Some(P.any) }, ({ requiredFields }) => {
-                return onSave(requiredFields.get());
+                return onSave({
+                  ...requiredFields.get(),
+                  birthDate: birthDate.flatMap(Option.fromNullable).toNull(),
+                });
               })
               .otherwise(() => {});
           },

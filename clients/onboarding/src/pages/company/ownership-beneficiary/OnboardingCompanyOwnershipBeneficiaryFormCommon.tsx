@@ -56,7 +56,7 @@ export type FormValues = {
 export type Input = {
   firstName: string;
   lastName: string;
-  birthDate: string | undefined;
+  birthDate: string | null;
   birthCountryCode: CountryCCA3;
   birthCity: string;
   birthCityPostalCode: string;
@@ -160,7 +160,9 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
             const requiredFields = Option.allFromDict({
               firstName,
               lastName,
-              birthDate,
+              birthDate: birthDate.flatMap(date =>
+                date !== undefined ? Option.Some(date) : Option.Some(null),
+              ),
               birthCountryCode,
               birthCity,
               birthCityPostalCode,

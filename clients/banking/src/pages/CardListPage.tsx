@@ -97,16 +97,18 @@ export const CardListPage = ({
       title={t("cardList.noResults")}
       subtitle={t("cardList.noResultsDescription")}
     >
-      <LakeButtonGroup>
-        <LakeButton
-          size="small"
-          icon="add-circle-filled"
-          color="current"
-          onPress={() => Router.push("AccountCardsList", { accountMembershipId, new: "" })}
-        >
-          {t("common.new")}
-        </LakeButton>
-      </LakeButtonGroup>
+      {canAddCard && cardOrderVisible && (
+        <LakeButtonGroup>
+          <LakeButton
+            size="small"
+            icon="add-circle-filled"
+            color="current"
+            onPress={() => Router.push("AccountCardsList", { accountMembershipId, new: "" })}
+          >
+            {t("common.new")}
+          </LakeButton>
+        </LakeButtonGroup>
+      )}
     </FixedListViewEmpty>
   );
 

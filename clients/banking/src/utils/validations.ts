@@ -308,3 +308,19 @@ export const validateHexColor: Validator<string> = value => {
     return t("common.form.invalidColor");
   }
 };
+
+const CMC7_RE = /^\d{31}$/;
+
+export const validateCMC7 = (value: string) => {
+  if (!CMC7_RE.test(value)) {
+    return t("common.form.invalidCMC7");
+  }
+};
+
+const RLMC_RE = /^\d{2}$/;
+
+export const validateRLMC = (value: string) => {
+  if (!RLMC_RE.test(value)) {
+    return t("common.form.invalidRLMC");
+  }
+};

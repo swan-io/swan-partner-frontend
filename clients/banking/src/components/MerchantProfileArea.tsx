@@ -70,36 +70,34 @@ export const AccountMerchantsProfileArea = ({
           ))
           .with(
             AsyncData.P.Done(Result.P.Ok({ merchantProfile: P.select(P.nonNullable) })),
-            merchantProfile => (
-              <>
-                {match(route)
-                  .with({ name: "AccountMerchantsProfileSettings" }, () => (
-                    <MerchantProfileSettings
-                      merchantProfile={merchantProfile}
-                      large={large}
-                      merchantProfileCardVisible={merchantProfileCardVisible}
-                      merchantProfileSepaDirectDebitCoreVisible={
-                        merchantProfileSepaDirectDebitCoreVisible
-                      }
-                      merchantProfileSepaDirectDebitB2BVisible={
-                        merchantProfileSepaDirectDebitB2BVisible
-                      }
-                      merchantProfileInternalDirectDebitCoreVisible={
-                        merchantProfileInternalDirectDebitCoreVisible
-                      }
-                      merchantProfileInternalDirectDebitB2BVisible={
-                        merchantProfileInternalDirectDebitB2BVisible
-                      }
-                      merchantProfileCheckVisible={merchantProfileCheckVisible}
-                      onUpdate={() => {
-                        refresh();
-                      }}
-                    />
-                  ))
-                  .with(P.nullish, () => <NotFoundPage />)
-                  .exhaustive()}
-              </>
-            ),
+            merchantProfile =>
+              match(route)
+                .with({ name: "AccountMerchantsProfileSettings" }, ({ params }) => (
+                  <MerchantProfileSettings
+                    params={params}
+                    merchantProfile={merchantProfile}
+                    large={large}
+                    merchantProfileCardVisible={merchantProfileCardVisible}
+                    merchantProfileSepaDirectDebitCoreVisible={
+                      merchantProfileSepaDirectDebitCoreVisible
+                    }
+                    merchantProfileSepaDirectDebitB2BVisible={
+                      merchantProfileSepaDirectDebitB2BVisible
+                    }
+                    merchantProfileInternalDirectDebitCoreVisible={
+                      merchantProfileInternalDirectDebitCoreVisible
+                    }
+                    merchantProfileInternalDirectDebitB2BVisible={
+                      merchantProfileInternalDirectDebitB2BVisible
+                    }
+                    merchantProfileCheckVisible={merchantProfileCheckVisible}
+                    onUpdate={() => {
+                      refresh();
+                    }}
+                  />
+                ))
+                .with(P.nullish, () => <NotFoundPage />)
+                .exhaustive(),
           )
           .exhaustive()
       }

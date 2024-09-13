@@ -103,9 +103,10 @@ const routes = {
       Area: "/*",
       Root: "/?:new{true}",
       List: "/profiles?:status{Active|Inactive}",
+
       ...createGroup("Profile", "/:merchantProfileId", {
         Area: "/*",
-        Settings: "/",
+        Settings: "/?:check{declare|next}",
       }),
     }),
   }),

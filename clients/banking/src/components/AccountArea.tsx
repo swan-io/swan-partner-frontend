@@ -359,7 +359,9 @@ export const AccountArea = ({
   );
 
   const canQueryCardOnTransaction =
-    accountMembership.statusInfo.status !== "BindingUserError" && accountMembership.canManageCards;
+    accountMembership.statusInfo.status !== "BindingUserError" &&
+    accountMembership.canManageAccountMembership &&
+    accountMembership.canManageCards;
 
   const { canManageBeneficiaries } = accountMembership;
 

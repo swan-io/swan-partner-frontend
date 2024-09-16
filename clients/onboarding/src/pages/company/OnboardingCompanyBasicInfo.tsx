@@ -46,6 +46,10 @@ const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
   NLD: "(BV, NV, VOF…)",
 };
 
+const coOwnershipTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
+  NLD: "(VvE...)",
+};
+
 const typeOfRepresentationItems: RadioGroupItem<TypeOfRepresentation>[] = [
   {
     name: t("company.step.basicInfo.legalRepresentative"),
@@ -73,7 +77,7 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
   const countriesWithHomeOwnerAssociation: CountryCCA3[] = ["FRA", "BEL", "DEU", "ESP", "NLD"];
   if (countriesWithHomeOwnerAssociation.includes(country)) {
     items.push({
-      name: t("companyType.coOwnership"),
+      name: `${t("companyType.coOwnership")} ${coOwnershipTypesPerCountry[country] ?? ""}`,
       value: "HomeOwnerAssociation",
     });
   }

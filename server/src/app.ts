@@ -453,6 +453,9 @@ export const start = async ({
     async (request, reply) => {
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
+      if (typeof request.query.identificationLevel === "string") {
+        queryString.append("identificationLevel", request.query.identificationLevel);
+      }
       return reply.redirect(`/auth/login?${queryString.toString()}`);
     },
   );

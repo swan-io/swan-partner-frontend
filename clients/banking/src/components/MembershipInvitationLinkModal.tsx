@@ -27,13 +27,28 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
     }
   }, [accountMembershipId, query]);
 
-  const value = match(projectConfiguration)
-    .with(
-      Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
-      projectId =>
-        `${__env.BANKING_URL}/api/projects/${projectId}/invitation/${accountMembershipId ?? ""}`,
-    )
-    .otherwise(() => `${__env.BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`);
+  const url = new URL(
+    match(projectConfiguration)
+      .with(
+        Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
+        projectId =>
+          `${__env.BANKING_URL}/api/projects/${projectId}/invitation/${accountMembershipId ?? ""}`,
+      )
+      .otherwise(() => `${__env.BANKING_URL}/api/invitation/${accountMembershipId ?? ""}`),
+  );
+
+  if (
+    data.isDone() &&
+    data.value.isOk() &&
+    typeof data.value.value.accountMembership?.recommendedIdentificationLevel === "string"
+  ) {
+    url.searchParams.append(
+      "identificationLevel",
+      data.value.value.accountMembership?.recommendedIdentificationLevel,
+    );
+  }
+
+  const value = url.toString();
 
   return (
     <LakeModal

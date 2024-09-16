@@ -57,6 +57,7 @@ query GetAccountMembershipInvitationData(
   inviteeAccountMembership: accountMembership(id: $inviteeAccountMembershipId) {
     id
     email
+    recommendedIdentificationLevel
     statusInfo {
       __typename
       ... on AccountMembershipInvitationSentStatusInfo {

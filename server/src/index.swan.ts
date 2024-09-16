@@ -94,8 +94,16 @@ const getMailjetInput = ({
           },
         },
       },
-      ({ inviteeAccountMembership, inviterAccountMembership, projectInfo }) =>
-        Result.Ok({
+      ({ inviteeAccountMembership, inviterAccountMembership, projectInfo }) => {
+        const ctaUrl = new URL(
+          `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
+        );
+        ctaUrl.searchParams.append(
+          "identificationLevel",
+          inviteeAccountMembership.recommendedIdentificationLevel,
+        );
+
+        return Result.Ok({
           Messages: [
             {
               To: [
@@ -128,7 +136,7 @@ const getMailjetInput = ({
                 accountHolderName: inviterAccountMembership.account.holder.info.name,
                 accountName: inviterAccountMembership.account.name,
                 accountNumber: inviterAccountMembership.account.number,
-                ctaUrl: `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
+                ctaUrl: ctaUrl.toString(),
                 ctaColor: projectInfo.accentColor ?? swanColorHex,
                 inviteeFirstName: inviteeAccountMembership.statusInfo.restrictedTo.firstName,
                 inviterEmail: inviterAccountMembership.email,
@@ -138,7 +146,8 @@ const getMailjetInput = ({
               },
             },
           ],
-        }),
+        });
+      },
     )
     .otherwise(() => Result.Error(new Error("Invalid invitation data")));
 
@@ -291,6 +300,9 @@ start({
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
       queryString.append("projectId", request.params.projectId);
+      if (typeof request.query.identificationLevel === "string") {
+        queryString.append("identificationLevel", request.query.identificationLevel);
+      }
       return reply.redirect(`/auth/login?${queryString.toString()}`);
     });
 

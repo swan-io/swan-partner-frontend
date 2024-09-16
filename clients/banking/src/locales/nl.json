@@ -173,6 +173,7 @@
   "card.physical.cancel.reason.lost": "De fysieke kaart is verloren",
   "card.physical.cancel.reason.malfunction": "De kaart werkt niet goed",
   "card.physical.cancel.reason.neverReceived": "De kaart is nooit ontvangen",
+  "card.physical.cancel.reason.other": "Anders",
   "card.physical.cancel.reason.stolen": "De kaart is gestolen",
   "card.physical.cancelConfirmation": "Reden",
   "card.physical.cancelDescription": "Je fysieke kaart wordt permanent geblokkeerd. Je kunt direct een nieuwe bestellen.",

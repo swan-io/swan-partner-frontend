@@ -189,6 +189,7 @@ const cancelReasons: { name: string; value: CancelPhysicalCardReason }[] = [
   { name: t("card.physical.cancel.reason.lost"), value: "Lost" },
   { name: t("card.physical.cancel.reason.stolen"), value: "Stolen" },
   { name: t("card.physical.cancel.reason.neverReceived"), value: "NonReceived" },
+  { name: t("card.physical.cancel.reason.other"), value: "Blocked" },
 ];
 
 const CardItemPhysicalPermanentlyBlockForm = ({

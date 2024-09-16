@@ -173,6 +173,7 @@
   "card.physical.cancel.reason.lost": "Die physische Karte ist verloren gegangen",
   "card.physical.cancel.reason.malfunction": "Die Karte funktioniert nicht korrekt",
   "card.physical.cancel.reason.neverReceived": "Die Karte wurde nie erhalten",
+  "card.physical.cancel.reason.other": "Andere",
   "card.physical.cancel.reason.stolen": "Die Karte wurde gestohlen",
   "card.physical.cancelConfirmation": "Grund",
   "card.physical.cancelDescription": "Ihre physische Karte wird dann dauerhaft gesperrt und Sie können sofort eine neue Karte bestellen.",

@@ -173,6 +173,7 @@
   "card.physical.cancel.reason.lost": "Fyysinen kortti on kadonnut",
   "card.physical.cancel.reason.malfunction": "Kortti ei toimi kunnolla",
   "card.physical.cancel.reason.neverReceived": "Korttia ei koskaan toimitettu perille asti",
+  "card.physical.cancel.reason.other": "Muu",
   "card.physical.cancel.reason.stolen": "Kortti on varastettu",
   "card.physical.cancelConfirmation": "Syy",
   "card.physical.cancelDescription": "Fyysinen korttisi suljetaan pysyvästi. Voit tilata uuden kortin välittömästi.",

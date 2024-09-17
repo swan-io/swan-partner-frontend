@@ -254,9 +254,11 @@ test("German company onboarding", async ({ browser, page, request }) => {
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.firstName")).fill("Nicolas");
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.lastName")).fill("Benady");
-  await modal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthDate"))
-    .fill("01/01/1970");
+
+  await modal.getByPlaceholder(t("shared.datePicker.day")).fill("01");
+  await modal.getByRole("button", { name: t("shared.datePicker.month") }).click();
+  await page.getByText(t("shared.datePicker.month.january")).click();
+  await modal.getByPlaceholder(t("shared.datePicker.year")).fill("1990");
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.birthCountry")).click();
 
@@ -368,9 +370,10 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.firstName")).fill("Nicolas");
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.lastName")).fill("Benady");
-  await modal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthDate"))
-    .fill("01/01/1970");
+  await modal.getByPlaceholder(t("shared.datePicker.day")).fill("01");
+  await modal.getByRole("button", { name: t("shared.datePicker.month") }).click();
+  await page.getByText(t("shared.datePicker.month.january")).click();
+  await modal.getByPlaceholder(t("shared.datePicker.year")).fill("1990");
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.birthCountry")).click();
 
@@ -501,9 +504,10 @@ test("Dutch company onboarding", async ({ browser, page, request }) => {
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.firstName")).fill("Nicolas");
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.lastName")).fill("Benady");
-  await modal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthDate"))
-    .fill("01/01/1970");
+  await modal.getByPlaceholder(t("shared.datePicker.day")).fill("01");
+  await modal.getByRole("button", { name: t("shared.datePicker.month") }).click();
+  await page.getByText(t("shared.datePicker.month.january")).click();
+  await modal.getByPlaceholder(t("shared.datePicker.year")).fill("1990");
 
   await modal.getByLabel(t("onboarding.company.step.owners.beneficiary.birthCountry")).click();
 

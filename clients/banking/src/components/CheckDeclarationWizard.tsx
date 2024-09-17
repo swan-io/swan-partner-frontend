@@ -424,9 +424,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
                     icon="question-circle-regular"
                     onPress={setHelpModal.open}
                     ariaLabel={t("common.help.whatIsThis")}
-                  >
-                    {t("common.help.whatIsThis")}
-                  </LakeButton>
+                  />
                 }
                 render={id => (
                   <Field name="cmc7">
@@ -466,9 +464,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
                     icon="question-circle-regular"
                     ariaLabel={t("common.help.whatIsThis")}
                     onPress={setHelpModal.open}
-                  >
-                    {t("common.help.whatIsThis")}
-                  </LakeButton>
+                  />
                 }
                 render={id => (
                   <Field name="rlmcKey">

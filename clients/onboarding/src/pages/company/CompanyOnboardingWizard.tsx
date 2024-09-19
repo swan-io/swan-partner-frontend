@@ -133,7 +133,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         {
           __typename: "OnboardingCompanyAccountHolderInfo",
           residencyAddress: { country: "NLD" },
-          companyType: "Association",
+          companyType: P.union("Association", "HomeOwnerAssociation"),
         },
         () => true,
       )

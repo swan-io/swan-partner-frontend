@@ -206,6 +206,8 @@
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "Ei otsikkoa",
   "supportingDocumentCollection.intro": "Olemme iloisia voidessamme ilmoittaa sinulle, että olet prosessissa tilisi \"{accountHolderName}\" avaamisen viimeistelyssä.\nTarvitsemme lisädokumentteja täydentääksemme tiedostosi.",
+  "supportingDocumentCollection.missingDocuments.description": "Joitakin vaadittuja tukiasiakirjoja puuttuu",
+  "supportingDocumentCollection.missingDocuments.title": "Virhe tapahtui",
   "supportingDocumentCollection.pendingReview": "Olemme vastaanottaneet asiakirjasi",
   "supportingDocumentCollection.pendingReview.subtitle": "Ole kärsivällinen, kun tarkistamme ne.\nTämä kestää yleensä enintään 72 tuntia.",
   "supportingDocumentCollection.success.subtitle": "Asiakirjojasi tarkistetaan.\nVoit sulkea tämän ikkunan.",

@@ -206,6 +206,8 @@
   "supportLink.uboDetails": "https://support.swan.io/en/articles/5000716-what-are-ultimate-beneficial-owners-where-do-i-find-my-company-s-ubos",
   "supportingDocument.noFilename": "Sin título",
   "supportingDocumentCollection.intro": "Nos complace informarte que estás en proceso de finalizar la apertura de tu cuenta \"{accountHolderName}\"\nRequerimos documentos adicionales para completar tu expediente.",
+  "supportingDocumentCollection.missingDocuments.description": "Faltan algunos documentos de soporte requeridos",
+  "supportingDocumentCollection.missingDocuments.title": "Se produjo un error",
   "supportingDocumentCollection.pendingReview": "Hemos recibido tus documentos",
   "supportingDocumentCollection.pendingReview.subtitle": "Por favor, ten paciencia mientras los revisamos.\nEsto suele tardar un máximo de 72 horas.",
   "supportingDocumentCollection.success.subtitle": "Tus documentos están siendo revisados.\nPuedes cerrar esta ventana.",

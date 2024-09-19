@@ -206,6 +206,8 @@
   "supportLink.uboDetails": "https://support.swan.io/fr/articles/5000716-qui-sont-les-beneficiaires-effectifs-de-mon-entreprise",
   "supportingDocument.noFilename": "Sans titre",
   "supportingDocumentCollection.intro": "Nous avons le plaisir de vous informer que vous êtes en train de finaliser l'ouverture de votre compte \"{accountHolderName}\"\nNous avons besoin de documents supplémentaires pour compléter votre dossier.",
+  "supportingDocumentCollection.missingDocuments.description": "Certains documents justificatifs requis sont manquants",
+  "supportingDocumentCollection.missingDocuments.title": "Une erreur est survenue",
   "supportingDocumentCollection.pendingReview": "Nous avons reçu vos documents",
   "supportingDocumentCollection.pendingReview.subtitle": "Veuillez patienter pendant que nous les examinons.\nCela prend généralement un maximum de 72 heures.",
   "supportingDocumentCollection.success.subtitle": "Vos documents sont en cours de vérification.\nVous pouvez fermer cette fenêtre.",

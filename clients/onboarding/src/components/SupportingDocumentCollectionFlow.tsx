@@ -9,9 +9,8 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { breakpoints, invariantColors } from "@swan-io/lake/src/constants/design";
-import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
+import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import {
   Document,
   SupportingDocumentCollection,
@@ -64,8 +63,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
     supportingDocumentCollectionReviewDocumentRequest,
   ] = useMutation(RequestSupportingDocumentCollectionReviewDocument);
 
-  const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
-
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
 
@@ -114,7 +111,11 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
           Router.push("SupportingDocumentCollectionSuccess", { supportingDocumentCollectionId });
         });
     } else {
-      setShowConfirmModal.on();
+      showToast({
+        variant: "error",
+        title: t("supportingDocumentCollection.missingDocuments.title"),
+        description: t("supportingDocumentCollection.missingDocuments.description"),
+      });
     }
   };
 
@@ -255,17 +256,6 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                           </>
                         )}
                       </ResponsiveContainer>
-
-                      <ConfirmModal
-                        visible={showConfirmModal}
-                        title={t("company.step.documents.confirmModal.title")}
-                        message={t("company.step.documents.confirmModal.message")}
-                        icon="document-regular"
-                        confirmText={t("company.step.documents.confirmModal.confirm")}
-                        onConfirm={() => onPressNext({ force: true })}
-                        loading={supportingDocumentCollectionReviewDocumentRequest.isLoading()}
-                        onCancel={setShowConfirmModal.off}
-                      />
 
                       <OnboardingFooter
                         onNext={onPressNext}

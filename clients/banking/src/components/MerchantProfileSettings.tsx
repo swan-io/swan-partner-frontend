@@ -518,7 +518,14 @@ export const MerchantProfileSettings = ({
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
-      {Option.all([checkDeclarationEnabled, checkPaymentMethod.flatMap(identity)]).isSome() && (
+      {Option.all([
+        checkDeclarationEnabled,
+        checkPaymentMethod
+          .flatMap(identity)
+          .flatMap(check =>
+            check.statusInfo.status === "Enabled" ? Option.Some(check) : Option.None(),
+          ),
+      ]).isSome() && (
         <>
           <Box direction="row" alignItems="center">
             <LakeButton

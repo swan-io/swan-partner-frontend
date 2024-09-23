@@ -318,11 +318,11 @@ export const NewMembershipWizard = ({
         })
           .with(
             P.union(
-              { accountCountry: "ITA" },
               P.intersection(
                 P.union({ accountCountry: "DEU", residencyAddressCountry: "DEU" }),
                 P.union({ canViewAccount: true }, { canInitiatePayments: true }),
               ),
+              { accountCountry: "ITA", residencyAddressCountry: "ITA", canInitiatePayments: true },
             ),
             () =>
               combineValidators(
@@ -830,11 +830,15 @@ export const NewMembershipWizard = ({
 
                     <FieldsListener names={["country"]}>
                       {({ country }) =>
-                        match({ accountCountry, country: country.value })
+                        match({
+                          accountCountry,
+                          country: country.value,
+                          canInitiatePayments: partiallySavedValues?.canInitiatePayments,
+                        })
                           .with(
                             P.union(
                               { accountCountry: "DEU", country: "DEU" },
-                              { accountCountry: "ITA" },
+                              { accountCountry: "ITA", country: "ITA", canInitiatePayments: true },
                             ),
                             () => (
                               <Field name="taxIdentificationNumber">

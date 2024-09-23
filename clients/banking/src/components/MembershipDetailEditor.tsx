@@ -665,7 +665,7 @@ export const MembershipDetailEditor = ({
         .otherwise(() => null)}
 
       {match(accountCountry)
-        .with("DEU", "NLD", () => (
+        .with("DEU", "NLD", "ITA", () => (
           <>
             <Field name="country">
               {({ value, error, onChange, ref }) => (
@@ -758,6 +758,7 @@ export const MembershipDetailEditor = ({
                 match({ accountCountry, country: country.value })
                   .with(
                     { accountCountry: "DEU", country: "DEU" },
+                    { accountCountry: "ITA", country: "ITA" },
                     ({ accountCountry, country }) => (
                       <Field name="taxIdentificationNumber">
                         {({ value, valid, error, onChange, ref }) => (
@@ -780,6 +781,7 @@ export const MembershipDetailEditor = ({
                                   { accountCountry: "DEU", country: "DEU" },
                                   P.union({ canViewAccount: true }, { canInitiatePayment: true }),
                                 ),
+                                { accountCountry: "ITA", country: "ITA", canInitiatePayment: true },
                                 () => true,
                               )
                               .otherwise(() => false)}

@@ -179,9 +179,9 @@ export const NewMembershipWizard = ({
       sanitize: trim,
       validate: (value, { getFieldValue }) => {
         if (
-          getFieldValue("canManageCards") &&
-          getFieldValue("canInitiatePayments") &&
-          getFieldValue("canManageBeneficiaries") &&
+          getFieldValue("canManageCards") ||
+          getFieldValue("canInitiatePayments") ||
+          getFieldValue("canManageBeneficiaries") ||
           getFieldValue("canManageAccountMembership")
         ) {
           const validate = combineValidators(validateRequired, validateBirthdate);

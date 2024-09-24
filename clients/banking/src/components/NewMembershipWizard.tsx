@@ -14,6 +14,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
+import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -21,11 +22,9 @@ import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constant
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import dayjs from "dayjs";
 import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
   AccountCountry,
@@ -33,14 +32,14 @@ import {
   AccountMembershipFragment,
   AddAccountMembershipDocument,
 } from "../graphql/partner";
-import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 import {
   validateAddressLine,
-  validateBirthdate,
   validateEmail,
   validateName,
+  validateNullableRequired,
   validateRequired,
 } from "../utils/validations";
 
@@ -99,7 +98,7 @@ type FormState = {
   language: AccountLanguage;
   firstName: string;
   lastName: string;
-  birthDate: string;
+  birthDate: string | undefined;
   canViewAccount: boolean;
   canInitiatePayments: boolean;
   canManageBeneficiaries: boolean;
@@ -175,8 +174,7 @@ export const NewMembershipWizard = ({
       validate: validateName,
     },
     birthDate: {
-      initialValue: partiallySavedValues?.birthDate ?? "",
-      sanitize: trim,
+      initialValue: partiallySavedValues?.birthDate,
       validate: (value, { getFieldValue }) => {
         if (
           getFieldValue("canManageCards") ||
@@ -184,10 +182,7 @@ export const NewMembershipWizard = ({
           getFieldValue("canManageBeneficiaries") ||
           getFieldValue("canManageAccountMembership")
         ) {
-          const validate = combineValidators(validateRequired, validateBirthdate);
-          return validate(value);
-        } else if (value !== "") {
-          return validateBirthdate(value);
+          return validateNullableRequired(value);
         }
       },
     },
@@ -448,10 +443,7 @@ export const NewMembershipWizard = ({
                 firstName: computedValues.firstName,
                 lastName: computedValues.lastName,
                 phoneNumber: computedValues.phoneNumber,
-                birthDate:
-                  computedValues.birthDate !== ""
-                    ? dayjs(computedValues.birthDate, locale.dateFormat, true).format("YYYY-MM-DD")
-                    : undefined,
+                birthDate: computedValues.birthDate,
               },
               taxIdentificationNumber: emptyToUndefined(
                 computedValues.taxIdentificationNumber ?? "",
@@ -578,26 +570,13 @@ export const NewMembershipWizard = ({
 
                     <View style={fieldStyle}>
                       <Field name="birthDate">
-                        {({ value, valid, error, onChange, onBlur, ref }) => (
-                          <Rifm value={value} onChange={onChange} {...rifmDateProps}>
-                            {({ value, onChange }) => (
-                              <LakeLabel
-                                label={t("membershipDetail.edit.birthDate")}
-                                render={id => (
-                                  <LakeTextInput
-                                    id={id}
-                                    ref={ref}
-                                    placeholder={locale.datePlaceholder}
-                                    value={value ?? ""}
-                                    valid={valid}
-                                    error={error}
-                                    onChange={onChange}
-                                    onBlur={onBlur}
-                                  />
-                                )}
-                              />
-                            )}
-                          </Rifm>
+                        {({ value, error, onChange }) => (
+                          <BirthdatePicker
+                            label={t("membershipDetail.edit.birthDate")}
+                            value={value}
+                            onValueChange={onChange}
+                            error={error}
+                          />
                         )}
                       </Field>
                     </View>

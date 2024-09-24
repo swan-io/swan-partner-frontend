@@ -13,6 +13,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
+import { BirthdatePicker } from "@swan-io/shared-business/src/components/BirthdatePicker";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
@@ -20,10 +21,8 @@ import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constant
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
-import { Rifm } from "rifm";
 import { P, match } from "ts-pattern";
 import {
   AccountLanguage,
@@ -32,15 +31,10 @@ import {
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
-import { accountLanguages, locale, rifmDateProps, t } from "../utils/i18n";
+import { accountLanguages, locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import {
-  validateAddressLine,
-  validateBirthdate,
-  validateName,
-  validateRequired,
-} from "../utils/validations";
+import { validateAddressLine, validateName, validateRequired } from "../utils/validations";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 
@@ -155,14 +149,10 @@ export const MembershipDetailEditor = ({
               ),
             },
           },
-          ({ statusInfo }) => dayjs(statusInfo.restrictedTo.birthDate).format(locale.dateFormat),
+          ({ statusInfo }) => statusInfo.restrictedTo.birthDate ?? undefined,
         )
-        .with({ user: { birthDate: P.string } }, ({ user }) =>
-          dayjs(user.birthDate).format(locale.dateFormat),
-        )
-        .otherwise(() => ""),
-      sanitize: trim,
-      validate: validateBirthdate,
+        .with({ user: { birthDate: P.string } }, ({ user }) => user.birthDate)
+        .otherwise(() => undefined),
     },
     phoneNumber: {
       initialValue: match(editingAccountMembership)
@@ -273,7 +263,7 @@ export const MembershipDetailEditor = ({
                   firstName,
                   lastName,
                   phoneNumber,
-                  birthDate: dayjs(birthDate, locale.dateFormat, true).format("YYYY-MM-DD"),
+                  birthDate,
                 }),
               )
               .otherwise(() => undefined),
@@ -424,18 +414,12 @@ export const MembershipDetailEditor = ({
               <>
                 <LakeLabel
                   label={t("membershipDetail.edit.birthDate")}
-                  render={id => (
-                    <Rifm
-                      value={
-                        accountMembership.user.birthDate != null
-                          ? dayjs(accountMembership.user.birthDate).format(locale.dateFormat)
-                          : ""
-                      }
-                      onChange={() => {}}
-                      {...rifmDateProps}
-                    >
-                      {({ value }) => <LakeTextInput id={id} readOnly={true} value={value} />}
-                    </Rifm>
+                  render={() => (
+                    <BirthdatePicker
+                      label={t("membershipDetail.edit.birthDate")}
+                      value={accountMembership.user.birthDate ?? undefined}
+                      readOnly={true}
+                    />
                   )}
                 />
 
@@ -601,25 +585,13 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="birthDate">
-                {({ value, valid, error, onChange, ref }) => (
-                  <Rifm value={value ?? ""} onChange={onChange} {...rifmDateProps}>
-                    {({ value, onChange }) => (
-                      <LakeLabel
-                        label={t("membershipDetail.edit.birthDate")}
-                        render={id => (
-                          <LakeTextInput
-                            id={id}
-                            ref={ref}
-                            placeholder={locale.datePlaceholder}
-                            value={value ?? ""}
-                            valid={valid}
-                            error={error}
-                            onChange={onChange}
-                          />
-                        )}
-                      />
-                    )}
-                  </Rifm>
+                {({ value, error, onChange }) => (
+                  <BirthdatePicker
+                    label={t("membershipDetail.edit.birthDate")}
+                    value={value}
+                    error={error}
+                    onValueChange={onChange}
+                  />
                 )}
               </Field>
 

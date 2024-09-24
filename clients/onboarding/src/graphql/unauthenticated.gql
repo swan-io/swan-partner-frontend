@@ -68,7 +68,6 @@ fragment CompanyAccountHolder on OnboardingCompanyAccountHolderInfo {
   name
   typeOfRepresentation
   registrationNumber
-  vatNumber
   individualUltimateBeneficialOwners {
     ...UBO
   }
@@ -171,7 +170,6 @@ query GetCompanyInfo($siren: String!) {
       companyInfo {
         siren
         companyName
-        vatNumber
         headquarters {
           address
           town

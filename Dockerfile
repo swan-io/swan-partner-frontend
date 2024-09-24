@@ -1,9 +1,9 @@
-FROM node:latest AS builder
+FROM node:22 AS builder
 WORKDIR /app
 ADD ./server/ ./
 RUN yarn install --pure-lockfile
 
-FROM node:latest
+FROM node:22
 WORKDIR /app
 COPY --chown=node:node --from=builder /app ./
 CMD ["yarn", "start"]

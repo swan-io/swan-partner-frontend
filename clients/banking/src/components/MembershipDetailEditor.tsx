@@ -230,6 +230,9 @@ export const MembershipDetailEditor = ({
           .with({ accountCountry: "DEU" }, ({ accountCountry }) =>
             validateIndividualTaxNumber(accountCountry)(value),
           )
+          .with({ accountCountry: "ITA", country: "ITA" }, ({ accountCountry }) =>
+            validateIndividualTaxNumber(accountCountry)(value),
+          )
           .otherwise(() => {});
       },
     },

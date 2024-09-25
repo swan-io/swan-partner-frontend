@@ -206,7 +206,7 @@
   "supportingDocumentCollection.missingDocuments.description": "Mancano alcuni documenti di supporto obbligatori",
   "supportingDocumentCollection.missingDocuments.title": "Si è verificato un errore",
   "supportingDocumentCollection.pendingReview": "Abbiamo ricevuto i vostri documenti",
-  "supportingDocumentCollection.pendingReview.subtitle": "Ti preghiamo di pazientare mentre li esaminiamo.\nDi solito ciò richiede al massimo 72 ore.",
+  "supportingDocumentCollection.pendingReview.subtitle": "Stiamo verificando la documentazione.\nDi solito, ci vogliono al massimo 72 ore.",
   "supportingDocumentCollection.success.subtitle": "I tuoi documenti sono in fase di revisione.\nPuoi chiudere questa finestra.",
   "supportingDocumentCollection.success.title": "Grazie!",
   "supportingDocumentCollection.title": "Carica tutti i documenti richiesti di seguito",

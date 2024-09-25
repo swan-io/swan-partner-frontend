@@ -1043,6 +1043,7 @@
   "transactionRejectedReason.BankRefused": "Refused by bank",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "Beneficiary bank not reachable",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "Beneficiary missing or incorrect",
+  "transactionRejectedReason.BeneficiaryMismatch": "Beneficiary mismatch",
   "transactionRejectedReason.CanceledByCardHolder": "The cardholder canceled the transaction",
   "transactionRejectedReason.CardExpired": "Card expired",
   "transactionRejectedReason.CardNotActivated": "Card not activated",

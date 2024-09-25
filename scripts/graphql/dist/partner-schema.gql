@@ -1457,7 +1457,7 @@ input AddAccountMembershipInput {
   language: AccountLanguage
 }
 
-union AddAccountMembershipPayload = AddAccountMembershipSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | PermissionCannotBeGrantedRejection | ValidationRejection
+union AddAccountMembershipPayload = AddAccountMembershipSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | MissingPhoneNumberRestrictionRejection | PermissionCannotBeGrantedRejection | ValidationRejection
 
 """Inputs to add a new account membership"""
 input AddAccountMembershipsInput {
@@ -1471,7 +1471,7 @@ input AddAccountMembershipsInput {
   consentRedirectUrl: String!
 }
 
-union AddAccountMembershipsPayload = AddAccountMembershipsSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | PermissionCannotBeGrantedRejection | TooManyItemsRejection | ValidationRejection
+union AddAccountMembershipsPayload = AddAccountMembershipsSuccessPayload | BadAccountStatusRejection | ForbiddenRejection | InvalidPhoneNumberRejection | MissingPhoneNumberRestrictionRejection | PermissionCannotBeGrantedRejection | TooManyItemsRejection | ValidationRejection
 
 type AddAccountMembershipsSuccessPayload {
   accountMemberships: [AccountMembership!]!
@@ -1836,7 +1836,7 @@ input AddReceivedInternalDirectDebitB2bMandateInput {
 """
 Union type return by the addReceivedInternalDirectDebitB2bMandate mutation
 """
-union AddReceivedInternalDirectDebitB2bMandatePayload = AddReceivedInternalDirectDebitB2bMandateSuccessPayload | ForbiddenRejection | PaymentMandateMandateNotFoundRejection | AccountHolderTypeIndividualRejection
+union AddReceivedInternalDirectDebitB2bMandatePayload = AddReceivedInternalDirectDebitB2bMandateSuccessPayload | ForbiddenRejection | PaymentMandateMandateNotFoundRejection | AccountHolderTypeIndividualRejection | ValidationRejection
 
 """
 Return type in case of a successful response of the addReceivedInternalDirectDebitB2bMandate mutation
@@ -1876,7 +1876,7 @@ input AddReceivedSepaDirectDebitB2bMandateInput {
 }
 
 """Union type return by the addReceivedSepaDirectDebitB2bMandate mutation"""
-union AddReceivedSepaDirectDebitB2bMandatePayload = AddReceivedSepaDirectDebitB2bMandateSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | AccountHolderTypeIndividualRejection
+union AddReceivedSepaDirectDebitB2bMandatePayload = AddReceivedSepaDirectDebitB2bMandateSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | AccountHolderTypeIndividualRejection | ValidationRejection
 
 """
 Return type in case of a successful response of the addReceivedSepaDirectDebitB2bMandate mutation
@@ -3480,6 +3480,9 @@ type CardPaymentMandate implements PaymentMandate {
   """Account Holder information"""
   accountHolder: AccountHolder!
 
+  """The card associated to this mandate"""
+  card: ExternalCard!
+
   """Creation date of the Payment Mandate"""
   createdAt: DateTime!
 
@@ -3496,24 +3499,25 @@ type CardPaymentMandate implements PaymentMandate {
 
   """Payment Mandate status information"""
   statusInfo: PaymentMandateStatusInfo!
+}
 
-  """The card scheme"""
-  scheme: String
+enum CardPaymentMandateCategory {
+  Consumer
+  Commercial
+}
 
-  """The card's last digits"""
-  lastDigits: String
+enum CardPaymentMandateScheme {
+  Visa
+  Mastercard
+  CartesBancaires
+}
 
-  """The card's first 6 digits - Bank Identification Number"""
-  bin: String
-
-  """The card's expiry date"""
-  expiryDate: String
-
-  """The card's type"""
-  type: String
-
-  """The card's bank country"""
-  country: String
+enum CardPaymentMandateType {
+  Credit
+  Debit
+  Prepaid
+  Charge
+  Deferred
 }
 
 input CardPaymentMethodInput {
@@ -3900,6 +3904,9 @@ type CardTransaction implements Transaction {
 
   """indicator of the transit type used (optional)"""
   transactionTransportType: TransactionTransportType
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
 }
 
 enum CardTransactionCategory {
@@ -4145,6 +4152,12 @@ type CheckTransaction implements Transaction {
 
   """return reason"""
   returnReason: TransactionReasonCode
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
+  """merchant profile associated"""
+  merchant: MerchantProfile
 }
 
 input CloseAccountInput {
@@ -5925,6 +5938,29 @@ type ExternalBalanceEdge implements Edge {
   node: ExternalAccountBalance!
 }
 
+type ExternalCard {
+  """The card scheme"""
+  scheme: CardPaymentMandateScheme!
+
+  """The card type"""
+  cardType: CardPaymentMandateType
+
+  """The card category"""
+  category: CardPaymentMandateCategory
+
+  """The card's bank country"""
+  country: CCA2
+
+  """The card's last digits"""
+  lastDigits: String!
+
+  """The card's first 6 digits - Bank Identification Number"""
+  bin: String!
+
+  """The card's expiry date"""
+  expiryDate: String
+}
+
 """The document corresponding to a face photo"""
 type FacePhotoDocument {
   """
@@ -6309,6 +6345,9 @@ type FeeTransaction implements Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
 }
 
 interface Field {
@@ -6337,8 +6376,15 @@ type FinancialInstitution {
   country: CCA3!
 }
 
+enum FnciColorCode {
+  Green
+  Orange
+  Red
+  White
+}
+
 type FnciInfo {
-  colorCode: String!
+  colorCode: FnciColorCode!
   cpt1: Int!
   cpt2: Int!
   cpt3: Int!
@@ -6743,7 +6789,7 @@ input GenerateTransactionStatementInput {
 
 Result of the generation.
 """
-union GenerateTransactionStatementPayload = GenerateTransactionStatementSuccessPayload | ValidationRejection | ForbiddenRejection | TransactionNotFoundRejection
+union GenerateTransactionStatementPayload = GenerateTransactionStatementSuccessPayload | GenerationNotAllowedRejection | ValidationRejection | ForbiddenRejection | TransactionNotFoundRejection
 
 type GenerateTransactionStatementSuccessPayload {
   transactionStatement: TransactionStatement
@@ -6778,6 +6824,15 @@ type GenerateTransactionSupportingDocumentUploadUrlSuccessPayload {
   Info to upload the document : url and fields to add along file in form (POST)
   """
   upload: SupportingDocumentUploadInfo!
+}
+
+"""
+***COMING SOON***
+
+Rejection returned if a transaction statement can’t be generated for this transaction.
+"""
+type GenerationNotAllowedRejection implements Rejection {
+  message: String!
 }
 
 """Rejection returned when the Global Funding has been exceeded"""
@@ -7166,41 +7221,6 @@ input IdentificationsOrderByInput {
   direction: OrderByDirection
 }
 
-"""Identification status"""
-enum IdentificationStatus {
-  """The user hasn't started the identity verification process yet."""
-  Uninitiated
-
-  """
-  The user has gone through the identity verification process, but we are still processing their information.
-  """
-  Processing
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  The user now needs to go through the QES process to complete their identification.
-  """
-  ReadyToSign
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  """
-  ValidIdentity
-
-  """
-  The user has gone through the identity verification process, but we were unable to determine if their
-  identity is valid because the quality of the provided documents was insufficient.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InsufficientDocumentQuality
-
-  """
-  The user has gone through the identity verification process, but we have determined that their identity is invalid.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InvalidIdentity
-}
-
 """
 Rejection returned if identity and the account memberships are already bind
 """
@@ -7298,6 +7318,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetails
 }
 
 """Define the type of the UBO"""
@@ -7353,6 +7376,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetailsInput
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -7733,6 +7759,9 @@ type InternalCreditTransfer implements Transaction {
 
   """r-transaction reason"""
   returnReason: TransactionReasonCode
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
 }
 
 """Internal Credit Transfer creditor"""
@@ -7998,6 +8027,12 @@ type InternalDirectDebitTransaction implements Transaction {
 
   """r-transaction reason"""
   returnReason: TransactionReasonCode
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
+  """merchant profile associated"""
+  merchant: MerchantProfile
 }
 
 """Rejection returned on unexpected server error"""
@@ -8309,7 +8344,7 @@ input InternationalBeneficiaryInput {
   save: Boolean
 }
 
-union InternationalCreditTransferCreditor = InternationalCreditTransferOutCreditor | InternationalCreditTransferInCreditor
+union InternationalCreditTransferCreditor = InternationalCreditTransferOutCreditor | InternationalCreditTransferInCreditor | InternationalCreditTransferInDebtor
 
 """International Currency Exchange / Quote"""
 type InternationalCreditTransferCurrencyExchange {
@@ -8326,7 +8361,7 @@ type InternationalCreditTransferCurrencyExchange {
   targetAmount: Amount
 }
 
-union InternationalCreditTransferDebtor = InternationalCreditTransferOutDebtor | InternationalCreditTransferInDebtor
+union InternationalCreditTransferDebtor = InternationalCreditTransferOutDebtor | InternationalCreditTransferInDebtor | InternationalCreditTransferInCreditor
 
 """
 International Credit Transfer - Currency-specific details of the beneficiary
@@ -8853,6 +8888,9 @@ type InternationalCreditTransferTransaction implements Transaction {
 
   """updated date"""
   updatedAt: DateTime!
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
 
   """International beneficiary linked to the transaction"""
   beneficiary: InternationalBeneficiary
@@ -9646,6 +9684,24 @@ type MerchantPayment {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime
+
+  """Canceled date"""
+  canceledAt: DateTime
+
+  """Captured date"""
+  capturedAt: DateTime
+
+  """Rejected date"""
+  rejectedAt: DateTime
+
+  """Refunded date"""
+  refundedAt: DateTime
+
+  """Disputed date"""
+  disputedAt: DateTime
 }
 
 """Merchant Payment status authorized"""
@@ -10166,6 +10222,13 @@ enum MerchantSubCategory {
 
 """Rejection returned when mandatory fields are missing from the call."""
 type MissingMandatoryFieldRejection implements Rejection {
+  message: String!
+}
+
+"""
+Rejection returned when the phone number is missing and the account membership has advanced permissions
+"""
+type MissingPhoneNumberRestrictionRejection implements Rejection {
   message: String!
 }
 
@@ -13544,6 +13607,11 @@ enum RejectedReasonCode {
   """Rejected because the creditor bank is not reachable"""
   BeneficiaryBankNotReachable
 
+  """
+  Rejected because the amount beneficiary name the check and the name declared through the API don't match
+  """
+  BeneficiaryMismatch
+
   """Rejected because the beneficiary is missing or incorrect"""
   BeneficiaryMissingOrIncorrect
 
@@ -14066,8 +14134,13 @@ type RestrictedTo {
   """birth date"""
   birthDate: Date
 
-  """phone number"""
-  phoneNumber: String!
+  """
+  phone number
+  We're introducing more flexibility in the process to invite & bind new account members (cf [public roadmap](https://swanio.notion.site/Swan-Public-Roadmap-385e4b2e91b3409786a6c8e885654a22?p=a59db00a478e4faaaefbd901e1ed7ed3&pm=s) on notion).
+  For some use cases, it would be possible to invite an account member without their mobile phone number.
+  Please note that the phone number will remain mandatory at the invitation (despite being optional in the Graph) until the new flow is delivered. It is hidden behind a feature toggle
+  """
+  phoneNumber: String
 }
 
 """Input when the account membership is restricted to a verified user"""
@@ -14081,8 +14154,13 @@ input RestrictedToInput {
   """Account member birth date"""
   birthDate: Date
 
-  """Account member phone number"""
-  phoneNumber: PhoneNumber!
+  """
+  Account member phone number
+  We're introducing more flexibility in the process to invite & bind new account members (cf [public roadmap](https://swanio.notion.site/Swan-Public-Roadmap-385e4b2e91b3409786a6c8e885654a22?p=a59db00a478e4faaaefbd901e1ed7ed3&pm=s) on notion).
+  For some use cases, it would be possible to invite an account member without their mobile phone number.
+  Please note that the phone number will remain mandatory at the invitation (despite being optional in the Graph) until the new flow is delivered. It is hidden behind a feature toggle
+  """
+  phoneNumber: PhoneNumber
 }
 
 """
@@ -14566,6 +14644,9 @@ type SEPACreditTransferTransaction implements Transaction {
   """r-transaction reason"""
   returnReason: TransactionReasonCode
 
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
   """SEPA beneficiary linked to the transaction"""
   beneficiary: Beneficiary
 }
@@ -14961,6 +15042,12 @@ type SEPADirectDebitTransaction implements Transaction {
 
   """r-transaction reason"""
   returnReason: TransactionReasonCode
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
+
+  """merchant profile associated"""
+  merchant: MerchantProfile
 }
 
 """Payment direct debit mandate for SEPA"""
@@ -16597,6 +16684,9 @@ interface Transaction {
 
   """origin transaction associated to this transaction"""
   originTransaction: Transaction
+
+  """true if a transaction statement can be generated for this transaction"""
+  statementCanBeGenerated: Boolean
 }
 
 """Please see the Connection interface"""
@@ -17140,26 +17230,28 @@ enum TransactionTypeEnum {
   """
   SepaDirectDebitOutReversal
 
-  """When a card authorization has been received by Swan."""
+  """A card issued from a Swan account received an authorization or advice."""
   CardOutAuthorization
 
-  """When a card debit debited a Swan account."""
+  """A card issued from a Swan account received a debit."""
   CardOutDebit
 
   """
-  When a card debit has been reversed by the merchant (credited on a Swan account).
+  A debit received by card issued from a Swan account was reversed. The amount is credited to the Swan account.
   """
   CardOutDebitReversal
 
-  """When a card credit credited a Swan account."""
+  """A card issued from a Swan account received a credit."""
   CardOutCredit
 
   """
-  When a card credit has been reversed by the merchant (debited on a Swan account).
+  A credit received by a card issued from a Swan account was reversed. The amount is debited from the Swan account.
   """
   CardOutCreditReversal
 
-  """When an Internal Direct Debit credited a Swan account."""
+  """
+  A credit received by a card issued from a Swan account was reversed. The amount is debited from the Swan account.
+  """
   InternalDirectDebitIn
 
   """
@@ -17455,6 +17547,45 @@ enum TypeOfRepresentation {
 
   """The account holder has a power of attorney"""
   PowerOfAttorney
+}
+
+type UBOIdentityDocumentDetails {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+input UBOIdentityDocumentDetailsInput {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+enum UBOIdentityDocumentType {
+  Passport
+  IdCard
 }
 
 """Ultimate beneficial Direct Owner company info."""
@@ -18127,17 +18258,6 @@ type User {
   authenticators: [Authenticator!]
 
   """
-  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
-  
-  Identification status
-  
-  Each attempt to go through our identity verification process will update this value.
-  
-  This field is only available for the current user.
-  """
-  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
-
-  """
   List of identification levels available for the user.
   
   Whenever TRUE, it means the identification was successful for the associated level.
@@ -18159,6 +18279,9 @@ type User {
 
   """Last update date of the user"""
   updatedAt: DateTime!
+
+  """Define the last name the user prefers to use"""
+  preferredLastName: UserPreferredLastName!
 
   """
   Date on which the user joined the project. Joining the project is done after the first accepted OAuth login.
@@ -18303,6 +18426,14 @@ enum UserOrderByFieldInput {
 input UserOrderByInput {
   field: UserOrderByFieldInput
   direction: OrderByDirection
+}
+
+enum UserPreferredLastName {
+  """The user prefers to be called by their last name"""
+  LastName
+
+  """The user prefers to be called by their birth last name"""
+  BirthLastName
 }
 
 enum UserStatus {

@@ -88,12 +88,14 @@ type PageState =
       type: "add";
       step: BeneficiaryFormStep;
       withAddressPart: boolean;
+      withIdentityPart: boolean;
     }
   | {
       type: "edit";
       ubo: SaveValue;
       step: BeneficiaryFormStep;
       withAddressPart: boolean;
+      withIdentityPart: boolean;
     };
 
 type Props = {
@@ -158,6 +160,12 @@ const convertFetchUboToInput = (
     residencyAddressCountry: fetchedUbo.residencyAddress?.country as CountryCCA3,
     residencyAddressPostalCode: fetchedUbo.residencyAddress?.postalCode ?? "",
     taxIdentificationNumber: fetchedUbo.taxIdentificationNumber ?? undefined,
+    identityDocumentType: fetchedUbo.identityDocumentDetails?.type ?? undefined,
+    identityDocumentNumber: fetchedUbo.identityDocumentDetails?.number ?? undefined,
+    identityDocumentIssueDate: fetchedUbo.identityDocumentDetails?.issueDate ?? undefined,
+    identityDocumentExpiryDate: fetchedUbo.identityDocumentDetails?.expiryDate ?? undefined,
+    identityDocumentIssuingAuthority:
+      fetchedUbo.identityDocumentDetails?.issuingAuthority ?? undefined,
   } satisfies Partial<Input>;
 
   const errors = validateUbo(ubo, accountCountry);
@@ -350,7 +358,11 @@ export const OnboardingCompanyOwnership = ({
   const beneficiaryFormRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormRef>(null);
 
   const withAddressPart = match(accountCountry)
-    .with("DEU", "ESP", "FRA", "NLD", () => true)
+    .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
+    .otherwise(() => false);
+
+  const withIdentityPart = match(accountCountry)
+    .with("ITA", () => true)
     .otherwise(() => false);
 
   useEffect(() => {
@@ -363,7 +375,7 @@ export const OnboardingCompanyOwnership = ({
   }, [shakeError, setShakeError]);
 
   const openNewUbo = () => {
-    setPageState({ type: "add", step: "Common", withAddressPart });
+    setPageState({ type: "add", step: "Common", withAddressPart, withIdentityPart });
   };
 
   const resetPageState = () => {
@@ -424,6 +436,11 @@ export const OnboardingCompanyOwnership = ({
         residencyAddressLine1,
         residencyAddressCity,
         residencyAddressPostalCode,
+        identityDocumentType,
+        identityDocumentNumber,
+        identityDocumentIssueDate,
+        identityDocumentExpiryDate,
+        identityDocumentIssuingAuthority,
         errors,
         ...ubo
       }) => {
@@ -454,9 +471,41 @@ export const OnboardingCompanyOwnership = ({
           )
           .otherwise(() => undefined);
 
+        const identityDocumentDetails = match({
+          identityDocumentType,
+          identityDocumentNumber,
+          identityDocumentIssueDate,
+          identityDocumentExpiryDate,
+          identityDocumentIssuingAuthority,
+        })
+          .with(
+            {
+              identityDocumentType: P.nonNullable,
+              identityDocumentNumber: P.nonNullable,
+              identityDocumentIssueDate: P.nonNullable,
+              identityDocumentExpiryDate: P.nonNullable,
+              identityDocumentIssuingAuthority: P.nonNullable,
+            },
+            ({
+              identityDocumentType,
+              identityDocumentNumber,
+              identityDocumentIssueDate,
+              identityDocumentExpiryDate,
+              identityDocumentIssuingAuthority,
+            }) => ({
+              type: identityDocumentType,
+              number: identityDocumentNumber,
+              issueDate: identityDocumentIssueDate,
+              expiryDate: identityDocumentExpiryDate,
+              issuingAuthority: identityDocumentIssuingAuthority,
+            }),
+          )
+          .otherwise(() => undefined);
+
         return {
           ...ubo,
           residencyAddress,
+          identityDocumentDetails,
         };
       },
     );
@@ -535,7 +584,13 @@ export const OnboardingCompanyOwnership = ({
                       country={country}
                       shakeError={shakeError}
                       onEdit={() =>
-                        setPageState({ type: "edit", step: "Common", ubo, withAddressPart })
+                        setPageState({
+                          type: "edit",
+                          step: "Common",
+                          ubo,
+                          withAddressPart,
+                          withIdentityPart,
+                        })
                       }
                       onDelete={() => openRemoveUboConfirmation(ubo)}
                     />
@@ -586,6 +641,7 @@ export const OnboardingCompanyOwnership = ({
           .with({ type: "add" }, { type: "edit" }, () => true)
           .otherwise(() => false)}
         title={match(pageState)
+          .with({ step: "Identity" }, () => t("company.step.owners.fillIdentityDocument"))
           .with({ step: "Address" }, () => t("company.step.owners.fillAddress"))
           .with({ type: "add" }, () => t("company.step.owners.addTitle"))
           .with({ type: "edit" }, () => t("company.step.owners.editTitle"))
@@ -602,6 +658,7 @@ export const OnboardingCompanyOwnership = ({
           companyCountry={country}
           step={match(pageState)
             .with({ step: "Address" }, ({ step }) => step)
+            .with({ step: "Identity" }, ({ step }) => step)
             .otherwise(() => "Common" as const)}
           onStepChange={setFormStep}
           onSave={match(pageState)
@@ -620,7 +677,7 @@ export const OnboardingCompanyOwnership = ({
             grow={true}
           >
             {match(pageState)
-              .with({ step: "Address" }, () => t("common.back"))
+              .with({ step: P.union("Address", "Identity") }, () => t("common.back"))
               .otherwise(() => t("common.cancel"))}
           </LakeButton>
 
@@ -632,6 +689,7 @@ export const OnboardingCompanyOwnership = ({
           >
             {match(pageState)
               .with({ withAddressPart: true, step: "Common" }, () => t("common.next"))
+              .with({ withIdentityPart: true, step: "Address" }, () => t("common.next"))
               .otherwise(() => t("common.save"))}
           </LakeButton>
         </LakeButtonGroup>

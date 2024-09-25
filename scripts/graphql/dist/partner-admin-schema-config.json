@@ -10,6 +10,7 @@
       "AccountConnection",
       "AccountHolderConnection",
       "AccountMembershipConnection",
+      "CapitalDepositCaseConnection",
       "ConsentConnection",
       "FundingLimitSettingsChangeRequestConnection",
       "InvoiceConnection",
@@ -27,6 +28,7 @@
       "AccountEdge",
       "AccountHolderEdge",
       "AccountMembershipEdge",
+      "CapitalDepositCaseEdge",
       "ConsentEdge",
       "FundingLimitSettingsChangeRequestEdge",
       "IdentificationEdge",
@@ -58,6 +60,9 @@
       "AccountVerificationWrongStatusRejection",
       "BadAccountStatusRejection",
       "BadRequestRejection",
+      "CapitalDepositCaseCanNotBeCanceledRejection",
+      "CapitalDepositCaseCanNotBeFoundRejection",
+      "CapitalDepositDocumentCanNotBeUploadedRejection",
       "CardNotFoundRejection",
       "CouldNotFindCapitalDepositCaseRejection",
       "CouldNotFindCapitalDepositDocumentRejection",
@@ -66,6 +71,9 @@
       "CouldNotUploadCapitalDepositDocumentRejection",
       "DebtorAccountClosedRejection",
       "DebtorAccountNotAllowedRejection",
+      "DocumentCanNotBeFoundRejection",
+      "DocumentCanNotBeRejectedRejection",
+      "DocumentParentLinkMissingRejection",
       "EndorseSandboxUserDummyRejection",
       "ForbiddenRejection",
       "FundingLimitExceededRejection",
@@ -158,6 +166,12 @@
       "BrowserMultiConsent",
       "OAuth2Consent",
       "ThreeDsConsent"
+    ],
+    "CapitalDepositDocumentStatusInfo": [
+      "CapitalDepositDocumentPendingStatusInfo",
+      "CapitalDepositDocumentRefusedStatusInfo",
+      "CapitalDepositDocumentUploadedStatusInfo",
+      "CapitalDepositDocumentValidatedStatusInfo"
     ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",

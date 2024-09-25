@@ -1042,6 +1042,7 @@
   "transactionRejectedReason.AmountMismatch": "Incompatibilidade de valor",
   "transactionRejectedReason.BankRefused": "Recusado pelo banco",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "Banco beneficiário não accessível",
+  "transactionRejectedReason.BeneficiaryMismatch": "Beneficiário incompatível",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "Beneficiário em falta ou incorreto",
   "transactionRejectedReason.CanceledByCardHolder": "O titular do cartão cancelou a transação",
   "transactionRejectedReason.CardExpired": "Cartão expirado",

@@ -1042,6 +1042,7 @@
   "transactionRejectedReason.AmountMismatch": "Määrä ei täsmää",
   "transactionRejectedReason.BankRefused": "Pankin hylkäämä",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "Vastaanottajan pankkia ei tavoiteta",
+  "transactionRejectedReason.BeneficiaryMismatch": "Vastaanottajan tiedot eivät täsmää",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "Vastaanottaja puuttuu tai on virheellinen",
   "transactionRejectedReason.CanceledByCardHolder": "Kortin haltija peruutti tapahtuman",
   "transactionRejectedReason.CardExpired": "Kortti on vanhentunut",

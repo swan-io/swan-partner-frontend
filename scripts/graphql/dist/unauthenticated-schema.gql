@@ -2900,41 +2900,6 @@ type IdentificationLevels {
   expert: Boolean!
 }
 
-"""Identification status"""
-enum IdentificationStatus {
-  """The user hasn't started the identity verification process yet."""
-  Uninitiated
-
-  """
-  The user has gone through the identity verification process, but we are still processing their information.
-  """
-  Processing
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  The user now needs to go through the QES process to complete their identification.
-  """
-  ReadyToSign
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  """
-  ValidIdentity
-
-  """
-  The user has gone through the identity verification process, but we were unable to determine if their
-  identity is valid because the quality of the provided documents was insufficient.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InsufficientDocumentQuality
-
-  """
-  The user has gone through the identity verification process, but we have determined that their identity is invalid.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InvalidIdentity
-}
-
 """
 Rejection returned if identity and the account memberships are already bind
 """
@@ -3006,6 +2971,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetails
 }
 
 """Define the type of the UBO"""
@@ -3061,6 +3029,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetailsInput
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -3327,6 +3298,24 @@ type MerchantPayment {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime
+
+  """Canceled date"""
+  canceledAt: DateTime
+
+  """Captured date"""
+  capturedAt: DateTime
+
+  """Rejected date"""
+  rejectedAt: DateTime
+
+  """Refunded date"""
+  refundedAt: DateTime
+
+  """Disputed date"""
+  disputedAt: DateTime
 }
 
 """Merchant Payment status authorized"""
@@ -5173,8 +5162,13 @@ type RestrictedTo {
   """birth date"""
   birthDate: Date
 
-  """phone number"""
-  phoneNumber: String!
+  """
+  phone number
+  We're introducing more flexibility in the process to invite & bind new account members (cf [public roadmap](https://swanio.notion.site/Swan-Public-Roadmap-385e4b2e91b3409786a6c8e885654a22?p=a59db00a478e4faaaefbd901e1ed7ed3&pm=s) on notion).
+  For some use cases, it would be possible to invite an account member without their mobile phone number.
+  Please note that the phone number will remain mandatory at the invitation (despite being optional in the Graph) until the new flow is delivered. It is hidden behind a feature toggle
+  """
+  phoneNumber: String
 }
 
 """
@@ -6081,6 +6075,45 @@ enum TypeOfRepresentation {
   PowerOfAttorney
 }
 
+type UBOIdentityDocumentDetails {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+input UBOIdentityDocumentDetailsInput {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+enum UBOIdentityDocumentType {
+  Passport
+  IdCard
+}
+
 """Ultimate beneficial Direct Owner company info."""
 type UltimateBeneficialDirectOwnerCompanyInfo implements UltimateBeneficialOwnerInfo {
   """Ultimate Beneficial Owner Unique Identifier ."""
@@ -6543,17 +6576,6 @@ type User {
   authenticators: [Authenticator!]
 
   """
-  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
-  
-  Identification status
-  
-  Each attempt to go through our identity verification process will update this value.
-  
-  This field is only available for the current user.
-  """
-  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
-
-  """
   List of identification levels available for the user.
   
   Whenever TRUE, it means the identification was successful for the associated level.
@@ -6575,6 +6597,9 @@ type User {
 
   """Last update date of the user"""
   updatedAt: DateTime!
+
+  """Define the last name the user prefers to use"""
+  preferredLastName: UserPreferredLastName!
 }
 
 """
@@ -6622,6 +6647,14 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
 """Rejection returned when the User is not the Card Holder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
+}
+
+enum UserPreferredLastName {
+  """The user prefers to be called by their last name"""
+  LastName
+
+  """The user prefers to be called by their birth last name"""
+  BirthLastName
 }
 
 enum UserStatus {

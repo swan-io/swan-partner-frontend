@@ -1042,6 +1042,7 @@
   "transactionRejectedReason.AmountMismatch": "Betrag stimmt nicht überein",
   "transactionRejectedReason.BankRefused": "Abgelehnt durch Bank",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "Bank des Empfängers nicht erreichbar",
+  "transactionRejectedReason.BeneficiaryMismatch": "Empfänger stimmt nicht überein",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "Empfänger fehlt oder ist falsch",
   "transactionRejectedReason.CanceledByCardHolder": "Der Karteninhaber hat die Transaktion storniert",
   "transactionRejectedReason.CardExpired": "Karte abgelaufen",

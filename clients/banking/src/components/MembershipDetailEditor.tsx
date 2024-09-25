@@ -163,6 +163,7 @@ export const MembershipDetailEditor = ({
                 "AccountMembershipInvitationSentStatusInfo",
                 "AccountMembershipBindingUserErrorStatusInfo",
               ),
+              restrictedTo: { phoneNumber: P.string },
             },
           },
           ({ statusInfo }) => statusInfo.restrictedTo.phoneNumber,

@@ -1,14 +1,15 @@
 import { Array, Option } from "@swan-io/boxed";
 import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
-import { Validator } from "@swan-io/use-form";
+import { combineValidators, Validator } from "@swan-io/use-form";
+import dayjs from "dayjs";
 import { match } from "ts-pattern";
 import {
   OnboardingInvalidInfoFragment,
   UpdateValidationErrorsFragment,
   ValidationFieldErrorCode,
 } from "../graphql/unauthenticated";
-import { t } from "./i18n";
+import { locale, t } from "./i18n";
 
 export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
   if (typeof value != "boolean") {
@@ -116,3 +117,12 @@ export const validateVatNumber: Validator<string> = value => {
     return t("common.form.invalidVatNumber");
   }
 };
+
+export const validateDate: Validator<string> = combineValidators<string>(
+  validateRequired,
+  value => {
+    if (!dayjs(value, locale.dateFormat, true).isValid()) {
+      return t("common.form.invalidDate");
+    }
+  },
+);

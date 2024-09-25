@@ -1385,8 +1385,196 @@ type CanceledIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-"""Status of the Capital Deposit Document"""
-enum CapitalDepositDocumentStatusInput {
+"""Capital deposit case for a company."""
+type CapitalDepositCase {
+  """Unique identifier of a capital deposit case."""
+  id: String!
+
+  """List of the company’s shareholders."""
+  shareholders: [Shareholder!]!
+
+  """Amount of the capital deposit."""
+  totalCapitalDepositAmount: Amount!
+
+  """Name of the company."""
+  companyName: String!
+
+  """Onboarding information of the company."""
+  companyOnboarding: Onboarding
+
+  """Unique identifier of the company account."""
+  companyAccountId: String
+
+  """Status of the capital deposit case."""
+  status: CapitalDepositCaseStatus!
+
+  """Documents to provide to fulfill the capital deposit case."""
+  documents: [CapitalDepositDocument!]!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+}
+
+"""
+Rejection returned if the capital deposit case cannot be canceled in its current state
+"""
+type CapitalDepositCaseCanNotBeCanceledRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned if the capital deposit case cannot be found"""
+type CapitalDepositCaseCanNotBeFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of elements ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type CapitalDepositCaseConnection implements Connection {
+  """Total number of elements in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """CapitalDepositCaseEdge list"""
+  edges: [CapitalDepositCaseEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type CapitalDepositCaseEdge implements Edge {
+  """
+  Opaque identifier pointing to this capital deposit case node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The CapitalDepositCase"""
+  node: CapitalDepositCase!
+}
+
+"""Filters that can be applied when listing capital deposit cases"""
+input CapitalDepositCaseFiltersInput {
+  """
+  Searches company shareholder name, individual shareholder first name, last name, and id
+  """
+  search: String
+
+  """Status we want to filter on"""
+  status: [CapitalDepositCaseStatus!]
+}
+
+"""
+Field we can use when ordering that can be applied when listing capital deposit cases
+"""
+enum CapitalDepositCaseOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""Order that can be applied when listing capital deposit cases"""
+input CapitalDepositCaseOrderByInput {
+  field: CapitalDepositCaseOrderByFieldInput
+  direction: OrderByDirection
+}
+
+"""Status of a capital deposit case."""
+enum CapitalDepositCaseStatus {
+  """
+  Technical state when the mutation to create a new capital deposit case is called.
+  """
+  Initiated
+
+  """
+  A new capital deposit case is created and Swan is waiting for the required information to be provided and each shareholder to wire their share of share capital.
+  """
+  WaitingForRequirements
+
+  """
+  Swan is waiting for the notary to provide the Share Deposit Certificate.
+  """
+  WaitingForShareDepositCertificate
+
+  """Swan is waiting for you to provide the Register Extract."""
+  WaitingForRegisterExtract
+
+  """
+  Swan is waiting for the notary to wire the share capital on the account of the company being registered.
+  """
+  WaitingForNotaryTransfer
+
+  """The capital deposit case is completed."""
+  Completed
+
+  """The capital deposit case is canceled."""
+  Canceled
+}
+
+"""Document provided for a capital deposit case."""
+type CapitalDepositDocument {
+  """Unique identifier of a document."""
+  id: String!
+
+  """Type of the document."""
+  type: CapitalDepositDocumentType!
+
+  """
+  Url to download the document, null if it has not already been uploaded.
+  """
+  downloadUrl: String
+
+  """Date when the last version of the document has been uploaded."""
+  uploadedAt: Date
+
+  """Status of the document."""
+  status: CapitalDepositDocumentStatus! @deprecated(reason: "use statusInfo.status")
+
+  """Status info of the document."""
+  statusInfo: CapitalDepositDocumentStatusInfo!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Information about capital deposit case."""
+  relatedCapitalDepositCase: CapitalDepositCase
+
+  """Information about shareholder."""
+  relatedShareholder: Shareholder
+}
+
+"""
+Rejection returned if the document from a capital deposit case cannot be uploaded in its context
+"""
+type CapitalDepositDocumentCanNotBeUploadedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Capital Deposit Document with Pending status"""
+type CapitalDepositDocumentPendingStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Pending"""
+  status: CapitalDepositDocumentStatus!
+}
+
+"""Capital Deposit Document with Refused status"""
+type CapitalDepositDocumentRefusedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Refused"""
+  status: CapitalDepositDocumentStatus!
+
+  """Reason for the rejection."""
+  reasonCode: DocumentReasonCode!
+}
+
+"""Status of the Capital Deposit Case"""
+enum CapitalDepositDocumentStatus {
   """Document is not uploaded yet."""
   Pending
 
@@ -1398,6 +1586,59 @@ enum CapitalDepositDocumentStatusInput {
 
   """Document has been refused by Swan, it must be uploaded again."""
   Refused
+}
+
+"""Status info of the document."""
+interface CapitalDepositDocumentStatusInfo {
+  """Status of the document."""
+  status: CapitalDepositDocumentStatus!
+}
+
+"""Type of the document."""
+enum CapitalDepositDocumentType {
+  """Legal document required for company’s formation."""
+  ArticlesOfIncorporation
+
+  """Commercial registry extract issued within the last 3 months."""
+  RegisterExtract
+
+  """Can be either passport, national id card or resident permit."""
+  ProofOfIdentity
+
+  """
+  Document submitted to your tax bureau at the end of the last business period.
+  """
+  CorporateIncomeTaxReturn
+
+  """
+  Can be a utility bill (water, electricity or gas), a telephone bill or a rental receipt. The document must have been issued within the last 3 months.
+  """
+  ProofOfIndividualAddress
+
+  """
+  Lease agreement in the name of the business or Proof of Individual Address if the company is hosted by one of the legal representative.
+  """
+  CompanyLeaseAgreement
+
+  """
+  Created by the Notary, it certifies the capital of the company to have been deposited with the appropriate share for each shareholder.
+  """
+  CapitalShareDepositCertificate
+
+  """Signed power of attorney document to give the power to act on behalf."""
+  PowerOfAttorney
+}
+
+"""Capital Deposit Document with Uploaded status"""
+type CapitalDepositDocumentUploadedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Uploaded"""
+  status: CapitalDepositDocumentStatus!
+}
+
+"""Capital Deposit Document with Validated status"""
+type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocumentStatusInfo {
+  """Validated"""
+  status: CapitalDepositDocumentStatus!
 }
 
 enum CardAuthorizationOutcome {
@@ -1526,6 +1767,9 @@ type CardPaymentMandate implements PaymentMandate {
   """Account Holder information"""
   accountHolder: AccountHolder!
 
+  """The card associated to this mandate"""
+  card: ExternalCard!
+
   """Creation date of the Payment Mandate"""
   createdAt: DateTime!
 
@@ -1542,24 +1786,25 @@ type CardPaymentMandate implements PaymentMandate {
 
   """Payment Mandate status information"""
   statusInfo: PaymentMandateStatusInfo!
+}
 
-  """The card scheme"""
-  scheme: String
+enum CardPaymentMandateCategory {
+  Consumer
+  Commercial
+}
 
-  """The card's last digits"""
-  lastDigits: String
+enum CardPaymentMandateScheme {
+  Visa
+  Mastercard
+  CartesBancaires
+}
 
-  """The card's first 6 digits - Bank Identification Number"""
-  bin: String
-
-  """The card's expiry date"""
-  expiryDate: String
-
-  """The card's type"""
-  type: String
-
-  """The card's bank country"""
-  country: String
+enum CardPaymentMandateType {
+  Credit
+  Debit
+  Prepaid
+  Charge
+  Deferred
 }
 
 """Location where the card should be printed from"""
@@ -1686,6 +1931,15 @@ enum CloseAccountReasonType {
 Union between PartnerCloseAccountReasonType and InternalCloseAccountReason
 """
 union CloseAccountStatusReason = CloseAccountReason
+
+"""Company shareholder info."""
+type CompanyShareholder {
+  """Whether the shareholder is an individual or a company."""
+  type: ShareholderType!
+
+  """Company name."""
+  name: String!
+}
 
 """Type of company."""
 enum CompanyType {
@@ -2352,6 +2606,18 @@ type DisabledMerchantProfileStatusInfo implements MerchantProfileStatusInfo {
   disabledAt: Date!
 }
 
+"""Rejection returned if the document cannot be found"""
+type DocumentCanNotBeFoundRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Rejection returned if the document cannot be rejected"""
+type DocumentCanNotBeRejectedRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
 """Retrieved document extracted from the identity verification"""
 interface DocumentFile {
   downloadUrl: String!
@@ -2363,6 +2629,76 @@ enum DocumentFileSide {
   SideB
   BothSides
   Unknown
+}
+
+"""Rejection returned if the document-parent link is missing"""
+type DocumentParentLinkMissingRejection implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""Reason code of the document."""
+enum DocumentReasonCode {
+  """Company name in document doesn’t match our records"""
+  CompanyNameMismatch
+
+  """Declared amount in document doesn’t match the amount received"""
+  DeclaredAmountMismatch
+
+  """Document must be dated less than 3 months ago"""
+  ExpiredDocument
+
+  """Address in document doesn’t match our records"""
+  InvalidAddress
+
+  """Default value when none of the other values is appropriate"""
+  InvalidDocument
+
+  """Some information is missing"""
+  InvalidOrMissingData
+
+  """Missing identity document of accommodation provider"""
+  MissingAccommodationProviderId
+
+  """
+  Missing identity document and proof of accommodation from accommodation provider
+  """
+  MissingAccommodationProviderIdLetter
+
+  """Missing proof of accommodation from accommodation provider"""
+  MissingAccommodationProviderLetter
+
+  """Document cannot be accepted for the requested document type"""
+  UnacceptableDocument
+
+  """Accommodation provider's identity document must be in full color"""
+  ProviderColorIdDocumentRequired
+
+  """
+  Document must be signed, either by hand or electronically with certification
+  """
+  MissingSignature
+
+  """Document is damaged or in poor condition"""
+  BadDocumentQuality
+
+  """Only part of the document was provided"""
+  FullDocumentRequired
+
+  """Missing accommodation provider's proof of address"""
+  MissingProviderProofOfAddress
+
+  """Missing accommodation provider's proof of address and ID document"""
+  MissingProviderProofOfAddressAndIdDocument
+
+  """Power of attorney must be provided to Swan"""
+  PowerOfAttorneyToSwanRequired
+
+  """Missing company domiciliation statement"""
+  MissingCompanyDomiciliationStatement
+
+  """The signature is not handwritten or electronically certified"""
+  HandwrittenOrCertifiedElectronicSignatureRequired
 }
 
 """The type of the document"""
@@ -2529,6 +2865,29 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
   By default the payment link expires 120 days after it was created.
   """
   expiredAt: DateTime!
+}
+
+type ExternalCard {
+  """The card scheme"""
+  scheme: CardPaymentMandateScheme!
+
+  """The card type"""
+  cardType: CardPaymentMandateType
+
+  """The card category"""
+  category: CardPaymentMandateCategory
+
+  """The card's bank country"""
+  country: CCA2
+
+  """The card's last digits"""
+  lastDigits: String!
+
+  """The card's first 6 digits - Bank Identification Number"""
+  bin: String!
+
+  """The card's expiry date"""
+  expiryDate: String
 }
 
 """The document corresponding to a face photo"""
@@ -3162,41 +3521,6 @@ enum IdentificationProcess {
   PVID
 }
 
-"""Identification status"""
-enum IdentificationStatus {
-  """The user hasn't started the identity verification process yet."""
-  Uninitiated
-
-  """
-  The user has gone through the identity verification process, but we are still processing their information.
-  """
-  Processing
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  The user now needs to go through the QES process to complete their identification.
-  """
-  ReadyToSign
-
-  """
-  The user has gone through the identity verification process, and we have determined that their identity is valid.
-  """
-  ValidIdentity
-
-  """
-  The user has gone through the identity verification process, but we were unable to determine if their
-  identity is valid because the quality of the provided documents was insufficient.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InsufficientDocumentQuality
-
-  """
-  The user has gone through the identity verification process, but we have determined that their identity is invalid.
-  The user will have to start a new identification, which will update this status to `Processing`.
-  """
-  InvalidIdentity
-}
-
 """The type of the identity document"""
 enum IdentityDocumentType {
   IdCard
@@ -3312,6 +3636,24 @@ type IncorrectTransactionTypeRejection implements Rejection {
   message: String!
 }
 
+"""Individual shareholder info."""
+type IndividualShareholder {
+  """Whether the shareholder is an individual or a company."""
+  type: ShareholderType!
+
+  """First name of the shareholder."""
+  firstName: String!
+
+  """Last name of the shareholder."""
+  lastName: String!
+
+  """Birth date of the shareholder."""
+  birthDate: String!
+
+  """CCA3 code for the country of nationality of the shareholder."""
+  nationality: CCA3!
+}
+
 """
 Individual Ultimate Beneficial Owner
 You need to describe the natural person (s) who hold, directly or indirectly, more than 25% of the capital or the rights of vote of the reporting company.
@@ -3347,6 +3689,9 @@ type IndividualUltimateBeneficialOwner {
 
   """Individual beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetails
 }
 
 """Define the type of the UBO"""
@@ -3402,6 +3747,9 @@ input IndividualUltimateBeneficialOwnerInput {
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
+
+  """Ultimate beneficial owner's identity document details"""
+  identityDocumentDetails: UBOIdentityDocumentDetailsInput
 }
 
 """Individual Ultimate beneficial owner nature"""
@@ -4030,6 +4378,24 @@ type MerchantPayment {
 
   """Updated date"""
   updatedAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime
+
+  """Canceled date"""
+  canceledAt: DateTime
+
+  """Captured date"""
+  capturedAt: DateTime
+
+  """Rejected date"""
+  rejectedAt: DateTime
+
+  """Refunded date"""
+  refundedAt: DateTime
+
+  """Disputed date"""
+  disputedAt: DateTime
 }
 
 """Merchant Payment status authorized"""
@@ -4640,21 +5006,26 @@ type Mutation {
   """Simulate the authorization of a card merchant payment"""
   simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload
 
+  """Simulate the update of a Merchant Payment Method"""
+  simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload
+
   """
   Simulate the approval or rejection of a merchant payment method update request
   """
   simulateMerchantPaymentMethodUpdateRequestOutcome(input: SimulateMerchantPaymentMethodUpdateRequestOutcomeInput!): SimulateMerchantPaymentMethodUpdateRequestOutcomePayload
+
+  """Simulate the update of a Merchant Profile"""
+  simulateMerchantProfileRequestOutcome(input: SimulateMerchantProfileRequestOutcomeInput!): SimulateMerchantProfileRequestOutcomePayload
 
   """
   Simulate the approval or rejection of a merchant profile update request
   """
   simulateMerchantProfileUpdateRequestOutcome(input: SimulateMerchantProfileUpdateRequestOutcomeInput!): SimulateMerchantProfileUpdateRequestOutcomePayload
 
-  """Simulate the update of a Merchant Payment Method"""
-  simulateUpdateMerchantPaymentMethod(input: SimulateUpdateMerchantPaymentMethodInput!): SimulateUpdateMerchantPaymentMethodPayload
-
-  """Simulate the update of a Merchant Profile"""
-  simulateUpdateMerchantProfile(input: SimulateUpdateMerchantProfileInput!): SimulateUpdateMerchantProfilePayload
+  """
+  After an incoming Card transaction has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
+  """
+  simulateIncomingCardBooking(input: SimulateIncomingCardBookingInput!): SimulateIncomingCardBookingPayload!
 
   """
   Simulate a card advice (amendment) received for a previous authorization for a card issued on a Swan account.
@@ -6394,6 +6765,14 @@ enum RequestMerchantProfileUpdateStatus {
   Canceled
 }
 
+"""Request Outcome Merchant Profile Status Input"""
+input RequestOutcomeMerchantPaymentMethodInput {
+  methodType: MerchantPaymentMethodType!
+
+  """Status to which to move the related payment product"""
+  status: MerchantPaymentMethodStatus!
+}
+
 input RequestSupportingDocumentsInput {
   supportingDocumentCollectionId: ID!
   requiredSupportingDocumentPurposes: [SupportingDocumentPurposeEnum!]!
@@ -6456,8 +6835,13 @@ type RestrictedTo {
   """birth date"""
   birthDate: Date
 
-  """phone number"""
-  phoneNumber: String!
+  """
+  phone number
+  We're introducing more flexibility in the process to invite & bind new account members (cf [public roadmap](https://swanio.notion.site/Swan-Public-Roadmap-385e4b2e91b3409786a6c8e885654a22?p=a59db00a478e4faaaefbd901e1ed7ed3&pm=s) on notion).
+  For some use cases, it would be possible to invite an account member without their mobile phone number.
+  Please note that the phone number will remain mandatory at the invitation (despite being optional in the Graph) until the new flow is delivered. It is hidden behind a feature toggle
+  """
+  phoneNumber: String
 }
 
 """
@@ -6524,10 +6908,7 @@ type SandboxUser {
   """
   nationalityCCA3: CCA3
 
-  """
-  `true` if identificationStatus is ValidIdentity.
-  `false` otherwise.
-  """
+  """Indicates wether the user has verified his/her identity or not"""
   idVerified: Boolean
 
   """
@@ -6550,9 +6931,6 @@ type SandboxUser {
   Whenever TRUE, it means the identification was successful for the associated level.
   """
   identificationLevels: IdentificationLevels
-
-  """Let you simulate every use case of our identity verification process."""
-  identificationStatus: IdentificationStatus!
 
   """Indicates if sandbox user is logged or not"""
   isActive: Boolean
@@ -7091,6 +7469,74 @@ with some follow extra rules :
 """
 scalar SepaReference
 
+"""Shareholder of a company creating a Capital Deposit Case"""
+type Shareholder {
+  """Unique identifier of a shareholder."""
+  id: ID!
+
+  """Amount the shareholder has to deposit."""
+  capitalDepositAmount: Amount!
+
+  """Onboarding information of the shareholder."""
+  onboarding: Onboarding
+
+  """Unique identifier of the shareholder account."""
+  accountId: String
+
+  """Status of the shareholder during the process with Swan."""
+  status: ShareholderStatus!
+
+  """Extra information about the shareholder"""
+  info: ShareholderInfo!
+
+  """Shareholder documents for the capital deposit case"""
+  documents: [CapitalDepositDocument!]!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Information about capital deposit case."""
+  relatedCapitalDepositCase: CapitalDepositCase!
+}
+
+"""Shareholder information."""
+union ShareholderInfo = IndividualShareholder | CompanyShareholder
+
+"""Status of the shareholder during the process with Swan."""
+enum ShareholderStatus {
+  """Waiting for the shareholder to finalize their onboarding."""
+  PendingOnboarding
+
+  """Waiting for Swan compliance team to verify the shareholder."""
+  WaitingForVerification
+
+  """
+  Waiting for the shareholder to wire their share of the capital on their temporary Swan account.
+  """
+  WaitingForTransfer
+
+  """When the shareholder has wired their share of the capital."""
+  CapitalTransferred
+
+  """When the shareholder's capital is wired to the notary."""
+  CapitalFundsWiredToNotary
+
+  """When the capital deposit of the shareholder is canceled."""
+  CapitalDepositCanceled
+}
+
+"""Shareholder type to identify individuals and companies."""
+enum ShareholderType {
+  """Individual shareholder type."""
+  Individual
+
+  """Company shareholder type."""
+  Company
+}
+
 """Inputs to approve a capital deposit case."""
 input SimulateApproveCapitalDepositCaseInput {
   """Identifier of capital deposit case to validated."""
@@ -7112,7 +7558,10 @@ input SimulateCapitalDepositDocumentStatusInput {
   documentId: String!
 
   """Status of capital deposit document."""
-  documentStatus: CapitalDepositDocumentStatusInput!
+  documentStatus: CapitalDepositDocumentStatus!
+
+  """Document reason code for refused capital deposit document."""
+  documentReasonCode: DocumentReasonCode
 }
 
 union SimulateCapitalDepositDocumentStatusPayload = SimulateCapitalDepositDocumentStatusSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CouldNotUpdateCapitalDepositDocumentStatusRejection | CouldNotUploadCapitalDepositDocumentRejection | CouldNotFindCapitalDepositDocumentRejection | CouldNotRejectCapitalDepositDocumentRejection
@@ -7238,6 +7687,8 @@ enum SimulateIncomingCardAuthorizationStatus {
 """SimulateIncomingCardAuthorizationSuccessPayload"""
 type SimulateIncomingCardAuthorizationSuccessPayload {
   paymentLinkId: ID!
+  cardMandateId: ID!
+  paymentId: ID!
 }
 
 input SimulateIncomingCardAuthorizationThreeDS {
@@ -7248,6 +7699,20 @@ input SimulateIncomingCardAuthorizationThreeDS {
 enum SimulateIncomingCardAuthorizationThreeDSStatus {
   Successful
   Failed
+}
+
+"""Book an incoming card transaction simulation input"""
+input SimulateIncomingCardBookingInput {
+  """Transaction ID to be booked"""
+  transactionId: ID!
+}
+
+"""Union of Success payload and potential rejections"""
+union SimulateIncomingCardBookingPayload = SimulateIncomingCardBookingSuccessPayload | ForbiddenRejection | TransactionNotFoundRejection
+
+"""Success payload type"""
+type SimulateIncomingCardBookingSuccessPayload {
+  transactionId: ID!
 }
 
 """Book an incoming check simulation input"""
@@ -7555,6 +8020,19 @@ type SimulateManualBankingFeeSuccessPayload {
   debitedAmount: Amount
 }
 
+input SimulateMerchantPaymentMethodRequestOutcomeInput {
+  merchantPaymentMethodId: ID!
+  merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
+
+  """
+  In case status is Rejected, merchantPaymentMethodRejectReason is mandatory
+  """
+  merchantPaymentMethodRejectReason: MerchantPaymentMethodRejectReason
+}
+
+"""SimulateMerchantPaymentMethodPayload"""
+union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection
+
 input SimulateMerchantPaymentMethodUpdateRequestOutcomeInput {
   """
   ID of the Merchant PaymentMethod update request to simulate the outcome of
@@ -7573,9 +8051,25 @@ type SimulateMerchantPaymentMethodUpdateRequestOutcomeSuccessPayload {
   updateRequestId: ID!
 }
 
+input SimulateMerchantProfileRequestOutcomeInput {
+  """ID of the Merchant Profile to update"""
+  merchantProfileId: ID!
+
+  """Desired status of the Merchant Profile"""
+  merchantProfileStatus: MerchantProfileStatus
+}
+
+"""SimulateMerchantProfileRequestOutcomePayload"""
+union SimulateMerchantProfileRequestOutcomePayload = SimulateMerchantProfileRequestOutcomeSuccessPayload | NotFoundRejection | MerchantProfileWrongStatusRejection
+
+"""SimulateMerchantProfileRequestOutcomeSuccessPayload"""
+type SimulateMerchantProfileRequestOutcomeSuccessPayload {
+  merchantProfile: MerchantProfile!
+}
+
 input SimulateMerchantProfileUpdateRequestOutcomeInput {
   """ID of the Merchant Profile update request to simulate the outcome of"""
-  updateRequestId: ID!
+  merchantProfileId: ID!
 
   """Whether the update is approved or not"""
   requestedUpdateApproved: Boolean!
@@ -7620,7 +8114,7 @@ input SimulateOutgoingCardAdviceInput {
 
 """Request a card authorization simulation input"""
 input SimulateOutgoingCardAuthorizationInput {
-  amount: AmountInput!
+  amount: AmountInput
 
   """Authorization request type"""
   authorizationType: CardAuthorizationType = Classic
@@ -8089,35 +8583,6 @@ union SimulateStartProjectBillingPayload = SimulateStartProjectBillingSuccessPay
 type SimulateStartProjectBillingSuccessPayload {
   """ID of the project billed"""
   projectId: ID!
-}
-
-input SimulateUpdateMerchantPaymentMethodInput {
-  merchantPaymentMethodId: ID!
-  merchantPaymentMethodStatus: MerchantPaymentMethodStatus!
-
-  """
-  In case status is Rejected, merchantPaymentMethodRejectReason is mandatory
-  """
-  merchantPaymentMethodRejectReason: MerchantPaymentMethodRejectReason
-}
-
-"""SimulateUpdateMerchantPaymentMethodPayload"""
-union SimulateUpdateMerchantPaymentMethodPayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection
-
-input SimulateUpdateMerchantProfileInput {
-  """ID of the Merchant Profile to update"""
-  merchantProfileId: ID!
-
-  """Desired status of the Merchant Profile"""
-  merchantProfileStatus: MerchantProfileStatus
-}
-
-"""SimulateUpdateMerchantProfilePayload"""
-union SimulateUpdateMerchantProfilePayload = SimulateUpdateMerchantProfileSuccessPayload | NotFoundRejection | MerchantProfileWrongStatusRejection
-
-"""SimulateUpdateMerchantProfileSuccessPayload"""
-type SimulateUpdateMerchantProfileSuccessPayload {
-  merchantProfile: MerchantProfile!
 }
 
 enum SimulationCardType {
@@ -9014,6 +9479,45 @@ enum TypeOfRepresentation {
   PowerOfAttorney
 }
 
+type UBOIdentityDocumentDetails {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+input UBOIdentityDocumentDetailsInput {
+  """Type of identity document"""
+  type: UBOIdentityDocumentType
+
+  """Issue date of the identity document"""
+  issueDate: String
+
+  """Expiry date of the identity document"""
+  expiryDate: String
+
+  """Number of the identity document"""
+  number: String
+
+  """Issuing authority of the identity document"""
+  issuingAuthority: String
+}
+
+enum UBOIdentityDocumentType {
+  Passport
+  IdCard
+}
+
 """Input of the updateAccountHolderFundingLimits mutation"""
 input UpdateAccountHolderFundingLimitsInput {
   """ID of the funding limit's account holder to update"""
@@ -9079,14 +9583,6 @@ union UpdateFundingLimitSettingsChangeRequestPayload = UpdateFundingLimitSetting
 
 type UpdateFundingLimitSettingsChangeRequestSuccessPayload {
   fundingLimitSettingsChangeRequest: FundingLimitSettingsChangeRequest!
-}
-
-"""Update Merchant Profile Status Input"""
-input UpdateMerchantPaymentMethodInput {
-  methodType: MerchantPaymentMethodType!
-
-  """Status to which to move the related payment product"""
-  status: MerchantPaymentMethodStatus!
 }
 
 type UpdateRequestNotPendingReviewRejection implements Rejection {
@@ -9240,17 +9736,6 @@ type User {
   authenticators: [Authenticator!]
 
   """
-  @deprecated either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not
-  
-  Identification status
-  
-  Each attempt to go through our identity verification process will update this value.
-  
-  This field is only available for the current user.
-  """
-  identificationStatus: IdentificationStatus @deprecated(reason: "either use `Identification.status` or use `identificationLevels` instead to know if user's identity has been validated or not")
-
-  """
   List of identification levels available for the user.
   
   Whenever TRUE, it means the identification was successful for the associated level.
@@ -9272,6 +9757,9 @@ type User {
 
   """Last update date of the user"""
   updatedAt: DateTime!
+
+  """Define the last name the user prefers to use"""
+  preferredLastName: UserPreferredLastName!
 }
 
 """
@@ -9313,6 +9801,14 @@ type UserEdge implements Edge {
 type UserNotFoundRejection implements Rejection {
   id: ID!
   message: String!
+}
+
+enum UserPreferredLastName {
+  """The user prefers to be called by their last name"""
+  LastName
+
+  """The user prefers to be called by their birth last name"""
+  BirthLastName
 }
 
 enum UserStatus {

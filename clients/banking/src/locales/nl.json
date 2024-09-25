@@ -1042,6 +1042,7 @@
   "transactionRejectedReason.AmountMismatch": "Het bedrag komt niet overeen",
   "transactionRejectedReason.BankRefused": "Geweigerd door bank",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "Begunstigde bank niet bereikbaar",
+  "transactionRejectedReason.BeneficiaryMismatch": "Begunstigde komt niet overeen",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "De begunstigde ontbreekt of is onjuist",
   "transactionRejectedReason.CanceledByCardHolder": "De kaarthouder heeft de transactie geannuleerd",
   "transactionRejectedReason.CardExpired": "Kaart verlopen",

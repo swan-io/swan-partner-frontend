@@ -23,6 +23,11 @@ import {
   OnboardingCompanyOwnershipBeneficiaryFormCommon,
   OnboardingCompanyOwnershipBeneficiaryFormCommonRef,
 } from "./OnboardingCompanyOwnershipBeneficiaryFormCommon";
+import {
+  Input as IdentityInput,
+  OnboardingCompanyOwnershipBeneficiaryFormIdentity,
+  OnboardingCompanyOwnershipBeneficiaryFormIdentityRef,
+} from "./OnboardingCompanyOwnershipBeneficiaryFormIdentity";
 
 export type OnboardingCompanyOwnershipBeneficiaryFormRef = {
   cancel: () => void;
@@ -35,11 +40,11 @@ export const REFERENCE_SYMBOL = Symbol("REFERENCE");
 
 type WithReference<T> = T & { [REFERENCE_SYMBOL]: string };
 
-export type Input = WithReference<CommonInput & AddressInput>;
+export type Input = WithReference<CommonInput & AddressInput & IdentityInput>;
 
-export type BeneficiaryFormStep = "Common" | "Address";
+export type BeneficiaryFormStep = "Common" | "Address" | "Identity";
 
-export type SaveValue = WithReference<CommonInput & Partial<AddressInput>>;
+export type SaveValue = WithReference<CommonInput & Partial<AddressInput> & Partial<IdentityInput>>;
 
 type Props = {
   initialValues?: Partial<Input>;
@@ -52,7 +57,7 @@ type Props = {
   onClose: () => void;
 };
 
-const formSteps: BeneficiaryFormStep[] = ["Common", "Address"];
+const formSteps: BeneficiaryFormStep[] = ["Common", "Address", "Identity"];
 
 export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
   OnboardingCompanyOwnershipBeneficiaryFormRef,
@@ -75,9 +80,14 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
       .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
       .otherwise(() => false);
 
+    const isIdentityRequired = match(accountCountry)
+      .with("ITA", () => true)
+      .otherwise(() => false);
+
     const [reference] = useState(() => initialValues[REFERENCE_SYMBOL] ?? uuid());
     const commonRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormCommonRef | null>(null);
     const addressRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormAddressRef | null>(null);
+    const identityRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormIdentityRef | null>(null);
 
     useImperativeHandle(ref, () => {
       return {
@@ -88,12 +98,17 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
               addressValuesRef.current = Option.fromNullable(addressRef.current?.getInput());
               onStepChange("Common");
             })
+            .with("Identity", () => {
+              identityValuesRef.current = Option.fromNullable(identityRef.current?.getInput());
+              onStepChange("Address");
+            })
             .exhaustive();
         },
         submit: () => {
           match(step)
             .with("Common", () => commonRef.current?.submit())
             .with("Address", () => addressRef.current?.submit())
+            .with("Identity", () => identityRef.current?.submit())
             .exhaustive();
         },
       };
@@ -101,6 +116,7 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
 
     const commonValuesRef = useRef<Option<CommonInput>>(Option.None());
     const addressValuesRef = useRef<Option<AddressInput>>(Option.None());
+    const identityValuesRef = useRef<Option<IdentityInput>>(Option.None());
 
     return (
       <>
@@ -137,11 +153,42 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
                 addressValuesRef.current.isSome() ? addressValuesRef.current.get() : initialValues
               }
               onSave={values => {
-                return match(commonValuesRef.current)
-                  .with(Option.P.Some(P.select()), commonValues => {
+                if (isIdentityRequired) {
+                  addressValuesRef.current = Option.Some(values);
+                  onStepChange("Identity");
+                } else {
+                  return match(commonValuesRef.current)
+                    .with(Option.P.Some(P.select()), commonValues => {
+                      const input = {
+                        [REFERENCE_SYMBOL]: reference,
+                        ...commonValues,
+                        ...values,
+                      } satisfies Input;
+                      return onSave(input);
+                    })
+                    .otherwise(() => {});
+                }
+              }}
+            />
+          ))
+          .with("Identity", () => (
+            <OnboardingCompanyOwnershipBeneficiaryFormIdentity
+              ref={identityRef}
+              initialValues={
+                identityValuesRef.current.isSome() ? identityValuesRef.current.get() : initialValues
+              }
+              onSave={values => {
+                return match(
+                  Option.allFromDict({
+                    common: commonValuesRef.current,
+                    address: addressValuesRef.current,
+                  }),
+                )
+                  .with(Option.P.Some(P.select()), previousScreenValues => {
                     const input = {
                       [REFERENCE_SYMBOL]: reference,
-                      ...commonValues,
+                      ...previousScreenValues.common,
+                      ...previousScreenValues.address,
                       ...values,
                     } satisfies Input;
                     return onSave(input);
@@ -152,10 +199,20 @@ export const OnboardingCompanyOwnershipBeneficiaryForm = forwardRef<
           ))
           .exhaustive()}
 
-        {isAddressRequired && (
+        {(isAddressRequired || isIdentityRequired) && (
           <>
             <Space height={12} />
-            <StepDots currentStep={step} steps={formSteps} />
+
+            <StepDots
+              currentStep={step}
+              steps={formSteps.filter(step =>
+                match({ step, isAddressRequired, isIdentityRequired })
+                  .with({ step: "Common" }, () => true)
+                  .with({ step: "Address", isAddressRequired: true }, () => true)
+                  .with({ step: "Identity", isIdentityRequired: true }, () => true)
+                  .otherwise(() => false),
+              )}
+            />
           </>
         )}
       </>

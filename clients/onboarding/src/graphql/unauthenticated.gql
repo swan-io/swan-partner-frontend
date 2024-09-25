@@ -24,6 +24,13 @@ fragment UBO on IndividualUltimateBeneficialOwner {
     postalCode
     state
   }
+  identityDocumentDetails {
+    type
+    issueDate
+    issuingAuthority
+    expiryDate
+    number
+  }
 }
 
 fragment IndividualAccountHolder on OnboardingIndividualAccountHolderInfo {

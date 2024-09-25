@@ -1042,6 +1042,7 @@
   "transactionRejectedReason.AmountMismatch": "Cantidad incorrecta",
   "transactionRejectedReason.BankRefused": "Rechazada por el banco",
   "transactionRejectedReason.BeneficiaryBankNotReachable": "No se ha podido comunicar con el banco beneficiario",
+  "transactionRejectedReason.BeneficiaryMismatch": "Destinatario incorrecto",
   "transactionRejectedReason.BeneficiaryMissingOrIncorrect": "Beneficiario no especificado o incorrecto",
   "transactionRejectedReason.CanceledByCardHolder": "El titular de la tarjeta canceló la transacción",
   "transactionRejectedReason.CardExpired": "Tarjeta caducada",

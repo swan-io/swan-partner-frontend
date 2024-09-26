@@ -94,10 +94,12 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
 
   // Call API to extend cookie TTL
   useEffect(() => {
-    const intervalId = setInterval(() => {
+    const tick = () => {
       Request.make({ url: "/api/ping", method: "POST", withCredentials: true });
-    }, COOKIE_REFRESH_INTERVAL);
-
+    };
+    const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
+    // Run the ping directly on mount
+    tick();
     return () => clearInterval(intervalId);
   }, []);
 

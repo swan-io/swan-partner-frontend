@@ -26,7 +26,6 @@ import {
   TransferRegularWizardDetailsSummary,
 } from "./TransferRegularWizardDetails";
 import { Schedule, TransferRegularWizardSchedule } from "./TransferRegularWizardSchedule";
-import { WizardLayout } from "./WizardLayout";
 
 const BeneficiaryStep = ({
   accountCountry,
@@ -113,6 +112,8 @@ type Step =
     };
 
 type Props = {
+  large: boolean;
+  isAccountClosing?: boolean;
   onPressClose?: () => void;
   accountCountry: AccountCountry;
   accountId: string;
@@ -124,6 +125,8 @@ type Props = {
 };
 
 export const TransferRegularWizard = ({
+  large,
+  isAccountClosing = false,
   onPressClose,
   accountCountry,
   accountId,
@@ -155,9 +158,15 @@ export const TransferRegularWizard = ({
         accountId,
         consentRedirectUrl:
           window.location.origin +
-          (canViewAccount
-            ? Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" })
-            : Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" })),
+          match({ isAccountClosing, canViewAccount })
+            .with({ isAccountClosing: true }, () => Router.AccountClose({ accountId }))
+            .with({ canViewAccount: true }, () =>
+              Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
+            )
+            .with({ canViewAccount: false }, () =>
+              Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" }),
+            )
+            .exhaustive(),
         creditTransfers: [
           {
             amount: details.amount,
@@ -223,100 +232,99 @@ export const TransferRegularWizard = ({
   };
 
   return (
-    <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
-      {({ large }) =>
-        match(step)
-          .with({ name: "Beneficiary" }, ({ beneficiary }) => (
-            <BeneficiaryStep
-              accountCountry={accountCountry}
-              accountId={accountId}
-              initialBeneficiary={beneficiary}
-              canManageBeneficiaries={canManageBeneficiaries}
-              onPressSubmit={beneficiary => {
-                setStep({ name: "Details", beneficiary });
+    <>
+      {match(step)
+        .with({ name: "Beneficiary" }, ({ beneficiary }) => (
+          <BeneficiaryStep
+            accountCountry={accountCountry}
+            accountId={accountId}
+            initialBeneficiary={beneficiary}
+            canManageBeneficiaries={canManageBeneficiaries}
+            onPressSubmit={beneficiary => {
+              setStep({ name: "Details", beneficiary });
+            }}
+          />
+        ))
+        .with({ name: "Details" }, ({ beneficiary, details }) => (
+          <>
+            <TransferWizardBeneficiarySummary
+              isMobile={!large}
+              beneficiary={beneficiary}
+              onPressEdit={
+                hasInitialBeneficiary
+                  ? undefined
+                  : () => setStep({ name: "Beneficiary", beneficiary })
+              }
+            />
+
+            <Space height={32} />
+
+            <LakeHeading level={2} variant="h3">
+              {t("transfer.new.details.title")}
+            </LakeHeading>
+
+            <Space height={32} />
+
+            <TransferRegularWizardDetails
+              accountMembershipId={accountMembershipId}
+              isAccountClosing={isAccountClosing}
+              initialDetails={details}
+              onPressPrevious={() => {
+                hasInitialBeneficiary
+                  ? onPressClose?.()
+                  : setStep({ name: "Beneficiary", beneficiary });
+              }}
+              onSave={details => {
+                setStep({ name: "Schedule", beneficiary, details });
               }}
             />
-          ))
-          .with({ name: "Details" }, ({ beneficiary, details }) => (
-            <>
-              <TransferWizardBeneficiarySummary
-                isMobile={!large}
-                beneficiary={beneficiary}
-                onPressEdit={
-                  hasInitialBeneficiary
-                    ? undefined
-                    : () => setStep({ name: "Beneficiary", beneficiary })
-                }
-              />
 
-              <Space height={32} />
+            <Space height={32} />
+          </>
+        ))
+        .with({ name: "Schedule" }, ({ beneficiary, details }) => (
+          <>
+            <TransferWizardBeneficiarySummary
+              isMobile={!large}
+              beneficiary={beneficiary}
+              onPressEdit={
+                hasInitialBeneficiary
+                  ? undefined
+                  : () => setStep({ name: "Beneficiary", beneficiary })
+              }
+            />
 
-              <LakeHeading level={2} variant="h3">
-                {t("transfer.new.details.title")}
-              </LakeHeading>
+            <Space height={32} />
 
-              <Space height={32} />
+            <TransferRegularWizardDetailsSummary
+              isMobile={!large}
+              details={details}
+              onPressEdit={() => {
+                setStep({ name: "Details", beneficiary, details });
+              }}
+            />
 
-              <TransferRegularWizardDetails
-                accountMembershipId={accountMembershipId}
-                initialDetails={details}
-                onPressPrevious={() => {
-                  hasInitialBeneficiary
-                    ? onPressClose?.()
-                    : setStep({ name: "Beneficiary", beneficiary });
-                }}
-                onSave={details => {
-                  setStep({ name: "Schedule", beneficiary, details });
-                }}
-              />
+            <Space height={32} />
 
-              <Space height={32} />
-            </>
-          ))
-          .with({ name: "Schedule" }, ({ beneficiary, details }) => (
-            <>
-              <TransferWizardBeneficiarySummary
-                isMobile={!large}
-                beneficiary={beneficiary}
-                onPressEdit={
-                  hasInitialBeneficiary
-                    ? undefined
-                    : () => setStep({ name: "Beneficiary", beneficiary })
-                }
-              />
+            <LakeHeading level={2} variant="h3">
+              {t("transfer.new.schedule.title")}
+            </LakeHeading>
 
-              <Space height={32} />
+            <Space height={32} />
 
-              <TransferRegularWizardDetailsSummary
-                isMobile={!large}
-                details={details}
-                onPressEdit={() => {
-                  setStep({ name: "Details", beneficiary, details });
-                }}
-              />
-
-              <Space height={32} />
-
-              <LakeHeading level={2} variant="h3">
-                {t("transfer.new.schedule.title")}
-              </LakeHeading>
-
-              <Space height={32} />
-
-              <TransferRegularWizardSchedule
-                beneficiary={beneficiary}
-                loading={transfer.isLoading()}
-                onPressPrevious={() => {
-                  setStep({ name: "Details", beneficiary, details });
-                }}
-                onSave={schedule => {
-                  initiateTransfer({ beneficiary, details, schedule });
-                }}
-              />
-            </>
-          ))
-          .otherwise(() => null)
-      }
-    </WizardLayout>
+            <TransferRegularWizardSchedule
+              beneficiary={beneficiary}
+              loading={transfer.isLoading()}
+              onPressPrevious={() => {
+                setStep({ name: "Details", beneficiary, details });
+              }}
+              onSave={schedule => {
+                initiateTransfer({ beneficiary, details, schedule });
+              }}
+            />
+          </>
+        ))
+        .otherwise(() => null)}
+    </>
   );
 };

@@ -392,6 +392,9 @@ query AccountArea($accountMembershipId: ID!) {
     id
     ...AccountMembership
     account {
+      statusInfo {
+        status
+      }
       IBAN
       bankDetails
       language
@@ -2169,6 +2172,47 @@ query MerchantProfiles(
   }
 }
 
+query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
+  projectInfo {
+    id
+    accentColor
+  }
+  account(accountId: $accountId) {
+    id
+    country
+    statusInfo {
+      status
+    }
+    legalRepresentativeMembership {
+      id
+      user {
+        id
+      }
+    }
+    balances {
+      available {
+        value
+        currency
+      }
+    }
+  }
+  user {
+    id
+    accountMemberships(first: $first, after: $after) {
+      edges {
+        node {
+          id
+          accountId
+        }
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+    }
+  }
+}
+
 # Mutations
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
@@ -2722,6 +2766,21 @@ mutation InitiateCheckMerchantPayment($input: InitiateCheckMerchantPaymentInput!
       }
     }
     ... on Rejection {
+      message
+    }
+  }
+}
+
+mutation CloseAccount($input: CloseAccountInput!) {
+  closeAccount(input: $input) {
+    ... on CloseAccountSuccessPayload {
+      consent {
+        id
+        consentUrl
+      }
+    }
+    ... on Rejection {
+      __typename
       message
     }
   }

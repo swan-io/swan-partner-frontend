@@ -130,9 +130,11 @@ const LoginContent = ({ accentColor, onLogin }: LoginContentProps) => {
 
 export const ProjectLoginPage = ({
   projectId,
+  redirectTo: redirectToFromQueryParams,
   sessionExpired = false,
 }: {
   projectId: string;
+  redirectTo: string | undefined;
   sessionExpired?: boolean;
 }) => {
   const { desktop } = useResponsive(breakpoints.medium);
@@ -143,15 +145,18 @@ export const ProjectLoginPage = ({
   const sessionExpiredWarningVisible = useRef(sessionExpired).current;
 
   useEffect(() => {
-    Router.replace("ProjectLogin");
-  }, []);
+    Router.replace("ProjectLogin", { redirectTo: redirectToFromQueryParams });
+  }, [redirectToFromQueryParams]);
 
   const handleButtonPress = useCallback(() => {
-    const redirectTo = Router.ProjectRootRedirect();
+    const redirectTo = redirectToFromQueryParams ?? Router.ProjectRootRedirect();
     const params = new URLSearchParams();
 
     params.set("projectId", projectId);
-    params.set("redirectTo", isDecentMobileDevice ? redirectTo : Router.PopupCallback());
+    params.set(
+      "redirectTo",
+      isDecentMobileDevice ? redirectTo : Router.PopupCallback({ redirectTo }),
+    );
 
     const authUrl = `/auth/login?${params.toString()}`;
 
@@ -167,7 +172,7 @@ export const ProjectLoginPage = ({
         window.location.replace(redirectTo);
       });
     }
-  }, [projectId]);
+  }, [projectId, redirectToFromQueryParams]);
 
   return match(
     projectInfos.mapOk(({ projectInfoById }) => ({

@@ -217,6 +217,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   ),
                   accountHolderType: account?.holder.info.__typename,
                   verificationStatus: account?.holder.verificationStatus,
+                  accountStatus: account?.statusInfo.status,
                   isIndividual,
                   requireFirstTransfer,
                   isLegalRepresentative: accountMembership?.legalRepresentative ?? false,
@@ -224,6 +225,8 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                 })
                   .returnType<AccountActivationTag>()
                   // if payment level limitations have been lifted, no need for activation
+                  .with({ accountStatus: "Closing" }, () => "closing")
+                  .with({ accountStatus: "Closed" }, () => "closed")
                   .with(
                     { verificationStatus: "Refused", isLegalRepresentative: true },
                     () => "refused",

@@ -5,9 +5,12 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { ErrorBoundary } from "@swan-io/lake/src/components/ErrorBoundary";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Popover } from "@swan-io/lake/src/components/Popover";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView, ScrollViewRef } from "@swan-io/lake/src/components/ScrollView";
 import { SidebarNavigationTracker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -16,6 +19,7 @@ import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartner
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import {
   backgroundColor,
+  breakpoints,
   colors,
   invariantColors,
   spacings,
@@ -131,6 +135,14 @@ const styles = StyleSheet.create({
     height: LOGO_MAX_HEIGHT,
     alignItems: "center",
     justifyContent: "center",
+  },
+  alert: {
+    flexGrow: 0,
+    paddingHorizontal: spacings[24],
+    paddingTop: spacings[24],
+  },
+  alertLarge: {
+    paddingHorizontal: spacings[40],
   },
 });
 
@@ -508,6 +520,88 @@ export const AccountArea = ({
                   />
                 ) : (
                   <Suspense fallback={<LoadingView color={colors.current[500]} />}>
+                    {match({
+                      status: account?.statusInfo.status,
+                      balance:
+                        account?.balances?.available.value != null
+                          ? Number(account?.balances?.available.value)
+                          : null,
+                    })
+                      .with({ status: "Closed" }, () => (
+                        <ResponsiveContainer breakpoint={breakpoints.large}>
+                          {({ large }) => (
+                            <View style={[styles.alert, large && styles.alertLarge]}>
+                              <LakeAlert variant="error" title={t("account.statusAlert.closed")} />
+                            </View>
+                          )}
+                        </ResponsiveContainer>
+                      ))
+                      .with({ status: "Closing", balance: 0 }, () => (
+                        <ResponsiveContainer breakpoint={breakpoints.large}>
+                          {({ large }) => (
+                            <View style={[styles.alert, large && styles.alertLarge]}>
+                              <LakeAlert
+                                variant="warning"
+                                title={t("account.statusAlert.closingWithBalanceZero")}
+                              />
+                            </View>
+                          )}
+                        </ResponsiveContainer>
+                      ))
+                      .with({ status: "Closing", balance: P.number.negative() }, () => (
+                        <ResponsiveContainer breakpoint={breakpoints.large}>
+                          {({ large }) => (
+                            <View style={[styles.alert, large && styles.alertLarge]}>
+                              <LakeAlert
+                                variant="error"
+                                title={t("account.statusAlert.closingWithNegativeBalance")}
+                                callToAction={
+                                  <LakeButton
+                                    href="mailto:support@swan.io"
+                                    mode="tertiary"
+                                    color="negative"
+                                    size="small"
+                                    icon="mail-regular"
+                                  >
+                                    {t("accountClose.negativeBalance.contactSupport")}
+                                  </LakeButton>
+                                }
+                              />
+                            </View>
+                          )}
+                        </ResponsiveContainer>
+                      ))
+                      .with({ status: "Closing", balance: P.number.positive() }, () => (
+                        <ResponsiveContainer breakpoint={breakpoints.large}>
+                          {({ large }) => (
+                            <View style={[styles.alert, large && styles.alertLarge]}>
+                              <LakeAlert
+                                variant="warning"
+                                title={t("account.statusAlert.closingWithPositiveBalance")}
+                                callToAction={
+                                  accountMembership.legalRepresentative ? (
+                                    <LakeButton
+                                      size="small"
+                                      mode="tertiary"
+                                      color="warning"
+                                      icon="arrow-swap-regular"
+                                      onPress={() =>
+                                        Router.push("AccountClose", {
+                                          accountId,
+                                        })
+                                      }
+                                    >
+                                      {t("account.statusAlert.transferBalance")}
+                                    </LakeButton>
+                                  ) : null
+                                }
+                              ></LakeAlert>
+                            </View>
+                          )}
+                        </ResponsiveContainer>
+                      ))
+                      .otherwise(() => null)}
+
                     {match(route)
                       .with({ name: "AccountRoot" }, () =>
                         firstAccesibleRoute.match({

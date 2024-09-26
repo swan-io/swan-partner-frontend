@@ -13,6 +13,7 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, colors } from "@swan-io/lake/src/constants/design";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { toOptionalValidator, useForm } from "@swan-io/use-form";
+import { useLayoutEffect } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { GetAvailableAccountBalanceDocument } from "../graphql/partner";
@@ -37,6 +38,7 @@ export type Details = {
 };
 
 type Props = {
+  isAccountClosing: boolean;
   accountMembershipId: string;
   initialDetails?: Details;
   onPressPrevious: () => void;
@@ -44,6 +46,7 @@ type Props = {
 };
 
 export const TransferRegularWizardDetails = ({
+  isAccountClosing,
   accountMembershipId,
   initialDetails,
   onPressPrevious,
@@ -51,7 +54,7 @@ export const TransferRegularWizardDetails = ({
 }: Props) => {
   const [data] = useQuery(GetAvailableAccountBalanceDocument, { accountMembershipId });
 
-  const { Field, submitForm } = useForm({
+  const { Field, setFieldValue, submitForm } = useForm({
     amount: {
       initialValue: initialDetails?.amount.value ?? "",
       sanitize: value => value.replace(/,/g, "."),
@@ -71,6 +74,23 @@ export const TransferRegularWizardDetails = ({
       validate: toOptionalValidator(validateTransferReference),
     },
   });
+
+  useLayoutEffect(() => {
+    if (isAccountClosing) {
+      match(data)
+        .with(
+          AsyncData.P.Done(
+            Result.P.Ok({
+              accountMembership: { account: { balances: { available: { value: P.select() } } } },
+            }),
+          ),
+          value => {
+            setFieldValue("amount", value);
+          },
+        )
+        .otherwise(() => {});
+    }
+  }, [isAccountClosing, data, setFieldValue]);
 
   const onPressSubmit = () => {
     submitForm({

@@ -17,7 +17,7 @@
   "paymentLink.country": "Paese",
   "paymentLink.cvvRequired": "Il CVV è obbligatorio",
   "paymentLink.error.retry": "Riprova",
-  "paymentLink.error.subtitle": "Non siamo riusciti a processare il tuo pagamento con Swan.\nPer favore, riprova o contatta il supporto clienti.",
+  "paymentLink.error.subtitle": "Non siamo riusciti a elaborare il suo pagamento con Swan.\nPer favore, riprovi o contatti l'assistenza.",
   "paymentLink.error.title": "Qualcosa è andato storto.",
   "paymentLink.expiryDateRequired": "La data di scadenza è obbligatoria",
   "paymentLink.iban": "IBAN",

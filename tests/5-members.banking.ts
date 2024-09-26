@@ -32,7 +32,12 @@ test("Members - create french", async ({ page }) => {
 
   await modal.getByLabel(t("banking.membershipDetail.edit.firstName")).fill("Nicolas");
   await modal.getByLabel(t("banking.membershipDetail.edit.lastName")).fill("Saison");
-  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1970");
+
+  await modal.getByPlaceholder(t("shared.datePicker.day")).fill("01");
+  await modal.getByRole("button", { name: t("shared.datePicker.month") }).click();
+  await page.getByText(t("shared.datePicker.month.january")).click();
+  await modal.getByPlaceholder(t("shared.datePicker.year")).fill("1970");
+
   await modal.getByLabel(t("banking.membershipDetail.edit.phoneNumber")).fill(env.PHONE_NUMBER);
   await modal.getByLabel(t("banking.membershipDetail.edit.email")).fill(saison.email);
 
@@ -66,7 +71,10 @@ test("Members - create german", async ({ page }) => {
 
   await modal.getByLabel(t("banking.membershipDetail.edit.firstName")).fill("Nicolas");
   await modal.getByLabel(t("banking.membershipDetail.edit.lastName")).fill("Saison");
-  await modal.getByLabel(t("banking.membershipDetail.edit.birthDate")).fill("01/01/1970");
+  await modal.getByPlaceholder(t("shared.datePicker.day")).fill("01");
+  await modal.getByRole("button", { name: t("shared.datePicker.month") }).click();
+  await page.getByText(t("shared.datePicker.month.january")).click();
+  await modal.getByPlaceholder(t("shared.datePicker.year")).fill("1970");
   await modal.getByLabel(t("banking.membershipDetail.edit.phoneNumber")).fill(env.PHONE_NUMBER);
   await modal.getByLabel(t("banking.membershipDetail.edit.email")).fill(saison.email);
 

@@ -121,7 +121,7 @@
   "companyType.company": "Yritys",
   "companyType.other": "Muu",
   "companyType.selfEmployed": "Toiminimi",
-  "companyType.selfEmployed.FRA": "Yksityisyrittäjä, ammatinharjoittaja tai liberaali ammatti",
+  "companyType.selfEmployed.FRA": "Yksityisyrittäjä, ammatinharjoittaja tai vapaa ammatti",
   "emailPage.firstLink": "Swanin käyttöehdot",
   "emailPage.secondLink": "{partner} kumppanuusehdot",
   "emailPage.terms": "Napsauttamalla \"Seuraava\" hyväksyt {firstLink} ja {secondLink}.",

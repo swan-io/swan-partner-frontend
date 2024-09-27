@@ -413,15 +413,10 @@ export const MembershipDetailEditor = ({
 
             return (
               <>
-                <LakeLabel
+                <BirthdatePicker
                   label={t("membershipDetail.edit.birthDate")}
-                  render={() => (
-                    <BirthdatePicker
-                      label={t("membershipDetail.edit.birthDate")}
-                      value={accountMembership.user.birthDate ?? undefined}
-                      readOnly={true}
-                    />
-                  )}
+                  value={accountMembership.user.birthDate ?? undefined}
+                  readOnly={true}
                 />
 
                 <LakeLabel

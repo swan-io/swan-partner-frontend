@@ -35,6 +35,7 @@ import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
 import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
+import { WizardLayout } from "./WizardLayout";
 
 const PAGE_SIZE = 20;
 
@@ -226,21 +227,30 @@ export const BeneficiaryDetailTransferList = ({
       </ScrollView>
 
       {match(beneficiary)
-        .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban, id, name }) => (
-          <FullViewportLayer visible={params.new === "transfer"}>
-            <TransferRegularWizard
-              accountCountry={accountCountry}
-              accountId={accountId}
-              accountMembershipId={params.accountMembershipId}
-              canViewAccount={canViewAccount}
-              canManageBeneficiaries={canManageBeneficiaries}
-              initialBeneficiary={{ kind: "saved", iban, id, name }}
-              onPressClose={() => {
-                Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));
-              }}
-            />
-          </FullViewportLayer>
-        ))
+        .with({ __typename: "TrustedSepaBeneficiary" }, ({ iban, id, name }) => {
+          const onPressClose = () => {
+            Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));
+          };
+
+          return (
+            <FullViewportLayer visible={params.new === "transfer"}>
+              <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
+                {({ large }) => (
+                  <TransferRegularWizard
+                    large={large}
+                    accountCountry={accountCountry}
+                    accountId={accountId}
+                    accountMembershipId={params.accountMembershipId}
+                    canViewAccount={canViewAccount}
+                    canManageBeneficiaries={canManageBeneficiaries}
+                    initialBeneficiary={{ kind: "saved", iban, id, name }}
+                    onPressClose={onPressClose}
+                  />
+                )}
+              </WizardLayout>
+            </FullViewportLayer>
+          );
+        })
         .with(
           {
             __typename: "TrustedInternationalBeneficiary",

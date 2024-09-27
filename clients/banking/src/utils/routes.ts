@@ -4,10 +4,12 @@ import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 const routes = {
-  PopupCallback: "/swanpopupcallback",
+  PopupCallback: "/swanpopupcallback?:redirectTo",
 
-  ProjectLogin: "/login?:sessionExpired",
+  ProjectLogin: "/login?:sessionExpired&:redirectTo",
   ProjectRootRedirect: "/?:to&:source",
+
+  AccountClose: "/accounts/:accountId/close?:resourceId&:status",
 
   ...createGroup("Account", "/:accountMembershipId", {
     Area: "/*",

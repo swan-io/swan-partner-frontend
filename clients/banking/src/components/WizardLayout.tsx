@@ -56,7 +56,7 @@ export const WizardLayout = ({ children, title, onPressClose }: Props) => (
       <View style={styles.fill}>
         <View style={styles.header}>
           <View style={[styles.headerContents, !context.large && styles.mobileZonePadding]}>
-            {onPressClose != null && (
+            {onPressClose != null ? (
               <>
                 <LakeButton
                   ariaLabel={t("common.closeButton")}
@@ -65,6 +65,11 @@ export const WizardLayout = ({ children, title, onPressClose }: Props) => (
                   onPress={onPressClose}
                 />
 
+                <Space width={context.large ? 32 : 8} />
+              </>
+            ) : (
+              <>
+                <Space height={48} width={48} />
                 <Space width={context.large ? 32 : 8} />
               </>
             )}

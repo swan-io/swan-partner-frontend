@@ -111,13 +111,6 @@ export const AccountDetailsIbanPage = ({ accountId, largeBreakpoint }: Props) =>
 
               <Space height={12} />
 
-              {accountClosed && (
-                <>
-                  <LakeAlert variant="warning" title={t("accountDetails.alert.accountClosed")} />
-                  <Space height={20} />
-                </>
-              )}
-
               <Tile
                 paddingVertical={24}
                 footer={

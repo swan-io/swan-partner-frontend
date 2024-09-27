@@ -240,7 +240,13 @@ export const AccountPicker = ({ accountMembershipId, onPressItem }: Props) => {
   });
 };
 
-export type AccountActivationTag = "actionRequired" | "pending" | "none" | "refused";
+export type AccountActivationTag =
+  | "actionRequired"
+  | "pending"
+  | "none"
+  | "refused"
+  | "closing"
+  | "closed";
 
 type AccountPickerButtonProps = {
   desktop: boolean;
@@ -318,6 +324,20 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
                   <View style={styles.activationLink}>
                     <Tag color="negative" size="small">
                       {t("accountActivation.menuTag.refused")}
+                    </Tag>
+                  </View>
+                ))
+                .with("closing", () => (
+                  <View style={styles.activationLink}>
+                    <Tag color="warning" size="small">
+                      {t("accountActivation.menuTag.closing")}
+                    </Tag>
+                  </View>
+                ))
+                .with("closed", () => (
+                  <View style={styles.activationLink}>
+                    <Tag color="negative" size="small">
+                      {t("accountActivation.menuTag.closed")}
                     </Tag>
                   </View>
                 ))

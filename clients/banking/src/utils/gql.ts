@@ -1,4 +1,5 @@
 import { Future, Option, Result } from "@swan-io/boxed";
+import { getLocation } from "@swan-io/chicane";
 import {
   Client,
   ClientError,
@@ -63,7 +64,9 @@ export const filterOutUnauthorizedError = (operationName: string, clientError: C
   ) {
     // never resolve, this way we never trigger an error screen
     return Future.make<Result<unknown, ClientError>>(() => {
-      window.location.replace(Router.ProjectLogin({ sessionExpired: "true" }));
+      window.location.replace(
+        Router.ProjectLogin({ sessionExpired: "true", redirectTo: getLocation().toString() }),
+      );
     });
   } else {
     return Future.value(Result.Error(clientError));

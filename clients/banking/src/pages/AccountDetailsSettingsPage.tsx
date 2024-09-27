@@ -180,13 +180,6 @@ const UpdateAccountForm = ({
 
       <Space height={12} />
 
-      {accountClosed && (
-        <>
-          <LakeAlert variant="warning" title={t("accountDetails.alert.accountClosed")} />
-          <Space height={20} />
-        </>
-      )}
-
       <Tile paddingVertical={24}>
         <LakeLabel
           label={t("accountDetails.settings.accountNameLabel")}

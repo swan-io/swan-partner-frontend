@@ -15,6 +15,7 @@ import { TransferInternationalWizard } from "./TransferInternationalWizard";
 import { TransferRecurringWizard } from "./TransferRecurringWizard";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { TypePickerLink } from "./TypePickerLink";
+import { WizardLayout } from "./WizardLayout";
 
 const styles = StyleSheet.create({
   fill: {
@@ -128,14 +129,19 @@ export const TransferTypePicker = ({
       </ResponsiveContainer>
 
       <FullViewportLayer visible={params.type === "transfer"}>
-        <TransferRegularWizard
-          accountCountry={accountCountry}
-          accountId={accountId}
-          accountMembershipId={accountMembershipId}
-          onPressClose={onPressClose}
-          canViewAccount={canViewAccount}
-          canManageBeneficiaries={canManageBeneficiaries}
-        />
+        <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
+          {({ large }) => (
+            <TransferRegularWizard
+              large={large}
+              accountCountry={accountCountry}
+              accountId={accountId}
+              accountMembershipId={accountMembershipId}
+              onPressClose={onPressClose}
+              canViewAccount={canViewAccount}
+              canManageBeneficiaries={canManageBeneficiaries}
+            />
+          )}
+        </WizardLayout>
       </FullViewportLayer>
 
       <FullViewportLayer visible={params.type === "recurring"}>

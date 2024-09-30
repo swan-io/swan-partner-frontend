@@ -565,6 +565,7 @@ export const start = async ({
           ...(onboardingId != null ? { onboardingId } : null),
           ...(identificationLevel != null ? { identificationLevel } : null),
           ...(projectId != null ? { projectId } : null),
+          ...(accountMembershipId != null ? { accountMembershipId } : null),
         },
         redirectUri: `${env.BANKING_URL}/auth/callback`,
         state: JSON.stringify(state),

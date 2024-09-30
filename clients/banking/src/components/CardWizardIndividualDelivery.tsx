@@ -22,7 +22,6 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import { useTgglFlag } from "../utils/tggl";
 import { validateAddressLine } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 import { CardWizardChoosePinModal } from "./CardWizardChoosePinModal";
@@ -195,8 +194,6 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
 
 export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliveryRef, Props>(
   ({ members, address, onSubmit }: Props, ref) => {
-    const isChoosePinActive = useTgglFlag("account_contract_choose_pin_code_enabled").getOr(false);
-
     const [choosePinModal, setChoosePinModal] = useState<Option<CardIndividualDeliveryConfig>>(
       Option.None(),
     );
@@ -209,11 +206,7 @@ export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliv
             members={members}
             address={address}
             onSubmit={value => {
-              if (isChoosePinActive) {
-                setChoosePinModal(Option.Some(value));
-              } else {
-                onSubmit(value);
-              }
+              setChoosePinModal(Option.Some(value));
             }}
           />
         ) : (
@@ -233,11 +226,7 @@ export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliv
                   },
                   choosePin: false,
                 }));
-                if (isChoosePinActive) {
-                  setChoosePinModal(Option.Some(config));
-                } else {
-                  onSubmit(config);
-                }
+                setChoosePinModal(Option.Some(config));
               }}
             />
           </Tile>

@@ -1030,6 +1030,7 @@
   "transaction.tabs.beneficiary": "Beneficiario",
   "transaction.tabs.details": "Detalles",
   "transaction.tabs.merchantInfo": "Información del comerciante",
+  "transaction.transactionConfirmation": "Confirmación de transacción",
   "transaction.website": "Sitio web",
   "transactionDetail.internationalCreditTransfer.BIC": "Código bancario (BIC/SWIFT)",
   "transactionDetail.internationalCreditTransfer.IBAN": "IBAN del destinatario",

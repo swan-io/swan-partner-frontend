@@ -9,6 +9,7 @@ fragment TransactionDetails on Transaction {
   counterparty
   reference
   externalReference
+  statementCanBeGenerated
   payment {
     id
     createdAt
@@ -1502,6 +1503,32 @@ query TransactionListPage(
         }
       }
     }
+  }
+}
+
+fragment TransactionStatement on TransactionStatement {
+  id
+  statusInfo {
+    status
+    ... on GeneratedTransactionStatementStatusInfo {
+      url
+    }
+  }
+}
+
+mutation GenerateTransactionStatement($input: GenerateTransactionStatementInput!) {
+  generateTransactionStatement(input: $input) {
+    ... on GenerateTransactionStatementSuccessPayload {
+      transactionStatement {
+        ...TransactionStatement
+      }
+    }
+  }
+}
+
+query TransactionStatement($id: ID!) {
+  transactionStatement(id: $id) {
+    ...TransactionStatement
   }
 }
 

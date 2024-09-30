@@ -1,8 +1,9 @@
-import { Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { Future, Option, Result } from "@swan-io/boxed";
+import { useDeferredQuery, useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
+import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -19,7 +20,9 @@ import { TabView } from "@swan-io/lake/src/components/TabView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import { showToast } from "@swan-io/lake/src/state/toasts";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   isNotEmpty,
   isNotNullish,
@@ -27,14 +30,19 @@ import {
   isNullish,
 } from "@swan-io/lake/src/utils/nullish";
 import { getCountryByCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";
 import { useState } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { TransactionDocument } from "../graphql/partner";
+import {
+  GenerateTransactionStatementDocument,
+  TransactionDocument,
+  TransactionStatementDocument,
+} from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { formatCurrency, formatDateTime, t } from "../utils/i18n";
+import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
   getFeesDescription,
@@ -89,6 +97,11 @@ const styles = StyleSheet.create({
     aspectRatio: "1 / 1",
     display: "flex",
   },
+  buttonGroup: {
+    backgroundColor: backgroundColor.default,
+    position: "sticky",
+    bottom: 0,
+  },
 });
 
 const formatMaskedPan = (value: string) => value.replace(/X/g, "•").replace(/(.{4})(?!$)/g, "$1 ");
@@ -113,6 +126,43 @@ export const TransactionDetail = ({
 }: Props) => {
   const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const suspense = useIsSuspendable();
+
+  const [generateTransactionStatement] = useMutation(GenerateTransactionStatementDocument);
+  const [, { query: queryTransactionStatement }] = useDeferredQuery(TransactionStatementDocument);
+
+  const [isGeneratingStatement, setIsGeneratingStatement] = useState(false);
+
+  const generateStatement = () => {
+    setIsGeneratingStatement(true);
+    generateTransactionStatement({ input: { transactionId, language: locale.language } })
+      .mapOk(data => data.generateTransactionStatement)
+      .mapOkToResult(filterRejectionsToResult)
+      .mapOkToResult(data => Option.fromNullable(data.transactionStatement).toResult(new Error()))
+      .flatMapOk(({ id }) =>
+        Future.retry(
+          () =>
+            Future.wait(1000).flatMap(() =>
+              queryTransactionStatement({ id }).mapOkToResult(data =>
+                match(data.transactionStatement)
+                  .with(
+                    {
+                      statusInfo: {
+                        __typename: "GeneratedTransactionStatementStatusInfo",
+                        url: P.select(),
+                      },
+                    },
+                    url => Result.Ok(url),
+                  )
+                  .otherwise(value => Result.Error(value)),
+              ),
+            ),
+          { max: 20 },
+        ),
+      )
+      .tap(() => setIsGeneratingStatement(false))
+      .tapOk(url => window.location.replace(url))
+      .tapError(error => showToast({ variant: "error", title: translateError(error), error }));
+  };
 
   const [data] = useQuery(
     TransactionDocument,
@@ -864,6 +914,22 @@ export const TransactionDetail = ({
                   text={truncateTransactionId(transaction.id)}
                 />
               </ReadOnlyFieldList>
+
+              {transaction.statementCanBeGenerated === true ? (
+                <View style={styles.buttonGroup}>
+                  <LakeButtonGroup paddingBottom={0}>
+                    <LakeButton
+                      size="small"
+                      color="current"
+                      icon="arrow-download-filled"
+                      loading={isGeneratingStatement}
+                      onPress={() => generateStatement()}
+                    >
+                      {t("transaction.transactionConfirmation")}
+                    </LakeButton>
+                  </LakeButtonGroup>
+                </View>
+              ) : null}
             </ScrollView>
           ))
           .with("beneficiary", () => (

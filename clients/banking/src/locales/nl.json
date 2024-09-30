@@ -1030,6 +1030,7 @@
   "transaction.tabs.beneficiary": "Begunstigde",
   "transaction.tabs.details": "Gegevens",
   "transaction.tabs.merchantInfo": "Handelaarsinfo",
+  "transaction.transactionConfirmation": "Transactiebevestiging",
   "transaction.website": "Website",
   "transactionDetail.internationalCreditTransfer.BIC": "Bankcode (BIC/SWIFT)",
   "transactionDetail.internationalCreditTransfer.IBAN": "IBAN nummer van de ontvanger",

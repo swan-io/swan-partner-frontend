@@ -7,7 +7,6 @@ import { useRef, useState } from "react";
 import { match } from "ts-pattern";
 import { CompleteAddressInput } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { useTgglFlag } from "../utils/tggl";
 import {
   CardItemPhysicalChoosePinForm,
   CardItemPhysicalChoosePinFormRef,
@@ -43,11 +42,7 @@ export const CardItemPhysicalDeliveryWizard = ({
   const choosePinRef = useRef<CardItemPhysicalChoosePinFormRef>(null);
   const deliveryAddressRef = useRef<CardItemPhysicalDeliveryAddressFormRef>(null);
 
-  const isChoosePinActive = useTgglFlag("account_contract_choose_pin_code_enabled").getOr(false);
-  const [step, setStep] = useState<Step>(
-    // if flag is inactive, default to not choosing PIN code
-    isChoosePinActive ? { name: "ChoosePin" } : { name: "Address", choosePin: false },
-  );
+  const [step, setStep] = useState<Step>({ name: "ChoosePin" });
 
   return (
     <LakeModal
@@ -78,13 +73,9 @@ export const CardItemPhysicalDeliveryWizard = ({
         ))
         .exhaustive()}
 
-      {isChoosePinActive && (
-        <>
-          <Space height={12} />
-          <StepDots currentStep={step.name} steps={formSteps} />
-          <Space height={12} />
-        </>
-      )}
+      <Space height={12} />
+      <StepDots currentStep={step.name} steps={formSteps} />
+      <Space height={12} />
 
       <LakeButtonGroup paddingBottom={0}>
         <LakeButton
@@ -92,11 +83,7 @@ export const CardItemPhysicalDeliveryWizard = ({
             match(step)
               .with({ name: "ChoosePin" }, () => onPressClose())
               .with({ name: "Address" }, () => {
-                if (isChoosePinActive) {
-                  setStep({ name: "ChoosePin" });
-                } else {
-                  onPressClose();
-                }
+                setStep({ name: "ChoosePin" });
               })
               .exhaustive();
           }}

@@ -19,7 +19,6 @@ import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedir
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router, paymentRoutes } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { BeneficiaryTypePicker } from "./BeneficiaryTypePicker";
 import { Redirect } from "./Redirect";
 import { TransferTypePicker } from "./TransferTypePicker";
@@ -61,7 +60,6 @@ export const TransferArea = ({
   transferConsent,
   transferCreationVisible,
 }: Props) => {
-  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
   const route = Router.useRoute(paymentRoutes);
 
   useTransferToastWithRedirect(transferConsent, () => {
@@ -143,16 +141,12 @@ export const TransferArea = ({
                           label: t("transfer.tabs.recurringTransfer"),
                           url: Router.AccountPaymentsRecurringTransferList({ accountMembershipId }),
                         },
-                        ...(beneficiariesEnabled
-                          ? [
-                              {
-                                label: t("transfer.tabs.beneficiaries"),
-                                url: Router.AccountPaymentsBeneficiariesList({
-                                  accountMembershipId,
-                                }),
-                              },
-                            ]
-                          : []),
+                        {
+                          label: t("transfer.tabs.beneficiaries"),
+                          url: Router.AccountPaymentsBeneficiariesList({
+                            accountMembershipId,
+                          }),
+                        },
                       ]}
                     />
 

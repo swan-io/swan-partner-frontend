@@ -13,7 +13,6 @@ import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
 import { Currency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import {
   BeneficiaryInternationalWizardForm,
   InternationalBeneficiary,
@@ -44,16 +43,11 @@ const BeneficiaryStep = ({
   onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious: () => void;
 }) => {
-  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
-  const saveBeneficiaryCheckboxVisible = beneficiariesEnabled && canManageBeneficiaries;
-
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
   const tabs: { id: InternationalBeneficiary["kind"]; label: string }[] = [
     { id: "new", label: t("transfer.new.beneficiary.new") },
-    ...(beneficiariesEnabled
-      ? [{ id: "saved" as const, label: t("transfer.new.beneficiary.saved") }]
-      : []),
+    { id: "saved" as const, label: t("transfer.new.beneficiary.saved") },
   ];
 
   return (
@@ -85,7 +79,7 @@ const BeneficiaryStep = ({
             errors={errors}
             onPressSubmit={onPressSubmit}
             onPressPrevious={onPressPrevious}
-            saveCheckboxVisible={saveBeneficiaryCheckboxVisible}
+            saveCheckboxVisible={canManageBeneficiaries}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)

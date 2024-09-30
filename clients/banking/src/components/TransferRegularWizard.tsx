@@ -13,7 +13,6 @@ import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import {
   BeneficiarySepaWizardForm,
   SepaBeneficiary,
@@ -40,16 +39,11 @@ const BeneficiaryStep = ({
   canManageBeneficiaries: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const beneficiariesEnabled = useTgglFlag("beneficiaries").getOr(false);
-  const saveBeneficiaryCheckboxVisible = beneficiariesEnabled && canManageBeneficiaries;
-
   const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
 
   const tabs: { id: SepaBeneficiary["kind"]; label: string }[] = [
     { id: "new", label: t("transfer.new.beneficiary.new") },
-    ...(beneficiariesEnabled
-      ? [{ id: "saved" as const, label: t("transfer.new.beneficiary.saved") }]
-      : []),
+    { id: "saved" as const, label: t("transfer.new.beneficiary.saved") },
   ];
 
   return (
@@ -80,7 +74,7 @@ const BeneficiaryStep = ({
             accountCountry={accountCountry}
             accountId={accountId}
             onPressSubmit={onPressSubmit}
-            saveCheckboxVisible={saveBeneficiaryCheckboxVisible}
+            saveCheckboxVisible={canManageBeneficiaries}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)

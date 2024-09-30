@@ -1,3 +1,4 @@
+import { Result } from "@swan-io/boxed";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
@@ -40,6 +41,14 @@ export const validateName: Validator<string> = value => {
   }
 };
 
+const beneficiaryNameRegex = Result.fromExecution(
+  // unicode regex support may vary, default to a fallback regex if errors
+  () =>
+    /^([\u0020-\u03FF\u2200-\u22FF\u2000-\u206F]|(?:[\uD83C\uD83D-\uDF00\uDDFF]|[\uD83E\uD83E-\uDD00\uDDFF]|[\uD83D\uD83D-\uDE00-\uDE4F]|[\uD83D\uD83D-\uDE80\uDEFF]|[\u2600-\u26FF]\uFE0F?|[\u2700-\u27BF]\uFE0F?|\u24C2\uFE0F?|[\uD83C\uD83C-\uDDE6\uDDFF]{1,2}|[\uD83C\uDD70\uD83C\uDD71\uD83C\uDD7E\uD83C\uDD7F\uD83C\uDD8E\uD83C\uD83C-\uDD91\uDD9A]\uFE0F?|[\u0023\u002A\u0030-\u0039]\uFE0F?\u20E3|[\u2194-\u2199\u21A9-\u21AA]\uFE0F?|[\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55]\uFE0F?|[\u2934\u2935]\uFE0F?|[\u3030\u303D]\uFE0F?|[\u3297\u3299]\uFE0F?|[\uD83C\uDE01\uD83C\uDE02\uD83C\uDE1A\uD83C\uDE2F\uD83C\uD83C-\uDE32\uDE3A\uD83C\uDE50\uD83C\uDE51]\uFE0F?|[\u203C\u2049]\uFE0F?|[\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE]\uFE0F?|[\u00A9\u00AE]\uFE0F?|[\u2122\u2139]\uFE0F?|\uD83C\uDC04\uFE0F?|\uD83C\uDCCF\uFE0F?|[\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA]\uFE0F?))+$/u,
+).getOr(
+  /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ.]| |'|-|Ά|Ό|,|[0-9])*$/,
+);
+
 // Beneficiary name input must accept numeric value, unlike other validation name
 export const validateBeneficiaryName: Validator<string> = value => {
   if (!value) {
@@ -52,9 +61,7 @@ export const validateBeneficiaryName: Validator<string> = value => {
   }
 
   // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
-  const isValid = value.match(
-    /^(?:[A-Za-zÀ-ÖÙ-öù-ƿǄ-ʯʹ-ʽΈ-ΊΎ-ΡΣ-ҁҊ-Ֆա-ևႠ-Ⴥა-ჺᄀ-፜፩-ᎏᵫ-ᶚḀ-῾ⴀ-ⴥ⺀-⿕ぁ-ゖゝ-ㇿ㋿-鿯鿿-ꒌꙀ-ꙮꚀ-ꚙꜦ-ꞇꞍ-ꞿꥠ-ꥼＡ-Ｚａ-ｚ.]| |'|-|Ά|Ό|,|[1-9])*$/,
-  );
+  const isValid = beneficiaryNameRegex.test(value);
 
   if (!isValid) {
     return t("common.form.invalidName");

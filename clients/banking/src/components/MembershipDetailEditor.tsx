@@ -769,7 +769,7 @@ export const MembershipDetailEditor = ({
         .otherwise(() => null)}
 
       <View style={styles.buttonGroup}>
-        <LakeButtonGroup>
+        <LakeButtonGroup paddingBottom={0}>
           {match(editingAccountMembership.statusInfo.__typename)
             .with(
               "AccountMembershipBindingUserErrorStatusInfo",

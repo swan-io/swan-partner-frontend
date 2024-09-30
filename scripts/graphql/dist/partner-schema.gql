@@ -860,6 +860,7 @@ type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerific
 type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
   """Verification Status of the account holder."""
   status: VerificationStatus!
+  verificationRequirements: [VerificationRequirement!]!
 
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
@@ -6377,9 +6378,24 @@ type FinancialInstitution {
 }
 
 enum FnciColorCode {
+  """
+  The check doesn't match any fraudulent record from the FNCI (Fichier National des Chèques Impayés).
+  """
   Green
+
+  """
+  The check matches fraudulent records from the FNCI (Fichier National des Chèques Impayés).
+  """
   Orange
+
+  """
+  The check matches fraudulent records from the FNCI (Fichier National des Chèques Impayés).
+  """
   Red
+
+  """
+  The check matches fraudulent records from the FNCI (Fichier National des Chèques Impayés).
+  """
   White
 }
 
@@ -6781,7 +6797,7 @@ input GenerateTransactionStatementInput {
   """
   Language to use to generate the statement (account language will be used by default). Must be compliant with RFC 5646.
   """
-  language: AccountLanguage
+  language: TransactionStatementLanguage
 }
 
 """
@@ -11962,6 +11978,15 @@ enum PaymentMandateScheme {
 
   """Internal Direct Debit B2B"""
   InternalDirectDebitB2b
+
+  """Card Visa"""
+  CardVisa
+
+  """Card Mastercard"""
+  CardMastercard
+
+  """Card Cartes Bancaires"""
+  CardCartesBancaires
 }
 
 """Payment Mandate Sequence"""
@@ -13101,6 +13126,9 @@ type Query {
 
   """Returns a received direct debit mandate from its id."""
   receivedDirectDebitMandate(receivedDirectDebitMandateId: ID!): ReceivedDirectDebitMandate
+
+  """Return a merchant payment link by id"""
+  merchantPaymentLink(id: ID!): MerchantPaymentLink
 
   """Returns a merchant profile by id."""
   merchantProfile(id: ID!): MerchantProfile
@@ -17066,6 +17094,18 @@ type TransactionStatement {
   updatedAt: DateTime!
 }
 
+"""Language: ISO 639-1 language code"""
+enum TransactionStatementLanguage {
+  de
+  en
+  fr
+  it
+  nl
+  es
+  pt
+  fi
+}
+
 """The different statuses of transaction statement"""
 enum TransactionStatementStatusEnum {
   Pending
@@ -18239,6 +18279,9 @@ type User {
   """last name"""
   lastName: String
 
+  """Birth last name"""
+  birthLastName: String
+
   """list of first names"""
   allFirstNames: [String!]
 
@@ -18251,8 +18294,11 @@ type User {
   """birth city"""
   birthCity: String
 
-  """`true` if Swan has verified the user's identity"""
-  idVerified: Boolean!
+  """
+  `true` if Swan has verified the user's identity
+  @deprecated Use the equivalent identificationLevels.expert field instead
+  """
+  idVerified: Boolean! @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]
@@ -18519,6 +18565,25 @@ enum VerificationFlow {
   When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
   """
   Progressive
+}
+
+"""
+Account Holder Verification Requirement
+
+It is a sub status for the Account Holder when his verification status is WaitingForInformation
+"""
+type VerificationRequirement {
+  id: ID!
+  type: VerificationRequirementType!
+}
+
+enum VerificationRequirementType {
+  FirstTransferRequired
+  SupportingDocumentsRequired
+  UboDetailsRequired
+  LegalRepresentativeDetailsRequired
+  OrganizationDetailsRequired
+  TaxIdRequired
 }
 
 """Verification status of an account holder"""

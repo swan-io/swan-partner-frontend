@@ -1030,6 +1030,7 @@
   "transaction.tabs.beneficiary": "Vastaanottaja",
   "transaction.tabs.details": "Yksityiskohdat",
   "transaction.tabs.merchantInfo": "Kauppiaan tiedot",
+  "transaction.transactionConfirmation": "Tapahtuman vahvistus",
   "transaction.website": "Verkkosivusto",
   "transactionDetail.internationalCreditTransfer.BIC": "Pankin koodi (BIC/SWIFT)",
   "transactionDetail.internationalCreditTransfer.IBAN": "Vastaanottajan IBAN",

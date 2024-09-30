@@ -545,6 +545,7 @@ type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerific
 type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
   """Verification Status of the account holder."""
   status: VerificationStatus!
+  verificationRequirements: [VerificationRequirement!]!
 
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
@@ -4440,6 +4441,15 @@ enum PaymentMandateScheme {
 
   """Internal Direct Debit B2B"""
   InternalDirectDebitB2b
+
+  """Card Visa"""
+  CardVisa
+
+  """Card Mastercard"""
+  CardMastercard
+
+  """Card Cartes Bancaires"""
+  CardCartesBancaires
 }
 
 """Payment Mandate Sequence"""
@@ -6557,6 +6567,9 @@ type User {
   """last name"""
   lastName: String
 
+  """Birth last name"""
+  birthLastName: String
+
   """list of first names"""
   allFirstNames: [String!]
 
@@ -6569,8 +6582,11 @@ type User {
   """birth city"""
   birthCity: String
 
-  """`true` if Swan has verified the user's identity"""
-  idVerified: Boolean!
+  """
+  `true` if Swan has verified the user's identity
+  @deprecated Use the equivalent identificationLevels.expert field instead
+  """
+  idVerified: Boolean! @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]
@@ -6714,6 +6730,25 @@ enum VerificationFlow {
   When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
   """
   Progressive
+}
+
+"""
+Account Holder Verification Requirement
+
+It is a sub status for the Account Holder when his verification status is WaitingForInformation
+"""
+type VerificationRequirement {
+  id: ID!
+  type: VerificationRequirementType!
+}
+
+enum VerificationRequirementType {
+  FirstTransferRequired
+  SupportingDocumentsRequired
+  UboDetailsRequired
+  LegalRepresentativeDetailsRequired
+  OrganizationDetailsRequired
+  TaxIdRequired
 }
 
 """Verification status of an account holder"""

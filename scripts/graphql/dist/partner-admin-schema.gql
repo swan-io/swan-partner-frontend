@@ -596,6 +596,7 @@ type AccountHolderVerifiedVerificationStatusInfo implements AccountHolderVerific
 type AccountHolderWaitingForInformationVerificationStatusInfo implements AccountHolderVerificationStatusInfo {
   """Verification Status of the account holder."""
   status: VerificationStatus!
+  verificationRequirements: [VerificationRequirement!]!
 
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
@@ -3459,22 +3460,6 @@ type IdentificationLevels {
   expert: Boolean!
 }
 
-"""Sandbox user identification levels input payload."""
-input IdentificationLevelsInput {
-  """Identity verified by an expert (Ubble-like)"""
-  expert: Boolean!
-
-  """
-  Identity verified by an expert with a Remote Identity Verification Service
-  """
-  PVID: Boolean!
-
-  """
-  Identity verified by an expert and a Qualified Electronic Signature has been done
-  """
-  QES: Boolean!
-}
-
 """
 The status and results associated to the available identification processes
 """
@@ -5944,6 +5929,15 @@ enum PaymentMandateScheme {
 
   """Internal Direct Debit B2B"""
   InternalDirectDebitB2b
+
+  """Card Visa"""
+  CardVisa
+
+  """Card Mastercard"""
+  CardMastercard
+
+  """Card Cartes Bancaires"""
+  CardCartesBancaires
 }
 
 """Payment Mandate Sequence"""
@@ -6908,8 +6902,11 @@ type SandboxUser {
   """
   nationalityCCA3: CCA3
 
-  """Indicates wether the user has verified his/her identity or not"""
-  idVerified: Boolean
+  """
+  Indicates wether the user has verified his/her identity or not
+  @deprecated Use the equivalent identificationLevels.expert field instead
+  """
+  idVerified: Boolean @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
 
   """
   Saves you considerable time during the development phase,
@@ -7560,8 +7557,8 @@ input SimulateCapitalDepositDocumentStatusInput {
   """Status of capital deposit document."""
   documentStatus: CapitalDepositDocumentStatus!
 
-  """Document reason code for refused capital deposit document."""
-  documentReasonCode: DocumentReasonCode
+  """Document refusal reason code for refused capital deposit document."""
+  documentRefusalReasonCode: DocumentReasonCode
 }
 
 union SimulateCapitalDepositDocumentStatusPayload = SimulateCapitalDepositDocumentStatusSuccessPayload | CouldNotFindCapitalDepositCaseRejection | CouldNotUpdateCapitalDepositDocumentStatusRejection | CouldNotUploadCapitalDepositDocumentRejection | CouldNotFindCapitalDepositDocumentRejection | CouldNotRejectCapitalDepositDocumentRejection
@@ -8060,7 +8057,7 @@ input SimulateMerchantProfileRequestOutcomeInput {
 }
 
 """SimulateMerchantProfileRequestOutcomePayload"""
-union SimulateMerchantProfileRequestOutcomePayload = SimulateMerchantProfileRequestOutcomeSuccessPayload | NotFoundRejection | MerchantProfileWrongStatusRejection
+union SimulateMerchantProfileRequestOutcomePayload = SimulateMerchantProfileRequestOutcomeSuccessPayload | NotFoundRejection | MerchantProfileWrongStatusRejection | ForbiddenRejection | InternalErrorRejection
 
 """SimulateMerchantProfileRequestOutcomeSuccessPayload"""
 type SimulateMerchantProfileRequestOutcomeSuccessPayload {
@@ -9717,6 +9714,9 @@ type User {
   """last name"""
   lastName: String
 
+  """Birth last name"""
+  birthLastName: String
+
   """list of first names"""
   allFirstNames: [String!]
 
@@ -9729,8 +9729,11 @@ type User {
   """birth city"""
   birthCity: String
 
-  """`true` if Swan has verified the user's identity"""
-  idVerified: Boolean!
+  """
+  `true` if Swan has verified the user's identity
+  @deprecated Use the equivalent identificationLevels.expert field instead
+  """
+  idVerified: Boolean! @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]
@@ -9876,6 +9879,25 @@ enum VerificationFlow {
   When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
   """
   Progressive
+}
+
+"""
+Account Holder Verification Requirement
+
+It is a sub status for the Account Holder when his verification status is WaitingForInformation
+"""
+type VerificationRequirement {
+  id: ID!
+  type: VerificationRequirementType!
+}
+
+enum VerificationRequirementType {
+  FirstTransferRequired
+  SupportingDocumentsRequired
+  UboDetailsRequired
+  LegalRepresentativeDetailsRequired
+  OrganizationDetailsRequired
+  TaxIdRequired
 }
 
 """Verification status of an account holder"""

@@ -518,6 +518,9 @@ query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: Stri
   account(accountId: $accountId) {
     id
     paymentLevel
+    statusInfo {
+      status
+    }
     virtualIbanEntries(first: $first, after: $after) {
       totalCount
       pageInfo {

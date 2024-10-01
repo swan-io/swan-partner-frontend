@@ -385,6 +385,7 @@
   "common.form.chooseDateBefore": "Choose a date before {date}",
   "common.form.dateCannotBePast": "This date cannot be in the past",
   "common.form.dateIsNotWithinYear": "You can only schedule a transfer up to one year in advance.",
+  "common.form.invalidMessage": "Message should not exceed {maxLength} characters",
   "common.form.invalidAddressLine": "This field is limited to 38 characters",
   "common.form.invalidAmount": "Invalid amount",
   "common.form.invalidBulkAmount": "Line {line} has an invalid amount",

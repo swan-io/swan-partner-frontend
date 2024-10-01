@@ -399,6 +399,7 @@
   "common.form.invalidEmail": "E-mail non valide",
   "common.form.invalidFile": "Fichier invalide",
   "common.form.invalidFileLine": "La ligne {line} contient des données invalides ou manquantes",
+  "common.form.invalidMessage": "Le message ne doit pas dépasser {maxLength} caractères",
   "common.form.invalidName": "Nom non valide",
   "common.form.invalidPhoneNumber": "Numéro de téléphone non valide",
   "common.form.invalidRLMC": "RLMC non valide",

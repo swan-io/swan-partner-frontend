@@ -236,7 +236,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
   const [declareOne, declareOneData] = useMutation(InitiateCheckMerchantPaymentDocument);
   const [declareAndAdd, declareAndAddData] = useMutation(InitiateCheckMerchantPaymentDocument);
 
-  const { Field, resetForm, submitForm } = useForm({
+  const { Field, resetForm, submitForm, setFieldError } = useForm({
     label: {
       initialValue: "",
       sanitize: trim,
@@ -306,6 +306,19 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
               match(error)
                 .with({ __typename: "CheckRejection" }, ({ fnciInfo }) => {
                   setFnciError(fnciInfo);
+                })
+                .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                  fields.forEach(field => {
+                    match(field.path)
+                      .with(["amount"], () =>
+                        setFieldError("amount", t("common.form.invalidAmount")),
+                      )
+                      .with(["cmc7"], () => setFieldError("cmc7", t("common.form.invalidCMC7")))
+                      .with(["rlmcKey"], () =>
+                        setFieldError("rlmcKey", t("common.form.invalidRLMC")),
+                      )
+                      .otherwise(() => {});
+                  });
                 })
                 .otherwise(error => {
                   showToast({

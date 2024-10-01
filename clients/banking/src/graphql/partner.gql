@@ -2796,6 +2796,11 @@ mutation InitiateCheckMerchantPayment($input: InitiateCheckMerchantPaymentInput!
         ...FnciInfo
       }
     }
+    ... on ValidationRejection {
+      fields {
+        path
+      }
+    }
     ... on Rejection {
       message
     }

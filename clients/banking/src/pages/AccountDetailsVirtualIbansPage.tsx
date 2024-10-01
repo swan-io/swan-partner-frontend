@@ -269,10 +269,11 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
                     const edges = virtualIbanEntries?.edges ?? [];
                     const unlimited = data.account?.paymentLevel === "Unlimited";
                     const totalCount = virtualIbanEntries?.totalCount ?? 0;
+                    const isAccountOpen = data.account?.statusInfo.status === "Opened";
 
                     return (
                       <>
-                        {totalCount > 0 && unlimited && (
+                        {totalCount > 0 && unlimited && isAccountOpen && (
                           <View style={[styles.header, large && styles.headerDesktop]}>
                             <LakeButton
                               loading={virtualIbanAddition.isLoading()}
@@ -310,7 +311,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
                               title={t("accountDetails.virtualIbans.emptyTitle")}
                               subtitle={t("accountDetails.virtualIbans.emptyDescription")}
                             >
-                              {unlimited && (
+                              {unlimited && isAccountOpen && (
                                 <LakeButtonGroup justifyContent="center">
                                   <LakeButton
                                     loading={virtualIbanAddition.isLoading()}

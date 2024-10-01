@@ -509,6 +509,7 @@ export const start = async ({
       accountMembershipId,
       identificationLevel,
       projectId,
+      email,
     } = request.query;
     if (
       typeof redirectTo === "string" &&
@@ -562,6 +563,7 @@ export const start = async ({
       createAuthUrl({
         scope: scope.split(" ").filter(item => item != null && item != ""),
         params: {
+          ...(email != null ? { email } : null),
           ...(onboardingId != null ? { onboardingId } : null),
           ...(identificationLevel != null ? { identificationLevel } : null),
           ...(projectId != null ? { projectId } : null),

@@ -16,7 +16,7 @@
     "@sentry/browser": "8.20.0",
     "@swan-io/boxed": "2.3.0",
     "@swan-io/chicane": "2.1.0",
-    "@swan-io/graphql-client": "0.2.1",
+    "@swan-io/graphql-client": "0.2.2",
     "@swan-io/lake": "8.16.0",
     "@swan-io/request": "1.0.6",
     "@swan-io/shared-business": "8.16.0",

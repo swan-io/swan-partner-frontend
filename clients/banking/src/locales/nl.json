@@ -399,6 +399,7 @@
   "common.form.invalidEmail": "Dit e-mailadres is ongeldig",
   "common.form.invalidFile": "Ongeldig bestand",
   "common.form.invalidFileLine": "Regel {line} bevat ongeldige of ontbrekende gegevens",
+  "common.form.invalidMessage": "Bericht mag niet meer dan {maxLength} tekens bevatten",
   "common.form.invalidName": "Ongeldige naam",
   "common.form.invalidPhoneNumber": "Dit telefoonnummer is ongeldig",
   "common.form.invalidRLMC": "Ongeldige RLMC",

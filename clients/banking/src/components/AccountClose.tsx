@@ -21,7 +21,7 @@ import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request } from "@swan-io/request";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
@@ -29,7 +29,11 @@ import { AccountClosingDocument, AccountCountry, CloseAccountDocument } from "..
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateNullableRequired, validateRequired } from "../utils/validations";
+import {
+  validateAccountReasonClose,
+  validateNullableRequired,
+  validateRequired,
+} from "../utils/validations";
 import { ErrorView } from "./ErrorView";
 import { TransferRegularWizard } from "./TransferRegularWizard";
 import { WizardLayout } from "./WizardLayout";
@@ -81,7 +85,7 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
     message: {
       initialValue: "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateAccountReasonClose),
     },
   });
 
@@ -201,6 +205,7 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
                         ref={ref}
                         multiline={true}
                         numberOfLines={4}
+                        maxCharCount={255}
                       />
                     )}
                   />

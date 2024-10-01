@@ -78,6 +78,13 @@ export const validateTransferReference: Validator<string> = value => {
   }
 };
 
+export const validateAccountReasonClose: Validator<string> = value => {
+  const maxLength = 255;
+  if (value.length > maxLength) {
+    return t("common.form.invalidMessage", { maxLength });
+  }
+};
+
 export const validateAccountNameLength: Validator<string> = value => {
   const maxLength = 256;
   if (value.length > maxLength) {

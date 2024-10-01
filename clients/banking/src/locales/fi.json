@@ -399,6 +399,7 @@
   "common.form.invalidEmail": "Sähköposti on väärässä muodossa",
   "common.form.invalidFile": "Virheellinen tiedosto",
   "common.form.invalidFileLine": "Rivi {line} sisältää virheellisiä tai puuttuvia tietoja",
+  "common.form.invalidMessage": "Viestin pituus ei saa ylittää {maxLength} merkkiä",
   "common.form.invalidName": "Nimi on väärässä muodossa",
   "common.form.invalidPhoneNumber": "Puhelinnumero on väärässä muodossa",
   "common.form.invalidRLMC": "Virheellinen RLMC",

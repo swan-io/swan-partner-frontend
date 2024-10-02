@@ -19,9 +19,6 @@ jobs:
           node-version: lts/*
           cache: yarn
 
-      - name: Install dependencies
-        run: yarn install --pure-lockfile
-
       - name: Deploy prod
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
         run: yarn deploy-ci

@@ -74,6 +74,8 @@ jobs:
           tags: |
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:preprod-${{ github.sha }}
             ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:preprod-${{ steps.version.outputs.version }}
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:prod-${{ github.sha }}
+            ${{ secrets.DOCKER_REGISTRY }}/swan-partner-frontend:prod-${{ steps.version.outputs.version }}
 
       - name: Deploy
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}

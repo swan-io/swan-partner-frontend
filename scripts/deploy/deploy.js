@@ -1,8 +1,8 @@
-import assert from "node:assert";
-import { execSync } from "node:child_process";
-import fs from "node:fs";
-import os from "node:os";
-import path from "node:path";
+const assert = require("node:assert");
+const { execSync } = require("node:child_process");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
 
 const tmp = os.tmpdir();
 const repoName = "deploy";

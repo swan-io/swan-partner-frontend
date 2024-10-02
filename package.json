@@ -31,7 +31,7 @@
     "lint-env-vars": "tsx scripts/env/lintEnvVariables.ts",
     "type-env-vars": "tsx scripts/env/writeEnvInterface.ts",
     "generate-cookie-key": "tsx scripts/cookie/generateCookieKey.ts",
-    "deploy-ci": "tsx scripts/deploy/deploy.ts",
+    "deploy-ci": "node scripts/deploy/deploy.js",
     "ai-translate": "tsx -r dotenv/config scripts/locales/aiTranslate.ts",
     "sort-locales": "tsx scripts/locales/sort.ts",
     "pull-banking-locales": "localazy download banking -k localazy.keys.banking.json",

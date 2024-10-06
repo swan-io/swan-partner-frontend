@@ -13,6 +13,7 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -20,9 +21,14 @@ import { Stack } from "@swan-io/lake/src/components/Stack";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
+import {
+  backgroundColor,
+  breakpoints,
+  colors,
+  radii,
+  spacings,
+} from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { AdditionalInfo, SupportChat } from "@swan-io/shared-business/src/components/SupportChat";
 import dayjs from "dayjs";
@@ -44,6 +50,9 @@ import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
+  root: {
+    ...commonStyles.fill,
+  },
   container: {
     ...commonStyles.fill,
   },
@@ -136,20 +145,19 @@ const styles = StyleSheet.create({
 type StepScrollViewProps = {
   children: ReactNode;
   onClose: () => void;
+  large: boolean;
 };
 
-const StepScrollView = ({ children, onClose }: StepScrollViewProps) => {
-  const { desktop } = useResponsive();
-
+const StepScrollView = ({ children, onClose, large }: StepScrollViewProps) => {
   return (
     <ScrollView
       style={styles.fill}
       contentContainerStyle={[
         styles.stepScrollViewContent,
-        desktop && styles.stepScrollViewDesktopContent,
+        large && styles.stepScrollViewDesktopContent,
       ]}
     >
-      {!desktop && (
+      {!large && (
         <>
           <LakeButton
             ariaLabel={t("common.closeButton")}
@@ -170,17 +178,20 @@ const StepScrollView = ({ children, onClose }: StepScrollViewProps) => {
 type LeftPanelItemWrapperProps = {
   children: ReactNode;
   isSupport?: boolean;
+  large: boolean;
 };
 
-const LeftPanelItemWrapper = ({ children, isSupport = false }: LeftPanelItemWrapperProps) => {
-  const { desktop } = useResponsive();
-
+const LeftPanelItemWrapper = ({
+  children,
+  isSupport = false,
+  large,
+}: LeftPanelItemWrapperProps) => {
   return (
     <View
       style={
         isSupport
           ? styles.supportButtonWrapper
-          : [styles.leftPanelItemWrapper, desktop && styles.leftPanelItemWrapperDesktop]
+          : [styles.leftPanelItemWrapper, large && styles.leftPanelItemWrapperDesktop]
       }
     >
       {children}
@@ -196,13 +207,12 @@ type StepTileProps = {
   description: string;
   onPress: () => void;
   footer?: ReactNode;
+  large: boolean;
 };
 
-const StepTile = ({ variant, title, description, onPress, footer }: StepTileProps) => {
-  const { desktop } = useResponsive();
-
+const StepTile = ({ variant, title, description, onPress, footer, large }: StepTileProps) => {
   return (
-    <LeftPanelItemWrapper>
+    <LeftPanelItemWrapper large={large}>
       {variant === "done" ? (
         <View style={styles.stepDoneTile}>
           <View style={styles.stepDoneTileContents}>
@@ -219,7 +229,7 @@ const StepTile = ({ variant, title, description, onPress, footer }: StepTileProp
         </View>
       ) : (
         <>
-          {desktop && variant !== "inert" && (
+          {large && variant !== "inert" && (
             <View role="none" style={styles.stepTileActiveIndicator} />
           )}
 
@@ -308,8 +318,6 @@ export const AccountActivationPage = ({
   const [isSendingDocumentCollection, setIsSendingDocumentCollection] = useState(false);
 
   const [contentVisible, setContentVisible] = useBoolean(false);
-  const { desktop } = useResponsive();
-  const { desktop: large } = useResponsive(1520);
 
   const refetchQueries = useCallback(() => {
     refetchAccountAreaQuery();
@@ -450,411 +458,456 @@ export const AccountActivationPage = ({
 
         if (holder?.verificationStatus === "Refused") {
           return (
-            <Box alignItems="center" justifyContent="center" style={styles.errorContainer}>
-              <BorderedIcon name="lake-denied" size={100} padding={16} color="negative" />
-              <Space height={24} />
+            <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
+              {({ large }) => (
+                <Box alignItems="center" justifyContent="center" style={styles.errorContainer}>
+                  <BorderedIcon name="lake-denied" size={100} padding={16} color="negative" />
+                  <Space height={24} />
 
-              <LakeHeading variant="h1" level={1} align="center" color={colors.gray[900]}>
-                {t("accountActivation.refused.title")}
-              </LakeHeading>
+                  <LakeHeading variant="h1" level={1} align="center" color={colors.gray[900]}>
+                    {t("accountActivation.refused.title")}
+                  </LakeHeading>
 
-              <Space height={desktop ? 12 : 4} />
+                  <Space height={large ? 12 : 4} />
 
-              <LakeText align="center">
-                {formatNestedMessage("accountActivation.refused.description", {
-                  name: holder.info.name,
-                  email: (
-                    <Link to="mailto:support@swan.io">
-                      <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
-                    </Link>
-                  ),
-                })}
-              </LakeText>
-            </Box>
+                  <LakeText align="center">
+                    {formatNestedMessage("accountActivation.refused.description", {
+                      name: holder.info.name,
+                      email: (
+                        <Link to="mailto:support@swan.io">
+                          <LakeText color={colors.gray[900]}>support@swan.io</LakeText>
+                        </Link>
+                      ),
+                    })}
+                  </LakeText>
+                </Box>
+              )}
+            </ResponsiveContainer>
           );
         }
 
-        const content = match(step)
-          .with(
-            "IdentityVerificationPending",
-            "SupportingDocumentsEmailPending",
-            "SupportingDocumentsFormPending",
-            () => null,
-          )
-          .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => (
-            <StepScrollView onClose={setContentVisible.off}>
-              <Box alignItems="center" justifyContent="center" style={styles.identityVerification}>
-                <Avatar initials={initials} size={96} />
-                <Space height={24} />
-
-                <LakeHeading align="center" level={3} variant="h3">
-                  {fullName}
-                </LakeHeading>
-
-                <Space height={24} />
-
-                <Box direction={large ? "row" : "column"} alignItems="center">
-                  {isNotNullishOrEmpty(emailAddress) && (
-                    <>
-                      <LakeText align="center">{emailAddress}</LakeText>
-
-                      {large && <Separator horizontal={true} space={12} />}
-                    </>
-                  )}
-
-                  {isNotNullishOrEmpty(phoneNumber) && (
-                    <>
-                      <LakeText align="center" style={styles.phoneNumber}>
-                        {phoneNumber}
-                      </LakeText>
-
-                      {large && <Separator horizontal={true} space={12} />}
-                    </>
-                  )}
-
-                  {isNotNullish(birthDate) && (
-                    <LakeText align="center">{dayjs(birthDate).format("LL")}</LakeText>
-                  )}
-                </Box>
-
-                <Space height={32} />
-
-                <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
-                  {lastRelevantIdentification.map(isReadyToSign).getOr(false)
-                    ? t("accountActivation.identity.button.signVerification")
-                    : t("accountActivation.identity.button.verifyMyIdentity")}
-                </LakeButton>
-              </Box>
-            </StepScrollView>
-          ))
-          .with("SupportingDocumentsEmailTodo", () => (
-            <StepScrollView onClose={setContentVisible.off}>
-              <LakeHeading level={3} variant="h3">
-                {t("accountActivation.documents.title")}
-              </LakeHeading>
-
-              <Space height={8} />
-              <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-              <Space height={32} />
-
-              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-                <BorderedIcon name="lake-email" />
-                <Space height={32} />
-
-                <LakeHeading align="center" level={5} variant="h5">
-                  {isNotNullish(emailAddress)
-                    ? t("accountActivation.documents.email.title", { emailAddress })
-                    : t("accountActivation.documents.email.titleNoMail")}
-                </LakeHeading>
-
-                <Space height={12} />
-                <LakeText align="center">{t("accountActivation.documents.email.text")}</LakeText>
-              </Box>
-            </StepScrollView>
-          ))
-          .with("SupportingDocumentsFormTodo", () => (
-            <View style={styles.fill}>
-              <StepScrollView onClose={setContentVisible.off}>
-                <LakeHeading level={3} variant="h3">
-                  {t("accountActivation.documents.title")}
-                </LakeHeading>
-
-                <Space height={8} />
-                <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
-                <Space height={32} />
-
-                {isNotNullish(documentCollection) && (
-                  <SupportingDocumentsForm
-                    ref={documentsFormRef}
-                    templateLanguage={templateLanguage}
-                    collection={documentCollection}
-                    refetchCollection={refetchQueries}
-                  />
-                )}
-              </StepScrollView>
-
-              <Space height={96} />
-
-              <Box alignItems="start" style={styles.submitSupportedDocs}>
-                <LakeButton
-                  color="partner"
-                  loading={isSendingDocumentCollection}
-                  onPress={() => {
-                    const ref = documentsFormRef.current;
-                    if (ref == null) {
-                      return;
-                    }
-                    setIsSendingDocumentCollection(true);
-                    ref.submit().tap(() => setIsSendingDocumentCollection(false));
-                  }}
-                >
-                  {t("accountActivation.documents.button.submit")}
-                </LakeButton>
-              </Box>
-            </View>
-          ))
-          .with("AddMoneyToYourNewAccountIbanMissing", () => (
-            <StepScrollView onClose={setContentVisible.off}>
-              <LakeHeading level={3} variant="h3">
-                {t("accountActivation.addMoney.title")}
-              </LakeHeading>
-
-              <Space height={8} />
-              <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
-              <Space height={32} />
-
-              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-                <BorderedIcon name="lake-email" />
-                <Space height={32} />
-
-                <LakeHeading align="center" level={5} variant="h5">
-                  {t("accountActivation.addMoney.illustration.title")}
-                </LakeHeading>
-
-                <Space height={12} />
-
-                <LakeText align="center">
-                  {t("accountActivation.addMoney.illustration.text", { projectName })}
-                </LakeText>
-              </Box>
-            </StepScrollView>
-          ))
-          .with("AddMoneyToYourNewAccountViaIbanTodo", () => (
-            <StepScrollView onClose={setContentVisible.off}>
-              <LakeHeading level={3} variant="h3">
-                {t("accountActivation.addMoney.title")}
-              </LakeHeading>
-
-              <Space height={8} />
-              <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
-              <Space height={40} />
-
-              <ReadOnlyFieldList>
-                {isNotNullishOrEmpty(holderName) && (
-                  <LakeCopyTextLine
-                    accented={true}
-                    text={holderName}
-                    label={t("accountDetails.iban.holderLabel")}
-                  />
-                )}
-
-                {isNotNullishOrEmpty(IBAN) && (
-                  <LakeCopyTextLine
-                    accented={true}
-                    text={IBAN}
-                    label={t("accountDetails.iban.ibanLabel")}
-                  />
-                )}
-
-                {isNotNullishOrEmpty(BIC) && (
-                  <LakeCopyTextLine
-                    accented={true}
-                    text={BIC}
-                    label={t("accountDetails.iban.bicLabel")}
-                  />
-                )}
-              </ReadOnlyFieldList>
-            </StepScrollView>
-          ))
-          .with("Done", () => (
-            <StepScrollView onClose={setContentVisible.off}>
-              <LakeHeading level={3} variant="h3">
-                {t("accountActivation.done.title")}
-              </LakeHeading>
-
-              <Space height={8} />
-              <LakeText>{t("accountActivation.done.subtitle")}</LakeText>
-              <Space height={32} />
-
-              <Box alignItems="center" justifyContent="center" style={styles.illustrationPanel}>
-                <BorderedIcon name="lake-clock" />
-                <Space height={32} />
-
-                <LakeHeading align="center" level={5} variant="h5">
-                  {t("accountActivation.done.illustration.title")}
-                </LakeHeading>
-
-                <Space height={12} />
-                <LakeText align="center">{t("accountActivation.done.illustration.text")}</LakeText>
-              </Box>
-            </StepScrollView>
-          ))
-          .with("StepNotDisplayed", () => null)
-          .exhaustive();
-
         return (
-          <Box
-            role="main"
-            direction="row"
-            style={[
-              styles.container,
-              // TODO: Remove this when the background layout is removed
-              { backgroundColor: backgroundColor.default },
-            ]}
-          >
-            <ScrollView
-              style={styles.fill}
-              contentContainerStyle={[
-                styles.listScrollViewContent,
-                desktop && styles.listScrollViewDesktopContent,
-              ]}
-            >
-              <LeftPanelItemWrapper>
-                <LakeHeading level={3} variant="h3">
-                  {t("accountActivation.title")}
-                </LakeHeading>
+          <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
+            {({ large }) => {
+              const content = match(step)
+                .with(
+                  "IdentityVerificationPending",
+                  "SupportingDocumentsEmailPending",
+                  "SupportingDocumentsFormPending",
+                  () => null,
+                )
+                .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <Box
+                      alignItems="center"
+                      justifyContent="center"
+                      style={styles.identityVerification}
+                    >
+                      <Avatar initials={initials} size={96} />
+                      <Space height={24} />
 
-                <Space height={8} />
-
-                <Box direction="row" alignItems="center">
-                  <Icon
-                    name={isCompany ? "building-multiple-regular" : "person-regular"}
-                    size={20}
-                    color={colors.partner.primary}
-                  />
-
-                  {isNotNullishOrEmpty(holderName) && (
-                    <>
-                      <Space width={12} />
-
-                      <LakeHeading level={5} variant="h5">
-                        {holderName}
+                      <LakeHeading align="center" level={3} variant="h3">
+                        {fullName}
                       </LakeHeading>
-                    </>
-                  )}
-                </Box>
 
-                <Space height={12} />
-                <LakeText>{t("accountActivation.description")}</LakeText>
-              </LeftPanelItemWrapper>
+                      <Space height={24} />
 
-              <Space height={32} />
+                      <Box direction="column" alignItems="center">
+                        {isNotNullishOrEmpty(emailAddress) && (
+                          <>
+                            <LakeText align="center">{emailAddress}</LakeText>
 
-              <Stack space={desktop ? 32 : 24}>
-                <StepTile
-                  title={t("accountActivation.identity.title")}
-                  description={t("accountActivation.identity.description")}
-                  onPress={setContentVisible.on}
-                  variant={match(step)
-                    .returnType<StepTileVariant>()
-                    .with("IdentityVerificationTodo", "IdentityVerificationToRedo", () => "todo")
-                    .with("IdentityVerificationPending", () => "inert")
-                    .otherwise(() => "done")}
-                  footer={match(step)
-                    .with("IdentityVerificationPending", () => (
-                      <LakeAlert
-                        anchored={true}
-                        variant="info"
-                        title={t("accountActivation.identity.alert.pending.title")}
+                            {large && <Separator horizontal={true} space={12} />}
+                          </>
+                        )}
+
+                        {isNotNullishOrEmpty(phoneNumber) && (
+                          <>
+                            <LakeText align="center" style={styles.phoneNumber}>
+                              {phoneNumber}
+                            </LakeText>
+
+                            {large && <Separator horizontal={true} space={12} />}
+                          </>
+                        )}
+
+                        {isNotNullish(birthDate) && (
+                          <LakeText align="center">{dayjs(birthDate).format("LL")}</LakeText>
+                        )}
+                      </Box>
+
+                      <Space height={32} />
+
+                      <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
+                        {lastRelevantIdentification.map(isReadyToSign).getOr(false)
+                          ? t("accountActivation.identity.button.signVerification")
+                          : t("accountActivation.identity.button.verifyMyIdentity")}
+                      </LakeButton>
+                    </Box>
+                  </StepScrollView>
+                ))
+                .with("SupportingDocumentsEmailTodo", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <LakeHeading level={3} variant="h3">
+                      {t("accountActivation.documents.title")}
+                    </LakeHeading>
+
+                    <Space height={8} />
+                    <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
+                    <Space height={32} />
+
+                    <Box
+                      alignItems="center"
+                      justifyContent="center"
+                      style={styles.illustrationPanel}
+                    >
+                      <BorderedIcon name="lake-email" />
+                      <Space height={32} />
+
+                      <LakeHeading align="center" level={5} variant="h5">
+                        {isNotNullish(emailAddress)
+                          ? t("accountActivation.documents.email.title", { emailAddress })
+                          : t("accountActivation.documents.email.titleNoMail")}
+                      </LakeHeading>
+
+                      <Space height={12} />
+
+                      <LakeText align="center">
+                        {t("accountActivation.documents.email.text")}
+                      </LakeText>
+                    </Box>
+                  </StepScrollView>
+                ))
+                .with("SupportingDocumentsFormTodo", () => (
+                  <View style={styles.fill}>
+                    <StepScrollView onClose={setContentVisible.off} large={large}>
+                      <LakeHeading level={3} variant="h3">
+                        {t("accountActivation.documents.title")}
+                      </LakeHeading>
+
+                      <Space height={8} />
+                      <LakeText>{t("accountActivation.documents.subtitle")}</LakeText>
+                      <Space height={32} />
+
+                      {isNotNullish(documentCollection) && (
+                        <SupportingDocumentsForm
+                          ref={documentsFormRef}
+                          templateLanguage={templateLanguage}
+                          collection={documentCollection}
+                          refetchCollection={refetchQueries}
+                        />
+                      )}
+                    </StepScrollView>
+
+                    <Space height={96} />
+
+                    <Box alignItems="start" style={styles.submitSupportedDocs}>
+                      <LakeButton
+                        color="partner"
+                        loading={isSendingDocumentCollection}
+                        onPress={() => {
+                          const ref = documentsFormRef.current;
+                          if (ref == null) {
+                            return;
+                          }
+                          setIsSendingDocumentCollection(true);
+                          ref.submit().tap(() => setIsSendingDocumentCollection(false));
+                        }}
                       >
-                        {t("accountActivation.identity.alert.pending.text")}
-                      </LakeAlert>
-                    ))
-                    .with("IdentityVerificationToRedo", () => (
-                      <LakeAlert
-                        anchored={true}
-                        variant="warning"
-                        title={t("accountActivation.identity.alert.error.title")}
-                      >
-                        {t("accountActivation.identity.alert.error.text")}
-                      </LakeAlert>
-                    ))
-                    .otherwise(() => null)}
-                />
+                        {t("accountActivation.documents.button.submit")}
+                      </LakeButton>
+                    </Box>
+                  </View>
+                ))
+                .with("AddMoneyToYourNewAccountIbanMissing", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <LakeHeading level={3} variant="h3">
+                      {t("accountActivation.addMoney.title")}
+                    </LakeHeading>
 
-                {isCompany &&
-                  STEP_INDEXES[step] >= STEP_INDEXES["SupportingDocumentsEmailTodo"] && (
-                    <StepTile
-                      title={t("accountActivation.documents.title")}
-                      description={t("accountActivation.documents.description")}
-                      onPress={setContentVisible.on}
-                      variant={match(step)
-                        .returnType<StepTileVariant>()
-                        .with(
-                          "SupportingDocumentsEmailTodo",
-                          "SupportingDocumentsFormTodo",
-                          () => "todo",
-                        )
-                        .with(
-                          "SupportingDocumentsEmailPending",
-                          "SupportingDocumentsFormPending",
-                          () => "inert",
-                        )
-                        .otherwise(() => "done")}
-                      footer={match(step)
-                        .with(
-                          "SupportingDocumentsEmailPending",
-                          "SupportingDocumentsFormPending",
-                          () => (
+                    <Space height={8} />
+                    <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+                    <Space height={32} />
+
+                    <Box
+                      alignItems="center"
+                      justifyContent="center"
+                      style={styles.illustrationPanel}
+                    >
+                      <BorderedIcon name="lake-email" />
+                      <Space height={32} />
+
+                      <LakeHeading align="center" level={5} variant="h5">
+                        {t("accountActivation.addMoney.illustration.title")}
+                      </LakeHeading>
+
+                      <Space height={12} />
+
+                      <LakeText align="center">
+                        {t("accountActivation.addMoney.illustration.text", { projectName })}
+                      </LakeText>
+                    </Box>
+                  </StepScrollView>
+                ))
+                .with("AddMoneyToYourNewAccountViaIbanTodo", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <LakeHeading level={3} variant="h3">
+                      {t("accountActivation.addMoney.title")}
+                    </LakeHeading>
+
+                    <Space height={8} />
+                    <LakeText>{t("accountActivation.addMoney.subtitle")}</LakeText>
+                    <Space height={40} />
+
+                    <ReadOnlyFieldList>
+                      {isNotNullishOrEmpty(holderName) && (
+                        <LakeCopyTextLine
+                          accented={true}
+                          text={holderName}
+                          label={t("accountDetails.iban.holderLabel")}
+                        />
+                      )}
+
+                      {isNotNullishOrEmpty(IBAN) && (
+                        <LakeCopyTextLine
+                          accented={true}
+                          text={IBAN}
+                          label={t("accountDetails.iban.ibanLabel")}
+                        />
+                      )}
+
+                      {isNotNullishOrEmpty(BIC) && (
+                        <LakeCopyTextLine
+                          accented={true}
+                          text={BIC}
+                          label={t("accountDetails.iban.bicLabel")}
+                        />
+                      )}
+                    </ReadOnlyFieldList>
+                  </StepScrollView>
+                ))
+                .with("Done", () => (
+                  <StepScrollView onClose={setContentVisible.off} large={large}>
+                    <LakeHeading level={3} variant="h3">
+                      {t("accountActivation.done.title")}
+                    </LakeHeading>
+
+                    <Space height={8} />
+                    <LakeText>{t("accountActivation.done.subtitle")}</LakeText>
+                    <Space height={32} />
+
+                    <Box
+                      alignItems="center"
+                      justifyContent="center"
+                      style={styles.illustrationPanel}
+                    >
+                      <BorderedIcon name="lake-clock" />
+                      <Space height={32} />
+
+                      <LakeHeading align="center" level={5} variant="h5">
+                        {t("accountActivation.done.illustration.title")}
+                      </LakeHeading>
+
+                      <Space height={12} />
+
+                      <LakeText align="center">
+                        {t("accountActivation.done.illustration.text")}
+                      </LakeText>
+                    </Box>
+                  </StepScrollView>
+                ))
+                .with("StepNotDisplayed", () => null)
+                .exhaustive();
+
+              return (
+                <Box
+                  role="main"
+                  direction="row"
+                  style={[
+                    styles.container,
+                    // TODO: Remove this when the background layout is removed
+                    { backgroundColor: backgroundColor.default },
+                  ]}
+                >
+                  <ScrollView
+                    style={styles.fill}
+                    contentContainerStyle={[
+                      styles.listScrollViewContent,
+                      large && styles.listScrollViewDesktopContent,
+                    ]}
+                  >
+                    <LeftPanelItemWrapper large={large}>
+                      <LakeHeading level={3} variant="h3">
+                        {t("accountActivation.title")}
+                      </LakeHeading>
+
+                      <Space height={8} />
+
+                      <Box direction="row" alignItems="center">
+                        <Icon
+                          name={isCompany ? "building-multiple-regular" : "person-regular"}
+                          size={20}
+                          color={colors.partner.primary}
+                        />
+
+                        {isNotNullishOrEmpty(holderName) && (
+                          <>
+                            <Space width={12} />
+
+                            <LakeHeading level={5} variant="h5">
+                              {holderName}
+                            </LakeHeading>
+                          </>
+                        )}
+                      </Box>
+
+                      <Space height={12} />
+                      <LakeText>{t("accountActivation.description")}</LakeText>
+                    </LeftPanelItemWrapper>
+
+                    <Space height={32} />
+
+                    <Stack space={large ? 32 : 24}>
+                      <StepTile
+                        large={large}
+                        title={t("accountActivation.identity.title")}
+                        description={t("accountActivation.identity.description")}
+                        onPress={setContentVisible.on}
+                        variant={match(step)
+                          .returnType<StepTileVariant>()
+                          .with(
+                            "IdentityVerificationTodo",
+                            "IdentityVerificationToRedo",
+                            () => "todo",
+                          )
+                          .with("IdentityVerificationPending", () => "inert")
+                          .otherwise(() => "done")}
+                        footer={match(step)
+                          .with("IdentityVerificationPending", () => (
                             <LakeAlert
                               anchored={true}
                               variant="info"
-                              title={t("accountActivation.pendingDocuments.title")}
+                              title={t("accountActivation.identity.alert.pending.title")}
                             >
-                              {t("accountActivation.pendingDocuments.text")}
+                              {t("accountActivation.identity.alert.pending.text")}
                             </LakeAlert>
-                          ),
-                        )
-                        .otherwise(() => null)}
-                    />
-                  )}
+                          ))
+                          .with("IdentityVerificationToRedo", () => (
+                            <LakeAlert
+                              anchored={true}
+                              variant="warning"
+                              title={t("accountActivation.identity.alert.error.title")}
+                            >
+                              {t("accountActivation.identity.alert.error.text")}
+                            </LakeAlert>
+                          ))
+                          .otherwise(() => null)}
+                      />
 
-                {!isCompany &&
-                  requireFirstTransfer &&
-                  STEP_INDEXES[step] >= STEP_INDEXES["AddMoneyToYourNewAccountViaIbanTodo"] && (
-                    <StepTile
-                      title={t("accountActivation.addMoney.title")}
-                      description={t("accountActivation.addMoney.description")}
-                      onPress={setContentVisible.on}
-                      variant={step === "Done" ? "done" : "todo"}
-                    />
-                  )}
-              </Stack>
+                      {isCompany &&
+                        STEP_INDEXES[step] >= STEP_INDEXES["SupportingDocumentsEmailTodo"] && (
+                          <StepTile
+                            large={large}
+                            title={t("accountActivation.documents.title")}
+                            description={t("accountActivation.documents.description")}
+                            onPress={setContentVisible.on}
+                            variant={match(step)
+                              .returnType<StepTileVariant>()
+                              .with(
+                                "SupportingDocumentsEmailTodo",
+                                "SupportingDocumentsFormTodo",
+                                () => "todo",
+                              )
+                              .with(
+                                "SupportingDocumentsEmailPending",
+                                "SupportingDocumentsFormPending",
+                                () => "inert",
+                              )
+                              .otherwise(() => "done")}
+                            footer={match(step)
+                              .with(
+                                "SupportingDocumentsEmailPending",
+                                "SupportingDocumentsFormPending",
+                                () => (
+                                  <LakeAlert
+                                    anchored={true}
+                                    variant="info"
+                                    title={t("accountActivation.pendingDocuments.title")}
+                                  >
+                                    {t("accountActivation.pendingDocuments.text")}
+                                  </LakeAlert>
+                                ),
+                              )
+                              .otherwise(() => null)}
+                          />
+                        )}
 
-              {env.APP_TYPE === "LIVE" && (
-                <>
-                  <Fill minHeight={32} />
+                      {!isCompany &&
+                        requireFirstTransfer &&
+                        STEP_INDEXES[step] >=
+                          STEP_INDEXES["AddMoneyToYourNewAccountViaIbanTodo"] && (
+                          <StepTile
+                            large={large}
+                            title={t("accountActivation.addMoney.title")}
+                            description={t("accountActivation.addMoney.description")}
+                            onPress={setContentVisible.on}
+                            variant={step === "Done" ? "done" : "todo"}
+                          />
+                        )}
+                    </Stack>
 
-                  <LeftPanelItemWrapper isSupport={true}>
-                    <SupportChat
-                      type="end-user"
-                      additionalInfo={additionalInfo}
-                      accentColor={accentColor}
-                    >
-                      {({ onPressShow }) => (
-                        <LakeButton mode="tertiary" onPress={onPressShow} size="small">
-                          <Icon name="chat-help-filled" size={20} color={colors.partner.primary} />
-                          <Space width={8} />
+                    {env.APP_TYPE === "LIVE" && (
+                      <>
+                        <Fill minHeight={32} />
 
-                          <LakeText
-                            variant="smallMedium"
-                            color={colors.gray[900]}
-                            userSelect="none"
+                        <LeftPanelItemWrapper isSupport={true} large={large}>
+                          <SupportChat
+                            type="end-user"
+                            additionalInfo={additionalInfo}
+                            accentColor={accentColor}
                           >
-                            {t("needHelpButton.text")}
-                          </LakeText>
-                        </LakeButton>
+                            {({ onPressShow }) => (
+                              <LakeButton mode="tertiary" onPress={onPressShow} size="small">
+                                <Icon
+                                  name="chat-help-filled"
+                                  size={20}
+                                  color={colors.partner.primary}
+                                />
+
+                                <Space width={8} />
+
+                                <LakeText
+                                  variant="smallMedium"
+                                  color={colors.gray[900]}
+                                  userSelect="none"
+                                >
+                                  {t("needHelpButton.text")}
+                                </LakeText>
+                              </LakeButton>
+                            )}
+                          </SupportChat>
+                        </LeftPanelItemWrapper>
+                      </>
+                    )}
+                  </ScrollView>
+
+                  {isNotNullish(content) && (
+                    <>
+                      {large ? (
+                        <>
+                          <Separator horizontal={true} />
+
+                          {content}
+                        </>
+                      ) : (
+                        <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
                       )}
-                    </SupportChat>
-                  </LeftPanelItemWrapper>
-                </>
-              )}
-            </ScrollView>
-
-            {isNotNullish(content) && (
-              <>
-                {desktop ? (
-                  <>
-                    <Separator horizontal={true} />
-
-                    {content}
-                  </>
-                ) : (
-                  <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
-                )}
-              </>
-            )}
-          </Box>
+                    </>
+                  )}
+                </Box>
+              );
+            }}
+          </ResponsiveContainer>
         );
       },
     )

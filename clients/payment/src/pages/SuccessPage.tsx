@@ -5,7 +5,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
 import { t } from "../utils/i18n";
@@ -29,11 +28,10 @@ const styles = StyleSheet.create({
 type Props = {
   mandateUrl?: string;
   redirectUrl?: string;
+  large: boolean;
 };
 
-export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
-  const { desktop } = useResponsive();
-
+export const SuccessPage = ({ mandateUrl, redirectUrl, large }: Props) => {
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
       <BorderedIcon name={"lake-check"} color="positive" size={70} padding={16} />
@@ -51,7 +49,7 @@ export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
         <>
           <Space height={32} />
 
-          <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
+          <Box direction={large ? "row" : "column"} style={!large && styles.mobileButtons}>
             <LakeButton
               color="current"
               ariaLabel={t("paymentLink.button.downloadMandate")}
@@ -69,7 +67,7 @@ export const SuccessPage = ({ mandateUrl, redirectUrl }: Props) => {
         <>
           <Space height={32} />
 
-          <Box direction={desktop ? "row" : "column"} style={!desktop && styles.mobileButtons}>
+          <Box direction={large ? "row" : "column"} style={!large && styles.mobileButtons}>
             <LakeButton
               color="gray"
               ariaLabel={t("paymentLink.button.returnToWebsite")}

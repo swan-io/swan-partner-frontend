@@ -94,13 +94,13 @@ export const AccountDetailsArea = ({
             .with({ name: "AccountDetailsVirtualIbans" }, () => (
               <>
                 <Space height={40} />
-                <AccountDetailsVirtualIbansPage accountId={accountId} />
+                <AccountDetailsVirtualIbansPage accountId={accountId} large={large} />
               </>
             ))
             .with({ name: "AccountDetailsBilling" }, () => (
               <>
                 <Space height={24} />
-                <AccountDetailsBillingPage accountId={accountId} />
+                <AccountDetailsBillingPage accountId={accountId} large={large} />
               </>
             ))
             .with({ name: "AccountDetailsSettings" }, () => (

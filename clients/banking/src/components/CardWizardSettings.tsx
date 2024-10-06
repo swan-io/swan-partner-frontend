@@ -19,7 +19,6 @@ import {
   negativeSpacings,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
 import { ChoicePicker } from "@swan-io/shared-business/src/components/ChoicePicker";
 import { forwardRef, useCallback, useEffect, useImperativeHandle, useState } from "react";
@@ -301,8 +300,6 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
         : String(currentSettings.spendingLimit.amount.value),
     );
 
-    const { desktop } = useResponsive(920);
-
     useEffect(() => {
       setDirtyValue(
         isNullish(currentSettings.spendingLimit.amount.value)
@@ -493,7 +490,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
             ) : null}
 
             {cardFormat !== "SingleUseVirtual" ? (
-              <View style={desktop ? styles.booleanTiles : styles.booleanTilesMobile}>
+              <View style={large ? styles.booleanTiles : styles.booleanTilesMobile}>
                 <View style={styles.booleanTile}>
                   <CardWizardSettingsBooleanTile
                     title={t("card.settings.eCommerce")}
@@ -504,7 +501,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       setCurrentSettings(settings => ({ ...settings, eCommerce }))
                     }
                     disabled={!canManageCards}
-                    desktop={desktop}
+                    desktop={large}
                   />
                 </View>
 
@@ -518,7 +515,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       setCurrentSettings(settings => ({ ...settings, withdrawal }))
                     }
                     disabled={!canManageCards}
-                    desktop={desktop}
+                    desktop={large}
                   />
                 </View>
 
@@ -532,7 +529,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
                     }
                     disabled={!canManageCards}
-                    desktop={desktop}
+                    desktop={large}
                   />
                 </View>
 
@@ -546,7 +543,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       setCurrentSettings(settings => ({ ...settings, international }))
                     }
                     disabled={!canManageCards}
-                    desktop={desktop}
+                    desktop={large}
                   />
                 </View>
               </View>

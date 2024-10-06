@@ -1,7 +1,7 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -160,7 +160,7 @@ export const CardItemMobilePayment = ({
       {match(digitalCards)
         .with([], () => (
           <View style={styles.empty}>
-            <FixedListViewEmpty
+            <EmptyView
               borderedIcon={true}
               icon="lake-phone"
               title={t("card.mobilePayment.empty")}
@@ -186,7 +186,7 @@ export const CardItemMobilePayment = ({
                   />
                 </>
               ) : null}
-            </FixedListViewEmpty>
+            </EmptyView>
           </View>
         ))
         .otherwise(digitalCards =>

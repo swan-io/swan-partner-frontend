@@ -1,7 +1,7 @@
 import { Option, Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -120,11 +120,7 @@ export const CardItemSettings = ({
 
   return cardRequiresIdentityVerification && isCurrentUserCardOwner ? (
     <View style={styles.empty}>
-      <FixedListViewEmpty
-        borderedIcon={true}
-        icon="lake-settings"
-        title={t("card.settings.unavailable")}
-      >
+      <EmptyView borderedIcon={true} icon="lake-settings" title={t("card.settings.unavailable")}>
         <Space height={24} />
 
         <CardItemIdentityVerificationGate
@@ -138,7 +134,7 @@ export const CardItemSettings = ({
           onComplete={onRefreshAccountRequest}
           lastRelevantIdentification={lastRelevantIdentification}
         />
-      </FixedListViewEmpty>
+      </EmptyView>
     </View>
   ) : (
     <>

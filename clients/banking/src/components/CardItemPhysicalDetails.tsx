@@ -13,13 +13,13 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { QuickActions } from "@swan-io/lake/src/components/QuickActions";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Stack } from "@swan-io/lake/src/components/Stack";
 import { Svg } from "@swan-io/lake/src/components/Svg";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, invariantColors } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
@@ -62,6 +62,9 @@ import { CardItemPhysicalRenewalWizard } from "./CardItemPhysicalRenewalWizard";
 import { MaskedCard } from "./MaskedCard";
 
 const styles = StyleSheet.create({
+  root: {
+    ...commonStyles.fill,
+  },
   container: {
     justifyContent: "center",
     flexGrow: 1,
@@ -344,8 +347,6 @@ export const CardItemPhysicalDetails = ({
   physicalCardOrderVisible,
   hasBindingUserError,
 }: Props) => {
-  const { desktop } = useResponsive(breakpoints.medium);
-
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
   );
@@ -540,430 +541,413 @@ export const CardItemPhysicalDetails = ({
   const [currentCard, setCurrentCard] = useState<"previous" | "renewed">("renewed");
 
   return (
-    <View style={styles.container}>
-      {match(card.physicalCard)
-        .with(
-          {
-            __typename: "PhysicalCard",
-            statusInfo: {
-              __typename: "PhysicalCardToRenewStatusInfo",
-            },
-            expiryDate: P.nonNullable,
-          },
-          ({ statusInfo: { address }, previousPhysicalCards, expiryDate }) => {
-            const { addressLine1, addressLine2, city, country, postalCode } = address;
-            const completeAddress = Array.filterMap(
-              [
-                Option.fromNullable(addressLine1),
-                Option.fromNullable(addressLine2),
-                Option.all([Option.fromNullable(postalCode), Option.fromNullable(city)]).map(
-                  ([postalCode, city]) => `${postalCode} ${city}`,
-                ),
-                Option.fromNullable(country),
-              ],
-              x => x,
-            ).join(", ");
-            const fourWeeksBefore = dayjs(
-              isNotNullish(previousPhysicalCards[0])
-                ? previousPhysicalCards[0].expiryDate
-                : expiryDate,
-              "MM/YY",
+    <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
+      {({ large }) => (
+        <View style={styles.container}>
+          {match(card.physicalCard)
+            .with(
+              {
+                __typename: "PhysicalCard",
+                statusInfo: {
+                  __typename: "PhysicalCardToRenewStatusInfo",
+                },
+                expiryDate: P.nonNullable,
+              },
+              ({ statusInfo: { address }, previousPhysicalCards, expiryDate }) => {
+                const { addressLine1, addressLine2, city, country, postalCode } = address;
+                const completeAddress = Array.filterMap(
+                  [
+                    Option.fromNullable(addressLine1),
+                    Option.fromNullable(addressLine2),
+                    Option.all([Option.fromNullable(postalCode), Option.fromNullable(city)]).map(
+                      ([postalCode, city]) => `${postalCode} ${city}`,
+                    ),
+                    Option.fromNullable(country),
+                  ],
+                  x => x,
+                ).join(", ");
+                const fourWeeksBefore = dayjs(
+                  isNotNullish(previousPhysicalCards[0])
+                    ? previousPhysicalCards[0].expiryDate
+                    : expiryDate,
+                  "MM/YY",
+                )
+                  .endOf("month")
+                  .subtract(4, "weeks")
+                  .format("LL");
+
+                return (
+                  <>
+                    <Space height={24} />
+
+                    <LakeAlert
+                      style={styles.renewAlert}
+                      variant="info"
+                      title={t("card.physical.toRenewAlert", {
+                        expiryDate: dayjs(
+                          isNotNullish(previousPhysicalCards[0])
+                            ? previousPhysicalCards[0].expiryDate
+                            : expiryDate,
+                          "MM/YY",
+                        )
+                          .endOf("month")
+                          .format("LL"),
+                      })}
+                      children={
+                        <>
+                          <LakeText>
+                            {t("card.physical.toRenewAlert.description", {
+                              deadline: fourWeeksBefore,
+                              address: completeAddress,
+                            })}
+                          </LakeText>
+
+                          <Space height={12} />
+
+                          <Box>
+                            <LakeButton
+                              ariaLabel={t("card.physical.toRenewAlert.cta")}
+                              size="small"
+                              icon="edit-regular"
+                              mode="secondary"
+                              style={styles.renewAlertCta}
+                              onPress={() => {
+                                setRenewalModal(
+                                  Option.Some({
+                                    initialShippingAddress: address,
+                                  }),
+                                );
+                              }}
+                            >
+                              {t("card.physical.toRenewAlert.cta")}
+                            </LakeButton>
+                          </Box>
+                        </>
+                      }
+                    />
+                  </>
+                );
+              },
             )
-              .endOf("month")
-              .subtract(4, "weeks")
-              .format("LL");
-
-            return (
-              <>
-                <Space height={24} />
-
-                <LakeAlert
-                  style={styles.renewAlert}
-                  variant="info"
-                  title={t("card.physical.toRenewAlert", {
-                    expiryDate: dayjs(
-                      isNotNullish(previousPhysicalCards[0])
-                        ? previousPhysicalCards[0].expiryDate
-                        : expiryDate,
-                      "MM/YY",
-                    )
-                      .endOf("month")
-                      .format("LL"),
-                  })}
-                  children={
-                    <>
-                      <LakeText>
-                        {t("card.physical.toRenewAlert.description", {
-                          deadline: fourWeeksBefore,
-                          address: completeAddress,
-                        })}
-                      </LakeText>
-
-                      <Space height={12} />
-
-                      <Box>
-                        <LakeButton
-                          ariaLabel={t("card.physical.toRenewAlert.cta")}
-                          size="small"
-                          icon="edit-regular"
-                          mode="secondary"
-                          style={styles.renewAlertCta}
-                          onPress={() => {
-                            setRenewalModal(
-                              Option.Some({
-                                initialShippingAddress: address,
-                              }),
-                            );
-                          }}
-                        >
-                          {t("card.physical.toRenewAlert.cta")}
-                        </LakeButton>
-                      </Box>
-                    </>
-                  }
-                />
-              </>
-            );
-          },
-        )
-        .with(
-          {
-            statusInfo: { __typename: "PhysicalCardRenewedStatusInfo" },
-            previousPhysicalCards: [{ expiryDate: P.nonNullable }, ...P.array(P._)],
-          },
-          ({ previousPhysicalCards }) => (
-            <>
-              <Space height={24} />
-
-              {previousPhysicalCards[0].isExpired === true ? (
-                <LakeAlert
-                  style={styles.renewAlert}
-                  variant="info"
-                  title={t("card.physical.expiredAlert")}
-                  children={
-                    <>
-                      <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
-                    </>
-                  }
-                />
-              ) : (
-                <LakeAlert
-                  style={styles.renewAlert}
-                  variant="info"
-                  title={t("card.physical.toRenewAlert", {
-                    expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
-                      .endOf("month")
-                      .format("LL"),
-                  })}
-                  children={
-                    <>
-                      <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
-                    </>
-                  }
-                />
-              )}
-            </>
-          ),
-        )
-        .otherwise(() => null)}
-
-      <View style={styles.card}>
-        {match(card.physicalCard)
-          .with({ __typename: "PhysicalCard" }, physicalCard => (
-            <View style={styles.card}>
-              {card.cardDesignUrl != null
-                ? match({ physicalCard, previousCard })
-                    .with(
-                      {
-                        physicalCard: { statusInfo: { status: "Renewed" } },
-                        previousCard: P.nonNullable,
-                      },
-                      {
-                        physicalCard: { statusInfo: { status: "ToRenew" } },
-                        previousCard: P.nonNullable,
-                      },
-                      ({ previousCard }) =>
-                        desktop ? (
-                          <>
-                            <View style={styles.physicalCardContainer}>
-                              <Svg role="none" viewBox="0 0 85 55" />
-
-                              <Pressable
-                                onPress={() => setCurrentCard("renewed")}
-                                style={[
-                                  styles.physicalCardFront,
-                                  currentCard === "previous" && styles.physicalCardRenewedBehind,
-                                ]}
-                              >
-                                <MaskedCard
-                                  cardDesignUrl={card.cardDesignUrl}
-                                  textColor={
-                                    card.cardProduct.cardDesigns.find(
-                                      cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                                    )?.accentColor ?? invariantColors.white
-                                  }
-                                  holderName={getMemberName({
-                                    accountMembership: card.accountMembership,
-                                  })}
-                                  pan={physicalCard.cardMaskedNumber}
-                                  expiryDate={physicalCard.expiryDate ?? ""}
-                                  status={physicalCard.statusInfo.status}
-                                  estimatedDeliveryDate={match(physicalCard.statusInfo)
-                                    .with(
-                                      {
-                                        __typename: "PhysicalCardToActivateStatusInfo",
-                                        estimatedDeliveryDate: P.string,
-                                      },
-                                      {
-                                        __typename: "PhysicalCardRenewedStatusInfo",
-                                        estimatedDeliveryDate: P.string,
-                                      },
-                                      ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                                    )
-                                    .otherwise(() => undefined)}
-                                />
-                              </Pressable>
-
-                              <Pressable
-                                onPress={() => setCurrentCard("previous")}
-                                style={[
-                                  styles.physicalCardFront,
-                                  currentCard === "renewed" && styles.physicalCardPreviousBehind,
-                                ]}
-                              >
-                                <MaskedCard
-                                  expired={previousCard.isExpired}
-                                  cardDesignUrl={card.cardDesignUrl}
-                                  textColor={
-                                    card.cardProduct.cardDesigns.find(
-                                      cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                                    )?.accentColor ?? invariantColors.white
-                                  }
-                                  holderName={getMemberName({
-                                    accountMembership: card.accountMembership,
-                                  })}
-                                  pan={previousCard.cardMaskedNumber}
-                                  expiryDate={previousCard.expiryDate ?? ""}
-                                  status={"ToRenew"}
-                                />
-                              </Pressable>
-                            </View>
-
-                            <Space height={24} />
-
-                            <Stack direction="row" space={8} style={styles.dotIndicatorsContainer}>
-                              <DotIndicator
-                                onPress={() => setCurrentCard("previous")}
-                                active={currentCard === "previous"}
-                              />
-
-                              <DotIndicator
-                                onPress={() => setCurrentCard("renewed")}
-                                active={currentCard === "renewed"}
-                              />
-                            </Stack>
-                          </>
-                        ) : (
-                          <ChoicePicker
-                            tile={false}
-                            onChange={setCurrentCard}
-                            value={currentCard}
-                            items={["previous", "renewed"]}
-                            renderItem={selectedCard => (
-                              <View style={styles.physicalCardContainer}>
-                                <Svg
-                                  role="none"
-                                  viewBox="0 0 85 55"
-                                  style={styles.physicalCardItem}
-                                />
-
-                                <View style={styles.physicalCardFront}>
-                                  <MaskedCard
-                                    expired={previousCard.isExpired}
-                                    cardDesignUrl={card.cardDesignUrl}
-                                    textColor={
-                                      card.cardProduct.cardDesigns.find(
-                                        cardDesign =>
-                                          cardDesign.cardDesignUrl === card.cardDesignUrl,
-                                      )?.accentColor ?? "#fff"
-                                    }
-                                    holderName={getMemberName({
-                                      accountMembership: card.accountMembership,
-                                    })}
-                                    pan={
-                                      selectedCard === "previous"
-                                        ? previousCard.cardMaskedNumber
-                                        : physicalCard.cardMaskedNumber
-                                    }
-                                    expiryDate={
-                                      selectedCard === "previous"
-                                        ? (previousCard.expiryDate ?? "")
-                                        : (physicalCard.expiryDate ?? "")
-                                    }
-                                    status={
-                                      selectedCard === "previous"
-                                        ? "ToRenew"
-                                        : physicalCard.statusInfo.status
-                                    }
-                                    estimatedDeliveryDate={match(physicalCard.statusInfo)
-                                      .with(
-                                        {
-                                          __typename: "PhysicalCardToActivateStatusInfo",
-                                          estimatedDeliveryDate: P.string,
-                                        },
-                                        {
-                                          __typename: "PhysicalCardRenewedStatusInfo",
-                                          estimatedDeliveryDate: P.string,
-                                        },
-                                        ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                                      )
-                                      .otherwise(() => undefined)}
-                                  />
-                                </View>
-                              </View>
-                            )}
-                          />
-                        ),
-                    )
-                    .otherwise(() => (
-                      <MaskedCard
-                        cardDesignUrl={card.cardDesignUrl}
-                        textColor={
-                          card.cardProduct.cardDesigns.find(
-                            cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
-                          )?.accentColor ?? invariantColors.white
-                        }
-                        holderName={getMemberName({ accountMembership: card.accountMembership })}
-                        pan={physicalCard.cardMaskedNumber}
-                        expiryDate={physicalCard.expiryDate ?? ""}
-                        status={physicalCard.statusInfo.status}
-                        estimatedDeliveryDate={match(physicalCard.statusInfo)
-                          .with(
-                            {
-                              __typename: "PhysicalCardToActivateStatusInfo",
-                              estimatedDeliveryDate: P.string,
-                            },
-                            {
-                              __typename: "PhysicalCardRenewedStatusInfo",
-                              estimatedDeliveryDate: P.string,
-                            },
-                            ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
-                          )
-                          .otherwise(() => undefined)}
-                      />
-                    ))
-                : null}
-
-              {cardRequiresIdentityVerification ? (
+            .with(
+              {
+                statusInfo: { __typename: "PhysicalCardRenewedStatusInfo" },
+                previousPhysicalCards: [{ expiryDate: P.nonNullable }, ...P.array(P._)],
+              },
+              ({ previousPhysicalCards }) => (
                 <>
                   <Space height={24} />
 
-                  <CardItemIdentityVerificationGate
-                    recommendedIdentificationLevel={
-                      card.accountMembership.recommendedIdentificationLevel
-                    }
-                    isCurrentUserCardOwner={isCurrentUserCardOwner}
-                    projectId={projectId}
-                    description={t("card.identityVerification.payments")}
-                    descriptionForOtherMember={t("card.identityVerification.payments.otherMember", {
-                      name: getMemberName({ accountMembership: card.accountMembership }),
-                    })}
-                    onComplete={onRefreshAccountRequest}
-                    lastRelevantIdentification={lastRelevantIdentification}
-                  />
+                  {previousPhysicalCards[0].isExpired === true ? (
+                    <LakeAlert
+                      style={styles.renewAlert}
+                      variant="info"
+                      title={t("card.physical.expiredAlert")}
+                      children={
+                        <>
+                          <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
+                        </>
+                      }
+                    />
+                  ) : (
+                    <LakeAlert
+                      style={styles.renewAlert}
+                      variant="info"
+                      title={t("card.physical.toRenewAlert", {
+                        expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
+                          .endOf("month")
+                          .format("LL"),
+                      })}
+                      children={
+                        <>
+                          <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                        </>
+                      }
+                    />
+                  )}
                 </>
-              ) : null}
+              ),
+            )
+            .otherwise(() => null)}
 
-              {match({ card, physicalCardOrderVisible })
-                .with(
-                  {
-                    physicalCardOrderVisible: true,
-                    card: {
-                      statusInfo: {
-                        __typename: P.not(
-                          P.union("CardCancelingStatusInfo", "CardCanceledStatusInfo"),
-                        ),
-                      },
-                      cardProduct: {
-                        applicableToPhysicalCards: true,
-                      },
-                      physicalCard: {
-                        statusInfo: {
-                          __typename: P.union(
-                            "PhysicalCardCanceledStatusInfo",
-                            "PhysicalCardCancelingStatusInfo",
-                          ),
+          <View style={styles.card}>
+            {match(card.physicalCard)
+              .with({ __typename: "PhysicalCard" }, physicalCard => (
+                <View style={styles.card}>
+                  {card.cardDesignUrl != null
+                    ? match({ physicalCard, previousCard })
+                        .with(
+                          {
+                            physicalCard: { statusInfo: { status: "Renewed" } },
+                            previousCard: P.nonNullable,
+                          },
+                          {
+                            physicalCard: { statusInfo: { status: "ToRenew" } },
+                            previousCard: P.nonNullable,
+                          },
+                          ({ previousCard }) =>
+                            large ? (
+                              <>
+                                <View style={styles.physicalCardContainer}>
+                                  <Svg role="none" viewBox="0 0 85 55" />
+
+                                  <Pressable
+                                    onPress={() => setCurrentCard("renewed")}
+                                    style={[
+                                      styles.physicalCardFront,
+                                      currentCard === "previous" &&
+                                        styles.physicalCardRenewedBehind,
+                                    ]}
+                                  >
+                                    <MaskedCard
+                                      cardDesignUrl={card.cardDesignUrl}
+                                      textColor={
+                                        card.cardProduct.cardDesigns.find(
+                                          cardDesign =>
+                                            cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                        )?.accentColor ?? invariantColors.white
+                                      }
+                                      holderName={getMemberName({
+                                        accountMembership: card.accountMembership,
+                                      })}
+                                      pan={physicalCard.cardMaskedNumber}
+                                      expiryDate={physicalCard.expiryDate ?? ""}
+                                      status={physicalCard.statusInfo.status}
+                                      estimatedDeliveryDate={match(physicalCard.statusInfo)
+                                        .with(
+                                          {
+                                            __typename: "PhysicalCardToActivateStatusInfo",
+                                            estimatedDeliveryDate: P.string,
+                                          },
+                                          {
+                                            __typename: "PhysicalCardRenewedStatusInfo",
+                                            estimatedDeliveryDate: P.string,
+                                          },
+                                          ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                                        )
+                                        .otherwise(() => undefined)}
+                                    />
+                                  </Pressable>
+
+                                  <Pressable
+                                    onPress={() => setCurrentCard("previous")}
+                                    style={[
+                                      styles.physicalCardFront,
+                                      currentCard === "renewed" &&
+                                        styles.physicalCardPreviousBehind,
+                                    ]}
+                                  >
+                                    <MaskedCard
+                                      expired={previousCard.isExpired}
+                                      cardDesignUrl={card.cardDesignUrl}
+                                      textColor={
+                                        card.cardProduct.cardDesigns.find(
+                                          cardDesign =>
+                                            cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                        )?.accentColor ?? invariantColors.white
+                                      }
+                                      holderName={getMemberName({
+                                        accountMembership: card.accountMembership,
+                                      })}
+                                      pan={previousCard.cardMaskedNumber}
+                                      expiryDate={previousCard.expiryDate ?? ""}
+                                      status={"ToRenew"}
+                                    />
+                                  </Pressable>
+                                </View>
+
+                                <Space height={24} />
+
+                                <Stack
+                                  direction="row"
+                                  space={8}
+                                  style={styles.dotIndicatorsContainer}
+                                >
+                                  <DotIndicator
+                                    onPress={() => setCurrentCard("previous")}
+                                    active={currentCard === "previous"}
+                                  />
+
+                                  <DotIndicator
+                                    onPress={() => setCurrentCard("renewed")}
+                                    active={currentCard === "renewed"}
+                                  />
+                                </Stack>
+                              </>
+                            ) : (
+                              <ChoicePicker
+                                tile={false}
+                                onChange={setCurrentCard}
+                                value={currentCard}
+                                items={["previous", "renewed"]}
+                                renderItem={selectedCard => (
+                                  <View style={styles.physicalCardContainer}>
+                                    <Svg
+                                      role="none"
+                                      viewBox="0 0 85 55"
+                                      style={styles.physicalCardItem}
+                                    />
+
+                                    <View style={styles.physicalCardFront}>
+                                      <MaskedCard
+                                        expired={previousCard.isExpired}
+                                        cardDesignUrl={card.cardDesignUrl}
+                                        textColor={
+                                          card.cardProduct.cardDesigns.find(
+                                            cardDesign =>
+                                              cardDesign.cardDesignUrl === card.cardDesignUrl,
+                                          )?.accentColor ?? "#fff"
+                                        }
+                                        holderName={getMemberName({
+                                          accountMembership: card.accountMembership,
+                                        })}
+                                        pan={
+                                          selectedCard === "previous"
+                                            ? previousCard.cardMaskedNumber
+                                            : physicalCard.cardMaskedNumber
+                                        }
+                                        expiryDate={
+                                          selectedCard === "previous"
+                                            ? (previousCard.expiryDate ?? "")
+                                            : (physicalCard.expiryDate ?? "")
+                                        }
+                                        status={
+                                          selectedCard === "previous"
+                                            ? "ToRenew"
+                                            : physicalCard.statusInfo.status
+                                        }
+                                        estimatedDeliveryDate={match(physicalCard.statusInfo)
+                                          .with(
+                                            {
+                                              __typename: "PhysicalCardToActivateStatusInfo",
+                                              estimatedDeliveryDate: P.string,
+                                            },
+                                            {
+                                              __typename: "PhysicalCardRenewedStatusInfo",
+                                              estimatedDeliveryDate: P.string,
+                                            },
+                                            ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                                          )
+                                          .otherwise(() => undefined)}
+                                      />
+                                    </View>
+                                  </View>
+                                )}
+                              />
+                            ),
+                        )
+                        .otherwise(() => (
+                          <MaskedCard
+                            cardDesignUrl={card.cardDesignUrl}
+                            textColor={
+                              card.cardProduct.cardDesigns.find(
+                                cardDesign => cardDesign.cardDesignUrl === card.cardDesignUrl,
+                              )?.accentColor ?? invariantColors.white
+                            }
+                            holderName={getMemberName({
+                              accountMembership: card.accountMembership,
+                            })}
+                            pan={physicalCard.cardMaskedNumber}
+                            expiryDate={physicalCard.expiryDate ?? ""}
+                            status={physicalCard.statusInfo.status}
+                            estimatedDeliveryDate={match(physicalCard.statusInfo)
+                              .with(
+                                {
+                                  __typename: "PhysicalCardToActivateStatusInfo",
+                                  estimatedDeliveryDate: P.string,
+                                },
+                                {
+                                  __typename: "PhysicalCardRenewedStatusInfo",
+                                  estimatedDeliveryDate: P.string,
+                                },
+                                ({ estimatedDeliveryDate }) => estimatedDeliveryDate,
+                              )
+                              .otherwise(() => undefined)}
+                          />
+                        ))
+                    : null}
+
+                  {cardRequiresIdentityVerification ? (
+                    <>
+                      <Space height={24} />
+
+                      <CardItemIdentityVerificationGate
+                        recommendedIdentificationLevel={
+                          card.accountMembership.recommendedIdentificationLevel
+                        }
+                        isCurrentUserCardOwner={isCurrentUserCardOwner}
+                        projectId={projectId}
+                        description={t("card.identityVerification.payments")}
+                        descriptionForOtherMember={t(
+                          "card.identityVerification.payments.otherMember",
+                          {
+                            name: getMemberName({ accountMembership: card.accountMembership }),
+                          },
+                        )}
+                        onComplete={onRefreshAccountRequest}
+                        lastRelevantIdentification={lastRelevantIdentification}
+                      />
+                    </>
+                  ) : null}
+
+                  {match({ card, physicalCardOrderVisible })
+                    .with(
+                      {
+                        physicalCardOrderVisible: true,
+                        card: {
+                          statusInfo: {
+                            __typename: P.not(
+                              P.union("CardCancelingStatusInfo", "CardCanceledStatusInfo"),
+                            ),
+                          },
+                          cardProduct: {
+                            applicableToPhysicalCards: true,
+                          },
+                          physicalCard: {
+                            statusInfo: {
+                              __typename: P.union(
+                                "PhysicalCardCanceledStatusInfo",
+                                "PhysicalCardCancelingStatusInfo",
+                              ),
+                            },
+                          },
                         },
                       },
-                    },
-                  },
-                  () => (
-                    <>
-                      <Space height={24} />
+                      () => (
+                        <>
+                          <Space height={24} />
 
-                      <LakeButton
-                        icon="add-circle-filled"
-                        color="current"
-                        onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
-                      >
-                        {t("card.physical.orderNewCard")}
-                      </LakeButton>
-                    </>
-                  ),
-                )
-                .otherwise(() => null)}
+                          <LakeButton
+                            icon="add-circle-filled"
+                            color="current"
+                            onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
+                          >
+                            {t("card.physical.orderNewCard")}
+                          </LakeButton>
+                        </>
+                      ),
+                    )
+                    .otherwise(() => null)}
 
-              {match({ physicalCard, isCurrentUserCardOwner })
-                .with(
-                  {
-                    isCurrentUserCardOwner: true,
-                    physicalCard: {
-                      statusInfo: {
-                        __typename: "PhysicalCardToActivateStatusInfo",
+                  {match({ physicalCard, isCurrentUserCardOwner })
+                    .with(
+                      {
+                        isCurrentUserCardOwner: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: "PhysicalCardToActivateStatusInfo",
+                          },
+                        },
                       },
-                    },
-                  },
-                  () => (
-                    <>
-                      <Space height={24} />
+                      () => (
+                        <>
+                          <Space height={24} />
 
-                      <LakeTooltip
-                        content={t("card.tooltipConflict")}
-                        placement="center"
-                        disabled={!hasBindingUserError}
-                      >
-                        <LakeButton
-                          color="current"
-                          onPress={() => setIsActivationModalOpen(true)}
-                          loading={physicalCardActivation.isLoading()}
-                          disabled={hasBindingUserError}
-                        >
-                          {t("card.physical.activate")}
-                        </LakeButton>
-                      </LakeTooltip>
-                    </>
-                  ),
-                )
-                .with(
-                  {
-                    isCurrentUserCardOwner: true,
-                    physicalCard: {
-                      statusInfo: {
-                        __typename: "PhysicalCardRenewedStatusInfo",
-                      },
-                    },
-                  },
-                  () => (
-                    <>
-                      <LakeTooltip
-                        content={t("card.tooltipConflict")}
-                        placement="center"
-                        disabled={!hasBindingUserError}
-                      >
-                        {currentCard === "renewed" && (
-                          <>
-                            <Space height={24} />
-
+                          <LakeTooltip
+                            content={t("card.tooltipConflict")}
+                            placement="center"
+                            disabled={!hasBindingUserError}
+                          >
                             <LakeButton
                               color="current"
                               onPress={() => setIsActivationModalOpen(true)}
@@ -972,470 +956,566 @@ export const CardItemPhysicalDetails = ({
                             >
                               {t("card.physical.activate")}
                             </LakeButton>
-                          </>
-                        )}
-                      </LakeTooltip>
-                    </>
-                  ),
-                )
-                .otherwise(() => null)}
-
-              <Space height={24} />
-
-              {match({ physicalCard, currentCard })
-                .with(
-                  {
-                    currentCard: "previous",
-                    physicalCard: {
-                      previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
-                    },
-                  },
-                  () => null,
-                )
-                .otherwise(() => (
-                  <QuickActions
-                    actions={[
-                      ...match({ isCurrentUserCardOwner, card, currentCard })
-                        .with(
-                          {
-                            isCurrentUserCardOwner: true,
-                            card: {
-                              physicalCard: {
-                                statusInfo: {
-                                  __typename: P.union(
-                                    "PhysicalCardActivatedStatusInfo",
-                                    "PhysicalCardToRenewStatusInfo",
-                                  ),
-                                },
-                              },
-                              accountMembership: {
-                                statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                              },
-                            },
+                          </LakeTooltip>
+                        </>
+                      ),
+                    )
+                    .with(
+                      {
+                        isCurrentUserCardOwner: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: "PhysicalCardRenewedStatusInfo",
                           },
-                          {
-                            isCurrentUserCardOwner: true,
-                            currentCard: "previous",
-                            card: {
-                              physicalCard: {
-                                statusInfo: {
-                                  __typename: "PhysicalCardRenewedStatusInfo",
-                                },
-                              },
-                              accountMembership: {
-                                statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                              },
-                            },
-                          },
-                          () => [
-                            {
-                              label: t("card.revealNumbers"),
-                              icon: "eye-regular" as const,
-                              onPress: () => onPressRevealPhysicalCardNumbers(),
-                              isLoading: physicalCardNumberViewing.isLoading(),
-                              disabled: hasBindingUserError,
-                              tooltipDisabled: !hasBindingUserError,
-                              tooltipText: t("card.tooltipConflict"),
-                            },
-                          ],
-                        )
+                        },
+                      },
+                      () => (
+                        <>
+                          <LakeTooltip
+                            content={t("card.tooltipConflict")}
+                            placement="center"
+                            disabled={!hasBindingUserError}
+                          >
+                            {currentCard === "renewed" && (
+                              <>
+                                <Space height={24} />
 
-                        .otherwise(() => []),
-                      ...match({
-                        currentUserHasRights: isCurrentUserCardOwner || canManageAccountMembership,
-                        physicalCard,
-                      }).otherwise(() => []),
-                      ...match({ statusInfo: physicalCard.statusInfo, isCurrentUserCardOwner })
-                        .with(
-                          {
-                            isCurrentUserCardOwner: true,
-                            statusInfo: P.union(
+                                <LakeButton
+                                  color="current"
+                                  onPress={() => setIsActivationModalOpen(true)}
+                                  loading={physicalCardActivation.isLoading()}
+                                  disabled={hasBindingUserError}
+                                >
+                                  {t("card.physical.activate")}
+                                </LakeButton>
+                              </>
+                            )}
+                          </LakeTooltip>
+                        </>
+                      ),
+                    )
+                    .otherwise(() => null)}
+
+                  <Space height={24} />
+
+                  {match({ physicalCard, currentCard })
+                    .with(
+                      {
+                        currentCard: "previous",
+                        physicalCard: {
+                          previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
+                        },
+                      },
+                      () => null,
+                    )
+                    .otherwise(() => (
+                      <QuickActions
+                        actions={[
+                          ...match({ isCurrentUserCardOwner, card, currentCard })
+                            .with(
                               {
-                                __typename: P.union(
-                                  "PhysicalCardRenewedStatusInfo",
-                                  "PhysicalCardToActivateStatusInfo",
+                                isCurrentUserCardOwner: true,
+                                card: {
+                                  physicalCard: {
+                                    statusInfo: {
+                                      __typename: P.union(
+                                        "PhysicalCardActivatedStatusInfo",
+                                        "PhysicalCardToRenewStatusInfo",
+                                      ),
+                                    },
+                                  },
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipEnabledStatusInfo",
+                                    },
+                                  },
+                                },
+                              },
+                              {
+                                isCurrentUserCardOwner: true,
+                                currentCard: "previous",
+                                card: {
+                                  physicalCard: {
+                                    statusInfo: {
+                                      __typename: "PhysicalCardRenewedStatusInfo",
+                                    },
+                                  },
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipEnabledStatusInfo",
+                                    },
+                                  },
+                                },
+                              },
+                              () => [
+                                {
+                                  label: t("card.revealNumbers"),
+                                  icon: "eye-regular" as const,
+                                  onPress: () => onPressRevealPhysicalCardNumbers(),
+                                  isLoading: physicalCardNumberViewing.isLoading(),
+                                  disabled: hasBindingUserError,
+                                  tooltipDisabled: !hasBindingUserError,
+                                  tooltipText: t("card.tooltipConflict"),
+                                },
+                              ],
+                            )
+
+                            .otherwise(() => []),
+                          ...match({
+                            currentUserHasRights:
+                              isCurrentUserCardOwner || canManageAccountMembership,
+                            physicalCard,
+                          }).otherwise(() => []),
+                          ...match({ statusInfo: physicalCard.statusInfo, isCurrentUserCardOwner })
+                            .with(
+                              {
+                                isCurrentUserCardOwner: true,
+                                statusInfo: P.union(
+                                  {
+                                    __typename: P.union(
+                                      "PhysicalCardRenewedStatusInfo",
+                                      "PhysicalCardToActivateStatusInfo",
+                                    ),
+                                    isPINReady: true,
+                                  },
+                                  {
+                                    __typename: "PhysicalCardToRenewStatusInfo",
+                                  },
                                 ),
-                                isPINReady: true,
                               },
                               {
-                                __typename: "PhysicalCardToRenewStatusInfo",
+                                isCurrentUserCardOwner: true,
+                                statusInfo: {
+                                  __typename: "PhysicalCardActivatedStatusInfo",
+                                },
                               },
+                              () => [
+                                {
+                                  label: t("card.physical.viewPin"),
+                                  icon: "key-regular" as const,
+                                  onPress: () => viewPinCode(),
+                                  isLoading: pinCardViewing.isLoading(),
+                                  disabled: hasBindingUserError,
+                                  tooltipDisabled: !hasBindingUserError,
+                                  tooltipText: t("card.tooltipConflict"),
+                                },
+                              ],
+                            )
+                            .otherwise(() => []),
+                        ]}
+                      />
+                    ))}
+
+                  {match(card)
+                    .with(
+                      {
+                        spending: { amount: { value: P.string, currency: P.string } },
+                        spendingLimits: P.array({
+                          amount: { value: P.string, currency: P.string },
+                        }),
+                      },
+                      ({ spending, spendingLimits }) => {
+                        const spendingLimit = spendingLimits[0];
+                        if (spendingLimit == null) {
+                          return null;
+                        }
+                        const spentOverLimitRatio = Math.min(
+                          Number(spending.amount.value) / Number(spendingLimit.amount.value),
+                          1,
+                        );
+                        const remainderToSpend = Math.max(
+                          0,
+                          Number(spendingLimit.amount.value) - Number(spending.amount.value),
+                        );
+                        return (
+                          <>
+                            <Space height={24} />
+
+                            <Tile
+                              style={styles.spendingContainer}
+                              paddingVertical={16}
+                              paddingHorizontal={16}
+                            >
+                              <View style={styles.spendingLimitText}>
+                                <LakeText color={textColor} variant="smallRegular">
+                                  {t("card.spendingLimit")}
+                                </LakeText>
+
+                                <Fill minWidth={24} />
+
+                                <LakeText
+                                  color={
+                                    hasBindingUserError
+                                      ? colors.gray[300]
+                                      : Number(spending.amount.value) >=
+                                          Number(spendingLimit.amount.value)
+                                        ? colors.negative[500]
+                                        : colors.gray[800]
+                                  }
+                                  variant="smallSemibold"
+                                >
+                                  {formatCurrency(
+                                    Number(spending.amount.value),
+                                    spending.amount.currency,
+                                  )}
+                                </LakeText>
+
+                                <Space width={4} />
+
+                                <LakeText color={textColor} variant="smallRegular">
+                                  {"/"}
+                                </LakeText>
+
+                                <Space width={4} />
+
+                                <LakeText color={textColor} variant="smallRegular">
+                                  {formatCurrency(
+                                    Number(spendingLimit.amount.value),
+                                    spendingLimit.amount.currency,
+                                  )}
+                                </LakeText>
+                              </View>
+
+                              <Space height={8} />
+
+                              <View style={styles.progress}>
+                                <View
+                                  style={[
+                                    styles.progressFill,
+                                    {
+                                      backgroundColor:
+                                        spentOverLimitRatio >= 1
+                                          ? colors.negative[500]
+                                          : colors.current[500],
+                                      width: `${spentOverLimitRatio * 100}%`,
+                                    },
+                                  ]}
+                                />
+                              </View>
+
+                              <Space height={8} />
+
+                              <View style={styles.spendingLimitText}>
+                                <LakeText color={textColor} variant="smallRegular">
+                                  {match(spendingLimit.period)
+                                    .with("Daily", () => t("card.spendingLimit.remaining.daily"))
+                                    .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
+                                    .with("Monthly", () =>
+                                      t("card.spendingLimit.remaining.monthly"),
+                                    )
+                                    .with("Always", () => t("card.spendingLimit.remaining.always"))
+                                    .exhaustive()}
+                                </LakeText>
+
+                                <Fill minWidth={24} />
+
+                                <LakeText color={textColor} variant="smallRegular">
+                                  {formatCurrency(remainderToSpend, spending.amount.currency)}
+                                </LakeText>
+                              </View>
+                            </Tile>
+
+                            <Space height={24} />
+                          </>
+                        );
+                      },
+                    )
+                    .otherwise(() => null)}
+
+                  {match(physicalCard)
+                    .with(
+                      {
+                        statusInfo: {
+                          __typename: P.union(
+                            "PhysicalCardActivatedStatusInfo",
+                            "PhysicalCardRenewedStatusInfo",
+                            "PhysicalCardToRenewStatusInfo",
+                          ),
+                        },
+                        previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
+                      },
+                      () =>
+                        currentCard === "renewed" && (
+                          <>
+                            <LakeTooltip
+                              content={t("card.tooltipConflict")}
+                              placement="center"
+                              disabled={!hasBindingUserError}
+                            >
+                              <LakeButton
+                                disabled={hasBindingUserError}
+                                mode="secondary"
+                                icon="lock-closed-regular"
+                                loading={cardSuspension.isLoading()}
+                                onPress={() =>
+                                  isNotNullish(previousCard) && previousCard.isExpired === false
+                                    ? setIsTemporaryBlockModalOpen(true)
+                                    : suspendCard()
+                                }
+                              >
+                                {t("card.physical.temporarilyBlock")}
+                              </LakeButton>
+                            </LakeTooltip>
+
+                            <Space height={12} />
+                          </>
+                        ),
+                    )
+                    .with(
+                      {
+                        statusInfo: {
+                          __typename: P.union(
+                            "PhysicalCardActivatedStatusInfo",
+                            "PhysicalCardRenewedStatusInfo",
+                            "PhysicalCardToRenewStatusInfo",
+                          ),
+                        },
+                      },
+                      () => (
+                        <>
+                          <LakeTooltip
+                            content={t("card.tooltipConflict")}
+                            placement="center"
+                            disabled={!hasBindingUserError}
+                          >
+                            <LakeButton
+                              disabled={hasBindingUserError}
+                              mode="secondary"
+                              icon="lock-closed-regular"
+                              loading={cardSuspension.isLoading()}
+                              onPress={() =>
+                                isNotNullish(previousCard) && previousCard.isExpired === false
+                                  ? setIsTemporaryBlockModalOpen(true)
+                                  : suspendCard()
+                              }
+                            >
+                              {t("card.physical.temporarilyBlock")}
+                            </LakeButton>
+                          </LakeTooltip>
+
+                          <Space height={12} />
+                        </>
+                      ),
+                    )
+                    .with(
+                      {
+                        statusInfo: {
+                          __typename: "PhysicalCardSuspendedStatusInfo",
+                        },
+                      },
+
+                      () => (
+                        <>
+                          <LakeTooltip
+                            content={t("card.tooltipConflict")}
+                            placement="center"
+                            disabled={!hasBindingUserError}
+                          >
+                            <LakeButton
+                              color="warning"
+                              disabled={hasBindingUserError}
+                              mode="primary"
+                              icon="lock-open-regular"
+                              loading={cardUnsuspension.isLoading()}
+                              onPress={() => unsuspendCard()}
+                            >
+                              {t("card.physical.unblock")}
+                            </LakeButton>
+                          </LakeTooltip>
+
+                          <Space height={12} />
+                        </>
+                      ),
+                    )
+                    .otherwise(() => [])}
+
+                  {match({
+                    currentUserHasRights: isCurrentUserCardOwner || canManageAccountMembership,
+                    physicalCard,
+                  })
+                    .with(
+                      {
+                        currentUserHasRights: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: P.not(
+                              P.union(
+                                "PhysicalCardCancelingStatusInfo",
+                                "PhysicalCardCanceledStatusInfo",
+                              ),
                             ),
                           },
-                          {
-                            isCurrentUserCardOwner: true,
-                            statusInfo: {
-                              __typename: "PhysicalCardActivatedStatusInfo",
-                            },
-                          },
-                          () => [
-                            {
-                              label: t("card.physical.viewPin"),
-                              icon: "key-regular" as const,
-                              onPress: () => viewPinCode(),
-                              isLoading: pinCardViewing.isLoading(),
-                              disabled: hasBindingUserError,
-                              tooltipDisabled: !hasBindingUserError,
-                              tooltipText: t("card.tooltipConflict"),
-                            },
-                          ],
-                        )
-                        .otherwise(() => []),
-                    ]}
-                  />
-                ))}
-
-              {match(card)
-                .with(
-                  {
-                    spending: { amount: { value: P.string, currency: P.string } },
-                    spendingLimits: P.array({ amount: { value: P.string, currency: P.string } }),
-                  },
-                  ({ spending, spendingLimits }) => {
-                    const spendingLimit = spendingLimits[0];
-                    if (spendingLimit == null) {
-                      return null;
-                    }
-                    const spentOverLimitRatio = Math.min(
-                      Number(spending.amount.value) / Number(spendingLimit.amount.value),
-                      1,
-                    );
-                    const remainderToSpend = Math.max(
-                      0,
-                      Number(spendingLimit.amount.value) - Number(spending.amount.value),
-                    );
-                    return (
-                      <>
-                        <Space height={24} />
-
-                        <Tile
-                          style={styles.spendingContainer}
-                          paddingVertical={16}
-                          paddingHorizontal={16}
-                        >
-                          <View style={styles.spendingLimitText}>
-                            <LakeText color={textColor} variant="smallRegular">
-                              {t("card.spendingLimit")}
-                            </LakeText>
-
-                            <Fill minWidth={24} />
-
-                            <LakeText
-                              color={
-                                hasBindingUserError
-                                  ? colors.gray[300]
-                                  : Number(spending.amount.value) >=
-                                      Number(spendingLimit.amount.value)
-                                    ? colors.negative[500]
-                                    : colors.gray[800]
-                              }
-                              variant="smallSemibold"
+                          previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
+                        },
+                      },
+                      () =>
+                        currentCard === "renewed" && (
+                          <>
+                            <LakeButton
+                              color="negative"
+                              disabled={hasBindingUserError}
+                              mode="secondary"
+                              icon="subtract-circle-regular"
+                              loading={cardSuspension.isLoading()}
+                              onPress={() => setIsPermanentlyBlockModalOpen(true)}
                             >
-                              {formatCurrency(
-                                Number(spending.amount.value),
-                                spending.amount.currency,
-                              )}
-                            </LakeText>
+                              {t("card.physical.cancel")}
+                            </LakeButton>
 
-                            <Space width={4} />
-
-                            <LakeText color={textColor} variant="smallRegular">
-                              {"/"}
-                            </LakeText>
-
-                            <Space width={4} />
-
-                            <LakeText color={textColor} variant="smallRegular">
-                              {formatCurrency(
-                                Number(spendingLimit.amount.value),
-                                spendingLimit.amount.currency,
-                              )}
-                            </LakeText>
-                          </View>
-
-                          <Space height={8} />
-
-                          <View style={styles.progress}>
-                            <View
-                              style={[
-                                styles.progressFill,
-                                {
-                                  backgroundColor:
-                                    spentOverLimitRatio >= 1
-                                      ? colors.negative[500]
-                                      : colors.current[500],
-                                  width: `${spentOverLimitRatio * 100}%`,
-                                },
-                              ]}
-                            />
-                          </View>
-
-                          <Space height={8} />
-
-                          <View style={styles.spendingLimitText}>
-                            <LakeText color={textColor} variant="smallRegular">
-                              {match(spendingLimit.period)
-                                .with("Daily", () => t("card.spendingLimit.remaining.daily"))
-                                .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
-                                .with("Monthly", () => t("card.spendingLimit.remaining.monthly"))
-                                .with("Always", () => t("card.spendingLimit.remaining.always"))
-                                .exhaustive()}
-                            </LakeText>
-
-                            <Fill minWidth={24} />
-
-                            <LakeText color={textColor} variant="smallRegular">
-                              {formatCurrency(remainderToSpend, spending.amount.currency)}
-                            </LakeText>
-                          </View>
-                        </Tile>
-
-                        <Space height={24} />
-                      </>
-                    );
-                  },
-                )
-                .otherwise(() => null)}
-
-              {match(physicalCard)
-                .with(
-                  {
-                    statusInfo: {
-                      __typename: P.union(
-                        "PhysicalCardActivatedStatusInfo",
-                        "PhysicalCardRenewedStatusInfo",
-                        "PhysicalCardToRenewStatusInfo",
-                      ),
-                    },
-                    previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
-                  },
-                  () =>
-                    currentCard === "renewed" && (
-                      <>
-                        <LakeTooltip
-                          content={t("card.tooltipConflict")}
-                          placement="center"
-                          disabled={!hasBindingUserError}
-                        >
+                            <Space height={24} />
+                          </>
+                        ),
+                    )
+                    .with(
+                      {
+                        currentUserHasRights: true,
+                        physicalCard: {
+                          statusInfo: {
+                            __typename: P.not(
+                              P.union(
+                                "PhysicalCardCancelingStatusInfo",
+                                "PhysicalCardCanceledStatusInfo",
+                              ),
+                            ),
+                          },
+                        },
+                      },
+                      () => (
+                        <>
                           <LakeButton
+                            color="negative"
                             disabled={hasBindingUserError}
                             mode="secondary"
-                            icon="lock-closed-regular"
+                            icon="subtract-circle-regular"
                             loading={cardSuspension.isLoading()}
-                            onPress={() =>
-                              isNotNullish(previousCard) && previousCard.isExpired === false
-                                ? setIsTemporaryBlockModalOpen(true)
-                                : suspendCard()
-                            }
+                            onPress={() => setIsPermanentlyBlockModalOpen(true)}
                           >
-                            {t("card.physical.temporarilyBlock")}
+                            {t("card.physical.cancel")}
                           </LakeButton>
-                        </LakeTooltip>
 
-                        <Space height={12} />
-                      </>
-                    ),
-                )
-                .with(
-                  {
-                    statusInfo: {
-                      __typename: P.union(
-                        "PhysicalCardActivatedStatusInfo",
-                        "PhysicalCardRenewedStatusInfo",
-                        "PhysicalCardToRenewStatusInfo",
+                          <Space height={24} />
+                        </>
                       ),
-                    },
-                  },
-                  () => (
-                    <>
-                      <LakeTooltip
-                        content={t("card.tooltipConflict")}
-                        placement="center"
-                        disabled={!hasBindingUserError}
-                      >
-                        <LakeButton
-                          disabled={hasBindingUserError}
-                          mode="secondary"
-                          icon="lock-closed-regular"
-                          loading={cardSuspension.isLoading()}
-                          onPress={() =>
-                            isNotNullish(previousCard) && previousCard.isExpired === false
-                              ? setIsTemporaryBlockModalOpen(true)
-                              : suspendCard()
-                          }
-                        >
-                          {t("card.physical.temporarilyBlock")}
-                        </LakeButton>
-                      </LakeTooltip>
+                    )
+                    .otherwise(() => [])}
 
-                      <Space height={12} />
-                    </>
-                  ),
-                )
-                .with(
-                  {
-                    statusInfo: {
-                      __typename: "PhysicalCardSuspendedStatusInfo",
-                    },
-                  },
+                  {match(physicalCard.statusInfo)
+                    .with(
+                      { __typename: "PhysicalCardToActivateStatusInfo", trackingNumber: P.nullish },
+                      ({ address }) => (
+                        <>
+                          <LakeAlert
+                            variant={"neutral"}
+                            title={t("card.shippingAddress")}
+                            children={[
+                              address.addressLine1,
+                              address.addressLine2,
+                              address.postalCode,
+                              address.city,
+                              address.country != null && isCountryCCA3(address.country)
+                                ? getCountryName(address.country)
+                                : undefined,
+                            ]
+                              .filter(Boolean)
+                              .join(", ")}
+                          />
 
-                  () => (
-                    <>
-                      <LakeTooltip
-                        content={t("card.tooltipConflict")}
-                        placement="center"
-                        disabled={!hasBindingUserError}
-                      >
-                        <LakeButton
-                          color="warning"
-                          disabled={hasBindingUserError}
-                          mode="primary"
-                          icon="lock-open-regular"
-                          loading={cardUnsuspension.isLoading()}
-                          onPress={() => unsuspendCard()}
-                        >
-                          {t("card.physical.unblock")}
-                        </LakeButton>
-                      </LakeTooltip>
+                          <Space height={24} />
+                        </>
+                      ),
+                    )
+                    .with(
+                      { __typename: "PhysicalCardRenewedStatusInfo", trackingNumber: P.nullish },
+                      ({ address }) =>
+                        currentCard === "renewed" && (
+                          <>
+                            <LakeAlert
+                              variant={"neutral"}
+                              title={t("card.shippingAddress")}
+                              children={[
+                                address.addressLine1,
+                                address.addressLine2,
+                                address.postalCode,
+                                address.city,
+                                address.country != null && isCountryCCA3(address.country)
+                                  ? getCountryName(address.country)
+                                  : undefined,
+                              ]
+                                .filter(Boolean)
+                                .join(", ")}
+                            />
 
-                      <Space height={12} />
-                    </>
-                  ),
-                )
-                .otherwise(() => [])}
-
-              {match({
-                currentUserHasRights: isCurrentUserCardOwner || canManageAccountMembership,
-                physicalCard,
-              })
-                .with(
-                  {
-                    currentUserHasRights: true,
-                    physicalCard: {
-                      statusInfo: {
-                        __typename: P.not(
-                          P.union(
-                            "PhysicalCardCancelingStatusInfo",
-                            "PhysicalCardCanceledStatusInfo",
-                          ),
+                            <Space height={24} />
+                          </>
                         ),
+                    )
+                    .otherwise(() => null)}
+
+                  {match(physicalCard.statusInfo)
+                    .with(
+                      {
+                        __typename: "PhysicalCardRenewedStatusInfo",
+                        trackingNumber: P.string,
+                        shippingProvider: P.string,
                       },
-                      previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
-                    },
-                  },
-                  () =>
-                    currentCard === "renewed" && (
-                      <>
-                        <LakeButton
-                          color="negative"
-                          disabled={hasBindingUserError}
-                          mode="secondary"
-                          icon="subtract-circle-regular"
-                          loading={cardSuspension.isLoading()}
-                          onPress={() => setIsPermanentlyBlockModalOpen(true)}
-                        >
-                          {t("card.physical.cancel")}
-                        </LakeButton>
+                      ({ trackingNumber, shippingProvider, address }) => {
+                        return (
+                          currentCard === "renewed" && (
+                            <>
+                              <Tile style={styles.shippingAddressTile}>
+                                <Icon size={20} color={colors.current[500]} name="box-regular" />
+                                <Space height={8} />
 
-                        <Space height={24} />
-                      </>
-                    ),
-                )
-                .with(
-                  {
-                    currentUserHasRights: true,
-                    physicalCard: {
-                      statusInfo: {
-                        __typename: P.not(
-                          P.union(
-                            "PhysicalCardCancelingStatusInfo",
-                            "PhysicalCardCanceledStatusInfo",
-                          ),
-                        ),
+                                <Box direction="row" alignItems="center">
+                                  <View style={styles.trackingNumber}>
+                                    <LakeText variant="smallMedium" color={colors.gray[900]}>
+                                      {t("card.physical.trackingNumber", { shippingProvider })}
+                                    </LakeText>
+
+                                    <LakeText variant="smallRegular" color={colors.gray[700]}>
+                                      {trackingNumber}
+                                    </LakeText>
+                                  </View>
+
+                                  <LakeCopyButton
+                                    valueToCopy={trackingNumber}
+                                    copyText={t("copyButton.copyTooltip")}
+                                    copiedText={t("copyButton.copiedTooltip")}
+                                  />
+                                </Box>
+                              </Tile>
+
+                              <LakeAlert
+                                style={styles.shippingAddressAlert}
+                                anchored={true}
+                                variant={"neutral"}
+                                title={t("card.yourAddress")}
+                                children={[
+                                  address.addressLine1,
+                                  address.addressLine2,
+                                  address.postalCode,
+                                  address.city,
+                                  address.country != null && isCountryCCA3(address.country)
+                                    ? getCountryName(address.country)
+                                    : undefined,
+                                ]
+                                  .filter(Boolean)
+                                  .join(", ")}
+                              />
+
+                              <Space height={24} />
+                            </>
+                          )
+                        );
                       },
-                    },
-                  },
-                  () => (
-                    <>
-                      <LakeButton
-                        color="negative"
-                        disabled={hasBindingUserError}
-                        mode="secondary"
-                        icon="subtract-circle-regular"
-                        loading={cardSuspension.isLoading()}
-                        onPress={() => setIsPermanentlyBlockModalOpen(true)}
-                      >
-                        {t("card.physical.cancel")}
-                      </LakeButton>
-
-                      <Space height={24} />
-                    </>
-                  ),
-                )
-                .otherwise(() => [])}
-
-              {match(physicalCard.statusInfo)
-                .with(
-                  { __typename: "PhysicalCardToActivateStatusInfo", trackingNumber: P.nullish },
-                  ({ address }) => (
-                    <>
-                      <LakeAlert
-                        variant={"neutral"}
-                        title={t("card.shippingAddress")}
-                        children={[
-                          address.addressLine1,
-                          address.addressLine2,
-                          address.postalCode,
-                          address.city,
-                          address.country != null && isCountryCCA3(address.country)
-                            ? getCountryName(address.country)
-                            : undefined,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      />
-
-                      <Space height={24} />
-                    </>
-                  ),
-                )
-                .with(
-                  { __typename: "PhysicalCardRenewedStatusInfo", trackingNumber: P.nullish },
-                  ({ address }) =>
-                    currentCard === "renewed" && (
-                      <>
-                        <LakeAlert
-                          variant={"neutral"}
-                          title={t("card.shippingAddress")}
-                          children={[
-                            address.addressLine1,
-                            address.addressLine2,
-                            address.postalCode,
-                            address.city,
-                            address.country != null && isCountryCCA3(address.country)
-                              ? getCountryName(address.country)
-                              : undefined,
-                          ]
-                            .filter(Boolean)
-                            .join(", ")}
-                        />
-
-                        <Space height={24} />
-                      </>
-                    ),
-                )
-                .otherwise(() => null)}
-
-              {match(physicalCard.statusInfo)
-                .with(
-                  {
-                    __typename: "PhysicalCardRenewedStatusInfo",
-                    trackingNumber: P.string,
-                    shippingProvider: P.string,
-                  },
-                  ({ trackingNumber, shippingProvider, address }) => {
-                    return (
-                      currentCard === "renewed" && (
+                    )
+                    .with(
+                      {
+                        __typename: "PhysicalCardToActivateStatusInfo",
+                        trackingNumber: P.string,
+                        shippingProvider: P.string,
+                      },
+                      ({ trackingNumber, shippingProvider, address }) => (
                         <>
                           <Tile style={styles.shippingAddressTile}>
                             <Icon size={20} color={colors.current[500]} name="box-regular" />
@@ -1480,207 +1560,154 @@ export const CardItemPhysicalDetails = ({
 
                           <Space height={24} />
                         </>
-                      )
-                    );
-                  },
-                )
-                .with(
-                  {
-                    __typename: "PhysicalCardToActivateStatusInfo",
-                    trackingNumber: P.string,
-                    shippingProvider: P.string,
-                  },
-                  ({ trackingNumber, shippingProvider, address }) => (
-                    <>
-                      <Tile style={styles.shippingAddressTile}>
-                        <Icon size={20} color={colors.current[500]} name="box-regular" />
-                        <Space height={8} />
-
-                        <Box direction="row" alignItems="center">
-                          <View style={styles.trackingNumber}>
-                            <LakeText variant="smallMedium" color={colors.gray[900]}>
-                              {t("card.physical.trackingNumber", { shippingProvider })}
-                            </LakeText>
-
-                            <LakeText variant="smallRegular" color={colors.gray[700]}>
-                              {trackingNumber}
-                            </LakeText>
-                          </View>
-
-                          <LakeCopyButton
-                            valueToCopy={trackingNumber}
-                            copyText={t("copyButton.copyTooltip")}
-                            copiedText={t("copyButton.copiedTooltip")}
-                          />
-                        </Box>
-                      </Tile>
-
-                      <LakeAlert
-                        style={styles.shippingAddressAlert}
-                        anchored={true}
-                        variant={"neutral"}
-                        title={t("card.yourAddress")}
-                        children={[
-                          address.addressLine1,
-                          address.addressLine2,
-                          address.postalCode,
-                          address.city,
-                          address.country != null && isCountryCCA3(address.country)
-                            ? getCountryName(address.country)
-                            : undefined,
-                        ]
-                          .filter(Boolean)
-                          .join(", ")}
-                      />
-
-                      <Space height={24} />
-                    </>
-                  ),
-                )
-                .otherwise(() => null)}
-            </View>
-          ))
-          .with(P.nullish, () => (
-            <>
-              <View style={styles.cardPlaceholder}>
-                <Image
-                  source={{ uri: physicalCardPlaceholder }}
-                  style={styles.cardPlaceholderBackground}
-                />
-
-                <View style={styles.cardPlaceholderText}>
-                  <LakeHeading level={2} variant="h3" color={colors.gray[900]}>
-                    {t("card.physicalCard.needAPhysicalCard")}
-                  </LakeHeading>
-
-                  <LakeText variant="smallRegular" color={colors.gray[600]}>
-                    {t("card.physicalCard.needAPhysicalCard.description")}
-                  </LakeText>
+                      ),
+                    )
+                    .otherwise(() => null)}
                 </View>
-              </View>
+              ))
+              .with(P.nullish, () => (
+                <>
+                  <View style={styles.cardPlaceholder}>
+                    <Image
+                      source={{ uri: physicalCardPlaceholder }}
+                      style={styles.cardPlaceholderBackground}
+                    />
 
-              {match({ physicalCardOrderVisible, card })
-                .with(
-                  {
-                    physicalCardOrderVisible: true,
-                    card: {
-                      statusInfo: {
-                        __typename: P.not(
-                          P.union("CardCancelingStatusInfo", "CardCanceledStatusInfo"),
-                        ),
+                    <View style={styles.cardPlaceholderText}>
+                      <LakeHeading level={2} variant="h3" color={colors.gray[900]}>
+                        {t("card.physicalCard.needAPhysicalCard")}
+                      </LakeHeading>
+
+                      <LakeText variant="smallRegular" color={colors.gray[600]}>
+                        {t("card.physicalCard.needAPhysicalCard.description")}
+                      </LakeText>
+                    </View>
+                  </View>
+
+                  {match({ physicalCardOrderVisible, card })
+                    .with(
+                      {
+                        physicalCardOrderVisible: true,
+                        card: {
+                          statusInfo: {
+                            __typename: P.not(
+                              P.union("CardCancelingStatusInfo", "CardCanceledStatusInfo"),
+                            ),
+                          },
+                        },
                       },
-                    },
-                  },
-                  () => (
-                    <>
-                      <Space height={24} />
+                      () => (
+                        <>
+                          <Space height={24} />
 
-                      <LakeTooltip
-                        content={t("card.tooltipConflict")}
-                        placement="center"
-                        disabled={!hasBindingUserError}
-                      >
-                        <LakeButton
-                          disabled={hasBindingUserError}
-                          color="current"
-                          onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
-                        >
-                          {t("card.physical.order")}
-                        </LakeButton>
-                      </LakeTooltip>
-                    </>
-                  ),
-                )
-                .otherwise(() => null)}
-            </>
-          ))
-          .exhaustive()}
-      </View>
+                          <LakeTooltip
+                            content={t("card.tooltipConflict")}
+                            placement="center"
+                            disabled={!hasBindingUserError}
+                          >
+                            <LakeButton
+                              disabled={hasBindingUserError}
+                              color="current"
+                              onPress={() => setOrderModal(Option.Some({ initialShippingAddress }))}
+                            >
+                              {t("card.physical.order")}
+                            </LakeButton>
+                          </LakeTooltip>
+                        </>
+                      ),
+                    )
+                    .otherwise(() => null)}
+                </>
+              ))
+              .exhaustive()}
+          </View>
 
-      <CardItemPhysicalDeliveryWizard
-        visible={orderModal.isSome()}
-        onPressClose={() => setOrderModal(Option.None())}
-        onSubmit={onShippingFormSubmit}
-        initialAddress={initialShippingAddress}
-      />
+          <CardItemPhysicalDeliveryWizard
+            visible={orderModal.isSome()}
+            onPressClose={() => setOrderModal(Option.None())}
+            onSubmit={onShippingFormSubmit}
+            initialAddress={initialShippingAddress}
+          />
 
-      <CardItemPhysicalRenewalWizard
-        visible={renewalModal.isSome()}
-        onPressClose={() => setRenewalModal(Option.None())}
-        onSubmit={onConfirmingPhysicalCardRenewal}
-        initialAddress={initialShippingAddress}
-      />
+          <CardItemPhysicalRenewalWizard
+            visible={renewalModal.isSome()}
+            onPressClose={() => setRenewalModal(Option.None())}
+            onSubmit={onConfirmingPhysicalCardRenewal}
+            initialAddress={initialShippingAddress}
+          />
 
-      <LakeModal
-        visible={isPermanentlyBlockModalOpen}
-        icon="subtract-circle-regular"
-        title={t("card.physical.cancelTitle")}
-        onPressClose={() => setIsPermanentlyBlockModalOpen(false)}
-        color="negative"
-      >
-        <LakeText color={colors.gray[600]}>
-          {isNotNullish(previousCard) && previousCard.isExpired === false
-            ? t("card.physical.cancelDescriptionWithRenewal")
-            : t("card.physical.cancelDescription")}
-        </LakeText>
+          <LakeModal
+            visible={isPermanentlyBlockModalOpen}
+            icon="subtract-circle-regular"
+            title={t("card.physical.cancelTitle")}
+            onPressClose={() => setIsPermanentlyBlockModalOpen(false)}
+            color="negative"
+          >
+            <LakeText color={colors.gray[600]}>
+              {isNotNullish(previousCard) && previousCard.isExpired === false
+                ? t("card.physical.cancelDescriptionWithRenewal")
+                : t("card.physical.cancelDescription")}
+            </LakeText>
 
-        <Space height={16} />
+            <Space height={16} />
 
-        <CardItemPhysicalPermanentlyBlockForm
-          onSubmit={onPermanentlyBlockFormSubmit}
-          isLoading={permanentBlocking.isLoading()}
-        />
-      </LakeModal>
+            <CardItemPhysicalPermanentlyBlockForm
+              onSubmit={onPermanentlyBlockFormSubmit}
+              isLoading={permanentBlocking.isLoading()}
+            />
+          </LakeModal>
 
-      <LakeModal
-        visible={isTemporaryBlockModalOpen}
-        icon="lock-closed-regular"
-        title={t("card.physical.cancelTemporaryConfirmationWithRenewal")}
-        onPressClose={() => setIsTemporaryBlockModalOpen(false)}
-        color="warning"
-      >
-        <LakeText color={colors.gray[600]}>
-          {t("card.physical.cancelTemporaryDescriptionWithRenewal")}
-        </LakeText>
+          <LakeModal
+            visible={isTemporaryBlockModalOpen}
+            icon="lock-closed-regular"
+            title={t("card.physical.cancelTemporaryConfirmationWithRenewal")}
+            onPressClose={() => setIsTemporaryBlockModalOpen(false)}
+            color="warning"
+          >
+            <LakeText color={colors.gray[600]}>
+              {t("card.physical.cancelTemporaryDescriptionWithRenewal")}
+            </LakeText>
 
-        <Space height={16} />
+            <Space height={16} />
 
-        <LakeButton
-          onPress={() => {
-            suspendCard();
-            setIsTemporaryBlockModalOpen(false);
-          }}
-          color="warning"
-        >
-          {t("card.block")}
-        </LakeButton>
-      </LakeModal>
+            <LakeButton
+              onPress={() => {
+                suspendCard();
+                setIsTemporaryBlockModalOpen(false);
+              }}
+              color="warning"
+            >
+              {t("card.block")}
+            </LakeButton>
+          </LakeModal>
 
-      <LakeModal
-        visible={isActivationModalOpen}
-        title={t("card.physical.cardActivation")}
-        color="negative"
-        onPressClose={() => setIsActivationModalOpen(false)}
-      >
-        <LakeText color={colors.gray[600]}>
-          {t("card.physical.cardActivation.description")}
-        </LakeText>
+          <LakeModal
+            visible={isActivationModalOpen}
+            title={t("card.physical.cardActivation")}
+            color="negative"
+            onPressClose={() => setIsActivationModalOpen(false)}
+          >
+            <LakeText color={colors.gray[600]}>
+              {t("card.physical.cardActivation.description")}
+            </LakeText>
 
-        <Space height={16} />
+            <Space height={16} />
 
-        <Image
-          resizeMode="contain"
-          source={{ uri: cardIdentifier }}
-          style={styles.cardIdentifier}
-        />
+            <Image
+              resizeMode="contain"
+              source={{ uri: cardIdentifier }}
+              style={styles.cardIdentifier}
+            />
 
-        <Space height={16} />
+            <Space height={16} />
 
-        <CardItemPhysicalActivationForm
-          onSubmit={onCardActivationFormSubmit}
-          isLoading={physicalCardActivation.isLoading()}
-        />
-      </LakeModal>
-    </View>
+            <CardItemPhysicalActivationForm
+              onSubmit={onCardActivationFormSubmit}
+              isLoading={physicalCardActivation.isLoading()}
+            />
+          </LakeModal>
+        </View>
+      )}
+    </ResponsiveContainer>
   );
 };

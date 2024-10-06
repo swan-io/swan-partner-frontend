@@ -2,11 +2,9 @@ import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
@@ -91,7 +89,7 @@ export const CardListPage = ({
   });
 
   const empty = (
-    <FixedListViewEmpty
+    <EmptyView
       icon="lake-card"
       borderedIcon={true}
       title={t("cardList.noResults")}
@@ -109,7 +107,7 @@ export const CardListPage = ({
           </LakeButton>
         </LakeButtonGroup>
       )}
-    </FixedListViewEmpty>
+    </EmptyView>
   );
 
   const cards = data.mapOk(data => data.cards);
@@ -157,12 +155,7 @@ export const CardListPage = ({
           {cards.match({
             NotAsked: () => null,
             Loading: () => (
-              <PlainListViewPlaceholder
-                count={20}
-                rowVerticalSpacing={0}
-                headerHeight={large ? 48 : 0}
-                rowHeight={104}
-              />
+              <PlainListViewPlaceholder count={20} headerHeight={large ? 48 : 0} rowHeight={104} />
             ),
             Done: result =>
               result.match({
@@ -171,6 +164,7 @@ export const CardListPage = ({
                   <Connection connection={cards}>
                     {cards => (
                       <CardList
+                        large={large}
                         cards={cards.edges}
                         getRowLink={({ item }) => (
                           <Link
@@ -195,7 +189,7 @@ export const CardListPage = ({
                         }}
                         renderEmptyList={() =>
                           hasSearchOrFilters ? (
-                            <FixedListViewEmpty
+                            <EmptyView
                               icon="lake-card"
                               borderedIcon={true}
                               title={t("cardList.noResultsWithFilters")}

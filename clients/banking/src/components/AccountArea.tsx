@@ -27,7 +27,6 @@ import {
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
@@ -70,6 +69,9 @@ const LOGO_MAX_HEIGHT = 40;
 const LOGO_MAX_WIDTH = 180;
 
 const styles = StyleSheet.create({
+  root: {
+    ...commonStyles.fill,
+  },
   background: {
     flexShrink: 1,
     flexGrow: 1,
@@ -106,6 +108,9 @@ const styles = StyleSheet.create({
     // be carefull to not put commonStyles.fill here, it will break sticky tabs
     minHeight: "100%",
     paddingBottom: navigationTabBarHeight,
+  },
+  responsiveContainer: {
+    ...commonStyles.fill,
   },
   desktopContentContainer: {
     ...commonStyles.fill,
@@ -207,8 +212,6 @@ export const AccountArea = ({
   permissions,
   reload,
 }: Props) => {
-  const { desktop } = useResponsive();
-
   const [isScrolled, setIsScrolled] = useState(false);
   const scrollView = useRef<ScrollViewRef | null>(null);
 
@@ -382,402 +385,431 @@ export const AccountArea = ({
   }
 
   return (
-    <WithPartnerAccentColor color={accentColor}>
-      <SkipToContent />
+    <ResponsiveContainer breakpoint={breakpoints.large + SIDEBAR_WIDTH} style={styles.root}>
+      {({ large: largeViewport }) => (
+        <WithPartnerAccentColor color={accentColor}>
+          <SkipToContent />
 
-      <View style={styles.background}>
-        <View style={[styles.container, desktop && styles.desktopContainer]}>
-          {desktop && (
-            <SidebarNavigationTracker
-              style={styles.sidebar}
-              contentContainerStyle={styles.sidebarContent}
-            >
-              <Box alignItems="center">
-                <View style={styles.logo}>
-                  <AutoWidthImage
-                    ariaLabel={projectName}
-                    sourceUri={projectLogo ?? logoSwan}
-                    height={LOGO_MAX_HEIGHT}
-                    maxWidth={LOGO_MAX_WIDTH}
-                    resizeMode="contain"
-                  />
-                </View>
-              </Box>
-
-              {env.APP_TYPE === "SANDBOX" && (
-                <>
-                  <Space height={12} />
-
+          <View style={styles.background}>
+            <View style={[styles.container, largeViewport && styles.desktopContainer]}>
+              {largeViewport && (
+                <SidebarNavigationTracker
+                  style={styles.sidebar}
+                  contentContainerStyle={styles.sidebarContent}
+                >
                   <Box alignItems="center">
-                    <ClientContext.Provider value={partnerAdminClient}>
-                      <SandboxUserPicker />
-                    </ClientContext.Provider>
+                    <View style={styles.logo}>
+                      <AutoWidthImage
+                        ariaLabel={projectName}
+                        sourceUri={projectLogo ?? logoSwan}
+                        height={LOGO_MAX_HEIGHT}
+                        maxWidth={LOGO_MAX_WIDTH}
+                        resizeMode="contain"
+                      />
+                    </View>
                   </Box>
-                </>
-              )}
-
-              <Space height={32} />
-
-              <AccountPickerButton
-                ref={accountPickerButtonRef}
-                desktop={true}
-                accountMembershipId={accountMembershipId}
-                activationTag={activationTag}
-                activationLinkActive={route?.name === "AccountActivation"}
-                hasMultipleMemberships={hasMultipleMemberships}
-                selectedAccountMembership={accountMembership}
-                onPress={setAccountPickerOpen.on}
-                availableBalance={account?.balances?.available ?? undefined}
-              />
-
-              <Popover
-                referenceRef={accountPickerButtonRef}
-                matchReferenceMinWidth={true}
-                visible={isAccountPickerOpen}
-                onDismiss={setAccountPickerOpen.off}
-              >
-                <View style={styles.accountPicker}>
-                  <AccountPicker
-                    accountMembershipId={accountMembershipId}
-                    onPressItem={accountMembershipId => {
-                      // TODO: Prevent full reload by tweaking layout + Suspense
-                      window.location.assign(Router.AccountRoot({ accountMembershipId }));
-                    }}
-                  />
-                </View>
-              </Popover>
-
-              <Space height={32} />
-              <AccountNavigation menu={menu} />
-              <Fill minHeight={48} />
-
-              <Pressable role="button" style={styles.additionalLink} onPress={signout}>
-                <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
-                <Space width={12} />
-                <LakeText variant="medium">{t("login.signout")}</LakeText>
-              </Pressable>
-
-              <Space height={12} />
-
-              <ProfileButton
-                identificationStatusInfo={lastRelevantIdentification.map(
-                  getIdentificationLevelStatusInfo,
-                )}
-                firstName={firstName}
-                lastName={lastName}
-                accountMembershipId={accountMembershipId}
-                shouldDisplayIdVerification={shouldDisplayIdVerification}
-                hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-              />
-            </SidebarNavigationTracker>
-          )}
-
-          <ScrollView
-            ref={scrollView}
-            onScroll={onScroll}
-            scrollEventThrottle={200}
-            contentContainerStyle={
-              desktop ? styles.desktopContentContainer : styles.mobileContentContainer
-            }
-          >
-            {desktop ? null : (
-              <>
-                <Box role="banner" direction="row" alignItems="center" style={styles.headerMobile}>
-                  <AutoWidthImage
-                    ariaLabel={projectName}
-                    sourceUri={projectLogo ?? logoSwan}
-                    height={32}
-                    resizeMode="contain"
-                  />
 
                   {env.APP_TYPE === "SANDBOX" && (
                     <>
-                      <Space width={12} />
-                      <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
+                      <Space height={12} />
+
+                      <Box alignItems="center">
+                        <ClientContext.Provider value={partnerAdminClient}>
+                          <SandboxUserPicker />
+                        </ClientContext.Provider>
+                      </Box>
                     </>
                   )}
-                </Box>
-              </>
-            )}
 
-            <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
-              <ErrorBoundary
-                key={route?.name}
-                onError={error => logFrontendError(error)}
-                fallback={() => <ErrorView />}
-              >
-                {holder?.verificationStatus === "Refused" ? (
-                  <AccountActivationPage
-                    requireFirstTransfer={requireFirstTransfer}
-                    hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                    lastRelevantIdentification={lastRelevantIdentification}
-                    accentColor={accentColor}
+                  <Space height={32} />
+
+                  <AccountPickerButton
+                    ref={accountPickerButtonRef}
+                    desktop={true}
                     accountMembershipId={accountMembershipId}
-                    additionalInfo={additionalInfo}
-                    accountVisible={features.accountVisible}
-                    projectName={projectName}
-                    refetchAccountAreaQuery={reload}
+                    activationTag={activationTag}
+                    activationLinkActive={route?.name === "AccountActivation"}
+                    hasMultipleMemberships={hasMultipleMemberships}
+                    selectedAccountMembership={accountMembership}
+                    onPress={setAccountPickerOpen.on}
+                    availableBalance={account?.balances?.available ?? undefined}
                   />
-                ) : (
-                  <Suspense fallback={<LoadingView color={colors.current[500]} />}>
-                    {match({
-                      status: account?.statusInfo.status,
-                      balance:
-                        account?.balances?.available.value != null
-                          ? Number(account?.balances?.available.value)
-                          : null,
-                    })
-                      .with({ status: "Closed" }, () => (
-                        <ResponsiveContainer breakpoint={breakpoints.large}>
-                          {({ large }) => (
-                            <View style={[styles.alert, large && styles.alertLarge]}>
-                              <LakeAlert variant="error" title={t("account.statusAlert.closed")} />
-                            </View>
-                          )}
-                        </ResponsiveContainer>
-                      ))
-                      .with({ status: "Closing", balance: 0 }, () => (
-                        <ResponsiveContainer breakpoint={breakpoints.large}>
-                          {({ large }) => (
-                            <View style={[styles.alert, large && styles.alertLarge]}>
-                              <LakeAlert
-                                variant="warning"
-                                title={t("account.statusAlert.closingWithBalanceZero")}
-                              />
-                            </View>
-                          )}
-                        </ResponsiveContainer>
-                      ))
-                      .with({ status: "Closing", balance: P.number.negative() }, () => (
-                        <ResponsiveContainer breakpoint={breakpoints.large}>
-                          {({ large }) => (
-                            <View style={[styles.alert, large && styles.alertLarge]}>
-                              <LakeAlert
-                                variant="error"
-                                title={t("account.statusAlert.closingWithNegativeBalance")}
-                                callToAction={
-                                  <LakeButton
-                                    href="mailto:support@swan.io"
-                                    mode="tertiary"
-                                    color="negative"
-                                    size="small"
-                                    icon="mail-regular"
-                                  >
-                                    {t("accountClose.negativeBalance.contactSupport")}
-                                  </LakeButton>
-                                }
-                              />
-                            </View>
-                          )}
-                        </ResponsiveContainer>
-                      ))
-                      .with({ status: "Closing", balance: P.number.positive() }, () => (
-                        <ResponsiveContainer breakpoint={breakpoints.large}>
-                          {({ large }) => (
-                            <View style={[styles.alert, large && styles.alertLarge]}>
-                              <LakeAlert
-                                variant="warning"
-                                title={t("account.statusAlert.closingWithPositiveBalance")}
-                                callToAction={
-                                  accountMembership.legalRepresentative ? (
-                                    <LakeButton
-                                      size="small"
-                                      mode="tertiary"
-                                      color="warning"
-                                      icon="arrow-swap-regular"
-                                      onPress={() =>
-                                        Router.push("AccountClose", {
-                                          accountId,
-                                        })
-                                      }
-                                    >
-                                      {t("account.statusAlert.transferBalance")}
-                                    </LakeButton>
-                                  ) : null
-                                }
-                              ></LakeAlert>
-                            </View>
-                          )}
-                        </ResponsiveContainer>
-                      ))
-                      .otherwise(() => null)}
 
-                    {match(route)
-                      .with({ name: "AccountRoot" }, () =>
-                        firstAccesibleRoute.match({
-                          Some: route => <Redirect to={route} />,
-                          None: () => <AccountNotFoundPage projectName={projectName} />,
-                        }),
-                      )
-                      .with({ name: "AccountProfile" }, () => (
-                        <ProfilePage
-                          accentColor={accentColor}
-                          recommendedIdentificationLevel={
-                            accountMembership.recommendedIdentificationLevel
-                          }
-                          additionalInfo={additionalInfo}
-                          refetchAccountAreaQuery={reload}
-                          email={accountMembership.email}
-                          shouldDisplayIdVerification={shouldDisplayIdVerification}
-                          hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                          lastRelevantIdentification={lastRelevantIdentification}
-                        />
-                      ))
-                      .with({ name: "AccountDetailsArea" }, () =>
-                        !features.accountVisible ? (
-                          <ErrorView />
-                        ) : (
-                          <AccountDetailsArea
-                            accountMembershipLanguage={accountMembershipLanguage}
-                            accountId={accountId}
-                            accountMembershipId={accountMembershipId}
-                            canManageAccountMembership={permissions.canManageAccountMembership}
-                            virtualIbansVisible={features.virtualIbansVisible}
-                            isIndividual={isIndividual}
-                          />
-                        ),
-                      )
-                      .with(
-                        { name: "AccountTransactionsArea" },
-                        ({ params: { accountMembershipId } }) => (
-                          <TransactionsArea
-                            accountId={accountId}
-                            accountMembershipId={accountMembershipId}
-                            canQueryCardOnTransaction={canQueryCardOnTransaction}
-                            accountStatementsVisible={features.accountStatementsVisible}
-                            canViewAccount={accountMembership.canViewAccount}
-                          />
-                        ),
-                      )
+                  <Popover
+                    referenceRef={accountPickerButtonRef}
+                    matchReferenceMinWidth={true}
+                    visible={isAccountPickerOpen}
+                    onDismiss={setAccountPickerOpen.off}
+                  >
+                    <View style={styles.accountPicker}>
+                      <AccountPicker
+                        accountMembershipId={accountMembershipId}
+                        onPressItem={accountMembershipId => {
+                          // TODO: Prevent full reload by tweaking layout + Suspense
+                          window.location.assign(Router.AccountRoot({ accountMembershipId }));
+                        }}
+                      />
+                    </View>
+                  </Popover>
 
-                      .with(
-                        { name: "AccountPaymentsArea" },
-                        ({ params: { consentId, kind, status } }) => (
-                          <TransferArea
-                            accountCountry={accountCountry}
-                            accountId={accountId}
-                            accountMembershipId={accountMembershipId}
-                            canQueryCardOnTransaction={canQueryCardOnTransaction}
-                            canManageBeneficiaries={canManageBeneficiaries}
-                            canViewAccount={accountMembership.canViewAccount}
-                            transferConsent={
-                              consentId != null && kind != null && status != null
-                                ? Option.Some({ kind, status })
-                                : Option.None()
-                            }
-                            transferCreationVisible={features.transferCreationVisible}
-                          />
-                        ),
-                      )
-                      .with({ name: "AccountCardsArea" }, () => (
-                        <CardsArea
-                          accountMembershipId={accountMembershipId}
-                          accountId={accountId}
-                          userId={userId}
-                          refetchAccountAreaQuery={reload}
-                          canAddCard={permissions.canManageCards}
-                          accountMembership={accountMembership}
-                          canManageAccountMembership={permissions.canManageAccountMembership}
-                          cardOrderVisible={features.virtualCardOrderVisible}
-                          physicalCardOrderVisible={features.physicalCardOrderVisible}
-                        />
-                      ))
-                      .with({ name: "AccountMembersArea" }, ({ params }) =>
-                        match(accountMembership)
-                          .with(
-                            { account: { country: P.string } },
-                            currentUserAccountMembership => (
-                              <MembershipsArea
-                                accountMembershipId={accountMembershipId}
-                                accountId={accountId}
-                                memberCreationVisible={features.memberCreationVisible}
-                                canAddCard={
-                                  permissions.canViewAccount && permissions.canManageCards
-                                }
-                                onAccountMembershipUpdate={reload}
-                                accountCountry={accountCountry}
-                                params={params}
-                                currentUserAccountMembership={currentUserAccountMembership}
-                                cardOrderVisible={features.virtualCardOrderVisible}
-                                physicalCardOrderVisible={features.physicalCardOrderVisible}
-                                shouldDisplayIdVerification={shouldDisplayIdVerification}
-                              />
-                            ),
-                          )
-                          .otherwise(() => <ErrorView />),
-                      )
-                      .with({ name: "AccountMerchantsArea" }, () => (
-                        <MerchantArea
-                          accountId={accountId}
-                          accountMembershipId={accountMembershipId}
-                          merchantProfileCreationVisible={features.merchantProfileCreationVisible}
-                          merchantProfileCardVisible={features.merchantProfileCardVisible}
-                          merchantProfileSepaDirectDebitCoreVisible={
-                            features.merchantProfileSepaDirectDebitCoreVisible
-                          }
-                          merchantProfileSepaDirectDebitB2BVisible={
-                            features.merchantProfileSepaDirectDebitB2BVisible
-                          }
-                          merchantProfileInternalDirectDebitCoreVisible={
-                            features.merchantProfileInternalDirectDebitCoreVisible
-                          }
-                          merchantProfileInternalDirectDebitB2BVisible={
-                            features.merchantProfileInternalDirectDebitB2BVisible
-                          }
-                          merchantProfileCheckVisible={features.merchantProfileCheckVisible}
-                        />
-                      ))
-                      .with({ name: "AccountActivation" }, () => (
-                        <AccountActivationPage
-                          hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                          lastRelevantIdentification={lastRelevantIdentification}
-                          requireFirstTransfer={requireFirstTransfer}
-                          accentColor={accentColor}
-                          accountMembershipId={accountMembershipId}
-                          additionalInfo={additionalInfo}
-                          accountVisible={features.accountVisible}
-                          projectName={projectName}
-                          refetchAccountAreaQuery={reload}
-                        />
-                      ))
-                      .otherwise(() => (
-                        <NotFoundPage
-                          title={firstAccesibleRoute.isNone() ? t("error.noAccount") : undefined}
-                          text={
-                            firstAccesibleRoute.isNone()
-                              ? t("error.checkWithProvider", { projectName })
-                              : undefined
-                          }
-                        />
-                      ))}
-                  </Suspense>
-                )}
-              </ErrorBoundary>
-            </View>
-          </ScrollView>
+                  <Space height={32} />
+                  <AccountNavigation menu={menu} />
+                  <Fill minHeight={48} />
 
-          {desktop ? null : (
-            <NavigationTabBar
-              identificationStatusInfo={lastRelevantIdentification.map(
-                getIdentificationLevelStatusInfo,
+                  <Pressable role="button" style={styles.additionalLink} onPress={signout}>
+                    <Icon name="sign-out-regular" size={22} color={colors.negative[500]} />
+                    <Space width={12} />
+                    <LakeText variant="medium">{t("login.signout")}</LakeText>
+                  </Pressable>
+
+                  <Space height={12} />
+
+                  <ProfileButton
+                    identificationStatusInfo={lastRelevantIdentification.map(
+                      getIdentificationLevelStatusInfo,
+                    )}
+                    firstName={firstName}
+                    lastName={lastName}
+                    accountMembershipId={accountMembershipId}
+                    shouldDisplayIdVerification={shouldDisplayIdVerification}
+                    hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                  />
+                </SidebarNavigationTracker>
               )}
-              hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-              accountMembershipId={accountMembershipId}
-              hasMultipleMemberships={hasMultipleMemberships}
-              activationTag={activationTag}
-              accountMembership={accountMembership}
-              shouldDisplayIdVerification={shouldDisplayIdVerification}
-              additionalInfo={additionalInfo}
-              entries={menu}
-              firstName={firstName}
-              lastName={lastName}
-              refetchAccountAreaQuery={reload}
-              isScrolled={isScrolled}
-              onScrollToTop={scrollToTop}
-            />
-          )}
-        </View>
-      </View>
-    </WithPartnerAccentColor>
+
+              <ResponsiveContainer
+                breakpoint={breakpoints.large}
+                style={styles.responsiveContainer}
+              >
+                {({ large }) => (
+                  <ScrollView
+                    ref={scrollView}
+                    onScroll={onScroll}
+                    scrollEventThrottle={200}
+                    contentContainerStyle={
+                      large ? styles.desktopContentContainer : styles.mobileContentContainer
+                    }
+                  >
+                    {largeViewport ? null : (
+                      <>
+                        <Box
+                          role="banner"
+                          direction="row"
+                          alignItems="center"
+                          style={styles.headerMobile}
+                        >
+                          <AutoWidthImage
+                            ariaLabel={projectName}
+                            sourceUri={projectLogo ?? logoSwan}
+                            height={32}
+                            resizeMode="contain"
+                          />
+
+                          {env.APP_TYPE === "SANDBOX" && (
+                            <>
+                              <Space width={12} />
+                              <Tag color="sandbox" ariaLabel="Sandbox" icon="beaker-regular" />
+                            </>
+                          )}
+                        </Box>
+                      </>
+                    )}
+
+                    <View style={styles.content} id={CONTENT_ID} tabIndex={0}>
+                      <ErrorBoundary
+                        key={route?.name}
+                        onError={error => logFrontendError(error)}
+                        fallback={() => <ErrorView />}
+                      >
+                        {holder?.verificationStatus === "Refused" ? (
+                          <AccountActivationPage
+                            requireFirstTransfer={requireFirstTransfer}
+                            hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                            lastRelevantIdentification={lastRelevantIdentification}
+                            accentColor={accentColor}
+                            accountMembershipId={accountMembershipId}
+                            additionalInfo={additionalInfo}
+                            accountVisible={features.accountVisible}
+                            projectName={projectName}
+                            refetchAccountAreaQuery={reload}
+                          />
+                        ) : (
+                          <Suspense fallback={<LoadingView color={colors.current[500]} />}>
+                            {match({
+                              status: account?.statusInfo.status,
+                              balance:
+                                account?.balances?.available.value != null
+                                  ? Number(account?.balances?.available.value)
+                                  : null,
+                            })
+                              .with({ status: "Closed" }, () => (
+                                <ResponsiveContainer breakpoint={breakpoints.large}>
+                                  {({ large }) => (
+                                    <View style={[styles.alert, large && styles.alertLarge]}>
+                                      <LakeAlert
+                                        variant="error"
+                                        title={t("account.statusAlert.closed")}
+                                      />
+                                    </View>
+                                  )}
+                                </ResponsiveContainer>
+                              ))
+                              .with({ status: "Closing", balance: 0 }, () => (
+                                <ResponsiveContainer breakpoint={breakpoints.large}>
+                                  {({ large }) => (
+                                    <View style={[styles.alert, large && styles.alertLarge]}>
+                                      <LakeAlert
+                                        variant="warning"
+                                        title={t("account.statusAlert.closingWithBalanceZero")}
+                                      />
+                                    </View>
+                                  )}
+                                </ResponsiveContainer>
+                              ))
+                              .with({ status: "Closing", balance: P.number.negative() }, () => (
+                                <ResponsiveContainer breakpoint={breakpoints.large}>
+                                  {({ large }) => (
+                                    <View style={[styles.alert, large && styles.alertLarge]}>
+                                      <LakeAlert
+                                        variant="error"
+                                        title={t("account.statusAlert.closingWithNegativeBalance")}
+                                        callToAction={
+                                          <LakeButton
+                                            href="mailto:support@swan.io"
+                                            mode="tertiary"
+                                            color="negative"
+                                            size="small"
+                                            icon="mail-regular"
+                                          >
+                                            {t("accountClose.negativeBalance.contactSupport")}
+                                          </LakeButton>
+                                        }
+                                      />
+                                    </View>
+                                  )}
+                                </ResponsiveContainer>
+                              ))
+                              .with({ status: "Closing", balance: P.number.positive() }, () => (
+                                <ResponsiveContainer breakpoint={breakpoints.large}>
+                                  {({ large }) => (
+                                    <View style={[styles.alert, large && styles.alertLarge]}>
+                                      <LakeAlert
+                                        variant="warning"
+                                        title={t("account.statusAlert.closingWithPositiveBalance")}
+                                        callToAction={
+                                          accountMembership.legalRepresentative ? (
+                                            <LakeButton
+                                              size="small"
+                                              mode="tertiary"
+                                              color="warning"
+                                              icon="arrow-swap-regular"
+                                              onPress={() =>
+                                                Router.push("AccountClose", {
+                                                  accountId,
+                                                })
+                                              }
+                                            >
+                                              {t("account.statusAlert.transferBalance")}
+                                            </LakeButton>
+                                          ) : null
+                                        }
+                                      ></LakeAlert>
+                                    </View>
+                                  )}
+                                </ResponsiveContainer>
+                              ))
+                              .otherwise(() => null)}
+
+                            {match(route)
+                              .with({ name: "AccountRoot" }, () =>
+                                firstAccesibleRoute.match({
+                                  Some: route => <Redirect to={route} />,
+                                  None: () => (
+                                    <AccountNotFoundPage projectName={projectName} large={large} />
+                                  ),
+                                }),
+                              )
+                              .with({ name: "AccountProfile" }, () => (
+                                <ProfilePage
+                                  accentColor={accentColor}
+                                  recommendedIdentificationLevel={
+                                    accountMembership.recommendedIdentificationLevel
+                                  }
+                                  additionalInfo={additionalInfo}
+                                  refetchAccountAreaQuery={reload}
+                                  email={accountMembership.email}
+                                  shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                  lastRelevantIdentification={lastRelevantIdentification}
+                                />
+                              ))
+                              .with({ name: "AccountDetailsArea" }, () =>
+                                !features.accountVisible ? (
+                                  <ErrorView />
+                                ) : (
+                                  <AccountDetailsArea
+                                    accountMembershipLanguage={accountMembershipLanguage}
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                    canManageAccountMembership={
+                                      permissions.canManageAccountMembership
+                                    }
+                                    virtualIbansVisible={features.virtualIbansVisible}
+                                    isIndividual={isIndividual}
+                                  />
+                                ),
+                              )
+                              .with(
+                                { name: "AccountTransactionsArea" },
+                                ({ params: { accountMembershipId } }) => (
+                                  <TransactionsArea
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                    accountStatementsVisible={features.accountStatementsVisible}
+                                    canViewAccount={accountMembership.canViewAccount}
+                                  />
+                                ),
+                              )
+
+                              .with(
+                                { name: "AccountPaymentsArea" },
+                                ({ params: { consentId, kind, status } }) => (
+                                  <TransferArea
+                                    accountCountry={accountCountry}
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
+                                    canManageBeneficiaries={canManageBeneficiaries}
+                                    canViewAccount={accountMembership.canViewAccount}
+                                    transferConsent={
+                                      consentId != null && kind != null && status != null
+                                        ? Option.Some({ kind, status })
+                                        : Option.None()
+                                    }
+                                    transferCreationVisible={features.transferCreationVisible}
+                                  />
+                                ),
+                              )
+                              .with({ name: "AccountCardsArea" }, () => (
+                                <CardsArea
+                                  accountMembershipId={accountMembershipId}
+                                  accountId={accountId}
+                                  userId={userId}
+                                  refetchAccountAreaQuery={reload}
+                                  canAddCard={permissions.canManageCards}
+                                  accountMembership={accountMembership}
+                                  canManageAccountMembership={
+                                    permissions.canManageAccountMembership
+                                  }
+                                  cardOrderVisible={features.virtualCardOrderVisible}
+                                  physicalCardOrderVisible={features.physicalCardOrderVisible}
+                                />
+                              ))
+                              .with({ name: "AccountMembersArea" }, ({ params }) =>
+                                match(accountMembership)
+                                  .with(
+                                    { account: { country: P.string } },
+                                    currentUserAccountMembership => (
+                                      <MembershipsArea
+                                        accountMembershipId={accountMembershipId}
+                                        accountId={accountId}
+                                        memberCreationVisible={features.memberCreationVisible}
+                                        canAddCard={
+                                          permissions.canViewAccount && permissions.canManageCards
+                                        }
+                                        onAccountMembershipUpdate={reload}
+                                        accountCountry={accountCountry}
+                                        params={params}
+                                        currentUserAccountMembership={currentUserAccountMembership}
+                                        cardOrderVisible={features.virtualCardOrderVisible}
+                                        physicalCardOrderVisible={features.physicalCardOrderVisible}
+                                        shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                      />
+                                    ),
+                                  )
+                                  .otherwise(() => <ErrorView />),
+                              )
+                              .with({ name: "AccountMerchantsArea" }, () => (
+                                <MerchantArea
+                                  accountId={accountId}
+                                  accountMembershipId={accountMembershipId}
+                                  merchantProfileCreationVisible={
+                                    features.merchantProfileCreationVisible
+                                  }
+                                  merchantProfileCardVisible={features.merchantProfileCardVisible}
+                                  merchantProfileSepaDirectDebitCoreVisible={
+                                    features.merchantProfileSepaDirectDebitCoreVisible
+                                  }
+                                  merchantProfileSepaDirectDebitB2BVisible={
+                                    features.merchantProfileSepaDirectDebitB2BVisible
+                                  }
+                                  merchantProfileInternalDirectDebitCoreVisible={
+                                    features.merchantProfileInternalDirectDebitCoreVisible
+                                  }
+                                  merchantProfileInternalDirectDebitB2BVisible={
+                                    features.merchantProfileInternalDirectDebitB2BVisible
+                                  }
+                                  merchantProfileCheckVisible={features.merchantProfileCheckVisible}
+                                />
+                              ))
+                              .with({ name: "AccountActivation" }, () => (
+                                <AccountActivationPage
+                                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                  lastRelevantIdentification={lastRelevantIdentification}
+                                  requireFirstTransfer={requireFirstTransfer}
+                                  accentColor={accentColor}
+                                  accountMembershipId={accountMembershipId}
+                                  additionalInfo={additionalInfo}
+                                  accountVisible={features.accountVisible}
+                                  projectName={projectName}
+                                  refetchAccountAreaQuery={reload}
+                                />
+                              ))
+                              .otherwise(() => (
+                                <NotFoundPage
+                                  title={
+                                    firstAccesibleRoute.isNone() ? t("error.noAccount") : undefined
+                                  }
+                                  text={
+                                    firstAccesibleRoute.isNone()
+                                      ? t("error.checkWithProvider", { projectName })
+                                      : undefined
+                                  }
+                                />
+                              ))}
+                          </Suspense>
+                        )}
+                      </ErrorBoundary>
+                    </View>
+                  </ScrollView>
+                )}
+              </ResponsiveContainer>
+
+              {largeViewport ? null : (
+                <NavigationTabBar
+                  identificationStatusInfo={lastRelevantIdentification.map(
+                    getIdentificationLevelStatusInfo,
+                  )}
+                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                  accountMembershipId={accountMembershipId}
+                  hasMultipleMemberships={hasMultipleMemberships}
+                  activationTag={activationTag}
+                  accountMembership={accountMembership}
+                  shouldDisplayIdVerification={shouldDisplayIdVerification}
+                  additionalInfo={additionalInfo}
+                  entries={menu}
+                  firstName={firstName}
+                  lastName={lastName}
+                  refetchAccountAreaQuery={reload}
+                  isScrolled={isScrolled}
+                  onScrollToTop={scrollToTop}
+                />
+              )}
+            </View>
+          </View>
+        </WithPartnerAccentColor>
+      )}
+    </ResponsiveContainer>
   );
 };

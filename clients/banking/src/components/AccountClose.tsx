@@ -1,6 +1,6 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FlowPresentation } from "@swan-io/lake/src/components/FlowPresentation";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -243,7 +243,7 @@ const TransferScreen = ({
   return match(step)
     .with("Intro", () => (
       <View style={styles.successContainer}>
-        <FixedListViewEmpty
+        <EmptyView
           icon="arrow-swap-regular"
           borderedIcon={true}
           borderedIconPadding={20}
@@ -278,12 +278,12 @@ const TransferScreen = ({
               {t("accountClose.transferIntro.transferBalance")}
             </LakeButton>
           </LakeButtonGroup>
-        </FixedListViewEmpty>
+        </EmptyView>
       </View>
     ))
     .with("Later", () => (
       <View style={styles.successContainer}>
-        <FixedListViewEmpty
+        <EmptyView
           icon="clock-regular"
           borderedIcon={true}
           borderedIconPadding={20}
@@ -298,7 +298,7 @@ const TransferScreen = ({
               {t("common.closeButton")}
             </LakeButton>
           </LakeButtonGroup>
-        </FixedListViewEmpty>
+        </EmptyView>
       </View>
     ))
     .with("Transfer", () => (
@@ -381,7 +381,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                     match({ accountStatus: account.statusInfo.status, balance })
                       .with({ accountStatus: "Closed" }, () => (
                         <WithCurrentColor variant="positive" style={styles.successContainer}>
-                          <FixedListViewEmpty
+                          <EmptyView
                             icon="lake-check"
                             borderedIcon={true}
                             borderedIconPadding={20}
@@ -392,7 +392,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                       ))
                       .with({ accountStatus: "Closing", balance: 0 }, () => (
                         <WithCurrentColor variant="positive" style={styles.successContainer}>
-                          <FixedListViewEmpty
+                          <EmptyView
                             icon="lake-check"
                             borderedIcon={true}
                             borderedIconPadding={20}
@@ -403,7 +403,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                       ))
                       .with({ accountStatus: "Closing", balance: P.number.negative() }, () => (
                         <WithCurrentColor variant="negative" style={styles.successContainer}>
-                          <FixedListViewEmpty
+                          <EmptyView
                             icon="dismiss-circle-regular"
                             borderedIcon={true}
                             borderedIconPadding={20}
@@ -415,7 +415,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                                 {t("accountClose.negativeBalance.contactSupport")}
                               </LakeButton>
                             </LakeButtonGroup>
-                          </FixedListViewEmpty>
+                          </EmptyView>
                         </WithCurrentColor>
                       ))
                       .with({ accountStatus: "Closing", balance: P.number.positive() }, () => {
@@ -429,7 +429,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                         ) {
                           return (
                             <WithCurrentColor variant="positive" style={styles.successContainer}>
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-check"
                                 borderedIcon={true}
                                 borderedIconPadding={20}
@@ -493,7 +493,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
               </View>
             ) : (
               <WithCurrentColor variant="negative" style={styles.notLegalRepresentativeContainer}>
-                <FixedListViewEmpty
+                <EmptyView
                   icon="dismiss-circle-regular"
                   borderedIcon={true}
                   borderedIconPadding={20}
@@ -514,7 +514,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                       );
                     })
                     .toNull()}
-                </FixedListViewEmpty>
+                </EmptyView>
               </WithCurrentColor>
             )}
           </WithPartnerAccentColor>

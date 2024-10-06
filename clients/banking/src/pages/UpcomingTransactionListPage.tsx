@@ -1,11 +1,9 @@
 import { Option } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Connection } from "../components/Connection";
@@ -67,10 +65,9 @@ export const UpcomingTransactionListPage = ({
         Loading: () => (
           <PlainListViewPlaceholder
             count={NUM_TO_RENDER}
-            rowVerticalSpacing={0}
             groupHeaderHeight={48}
             headerHeight={48}
-            rowHeight={48}
+            rowHeight={56}
           />
         ),
         Done: result =>
@@ -101,7 +98,7 @@ export const UpcomingTransactionListPage = ({
                         }
                       }}
                       renderEmptyList={() => (
-                        <FixedListViewEmpty
+                        <EmptyView
                           icon="lake-transfer"
                           borderedIcon={true}
                           title={t("upcomingTransansactionList.noResults")}

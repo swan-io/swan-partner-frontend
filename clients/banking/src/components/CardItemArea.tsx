@@ -9,7 +9,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { Suspense, useCallback, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -61,9 +60,6 @@ export const CardItemArea = ({
   canManageCards,
   large = true,
 }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
-
   const route = Router.useRoute([
     "AccountCardsItem",
     "AccountCardsItemPhysicalCard",
@@ -218,7 +214,7 @@ export const CardItemArea = ({
         return (
           <>
             <TabView
-              padding={desktop ? 40 : 24}
+              padding={large ? 40 : 24}
               sticky={true}
               tabs={[
                 {

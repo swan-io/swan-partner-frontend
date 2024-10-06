@@ -1,12 +1,10 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -165,7 +163,6 @@ export const CardItemTransactionList = ({
             Loading: () => (
               <PlainListViewPlaceholder
                 count={NUM_TO_RENDER}
-                rowVerticalSpacing={0}
                 headerHeight={48}
                 groupHeaderHeight={48}
                 rowHeight={48}
@@ -200,14 +197,14 @@ export const CardItemTransactionList = ({
                           }}
                           renderEmptyList={() =>
                             hasSearchOrFilters ? (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("common.list.noResults")}
                                 subtitle={t("common.list.noResultsSuggestion")}
                               />
                             ) : (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("transansactionList.noResults")}
@@ -237,7 +234,7 @@ export const CardItemTransactionList = ({
                                     />
                                   </>
                                 ) : null}
-                              </FixedListViewEmpty>
+                              </EmptyView>
                             )
                           }
                         />

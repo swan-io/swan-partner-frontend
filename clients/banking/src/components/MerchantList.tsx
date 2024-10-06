@@ -2,25 +2,22 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
 import {
   CellAction,
   EndAlignedCell,
   SimpleHeaderCell,
   StartAlignedCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -35,9 +32,6 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
   filters: {
     paddingHorizontal: spacings[24],
     paddingBottom: spacings[12],
@@ -61,6 +55,7 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   params: { status: "Active" | "Inactive" };
+  large: boolean;
 };
 
 const PER_PAGE = 20;
@@ -199,7 +194,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
   },
 ];
 
-export const MerchantList = ({ accountId, accountMembershipId, params }: Props) => {
+export const MerchantList = ({ accountId, accountMembershipId, params, large }: Props) => {
   const filters: MerchantProfileFiltersInput = useMemo(() => {
     return {
       status: match(params.status)
@@ -215,92 +210,84 @@ export const MerchantList = ({ accountId, accountMembershipId, params }: Props) 
     accountId,
   });
 
-  const { desktop } = useResponsive();
-
   return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
-      {({ large }) => (
-        <>
-          <Box
-            direction="row"
-            alignItems="center"
-            style={[styles.filters, large && styles.filtersLarge]}
-          >
-            <LakeButton
-              ariaLabel={t("common.refresh")}
-              mode="secondary"
-              size="small"
-              icon="arrow-counterclockwise-filled"
-              onPress={() => {
-                reload();
-              }}
-            />
+    <>
+      <Box
+        direction="row"
+        alignItems="center"
+        style={[styles.filters, large && styles.filtersLarge]}
+      >
+        <LakeButton
+          ariaLabel={t("common.refresh")}
+          mode="secondary"
+          size="small"
+          icon="arrow-counterclockwise-filled"
+          onPress={() => {
+            reload();
+          }}
+        />
 
-            <Fill minWidth={16} />
+        <Fill minWidth={16} />
 
-            <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
-              <Toggle
-                mode={large ? "desktop" : "mobile"}
-                value={params.status === "Active"}
-                onToggle={status =>
-                  Router.push("AccountMerchantsList", {
-                    accountMembershipId,
-                    status: status ? "Active" : "Inactive",
-                  })
-                }
-                onLabel={t("merchantProfile.list.Active")}
-                offLabel={t("merchantProfile.list.Inactive")}
-              />
-            </Box>
-          </Box>
+        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
+          <Toggle
+            mode={large ? "desktop" : "mobile"}
+            value={params.status === "Active"}
+            onToggle={status =>
+              Router.push("AccountMerchantsList", {
+                accountMembershipId,
+                status: status ? "Active" : "Inactive",
+              })
+            }
+            onLabel={t("merchantProfile.list.Active")}
+            offLabel={t("merchantProfile.list.Inactive")}
+          />
+        </Box>
+      </Box>
 
-          {match(data)
-            .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
-            .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
-              <ErrorView error={error} />
-            ))
-            .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => (
-              <Connection connection={data.account?.merchantProfiles}>
-                {merchantProfiles => (
-                  <PlainListView
-                    withoutScroll={!desktop}
-                    data={merchantProfiles?.edges.map(({ node }) => node) ?? []}
-                    keyExtractor={item => item.id}
-                    headerHeight={48}
-                    rowHeight={56}
-                    groupHeaderHeight={48}
-                    extraInfo={undefined}
-                    columns={columns}
-                    smallColumns={smallColumns}
-                    onEndReached={() => {
-                      if (merchantProfiles?.pageInfo.hasNextPage === true) {
-                        setVariables({ after: merchantProfiles.pageInfo.endCursor });
-                      }
-                    }}
-                    getRowLink={({ item }) => (
-                      <Link
-                        data-testid="user-card-item"
-                        to={Router.AccountMerchantsProfileSettings({
-                          accountMembershipId,
-                          merchantProfileId: item.id,
-                        })}
-                      />
-                    )}
-                    loading={{ isLoading, count: PER_PAGE }}
-                    renderEmptyList={() => (
-                      <FixedListViewEmpty
-                        icon="lake-merchant"
-                        borderedIcon={true}
-                        title={t("merchantProfile.list.noResults")}
-                      />
-                    )}
+      {match(data)
+        .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), data => (
+          <Connection connection={data.account?.merchantProfiles}>
+            {merchantProfiles => (
+              <PlainListView
+                withoutScroll={!large}
+                data={merchantProfiles?.edges.map(({ node }) => node) ?? []}
+                keyExtractor={item => item.id}
+                headerHeight={48}
+                rowHeight={56}
+                groupHeaderHeight={48}
+                extraInfo={undefined}
+                columns={columns}
+                smallColumns={smallColumns}
+                onEndReached={() => {
+                  if (merchantProfiles?.pageInfo.hasNextPage === true) {
+                    setVariables({ after: merchantProfiles.pageInfo.endCursor });
+                  }
+                }}
+                getRowLink={({ item }) => (
+                  <Link
+                    data-testid="user-card-item"
+                    to={Router.AccountMerchantsProfileSettings({
+                      accountMembershipId,
+                      merchantProfileId: item.id,
+                    })}
                   />
                 )}
-              </Connection>
-            ))
-            .exhaustive()}
-        </>
-      )}
-    </ResponsiveContainer>
+                loading={{ isLoading, count: PER_PAGE }}
+                renderEmptyList={() => (
+                  <EmptyView
+                    icon="lake-merchant"
+                    borderedIcon={true}
+                    title={t("merchantProfile.list.noResults")}
+                  />
+                )}
+              />
+            )}
+          </Connection>
+        ))
+        .exhaustive()}
+    </>
   );
 };

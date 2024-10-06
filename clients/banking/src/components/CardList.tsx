@@ -1,8 +1,7 @@
 import { Option } from "@swan-io/boxed";
-import { LinkConfig } from "@swan-io/lake/src/components/FixedListView";
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { ReactElement, ReactNode, useState } from "react";
 import { CardListItemFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -27,6 +26,7 @@ type Props = {
     isLoading: boolean;
     count: number;
   };
+  large: boolean;
 };
 
 type ExtraInfo = {
@@ -91,9 +91,8 @@ export const CardList = ({
   getRowLink,
   renderEmptyList,
   activeRowId,
+  large,
 }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<Option<string>>(
     Option.None(),
   );
@@ -106,7 +105,7 @@ export const CardList = ({
   return (
     <>
       <PlainListView
-        withoutScroll={!desktop}
+        withoutScroll={!large}
         data={cards.map(({ node }) => node)}
         keyExtractor={item => item.id}
         headerHeight={48}

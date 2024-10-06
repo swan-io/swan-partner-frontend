@@ -1,13 +1,11 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
@@ -210,10 +208,9 @@ export const TransactionListPage = ({
             Loading: () => (
               <PlainListViewPlaceholder
                 count={PAGE_SIZE}
-                rowVerticalSpacing={0}
                 groupHeaderHeight={48}
                 headerHeight={48}
-                rowHeight={48}
+                rowHeight={56}
               />
             ),
             Done: result =>
@@ -245,14 +242,14 @@ export const TransactionListPage = ({
                           }}
                           renderEmptyList={() =>
                             hasSearchOrFilters ? (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("transansactionList.noResults")}
                                 subtitle={t("common.list.noResultsSuggestion")}
                               />
                             ) : (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("transansactionList.noResults")}

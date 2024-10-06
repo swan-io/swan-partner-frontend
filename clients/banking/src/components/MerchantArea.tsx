@@ -148,6 +148,7 @@ export const MerchantArea = ({
                     )
                     .with({ name: "AccountMerchantsList" }, ({ params: { status = "Active" } }) => (
                       <MerchantList
+                        large={large}
                         accountId={accountId}
                         accountMembershipId={accountMembershipId}
                         params={{ status }}

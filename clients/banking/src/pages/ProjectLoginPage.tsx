@@ -8,12 +8,14 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { SwanLogo } from "@swan-io/lake/src/components/SwanLogo";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import {
   backgroundColor,
   breakpoints,
@@ -21,7 +23,6 @@ import {
   invariantColors,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { isDecentMobileDevice } from "@swan-io/lake/src/utils/userAgent";
 import { useCallback, useEffect, useRef } from "react";
@@ -35,6 +36,9 @@ import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
+  root: {
+    ...commonStyles.fill,
+  },
   base: {
     backgroundColor: backgroundColor.default,
     flexGrow: 1,
@@ -137,7 +141,6 @@ export const ProjectLoginPage = ({
   redirectTo: string | undefined;
   sessionExpired?: boolean;
 }) => {
-  const { desktop } = useResponsive(breakpoints.medium);
   const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
   const [projectInfos] = useQuery(ProjectLoginPageDocument, { projectId, env: envType });
 
@@ -183,47 +186,51 @@ export const ProjectLoginPage = ({
   )
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ accentColor, name, logoUri }) => {
       return (
-        <ScrollView style={styles.base} contentContainerStyle={styles.content}>
-          <Box role="banner" alignItems="center">
-            {isNotNullish(logoUri) ? (
-              <Image
-                source={{ uri: logoUri }}
-                resizeMode="contain"
-                aria-label={name}
-                style={styles.clientLogo}
-              />
-            ) : (
-              <SwanLogo style={styles.swanLogo} />
-            )}
-          </Box>
+        <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
+          {({ large }) => (
+            <ScrollView style={styles.base} contentContainerStyle={styles.content}>
+              <Box role="banner" alignItems="center">
+                {isNotNullish(logoUri) ? (
+                  <Image
+                    source={{ uri: logoUri }}
+                    resizeMode="contain"
+                    aria-label={name}
+                    style={styles.clientLogo}
+                  />
+                ) : (
+                  <SwanLogo style={styles.swanLogo} />
+                )}
+              </Box>
 
-          <Fill minHeight={48} />
+              <Fill minHeight={48} />
 
-          {sessionExpiredWarningVisible && (
-            <>
-              <LakeAlert variant="warning" title={t("login.sessionExpired.title")} />
-              <Space height={desktop ? 24 : 48} />
-            </>
+              {sessionExpiredWarningVisible && (
+                <>
+                  <LakeAlert variant="warning" title={t("login.sessionExpired.title")} />
+                  <Space height={large ? 24 : 48} />
+                </>
+              )}
+
+              {large ? (
+                <Tile style={styles.tile}>
+                  <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
+                </Tile>
+              ) : (
+                <View>
+                  <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
+                </View>
+              )}
+
+              <Fill minHeight={48} />
+
+              {isNotNullish(logoUri) && (
+                <LakeText variant="smallRegular" style={styles.partnership}>
+                  {t("login.partnership")} <SwanLogo style={styles.swanPartnershipLogo} />
+                </LakeText>
+              )}
+            </ScrollView>
           )}
-
-          {desktop ? (
-            <Tile style={styles.tile}>
-              <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
-            </Tile>
-          ) : (
-            <View>
-              <LoginContent accentColor={accentColor} onLogin={handleButtonPress} />
-            </View>
-          )}
-
-          <Fill minHeight={48} />
-
-          {isNotNullish(logoUri) && (
-            <LakeText variant="smallRegular" style={styles.partnership}>
-              {t("login.partnership")} <SwanLogo style={styles.swanPartnershipLogo} />
-            </LakeText>
-          )}
-        </ScrollView>
+        </ResponsiveContainer>
       );
     })
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)

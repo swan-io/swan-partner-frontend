@@ -1,12 +1,10 @@
 import { Array, Option } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
@@ -164,13 +162,7 @@ export const TransferList = ({
           {data.match({
             NotAsked: () => null,
             Loading: () => (
-              <PlainListViewPlaceholder
-                count={NUM_TO_RENDER}
-                headerHeight={48}
-                paddingHorizontal={24}
-                rowHeight={56}
-                rowVerticalSpacing={0}
-              />
+              <PlainListViewPlaceholder count={NUM_TO_RENDER} headerHeight={48} rowHeight={56} />
             ),
             Done: result =>
               result.match({
@@ -202,14 +194,14 @@ export const TransferList = ({
                           }}
                           renderEmptyList={() =>
                             hasSearchOrFilters ? (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("transfer.list.noResults")}
                                 subtitle={t("common.list.noResultsSuggestion")}
                               />
                             ) : (
-                              <FixedListViewEmpty
+                              <EmptyView
                                 borderedIcon={true}
                                 icon="lake-transfer"
                                 title={t("transfer.list.noResults")}

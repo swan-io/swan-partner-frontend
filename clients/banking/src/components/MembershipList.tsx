@@ -1,8 +1,8 @@
 import { Option } from "@swan-io/boxed";
-import { FixedListViewEmpty, LinkConfig } from "@swan-io/lake/src/components/FixedListView";
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
+import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { ReactElement, useState } from "react";
 import { AccountMembershipFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -92,6 +92,7 @@ type Props = {
   };
   getRowLink: (item: LinkConfig<AccountMembershipFragment, ExtraInfo>) => ReactElement;
   onRefreshRequest: () => void;
+  large: boolean;
 };
 
 export const MembershipList = ({
@@ -103,9 +104,8 @@ export const MembershipList = ({
   loading,
   getRowLink,
   onRefreshRequest,
+  large,
 }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<Option<string>>(
     Option.None(),
   );
@@ -118,7 +118,7 @@ export const MembershipList = ({
   return (
     <>
       <PlainListView
-        withoutScroll={!desktop}
+        withoutScroll={!large}
         data={memberships}
         keyExtractor={item => item.id}
         headerHeight={48}
@@ -137,11 +137,7 @@ export const MembershipList = ({
         getRowLink={getRowLink}
         loading={loading}
         renderEmptyList={() => (
-          <FixedListViewEmpty
-            icon="lake-people"
-            borderedIcon={true}
-            title={t("common.noResults")}
-          />
+          <EmptyView icon="lake-people" borderedIcon={true} title={t("common.noResults")} />
         )}
       />
 

@@ -1,16 +1,11 @@
-import { LinkConfig } from "@swan-io/lake/src/components/FixedListView";
-import {
-  CellAction,
-  EndAlignedCell,
-  SimpleHeaderCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+import { CellAction, EndAlignedCell, SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { tabsViewHeight } from "@swan-io/lake/src/components/TabView";
+import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { capitalize } from "@swan-io/lake/src/utils/string";
 import dayjs from "dayjs";
 import { ReactElement, ReactNode } from "react";
@@ -143,16 +138,14 @@ export const TransactionList = ({
   withStickyTabs = false,
   withGrouping = true,
 }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
   const headerHeight = 48;
 
   return (
     <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
       {({ large }) => (
         <PlainListView
-          withoutScroll={!desktop}
-          stickyOffset={!withStickyTabs || desktop ? 0 : tabsViewHeight - 1}
+          withoutScroll={!large}
+          stickyOffset={!withStickyTabs || large ? 0 : tabsViewHeight - 1}
           data={transactions.map(({ node }) => node)}
           keyExtractor={item => item.id}
           groupBy={

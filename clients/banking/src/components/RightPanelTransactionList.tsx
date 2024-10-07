@@ -1,4 +1,4 @@
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/FixedListViewCells";
+import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { ReactNode } from "react";

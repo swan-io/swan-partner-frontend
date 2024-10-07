@@ -1,7 +1,7 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeRadio } from "@swan-io/lake/src/components/LakeRadio";
@@ -196,7 +196,7 @@ export const SavedBeneficiariesForm = (props: Props) => {
                       ItemSeparatorComponent={<Separator />}
                       contentContainerStyle={edges.length === 0 && styles.emptyContent}
                       ListEmptyComponent={
-                        <FixedListViewEmpty
+                        <EmptyView
                           icon="lake-person-arrow-swap"
                           borderedIcon={true}
                           borderedIconPadding={16}

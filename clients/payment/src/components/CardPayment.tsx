@@ -6,7 +6,6 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { FrameCardTokenizedEvent, Frames } from "frames-react";
@@ -52,11 +51,10 @@ type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   paymentMethodId: string;
   publicKey: string;
+  large: boolean;
 };
 
-export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) => {
-  const { desktop } = useResponsive();
-
+export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: Props) => {
   const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
 
   const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
@@ -327,7 +325,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey }: Props) 
         />
       </Box>
 
-      <Box direction={desktop ? "row" : "column"}>
+      <Box direction={large ? "row" : "column"}>
         <Box style={styles.grow}>
           <LakeLabel
             label={t("paymentLink.card.expiryDate")}

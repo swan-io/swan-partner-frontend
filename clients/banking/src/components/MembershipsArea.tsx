@@ -2,11 +2,11 @@ import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useDeferredQuery, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/FixedListView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
@@ -245,12 +245,7 @@ export const MembershipsArea = ({
             {data.match({
               NotAsked: () => null,
               Loading: () => (
-                <PlainListViewPlaceholder
-                  count={20}
-                  rowVerticalSpacing={0}
-                  headerHeight={large ? 48 : 0}
-                  rowHeight={56}
-                />
+                <PlainListViewPlaceholder count={20} headerHeight={large ? 48 : 0} rowHeight={56} />
               ),
               Done: result =>
                 result.match({
@@ -261,6 +256,7 @@ export const MembershipsArea = ({
                         return (
                           <>
                             <MembershipList
+                              large={large}
                               memberships={memberships?.edges.map(({ node }) => node) ?? []}
                               accountMembershipId={accountMembershipId}
                               onActiveRowChange={onActiveRowChange}

@@ -1,24 +1,22 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
-import {
   CopyableRegularTextCell,
   EndAlignedCell,
   SimpleHeaderCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
-import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
+import {
+  ColumnConfig,
+  PlainListView,
+  PlainListViewPlaceholder,
+} from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
+import { spacings } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetEdge } from "@swan-io/lake/src/utils/types";
@@ -39,9 +37,6 @@ import {
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  root: {
-    ...commonStyles.fill,
-  },
   header: {
     alignItems: "flex-start",
     paddingHorizontal: spacings[24],
@@ -54,6 +49,7 @@ const styles = StyleSheet.create({
 
 type Props = {
   accountId: string;
+  large: boolean;
 };
 
 type Account = NonNullable<AccountDetailsVirtualIbansPageQuery["account"]>;
@@ -227,9 +223,7 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
 
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
-export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
+export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
   const [addVirtualIban, virtualIbanAddition] = useMutation(AddVirtualIbanDocument);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
@@ -247,34 +241,62 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
       });
   };
 
-  return (
-    <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
-      {({ large }) =>
-        data.match({
-          NotAsked: () => null,
-          Loading: () => (
-            <PlainListViewPlaceholder
-              headerHeight={48}
-              rowHeight={56}
-              rowVerticalSpacing={4}
-              count={20}
-            />
-          ),
-          Done: result =>
-            result.match({
-              Error: error => <ErrorView error={error} />,
-              Ok: data => (
-                <Connection connection={data.account?.virtualIbanEntries}>
-                  {virtualIbanEntries => {
-                    const edges = virtualIbanEntries?.edges ?? [];
-                    const unlimited = data.account?.paymentLevel === "Unlimited";
-                    const totalCount = virtualIbanEntries?.totalCount ?? 0;
-                    const isAccountOpen = data.account?.statusInfo.status === "Opened";
+  return data.match({
+    NotAsked: () => null,
+    Loading: () => <PlainListViewPlaceholder headerHeight={48} rowHeight={56} count={20} />,
+    Done: result =>
+      result.match({
+        Error: error => <ErrorView error={error} />,
+        Ok: data => (
+          <Connection connection={data.account?.virtualIbanEntries}>
+            {virtualIbanEntries => {
+              const edges = virtualIbanEntries?.edges ?? [];
+              const unlimited = data.account?.paymentLevel === "Unlimited";
+              const totalCount = virtualIbanEntries?.totalCount ?? 0;
+              const isAccountOpen = data.account?.statusInfo.status === "Opened";
 
-                    return (
-                      <>
-                        {totalCount > 0 && unlimited && isAccountOpen && (
-                          <View style={[styles.header, large && styles.headerDesktop]}>
+              return (
+                <>
+                  {totalCount > 0 && unlimited && isAccountOpen && (
+                    <View style={[styles.header, large && styles.headerDesktop]}>
+                      <LakeButton
+                        loading={virtualIbanAddition.isLoading()}
+                        icon="add-circle-filled"
+                        size="small"
+                        color="current"
+                        onPress={onPressNew}
+                      >
+                        {t("common.new")}
+                      </LakeButton>
+                    </View>
+                  )}
+
+                  <PlainListView
+                    withoutScroll={!large}
+                    data={edges}
+                    extraInfo={{ reload }}
+                    columns={columns}
+                    smallColumns={smallColumns}
+                    keyExtractor={keyExtractor}
+                    onEndReached={() => {
+                      if (Boolean(virtualIbanEntries?.pageInfo.hasNextPage)) {
+                        setVariables({
+                          after: virtualIbanEntries?.pageInfo.endCursor ?? undefined,
+                        });
+                      }
+                    }}
+                    headerHeight={48}
+                    groupHeaderHeight={48}
+                    rowHeight={56}
+                    loading={{ isLoading, count: 20 }}
+                    renderEmptyList={() => (
+                      <EmptyView
+                        icon="add-circle-regular"
+                        title={t("accountDetails.virtualIbans.emptyTitle")}
+                        subtitle={t("accountDetails.virtualIbans.emptyDescription")}
+                      >
+                        {unlimited && isAccountOpen && (
+                          <LakeButtonGroup justifyContent="center">
                             <LakeButton
                               loading={virtualIbanAddition.isLoading()}
                               icon="add-circle-filled"
@@ -284,57 +306,16 @@ export const AccountDetailsVirtualIbansPage = ({ accountId }: Props) => {
                             >
                               {t("common.new")}
                             </LakeButton>
-                          </View>
+                          </LakeButtonGroup>
                         )}
-
-                        <PlainListView
-                          withoutScroll={!desktop}
-                          data={edges}
-                          extraInfo={{ reload }}
-                          columns={columns}
-                          smallColumns={smallColumns}
-                          keyExtractor={keyExtractor}
-                          onEndReached={() => {
-                            if (Boolean(virtualIbanEntries?.pageInfo.hasNextPage)) {
-                              setVariables({
-                                after: virtualIbanEntries?.pageInfo.endCursor ?? undefined,
-                              });
-                            }
-                          }}
-                          headerHeight={48}
-                          groupHeaderHeight={48}
-                          rowHeight={56}
-                          loading={{ isLoading, count: 20 }}
-                          renderEmptyList={() => (
-                            <FixedListViewEmpty
-                              icon="add-circle-regular"
-                              title={t("accountDetails.virtualIbans.emptyTitle")}
-                              subtitle={t("accountDetails.virtualIbans.emptyDescription")}
-                            >
-                              {unlimited && isAccountOpen && (
-                                <LakeButtonGroup justifyContent="center">
-                                  <LakeButton
-                                    loading={virtualIbanAddition.isLoading()}
-                                    icon="add-circle-filled"
-                                    size="small"
-                                    color="current"
-                                    onPress={onPressNew}
-                                  >
-                                    {t("common.new")}
-                                  </LakeButton>
-                                </LakeButtonGroup>
-                              )}
-                            </FixedListViewEmpty>
-                          )}
-                        />
-                      </>
-                    );
-                  }}
-                </Connection>
-              ),
-            }),
-        })
-      }
-    </ResponsiveContainer>
-  );
+                      </EmptyView>
+                    )}
+                  />
+                </>
+              );
+            }}
+          </Connection>
+        ),
+      }),
+  });
 };

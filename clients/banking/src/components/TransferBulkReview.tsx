@@ -1,10 +1,10 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ColumnConfig, FixedListView } from "@swan-io/lake/src/components/FixedListView";
 import {
   CopyableRegularTextCell,
   EndAlignedCell,
   SimpleHeaderCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -12,12 +12,8 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
-import {
-  backgroundColor,
-  colors,
-  negativeSpacings,
-  spacings,
-} from "@swan-io/lake/src/constants/design";
+import { ColumnConfig, VirtualizedList } from "@swan-io/lake/src/components/VirtualizedList";
+import { colors, negativeSpacings, spacings } from "@swan-io/lake/src/constants/design";
 import { printFormat } from "iban";
 import { useState } from "react";
 import { Pressable, StyleSheet, View } from "react-native";
@@ -233,10 +229,8 @@ export const TransferBulkReview = ({
         <Space height={8} />
 
         <View style={styles.scrollViewContainer}>
-          <FixedListView
-            mode="plain"
-            rowVerticalSpacing={0}
-            headerBackgroundColor={backgroundColor.accented}
+          <VirtualizedList
+            variant="accented"
             rowHeight={56}
             headerHeight={56}
             data={creditTransferInputs}
@@ -245,6 +239,7 @@ export const TransferBulkReview = ({
             stickedToStartColumns={stickedToStartColumns}
             columns={columns}
             stickedToEndColumns={stickedToEndColumn}
+            renderEmptyList={() => <EmptyView icon="error-circle-regular" borderedIcon={true} />}
           />
         </View>
 

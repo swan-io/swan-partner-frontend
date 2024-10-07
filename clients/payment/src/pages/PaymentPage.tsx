@@ -7,7 +7,6 @@ import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl"
 import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
@@ -39,6 +38,7 @@ type Props = {
   setMandateUrl: (value: string) => void;
   nonEeaCountries: string[];
   merchantPaymentMethods: { type: MerchantPaymentMethodType; id: string }[];
+  large: boolean;
 };
 
 export const PaymentPage = ({
@@ -46,9 +46,8 @@ export const PaymentPage = ({
   setMandateUrl,
   nonEeaCountries,
   merchantPaymentMethods,
+  large,
 }: Props) => {
-  const { desktop } = useResponsive();
-
   const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)
@@ -98,7 +97,7 @@ export const PaymentPage = ({
       {paymentMethods.length > 1 && isNotNullish(selectedPaymentMethod) && (
         <LakeLabel
           style={
-            desktop && paymentMethods.length === 1
+            large && paymentMethods.length === 1
               ? styles.segmentedControlDesktop
               : styles.segmentedControl
           }
@@ -128,6 +127,7 @@ export const PaymentPage = ({
                 paymentLink={paymentLink}
                 paymentMethodId={id}
                 publicKey={env.CLIENT_CHECKOUT_API_KEY}
+                large={large}
               />
             );
           }
@@ -137,6 +137,7 @@ export const PaymentPage = ({
             nonEeaCountries={nonEeaCountries}
             paymentLink={paymentLink}
             setMandateUrl={setMandateUrl}
+            large={large}
           />
         ))
         .otherwise(() => null)}

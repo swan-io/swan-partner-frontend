@@ -1,16 +1,14 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -146,12 +144,7 @@ export const BeneficiaryDetailTransferList = ({
       <ScrollView style={styles.base} contentContainerStyle={styles.content}>
         {match(transactions)
           .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-            <PlainListViewPlaceholder
-              count={PAGE_SIZE}
-              headerHeight={16}
-              rowHeight={72}
-              rowVerticalSpacing={0}
-            />
+            <PlainListViewPlaceholder count={PAGE_SIZE} headerHeight={16} rowHeight={72} />
           ))
           .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
           .with(AsyncData.P.Done(Result.P.Ok(P.select())), transactionsPage => (
@@ -166,14 +159,14 @@ export const BeneficiaryDetailTransferList = ({
                     transactions={transactions?.edges ?? []}
                     renderEmptyList={() =>
                       hasSearch ? (
-                        <FixedListViewEmpty
+                        <EmptyView
                           icon="lake-transfer"
                           borderedIcon={true}
                           title={t("transfer.list.noResults")}
                           subtitle={t("common.list.noResultsSuggestion")}
                         />
                       ) : (
-                        <FixedListViewEmpty
+                        <EmptyView
                           borderedIcon={true}
                           icon="lake-transfer"
                           title={t("transfer.list.noResults")}

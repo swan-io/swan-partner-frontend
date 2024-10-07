@@ -1,11 +1,11 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import {
   CellAction,
   CopyableRegularTextCell,
   EndAlignedCell,
   SimpleRegularTextCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";

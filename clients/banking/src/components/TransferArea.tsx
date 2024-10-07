@@ -97,7 +97,7 @@ export const TransferArea = ({
             { name: "AccountPaymentsBeneficiariesDetails" },
             () => (
               <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
-                {({ small }) => (
+                {({ small, large }) => (
                   <>
                     {transferCreationVisible ? (
                       <Box direction="row">
@@ -171,6 +171,7 @@ export const TransferArea = ({
                             accountMembershipId={accountMembershipId}
                             canQueryCardOnTransaction={canQueryCardOnTransaction}
                             canViewAccount={canViewAccount}
+                            large={large}
                           />
                         ),
                       )

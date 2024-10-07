@@ -2,6 +2,8 @@ import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
+import { CellAction, EndAlignedCell, SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import {
@@ -10,15 +12,6 @@ import {
   FiltersStack,
   FiltersState,
 } from "@swan-io/lake/src/components/Filters";
-import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
-import {
-  CellAction,
-  EndAlignedCell,
-  SimpleHeaderCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
 import { Flag } from "@swan-io/lake/src/components/Flag";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
@@ -26,7 +19,11 @@ import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import {
+  ColumnConfig,
+  PlainListView,
+  PlainListViewPlaceholder,
+} from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -411,7 +408,7 @@ const BeneficiaryListImpl = ({
           }
         }}
         renderEmptyList={() => (
-          <FixedListViewEmpty
+          <EmptyView
             icon="lake-person-arrow-swap"
             borderedIcon={true}
             borderedIconPadding={16}
@@ -653,9 +650,7 @@ export const BeneficiaryList = ({
                 <PlainListViewPlaceholder
                   count={NUM_TO_RENDER}
                   headerHeight={48}
-                  paddingHorizontal={24}
                   rowHeight={rowHeight}
-                  rowVerticalSpacing={0}
                 />
               ))
               .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => (

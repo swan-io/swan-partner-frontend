@@ -7,7 +7,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
@@ -39,6 +38,7 @@ type Props = {
   paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
   nonEeaCountries: string[];
   setMandateUrl: (value: string) => void;
+  large: boolean;
 };
 
 type FormState = {
@@ -59,9 +59,7 @@ const fieldToPathMap = {
   postalCode: ["address", "postalCode"],
 } as const;
 
-export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Props) => {
-  const { desktop } = useResponsive();
-
+export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large }: Props) => {
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",
@@ -268,7 +266,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl }: Prop
         )}
       </Field>
 
-      <Box direction={desktop ? "row" : "column"}>
+      <Box direction={large ? "row" : "column"}>
         <Box style={styles.grow}>
           <Field name="city">
             {({ value, valid, error, onChange, onBlur, ref }) => (

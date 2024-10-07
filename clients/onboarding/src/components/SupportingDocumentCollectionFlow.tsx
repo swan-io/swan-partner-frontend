@@ -1,7 +1,7 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { FixedListViewEmpty } from "@swan-io/lake/src/components/FixedListView";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -206,7 +206,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                   if (supportingDocumentCollection.statusInfo.status === "PendingReview") {
                     return (
                       <Box grow={1} alignItems="center" justifyContent="center">
-                        <FixedListViewEmpty
+                        <EmptyView
                           icon="lake-clock"
                           borderedIcon={true}
                           title={t("supportingDocumentCollection.pendingReview")}

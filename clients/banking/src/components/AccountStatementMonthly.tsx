@@ -3,19 +3,20 @@ import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
-import {
   CellAction,
   CenteredCell,
   EndAlignedCell,
   SimpleHeaderCell,
   SimpleRegularTextCell,
   SimpleTitleCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import {
+  ColumnConfig,
+  PlainListView,
+  PlainListViewPlaceholder,
+} from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
@@ -161,14 +162,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
     <>
       {data.match({
         NotAsked: () => null,
-        Loading: () => (
-          <PlainListViewPlaceholder
-            count={20}
-            rowVerticalSpacing={0}
-            headerHeight={0}
-            rowHeight={48}
-          />
-        ),
+        Loading: () => <PlainListViewPlaceholder count={20} headerHeight={48} rowHeight={48} />,
         Done: result =>
           result.match({
             Error: error => <ErrorView error={error} />,
@@ -213,10 +207,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                             }
                           }}
                           renderEmptyList={() => (
-                            <FixedListViewEmpty
-                              icon="lake-inbox-empty"
-                              title={t("common.list.noResults")}
-                            />
+                            <EmptyView icon="lake-inbox-empty" title={t("common.list.noResults")} />
                           )}
                           smallColumns={smallColumns}
                         />

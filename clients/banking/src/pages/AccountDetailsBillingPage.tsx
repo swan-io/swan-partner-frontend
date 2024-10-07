@@ -1,22 +1,22 @@
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import {
-  FixedListViewEmpty,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
-import {
   CellAction,
   EndAlignedCell,
   SimpleHeaderCell,
   SimpleRegularTextCell,
   StartAlignedCell,
-} from "@swan-io/lake/src/components/FixedListViewCells";
+} from "@swan-io/lake/src/components/Cells";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
-import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
+import {
+  ColumnConfig,
+  PlainListView,
+  PlainListViewPlaceholder,
+} from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { useResponsive } from "@swan-io/lake/src/hooks/useResponsive";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
@@ -31,6 +31,7 @@ import { formatCurrency, t } from "../utils/i18n";
 
 type Props = {
   accountId: string;
+  large: boolean;
 };
 
 type ExtraInfo = undefined;
@@ -199,9 +200,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
 
 const PER_PAGE = 20;
 
-export const AccountDetailsBillingPage = ({ accountId }: Props) => {
-  // use useResponsive to fit with scroll behavior set in AccountArea
-  const { desktop } = useResponsive();
+export const AccountDetailsBillingPage = ({ accountId, large }: Props) => {
   const [data, { isLoading, setVariables }] = useQuery(AccountDetailsBillingPageDocument, {
     accountId,
     first: PER_PAGE,
@@ -212,7 +211,6 @@ export const AccountDetailsBillingPage = ({ accountId }: Props) => {
     Loading: () => (
       <PlainListViewPlaceholder
         count={20}
-        rowVerticalSpacing={0}
         groupHeaderHeight={48}
         headerHeight={48}
         rowHeight={48}
@@ -224,7 +222,7 @@ export const AccountDetailsBillingPage = ({ accountId }: Props) => {
           <Connection connection={account?.invoices}>
             {invoices => (
               <PlainListView
-                withoutScroll={!desktop}
+                withoutScroll={!large}
                 data={invoices?.edges?.map(({ node }) => node) ?? []}
                 keyExtractor={item => item.id}
                 headerHeight={48}
@@ -243,7 +241,7 @@ export const AccountDetailsBillingPage = ({ accountId }: Props) => {
                   }
                 }}
                 renderEmptyList={() => (
-                  <FixedListViewEmpty
+                  <EmptyView
                     icon="lake-receipt"
                     borderedIcon={true}
                     title={t("accountDetails.billing.emptyTitle")}

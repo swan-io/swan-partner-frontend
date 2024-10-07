@@ -1,5 +1,6 @@
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
+import { Box } from "@swan-io/lake/src/components/Box";
 import {
   CellAction,
   EndAlignedCell,
@@ -9,17 +10,20 @@ import {
 } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import {
   ColumnConfig,
   PlainListView,
   PlainListViewPlaceholder,
 } from "@swan-io/lake/src/components/PlainListView";
+import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
@@ -28,6 +32,15 @@ import {
   AccountDetailsBillingPageQuery,
 } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
+
+const styles = StyleSheet.create({
+  regularText: {
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    flexGrow: 1,
+    whiteSpace: "nowrap",
+  },
+});
 
 type Props = {
   accountId: string;
@@ -46,7 +59,26 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     width: "grow",
     id: "name",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item: { name } }) => <SimpleRegularTextCell text={name} />,
+    renderCell: ({ item: { name, type } }) => (
+      <StartAlignedCell>
+        <Box direction="column">
+          <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
+            {name}
+          </LakeText>
+
+          <Space height={4} />
+
+          {match(type)
+            .with("Invoice", () => (
+              <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
+            ))
+            .with("RefundNote", () => (
+              <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
+            ))
+            .otherwise(() => null)}
+        </Box>
+      </StartAlignedCell>
+    ),
   },
   {
     title: t("accountDetails.billing.date"),
@@ -131,8 +163,28 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     width: "grow",
     id: "name",
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item: { name } }) => <SimpleRegularTextCell text={name} />,
+    renderCell: ({ item: { name, type } }) => (
+      <StartAlignedCell>
+        <Box direction="column">
+          <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
+            {name}
+          </LakeText>
+
+          <Space height={4} />
+
+          {match(type)
+            .with("Invoice", () => (
+              <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
+            ))
+            .with("RefundNote", () => (
+              <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
+            ))
+            .otherwise(() => null)}
+        </Box>
+      </StartAlignedCell>
+    ),
   },
+
   {
     title: t("accountDetails.billing.amount"),
     width: 150,
@@ -209,12 +261,7 @@ export const AccountDetailsBillingPage = ({ accountId, large }: Props) => {
   return data.match({
     NotAsked: () => null,
     Loading: () => (
-      <PlainListViewPlaceholder
-        count={20}
-        groupHeaderHeight={48}
-        headerHeight={48}
-        rowHeight={48}
-      />
+      <PlainListViewPlaceholder count={20} groupHeaderHeight={0} headerHeight={48} rowHeight={72} />
     ),
     Done: result =>
       result.match({
@@ -226,7 +273,7 @@ export const AccountDetailsBillingPage = ({ accountId, large }: Props) => {
                 data={invoices?.edges?.map(({ node }) => node) ?? []}
                 keyExtractor={item => item.id}
                 headerHeight={48}
-                rowHeight={48}
+                rowHeight={72}
                 groupHeaderHeight={48}
                 extraInfo={undefined}
                 columns={columns}

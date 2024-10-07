@@ -63,6 +63,7 @@
   "accountClose.reason.Other": "Muu",
   "accountClose.steps.letUsKnowWhy": "Kerro miksi lähdet",
   "accountClose.steps.transferBalance": "Siirrä tilin saldo",
+  "accountClose.suspended.title": "Tilisi on keskeytetty",
   "accountClose.transferDone.description": "Tilisi suljetaan 30 päivän kuluessa.\nVoit sulkea tämän ikkunan.",
   "accountClose.transferDone.title": "Siirtoasi käsitellään",
   "accountClose.transferIntro.description": "Tilisi sulkemista käsitellään, mutta se pysyy sulkemisprosessissa kunnes suoritat viimeisen askeleen.",

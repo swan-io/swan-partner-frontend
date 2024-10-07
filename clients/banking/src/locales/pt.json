@@ -63,6 +63,7 @@
   "accountClose.reason.Other": "Outro",
   "accountClose.steps.letUsKnowWhy": "Informe-nos por que você está saindo",
   "accountClose.steps.transferBalance": "Transferir o saldo da sua conta",
+  "accountClose.suspended.title": "Sua conta está suspensa",
   "accountClose.transferDone.description": "Sua conta será fechada dentro de 30 dias.\nVocê pode fechar esta janela.",
   "accountClose.transferDone.title": "Sua transferência está sendo processada",
   "accountClose.transferIntro.description": "O fechamento da sua conta está sendo processado, mas permanecerá em processo de fechamento até que você conclua o último passo.",

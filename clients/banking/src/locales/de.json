@@ -63,6 +63,7 @@
   "accountClose.reason.Other": "Andere",
   "accountClose.steps.letUsKnowWhy": "Teilen Sie uns mit, warum Sie gehen",
   "accountClose.steps.transferBalance": "Übertragen Sie Ihr Kontoguthaben",
+  "accountClose.suspended.title": "Ihr Konto ist gesperrt",
   "accountClose.transferDone.description": "Ihr Konto wird innerhalb von 30 Tagen geschlossen.\nSie können dieses Fenster schließen.",
   "accountClose.transferDone.title": "Ihre Überweisung wird bearbeitet",
   "accountClose.transferIntro.description": "Ihre Kontoschließung wird bearbeitet, bleibt jedoch im Schließungsprozess, bis Sie den letzten Schritt abgeschlossen haben.",

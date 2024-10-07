@@ -63,6 +63,7 @@
   "accountClose.reason.Other": "Anders",
   "accountClose.steps.letUsKnowWhy": "Laat ons weten waarom u vertrekt",
   "accountClose.steps.transferBalance": "Boek uw rekeningsaldo over",
+  "accountClose.suspended.title": "Uw account is geschorst",
   "accountClose.transferDone.description": "Uw rekening wordt binnen 30 dagen gesloten.\nU kunt dit venster sluiten.",
   "accountClose.transferDone.title": "Uw overboeking wordt verwerkt",
   "accountClose.transferIntro.description": "Uw rekening wordt gesloten, maar blijft in het sluitingsproces totdat u de laatste stap voltooit.",

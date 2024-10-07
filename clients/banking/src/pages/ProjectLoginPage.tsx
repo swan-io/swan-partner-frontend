@@ -90,7 +90,6 @@ const HelpLink = ({ to, children }: { to: string; children: string }) => (
 );
 
 const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage([
-  "en",
   "fr",
   "de",
   "es",
@@ -98,6 +97,7 @@ const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage
   "pt",
   "nl",
   "fi",
+  "en",
 ])}`;
 
 type LoginContentProps = {

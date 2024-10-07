@@ -245,6 +245,7 @@ export type AccountActivationTag =
   | "pending"
   | "none"
   | "refused"
+  | "suspended"
   | "closing"
   | "closed";
 
@@ -327,6 +328,13 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
                     </Tag>
                   </View>
                 ))
+                .with("suspended", () => (
+                  <View style={styles.activationLink}>
+                    <Tag color="warning" size="small">
+                      {t("accountActivation.menuTag.suspended")}
+                    </Tag>
+                  </View>
+                ))
                 .with("closing", () => (
                   <View style={styles.activationLink}>
                     <Tag color="warning" size="small">
@@ -361,7 +369,6 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
                           {t("accountActivation.menuTag.pending")}
                         </Tag>
                       ))
-
                       .exhaustive()}
 
                     <Icon name="arrow-right-filled" size={16} color={colors.gray[500]} />

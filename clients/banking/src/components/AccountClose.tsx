@@ -487,6 +487,22 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                           <Space height={24} />
                         </>
                       ))
+                      .with({ accountStatus: "Suspended" }, () => (
+                        <WithCurrentColor variant="warning" style={styles.successContainer}>
+                          <EmptyView
+                            icon="lake-warning"
+                            borderedIcon={true}
+                            borderedIconPadding={24}
+                            title={t("accountClose.suspended.title")}
+                          >
+                            <LakeButtonGroup>
+                              <LakeButton href="mailto:support@swan.io" mode="secondary">
+                                {t("accountClose.negativeBalance.contactSupport")}
+                              </LakeButton>
+                            </LakeButtonGroup>
+                          </EmptyView>
+                        </WithCurrentColor>
+                      ))
                       .otherwise(() => <ErrorView />)
                   }
                 </WizardLayout>

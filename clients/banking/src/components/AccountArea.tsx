@@ -542,6 +542,29 @@ export const AccountArea = ({
                                   ? Number(account?.balances?.available.value)
                                   : null,
                             })
+                              .with({ status: "Suspended" }, () => (
+                                <ResponsiveContainer breakpoint={breakpoints.large}>
+                                  {({ large }) => (
+                                    <View style={[styles.alert, large && styles.alertLarge]}>
+                                      <LakeAlert
+                                        variant="warning"
+                                        title={t("account.statusAlert.suspended")}
+                                        callToAction={
+                                          <LakeButton
+                                            href="mailto:support@swan.io"
+                                            mode="tertiary"
+                                            color="warning"
+                                            size="small"
+                                            icon="mail-regular"
+                                          >
+                                            {t("accountClose.negativeBalance.contactSupport")}
+                                          </LakeButton>
+                                        }
+                                      />
+                                    </View>
+                                  )}
+                                </ResponsiveContainer>
+                              ))
                               .with({ status: "Closed" }, () => (
                                 <ResponsiveContainer breakpoint={breakpoints.large}>
                                   {({ large }) => (

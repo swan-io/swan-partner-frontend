@@ -31,7 +31,7 @@ import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
-import { getFirstSupportedLanguage, t } from "../utils/i18n";
+import { locale, t } from "../utils/i18n";
 import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
@@ -89,16 +89,7 @@ const HelpLink = ({ to, children }: { to: string; children: string }) => (
   </LakeText>
 );
 
-const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage([
-  "fr",
-  "de",
-  "es",
-  "it",
-  "pt",
-  "nl",
-  "fi",
-  "en",
-])}`;
+const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${locale.language}`;
 
 type LoginContentProps = {
   accentColor: string;

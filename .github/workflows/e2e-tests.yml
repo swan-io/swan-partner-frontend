@@ -4,6 +4,10 @@ on:
   push:
     branches: ["*"]
 
+concurrency:
+  group: end-to-end
+  cancel-in-progress: false
+
 jobs:
   test:
     name: E2E tests

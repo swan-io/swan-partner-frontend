@@ -95,6 +95,9 @@ const SUPPORT_ROOT_URL = `https://support.swan.io/hc/${getFirstSupportedLanguage
   "de",
   "es",
   "it",
+  "pt",
+  "nl",
+  "fi",
 ])}`;
 
 type LoginContentProps = {
@@ -125,7 +128,9 @@ const LoginContent = ({ accentColor, onLogin }: LoginContentProps) => {
       <HelpLink to={`${SUPPORT_ROOT_URL}-150`}>{t("login.linkHow")}</HelpLink>
       <Space height={8} />
 
-      <HelpLink to={`${SUPPORT_ROOT_URL}-150/articles/5490446960797-How-do-I-report-fraud-`}>
+      <HelpLink
+        to={`${SUPPORT_ROOT_URL}-150/articles/17099978406045-Credit-transfer-and-card-payment-fraud-disputes`}
+      >
         {t("login.linkFraud")}
       </HelpLink>
     </WithPartnerAccentColor>

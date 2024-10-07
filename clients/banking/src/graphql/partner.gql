@@ -571,6 +571,7 @@ query AccountDetailsBillingPage($accountId: ID!, $first: Int!, $after: String) {
           openingDate
           closingDate
           id
+          type
           name
           createdAt
           updatedAt

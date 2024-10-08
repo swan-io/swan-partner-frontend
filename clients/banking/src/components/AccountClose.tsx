@@ -26,6 +26,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountClosingDocument, AccountCountry, CloseAccountDocument } from "../graphql/partner";
+import { NotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -358,6 +359,17 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
               : Option.None(),
         );
 
+        const legalRepresentativeName = Option.fromNullable(
+          account.legalRepresentativeMembership.user,
+        )
+          .flatMap(user =>
+            Option.allFromDict({
+              firstName: Option.fromNullable(user.firstName),
+              lastName: Option.fromNullable(user.lastName),
+            }),
+          )
+          .map(({ firstName, lastName }) => `${firstName} ${lastName}`);
+
         const balance = Number(account.balances?.available.value);
 
         const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
@@ -514,7 +526,14 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                   borderedIcon={true}
                   borderedIconPadding={20}
                   title={t("accountClose.notLegalRepresentative.title")}
-                  subtitle={t("accountClose.notLegalRepresentative.description")}
+                  subtitle={match(legalRepresentativeName)
+                    .with(Option.P.Some(P.select()), legalRepresentativeName =>
+                      t("accountClose.notLegalRepresentative.description.withName", {
+                        legalRepresentativeName,
+                        legalRepresentativeEmail: account.legalRepresentativeMembership.email,
+                      }),
+                    )
+                    .otherwise(() => t("accountClose.notLegalRepresentative.description"))}
                 >
                   {userMembershipIdOnCurrentAccount
                     .map(accountMembershipId => {
@@ -537,5 +556,5 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
         );
       },
     )
-    .otherwise(() => null);
+    .otherwise(() => <NotFoundPage />);
 };

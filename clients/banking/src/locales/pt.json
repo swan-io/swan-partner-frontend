@@ -59,6 +59,7 @@
   "accountClose.negativeBalance.title": "Sua conta não pode ser fechada",
   "accountClose.nextSteps": "Próximos passos",
   "accountClose.notLegalRepresentative.description": "Contate o representante legal da conta para continuar o processo de fechamento da conta.",
+  "accountClose.notLegalRepresentative.description.withName": "Envie este link para o representante legal da conta para continuar o processo de encerramento da conta\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "accountClose.notLegalRepresentative.title": "Você não é o representante legal desta conta.",
   "accountClose.reason.NotSatisfied": "Não estou satisfeito",
   "accountClose.reason.NotUsingAccountAnymore": "Não estou mais usando a conta",

@@ -59,6 +59,7 @@
   "accountClose.negativeBalance.title": "Uw rekening kan niet worden gesloten",
   "accountClose.nextSteps": "Wat is de volgende stap?",
   "accountClose.notLegalRepresentative.description": "Neem contact op met de wettelijke vertegenwoordiger van de rekening om het sluitingsproces voort te zetten.",
+  "accountClose.notLegalRepresentative.description.withName": "Stuur deze link naar de wettelijke vertegenwoordiger van de rekening om het proces van rekeningafsluiting voort te zetten\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "accountClose.notLegalRepresentative.title": "U bent niet de wettelijke vertegenwoordiger van deze rekening.",
   "accountClose.reason.NotSatisfied": "Ik ben niet tevreden",
   "accountClose.reason.NotUsingAccountAnymore": "Ik gebruik de rekening niet meer",

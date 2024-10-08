@@ -59,6 +59,7 @@
   "accountClose.negativeBalance.title": "Tiliäsi ei voida sulkea",
   "accountClose.nextSteps": "Mitä seuraavaksi?",
   "accountClose.notLegalRepresentative.description": "Ota yhteyttä tilin lailliseen edustajaan jatkaaksesi tilin sulkemisprosessia.",
+  "accountClose.notLegalRepresentative.description.withName": "Lähetä tämä linkki tilin lailliselle edustajalle jatkaaksesi tilin sulkemisprosessia\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "accountClose.notLegalRepresentative.title": "Et ole tämän tilin laillinen edustaja",
   "accountClose.reason.NotSatisfied": "En ole tyytyväinen",
   "accountClose.reason.NotUsingAccountAnymore": "En käytä tiliä enää",

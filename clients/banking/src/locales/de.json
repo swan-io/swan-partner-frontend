@@ -59,6 +59,7 @@
   "accountClose.negativeBalance.title": "Ihr Konto kann nicht geschlossen werden",
   "accountClose.nextSteps": "Was kommt als Nächstes?",
   "accountClose.notLegalRepresentative.description": "Kontaktieren Sie den gesetzlichen Vertreter des Kontos, um den Schließungsprozess fortzusetzen.",
+  "accountClose.notLegalRepresentative.description.withName": "Senden Sie diesen Link an den gesetzlichen Vertreter des Kontos, um den Kündigungsprozess des Kontos fortzusetzen\n({legalRepresentativeName}, {legalRepresentativeEmail}).",
   "accountClose.notLegalRepresentative.title": "Sie sind nicht der gesetzliche Vertreter dieses Kontos.",
   "accountClose.reason.NotSatisfied": "Ich bin nicht zufrieden",
   "accountClose.reason.NotUsingAccountAnymore": "Ich nutze das Konto nicht mehr",

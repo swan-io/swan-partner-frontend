@@ -80,7 +80,7 @@
   "accountClose.whyLeaving": "Miksi poistut?",
   "accountDetails.billing.actions": "Toiminnot",
   "accountDetails.billing.amount": "Yhteensä",
-  "accountDetails.billing.date": "Laskutuspäivä",
+  "accountDetails.billing.date": "Päivämäärä",
   "accountDetails.billing.emptyDescription": "Ensimmäinen laskusi luodaan ensimmäisen käyttökuukautesi jälkeen.",
   "accountDetails.billing.emptyTitle": "Sinulla ei vielä ole laskuja",
   "accountDetails.billing.name": "Nimi",

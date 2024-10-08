@@ -80,7 +80,7 @@
   "accountClose.whyLeaving": "Warum verlassen Sie uns?",
   "accountDetails.billing.actions": "Aktionen",
   "accountDetails.billing.amount": "Gesamtbetrag",
-  "accountDetails.billing.date": "Ausstellungsdatum",
+  "accountDetails.billing.date": "Datum",
   "accountDetails.billing.emptyDescription": "Ihre erste Rechnung wird nach dem ersten Monat der Nutzung erstellt.",
   "accountDetails.billing.emptyTitle": "Sie haben noch keine Rechnungen",
   "accountDetails.billing.name": "Name",

@@ -80,7 +80,7 @@
   "accountClose.whyLeaving": "Por que você está saindo?",
   "accountDetails.billing.actions": "Ações",
   "accountDetails.billing.amount": "Montante total",
-  "accountDetails.billing.date": "Data de emissão",
+  "accountDetails.billing.date": "Data",
   "accountDetails.billing.emptyDescription": "A sua primeira fatura será gerada após o primeiro mês de utilização.",
   "accountDetails.billing.emptyTitle": "Ainda não tem nenhuma fatura",
   "accountDetails.billing.name": "Nome",

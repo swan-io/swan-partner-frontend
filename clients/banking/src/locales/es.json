@@ -80,7 +80,7 @@
   "accountClose.whyLeaving": "¿Por qué te vas?",
   "accountDetails.billing.actions": "Acciones",
   "accountDetails.billing.amount": "Cantidad total",
-  "accountDetails.billing.date": "Fecha de emisión",
+  "accountDetails.billing.date": "Fecha",
   "accountDetails.billing.emptyDescription": "Tu primera factura se generará después de tu primer mes de uso.",
   "accountDetails.billing.emptyTitle": "Aún no tienes ninguna factura",
   "accountDetails.billing.name": "Nombre",

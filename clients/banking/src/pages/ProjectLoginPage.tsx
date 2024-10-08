@@ -168,7 +168,11 @@ export const ProjectLoginPage = ({
         // We use location.replace to be sure that the auth
         // cookie is correctly written before changing page
         // (history pushState does not seem to offer these guarantees)
-        window.location.replace(redirectTo);
+        if (!redirectTo.startsWith("/") || redirectTo.startsWith("//")) {
+          window.location.replace(Router.ProjectRootRedirect());
+        } else {
+          window.location.replace(redirectTo);
+        }
       });
     }
   }, [projectId, redirectToFromQueryParams]);

@@ -2206,6 +2206,46 @@ query MerchantProfiles(
     }
   }
 }
+fragment PaymentLink on MerchantPaymentLink {
+  id
+  label
+  url
+  statusInfo {
+    status
+  }
+  amount {
+    currency
+    value
+  }
+}
+
+query MerchantPaymentLinks(
+  $merchantProfileId: ID!
+  $filters: MerchantPaymentLinkFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  merchantProfile(id: $merchantProfileId) {
+    merchantPaymentLinks(filters: $filters, first: $first, after: $after) {
+      pageInfo {
+        endCursor
+        hasNextPage
+      }
+      totalCount
+      edges {
+        node {
+          ...PaymentLink
+        }
+      }
+    }
+  }
+}
+
+query MerchantPaymentLink($paymentLinkId: ID!) {
+  merchantPaymentLink(id: $paymentLinkId) {
+    ...PaymentLink
+  }
+}
 
 query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {

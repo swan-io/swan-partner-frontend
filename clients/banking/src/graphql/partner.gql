@@ -2220,8 +2220,11 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
     }
     legalRepresentativeMembership {
       id
+      email
       user {
         id
+        firstName
+        lastName
       }
     }
     balances {

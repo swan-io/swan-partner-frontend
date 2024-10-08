@@ -61,5 +61,5 @@ jobs:
           file: Dockerfile
           push: true
           tags: |
-            ${{ env.REGISTRY }}/swan-partner-frontend:latest
-            ${{ env.REGISTRY }}/swan-partner-frontend:${{ github.ref_name }}
+            ${{ env.REGISTRY }}/swan-io/swan-partner-frontend:latest
+            ${{ env.REGISTRY }}/swan-io/swan-partner-frontend:${{ github.ref_name }}

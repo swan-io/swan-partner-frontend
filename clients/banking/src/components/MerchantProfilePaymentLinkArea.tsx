@@ -1,15 +1,19 @@
 import { AsyncData, Result } from "@swan-io/boxed";
+import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { LinkConfig, PlainListViewPlaceholder } from "@swan-io/lake/src/components/FixedListView";
+import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { Link } from "@swan-io/lake/src/components/Link";
-import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
+import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
+import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
+import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
+import { Toggle } from "@swan-io/lake/src/components/Toggle";
+import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { useCallback, useMemo, useRef } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -25,15 +29,19 @@ import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDe
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
 
 const styles = StyleSheet.create({
-  button: {
+  filters: {
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[12],
+    paddingBottom: spacings[12],
   },
-  buttonLarge: {
+  filtersLarge: {
     paddingHorizontal: spacings[40],
-    paddingVertical: spacings[12],
+  },
+  endFilters: {
+    flexGrow: 0,
+    flexShrink: 1,
   },
 });
+
 const PER_PAGE = 20;
 
 type Props = {
@@ -90,19 +98,73 @@ export const MerchantProfilePaymentLinkArea = ({
 
   const activePaymentLinkId =
     route?.name === "AccountMerchantsProfilePaymentLinkDetails"
-      ? route.params.paymentLinkId
-      : undefined;
+      ? (route.params.paymentLinkId ?? null)
+      : null;
+
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  const search = nullishOrEmptyToUndefined(params.search);
 
   return (
     <>
+      <Space height={24} />
+
+      <Box
+        direction="row"
+        alignItems="center"
+        style={[styles.filters, large && styles.filtersLarge]}
+      >
+        <LakeButton
+          ariaLabel={t("common.refresh")}
+          mode="secondary"
+          size="small"
+          icon="arrow-counterclockwise-filled"
+          loading={isRefreshing}
+          onPress={() => {
+            setIsRefreshing(true);
+            reload().tap(() => setIsRefreshing(false));
+          }}
+        />
+
+        <Fill minWidth={16} />
+
+        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
+          <Toggle
+            mode={large ? "desktop" : "mobile"}
+            value={params.status === "Active"}
+            onToggle={status =>
+              Router.push("AccountMerchantsProfilePaymentLinkList", {
+                accountMembershipId,
+                merchantProfileId,
+                status: status ? "Active" : "Archived",
+              })
+            }
+            onLabel={t("merchantProfile.list.Active")}
+            offLabel={t("merchantProfile.list.Inactive")}
+          />
+
+          <Fill minWidth={16} />
+
+          <LakeSearchField
+            initialValue={search ?? ""}
+            placeholder={t("common.search")}
+            onChangeText={search => {
+              Router.replace("AccountMerchantsProfilePaymentLinkList", {
+                accountMembershipId,
+                merchantProfileId,
+                ...params,
+                search,
+              });
+            }}
+          />
+        </Box>
+      </Box>
+
+      <Space height={24} />
+
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-          <PlainListViewPlaceholder
-            count={5}
-            rowVerticalSpacing={0}
-            groupHeaderHeight={48}
-            rowHeight={56}
-          />
+          <PlainListViewPlaceholder count={5} groupHeaderHeight={48} rowHeight={56} />
         ))
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => (
@@ -111,12 +173,8 @@ export const MerchantProfilePaymentLinkArea = ({
               <>
                 <MerchantProfilePaymentLinksList
                   isLoading={isLoading}
-                  onPressReload={reload}
                   paymentLinks={paymentLinks?.edges.map(item => item.node) ?? []}
                   large={large}
-                  merchantProfileId={merchantProfileId}
-                  accountMembershipId={accountMembershipId}
-                  params={{ status: params.status, search: params.search ?? "" }}
                   getRowLink={getRowLink}
                   activeRowId={activePaymentLinkId ?? undefined}
                   onActiveRowChange={onActiveRowChange}
@@ -130,48 +188,31 @@ export const MerchantProfilePaymentLinkArea = ({
                   }}
                 />
 
-                {match(route)
-                  .with(
-                    { name: "AccountMerchantsProfilePaymentLinkDetails" },
-                    ({ params: { paymentLinkId, accountMembershipId, merchantProfileId } }) => (
-                      <RightPanel
-                        visible={true}
-                        onPressClose={() => {
-                          Router.push("AccountMerchantsProfilePaymentLinkList", {
-                            accountMembershipId,
-                            merchantProfileId,
-                          });
-                        }}
-                      >
-                        {({ large }) => (
-                          <>
-                            <Box style={large ? styles.buttonLarge : styles.button}>
-                              <LakeButton
-                                mode="tertiary"
-                                icon="lake-close"
-                                ariaLabel={t("common.closeButton")}
-                                onPress={() => {
-                                  Router.push("AccountMerchantsProfilePaymentLinkList", {
-                                    accountMembershipId,
-                                    merchantProfileId,
-                                  });
-                                }}
-                                children={null}
-                              />
-                            </Box>
-
-                            <MerchantProfilePaymentLinkDetail
-                              paymentLinkId={paymentLinkId}
-                              large={large}
-                            />
-
-                            <Space height={24} />
-                          </>
-                        )}
-                      </RightPanel>
-                    ),
-                  )
-                  .otherwise(() => null)}
+                <ListRightPanel
+                  ref={panelRef}
+                  keyExtractor={item => item.id}
+                  activeId={activePaymentLinkId}
+                  onActiveIdChange={paymentLinkId =>
+                    Router.push("AccountMerchantsProfilePaymentLinkDetails", {
+                      accountMembershipId,
+                      merchantProfileId,
+                      paymentLinkId,
+                    })
+                  }
+                  onClose={() =>
+                    Router.push("AccountMerchantsProfilePaymentLinkList", {
+                      accountMembershipId,
+                      merchantProfileId,
+                    })
+                  }
+                  items={paymentLinks?.edges.map(item => item.node) ?? []}
+                  render={(item, large) => (
+                    <MerchantProfilePaymentLinkDetail large={large} paymentLinkId={item.id} />
+                  )}
+                  closeLabel={t("common.closeButton")}
+                  previousLabel={t("common.previous")}
+                  nextLabel={t("common.next")}
+                />
               </>
             )}
           </Connection>

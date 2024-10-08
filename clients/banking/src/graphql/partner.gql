@@ -2210,6 +2210,8 @@ fragment PaymentLink on MerchantPaymentLink {
   id
   label
   url
+  reference
+  externalReference
   statusInfo {
     status
   }

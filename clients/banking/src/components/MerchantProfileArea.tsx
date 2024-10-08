@@ -1,39 +1,25 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
-import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { RightPanel } from "@swan-io/lake/src/components/RightPanel";
-import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useCallback, useMemo, useRef, useState } from "react";
-import { Pressable, StyleSheet } from "react-native";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
+import { useMemo } from "react";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { MerchantProfileDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
-import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
-import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
+import { MerchantProfilePaymentLinkArea } from "./MerchantProfilePaymentLinkArea";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
 
 const styles = StyleSheet.create({
   root: {
     ...commonStyles.fill,
-  },
-  button: {
-    paddingHorizontal: spacings[24],
-    paddingVertical: spacings[12],
-  },
-  buttonLarge: {
-    paddingHorizontal: spacings[40],
-    paddingVertical: spacings[12],
   },
 });
 
@@ -60,8 +46,7 @@ export const AccountMerchantsProfileArea = ({
 }: Props) => {
   const route = Router.useRoute([
     "AccountMerchantsProfileSettings",
-    "AccountMerchantsProfilePaymentLinkList",
-    "AccountMerchantsProfilePaymentLinkDetails",
+    "AccountMerchantsProfilePaymentLinkArea",
   ]);
 
   const [merchantProfile, { refresh }] = useQuery(MerchantProfileDocument, { merchantProfileId });
@@ -98,14 +83,6 @@ export const AccountMerchantsProfileArea = ({
     [accountMembershipId, merchantProfileId],
   );
 
-  const [activePaymentLinkId, setActivePaymentLinkId] = useState<string | null>(null);
-  const panelRef = useRef<FocusTrapRef | null>(null);
-
-  const onActiveRowChange = useCallback(
-    (element: HTMLElement) => panelRef.current?.setInitiallyFocusedElement(element),
-    [],
-  );
-
   return (
     <ResponsiveContainer breakpoint={breakpoints.medium} style={styles.root}>
       {({ small, large }) =>
@@ -127,64 +104,6 @@ export const AccountMerchantsProfileArea = ({
                 />
 
                 {match(route)
-                  .with(
-                    { name: "AccountMerchantsProfilePaymentLinkList" },
-                    ({ params: { status = "Active", search } }) => (
-                      <MerchantProfilePaymentLinksList
-                        large={large}
-                        merchantProfileId={merchantProfileId}
-                        accountMembershipId={accountMembershipId}
-                        params={{ status, search: search ?? "" }}
-                        getRowLink={({ item }) => (
-                          <Pressable onPress={() => setActivePaymentLinkId(item.id)} />
-                        )}
-                        activeRowId={activePaymentLinkId ?? undefined}
-                        onActiveRowChange={onActiveRowChange}
-                      />
-                    ),
-                  )
-                  .with(
-                    { name: "AccountMerchantsProfilePaymentLinkDetails" },
-                    ({ params: { paymentLinkId, accountMembershipId, merchantProfileId } }) => (
-                      <RightPanel
-                        visible={true}
-                        onPressClose={() => {
-                          setActivePaymentLinkId(null);
-                          Router.push("AccountMerchantsProfilePaymentLinkList", {
-                            accountMembershipId,
-                            merchantProfileId,
-                          });
-                        }}
-                      >
-                        {({ large }) => (
-                          <>
-                            <Box style={large ? styles.buttonLarge : styles.button}>
-                              <LakeButton
-                                mode="tertiary"
-                                icon="lake-close"
-                                ariaLabel={t("common.closeButton")}
-                                onPress={() => {
-                                  setActivePaymentLinkId(null);
-                                  Router.push("AccountMerchantsProfilePaymentLinkList", {
-                                    accountMembershipId,
-                                    merchantProfileId,
-                                  });
-                                }}
-                                children={null}
-                              />
-                            </Box>
-
-                            <MerchantProfilePaymentLinkDetail
-                              paymentLinkId={paymentLinkId}
-                              large={large}
-                            />
-
-                            <Space height={24} />
-                          </>
-                        )}
-                      </RightPanel>
-                    ),
-                  )
                   .with({ name: "AccountMerchantsProfileSettings" }, ({ params }) => (
                     <MerchantProfileSettings
                       params={params}
@@ -209,6 +128,17 @@ export const AccountMerchantsProfileArea = ({
                       }}
                     />
                   ))
+                  .with(
+                    { name: "AccountMerchantsProfilePaymentLinkArea" },
+                    ({ params: { status = "Active", search } }) => (
+                      <MerchantProfilePaymentLinkArea
+                        large={large}
+                        params={{ status, search: search ?? "" }}
+                        accountMembershipId={accountMembershipId}
+                        merchantProfileId={merchantProfileId}
+                      />
+                    ),
+                  )
                   .with(P.nullish, () => <NotFoundPage />)
                   .exhaustive()}
               </>

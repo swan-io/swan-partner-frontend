@@ -110,6 +110,7 @@ const routes = {
         Area: "/*",
         Settings: "/settings?:check{declare|next}",
         ...createGroup("PaymentLink", "/payment-links?:status{Active|Archived}&:search", {
+          Area: "/*",
           List: "/",
           Details: "/:paymentLinkId",
         }),

@@ -1,11 +1,7 @@
-import { useQuery } from "@swan-io/graphql-client";
+import { Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import {
-  FixedListViewEmpty,
-  LinkConfig,
-  PlainListViewPlaceholder,
-} from "@swan-io/lake/src/components/FixedListView";
+import { FixedListViewEmpty, LinkConfig } from "@swan-io/lake/src/components/FixedListView";
 import {
   CellAction,
   CopyableRegularTextCell,
@@ -23,18 +19,12 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { ReactElement, useMemo } from "react";
+import { ReactElement, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
-import {
-  MerchantPaymentLinkFiltersInput,
-  MerchantPaymentLinksDocument,
-  PaymentLinkFragment,
-} from "../graphql/partner";
+import { PaymentLinkFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { Connection } from "./Connection";
-import { ErrorView } from "./ErrorView";
 
 const styles = StyleSheet.create({
   filters: {
@@ -74,13 +64,16 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   merchantProfileId: string;
-  large: boolean;
+  paymentLinks: PaymentLinkFragment[];
   params: { status: "Active" | "Archived"; search: string };
   getRowLink: (item: LinkConfig<PaymentLinkFragment, ExtraInfo>) => ReactElement;
   activeRowId: string | undefined;
   onActiveRowChange: (element: HTMLElement) => void;
+  onEndReached: () => void;
+  onPressReload: () => Future<unknown>;
+  isLoading: boolean;
+  large: boolean;
 };
-const NUM_TO_RENDER = 20;
 
 type ExtraInfo = undefined;
 
@@ -236,6 +229,9 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
 ];
 
 export const MerchantProfilePaymentLinksList = ({
+  paymentLinks,
+  onEndReached,
+  onPressReload,
   merchantProfileId,
   accountMembershipId,
   large,
@@ -243,22 +239,10 @@ export const MerchantProfilePaymentLinksList = ({
   getRowLink,
   activeRowId,
   onActiveRowChange,
+  isLoading,
 }: Props) => {
-  const filters: MerchantPaymentLinkFiltersInput = useMemo(() => {
-    return {
-      status: match(params.status)
-        .with("Active", () => ["Active" as const])
-        .with("Archived", () => ["Completed" as const, "Expired" as const])
-        .exhaustive(),
-      search: nullishOrEmptyToUndefined(params.search),
-    } as const;
-  }, [params.search, params.status]);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentLinksDocument, {
-    merchantProfileId,
-    first: NUM_TO_RENDER,
-    filters,
-  });
   const search = nullishOrEmptyToUndefined(params.search);
 
   return (
@@ -275,9 +259,10 @@ export const MerchantProfilePaymentLinksList = ({
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
-          loading={data.isLoading()}
+          loading={isRefreshing}
           onPress={() => {
-            reload();
+            setIsRefreshing(true);
+            onPressReload().tap(() => setIsRefreshing(false));
           }}
         />
 
@@ -317,66 +302,32 @@ export const MerchantProfilePaymentLinksList = ({
 
       <Space height={24} />
 
-      {data.match({
-        NotAsked: () => null,
-        Loading: () => (
-          <PlainListViewPlaceholder
-            count={5}
-            rowVerticalSpacing={0}
-            groupHeaderHeight={48}
-            rowHeight={56}
+      <PlainListView
+        withoutScroll={!large}
+        data={paymentLinks}
+        keyExtractor={item => item.id}
+        headerHeight={48}
+        rowHeight={56}
+        groupHeaderHeight={48}
+        extraInfo={undefined}
+        columns={columns}
+        smallColumns={smallColumns}
+        getRowLink={getRowLink}
+        onActiveRowChange={onActiveRowChange}
+        activeRowId={activeRowId}
+        onEndReached={onEndReached}
+        loading={{
+          isLoading,
+          count: 5,
+        }}
+        renderEmptyList={() => (
+          <FixedListViewEmpty
+            icon="lake-transfer"
+            borderedIcon={true}
+            title={t("merchantProfile.paymentLinks.noResults")}
           />
-        ),
-        Done: result =>
-          result.match({
-            Error: error => <ErrorView error={error} />,
-            Ok: data => (
-              <Connection connection={data.merchantProfile?.merchantPaymentLinks}>
-                {paymentLinks => {
-                  return (
-                    <PlainListView
-                      withoutScroll={!large}
-                      data={paymentLinks?.edges.map(({ node }) => node)}
-                      keyExtractor={item => item.id}
-                      headerHeight={48}
-                      rowHeight={56}
-                      groupHeaderHeight={48}
-                      extraInfo={undefined}
-                      columns={columns}
-                      smallColumns={smallColumns}
-                      getRowLink={getRowLink}
-                      onActiveRowChange={onActiveRowChange}
-                      activeRowId={activeRowId}
-                      onEndReached={() => {
-                        if (
-                          data.merchantProfile?.merchantPaymentLinks?.pageInfo.hasNextPage ??
-                          false
-                        ) {
-                          setVariables({
-                            after:
-                              data.merchantProfile?.merchantPaymentLinks?.pageInfo.endCursor ??
-                              undefined,
-                          });
-                        }
-                      }}
-                      loading={{
-                        isLoading,
-                        count: 5,
-                      }}
-                      renderEmptyList={() => (
-                        <FixedListViewEmpty
-                          icon="lake-transfer"
-                          borderedIcon={true}
-                          title={t("merchantProfile.paymentLinks.noResults")}
-                        />
-                      )}
-                    />
-                  );
-                }}
-              </Connection>
-            ),
-          }),
-      })}
+        )}
+      />
     </>
   );
 };

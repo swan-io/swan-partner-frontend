@@ -129,9 +129,7 @@ export const TransferList = ({
               large={large}
               filters={filters}
               search={search}
-              onRefresh={() => {
-                reload();
-              }}
+              onRefresh={reload}
               onChangeFilters={({ status, ...filters }) =>
                 Router.replace("AccountPaymentsRoot", {
                   ...params,

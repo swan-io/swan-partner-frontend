@@ -142,9 +142,7 @@ export const AccountMembersDetailsCardList = ({
                   filters={filters}
                   search={search}
                   status={status}
-                  onRefresh={() => {
-                    reload();
-                  }}
+                  onRefresh={reload}
                   onChangeFilters={filters => {
                     Router.replace("AccountMembersDetailsCardList", {
                       accountMembershipId: currentUserAccountMembershipId,

@@ -145,9 +145,7 @@ export const CardItemTransactionList = ({
                   large={large}
                   filters={filters}
                   search={search}
-                  onRefresh={() => {
-                    reload();
-                  }}
+                  onRefresh={reload}
                   onChangeFilters={filters => {
                     Router.replace("AccountCardsItemTransactions", { ...params, ...filters });
                   }}

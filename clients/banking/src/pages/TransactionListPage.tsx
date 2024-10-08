@@ -166,9 +166,7 @@ export const TransactionListPage = ({
               large={large}
               filters={filters}
               search={search}
-              onRefresh={() => {
-                reload();
-              }}
+              onRefresh={reload}
               onChangeFilters={({ status, ...filters }) => {
                 Router.replace("AccountTransactionsListRoot", {
                   ...params,

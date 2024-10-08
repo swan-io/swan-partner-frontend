@@ -532,6 +532,8 @@ export const BeneficiaryList = ({
     Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
       {({ large }) => {
@@ -580,9 +582,10 @@ export const BeneficiaryList = ({
                       mode="secondary"
                       size="small"
                       icon="arrow-counterclockwise-filled"
-                      loading={beneficiaries.isLoading()}
+                      loading={isRefreshing}
                       onPress={() => {
-                        reload();
+                        setIsRefreshing(true);
+                        reload().tap(() => setIsRefreshing(false));
                       }}
                     />
                   </>

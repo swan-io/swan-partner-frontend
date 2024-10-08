@@ -221,9 +221,7 @@ export const MembershipsArea = ({
                 onChangeSearch={search => {
                   Router.replace("AccountMembersList", { accountMembershipId, ...params, search });
                 }}
-                onRefresh={() => {
-                  reload();
-                }}
+                onRefresh={reload}
                 totalCount={data.mapOk(data => data.account?.memberships.totalCount ?? 0)}
                 large={large}
               >

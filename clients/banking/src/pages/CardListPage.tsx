@@ -126,9 +126,7 @@ export const CardListPage = ({
               filters={filters}
               search={search}
               status={status}
-              onRefresh={() => {
-                reload();
-              }}
+              onRefresh={reload}
               onChangeFilters={filters => {
                 Router.replace("AccountCardsList", { accountMembershipId, ...params, ...filters });
               }}

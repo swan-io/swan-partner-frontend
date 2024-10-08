@@ -1,0 +1,18 @@
+---
+title: Deploy as is on your infra
+sidebar_label: Deploy as is on your infra
+---
+
+You might want to deploy the onboarding & banking interfaces on your own subdomains, without having to fork the repository. For such use cases, we provide a public, up-to-date docker image: [`swan-io/swan-partner-frontend` on the GitHub registry](https://github.com/swan-io/swan-partner-frontend/pkgs/container/swan-partner-frontend).
+
+```console
+$ docker pull ghcr.io/swan-io/swan-partner-frontend:latest
+```
+
+The image is published each time a new version hits production at Swan.
+
+:::note
+Try to keep the image up-to-date to remain compatible with changes to the Swan API and benefit from its new features and improvements.
+:::
+
+You can check [the required environment variables and recommendations](/build-deploy#required-environment-variables).

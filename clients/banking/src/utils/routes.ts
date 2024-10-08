@@ -108,7 +108,12 @@ const routes = {
 
       ...createGroup("Profile", "/:merchantProfileId", {
         Area: "/*",
-        Settings: "/?:check{declare|next}",
+        Settings: "/settings?:check{declare|next}",
+        ...createGroup("PaymentLink", "/payment-links?:status{Active|Archived}&:search", {
+          Area: "/*",
+          List: "/",
+          Details: "/:paymentLinkId",
+        }),
       }),
     }),
   }),

@@ -2219,6 +2219,19 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
+fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  totalCount
+  edges {
+    node {
+      ...PaymentLink
+    }
+  }
+}
+
 query MerchantPaymentLinks(
   $merchantProfileId: ID!
   $filters: MerchantPaymentLinkFiltersInput!
@@ -2227,16 +2240,7 @@ query MerchantPaymentLinks(
 ) {
   merchantProfile(id: $merchantProfileId) {
     merchantPaymentLinks(filters: $filters, first: $first, after: $after) {
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      totalCount
-      edges {
-        node {
-          ...PaymentLink
-        }
-      }
+      ...PaymentLinkConnection
     }
   }
 }

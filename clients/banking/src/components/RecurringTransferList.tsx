@@ -120,6 +120,8 @@ const RecurringTransferHistory = ({
     canViewAccount,
   });
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   return (
     <>
       <Space height={24} />
@@ -130,9 +132,10 @@ const RecurringTransferHistory = ({
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
-          loading={data.isLoading()}
+          loading={isRefreshing}
           onPress={() => {
-            reload();
+            setIsRefreshing(true);
+            reload().tap(() => setIsRefreshing(false));
           }}
         />
       </ListRightPanelContent>
@@ -675,6 +678,8 @@ export const RecurringTransferList = ({
     [],
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   return (
     <>
       <Box
@@ -687,9 +692,10 @@ export const RecurringTransferList = ({
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
-          loading={data.isLoading()}
+          loading={isRefreshing}
           onPress={() => {
-            reload();
+            setIsRefreshing(true);
+            reload().tap(() => setIsRefreshing(false));
           }}
         />
 

@@ -18,7 +18,7 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -210,6 +210,8 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
     accountId,
   });
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   return (
     <>
       <Box
@@ -222,8 +224,10 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
           mode="secondary"
           size="small"
           icon="arrow-counterclockwise-filled"
+          loading={isRefreshing}
           onPress={() => {
-            reload();
+            setIsRefreshing(true);
+            reload().tap(() => setIsRefreshing(false));
           }}
         />
 

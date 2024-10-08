@@ -1,4 +1,4 @@
-import { AsyncData, Dict, Result } from "@swan-io/boxed";
+import { AsyncData, Dict, Future, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -107,7 +107,7 @@ type MembershipListFilterProps = {
   search: string | undefined;
   totalCount: AsyncData<Result<number, unknown>>;
   onChangeFilters: (filters: Partial<MembershipFilters>) => void;
-  onRefresh: () => void;
+  onRefresh: () => Future<unknown>;
   onChangeSearch: (search: string | undefined) => void;
 };
 
@@ -182,6 +182,8 @@ export const MembershipListFilter = ({
     });
   }, [filters]);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   return (
     <>
       <Box direction="row" alignItems="center">
@@ -211,7 +213,11 @@ export const MembershipListFilter = ({
               mode="secondary"
               size="small"
               icon="arrow-counterclockwise-filled"
-              onPress={onRefresh}
+              loading={isRefreshing}
+              onPress={() => {
+                setIsRefreshing(true);
+                onRefresh().tap(() => setIsRefreshing(false));
+              }}
             />
           </>
         ) : null}

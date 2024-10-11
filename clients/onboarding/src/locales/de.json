@@ -68,7 +68,7 @@
   "company.step.owners.beneficiary.identity.issueDate": "Ausstellungsdatum",
   "company.step.owners.beneficiary.identity.issuingAuthority": "Ausstellende Behörde",
   "company.step.owners.beneficiary.identity.number": "Ausweisnummer",
-  "company.step.owners.beneficiary.identity.type": "Ausweistyp",
+  "company.step.owners.beneficiary.identity.type": "Art des Ausweisdokuments",
   "company.step.owners.beneficiary.identity.type.IdCard": "Personalausweis",
   "company.step.owners.beneficiary.identity.type.Passport": "Reisepass",
   "company.step.owners.beneficiary.indirectly": "Indirekt",

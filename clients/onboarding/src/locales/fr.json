@@ -67,7 +67,7 @@
   "company.step.owners.beneficiary.identity.expiryDate": "Date d'expiration",
   "company.step.owners.beneficiary.identity.issueDate": "Date de délivrance",
   "company.step.owners.beneficiary.identity.issuingAuthority": "Autorité de délivrance",
-  "company.step.owners.beneficiary.identity.number": "Numéro du document d'identité",
+  "company.step.owners.beneficiary.identity.number": "Numéro de la pièce d’identité",
   "company.step.owners.beneficiary.identity.type": "Type de document d'identité",
   "company.step.owners.beneficiary.identity.type.IdCard": "Carte d'identité",
   "company.step.owners.beneficiary.identity.type.Passport": "Passeport",

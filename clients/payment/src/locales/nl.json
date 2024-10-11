@@ -17,7 +17,7 @@
   "paymentLink.country": "Land",
   "paymentLink.cvvRequired": "Je CVV is vereist.",
   "paymentLink.error.retry": "Probeer het opnieuw",
-  "paymentLink.error.subtitle": "We konden je betaling niet verwerken met Swan. \nProbeer het opnieuw of neem contact op met de klantenservice.",
+  "paymentLink.error.subtitle": "We kunnen je betaling met Swan niet verwerken. \nProbeer het opnieuw of neem contact op met de klantenservice.",
   "paymentLink.error.title": "Er is iets misgegaan.",
   "paymentLink.expiryDateRequired": "Je vervaldatum is vereist.",
   "paymentLink.iban": "IBAN",

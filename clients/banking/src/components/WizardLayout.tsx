@@ -48,9 +48,10 @@ type Props = {
   children: ReactNode | ComponentProps<typeof ResponsiveContainer>["children"];
   title: string;
   onPressClose?: () => void;
+  headerEnd?: ReactNode | ComponentProps<typeof ResponsiveContainer>["children"];
 };
 
-export const WizardLayout = ({ children, title, onPressClose }: Props) => (
+export const WizardLayout = ({ children, title, onPressClose, headerEnd }: Props) => (
   <ResponsiveContainer style={styles.fill} breakpoint={breakpoints.medium}>
     {context => (
       <View style={styles.fill}>
@@ -79,6 +80,8 @@ export const WizardLayout = ({ children, title, onPressClose }: Props) => (
                 {title}
               </LakeHeading>
             </View>
+
+            {typeof headerEnd === "function" ? headerEnd(context) : headerEnd}
           </View>
         </View>
 

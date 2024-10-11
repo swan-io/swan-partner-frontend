@@ -2241,6 +2241,14 @@ query MerchantPaymentLinks(
   $after: String
 ) {
   merchantProfile(id: $merchantProfileId) {
+    merchantPaymentMethods {
+      id
+      type
+      updatedAt
+      statusInfo {
+        status
+      }
+    }
     merchantPaymentLinks(filters: $filters, first: $first, after: $after) {
       ...PaymentLinkConnection
     }
@@ -2298,6 +2306,15 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
 }
 
 # Mutations
+
+mutation CreatePaymentLink($input: CreateMerchantPaymentLinkInput!) {
+  createMerchantPaymentLink(input: $input) {
+    __typename
+    ... on Rejection {
+      message
+    }
+  }
+}
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
   createMultiConsent(input: $input) {

@@ -4,6 +4,7 @@ import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
+import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
@@ -12,7 +13,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -26,11 +27,13 @@ import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
+import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
 
 const styles = StyleSheet.create({
   filters: {
     paddingHorizontal: spacings[24],
+    paddingTop: spacings[24],
     paddingBottom: spacings[12],
   },
   filtersLarge: {
@@ -107,13 +110,54 @@ export const MerchantProfilePaymentLinkArea = ({
 
   return (
     <>
-      <Space height={24} />
+      {!large && (
+        <Box
+          style={{ paddingTop: spacings[24], paddingHorizontal: spacings[24] }}
+          alignItems="stretch"
+        >
+          <LakeButton
+            size="small"
+            icon="add-circle-filled"
+            color="current"
+            onPress={() =>
+              Router.push("AccountMerchantsProfilePaymentLinkList", {
+                new: "true",
+                accountMembershipId,
+                merchantProfileId,
+              })
+            }
+          >
+            {t("merchantProfile.paymentLink.button.new")}
+          </LakeButton>
+        </Box>
+      )}
 
       <Box
         direction="row"
         alignItems="center"
         style={[styles.filters, large && styles.filtersLarge]}
       >
+        {large && (
+          <>
+            <LakeButton
+              size="small"
+              icon="add-circle-filled"
+              color="current"
+              onPress={() =>
+                Router.push("AccountMerchantsProfilePaymentLinkList", {
+                  new: "true",
+                  accountMembershipId,
+                  merchantProfileId,
+                })
+              }
+            >
+              {t("merchantProfile.paymentLink.button.new")}
+            </LakeButton>
+
+            <Space width={12} />
+          </>
+        )}
+
         <LakeButton
           ariaLabel={t("common.refresh")}
           mode="secondary"
@@ -187,6 +231,22 @@ export const MerchantProfilePaymentLinkArea = ({
                     }
                   }}
                 />
+
+                {isNotNullish(merchantProfile) &&
+                isNotNullish(merchantProfile.merchantPaymentMethods) ? (
+                  <FullViewportLayer visible={isNotNullish(route?.params.new)}>
+                    <MerchantProfilePaymentLinkNew
+                      paymentMethods={merchantProfile.merchantPaymentMethods}
+                      onPressClose={() =>
+                        Router.push("AccountMerchantsProfilePaymentLinkList", {
+                          accountMembershipId,
+                          merchantProfileId,
+                          new: undefined,
+                        })
+                      }
+                    />
+                  </FullViewportLayer>
+                ) : null}
 
                 <ListRightPanel
                   ref={panelRef}

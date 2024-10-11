@@ -101,7 +101,7 @@ const routes = {
       },
     ),
 
-    ...createGroup("Merchants", "/merchants", {
+    ...createGroup("Merchants", "/merchants?:new", {
       Area: "/*",
       Root: "/?:new{true}",
       List: "/profiles?:status{Active|Inactive}",

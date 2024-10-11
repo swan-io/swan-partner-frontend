@@ -170,7 +170,7 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
   },
   {
     id: "status",
-    width: 150,
+    width: 120,
     title: t("merchantProfile.paymentLink.list.status"),
     renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
     renderCell: ({ item }) => (
@@ -250,7 +250,7 @@ export const MerchantProfilePaymentLinksList = ({
         <EmptyView
           icon="lake-transfer"
           borderedIcon={true}
-          title={t("merchantProfile.paymentLinks.noResults")}
+          title={t("merchantProfile.paymentLink.noResults")}
         />
       )}
     />

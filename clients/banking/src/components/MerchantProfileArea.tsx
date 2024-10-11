@@ -135,7 +135,7 @@ export const AccountMerchantsProfileArea = ({
                         large={large}
                         params={{ status, search: search ?? "" }}
                         accountMembershipId={accountMembershipId}
-                        merchantProfileId={merchantProfileId}
+                        merchantProfileId={merchantProfile.id}
                       />
                     ),
                   )

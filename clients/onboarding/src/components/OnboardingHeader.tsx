@@ -26,12 +26,6 @@ const styles = StyleSheet.create({
   logo: {
     maxWidth: "120px",
   },
-  languagesSelectContainer: {
-    width: 140,
-  },
-  languagesSelectContainerDesktop: {
-    width: 200,
-  },
   languagesSelect: {
     alignItems: "flex-end",
   },
@@ -78,9 +72,7 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
 
           <Fill minWidth={12} />
 
-          <View
-            style={small ? styles.languagesSelectContainer : styles.languagesSelectContainerDesktop}
-          >
+          <View>
             <LakeSelect
               value={locale.language}
               items={languageOptions}

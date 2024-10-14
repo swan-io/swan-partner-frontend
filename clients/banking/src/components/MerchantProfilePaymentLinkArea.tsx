@@ -236,6 +236,8 @@ export const MerchantProfilePaymentLinkArea = ({
                 isNotNullish(merchantProfile.merchantPaymentMethods) ? (
                   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
                     <MerchantProfilePaymentLinkNew
+                      accountMembershipId={accountMembershipId}
+                      merchantProfileId={merchantProfileId}
                       paymentMethods={merchantProfile.merchantPaymentMethods}
                       onPressClose={() =>
                         Router.push("AccountMerchantsProfilePaymentLinkList", {

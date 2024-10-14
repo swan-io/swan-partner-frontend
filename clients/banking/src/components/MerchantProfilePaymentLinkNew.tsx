@@ -1,11 +1,11 @@
 import { Array, Option } from "@swan-io/boxed";
+import { useMutation } from "@swan-io/graphql-client";
 import { Accordion } from "@swan-io/lake/src/components/Accordion";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
@@ -18,16 +18,24 @@ import {
   animations,
   backgroundColor,
   breakpoints,
-  colors,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
+import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
-import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { MerchantPaymentMethod, MerchantPaymentMethodType } from "../graphql/partner";
+import {
+  CreatePaymentLinkDocument,
+  MerchantPaymentMethod,
+  MerchantPaymentMethodType,
+} from "../graphql/partner";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
+import { validateRequired } from "../utils/validations";
 
 const styles = StyleSheet.create({
   root: {
@@ -75,11 +83,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: spacings[96],
   },
   tile: { paddingHorizontal: 0, paddingVertical: 0 },
-  optionsDesktop: { padding: spacings[32], width: "350px" },
+  optionsDesktop: { padding: spacings[32], maxWidth: 350 },
   optionsMobile: { padding: spacings[32] },
-  accordion: { padding: 0 },
+  accordion: { paddingHorizontal: 0 },
   preview: {
-    width: "60%",
+    flexGrow: 1,
     backgroundColor: backgroundColor.default,
   },
 });
@@ -98,11 +106,18 @@ const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) 
 };
 
 type Props = {
+  merchantProfileId: string;
+  accountMembershipId: string;
   paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
   onPressClose: () => void;
 };
 
-export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: Props) => {
+export const MerchantProfilePaymentLinkNew = ({
+  merchantProfileId,
+  accountMembershipId,
+  paymentMethods,
+  onPressClose,
+}: Props) => {
   const cardPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
     match(paymentMethod)
       .with(
@@ -130,9 +145,7 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
     identity,
   );
 
-  const [hasCancelRedirectUrl, setHasCancelRedirectUrl] = useState(false);
-
-  const { Field } = useForm<{
+  const { Field, submitForm } = useForm<{
     label: string;
     amount: string;
     paymentMethodIds: string[];
@@ -143,12 +156,14 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
   }>({
     label: {
       initialValue: "",
+      validate: validateRequired,
     },
     amount: {
       initialValue: "",
+      validate: validateRequired,
     },
     paymentMethodIds: {
-      initialValue: [],
+      initialValue: selectablePaymentMethods.map(paymentMethod => paymentMethod.id),
     },
     cancelRedirectUrl: {
       initialValue: "",
@@ -163,6 +178,57 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
       initialValue: "",
     },
   });
+
+  const [createMerchantPaymentLink, merchantPaymentLinkCreation] =
+    useMutation(CreatePaymentLinkDocument);
+
+  const onPressSubmit = () => {
+    submitForm({
+      onSuccess: values => {
+        const option = Option.allFromDict(values);
+
+        if (option.isSome()) {
+          const { label, amount, paymentMethodIds } = option.get();
+
+          return createMerchantPaymentLink({
+            input: {
+              merchantProfileId,
+              label,
+              amount: {
+                value: amount,
+                currency: "EUR",
+              },
+              paymentMethodIds,
+              customer: {
+                name: values.customerName
+                  .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
+                  .toUndefined(),
+                iban: values.customerIban
+                  .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
+                  .toUndefined(),
+              },
+              redirectUrl: values.redirectUrl
+                .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
+                .toUndefined(),
+              cancelRedirectUrl: values.cancelRedirectUrl
+                .flatMap(value => Option.fromNullable(nullishOrEmptyToUndefined(value)))
+                .toUndefined(),
+            },
+          })
+            .mapOk(data => data.createMerchantPaymentLink)
+            .mapOkToResult(filterRejectionsToResult)
+            .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
+            .tapOk(() => {
+              Router.replace("AccountMerchantsProfilePaymentLinkList", {
+                accountMembershipId,
+                merchantProfileId,
+              });
+            });
+        }
+      },
+    });
+  };
+
   return (
     <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
       {({ large }) => (
@@ -201,7 +267,7 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
             contentContainerStyle={[styles.contents, large && styles.desktopContents]}
           >
             <Tile style={styles.tile}>
-              <Box direction="row" style={{}}>
+              <Box direction={large ? "row" : "column"}>
                 <Box style={large ? styles.optionsDesktop : styles.optionsMobile}>
                   <Field name="label">
                     {({ value, onChange, error }) => (
@@ -222,7 +288,7 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
                   <Field name="amount">
                     {({ value, onChange, error }) => (
                       <LakeLabel
-                        label={t("merchantProfile.paymentLink.new.price")}
+                        label={t("merchantProfile.paymentLink.new.amount")}
                         render={id => (
                           <LakeTextInput
                             id={id}
@@ -236,62 +302,116 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
                     )}
                   </Field>
 
-                  <LakeText color={colors.gray[700]} variant="semibold">
-                    {t("merchantProfile.paymentLink.new.paymentMethods.title")}
-                  </LakeText>
-
-                  <LakeText>
-                    {t("merchantProfile.paymentLink.new.paymentMethods.subtitle")}
-                  </LakeText>
-
-                  <Space height={24} />
-
-                  <Field name="paymentMethodIds">
-                    {({ value, onChange }) => (
-                      <>
-                        {selectablePaymentMethods.map(paymentMethod => (
-                          <LakeLabelledCheckbox
-                            label={formatPaymentMethodsName(paymentMethod.type)}
-                            value={value.includes(paymentMethod.id)}
-                            onValueChange={isChecked => {
-                              onChange(
-                                isChecked
-                                  ? [...value, paymentMethod.id]
-                                  : value.filter(
-                                      paymentMethodId => paymentMethodId !== paymentMethod.id,
-                                    ),
-                              );
-                            }}
-                          />
-                        ))}
-                      </>
-                    )}
-                  </Field>
-
-                  <Space height={24} />
+                  <Accordion
+                    style={styles.accordion}
+                    contentContainerStyle={styles.accordion}
+                    trigger={
+                      <LakeHeading level={3} variant="h3">
+                        {t("merchantProfile.paymentLink.new.paymentMethods")}
+                      </LakeHeading>
+                    }
+                  >
+                    <Field name="paymentMethodIds">
+                      {({ value, onChange }) => (
+                        <>
+                          {selectablePaymentMethods.map(paymentMethod => (
+                            <LakeLabelledCheckbox
+                              key={paymentMethod.id}
+                              label={formatPaymentMethodsName(paymentMethod.type)}
+                              value={value.includes(paymentMethod.id)}
+                              onValueChange={isChecked => {
+                                onChange(
+                                  isChecked
+                                    ? [...value, paymentMethod.id]
+                                    : value.filter(
+                                        paymentMethodId => paymentMethodId !== paymentMethod.id,
+                                      ),
+                                );
+                              }}
+                            />
+                          ))}
+                        </>
+                      )}
+                    </Field>
+                  </Accordion>
 
                   <Accordion
                     style={styles.accordion}
-                    trigger={t("merchantProfile.paymentLink.new.advancedOptions")}
                     contentContainerStyle={styles.accordion}
+                    trigger={
+                      <LakeHeading level={3} variant="h3">
+                        {t("merchantProfile.paymentLink.new.customer")}
+                      </LakeHeading>
+                    }
                   >
-                    <Space height={12} />
+                    <Field name="customerName">
+                      {({ value, onChange, error }) => (
+                        <LakeLabel
+                          label={t("merchantProfile.paymentLink.new.customerName")}
+                          optionalLabel={t("form.optional")}
+                          render={id => (
+                            <LakeTextInput
+                              id={id}
+                              value={value}
+                              onChangeText={onChange}
+                              error={error}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
 
-                    <LakeLabelledCheckbox
-                      label={t("merchantProfile.paymentLink.new.customCancelUrl")}
-                      value={hasCancelRedirectUrl}
-                      onValueChange={val => setHasCancelRedirectUrl(val)}
-                    />
+                    <Field name="customerIban">
+                      {({ value, onChange, error }) => (
+                        <LakeLabel
+                          label={t("merchantProfile.paymentLink.new.customerIban")}
+                          optionalLabel={t("form.optional")}
+                          render={id => (
+                            <LakeTextInput
+                              id={id}
+                              value={value}
+                              onChangeText={onChange}
+                              error={error}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
+                  </Accordion>
 
-                    <Space height={12} />
+                  <Accordion
+                    style={styles.accordion}
+                    contentContainerStyle={styles.accordion}
+                    trigger={
+                      <LakeHeading level={3} variant="h3">
+                        {t("merchantProfile.paymentLink.new.redirections")}
+                      </LakeHeading>
+                    }
+                  >
+                    <Field name="redirectUrl">
+                      {({ value, onChange, error }) => (
+                        <LakeLabel
+                          label={t("merchantProfile.paymentLink.new.redirectUrl")}
+                          optionalLabel={t("form.optional")}
+                          render={id => (
+                            <LakeTextInput
+                              id={id}
+                              value={value}
+                              onChangeText={onChange}
+                              error={error}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
 
                     <Field name="cancelRedirectUrl">
                       {({ value, onChange, error }) => (
                         <LakeLabel
-                          label=""
+                          label={t("merchantProfile.paymentLink.new.customCancelUrl")}
+                          optionalLabel={t("form.optional")}
                           render={id => (
                             <LakeTextInput
-                              placeholder={t("merchantProfile.paymentLink.new.customCancelUrl")}
                               id={id}
                               value={value}
                               onChangeText={onChange}
@@ -307,6 +427,19 @@ export const MerchantProfilePaymentLinkNew = ({ paymentMethods, onPressClose }: 
                 {large && <Box style={styles.preview}></Box>}
               </Box>
             </Tile>
+
+            <Space height={32} />
+
+            <Box alignItems={large ? "start" : "stretch"}>
+              <LakeButton
+                color="current"
+                icon="add-circle-filled"
+                onPress={onPressSubmit}
+                loading={merchantPaymentLinkCreation.isLoading()}
+              >
+                {t("merchantProfile.paymentLink.buttonForm.create")}
+              </LakeButton>
+            </Box>
           </ScrollView>
         </View>
       )}

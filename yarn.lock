@@ -2113,10 +2113,10 @@
     "@emotion/hash" "^0.9.2"
     use-sync-external-store "^1.2.2"
 
-"@swan-io/graphql-client@0.2.2":
-  version "0.2.2"
-  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.2.2.tgz#63830c9fcdcee0c322a695382a287467fce36e39"
-  integrity sha512-ucdsfIGuWdPu1il6uOUiP5pw/dhasB1dy8Ry+bW72XTSKmHGe0ihuEB4+NN2y+OCTgqwpV7kqUGRjBU7eGlMCQ==
+"@swan-io/graphql-client@0.2.3":
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.2.3.tgz#bb23f758c598af92947ccba4fabfd9c5b540e9bb"
+  integrity sha512-f+YhVU5vsd5Hu74/1DEWKDaab+yFnpIHt/EyTf9hrAxNia7Xkj+V0tV5lycTj/xO9Nw9n80bVu9Iz6j8a+SZ9Q==
   dependencies:
     "@0no-co/graphql.web" "^1.0.6"
     "@swan-io/boxed" "^2.3.0"
@@ -7759,10 +7759,10 @@ typed-array-length@^1.0.6:
     is-typed-array "^1.1.13"
     possible-typed-array-names "^1.0.0"
 
-typescript@5.5.4:
-  version "5.5.4"
-  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.5.4.tgz#d9852d6c82bad2d2eda4fd74a5762a8f5909e9ba"
-  integrity sha512-Mtq29sKDAEYP7aljRgtPOpTvOfbwRWlS6dPRzwjdE+C0R4brX/GUyhHSecbHMFLNBLcJIPt9nl9yG5TZ1weH+Q==
+typescript@5.6.3:
+  version "5.6.3"
+  resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.6.3.tgz#5f3449e31c9d94febb17de03cc081dd56d81db5b"
+  integrity sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==
 
 ua-parser-js@^1.0.35:
   version "1.0.38"

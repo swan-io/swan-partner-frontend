@@ -30,7 +30,6 @@ import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
-import { env } from "../utils/env";
 import { locale, t } from "../utils/i18n";
 import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
@@ -137,8 +136,7 @@ export const ProjectLoginPage = ({
   redirectTo: string | undefined;
   sessionExpired?: boolean;
 }) => {
-  const envType = env.APP_TYPE === "LIVE" ? "Live" : "Sandbox";
-  const [projectInfos] = useQuery(ProjectLoginPageDocument, { projectId, env: envType });
+  const [projectInfos] = useQuery(ProjectLoginPageDocument, { projectId });
 
   // we store initial sessionExpired value, then remove it from the url
   const sessionExpiredWarningVisible = useRef(sessionExpired).current;

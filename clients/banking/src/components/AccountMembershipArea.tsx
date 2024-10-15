@@ -322,7 +322,8 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                       (features.transferCreationVisible || features.paymentListVisible),
                     cards:
                       accountMembership.allCards.totalCount > 0 ||
-                      (canManageCards && features.virtualCardOrderVisible),
+                      (canManageCards && features.virtualCardOrderVisible) ||
+                      (canManageAccountMembership && canManageCards),
                     members:
                       canViewAccount && canManageAccountMembership && features.memberListVisible,
                     merchants:

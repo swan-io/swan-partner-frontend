@@ -29,7 +29,7 @@ import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils
 import { trim } from "@swan-io/lake/src/utils/string";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -37,6 +37,7 @@ import {
   MerchantPaymentMethod,
   MerchantPaymentMethodType,
 } from "../graphql/partner";
+import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateArrayRequired, validateRequired } from "../utils/validations";
@@ -113,20 +114,38 @@ const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) 
 };
 const previewItems = [
   {
-    id: "1",
+    id: "desktop",
     name: "",
     icon: <Icon name="laptop-regular" size={24} />,
   },
   {
-    id: "2",
+    id: "mobile",
     name: "",
     icon: <Icon name="phone-regular" size={24} />,
   },
-];
+] as const;
+
+const Container = ({ children }: { children: ({ width }: { width: number }) => ReactNode }) => {
+  const [availableWidth, setAvailableWidth] = useState<number | null>(null);
+
+  return (
+    <View
+      onLayout={event => {
+        setAvailableWidth(event.nativeEvent.layout.width);
+      }}
+      style={commonStyles.fill}
+    >
+      {availableWidth != null ? children({ width: availableWidth }) : null}
+    </View>
+  );
+};
 
 type Props = {
   merchantProfileId: string;
   accountMembershipId: string;
+  accentColor: string | undefined;
+  merchantLogoUrl: string | undefined;
+  merchantName: string | undefined;
   paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
   onPressClose: () => void;
 };
@@ -136,8 +155,11 @@ export const MerchantProfilePaymentLinkNew = ({
   accountMembershipId,
   paymentMethods,
   onPressClose,
+  accentColor,
+  merchantLogoUrl,
+  merchantName,
 }: Props) => {
-  const [selectedPreview, setSelectedPreview] = useState(previewItems[0]);
+  const [selectedPreview, setSelectedPreview] = useState<"desktop" | "mobile">("desktop");
 
   const cardPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
     match(paymentMethod)
@@ -166,7 +188,7 @@ export const MerchantProfilePaymentLinkNew = ({
     identity,
   );
 
-  const { Field, submitForm } = useForm<{
+  const { Field, FieldsListener, submitForm } = useForm<{
     label: string;
     amount: string;
     paymentMethodIds: string[];
@@ -453,17 +475,77 @@ export const MerchantProfilePaymentLinkNew = ({
                   </Accordion>
                 </Box>
 
-                {large && isNotNullish(selectedPreview) && (
+                {large && (
                   <Box style={styles.preview}>
                     <Box style={styles.previewContainer}>
                       <SegmentedControl
                         minItemWidth={250}
                         items={previewItems}
-                        selected={selectedPreview.id}
+                        selected={selectedPreview}
                         onValueChange={id => {
-                          setSelectedPreview(previewItems.find(method => method.id === id));
+                          setSelectedPreview(id);
                         }}
                       />
+
+                      <FieldsListener names={["label", "amount", "paymentMethodIds"]}>
+                        {({ label, amount, paymentMethodIds }) => {
+                          const url = new URL(env.PAYMENT_URL);
+                          url.pathname = "/preview";
+
+                          if (accentColor != null) {
+                            url.searchParams.append("accentColor", accentColor);
+                          }
+                          if (merchantLogoUrl != null) {
+                            url.searchParams.append("logo", merchantLogoUrl);
+                          }
+                          if (merchantName != null) {
+                            url.searchParams.append("merchantName", merchantName);
+                          }
+                          if (label.value != "") {
+                            url.searchParams.append("label", label.value);
+                          }
+                          if (amount.value != "" && !isNaN(Number(amount.value))) {
+                            url.searchParams.append("amount", amount.value);
+                          }
+
+                          paymentMethodIds.value.forEach(paymentMethodId => {
+                            const paymentMethod = selectablePaymentMethods.find(
+                              item => item.id === paymentMethodId,
+                            );
+                            if (paymentMethod == null) {
+                              return;
+                            }
+
+                            if (paymentMethod.type === "Card") {
+                              url.searchParams.append("card", "true");
+                            }
+                            if (
+                              paymentMethod.type === "SepaDirectDebitB2b" ||
+                              paymentMethod.type === "SepaDirectDebitCore"
+                            ) {
+                              url.searchParams.append("sepaDirectDebit", "true");
+                            }
+                          });
+                          return (
+                            <Container>
+                              {({ width }) => (
+                                <iframe
+                                  src={url.toString()}
+                                  style={{
+                                    position: "absolute",
+                                    left: "50%",
+                                    top: spacings[16],
+                                    border: "none",
+                                    width: selectedPreview === "desktop" ? 1280 : 360,
+                                    height: 600,
+                                    transform: `translateX(-50%) scale(${(width / 1280) * 100}%)`,
+                                  }}
+                                />
+                              )}
+                            </Container>
+                          );
+                        }}
+                      </FieldsListener>
                     </Box>
                   </Box>
                 )}

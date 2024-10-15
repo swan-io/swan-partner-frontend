@@ -234,6 +234,9 @@ export const MerchantProfilePaymentLinkArea = ({
                 isNotNullish(merchantProfile.merchantPaymentMethods) ? (
                   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
                     <MerchantProfilePaymentLinkNew
+                      accentColor={merchantProfile.accentColor ?? undefined}
+                      merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
+                      merchantName={merchantProfile.merchantName ?? undefined}
                       accountMembershipId={accountMembershipId}
                       merchantProfileId={merchantProfileId}
                       paymentMethods={merchantProfile.merchantPaymentMethods}

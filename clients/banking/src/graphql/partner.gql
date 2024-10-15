@@ -2249,6 +2249,9 @@ query MerchantPaymentLinks(
         status
       }
     }
+    accentColor
+    merchantName
+    merchantLogoUrl
     merchantPaymentLinks(filters: $filters, first: $first, after: $after) {
       ...PaymentLinkConnection
     }

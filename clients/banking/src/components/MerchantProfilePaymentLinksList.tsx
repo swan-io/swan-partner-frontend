@@ -100,13 +100,6 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
       />
     ),
   },
-  // {
-  //   id: "creationDate",
-  //   width: 200,
-  //   title: t("merchantProfile.paymentLink.list.creationDate"),
-  //   renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
-  //   renderCell: ({ item }) => <SimpleRegularTextCell text={item.requestedExecutionAt} />,
-  // },
   {
     id: "status",
     width: 150,
@@ -177,13 +170,13 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
       <EndAlignedCell>
         {match(item.statusInfo.status)
           .with("Active", () => (
-            <Tag color="positive"> {t("merchantProfile.paymentLink.status.active")} </Tag>
+            <Tag color="shakespear"> {t("merchantProfile.paymentLink.status.active")} </Tag>
           ))
           .with("Completed", () => (
-            <Tag color="negative"> {t("merchantProfile.paymentLink.status.completed")} </Tag>
+            <Tag color="positive"> {t("merchantProfile.paymentLink.status.completed")} </Tag>
           ))
           .with("Expired", () => (
-            <Tag color="negative"> {t("merchantProfile.paymentLink.status.expired")} </Tag>
+            <Tag color="gray"> {t("merchantProfile.paymentLink.status.expired")} </Tag>
           ))
           .exhaustive()}
       </EndAlignedCell>

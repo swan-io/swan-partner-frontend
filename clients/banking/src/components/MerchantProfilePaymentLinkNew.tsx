@@ -2,6 +2,7 @@ import { Array, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Accordion } from "@swan-io/lake/src/components/Accordion";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -9,6 +10,7 @@ import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
+import { SegmentedControl } from "@swan-io/lake/src/components/SegmentedControl";
 import { Separator } from "@swan-io/lake/src/components/Separator";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
@@ -23,9 +25,11 @@ import {
 import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { trim } from "@swan-io/lake/src/utils/string";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
+import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -35,7 +39,7 @@ import {
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateRequired } from "../utils/validations";
+import { validateArrayRequired, validateRequired } from "../utils/validations";
 
 const styles = StyleSheet.create({
   root: {
@@ -90,6 +94,9 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     backgroundColor: backgroundColor.default,
   },
+  previewContainer: {
+    margin: spacings[32],
+  },
 });
 
 const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) => {
@@ -104,6 +111,18 @@ const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) 
     )
     .exhaustive();
 };
+const previewItems = [
+  {
+    id: "1",
+    name: "",
+    icon: <Icon name="laptop-regular" size={24} />,
+  },
+  {
+    id: "2",
+    name: "",
+    icon: <Icon name="phone-regular" size={24} />,
+  },
+];
 
 type Props = {
   merchantProfileId: string;
@@ -118,6 +137,8 @@ export const MerchantProfilePaymentLinkNew = ({
   paymentMethods,
   onPressClose,
 }: Props) => {
+  const [selectedPreview, setSelectedPreview] = useState(previewItems[0]);
+
   const cardPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
     match(paymentMethod)
       .with(
@@ -156,26 +177,33 @@ export const MerchantProfilePaymentLinkNew = ({
   }>({
     label: {
       initialValue: "",
+      sanitize: trim,
       validate: validateRequired,
     },
     amount: {
       initialValue: "",
+      sanitize: trim,
       validate: validateRequired,
     },
     paymentMethodIds: {
       initialValue: selectablePaymentMethods.map(paymentMethod => paymentMethod.id),
+      validate: validateArrayRequired,
     },
     cancelRedirectUrl: {
       initialValue: "",
+      sanitize: trim,
     },
     customerName: {
       initialValue: "",
+      sanitize: trim,
     },
     customerIban: {
       initialValue: "",
+      sanitize: trim,
     },
     redirectUrl: {
       initialValue: "",
+      sanitize: trim,
     },
   });
 
@@ -312,10 +340,11 @@ export const MerchantProfilePaymentLinkNew = ({
                     }
                   >
                     <Field name="paymentMethodIds">
-                      {({ value, onChange }) => (
+                      {({ value, onChange, error }) => (
                         <>
                           {selectablePaymentMethods.map(paymentMethod => (
                             <LakeLabelledCheckbox
+                              isError={isNotNullish(error)}
                               key={paymentMethod.id}
                               label={formatPaymentMethodsName(paymentMethod.type)}
                               value={value.includes(paymentMethod.id)}
@@ -424,7 +453,20 @@ export const MerchantProfilePaymentLinkNew = ({
                   </Accordion>
                 </Box>
 
-                {large && <Box style={styles.preview}></Box>}
+                {large && isNotNullish(selectedPreview) && (
+                  <Box style={styles.preview}>
+                    <Box style={styles.previewContainer}>
+                      <SegmentedControl
+                        minItemWidth={250}
+                        items={previewItems}
+                        selected={selectedPreview.id}
+                        onValueChange={id => {
+                          setSelectedPreview(previewItems.find(method => method.id === id));
+                        }}
+                      />
+                    </Box>
+                  </Box>
+                )}
               </Box>
             </Tile>
 

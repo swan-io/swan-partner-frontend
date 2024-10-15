@@ -31,6 +31,7 @@ import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
 
 const styles = StyleSheet.create({
+  containerMobile: { paddingTop: spacings[24], paddingHorizontal: spacings[24] },
   filters: {
     paddingHorizontal: spacings[24],
     paddingTop: spacings[24],
@@ -111,10 +112,7 @@ export const MerchantProfilePaymentLinkArea = ({
   return (
     <>
       {!large && (
-        <Box
-          style={{ paddingTop: spacings[24], paddingHorizontal: spacings[24] }}
-          alignItems="stretch"
-        >
+        <Box style={styles.containerMobile} alignItems="stretch">
           <LakeButton
             size="small"
             icon="add-circle-filled"

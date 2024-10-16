@@ -162,7 +162,7 @@ export const formatNestedMessage = (
     params,
   );
 
-  const resultArray: (string | ReactElement)[] = typeof result === "string" ? [result] : result;
+  const resultArray: (string | ReactElement)[] = Array.isArray(result) ? result : [result];
 
   return resultArray.map((item, index) =>
     isValidElement(item) ? cloneElement(item, { key: `t-${key}-${index}` }) : item,

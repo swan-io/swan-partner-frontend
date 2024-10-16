@@ -51,4 +51,21 @@ execSync(
   `cd ${tmp}/${repoName} && git commit --allow-empty -am "Update with tag: ${process.env.TAG}, image(s): ${process.env.DEPLOY_APP_NAME}"`,
 );
 
-execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);
+const push = () =>
+  execSync(`cd ${tmp}/${repoName} && git pull --rebase origin master && git push origin master`);
+
+let remainingAttempts = 3;
+let lastError;
+while (remainingAttempts-- > 0) {
+  try {
+    push();
+    break;
+  } catch (err) {
+    lastError = err;
+  }
+}
+
+if (remainingAttempts === 0 && lastError != null) {
+  console.error(lastError);
+  process.exit(1);
+}

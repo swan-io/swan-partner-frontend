@@ -214,7 +214,7 @@ export const start = async ({
       useDefaults: false,
       directives: {
         defaultSrc: ["*", "data:", "blob:", "'unsafe-inline'"],
-        frameAncestors: ["'self'"],
+        frameAncestors: ["'self'", env.BANKING_URL],
       },
     },
   });

@@ -118,53 +118,53 @@ export const Preview = ({
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
 
   return (
-    <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
-      {({ large }) => (
-        <View style={styles.base}>
-          <ScrollView contentContainerStyle={styles.content}>
-            <>
-              <Box direction="row" alignItems="center">
-                <LakeButton
-                  ariaLabel={t("common.cancel")}
-                  icon="dismiss-regular"
-                  mode="tertiary"
-                  onPress={() => {}}
-                >
-                  {large ? t("common.cancel") : null}
-                </LakeButton>
+    <WithPartnerAccentColor color={accentColor ?? invariantColors.defaultAccentColor}>
+      <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
+        {({ large }) => (
+          <View style={styles.base}>
+            <ScrollView contentContainerStyle={styles.content}>
+              <>
+                <Box direction="row" alignItems="center">
+                  <LakeButton
+                    ariaLabel={t("common.cancel")}
+                    icon="dismiss-regular"
+                    mode="tertiary"
+                    onPress={() => {}}
+                  >
+                    {large ? t("common.cancel") : null}
+                  </LakeButton>
 
-                <Fill minWidth={16} />
+                  <Fill minWidth={16} />
 
-                <View>
-                  <LakeSelect
-                    value={locale.language}
-                    items={languageOptions}
-                    hideErrors={true}
-                    mode="borderless"
-                    onValueChange={() => {}}
-                  />
-                </View>
-              </Box>
+                  <View>
+                    <LakeSelect
+                      value={locale.language}
+                      items={languageOptions}
+                      hideErrors={true}
+                      mode="borderless"
+                      onValueChange={() => {}}
+                    />
+                  </View>
+                </Box>
+
+                <Space height={24} />
+              </>
+              {isNotNullish(logo) ? (
+                <AutoWidthImage
+                  height={40}
+                  maxWidth={180}
+                  resizeMode="contain"
+                  sourceUri={logo}
+                  style={styles.centered}
+                />
+              ) : (
+                <LakeHeading variant="h3" level={3} align="center">
+                  {merchantName}
+                </LakeHeading>
+              )}
 
               <Space height={24} />
-            </>
-            {isNotNullish(logo) ? (
-              <AutoWidthImage
-                height={40}
-                maxWidth={180}
-                resizeMode="contain"
-                sourceUri={logo}
-                style={styles.centered}
-              />
-            ) : (
-              <LakeHeading variant="h3" level={3} align="center">
-                {merchantName}
-              </LakeHeading>
-            )}
 
-            <Space height={24} />
-
-            <WithPartnerAccentColor color={accentColor ?? invariantColors.defaultAccentColor}>
               <LakeText variant="medium" align="center" color={colors.gray[700]}>
                 {label}
               </LakeText>
@@ -186,7 +186,7 @@ export const Preview = ({
               {isNotNullish(selectedPaymentMethod) && (
                 <LakeLabel
                   style={
-                    large && (isNotNullish(card) || isNotNullish(sepaDirectDebit))
+                    large && (card == null || sepaDirectDebit == null)
                       ? styles.segmentedControlDesktop
                       : styles.segmentedControl
                   }
@@ -308,10 +308,10 @@ export const Preview = ({
                   </>
                 ))
                 .otherwise(() => null)}
-            </WithPartnerAccentColor>
-          </ScrollView>
-        </View>
-      )}
-    </ResponsiveContainer>
+            </ScrollView>
+          </View>
+        )}
+      </ResponsiveContainer>
+    </WithPartnerAccentColor>
   );
 };

@@ -3,10 +3,11 @@ import { useMutation } from "@swan-io/graphql-client";
 import { Accordion } from "@swan-io/lake/src/components/Accordion";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Icon } from "@swan-io/lake/src/components/Icon";
-import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
@@ -20,6 +21,8 @@ import {
   animations,
   backgroundColor,
   breakpoints,
+  colors,
+  radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { showToast } from "@swan-io/lake/src/state/toasts";
@@ -41,6 +44,10 @@ import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateArrayRequired, validateRequired } from "../utils/validations";
+
+const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
+const PREVIEW_TOP_BAR_HEIGHT = 16;
+const IFRAME_ORIGINAL_HEIGHT = 1000;
 
 const styles = StyleSheet.create({
   root: {
@@ -80,14 +87,15 @@ const styles = StyleSheet.create({
     marginHorizontal: "auto",
     maxWidth: 1520,
     paddingHorizontal: spacings[24],
-    paddingVertical: spacings[32],
+    paddingTop: spacings[32],
     width: "100%",
   },
   desktopContents: {
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
   },
-  tile: { paddingHorizontal: 0, paddingVertical: 0 },
+  tile: { flexGrow: 1, paddingHorizontal: 0, paddingVertical: 0 },
+  tileContents: { flexGrow: 1 },
   optionsDesktop: { padding: spacings[32], maxWidth: 350 },
   optionsMobile: { padding: spacings[32] },
   accordion: { paddingHorizontal: 0 },
@@ -97,6 +105,19 @@ const styles = StyleSheet.create({
   },
   previewContainer: {
     margin: spacings[32],
+    marginBottom: 0,
+    flexGrow: 1,
+  },
+  previewFrameContainer: {
+    position: "absolute",
+    left: "50%",
+    top: "50%",
+    transform: "translate(-50%, -50%)",
+    borderRadius: radii[8],
+    paddingTop: spacings[PREVIEW_TOP_BAR_HEIGHT],
+    backgroundColor: colors.gray[100],
+    boxShadow: `0 0 0 3px ${colors.gray[100]}`,
+    overflow: "hidden",
   },
 });
 
@@ -125,17 +146,27 @@ const previewItems = [
   },
 ] as const;
 
-const Container = ({ children }: { children: ({ width }: { width: number }) => ReactNode }) => {
-  const [availableWidth, setAvailableWidth] = useState<number | null>(null);
+const Container = ({
+  children,
+}: {
+  children: (values: { height: number; width: number }) => ReactNode;
+}) => {
+  const [availableDimensions, setAvailableDiemensions] = useState<{
+    width: number;
+    height: number;
+  } | null>(null);
 
   return (
     <View
       onLayout={event => {
-        setAvailableWidth(event.nativeEvent.layout.width);
+        setAvailableDiemensions({
+          width: event.nativeEvent.layout.width,
+          height: event.nativeEvent.layout.height,
+        });
       }}
       style={commonStyles.fill}
     >
-      {availableWidth != null ? children({ width: availableWidth }) : null}
+      {availableDimensions != null ? children(availableDimensions) : null}
     </View>
   );
 };
@@ -317,7 +348,11 @@ export const MerchantProfilePaymentLinkNew = ({
             contentContainerStyle={[styles.contents, large && styles.desktopContents]}
           >
             <Tile style={styles.tile}>
-              <Box direction={large ? "row" : "column"}>
+              <Box
+                direction={large ? "row" : "column"}
+                style={styles.tileContents}
+                alignItems="stretch"
+              >
                 <Box style={large ? styles.optionsDesktop : styles.optionsMobile}>
                   <Field name="label">
                     {({ value, onChange, error }) => (
@@ -356,9 +391,9 @@ export const MerchantProfilePaymentLinkNew = ({
                     style={styles.accordion}
                     contentContainerStyle={styles.accordion}
                     trigger={
-                      <LakeHeading level={3} variant="h3">
+                      <LakeText variant="medium" color={colors.gray[700]}>
                         {t("merchantProfile.paymentLink.new.paymentMethods")}
-                      </LakeHeading>
+                      </LakeText>
                     }
                   >
                     <Field name="paymentMethodIds">
@@ -390,9 +425,9 @@ export const MerchantProfilePaymentLinkNew = ({
                     style={styles.accordion}
                     contentContainerStyle={styles.accordion}
                     trigger={
-                      <LakeHeading level={3} variant="h3">
+                      <LakeText variant="medium" color={colors.gray[700]}>
                         {t("merchantProfile.paymentLink.new.customer")}
-                      </LakeHeading>
+                      </LakeText>
                     }
                   >
                     <Field name="customerName">
@@ -434,9 +469,9 @@ export const MerchantProfilePaymentLinkNew = ({
                     style={styles.accordion}
                     contentContainerStyle={styles.accordion}
                     trigger={
-                      <LakeHeading level={3} variant="h3">
+                      <LakeText variant="medium" color={colors.gray[700]}>
                         {t("merchantProfile.paymentLink.new.redirections")}
-                      </LakeHeading>
+                      </LakeText>
                     }
                   >
                     <Field name="redirectUrl">
@@ -507,6 +542,7 @@ export const MerchantProfilePaymentLinkNew = ({
                           if (amount.value != "" && !isNaN(Number(amount.value))) {
                             url.searchParams.append("amount", amount.value);
                           }
+                          url.searchParams.append("currency", "EUR");
 
                           paymentMethodIds.value.forEach(paymentMethodId => {
                             const paymentMethod = selectablePaymentMethods.find(
@@ -528,20 +564,47 @@ export const MerchantProfilePaymentLinkNew = ({
                           });
                           return (
                             <Container>
-                              {({ width }) => (
-                                <iframe
-                                  src={url.toString()}
-                                  style={{
-                                    position: "absolute",
-                                    left: "50%",
-                                    top: spacings[16],
-                                    border: "none",
-                                    width: selectedPreview === "desktop" ? 1280 : 360,
-                                    height: 600,
-                                    transform: `translateX(-50%) scale(${(width / 1280) * 100}%)`,
-                                  }}
-                                />
-                              )}
+                              {({ width, height }) => {
+                                const scaleFactor = Math.min(
+                                  (height -
+                                    PREVIEW_CONTAINER_VERTICAL_SPACING * 2 -
+                                    PREVIEW_TOP_BAR_HEIGHT) /
+                                    IFRAME_ORIGINAL_HEIGHT,
+                                  width / (selectedPreview === "desktop" ? 1280 : 440),
+                                );
+
+                                return (
+                                  <View
+                                    style={[
+                                      styles.previewFrameContainer,
+                                      {
+                                        height: scaleFactor * IFRAME_ORIGINAL_HEIGHT,
+                                        width:
+                                          scaleFactor *
+                                          (selectedPreview === "desktop" ? 1280 : 440),
+                                      },
+                                    ]}
+                                  >
+                                    <iframe
+                                      tabIndex={-1}
+                                      src={url.toString()}
+                                      style={
+                                        // eslint-disable-next-line react-native/no-inline-styles
+                                        {
+                                          backgroundColor: backgroundColor.default,
+                                          pointerEvents: "none",
+                                          border: "none",
+                                          width: selectedPreview === "desktop" ? 1280 : 440,
+                                          height: IFRAME_ORIGINAL_HEIGHT,
+                                          minHeight: IFRAME_ORIGINAL_HEIGHT,
+                                          transformOrigin: "0 0",
+                                          transform: `scale(${scaleFactor * 100}%)`,
+                                        }
+                                      }
+                                    />
+                                  </View>
+                                );
+                              }}
                             </Container>
                           );
                         }}
@@ -552,9 +615,7 @@ export const MerchantProfilePaymentLinkNew = ({
               </Box>
             </Tile>
 
-            <Space height={32} />
-
-            <Box alignItems={large ? "start" : "stretch"}>
+            <LakeButtonGroup>
               <LakeButton
                 color="current"
                 icon="add-circle-filled"
@@ -563,7 +624,7 @@ export const MerchantProfilePaymentLinkNew = ({
               >
                 {t("merchantProfile.paymentLink.buttonForm.create")}
               </LakeButton>
-            </Box>
+            </LakeButtonGroup>
           </ScrollView>
         </View>
       )}

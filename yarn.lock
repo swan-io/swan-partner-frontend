@@ -2100,10 +2100,10 @@
   resolved "https://registry.yarnpkg.com/@sinonjs/text-encoding/-/text-encoding-0.7.2.tgz#5981a8db18b56ba38ef0efb7d995b12aa7b51918"
   integrity sha512-sXXKG+uL9IrKqViTtao2Ws6dy0znu9sOaP1di/jKGW1M6VssO8vlpXCQcpZ+jisQ1tTFAC5Jo/EOzFbggBagFQ==
 
-"@swan-io/boxed@2.3.0", "@swan-io/boxed@^2.3.0":
-  version "2.3.0"
-  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-2.3.0.tgz#aafa19432a3fa2c00d472be7832632619c4ed5ff"
-  integrity sha512-ubonCw2GLblwsA9rodcDnhLvCY+0d9g0KyMFyzKZa+vPumWQ8IZ6HFjdQT3Nm5yC+/RnSmJ20RMPwOn/06M8Vw==
+"@swan-io/boxed@3.0.0", "@swan-io/boxed@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/boxed/-/boxed-3.0.0.tgz#2118f0362461cd68d813a4286f15b59798074a90"
+  integrity sha512-E5so5kp40ZEwa/vQDxH9BevaKFrm6P4Gy84D2+q9tQeNcUQc2rrE3StH9tHLRCh+LcI5h9Nv3JMbpwpI3p8nQQ==
 
 "@swan-io/chicane@2.1.0", "@swan-io/chicane@^2.1.0":
   version "2.1.0"
@@ -2113,26 +2113,26 @@
     "@emotion/hash" "^0.9.2"
     use-sync-external-store "^1.2.2"
 
-"@swan-io/graphql-client@0.2.3":
-  version "0.2.3"
-  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.2.3.tgz#bb23f758c598af92947ccba4fabfd9c5b540e9bb"
-  integrity sha512-f+YhVU5vsd5Hu74/1DEWKDaab+yFnpIHt/EyTf9hrAxNia7Xkj+V0tV5lycTj/xO9Nw9n80bVu9Iz6j8a+SZ9Q==
+"@swan-io/graphql-client@0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/graphql-client/-/graphql-client-0.3.0.tgz#9fb20e7d56eb2dd69d076e514722cc4078df73a2"
+  integrity sha512-L6QxAg3zJwIuAQVP48PQyRz55gKCM8CrADU/WwiG78vuCkOp3ZqNuQ/ufI14+A4GwXrxF0l0IbPkq73dLhTqNw==
   dependencies:
     "@0no-co/graphql.web" "^1.0.6"
-    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/boxed" "^3.0.0"
     "@swan-io/request" "^1.0.6"
     ts-pattern "^5.1.0"
 
-"@swan-io/lake@9.0.1":
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-9.0.1.tgz#70005677df7e6f66c57a2f88074389e3744e74e6"
-  integrity sha512-45G123oV+JjX3KitG8LuOS25rLSyYdSWsJ5SYFR3bq9YPmTf+f5nv4WbOn9TgnMMZnpLXd2zXdLsg+NxFvOT3w==
+"@swan-io/lake@9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/lake/-/lake-9.2.0.tgz#7db5fa827be868dcea188f6582962e39ac64a93a"
+  integrity sha512-XFgz3mYar9lhEoiEpSg4qg2sUG4Ggim+717gyR8gqtJ9Ji90HwY4LozbdtOvGF4zvdV2FjIoAxeVh8bcRHbckg==
   dependencies:
     "@react-three/drei" "^9.109.2"
     "@react-three/fiber" "^8.16.8"
-    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/boxed" "^3.0.0"
     "@swan-io/chicane" "^2.1.0"
-    "@swan-io/use-form" "^2.0.5"
+    "@swan-io/use-form" "^3.1.0"
     dayjs "^1.11.12"
     polished "^4.3.1"
     prism-react-renderer "^2.3.1"
@@ -2151,16 +2151,16 @@
   resolved "https://registry.yarnpkg.com/@swan-io/request/-/request-1.0.6.tgz#e46c7a92d4088a484bfd60e180bd2768adb68568"
   integrity sha512-HirhY0gu6aZk95YGXONcmwrfwQ0u5+uZGAtwtSDmrXfCLEGubXb1qIdRMex1e65TroXnTzBG3A65M5EvUB28ZQ==
 
-"@swan-io/shared-business@9.0.1":
-  version "9.0.1"
-  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-9.0.1.tgz#181416f7c63cb979c12602bff6648a434a1e6831"
-  integrity sha512-FJQlwjjDwIGuYZlmeXVox3sOmC7VIQRF2Cce0g9SvJBMCUHs43Jc4haWTD7A+751bgsjZF8FlJvR9mN2eNgRjw==
+"@swan-io/shared-business@9.2.0":
+  version "9.2.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/shared-business/-/shared-business-9.2.0.tgz#bf3cf07f129cdfdcdcc8f8f8c2ee52fec9078f55"
+  integrity sha512-YzE5UVdyu6JAiElQ8N+/u2CT7U2TWD8qR+1HKhsNI7N2G18g1soGfHeYsdySAaEJ6n2axTWesiiOczctXuZZVQ==
   dependencies:
     "@formatjs/intl" "^2.10.4"
     "@placekit/client-js" "^2.3.0"
-    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/boxed" "^3.0.0"
     "@swan-io/request" "^1.0.6"
-    "@swan-io/use-form" "^2.0.5"
+    "@swan-io/use-form" "^3.1.0"
     dayjs "^1.11.12"
     iban "^0.0.14"
     react "^18.3.1"
@@ -2172,12 +2172,12 @@
     ts-pattern "^5.2.0"
     uuid "^10.0.0"
 
-"@swan-io/use-form@2.0.5", "@swan-io/use-form@^2.0.5":
-  version "2.0.5"
-  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-2.0.5.tgz#6220148e0259fc6b1abe271d40b21ce6557d924f"
-  integrity sha512-UZbrngc1JPGJQ47APmWEQ/KVBoR/gNHZJrJNoC1qr95OZnfyxBQtNPmRbuCWqWKLIR8lYejk3Iw8VY4Gbon8CQ==
+"@swan-io/use-form@3.1.0", "@swan-io/use-form@^3.1.0":
+  version "3.1.0"
+  resolved "https://registry.yarnpkg.com/@swan-io/use-form/-/use-form-3.1.0.tgz#5b31ae33cdc085cf9423630de06b4c9f4d176946"
+  integrity sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==
   dependencies:
-    "@swan-io/boxed" "^2.3.0"
+    "@swan-io/boxed" "^3.0.0"
 
 "@swc/core-darwin-arm64@1.7.2":
   version "1.7.2"

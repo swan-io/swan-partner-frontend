@@ -74,7 +74,7 @@
     "@localazy/cli": "1.7.12",
     "@playwright/test": "1.45.3",
     "@sentry/cli": "2.33.0",
-    "@swan-io/boxed": "2.3.0",
+    "@swan-io/boxed": "3.0.0",
     "@types/glob": "8.1.0",
     "@types/prompts": "2.4.9",
     "@types/semver": "7.5.8",

@@ -14,7 +14,7 @@
     "@formatjs/intl": "2.10.4",
     "@juggle/resize-observer": "3.4.0",
     "@sentry/browser": "8.20.0",
-    "@swan-io/boxed": "3.0.0",
+    "@swan-io/boxed": "3.1.1",
     "@swan-io/chicane": "2.1.0",
     "@swan-io/graphql-client": "0.3.0",
     "@swan-io/lake": "9.2.0",

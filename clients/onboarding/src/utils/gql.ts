@@ -80,7 +80,8 @@ export const client = new Client({
                 clientErrorMessage: error.message,
               }),
             );
-          } catch (err) {}
+          } catch {}
+
           errorToRequestId.set(error, requestId);
         });
       });

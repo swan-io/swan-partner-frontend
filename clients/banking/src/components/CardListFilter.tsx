@@ -26,7 +26,6 @@ const typeFilter: FilterCheckboxDef<CardType> = {
     { value: "SingleUseVirtual", label: t("cards.format.singleUse") },
   ],
   label: t("cardList.type"),
-  submitText: t("common.filters.apply"),
 };
 
 const styles = StyleSheet.create({

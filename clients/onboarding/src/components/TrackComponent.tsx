@@ -22,7 +22,7 @@ export const TrackComponent = forwardRef<unknown, Props>(
       ...(typeof prop === "function" && {
         [hook]: (...args: unknown[]) => {
           sendMatomoEvent({ type: "Action", category, name: action });
-          prop(...args);
+          (prop as (...args: unknown[]) => void)(...args);
         },
       }),
     });

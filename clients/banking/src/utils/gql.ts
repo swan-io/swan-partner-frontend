@@ -117,7 +117,8 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
               clientErrorMessage: error.message,
             }),
           );
-        } catch (err) {}
+        } catch {}
+
         errorToRequestId.set(error, requestId);
       });
     });

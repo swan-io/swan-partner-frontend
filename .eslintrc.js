@@ -75,7 +75,9 @@ module.exports = {
 
     "@typescript-eslint/no-empty-function": "off",
     "@typescript-eslint/no-inferrable-types": "off",
+    "@typescript-eslint/no-unused-expressions": "off",
     "@typescript-eslint/no-var-requires": "off",
+    "@typescript-eslint/only-throw-error": "off",
     "@typescript-eslint/prefer-regexp-exec": "off",
     "@typescript-eslint/unbound-method": "off",
 

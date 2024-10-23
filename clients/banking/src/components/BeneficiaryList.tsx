@@ -325,7 +325,6 @@ const typeFilter: FilterCheckboxDef<BeneficiaryType> = {
   type: "checkbox",
   label: t("beneficiaries.type.title"),
   checkAllLabel: t("common.filters.all"),
-  submitText: t("common.filters.apply"),
   items: [
     { value: "International", label: t("beneficiaries.type.international") },
     { value: "Sepa", label: t("beneficiaries.type.sepa") },

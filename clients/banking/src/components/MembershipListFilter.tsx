@@ -29,7 +29,6 @@ const statusFilter: FilterCheckboxDef<AccountMembershipStatus> = {
     { value: "Suspended", label: t("memberships.status.temporarilyBlocked") },
     { value: "BindingUserError", label: t("memberships.status.conflictAndLimitedAccess") },
   ],
-  submitText: t("common.filters.apply"),
 };
 
 const canInitiatePaymentsFilter: FilterRadioDef<boolean | undefined> = {

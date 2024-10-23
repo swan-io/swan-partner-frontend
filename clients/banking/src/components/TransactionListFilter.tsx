@@ -49,7 +49,6 @@ type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "
 const paymentProductFilter: FilterCheckboxDef<SimplifiedPaymentProduct> = {
   type: "checkbox",
   label: t("transactionList.filter.paymentMethod"),
-  submitText: t("common.filters.apply"),
   checkAllLabel: t("common.filters.all"),
   items: [
     { value: "Card", label: t("paymentMethod.card") },
@@ -63,7 +62,6 @@ const paymentProductFilter: FilterCheckboxDef<SimplifiedPaymentProduct> = {
 const statusFilter: FilterCheckboxDef<TransactionStatus> = {
   type: "checkbox",
   label: t("transactionList.filter.status"),
-  submitText: t("common.filters.apply"),
   checkAllLabel: t("common.filters.all"),
   items: [
     { value: "Pending", label: t("transactionStatus.pending") },

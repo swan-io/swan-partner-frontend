@@ -7,6 +7,7 @@ import styles from "./index.module.css";
 
 function HomepageHeader() {
   const { siteConfig } = useDocusaurusContext();
+
   return (
     <header className={"hero hero--primary " + styles.hero}>
       <img src={"./img/logo.svg"} alt="" className={styles.logo} width={150} height={150} />

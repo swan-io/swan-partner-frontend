@@ -2,18 +2,18 @@ import { AsyncData, Dict, Future, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
-import {
-  FilterCheckboxDef,
-  FilterRadioDef,
-  FiltersStack,
-  FiltersState,
-} from "@swan-io/lake/src/components/Filters";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { stubFalse, stubTrue } from "@swan-io/lake/src/utils/function";
 import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import {
+  FilterCheckboxDef,
+  FilterRadioDef,
+  FiltersStack,
+  FiltersState,
+} from "@swan-io/shared-business/src/components/Filters";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { P, match } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";

@@ -1,8 +1,7 @@
-import React from 'react';
-import {HtmlClassNameProvider} from '@docusaurus/theme-common';
-import {DocProvider} from '@docusaurus/theme-common/internal';
-import DocItemMetadata from '@theme/DocItem/Metadata';
-import DocItemLayout from '@theme/DocItem/Layout';
+import { HtmlClassNameProvider } from "@docusaurus/theme-common";
+import { DocProvider } from "@docusaurus/theme-common/internal";
+import DocItemLayout from "@theme/DocItem/Layout";
+import DocItemMetadata from "@theme/DocItem/Metadata";
 
 export default function DocItem(props) {
   const docHtmlClassName = `docs-doc-id-${props.content.metadata.unversionedId}`;

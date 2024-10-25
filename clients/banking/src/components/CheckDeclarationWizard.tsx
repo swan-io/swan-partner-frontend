@@ -20,12 +20,12 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
 import { capitalize, trim } from "@swan-io/lake/src/utils/string";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";

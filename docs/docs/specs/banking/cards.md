@@ -17,6 +17,7 @@ query {
   }
 }
 ```
+
 ### No account access
 
 The following query works if the user doesn't have view access to the account (`canViewAccount`: `false`).

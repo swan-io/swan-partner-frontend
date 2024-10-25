@@ -6,13 +6,6 @@ import { CellAction, EndAlignedCell, SimpleHeaderCell } from "@swan-io/lake/src/
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
-import {
-  FilterCheckboxDef,
-  FilterRadioDef,
-  FiltersStack,
-  FiltersState,
-} from "@swan-io/lake/src/components/Filters";
-import { Flag } from "@swan-io/lake/src/components/Flag";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -38,6 +31,13 @@ import {
 } from "@swan-io/lake/src/utils/nullish";
 import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
+import {
+  FilterCheckboxDef,
+  FilterRadioDef,
+  FiltersStack,
+  FiltersState,
+} from "@swan-io/shared-business/src/components/Filters";
+import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { printFormat } from "iban";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";

@@ -1,7 +1,6 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Flag } from "@swan-io/lake/src/components/Flag";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -15,6 +14,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
 import { isNotEmpty, isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { useForm } from "@swan-io/use-form";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, StyleSheet, View } from "react-native";

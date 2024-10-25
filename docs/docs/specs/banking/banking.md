@@ -4,7 +4,7 @@ Use Swan's Web Banking source code to **create your own banking app** for your u
 
 You can completely customize the **navigation** as well as your **branding**.
 
-Several **pages** are included by default: *History*, *Account*, *Transfer*, *Cards*, *Members*, and *Profile*.
+Several **pages** are included by default: _History_, _Account_, _Transfer_, _Cards_, _Members_, and _Profile_.
 You can keep them all, remove some, or add your own—whatever you need.
 
 Finally, included are some **workarounds**.

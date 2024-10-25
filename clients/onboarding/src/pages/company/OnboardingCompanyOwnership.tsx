@@ -13,7 +13,6 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
@@ -27,6 +26,7 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useEffect, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

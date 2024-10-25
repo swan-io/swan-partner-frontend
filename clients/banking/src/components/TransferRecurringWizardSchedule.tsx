@@ -51,14 +51,17 @@ type Props = {
 };
 
 export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loading }: Props) => {
-  const { Field, FieldsListener, submitForm } = useForm({
+  const { Field, FieldsListener, submitForm, resetField } = useForm({
     period: {
       initialValue: "Daily" as StandingOrderPeriod,
     },
     firstExecutionDate: {
       initialValue: dayjs.utc().format(locale.dateFormat),
       sanitize: trim,
-      validate: validateTodayOrAfter,
+      validate: value => {
+        resetField("firstExecutionTime");
+        return validateTodayOrAfter(value);
+      },
     },
     firstExecutionTime: {
       initialValue: "",

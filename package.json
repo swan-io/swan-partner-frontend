@@ -3,16 +3,17 @@
   "description": "Swan front-end code",
   "version": "1.22.20",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
   "engines": {
     "node": ">=18.20.0",
-    "yarn": "^1.22.0"
+    "pnpm": "9.9.0"
   },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "postinstall": "yarn graphql-codegen",
+    "postinstall": "pnpm graphql-codegen",
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
@@ -37,7 +38,7 @@
     "pull-banking-locales": "localazy download banking -k localazy.keys.banking.json",
     "pull-onboarding-locales": "localazy download onboarding -k localazy.keys.onboarding.json",
     "pull-payment-locales": "localazy download payment -k localazy.keys.payment.json",
-    "pull-locales": "yarn pull-banking-locales && yarn pull-onboarding-locales && yarn pull-payment-locales && yarn sort-locales && yarn format-locales",
+    "pull-locales": "pnpm pull-banking-locales && pnpm pull-onboarding-locales && pnpm pull-payment-locales && pnpm sort-locales && pnpm format-locales",
     "remove-unused-locales": "tsx scripts/locales/removeUnused.ts",
     "release": "tsx scripts/release/createPullRequest.ts",
     "dev-e2e": "tsx -r dotenv/config server/src/index.ts --dev dotenv_config_path=.env.e2e",
@@ -49,17 +50,18 @@
     "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts",
     "tggl-gen-type": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY"
   },
-  "workspaces": {
-    "packages": [
-      "clients/*",
-      "server"
-    ]
-  },
   "lint-staged": {
-    "clients/**/src/locales/*.json": "yarn sort-locales",
+    "clients/**/src/locales/*.json": "pnpm sort-locales",
     "*": "prettier --ignore-unknown --write",
     "**/*.{js,ts,tsx}": "eslint --fix",
-    "clients/**/src/**/*.gql": "yarn graphql-codegen"
+    "clients/**/src/**/*.gql": "pnpm graphql-codegen"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react-native"
+      ]
+    }
   },
   "devDependencies": {
     "@actions/core": "1.11.1",

@@ -24,10 +24,10 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Request, badStatusToError } from "@swan-io/request";
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";

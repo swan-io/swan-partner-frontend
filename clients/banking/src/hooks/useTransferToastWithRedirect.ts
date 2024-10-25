@@ -1,7 +1,7 @@
 import { Option } from "@swan-io/boxed";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useEffect } from "react";
 import { match, P } from "ts-pattern";
 import { t } from "../utils/i18n";

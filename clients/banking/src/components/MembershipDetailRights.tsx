@@ -5,11 +5,11 @@ import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeBu
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { useState } from "react";

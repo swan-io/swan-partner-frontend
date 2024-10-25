@@ -1,7 +1,6 @@
 import { Array, Future, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
@@ -10,6 +9,7 @@ import {
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { forwardRef, useCallback, useImperativeHandle, useRef } from "react";
 import { P, match } from "ts-pattern";

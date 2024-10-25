@@ -6,9 +6,9 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { spacings } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useCallback, useEffect, useRef } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";

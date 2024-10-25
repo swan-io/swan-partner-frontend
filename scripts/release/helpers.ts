@@ -1,8 +1,8 @@
-import chalk from "chalk";
 import childProcess from "node:child_process";
+import pc from "picocolors";
 
 export const logError = (...error: string[]) =>
-  console.error(`${chalk.red("ERROR")} ${error.join("\n")}` + "\n");
+  console.error(`${pc.red("ERROR")} ${error.join("\n")}` + "\n");
 
 export const exec = (cmd: string): Promise<string> =>
   new Promise<string>((resolve, reject) => {

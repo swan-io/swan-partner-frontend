@@ -1,11 +1,10 @@
-import React from 'react';
-import clsx from 'clsx';
-import {ThemeClassNames} from '@docusaurus/theme-common';
-import {useDoc} from '@docusaurus/theme-common/internal';
-import TOCCollapsible from '@theme/TOCCollapsible';
-import styles from './styles.module.css';
+import { ThemeClassNames } from "@docusaurus/theme-common";
+import { useDoc } from "@docusaurus/theme-common/internal";
+import TOCCollapsible from "@theme/TOCCollapsible";
+import clsx from "clsx";
+import styles from "./styles.module.css";
 export default function DocItemTOCMobile() {
-  const {toc, frontMatter} = useDoc();
+  const { toc, frontMatter } = useDoc();
   return (
     <TOCCollapsible
       toc={toc}

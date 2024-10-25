@@ -1,6 +1,6 @@
-import chalk from "chalk";
 import fs from "node:fs";
 import path from "pathe";
+import pc from "picocolors";
 import prompts from "prompts";
 import semver from "semver";
 import { PackageJson } from "type-fest";
@@ -73,9 +73,7 @@ const hasGitRemoteBranch = (branch: string, remote: string) =>
   isExecOk(`git show-ref --quiet --verify -- "refs/remotes/${remote}/${branch}"`);
 
 const getWorkspacePackages = () =>
-  exec("yarn workspaces info --json").then(
-    info => JSON.parse(info) as Record<string, { location: string }>,
-  );
+  exec("pnpm list -r --json").then(pkg => JSON.parse(pkg) as { name: string; path: string }[]);
 
 const gitAddAll = () => exec("git add . -u");
 const gitCheckout = (branch: string) => exec(`git checkout ${branch}`);
@@ -99,8 +97,8 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
     logError("gh needs to be installed", "https://cli.github.com");
     process.exit(1);
   }
-  if (await isProgramMissing("yarn")) {
-    logError("yarn needs to be installed", "https://classic.yarnpkg.com");
+  if (await isProgramMissing("pnpm")) {
+    logError("pnpm needs to be installed", "https://pnpm.io");
     process.exit(1);
   }
 
@@ -132,7 +130,7 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
   const commits = await getGitCommits(currentVersionTag, "main");
 
   if (commits.length > 0) {
-    console.log("\n" + chalk.bold("What's Included"));
+    console.log("\n" + pc.bold("What's Included"));
     console.log(commits.join("\n") + "\n");
   }
 
@@ -175,8 +173,8 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
 
   const packages = await getWorkspacePackages();
 
-  Object.entries(packages).forEach(([, { location }]) => {
-    const pkgPath = path.join(rootDir, location, "package.json");
+  Object.values(packages).forEach(item => {
+    const pkgPath = path.join(item.path, "package.json");
     const pkg = JSON.parse(fs.readFileSync(pkgPath, "utf-8")) as PackageJson;
 
     pkg["version"] = nextVersion.raw;
@@ -197,7 +195,7 @@ const createGhCompareUrl = (from: string | undefined, to: string) =>
 
   const url = await createGhPullRequest(releaseTag, body);
 
-  console.log("\n" + chalk.bold("✨ Pull request created:"));
+  console.log("\n" + pc.bold("✨ Pull request created:"));
   console.log(url + "\n");
 
   await gitCheckout("main");

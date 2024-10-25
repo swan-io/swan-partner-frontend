@@ -17,6 +17,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: 18
@@ -48,7 +50,7 @@ jobs:
           echo "WEBHOOK_SITE_API_KEY=${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}" >> .env.e2e
 
       - name: Install dependencies
-        run: yarn install --ignore-engines --pure-lockfile
+        run: pnpm install --ignore-engines --frozen-lockfile
 
       - name: Get playwright version
         run: |
@@ -65,13 +67,13 @@ jobs:
 
       - name: Setup playwright
         if: ${{ steps.cache-playwright.outputs.cache-hit != 'true' }}
-        run: yarn playwright install --with-deps
+        run: pnpm playwright install --with-deps
 
       - name: GraphQL Codegen
-        run: yarn graphql-codegen
+        run: pnpm graphql-codegen
 
       - name: Run E2E tests
-        run: yarn test-e2e
+        run: pnpm test-e2e
         env:
           CI: true
 

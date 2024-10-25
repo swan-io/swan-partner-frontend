@@ -16,10 +16,10 @@ import { WithCurrentColor } from "@swan-io/lake/src/components/WithCurrentColor"
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, invariantColors } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request } from "@swan-io/request";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, useForm } from "@swan-io/use-form";
 import { useEffect, useState } from "react";

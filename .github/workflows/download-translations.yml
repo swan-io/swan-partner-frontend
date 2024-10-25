@@ -18,13 +18,15 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --pure-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Download onboarding translation keys
         uses: localazy/download@v1
@@ -48,7 +50,7 @@ jobs:
           groups: payment
 
       - name: Sort locales
-        run: yarn sort-locales
+        run: pnpm sort-locales
 
       - uses: peter-evans/create-pull-request@v5
         with:

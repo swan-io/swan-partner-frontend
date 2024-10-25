@@ -25,11 +25,11 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { ReactNode, useState } from "react";
 import { StyleSheet, Text, View } from "react-native";

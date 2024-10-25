@@ -21,7 +21,6 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { backgroundColor, colors, radii, spacings } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   isNotEmpty,
@@ -30,6 +29,7 @@ import {
   isNullish,
 } from "@swan-io/lake/src/utils/nullish";
 import { getCountryByCCA3, isCountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { printIbanFormat } from "@swan-io/shared-business/src/utils/validation";
 import { printFormat } from "iban";

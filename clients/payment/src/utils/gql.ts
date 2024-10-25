@@ -6,8 +6,8 @@ import {
   parseGraphQLError,
   print,
 } from "@swan-io/graphql-client";
-import { registerErrorToRequestId } from "@swan-io/lake/src/state/toasts";
 import { Request, badStatusToError, emptyToError } from "@swan-io/request";
+import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";

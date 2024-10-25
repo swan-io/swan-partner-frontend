@@ -14,7 +14,7 @@ Until the user is authenticated, all information about their onboarding process 
 
 ## Flows
 
-After fetching the onboarding, route to the correct onboarding flow based on the `onboarding.info` typename. 
+After fetching the onboarding, route to the correct onboarding flow based on the `onboarding.info` typename.
 
 - [Individual onboarding](/specs/onboarding/individual)
 - [Company onboarding](/specs/onboarding/company)

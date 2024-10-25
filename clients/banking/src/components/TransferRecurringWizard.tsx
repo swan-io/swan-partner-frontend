@@ -1,10 +1,10 @@
 import { useMutation } from "@swan-io/graphql-client";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";

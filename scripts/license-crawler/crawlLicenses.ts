@@ -2,7 +2,8 @@ import { exec as originalExec } from "child_process";
 import fs from "node:fs";
 import path from "pathe";
 import pc from "picocolors";
-import { PackageJson } from "type-fest";
+import * as markdown from "prettier/plugins/markdown";
+import * as prettier from "prettier/standalone";
 
 const exec = (command: string) => {
   return new Promise<string>((resolve, reject) => {
@@ -16,62 +17,85 @@ const exec = (command: string) => {
   });
 };
 
-async function getLicenses() {
-  const info = await exec("yarn workspaces info --json");
-  const data = JSON.parse(info) as Record<string, { location: string }>;
-  const directDependencies = new Set();
+type Package = {
+  name: string;
+  dependencies: Record<string, { version: string }>;
+  devDependencies: Record<string, { version: string }>;
+};
 
-  Object.values(data).forEach(({ location }) => {
-    const packageJson = JSON.parse(
-      fs.readFileSync(path.join(process.cwd(), location, "package.json"), "utf-8"),
-    ) as PackageJson;
-    if (packageJson.dependencies !== undefined) {
-      Object.keys(packageJson.dependencies).forEach(name => directDependencies.add(name));
-    }
-    if (packageJson.devDependencies !== undefined) {
-      Object.keys(packageJson.devDependencies).forEach(name => directDependencies.add(name));
-    }
-  });
+type DependencyRaw = {
+  name: string;
+  versions: (string | undefined)[];
+  license: string | undefined;
+  author: string | undefined;
+  homepage: string | undefined;
+};
 
-  const licencesOutput = await exec("yarn licenses list --json");
-  const licencesOutputLines = licencesOutput.trim().split("\n");
-  const licenses = (
-    JSON.parse(licencesOutputLines[licencesOutputLines.length - 1] as string) as {
-      data: {
-        head: [string, string, string, string, string, string];
-        body: [string, string, string, string, string, string][];
-      };
-    }
-  ).data;
-  const directDependenciesLicenses = licenses.body
-    .filter(([name]) => directDependencies.has(name) && !name.startsWith("@swan-io/"))
-    .map(
-      ([name, version, license, url, vendorUrl, vendorName]) =>
-        [
-          name,
-          version,
-          license,
-          url.replace(/^git\+/, ""),
-          vendorUrl.replace(/^git\+/, ""),
-          vendorName,
-        ] as const,
+type Dependency = {
+  name: string;
+  version: string;
+  license: string;
+  author: string;
+  homepage: string;
+};
+
+async function getDirectDependencies() {
+  const pkgDependencies = (JSON.parse(await exec("pnpm list -r --json")) as Package[])
+    .filter(pkg => pkg.name !== "@swan-io/partner-frontend")
+    .reduce<Record<string, { name: string; version: string }>>(
+      (acc, pkg) => ({
+        ...acc,
+        ...Object.fromEntries(
+          Object.entries({ ...pkg.dependencies, ...pkg.devDependencies })
+            .map(([name, { version }]) => [`${name}@${version}`, { name, version }] as const)
+            .filter(([key]) => !key.startsWith("@swan-io/") && !(key in acc)),
+        ),
+      }),
+      {},
     );
-  return {
-    head: licenses.head,
-    licenses: directDependenciesLicenses,
-  };
+
+  return Object.values(
+    JSON.parse(await exec("pnpm licenses ls -r --json")) as Record<string, DependencyRaw[]>,
+  )
+    .flat()
+    .reduce<Dependency[]>((acc, item) => {
+      item.versions
+        .filter(version => version != null)
+        .map(version => {
+          const pkgDependency = pkgDependencies[`${item.name}@${version}`];
+
+          if (pkgDependency != null) {
+            acc.push({
+              name: pkgDependency.name,
+              version: pkgDependency.version,
+              license: item.license ?? "Unknown",
+              author: item.author ?? "Unknown",
+              homepage: item.homepage ?? "Unknown",
+            });
+          }
+        });
+
+      return acc;
+    }, [])
+    .toSorted((a, b) => {
+      return a.name < b.name ? -1 : a.name > b.name ? 1 : 0;
+    });
 }
 
 async function report() {
-  const { head, licenses } = await getLicenses();
-  fs.writeFileSync(
-    path.join(process.cwd(), "LICENSE_REPORT.md"),
-    `# License report
+  const head = ["Name", "Version", "License", "Author", "Homepage"];
+  const directDependencies = await getDirectDependencies();
+
+  const output = `# License report
 
 ${head.join(" | ")}
-${head.map(() => "---").join(" | ")}
-${licenses.map(items => items.join(" | ")).join("\n")}
-`,
+${head.map(() => "-").join(" | ")}
+${directDependencies.map(item => [item.name, item.version, item.license, item.author, item.homepage].join(" | ")).join("\n")}
+  `;
+
+  fs.writeFileSync(
+    path.join(process.cwd(), "LICENSE_REPORT.md"),
+    await prettier.format(output, { parser: "markdown", plugins: [markdown] }),
     "utf-8",
   );
 }
@@ -80,14 +104,15 @@ const DENY_LIST = ["GPL", "AGPL"];
 const DENY_LIST_REGEX = new RegExp(DENY_LIST.map(item => `\\b${item}\\b`).join("|"));
 
 async function check() {
-  const { licenses } = await getLicenses();
+  const directDependencies = await getDirectDependencies();
   let hasError = false;
+
   console.log(`${pc.white("---")}`);
   console.log(`${pc.green("Swan license check")}`);
   console.log(`${pc.white("---")}`);
   console.log("");
 
-  licenses.forEach(([name, version, license]) => {
+  directDependencies.forEach(({ name, version, license }) => {
     if (DENY_LIST_REGEX.exec(license)) {
       console.error(
         `${pc.blue(name)}@${pc.gray(version)} has unauthorized license ${pc.red(license)}`,
@@ -95,6 +120,7 @@ async function check() {
       hasError = true;
     }
   });
+
   if (hasError) {
     process.exit(1);
   } else {

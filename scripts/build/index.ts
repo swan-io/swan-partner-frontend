@@ -16,7 +16,7 @@ console.log(`${pc.white("---")}`);
 
 void (async () => {
   console.log(`${pc.magenta("server")} ${pc.gray("building")}`);
-  execSync(`cd server && yarn build`);
+  execSync(`cd server && pnpm build`);
   console.log(`${pc.magenta("server")} ${pc.green("done")}`);
   console.log(``);
 

@@ -9,13 +9,13 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { breakpoints, invariantColors } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
   Document,
   SupportingDocumentCollection,
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";

@@ -10,9 +10,9 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { TransitionView } from "@swan-io/lake/src/components/TransitionView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { animations, breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -623,7 +623,7 @@ export const CardWizard = ({
                                   preselectedAccountMembership != null
                                     ? [preselectedAccountMembership]
                                     : account != null
-                                      ? members?.edges.map(({ node }) => node) ?? []
+                                      ? (members?.edges.map(({ node }) => node) ?? [])
                                       : [accountMembership];
 
                                 if (canOrderPhysicalCard) {

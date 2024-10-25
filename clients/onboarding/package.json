@@ -2,9 +2,10 @@
   "name": "@swan-io/onboarding",
   "version": "1.22.20",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
   "engines": {
     "node": ">=18.20.0",
-    "yarn": "^1.22.0"
+    "pnpm": "9.9.0"
   },
   "scripts": {
     "prepack": "tsc --build",
@@ -17,9 +18,9 @@
     "@swan-io/boxed": "3.1.1",
     "@swan-io/chicane": "2.1.0",
     "@swan-io/graphql-client": "0.3.0",
-    "@swan-io/lake": "10.0.1",
+    "@swan-io/lake": "11.0.0",
     "@swan-io/request": "1.0.6",
-    "@swan-io/shared-business": "10.0.1",
+    "@swan-io/shared-business": "11.0.0",
     "@swan-io/use-form": "3.1.0",
     "core-js": "3.38.1",
     "dayjs": "1.11.13",

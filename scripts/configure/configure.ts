@@ -92,7 +92,7 @@ const start = async () => {
   fs.writeFileSync(path.join(process.cwd(), ".env"), env, "utf-8");
   console.log("");
   console.log("Running GraphQL codegen");
-  execSync("yarn graphql-codegen");
+  execSync("pnpm graphql-codegen");
   console.log("");
 
   console.log(pc.white("---"));
@@ -104,7 +104,7 @@ const start = async () => {
   console.log("In order to start the dev server, you can run the following command:");
   console.log("");
   console.log(pc.white("# Start the dev server"));
-  console.log(`$ ${pc.blue("yarn dev")}`);
+  console.log(`$ ${pc.blue("pnpm dev")}`);
   console.log("");
 };
 

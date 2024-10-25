@@ -1,8 +1,8 @@
 import { createIntl, createIntlCache } from "@formatjs/intl";
 import { Dict } from "@swan-io/boxed";
-import { FlagCode } from "@swan-io/lake/src/components/Flag";
 import { deriveUnion, memoize } from "@swan-io/lake/src/utils/function";
 import { getRifmProps } from "@swan-io/lake/src/utils/rifm";
+import { FlagCode } from "@swan-io/shared-business/src/components/Flag";
 import { DateFormat } from "@swan-io/shared-business/src/utils/i18n";
 import {
   LANGUAGE_FALLBACK,

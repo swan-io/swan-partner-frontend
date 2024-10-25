@@ -2,5 +2,6 @@
 
 coverage/
 dist/
+pnpm-lock.yaml
 node_modules/
 LICENSE_REPORT.md

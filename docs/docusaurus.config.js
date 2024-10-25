@@ -1,17 +1,49 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/oceanicNext");
+// @ts-check
+// `@type` JSDoc annotations allow editor autocompletion and type checking
+// (when paired with `@ts-check`).
+// There are various equivalent ways to declare your Docusaurus config.
+// See: https://docusaurus.io/docs/api/docusaurus-config
 
-/** @type {import('@docusaurus/types').DocusaurusConfig} */
-module.exports = {
+import { themes as prismThemes } from "prism-react-renderer";
+
+/** @type {import('@docusaurus/types').Config} */
+const config = {
   title: "Swan Banking Frontend",
   tagline: "Onboarding & Banking interfaces for Swan",
-  url: "https://swan-io.github.io",
-  baseUrl: "/swan-partner-frontend/",
-  onBrokenLinks: "throw",
-  onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.png",
+
+  // Set the production url of your site here
+  url: "https://swan-io.github.io",
+  // Set the /<baseUrl>/ pathname under which your site is served
+  // For GitHub pages deployment, it is often '/<projectName>/'
+  baseUrl: "/swan-partner-frontend/",
+
+  // GitHub pages deployment config.
+  // If you aren't using GitHub pages, you don't need these.
   organizationName: "swan-io", // Usually your GitHub org/user name.
   projectName: "swan-partner-frontend", // Usually your repo name.
+
+  onBrokenLinks: "throw",
+  onBrokenMarkdownLinks: "warn",
+
+  presets: [
+    [
+      "classic",
+      /** @type {import('@docusaurus/preset-classic').Options} */
+      {
+        docs: {
+          routeBasePath: "/",
+          sidebarPath: "./sidebars.js",
+          // Please change this to your repo.
+          editUrl: "https://github.com/swan-io/swan-partner-frontend/edit/main/docs/",
+        },
+        theme: {
+          customCss: "./src/css/custom.css",
+        },
+      },
+    ],
+  ],
+
   themeConfig: {
     navbar: {
       title: "Swan Banking Frontend",
@@ -51,25 +83,10 @@ module.exports = {
       copyright: `Copyright © ${new Date().getFullYear()} Swan`,
     },
     prism: {
-      theme: lightCodeTheme,
-      darkTheme: darkCodeTheme,
+      theme: prismThemes.github,
+      darkTheme: prismThemes.oceanicNext,
     },
   },
-  scripts: [],
-  presets: [
-    [
-      "@docusaurus/preset-classic",
-      {
-        docs: {
-          routeBasePath: "/",
-          sidebarPath: require.resolve("./sidebars.js"),
-          // Please change this to your repo.
-          editUrl: "https://github.com/swan-io/swan-partner-frontend/edit/main/docs/",
-        },
-        theme: {
-          customCss: require.resolve("./src/css/custom.css"),
-        },
-      },
-    ],
-  ],
 };
+
+export default config;

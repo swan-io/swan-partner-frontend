@@ -2,9 +2,10 @@
   "name": "@swan-io/banking",
   "version": "1.22.20",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
   "engines": {
     "node": ">=18.20.0",
-    "yarn": "^1.22.0"
+    "pnpm": "9.9.0"
   },
   "scripts": {
     "prepack": "tsc --build",

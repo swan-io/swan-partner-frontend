@@ -2,6 +2,11 @@
   "name": "docs",
   "version": "0.0.0",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
+  "engines": {
+    "node": ">=18.20.0",
+    "pnpm": "9.9.0"
+  },
   "scripts": {
     "docusaurus": "docusaurus",
     "start": "docusaurus start",
@@ -12,6 +17,13 @@
     "serve": "docusaurus serve",
     "write-translations": "docusaurus write-translations",
     "write-heading-ids": "docusaurus write-heading-ids"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "ignoreMissing": [
+        "react-native"
+      ]
+    }
   },
   "dependencies": {
     "@docusaurus/core": "2.3.1",

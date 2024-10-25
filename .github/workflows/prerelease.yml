@@ -19,33 +19,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - uses: pnpm/action-setup@v4
+
       - uses: actions/setup-node@v4
         with:
           node-version: lts/*
-          cache: yarn
+          cache: pnpm
 
       - name: Install dependencies
-        run: yarn install --pure-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Check licenses
-        run: yarn license-check
+        run: pnpm license-check
 
       - name: GraphQL Codegen
-        run: yarn graphql-codegen
+        run: pnpm graphql-codegen
 
       - name: Typecheck
-        run: yarn typecheck
+        run: pnpm typecheck
 
       - name: Lint
-        run: yarn lint
+        run: pnpm lint
 
       - name: Run tests
-        run: yarn test
+        run: pnpm test
 
       - name: Compile project
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
-        run: yarn build
+        run: pnpm build
 
       - name: Configure AWS Credentials
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
@@ -79,7 +81,7 @@ jobs:
 
       - name: Deploy
         if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
-        run: yarn deploy-ci
+        run: pnpm deploy-ci
         env:
           TAG: preprod-${{ steps.version.outputs.version }}
           DEPLOY_SWAN_TOKEN: ${{ secrets.DEPLOY_SWAN_TOKEN }}
@@ -90,4 +92,4 @@ jobs:
           DEPLOY_APP_NAME: partner-frontend
 
       - name: Create GitHub prerelease
-        run: yarn tsx scripts/release/createPrerelease.ts
+        run: pnpm tsx scripts/release/createPrerelease.ts

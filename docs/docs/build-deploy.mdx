@@ -7,7 +7,7 @@ import PartialExample from "./_clients.mdx";
 Bundle the client applications and the server in `./server` in production with the following command:
 
 ```console
-$ yarn build
+$ pnpm build
 ```
 
 ## Dockerize
@@ -29,7 +29,7 @@ $ docker build
 | API            | `OAUTH_SERVER_URL`        | Swan OAuth2 server URL                                                          |
 | API            | `OAUTH_CLIENT_ID`         | your Swan project's OAuth2 Client ID                                            |
 | API            | `OAUTH_CLIENT_SECRET`     | your Swan project's OAuth2 Client Secret                                        |
-| Sessions       | `COOKIE_KEY`              | key to encrypt session cookies<br />(generate using `yarn generate-cookie-key`) |
+| Sessions       | `COOKIE_KEY`              | key to encrypt session cookies<br />(generate using `pnpm generate-cookie-key`) |
 | URLs to expose | `BANKING_URL`             | URL for the banking app                                                         |
 | URLs to expose | `ONBOARDING_URL`          | URL for the onboarding process                                                  |
 | URLs to expose | `PAYMENT_URL`             | URL for the payment process                                                     |

@@ -1,10 +1,13 @@
 FROM node:22 AS builder
 WORKDIR /app
 ADD ./server/ ./
-RUN yarn install --pure-lockfile
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
+RUN pnpm install --no-frozen-lockfile
 
 FROM node:22
 WORKDIR /app
 COPY --chown=node:node --from=builder /app ./
-CMD ["yarn", "start-swan"]
+CMD ["pnpm", "start-swan"]
 EXPOSE 8080

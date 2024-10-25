@@ -6,7 +6,7 @@ sidebar_label: Development server
 After setup is complete, start the development server by running the following command:
 
 ```console
-$ yarn dev
+$ pnpm dev
 ```
 
 The command will provide the URLs you can access:

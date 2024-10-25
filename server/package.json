@@ -3,16 +3,17 @@
   "description": "Swan frontend server",
   "version": "1.22.20",
   "private": true,
+  "packageManager": "pnpm@9.9.0",
   "engines": {
     "node": ">=18.20.0",
-    "yarn": "^1.22.0"
+    "pnpm": "9.9.0"
   },
   "repository": {
     "type": "git",
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "build": "yarn clean && tsc -p tsconfig.json && shx cp -r ./src/views ./dist",
+    "build": "pnpm clean && tsc -p tsconfig.json && shx cp -r ./src/views ./dist",
     "clean": "shx rm -rf dist",
     "prepack": "tsc --build",
     "start": "node -r ./dist/tracing.js ./dist/index.js",

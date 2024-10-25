@@ -11,7 +11,7 @@ This techniques requires a `COOKIE_KEY` environment variable.
 Generate one using the following command:
 
 ```console
-$ yarn generate-cookie-key
+$ pnpm generate-cookie-key
 ```
 
 :::warning

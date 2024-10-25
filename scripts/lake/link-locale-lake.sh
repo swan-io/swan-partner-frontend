@@ -1,7 +1,7 @@
-yarn link "@swan-io/lake"
-yarn link "@swan-io/shared-business"
-yarn link "react"
-yarn link "react-dom"
+pnpm link "@swan-io/lake"
+pnpm link "@swan-io/shared-business"
+pnpm link "react"
+pnpm link "react-dom"
 
 # remove vite cache
 rm -rf clients/banking/node_modules/.vite

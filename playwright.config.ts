@@ -70,7 +70,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "yarn dev-e2e",
+    command: "pnpm dev-e2e",
     url: env.BANKING_URL,
     reuseExistingServer: !env.CI,
     stderr: "pipe",

@@ -11,7 +11,7 @@ Anyone can try it out on the [API Explorer](https://explorer.swan.io/) in Sandbo
 Update GraphQL schemas with the following command:
 
 ```console
-$ yarn graphql-update-schemas
+$ pnpm graphql-update-schemas
 ```
 
 :::info
@@ -42,7 +42,7 @@ In order to benefit from GraphQL's types, we use [GraphQL Codegen](https://the-g
 Run codegen with the following command:
 
 ```console
-$ yarn graphql-codegen
+$ pnpm graphql-codegen
 ```
 
 In this example, `codegen` generates a new file `partner.ts`, housed with documents, which we can import:

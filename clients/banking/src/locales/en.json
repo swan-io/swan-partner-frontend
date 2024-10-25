@@ -628,7 +628,7 @@
   "merchantProfile.settings.paymentMethods.title": "Payment methods",
   "merchantProfile.settings.rollingReserve": "Rolling reserve",
   "merchantProfile.settings.rollingReserve.description": "Rolling reserve protects the merchant and Swan against risk factors such as insufficient funds and fraud.",
-  "merchantProfile.settings.rollingReserve.value": "{percentage}% over {rollingDays} days",
+  "merchantProfile.settings.rollingReserve.value": "{percentage}% over {rollingDays} banking days",
   "merchantProfile.settings.update.requestInProgress": "There already an update in progress, if you send a new one the old one will be replaced",
   "merchantProfile.settings.update.title": "Update merchant profile",
   "merchantProfile.status.disabled": "Disabled",

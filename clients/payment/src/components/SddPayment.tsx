@@ -27,6 +27,7 @@ import {
   Language,
 } from "../graphql/unauthenticated";
 import { locale, t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
   grow: {
@@ -157,6 +158,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large 
             )
             .tapOk(mandateUrl => {
               setMandateUrl(mandateUrl);
+              Router.replace("PaymentSuccess", { paymentLinkId: paymentLink.id });
             })
             .tapError(error => {
               match(error)

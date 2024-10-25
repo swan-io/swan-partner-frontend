@@ -50,7 +50,7 @@ jobs:
           echo "WEBHOOK_SITE_API_KEY=${{ secrets.E2E_WEBHOOK_SITE_API_KEY }}" >> .env.e2e
 
       - name: Install dependencies
-        run: pnpm install --ignore-engines --frozen-lockfile
+        run: pnpm install --frozen-lockfile
 
       - name: Get playwright version
         run: |

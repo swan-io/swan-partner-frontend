@@ -237,7 +237,6 @@ export const MerchantProfilePaymentLinkArea = ({
                       accentColor={merchantProfile.accentColor ?? undefined}
                       merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
                       merchantName={merchantProfile.merchantName ?? undefined}
-                      accountMembershipId={accountMembershipId}
                       merchantProfileId={merchantProfileId}
                       paymentMethods={merchantProfile.merchantPaymentMethods}
                       onPressClose={() =>
@@ -247,6 +246,13 @@ export const MerchantProfilePaymentLinkArea = ({
                           new: undefined,
                         })
                       }
+                      onSave={() => {
+                        Router.replace("AccountMerchantsProfilePaymentLinkList", {
+                          accountMembershipId,
+                          merchantProfileId,
+                        });
+                      }}
+                      paymentLinks={paymentLinks}
                     />
                   </FullViewportLayer>
                 ) : null}

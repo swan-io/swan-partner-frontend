@@ -25,11 +25,11 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { showToast } from "@swan-io/lake/src/state/toasts";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
+import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
 import { ReactNode, useState } from "react";
@@ -39,10 +39,10 @@ import {
   CreatePaymentLinkDocument,
   MerchantPaymentMethod,
   MerchantPaymentMethodType,
+  PaymentLinkConnectionFragment,
 } from "../graphql/partner";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
 import { validateArrayRequired, validateRequired } from "../utils/validations";
 
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
@@ -173,22 +173,24 @@ const Container = ({
 
 type Props = {
   merchantProfileId: string;
-  accountMembershipId: string;
   accentColor: string | undefined;
   merchantLogoUrl: string | undefined;
   merchantName: string | undefined;
   paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
+  paymentLinks: PaymentLinkConnectionFragment | null | undefined;
   onPressClose: () => void;
+  onSave: () => void;
 };
 
 export const MerchantProfilePaymentLinkNew = ({
   merchantProfileId,
-  accountMembershipId,
   paymentMethods,
   onPressClose,
   accentColor,
   merchantLogoUrl,
   merchantName,
+  onSave,
+  paymentLinks,
 }: Props) => {
   const [selectedPreview, setSelectedPreview] = useState<"desktop" | "mobile">("desktop");
 
@@ -260,8 +262,27 @@ export const MerchantProfilePaymentLinkNew = ({
     },
   });
 
-  const [createMerchantPaymentLink, merchantPaymentLinkCreation] =
-    useMutation(CreatePaymentLinkDocument);
+  const [createMerchantPaymentLink, merchantPaymentLinkCreation] = useMutation(
+    CreatePaymentLinkDocument,
+    {
+      connectionUpdates: [
+        ({ data, prepend }) =>
+          match(data.createMerchantPaymentLink)
+            .with(
+              { __typename: "CreateMerchantPaymentLinkSuccessPayload" },
+              ({ merchantPaymentLink }) => {
+                console.log(paymentLinks);
+                return Option.Some(
+                  prepend(paymentLinks, [
+                    { __typename: "MerchantPaymentLinkEdge", node: merchantPaymentLink },
+                  ]),
+                );
+              },
+            )
+            .otherwise(() => Option.None()),
+      ],
+    },
+  );
 
   const onPressSubmit = () => {
     submitForm({
@@ -300,10 +321,7 @@ export const MerchantProfilePaymentLinkNew = ({
             .mapOkToResult(filterRejectionsToResult)
             .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
             .tapOk(() => {
-              Router.replace("AccountMerchantsProfilePaymentLinkList", {
-                accountMembershipId,
-                merchantProfileId,
-              });
+              onSave();
             });
         }
       },

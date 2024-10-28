@@ -2313,6 +2313,11 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
 mutation CreatePaymentLink($input: CreateMerchantPaymentLinkInput!) {
   createMerchantPaymentLink(input: $input) {
     __typename
+    ... on CreateMerchantPaymentLinkSuccessPayload {
+      merchantPaymentLink {
+        ...PaymentLink
+      }
+    }
     ... on Rejection {
       message
     }

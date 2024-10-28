@@ -4,7 +4,7 @@ ADD ./server/ ./
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
-RUN pnpm install --frozen-lockfile
+RUN pnpm install --no-frozen-lockfile
 
 FROM node:22
 WORKDIR /app

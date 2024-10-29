@@ -23,7 +23,7 @@ import {
   PaymentLinkFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { Router } from "../utils/routes";
+import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkDetail } from "./MerchantProfilePaymentLinkDetail";
@@ -31,7 +31,10 @@ import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { MerchantProfilePaymentLinksList } from "./MerchantProfilePaymentLinksList";
 
 const styles = StyleSheet.create({
-  containerMobile: { paddingTop: spacings[24], paddingHorizontal: spacings[24] },
+  containerMobile: {
+    paddingTop: spacings[24],
+    paddingHorizontal: spacings[24],
+  },
   filters: {
     paddingHorizontal: spacings[24],
     paddingTop: spacings[24],
@@ -40,10 +43,6 @@ const styles = StyleSheet.create({
   filtersLarge: {
     paddingHorizontal: spacings[40],
   },
-  endFilters: {
-    flexGrow: 0,
-    flexShrink: 1,
-  },
 });
 
 const PER_PAGE = 20;
@@ -51,7 +50,7 @@ const PER_PAGE = 20;
 type Props = {
   accountMembershipId: string;
   merchantProfileId: string;
-  params: { status: "Active" | "Archived"; search: string };
+  params: GetRouteParams<"AccountMerchantsProfilePaymentLinkArea">;
   large: boolean;
 };
 export const MerchantProfilePaymentLinkArea = ({
@@ -66,13 +65,13 @@ export const MerchantProfilePaymentLinkArea = ({
   ]);
   const filters: MerchantPaymentLinkFiltersInput = useMemo(() => {
     return {
-      status: match(params.status)
-        .with("Active", () => ["Active" as const])
-        .with("Archived", () => ["Completed" as const, "Expired" as const])
+      status: match(params)
+        .with({ status: "Active" }, () => ["Active" as const])
+        .with({ status: "Archived" }, () => ["Completed" as const, "Expired" as const])
         .exhaustive(),
       search: nullishOrEmptyToUndefined(params.search),
     } as const;
-  }, [params.search, params.status]);
+  }, [params]);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentLinksDocument, {
     merchantProfileId,
@@ -170,7 +169,7 @@ export const MerchantProfilePaymentLinkArea = ({
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
+        <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
           <Toggle
             mode={large ? "desktop" : "mobile"}
             value={params.status === "Active"}
@@ -192,8 +191,6 @@ export const MerchantProfilePaymentLinkArea = ({
             placeholder={t("common.search")}
             onChangeText={search => {
               Router.replace("AccountMerchantsProfilePaymentLinkList", {
-                accountMembershipId,
-                merchantProfileId,
                 ...params,
                 search,
               });
@@ -204,13 +201,13 @@ export const MerchantProfilePaymentLinkArea = ({
 
       <Space height={24} />
 
-      {match(data)
+      {match(data.mapOk(data => data.merchantProfile))
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
           <PlainListViewPlaceholder count={5} groupHeaderHeight={48} rowHeight={56} />
         ))
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => (
-          <Connection connection={merchantProfile?.merchantPaymentLinks}>
+        .with(AsyncData.P.Done(Result.P.Ok(P.select(P.nonNullable))), merchantProfile => (
+          <Connection connection={merchantProfile.merchantPaymentLinks}>
             {paymentLinks => (
               <>
                 <MerchantProfilePaymentLinksList
@@ -221,22 +218,21 @@ export const MerchantProfilePaymentLinkArea = ({
                   activeRowId={activePaymentLinkId ?? undefined}
                   onActiveRowChange={onActiveRowChange}
                   onEndReached={() => {
-                    if (merchantProfile?.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
+                    if (merchantProfile.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
                       setVariables({
                         after:
-                          merchantProfile?.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
+                          merchantProfile.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
                       });
                     }
                   }}
                 />
 
-                {isNotNullish(merchantProfile) &&
-                isNotNullish(merchantProfile.merchantPaymentMethods) ? (
+                {isNotNullish(merchantProfile.merchantPaymentMethods) ? (
                   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
                     <MerchantProfilePaymentLinkNew
                       accentColor={merchantProfile.accentColor ?? undefined}
                       merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
-                      merchantName={merchantProfile.merchantName ?? undefined}
+                      merchantName={merchantProfile.merchantName}
                       merchantProfileId={merchantProfileId}
                       paymentMethods={merchantProfile.merchantPaymentMethods}
                       paymentLinks={paymentLinks}
@@ -286,6 +282,7 @@ export const MerchantProfilePaymentLinkArea = ({
             )}
           </Connection>
         ))
+        .with(AsyncData.P.Done(Result.P.Ok(P.nullish)), () => <ErrorView />)
         .exhaustive()}
     </>
   );

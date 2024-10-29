@@ -58,10 +58,6 @@ const styles = StyleSheet.create({
   segmentedControl: {
     maxWidth: "100%",
   },
-
-  grow: {
-    flexGrow: 1,
-  },
 });
 
 type Props = {
@@ -217,7 +213,7 @@ export const Preview = ({
                     </Box>
 
                     <Box direction={large ? "row" : "column"}>
-                      <Box style={styles.grow}>
+                      <Box grow={1}>
                         <LakeLabel
                           label={t("paymentLink.card.expiryDate")}
                           render={() => <LakeTextInput value={""} />}
@@ -226,7 +222,7 @@ export const Preview = ({
 
                       <Space width={24} />
 
-                      <Box style={styles.grow}>
+                      <Box grow={1}>
                         <LakeLabel
                           label={t("paymentLink.card.cvv")}
                           render={() => <LakeTextInput value={""} />}
@@ -271,7 +267,7 @@ export const Preview = ({
                     />
 
                     <Box direction={large ? "row" : "column"}>
-                      <Box style={styles.grow}>
+                      <Box grow={1}>
                         <LakeLabel
                           label={t("paymentLink.city")}
                           render={() => <LakeTextInput value={""} />}
@@ -280,7 +276,7 @@ export const Preview = ({
 
                       <Space width={24} />
 
-                      <Box style={styles.grow}>
+                      <Box grow={1}>
                         <LakeLabel
                           label={t("paymentLink.postalCode")}
                           render={() => <LakeTextInput value={""} />}

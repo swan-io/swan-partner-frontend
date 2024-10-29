@@ -94,9 +94,16 @@ const styles = StyleSheet.create({
     marginVertical: "auto",
     paddingHorizontal: spacings[96],
   },
-  tile: { flexGrow: 1, paddingHorizontal: 0, paddingVertical: 0 },
+  tile: {
+    flexGrow: 1,
+    paddingHorizontal: 0,
+    paddingVertical: 0,
+  },
   tileContents: { flexGrow: 1 },
-  optionsDesktop: { padding: spacings[32], maxWidth: 350 },
+  optionsDesktop: {
+    padding: spacings[32],
+    maxWidth: 350,
+  },
   optionsMobile: { padding: spacings[32] },
   accordion: { paddingHorizontal: 0 },
   preview: {

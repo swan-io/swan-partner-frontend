@@ -58,11 +58,12 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
     "AccountMerchantsProfilePaymentLinkList",
     "AccountMerchantsProfilePaymentLinkDetails",
   ]);
+
   const filters: MerchantPaymentLinkFiltersInput = useMemo(() => {
     return {
-      status: match(params)
-        .with({ status: "Active" }, () => ["Active" as const])
-        .with({ status: "Archived" }, () => ["Completed" as const, "Expired" as const])
+      status: match(params.status)
+        .with("Active", undefined, () => ["Active" as const])
+        .with("Archived", () => ["Completed" as const, "Expired" as const])
         .exhaustive(),
       search: nullishOrEmptyToUndefined(params.search),
     } as const;

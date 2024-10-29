@@ -39,6 +39,7 @@ import {
   CreatePaymentLinkDocument,
   MerchantPaymentMethod,
   MerchantPaymentMethodType,
+  PaymentLinkConnectionFragment,
 } from "../graphql/partner";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
@@ -176,17 +177,19 @@ type Props = {
   merchantLogoUrl: string | undefined;
   merchantName: string | undefined;
   paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
+  paymentLinks: PaymentLinkConnectionFragment | null | undefined;
   onPressClose: () => void;
   onSave: () => void;
 };
 
 export const MerchantProfilePaymentLinkNew = ({
   merchantProfileId,
+  paymentLinks,
   paymentMethods,
-  onPressClose,
   accentColor,
   merchantLogoUrl,
   merchantName,
+  onPressClose,
   onSave,
 }: Props) => {
   const [selectedPreview, setSelectedPreview] = useState<"desktop" | "mobile">("desktop");
@@ -259,8 +262,26 @@ export const MerchantProfilePaymentLinkNew = ({
     },
   });
 
-  const [createMerchantPaymentLink, merchantPaymentLinkCreation] =
-    useMutation(CreatePaymentLinkDocument);
+  const [createMerchantPaymentLink, merchantPaymentLinkCreation] = useMutation(
+    CreatePaymentLinkDocument,
+    {
+      connectionUpdates: [
+        ({ data, prepend }) =>
+          match(data.createMerchantPaymentLink)
+            .with(
+              { __typename: "CreateMerchantPaymentLinkSuccessPayload" },
+              ({ merchantPaymentLink }) => {
+                return Option.Some(
+                  prepend(paymentLinks, [
+                    { __typename: "MerchantPaymentLinkEdge", node: merchantPaymentLink },
+                  ]),
+                );
+              },
+            )
+            .otherwise(() => Option.None()),
+      ],
+    },
+  );
 
   const onPressSubmit = () => {
     submitForm({

@@ -196,14 +196,13 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
       <Space height={24} />
 
-      {match(data.mapOk(data => data.merchantProfile))
+      {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
           <PlainListViewPlaceholder count={5} groupHeaderHeight={48} rowHeight={56} />
         ))
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.nullish)), () => <ErrorView />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.select(P.nonNullable))), merchantProfile => (
-          <Connection connection={merchantProfile.merchantPaymentLinks}>
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => (
+          <Connection connection={merchantProfile?.merchantPaymentLinks}>
             {paymentLinks => (
               <>
                 <MerchantProfilePaymentLinksList
@@ -214,16 +213,16 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
                   activeRowId={activePaymentLinkId ?? undefined}
                   onActiveRowChange={onActiveRowChange}
                   onEndReached={() => {
-                    if (merchantProfile.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
+                    if (merchantProfile?.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
                       setVariables({
                         after:
-                          merchantProfile.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
+                          merchantProfile?.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
                       });
                     }
                   }}
                 />
 
-                {isNotNullish(merchantProfile.merchantPaymentMethods) ? (
+                {isNotNullish(merchantProfile?.merchantPaymentMethods) ? (
                   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
                     <MerchantProfilePaymentLinkNew
                       accentColor={merchantProfile.accentColor ?? undefined}

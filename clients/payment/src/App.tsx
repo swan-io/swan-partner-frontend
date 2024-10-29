@@ -24,32 +24,7 @@ export const App = () => {
             .with({ name: "PaymentArea" }, ({ params: { paymentLinkId } }) => (
               <PaymentArea paymentLinkId={paymentLinkId} />
             ))
-            .with(
-              { name: "Preview" },
-              ({
-                params: {
-                  accentColor,
-                  amount,
-                  card,
-                  currency,
-                  label,
-                  logo,
-                  sepaDirectDebit,
-                  merchantName,
-                },
-              }) => (
-                <Preview
-                  accentColor={accentColor}
-                  amount={amount}
-                  card={card}
-                  currency={currency}
-                  label={label}
-                  logo={logo}
-                  sepaDirectDebit={sepaDirectDebit}
-                  merchantName={merchantName}
-                />
-              ),
-            )
+            .with({ name: "Preview" }, ({ params }) => <Preview params={params} />)
             .otherwise(() => (
               <NotFoundPage />
             ))}

@@ -128,17 +128,9 @@ export const AccountMerchantsProfileArea = ({
                       }}
                     />
                   ))
-                  .with(
-                    { name: "AccountMerchantsProfilePaymentLinkArea" },
-                    ({ params: { status = "Active", search } }) => (
-                      <MerchantProfilePaymentLinkArea
-                        large={large}
-                        params={{ status, search: search ?? "" }}
-                        accountMembershipId={accountMembershipId}
-                        merchantProfileId={merchantProfile.id}
-                      />
-                    ),
-                  )
+                  .with({ name: "AccountMerchantsProfilePaymentLinkArea" }, ({ params }) => (
+                    <MerchantProfilePaymentLinkArea large={large} params={params} />
+                  ))
                   .with(P.nullish, () => <NotFoundPage />)
                   .exhaustive()}
               </>

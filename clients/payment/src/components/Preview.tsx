@@ -29,6 +29,7 @@ import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { languages, locale, t } from "../utils/i18n";
+import { GetRouteParams } from "../utils/routes";
 import { SepaLogo } from "./SepaLogo";
 
 const styles = StyleSheet.create({
@@ -64,25 +65,20 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  accentColor: string | undefined;
-  amount: string | undefined;
-  currency: string | undefined;
-  label: string | undefined;
-  logo: string | undefined;
-  card: string | undefined;
-  sepaDirectDebit: string | undefined;
-  merchantName: string | undefined;
+  params: GetRouteParams<"Preview">;
 };
 
 export const Preview = ({
-  accentColor,
-  logo,
-  merchantName,
-  label,
-  amount,
-  currency = "€",
-  card,
-  sepaDirectDebit,
+  params: {
+    accentColor,
+    logo,
+    merchantName,
+    label,
+    amount,
+    currency = "EUR",
+    card,
+    sepaDirectDebit,
+  },
 }: Props) => {
   const languageOptions = useMemo(() => {
     return languages.map(country => ({

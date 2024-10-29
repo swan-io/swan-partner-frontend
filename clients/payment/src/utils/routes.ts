@@ -1,4 +1,4 @@
-import { createGroup, createRouter } from "@swan-io/chicane";
+import { createGroup, createRouter, InferRoutes } from "@swan-io/chicane";
 
 export const Router = createRouter({
   Preview:
@@ -10,3 +10,8 @@ export const Router = createRouter({
     Expired: "/expired",
   }),
 });
+
+type Routes = InferRoutes<typeof Router>;
+
+export type RouteName = keyof Routes;
+export type GetRouteParams<T extends RouteName> = Routes[T];

@@ -48,17 +48,12 @@ const styles = StyleSheet.create({
 const PER_PAGE = 20;
 
 type Props = {
-  accountMembershipId: string;
-  merchantProfileId: string;
   params: GetRouteParams<"AccountMerchantsProfilePaymentLinkArea">;
   large: boolean;
 };
-export const MerchantProfilePaymentLinkArea = ({
-  accountMembershipId,
-  merchantProfileId,
-  params,
-  large,
-}: Props) => {
+export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
+  const { merchantProfileId, accountMembershipId } = params;
+
   const route = Router.useRoute([
     "AccountMerchantsProfilePaymentLinkList",
     "AccountMerchantsProfilePaymentLinkDetails",

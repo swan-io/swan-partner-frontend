@@ -163,15 +163,9 @@ export const Preview = ({
 
               <Space height={12} />
 
-              {amount != null ? (
-                <LakeHeading variant="h1" level={2} align="center">
-                  {formatCurrency(Number(amount), currency)}
-                </LakeHeading>
-              ) : (
-                <LakeHeading variant="h1" level={2} align="center">
-                  {`${"-"} ${currency}`}
-                </LakeHeading>
-              )}
+              <LakeHeading variant="h1" level={2} align="center">
+                {amount != null ? formatCurrency(Number(amount), currency) : `${"-"} ${currency}`}
+              </LakeHeading>
 
               <Space height={32} />
 

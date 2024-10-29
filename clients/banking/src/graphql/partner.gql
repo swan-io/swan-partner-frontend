@@ -2206,6 +2206,64 @@ query MerchantProfiles(
     }
   }
 }
+fragment PaymentLink on MerchantPaymentLink {
+  id
+  label
+  url
+  reference
+  externalReference
+  statusInfo {
+    status
+  }
+  amount {
+    currency
+    value
+  }
+}
+
+fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  totalCount
+  edges {
+    node {
+      ...PaymentLink
+    }
+  }
+}
+
+query MerchantPaymentLinks(
+  $merchantProfileId: ID!
+  $filters: MerchantPaymentLinkFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  merchantProfile(id: $merchantProfileId) {
+    id
+    merchantPaymentMethods {
+      id
+      type
+      updatedAt
+      statusInfo {
+        status
+      }
+    }
+    accentColor
+    merchantName
+    merchantLogoUrl
+    merchantPaymentLinks(filters: $filters, first: $first, after: $after) {
+      ...PaymentLinkConnection
+    }
+  }
+}
+
+query MerchantPaymentLink($paymentLinkId: ID!) {
+  merchantPaymentLink(id: $paymentLinkId) {
+    ...PaymentLink
+  }
+}
 
 query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
@@ -2252,6 +2310,20 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
 }
 
 # Mutations
+
+mutation CreatePaymentLink($input: CreateMerchantPaymentLinkInput!) {
+  createMerchantPaymentLink(input: $input) {
+    __typename
+    ... on CreateMerchantPaymentLinkSuccessPayload {
+      merchantPaymentLink {
+        ...PaymentLink
+      }
+    }
+    ... on Rejection {
+      message
+    }
+  }
+}
 
 mutation CreateMultiConsent($input: CreateMultiConsentInput!) {
   createMultiConsent(input: $input) {

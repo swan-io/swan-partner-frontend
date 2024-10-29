@@ -12,6 +12,12 @@ export const validateNullableRequired: Validator<string | undefined> = value => 
   }
 };
 
+export const validateArrayRequired: Validator<string[] | undefined> = value => {
+  if (value == null || value.length < 1) {
+    return t("common.form.required");
+  }
+};
+
 export const validateRequired: Validator<string> = value => {
   if (!value) {
     return t("common.form.required");

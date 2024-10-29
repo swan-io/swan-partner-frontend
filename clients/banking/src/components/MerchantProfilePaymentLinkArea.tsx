@@ -168,7 +168,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
         <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
           <Toggle
             mode={large ? "desktop" : "mobile"}
-            value={params.status === "Active"}
+            value={params.status === "Active" || params.status == null}
             onToggle={status =>
               Router.push("AccountMerchantsProfilePaymentLinkList", {
                 accountMembershipId,

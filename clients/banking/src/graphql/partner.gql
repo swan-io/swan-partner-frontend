@@ -2241,6 +2241,7 @@ query MerchantPaymentLinks(
   $after: String
 ) {
   merchantProfile(id: $merchantProfileId) {
+    id
     merchantPaymentMethods {
       id
       type

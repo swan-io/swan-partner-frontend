@@ -74,11 +74,14 @@ export const MerchantProfilePaymentLinkArea = ({
     } as const;
   }, [params.search, params.status]);
 
-  const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentLinksDocument, {
-    merchantProfileId,
-    first: PER_PAGE,
-    filters,
-  });
+  const [data, { isLoading, refresh, reload, setVariables }] = useQuery(
+    MerchantPaymentLinksDocument,
+    {
+      merchantProfileId,
+      first: PER_PAGE,
+      filters,
+    },
+  );
 
   const panelRef = useRef<FocusTrapRef | null>(null);
 
@@ -251,8 +254,8 @@ export const MerchantProfilePaymentLinkArea = ({
                           accountMembershipId,
                           merchantProfileId,
                         });
+                        refresh();
                       }}
-                      paymentLinks={paymentLinks}
                     />
                   </FullViewportLayer>
                 ) : null}

@@ -14,7 +14,6 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -49,8 +48,8 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  firstName: string;
-  lastName: string;
+  fullName: string;
+  initials: string;
   identificationStatusInfo: Option<IdentificationLevelFragment>;
   accountMembershipId: string;
   shouldDisplayIdVerification: boolean;
@@ -59,17 +58,13 @@ type Props = {
 
 export const ProfileButton = memo<Props>(
   ({
-    firstName,
-    lastName,
+    fullName,
+    initials,
     identificationStatusInfo,
     accountMembershipId,
     shouldDisplayIdVerification,
     hasRequiredIdentificationLevel,
   }) => {
-    const names = [firstName, lastName].filter(isNotEmpty);
-    const fullName = names.join(" ");
-    const initials = names.map(name => name[0]).join("");
-
     return (
       <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>
         {({ active }) => (

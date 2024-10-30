@@ -393,12 +393,7 @@ const RecurringTransferPanel = ({
                     label={t("recurringTransfer.details.label.createdBy")}
                     render={() => (
                       <LakeText variant="regular" color={colors.gray[900]}>
-                        {[
-                          recurringTransfer.createdBy.firstName,
-                          recurringTransfer.createdBy.lastName,
-                        ]
-                          .filter(Boolean)
-                          .join(" ")}
+                        {recurringTransfer.createdBy.fullName}
                       </LakeText>
                     )}
                   />

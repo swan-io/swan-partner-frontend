@@ -469,16 +469,13 @@ export const TransactionDetail = ({
                             />
 
                             {match(cardDetails.card.accountMembership.user)
-                              .with(
-                                { firstName: P.string, lastName: P.string },
-                                ({ firstName, lastName }) => (
-                                  <DetailLine
-                                    label={t("transaction.cardHolder")}
-                                    text={[firstName, lastName].join(" ")}
-                                    icon="person-regular"
-                                  />
-                                ),
-                              )
+                              .with({ fullName: P.string }, ({ fullName }) => (
+                                <DetailLine
+                                  label={t("transaction.cardHolder")}
+                                  text={fullName}
+                                  icon="person-regular"
+                                />
+                              ))
                               .otherwise(() => null)}
                           </ReadOnlyFieldList>
                         )}

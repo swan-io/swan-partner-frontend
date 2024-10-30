@@ -151,15 +151,11 @@ export const ProfilePage = ({
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok({ user: P.select(P.nonNullable) })), user => {
-      const firstName = user.firstName ?? "";
-      const lastName = user.lastName ?? "";
       const phoneNumber = user.mobilePhoneNumber ?? undefined;
       const birthDate = user.birthDate ?? undefined;
 
-      const initials = [firstName, lastName]
-        .filter(name => name !== "")
-        .map(name => name.charAt(0))
-        .join("");
+      const initials =
+        (user.firstName?.charAt(0) ?? "") + (user.preferredLastName?.charAt(0) ?? "");
 
       return (
         <ResponsiveContainer style={styles.container} breakpoint={breakpoints.large}>
@@ -187,7 +183,7 @@ export const ProfilePage = ({
                       <Space height={16} />
 
                       <LakeHeading level={3} variant="h3">
-                        {firstName} {lastName}
+                        {user.fullName}
                       </LakeHeading>
 
                       {shouldDisplayIdVerification ? (
@@ -294,7 +290,7 @@ export const ProfilePage = ({
 
                     <View>
                       <LakeHeading level={3} variant="h3">
-                        {firstName} {lastName}
+                        {user.fullName}
                       </LakeHeading>
 
                       <Space height={8} />

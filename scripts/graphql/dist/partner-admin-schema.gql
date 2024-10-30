@@ -141,14 +141,13 @@ type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently closed"""
   reasonInfo: CloseAccountStatusReason!
+  closedAt: DateTime!
+  closingAt: DateTime!
 }
 
 """Account Closing status information"""
@@ -156,14 +155,12 @@ type AccountClosingStatus implements AccountStatusInfo {
   """Account status (always Closing for type AccountClosingStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently in closing"""
   reasonInfo: CloseAccountStatusReason!
+  closingAt: DateTime!
 }
 
 """
@@ -711,25 +708,30 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user bound doesn't match with the invitation
+  `true` if the first name of the bound user doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
+
+  """
+  `true` if the email of the bound user doesn't match with the invitation
+  """
+  emailVerifiedMatchError: Boolean!
 
   """`true` if Swan hasn't verified the user's identity"""
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user bound doesn't match with the invitation
+  `true` if the last name of the bound user doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user bound doesn't match with the invitation
+  `true` if the phone number of the bound user doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user bound doesn't match with the invitation
+  `true` if the birth date of the bound user doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -855,6 +857,9 @@ input AccountMembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+
+  """Filtered by accountId"""
+  accountId: String
 }
 
 """AccountMembership enabled"""
@@ -953,11 +958,8 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   """Account status (always Suspended for type AccountSuspendedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently suspend"""
   reasonInfo: SuspendAccountStatusReason!
@@ -1553,6 +1555,15 @@ type CapitalDepositDocument {
 
 """
 Rejection returned if the document from a capital deposit case cannot be uploaded in its context
+@deprecated(reason: "use `CapitalDepositDocumentCanNotBeUploadedRejection` instead")
+"""
+type CapitalDepositDocumentCanNotBeUploaded implements Rejection {
+  id: String!
+  message: String!
+}
+
+"""
+Rejection returned if the document from a capital deposit case cannot be uploaded in its context
 """
 type CapitalDepositDocumentCanNotBeUploadedRejection implements Rejection {
   id: String!
@@ -1640,6 +1651,17 @@ type CapitalDepositDocumentUploadedStatusInfo implements CapitalDepositDocumentS
 type CapitalDepositDocumentValidatedStatusInfo implements CapitalDepositDocumentStatusInfo {
   """Validated"""
   status: CapitalDepositDocumentStatus!
+}
+
+"""Card authorization operation type"""
+enum CardAuthorizationOperationType {
+  AtmWithdrawal
+  CashBackPayment
+  Credit
+  InStoreWithdrawal
+  Payment
+  QuasiCash
+  TokenizationRequest
 }
 
 enum CardAuthorizationOutcome {
@@ -2239,6 +2261,9 @@ enum ConsentPurpose {
 
   """when returning a transaction for direct debit"""
   ReturnTransactionForDirectDebit
+
+  """when returning a transaction for international credit transfer"""
+  ReturnTransactionForInternationalCreditTransfer
 }
 
 type ConsentResponse {
@@ -2541,6 +2566,9 @@ enum DetailedConsentPurpose {
 
   """when returning a transaction for direct debit"""
   ReturnTransactionForDirectDebit
+
+  """when returning a transaction for international credit transfer"""
+  ReturnTransactionForInternationalCreditTransfer
 
   """
   if the consent originates from a oauth2 flow, the purpose should be determined from its scopes
@@ -2871,6 +2899,9 @@ type ExpiredMerchantPaymentLinkStatusInfo implements MerchantPaymentLinkStatusIn
 type ExternalCard {
   """The card scheme"""
   scheme: CardPaymentMandateScheme!
+
+  """The local card scheme"""
+  localScheme: CardPaymentMandateScheme
 
   """The card type"""
   cardType: CardPaymentMandateType
@@ -3312,7 +3343,7 @@ type IdentificationConnection {
   totalCount: Int!
 
   """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo
+  pageInfo: PageInfo!
 
   """IdentificationEdge list"""
   edges: [IdentificationEdge!]!
@@ -3539,7 +3570,7 @@ enum IncomingCheckRejectionReasonCodeEnum {
   CheckNotReceived
 }
 
-enum IncomingInternalDirectDebitRejectReasonCodeEnum {
+enum IncomingInternalDirectDebitRejectionReasonCodeEnum {
   AccountClosed
   InsufficientFunds
   ReasonNotSpecifiedByDebtor
@@ -3604,7 +3635,7 @@ input IncomingSepaCreditTransferInput {
   isInstant: Boolean
 }
 
-enum IncomingSepaDirectDebitRejectReasonCodeEnum {
+enum IncomingSepaDirectDebitRejectionReasonCodeEnum {
   AccountClosed
   InsufficientFunds
   ReasonNotSpecifiedByDebtor
@@ -3722,13 +3753,13 @@ input IndividualUltimateBeneficialOwnerInput {
   totalCapitalPercentage: Float
 
   """Define UBO is a Legal Representative"""
-  type: IndividualUltimateBeneficialOwnerTypeEnum!
+  type: IndividualUltimateBeneficialOwnerTypeEnum
 
   """Individual beneficial owner Tax or Identification Number"""
   taxIdentificationNumber: String
 
   """Individual beneficial owner residency address"""
-  residencyAddress: AddressInformationInput
+  residencyAddress: ResidencyAddressInput
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
@@ -4276,28 +4307,28 @@ The different balances of the payment. Use this to understand in details what ac
 """
 type MerchantBalance {
   """The amount that can be canceled on this payment"""
-  availableToCancel: AmountValue!
+  availableToCancel: Amount!
 
   """The amount that can be captured on this payment"""
-  availableToCapture: AmountValue!
+  availableToCapture: Amount!
 
   """The amount that can be refunded on this payment"""
-  availableToRefund: AmountValue!
+  availableToRefund: Amount!
 
   """The amount authorised"""
-  totalAuthorized: AmountValue!
+  totalAuthorized: Amount!
 
   """The amount canceled"""
-  totalCanceled: AmountValue!
+  totalCanceled: Amount!
 
   """The amount captured"""
-  totalCaptured: AmountValue!
+  totalCaptured: Amount!
 
   """The amount disputed"""
-  totalDisputed: AmountValue!
+  totalDisputed: Amount!
 
   """The amount refunded"""
-  totalRefunded: AmountValue!
+  totalRefunded: Amount!
 }
 
 """Rejection returned when the Merchant Card Payment is declined"""
@@ -4523,6 +4554,7 @@ type MerchantPaymentLink {
   If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   """
   paymentMethods: [MerchantPaymentMethod!]!
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLinkConnection implements Connection {
@@ -4663,6 +4695,10 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitB2b
   Check
   Card
+}
+
+interface MerchantPaymentMethodUpdateRequest {
+  id: ID!
 }
 
 type MerchantPaymentMethodWrongStatusRejection implements Rejection {
@@ -4989,23 +5025,23 @@ type Mutation {
   generateTestCheck(input: GenerateCheckInput!): GenerateCheckPayload!
 
   """Simulate the authorization of a card merchant payment"""
-  simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload
+  simulateIncomingCardAuthorization(input: SimulateIncomingCardAuthorizationInput!): SimulateIncomingCardAuthorizationPayload!
 
   """Simulate the update of a Merchant Payment Method"""
-  simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload
+  simulateMerchantPaymentMethodRequestOutcome(input: SimulateMerchantPaymentMethodRequestOutcomeInput!): SimulateMerchantPaymentMethodRequestOutcomePayload!
 
   """
   Simulate the approval or rejection of a merchant payment method update request
   """
-  simulateMerchantPaymentMethodUpdateRequestOutcome(input: SimulateMerchantPaymentMethodUpdateRequestOutcomeInput!): SimulateMerchantPaymentMethodUpdateRequestOutcomePayload
+  simulateMerchantPaymentMethodUpdateRequestOutcome(input: SimulateMerchantPaymentMethodUpdateRequestOutcomeInput!): SimulateMerchantPaymentMethodUpdateRequestOutcomePayload!
 
   """Simulate the update of a Merchant Profile"""
-  simulateMerchantProfileRequestOutcome(input: SimulateMerchantProfileRequestOutcomeInput!): SimulateMerchantProfileRequestOutcomePayload
+  simulateMerchantProfileRequestOutcome(input: SimulateMerchantProfileRequestOutcomeInput!): SimulateMerchantProfileRequestOutcomePayload!
 
   """
   Simulate the approval or rejection of a merchant profile update request
   """
-  simulateMerchantProfileUpdateRequestOutcome(input: SimulateMerchantProfileUpdateRequestOutcomeInput!): SimulateMerchantProfileUpdateRequestOutcomePayload
+  simulateMerchantProfileUpdateRequestOutcome(input: SimulateMerchantProfileUpdateRequestOutcomeInput!): SimulateMerchantProfileUpdateRequestOutcomePayload!
 
   """
   After an incoming Card transaction has been scheduled, simulate the corresponding transaction being booked on the Swan creditor account.
@@ -5068,7 +5104,7 @@ type Mutation {
   """
   After an incoming Internal Direct Debit has been sent, simulate the corresponding transaction being rejected on the Swan creditor account.
   """
-  simulateIncomingInternalDirectDebitReject(input: SimulateIncomingInternalDirectDebitRejectInput!): SimulateIncomingInternalDirectDebitRejectPayload!
+  simulateIncomingInternalDirectDebitRejection(input: SimulateIncomingInternalDirectDebitRejectionInput!): SimulateIncomingInternalDirectDebitRejectionPayload!
 
   """
   After an incoming Internal Direct Debit has been sent, simulate the corresponding transaction being returned.
@@ -5119,7 +5155,7 @@ type Mutation {
   """
   After an incoming SEPA Direct Debit has been sent for execution to Sepa, simulate the corresponding transaction being rejected on the Swan creditor account.
   """
-  simulateIncomingSepaDirectDebitReject(input: SimulateIncomingSepaDirectDebitRejectInput!): SimulateIncomingSepaDirectDebitRejectPayload!
+  simulateIncomingSepaDirectDebitRejection(input: SimulateIncomingSepaDirectDebitRejectionInput!): SimulateIncomingSepaDirectDebitRejectionPayload!
 
   """
   After an incoming SEPA Direct Debit has been booked, simulate the corresponding transaction being returned from the Swan creditor account.
@@ -6811,6 +6847,26 @@ type ResidencePermitDocumentFile implements DocumentFile {
   side: DocumentFileSide!
 }
 
+input ResidencyAddressInput {
+  """Address line 1. Length must be from 0 to 255 characters"""
+  addressLine1: String
+
+  """AddressLine2. Length must be from 0 to 255 characters"""
+  addressLine2: String
+
+  """City. Length must be from 0 to 100 characters"""
+  city: String
+
+  """Postal code. Length must be from 0 to 50 characters"""
+  postalCode: String
+
+  """State of residency. Length must be from 0 to 100 characters"""
+  state: String
+
+  """Country"""
+  country: CCA3
+}
+
 """
 The channels that can be used to send the OTP and the end of provisioning message
 """
@@ -7212,7 +7268,7 @@ interface SEPADirectDebitMandate {
   id: ID!
 }
 
-type SepaDirectDebitPaymentMethodUpdateRequest {
+type SepaDirectDebitPaymentMethodUpdateRequest implements MerchantPaymentMethodUpdateRequest {
   id: ID!
 
   """
@@ -7630,9 +7686,14 @@ type SimulateCardTransactionEnrichmentSuccessPayload {
   enrichedData: EnrichedTransactionInfo!
 }
 
+input SimulateIncomingCardAuthorizationAuthorization {
+  status: SimulateIncomingCardAuthorizationStatus!
+  rejectionReason: String
+}
+
 enum SimulateIncomingCardAuthorizationCardCategory {
-  COMMERCIAL
-  CONSUMER
+  Commercial
+  Consumer
 }
 
 input SimulateIncomingCardAuthorizationCardDetails {
@@ -7643,38 +7704,31 @@ input SimulateIncomingCardAuthorizationCardDetails {
 }
 
 enum SimulateIncomingCardAuthorizationCardScheme {
-  VISA
-  MASTERCARD
-  MAESTRO
-  CARTES_BANCAIRES
+  Visa
+  Mastercard
+  Maestro
+  CartesBancaires
 }
 
 enum SimulateIncomingCardAuthorizationCardType {
-  CREDIT
-  DEBIT
-  PREPAID
-  CHARGE
-  DEFERRED_DEBIT
+  Credit
+  Debit
+  Prepaid
+  Charge
+  DeferredDebit
 }
 
 input SimulateIncomingCardAuthorizationInput {
   """ID of the related payment link"""
   paymentLinkId: ID!
-
-  """Payment status of the simulated authorization"""
-  paymentStatus: SimulateIncomingCardAuthorizationPaymentStatus!
+  authorization: SimulateIncomingCardAuthorizationAuthorization!
+  threeDS: SimulateIncomingCardAuthorizationThreeDS!
+  autoCapture: Boolean!
+  cardDetails: SimulateIncomingCardAuthorizationCardDetails!
 }
 
 """SimulateIncomingCardAuthorizationPayload"""
 union SimulateIncomingCardAuthorizationPayload = InternalErrorRejection | ForbiddenRejection | NotFoundRejection | SimulateIncomingCardAuthorizationSuccessPayload | ValidationRejection
-
-input SimulateIncomingCardAuthorizationPaymentStatus {
-  authorizationStatus: SimulateIncomingCardAuthorizationStatus!
-  authorizationRejectReason: String
-  cardDetails: SimulateIncomingCardAuthorizationCardDetails!
-  threeDS: SimulateIncomingCardAuthorizationThreeDS!
-  autoCapture: Boolean!
-}
 
 enum SimulateIncomingCardAuthorizationStatus {
   Authorized
@@ -7690,7 +7744,7 @@ type SimulateIncomingCardAuthorizationSuccessPayload {
 
 input SimulateIncomingCardAuthorizationThreeDS {
   status: SimulateIncomingCardAuthorizationThreeDSStatus!
-  failedReason: String
+  rejectionReason: String
 }
 
 enum SimulateIncomingCardAuthorizationThreeDSStatus {
@@ -7778,24 +7832,24 @@ type SimulateIncomingInternalDirectDebitBookingSuccessPayload {
   transactionId: ID!
 }
 
-type SimulateIncomingInternalDirectDebitRejectErrorPayload {
+type SimulateIncomingInternalDirectDebitRejectionErrorPayload {
   reason: String!
 }
 
 """Reject incoming SEPA Direct Debit simulation input"""
-input SimulateIncomingInternalDirectDebitRejectInput {
+input SimulateIncomingInternalDirectDebitRejectionInput {
   """Transaction ID to be Rejected"""
   transactionId: ID!
 
   """Rejection reason code"""
-  reasonCode: IncomingInternalDirectDebitRejectReasonCodeEnum
+  reasonCode: IncomingInternalDirectDebitRejectionReasonCodeEnum
 }
 
 """Union of Success payload and potential rejections"""
-union SimulateIncomingInternalDirectDebitRejectPayload = SimulateIncomingInternalDirectDebitRejectSuccessPayload | SimulateIncomingInternalDirectDebitRejectErrorPayload | ForbiddenRejection | TransactionNotFoundRejection
+union SimulateIncomingInternalDirectDebitRejectionPayload = SimulateIncomingInternalDirectDebitRejectionSuccessPayload | SimulateIncomingInternalDirectDebitRejectionErrorPayload | ForbiddenRejection | TransactionNotFoundRejection
 
 """Success payload type"""
-type SimulateIncomingInternalDirectDebitRejectSuccessPayload {
+type SimulateIncomingInternalDirectDebitRejectionSuccessPayload {
   transactionId: ID!
 }
 
@@ -7926,24 +7980,24 @@ type SimulateIncomingSepaDirectDebitBookingSuccessPayload {
   transactionId: ID!
 }
 
-type SimulateIncomingSepaDirectDebitRejectErrorPayload {
+type SimulateIncomingSepaDirectDebitRejectionErrorPayload {
   reason: String!
 }
 
 """Reject incoming SEPA Direct Debit simulation input"""
-input SimulateIncomingSepaDirectDebitRejectInput {
+input SimulateIncomingSepaDirectDebitRejectionInput {
   """Transaction ID to be Rejected"""
   transactionId: ID!
 
   """Rejection reason code"""
-  reasonCode: IncomingSepaDirectDebitRejectReasonCodeEnum
+  reasonCode: IncomingSepaDirectDebitRejectionReasonCodeEnum
 }
 
 """Union of Success payload and potential rejections"""
-union SimulateIncomingSepaDirectDebitRejectPayload = SimulateIncomingSepaDirectDebitRejectSuccessPayload | SimulateIncomingSepaDirectDebitRejectErrorPayload | ForbiddenRejection | TransactionNotFoundRejection
+union SimulateIncomingSepaDirectDebitRejectionPayload = SimulateIncomingSepaDirectDebitRejectionSuccessPayload | SimulateIncomingSepaDirectDebitRejectionErrorPayload | ForbiddenRejection | TransactionNotFoundRejection
 
 """Success payload type"""
-type SimulateIncomingSepaDirectDebitRejectSuccessPayload {
+type SimulateIncomingSepaDirectDebitRejectionSuccessPayload {
   transactionId: ID!
 }
 
@@ -8028,7 +8082,7 @@ input SimulateMerchantPaymentMethodRequestOutcomeInput {
 }
 
 """SimulateMerchantPaymentMethodPayload"""
-union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection
+union SimulateMerchantPaymentMethodRequestOutcomePayload = CheckMerchantPaymentMethod | InternalDirectDebitStandardMerchantPaymentMethod | InternalDirectDebitB2BMerchantPaymentMethod | SepaDirectDebitCoreMerchantPaymentMethod | SepaDirectDebitB2BMerchantPaymentMethod | CardMerchantPaymentMethod | NotFoundRejection | ForbiddenRejection | InternalErrorRejection | MerchantPaymentMethodWrongStatusRejection | RejectionReasonMandatoryRejection | ValidationRejection
 
 input SimulateMerchantPaymentMethodUpdateRequestOutcomeInput {
   """
@@ -8127,6 +8181,9 @@ input SimulateOutgoingCardAuthorizationInput {
 
   """Merchant"""
   merchant: Merchant
+
+  """Operation type"""
+  operationType: CardAuthorizationOperationType
 
   """Original amount"""
   originalAmount: AmountInput
@@ -8920,6 +8977,16 @@ type SupportingDocumentPurpose {
   Corresponding supporting document types accepted for this supporting document purpose
   """
   acceptableSupportingDocumentTypes: [SupportingDocumentType!]!
+
+  """
+  Corresponding Supporting Document Purpose Title translation according to accept-language header
+  """
+  label: String!
+
+  """
+  Corresponding Supporting Document Purpose Description translation according to accept-language header
+  """
+  description: String!
 }
 
 """Supporting document purpose"""
@@ -9019,18 +9086,18 @@ enum SupportingDocumentPurposeEnum {
 
   """Company Obligations"""
   CompanyObligations
+
+  """Politically exposed person declaration"""
+  PepDeclaration
+
+  """Proof of the company creation process"""
+  CompanyFormationRegistration
 }
 
 """Supporting document with Refused status"""
 type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been refused by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document collection has been refused"""
   refusedAt: DateTime!
@@ -9211,18 +9278,15 @@ enum SupportingDocumentType {
 
   """Invoice"""
   Invoice
+
+  """Politically exposed person declaration"""
+  PepDeclaration
 }
 
 """Supporting document with Uploaded status"""
 type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded but not verified by Swan yet"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Original file name"""
   filename: String!
@@ -9245,12 +9309,6 @@ type SupportingDocumentUploadNotAllowedRejection implements Rejection {
 type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded and verified by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document has been validated"""
   validatedAt: DateTime!
@@ -9540,9 +9598,14 @@ type UpdateAccountHolderFundingLimitsSuccessPayload {
 input UpdateAccountHolderInput {
   accountHolderId: ID!
   verificationStatus: VerificationStatus
+
+  """
+  VerificationRequirements for the Account Holder, can only be used when verificationStatus is WaitingForInformation
+  """
+  verificationRequirements: [VerificationRequirementType!]
 }
 
-union UpdateAccountHolderPayload = UpdateAccountHolderSuccessPayload | AccountHolderNotFoundRejection | ValidationRejection
+union UpdateAccountHolderPayload = UpdateAccountHolderSuccessPayload | AccountHolderNotFoundRejection | ValidationRejection | VerificationRequirementsNotUpdatableRejection
 
 type UpdateAccountHolderSuccessPayload {
   accountHolder: AccountHolder!
@@ -9720,6 +9783,11 @@ type User {
   """list of first names"""
   allFirstNames: [String!]
 
+  """
+  full name : concatenation of firstName + [ birthLastName | lastName ] depending on preferredLastName setting
+  """
+  fullName: String
+
   """birth date"""
   birthDate: Date
 
@@ -9761,8 +9829,8 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """Define the last name the user prefers to use"""
-  preferredLastName: UserPreferredLastName!
+  """The last name that the user prefers to use"""
+  preferredLastName: String
 }
 
 """
@@ -9804,14 +9872,6 @@ type UserEdge implements Edge {
 type UserNotFoundRejection implements Rejection {
   id: ID!
   message: String!
-}
-
-enum UserPreferredLastName {
-  """The user prefers to be called by their last name"""
-  LastName
-
-  """The user prefers to be called by their birth last name"""
-  BirthLastName
 }
 
 enum UserStatus {
@@ -9891,13 +9951,35 @@ type VerificationRequirement {
   type: VerificationRequirementType!
 }
 
+type VerificationRequirementsNotUpdatableRejection implements Rejection {
+  accountHolderId: String!
+  accountHolderVerificationStatus: VerificationStatus!
+  message: String!
+}
+
 enum VerificationRequirementType {
+  """Swan is requesting for a 1st transfer"""
   FirstTransferRequired
+
+  """Swan is requesting some Supporting Documents"""
   SupportingDocumentsRequired
+
+  """Swan is requesting some clarification on the UBO"""
   UboDetailsRequired
+
+  """
+  Swan is requesting some clarification on the legal representative or on the account member with legal representative permissions
+  """
   LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some clarification on the organisation"""
   OrganizationDetailsRequired
+
+  """Swan is requesting some tax identifier"""
   TaxIdRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
 }
 
 """Verification status of an account holder"""

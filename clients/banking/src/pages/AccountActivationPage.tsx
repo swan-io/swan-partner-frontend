@@ -348,11 +348,8 @@ export const AccountActivationPage = ({
           .otherwise(() => "en" as const);
 
         const user = accountMembership?.user;
-        const firstName = user?.firstName;
-        const lastName = user?.lastName;
         const phoneNumber = user?.mobilePhoneNumber;
         const birthDate = user?.birthDate;
-        const fullName = [firstName, lastName].filter(isNotNullishOrEmpty).join(" ");
 
         const { supportingDocumentSettings } = projectInfo;
         const documentCollectMode = supportingDocumentSettings?.collectMode;
@@ -364,10 +361,8 @@ export const AccountActivationPage = ({
         const hasIBAN = isNotNullish(IBAN);
         const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-        const initials = [firstName, lastName]
-          .map(name => name?.[0])
-          .filter(isNotNullishOrEmpty)
-          .join("");
+        const initials =
+          (user?.firstName?.charAt(0) ?? "") + (user?.preferredLastName?.charAt(0) ?? "");
 
         const step = match({
           hasRequiredIdentificationLevel,
@@ -507,7 +502,7 @@ export const AccountActivationPage = ({
                       <Space height={24} />
 
                       <LakeHeading align="center" level={3} variant="h3">
-                        {fullName}
+                        {user?.fullName}
                       </LakeHeading>
 
                       <Space height={24} />

@@ -37,7 +37,8 @@ query GetAccountMembershipInvitationData(
     email
     user {
       firstName
-      lastName
+      preferredLastName
+      fullName
     }
     account {
       name

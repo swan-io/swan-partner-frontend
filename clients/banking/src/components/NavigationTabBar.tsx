@@ -24,9 +24,7 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Request, badStatusToError } from "@swan-io/request";
-import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
@@ -139,12 +137,11 @@ type Props = {
   hasMultipleMemberships: boolean;
   activationTag: AccountActivationTag;
   entries: Menu;
-  firstName: string;
-  lastName: string;
+  fullName: string;
+  initials: string;
   accountMembershipId: string;
   identificationStatusInfo: Option<IdentificationLevelFragment>;
   refetchAccountAreaQuery: () => void;
-  additionalInfo: AdditionalInfo;
   shouldDisplayIdVerification: boolean;
   isScrolled: boolean;
   onScrollToTop: () => void;
@@ -157,8 +154,8 @@ export const NavigationTabBar = ({
   activationTag,
   entries,
   accountMembershipId,
-  firstName,
-  lastName,
+  fullName,
+  initials,
   identificationStatusInfo,
   shouldDisplayIdVerification,
   isScrolled,
@@ -183,10 +180,6 @@ export const NavigationTabBar = ({
   if (!activeMenuItem) {
     return null;
   }
-
-  const names = [firstName, lastName].filter(isNotEmpty);
-  const fullName = names.join(" ");
-  const initials = names.map(name => name[0]).join("");
 
   return (
     <View style={styles.tabBarContainer}>

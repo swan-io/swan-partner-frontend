@@ -71,7 +71,7 @@ const getMailjetInput = ({
           email: P.string,
           user: {
             firstName: P.string,
-            lastName: P.string,
+            preferredLastName: P.string,
           },
           account: {
             name: P.string,
@@ -133,7 +133,7 @@ const getMailjetInput = ({
                 inviteeFirstName: inviteeAccountMembership.statusInfo.restrictedTo.firstName,
                 inviterEmail: inviterAccountMembership.email,
                 inviterFirstName: inviterAccountMembership.user.firstName,
-                inviterLastName: inviterAccountMembership.user.lastName,
+                inviterLastName: inviterAccountMembership.user.preferredLastName,
                 projectName: projectInfo.name,
               },
             },

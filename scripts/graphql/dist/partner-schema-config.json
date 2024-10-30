@@ -152,6 +152,7 @@
       "UserNotCardHolderRejection",
       "UserNotFoundRejection",
       "ValidationRejection",
+      "VerificationRequirementsNotUpdatableRejection",
       "WebhookEventLogNotFoundRejection",
       "WebhookSubscriptionNotFoundRejection",
       "WrongCodeRejection",
@@ -504,6 +505,9 @@
     "SEPADirectDebitDebtor": [
       "SEPADirectDebitInDebtor",
       "SEPADirectDebitOutDebtor"
+    ],
+    "MerchantPaymentMethodUpdateRequest": [
+      "SepaDirectDebitPaymentMethodUpdateRequest"
     ],
     "SEPADirectDebitMandate": [
       "SEPAPaymentDirectDebitMandate",

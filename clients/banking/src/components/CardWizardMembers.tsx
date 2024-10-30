@@ -141,11 +141,10 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
             <View>
               {memberships.edges.map(({ node }) => {
                 const isSelected = selectedIds.has(node.id);
+                const { user } = node;
 
                 const initials =
-                  node.user?.firstName != null && node.user?.lastName != null
-                    ? `${node.user.firstName.charAt(0)}${node.user.lastName.charAt(0)}`
-                    : undefined;
+                  (user?.firstName?.charAt(0) ?? "") + (user?.preferredLastName?.charAt(0) ?? "");
 
                 const contents = (
                   <View style={styles.lineContainer}>

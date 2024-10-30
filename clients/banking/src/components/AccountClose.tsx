@@ -369,14 +369,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
 
         const legalRepresentativeName = Option.fromNullable(
           account.legalRepresentativeMembership.user,
-        )
-          .flatMap(user =>
-            Option.allFromDict({
-              firstName: Option.fromNullable(user.firstName),
-              lastName: Option.fromNullable(user.lastName),
-            }),
-          )
-          .map(({ firstName, lastName }) => `${firstName} ${lastName}`);
+        ).flatMap(user => Option.fromNullable(user.fullName));
 
         const balance = Number(account.balances?.available.value);
 

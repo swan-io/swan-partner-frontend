@@ -49,15 +49,25 @@ export const MembershipConflictResolutionEditor = ({
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
+  const { statusInfo, user } = accountMembership;
+  const { restrictedTo } = statusInfo;
+
+  const firstNamesMismatch = user.firstName !== restrictedTo.firstName;
+  const birthDatesMismatch = user.birthDate !== restrictedTo.birthDate;
+  const phoneNumbersMismatch = user.mobilePhoneNumber !== restrictedTo.phoneNumber;
+
+  const lastNamesMismatch =
+    user.lastName !== restrictedTo.lastName && user.birthLastName !== restrictedTo.lastName;
+
   const acceptMembership = () => {
     updateMembership({
       input: {
         accountMembershipId: editingAccountMembershipId,
         restrictedTo: {
-          firstName: accountMembership.user.firstName,
-          lastName: accountMembership.user.lastName,
-          birthDate: accountMembership.user.birthDate,
-          phoneNumber: accountMembership.user.mobilePhoneNumber,
+          firstName: user.firstName,
+          lastName: user.preferredLastName,
+          birthDate: user.birthDate,
+          phoneNumber: user.mobilePhoneNumber,
         },
         consentRedirectUrl:
           window.location.origin +
@@ -94,7 +104,7 @@ export const MembershipConflictResolutionEditor = ({
                 readOnlyColor={colors.gray[500]}
                 render={() => (
                   <LakeText variant="regular" color={colors.gray[900]}>
-                    {accountMembership.statusInfo.restrictedTo.firstName}
+                    {restrictedTo.firstName}
                   </LakeText>
                 )}
               />
@@ -105,7 +115,7 @@ export const MembershipConflictResolutionEditor = ({
                 readOnlyColor={colors.gray[500]}
                 render={() => (
                   <LakeText variant="regular" color={colors.gray[900]}>
-                    {accountMembership.statusInfo.restrictedTo.lastName}
+                    {restrictedTo.lastName}
                   </LakeText>
                 )}
               />
@@ -116,7 +126,7 @@ export const MembershipConflictResolutionEditor = ({
                 readOnlyColor={colors.gray[500]}
                 render={() => (
                   <LakeText variant="regular" color={colors.gray[900]}>
-                    {dayjs(accountMembership.statusInfo.restrictedTo.birthDate).format("L")}
+                    {dayjs(restrictedTo.birthDate).format("L")}
                   </LakeText>
                 )}
               />
@@ -127,7 +137,7 @@ export const MembershipConflictResolutionEditor = ({
                 readOnlyColor={colors.gray[500]}
                 render={() => (
                   <LakeText variant="regular" color={colors.gray[900]}>
-                    {accountMembership.statusInfo.restrictedTo.phoneNumber}
+                    {restrictedTo.phoneNumber}
                   </LakeText>
                 )}
               />
@@ -145,28 +155,13 @@ export const MembershipConflictResolutionEditor = ({
               <LakeLabel
                 label={t("membershipDetail.bindingUserError.firstName")}
                 readOnly={true}
-                readOnlyColor={
-                  accountMembership.user.firstName !==
-                  accountMembership.statusInfo.restrictedTo.firstName
-                    ? colors.negative[500]
-                    : colors.gray[500]
-                }
+                readOnlyColor={firstNamesMismatch ? colors.negative[500] : colors.gray[500]}
                 render={() => (
                   <LakeText
-                    variant={
-                      accountMembership.user.firstName !==
-                      accountMembership.statusInfo.restrictedTo.firstName
-                        ? "semibold"
-                        : "regular"
-                    }
-                    color={
-                      accountMembership.user.firstName !==
-                      accountMembership.statusInfo.restrictedTo.firstName
-                        ? colors.negative[500]
-                        : colors.gray[900]
-                    }
+                    variant={firstNamesMismatch ? "semibold" : "regular"}
+                    color={firstNamesMismatch ? colors.negative[500] : colors.gray[900]}
                   >
-                    {accountMembership.user.firstName}
+                    {user.firstName}
                   </LakeText>
                 )}
               />
@@ -174,28 +169,13 @@ export const MembershipConflictResolutionEditor = ({
               <LakeLabel
                 label={t("membershipDetail.bindingUserError.lastName")}
                 readOnly={true}
-                readOnlyColor={
-                  accountMembership.user.lastName !==
-                  accountMembership.statusInfo.restrictedTo.lastName
-                    ? colors.negative[500]
-                    : colors.gray[500]
-                }
+                readOnlyColor={lastNamesMismatch ? colors.negative[500] : colors.gray[500]}
                 render={() => (
                   <LakeText
-                    variant={
-                      accountMembership.user.lastName !==
-                      accountMembership.statusInfo.restrictedTo.lastName
-                        ? "semibold"
-                        : "regular"
-                    }
-                    color={
-                      accountMembership.user.lastName !==
-                      accountMembership.statusInfo.restrictedTo.lastName
-                        ? colors.negative[500]
-                        : colors.gray[900]
-                    }
+                    variant={lastNamesMismatch ? "semibold" : "regular"}
+                    color={lastNamesMismatch ? colors.negative[500] : colors.gray[900]}
                   >
-                    {accountMembership.user.lastName}
+                    {user.lastName}
                   </LakeText>
                 )}
               />
@@ -203,28 +183,13 @@ export const MembershipConflictResolutionEditor = ({
               <LakeLabel
                 label={t("membershipDetail.bindingUserError.birthDate")}
                 readOnly={true}
-                readOnlyColor={
-                  accountMembership.user.birthDate !==
-                  accountMembership.statusInfo.restrictedTo.birthDate
-                    ? colors.negative[500]
-                    : colors.gray[500]
-                }
+                readOnlyColor={birthDatesMismatch ? colors.negative[500] : colors.gray[500]}
                 render={() => (
                   <LakeText
-                    variant={
-                      accountMembership.user.birthDate !==
-                      accountMembership.statusInfo.restrictedTo.birthDate
-                        ? "semibold"
-                        : "regular"
-                    }
-                    color={
-                      accountMembership.user.birthDate !==
-                      accountMembership.statusInfo.restrictedTo.birthDate
-                        ? colors.negative[500]
-                        : colors.gray[900]
-                    }
+                    variant={birthDatesMismatch ? "semibold" : "regular"}
+                    color={birthDatesMismatch ? colors.negative[500] : colors.gray[900]}
                   >
-                    {dayjs(accountMembership.user.birthDate).format("L")}
+                    {dayjs(user.birthDate).format("L")}
                   </LakeText>
                 )}
               />
@@ -232,28 +197,13 @@ export const MembershipConflictResolutionEditor = ({
               <LakeLabel
                 label={t("membershipDetail.bindingUserError.phoneNumber")}
                 readOnly={true}
-                readOnlyColor={
-                  accountMembership.user.mobilePhoneNumber !==
-                  accountMembership.statusInfo.restrictedTo.phoneNumber
-                    ? colors.negative[500]
-                    : colors.gray[500]
-                }
+                readOnlyColor={phoneNumbersMismatch ? colors.negative[500] : colors.gray[500]}
                 render={() => (
                   <LakeText
-                    variant={
-                      accountMembership.user.mobilePhoneNumber !==
-                      accountMembership.statusInfo.restrictedTo.phoneNumber
-                        ? "semibold"
-                        : "regular"
-                    }
-                    color={
-                      accountMembership.user.mobilePhoneNumber !==
-                      accountMembership.statusInfo.restrictedTo.phoneNumber
-                        ? colors.negative[500]
-                        : colors.gray[900]
-                    }
+                    variant={phoneNumbersMismatch ? "semibold" : "regular"}
+                    color={phoneNumbersMismatch ? colors.negative[500] : colors.gray[900]}
                   >
-                    {accountMembership.user.mobilePhoneNumber}
+                    {user.mobilePhoneNumber}
                   </LakeText>
                 )}
               />

@@ -75,7 +75,8 @@ fragment TransactionDetails on Transaction {
             user {
               id
               firstName
-              lastName
+              preferredLastName
+              fullName
             }
           }
         }
@@ -477,7 +478,8 @@ query AccountArea($accountMembershipId: ID!) {
   user {
     id
     firstName
-    lastName
+    preferredLastName
+    fullName
     mobilePhoneNumber
     identificationLevels {
       ...IdentificationLevelsFragment
@@ -792,7 +794,8 @@ fragment CardListItem on Card {
     user {
       id
       firstName
-      lastName
+      preferredLastName
+      fullName
     }
   }
 }
@@ -927,7 +930,8 @@ query CardPage($cardId: ID!) {
       user {
         id
         firstName
-        lastName
+        preferredLastName
+        fullName
         identificationLevels {
           expert
           QES
@@ -1070,7 +1074,8 @@ query CardTransactionsPage(
       user {
         id
         firstName
-        lastName
+        preferredLastName
+        fullName
       }
     }
     transactions(first: $first, after: $after, filters: $filters) {
@@ -1208,7 +1213,8 @@ query getStandingOrders(
           createdBy {
             id
             firstName
-            lastName
+            preferredLastName
+            fullName
           }
         }
       }
@@ -1266,6 +1272,9 @@ fragment AccountMembership on AccountMembership {
     birthDate
     firstName
     lastName
+    birthLastName
+    preferredLastName
+    fullName
     mobilePhoneNumber
   }
   account {
@@ -1356,7 +1365,8 @@ query ProfilePage {
   user {
     id
     firstName
-    lastName
+    preferredLastName
+    fullName
     mobilePhoneNumber
     birthDate
   }
@@ -1426,7 +1436,8 @@ query AccountActivationPage($accountMembershipId: ID!) {
     user {
       id
       firstName
-      lastName
+      preferredLastName
+      fullName
       birthDate
       mobilePhoneNumber
     }
@@ -1812,7 +1823,8 @@ query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $
     user {
       id
       firstName
-      lastName
+      preferredLastName
+      fullName
       mobilePhoneNumber
     }
   }
@@ -2282,7 +2294,8 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
       user {
         id
         firstName
-        lastName
+        preferredLastName
+        fullName
       }
     }
     balances {
@@ -2692,7 +2705,8 @@ mutation AddAccountMembership($input: AddAccountMembershipInput!) {
           id
           birthDate
           firstName
-          lastName
+          preferredLastName
+          fullName
           mobilePhoneNumber
         }
         account {

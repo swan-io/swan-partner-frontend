@@ -175,7 +175,7 @@ export const MembershipConflictResolutionEditor = ({
                     variant={lastNamesMismatch ? "semibold" : "regular"}
                     color={lastNamesMismatch ? colors.negative[500] : colors.gray[900]}
                   >
-                    {user.lastName}
+                    {user.preferredLastName}
                   </LakeText>
                 )}
               />

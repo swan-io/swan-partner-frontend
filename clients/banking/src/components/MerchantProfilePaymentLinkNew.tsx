@@ -43,6 +43,7 @@ import {
 } from "../graphql/partner";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
+import { Router } from "../utils/routes";
 import { validateArrayRequired, validateRequired } from "../utils/validations";
 
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
@@ -179,6 +180,7 @@ const Container = ({
 };
 
 type Props = {
+  accountMembershipId: string;
   merchantProfileId: string;
   accentColor: string | undefined;
   merchantLogoUrl: string | undefined;
@@ -186,18 +188,17 @@ type Props = {
   paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
   paymentLinks: PaymentLinkConnectionFragment | null | undefined;
   onPressClose: () => void;
-  onSave: () => void;
 };
 
 export const MerchantProfilePaymentLinkNew = ({
   merchantProfileId,
+  accountMembershipId,
   paymentLinks,
   paymentMethods,
   accentColor,
   merchantLogoUrl,
   merchantName,
   onPressClose,
-  onSave,
 }: Props) => {
   const [selectedPreview, setSelectedPreview] = useState<"desktop" | "mobile">("desktop");
 
@@ -326,8 +327,12 @@ export const MerchantProfilePaymentLinkNew = ({
             .mapOk(data => data.createMerchantPaymentLink)
             .mapOkToResult(filterRejectionsToResult)
             .tapError(error => showToast({ variant: "error", title: translateError(error), error }))
-            .tapOk(() => {
-              onSave();
+            .tapOk(({ merchantPaymentLink }) => {
+              Router.replace("AccountMerchantsProfilePaymentLinkDetails", {
+                accountMembershipId,
+                merchantProfileId,
+                paymentLinkId: merchantPaymentLink.id,
+              });
             });
         }
       },

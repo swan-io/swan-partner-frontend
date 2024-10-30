@@ -578,6 +578,7 @@
   "merchantProfile.list.noResults": "Ei kauppiasprofiileja",
   "merchantProfile.list.paymentMethods": "Maksutavat",
   "merchantProfile.paymentLink.button.new": "Luo maksulinkki",
+  "merchantProfile.paymentLink.button.new.disable": "Kauppiaan profiilissasi ei ole yhtään käytössä olevaa maksutapaa",
   "merchantProfile.paymentLink.buttonForm.create": "Luo linkki",
   "merchantProfile.paymentLink.list.action": "Toimenpide",
   "merchantProfile.paymentLink.list.amount": "Summa",

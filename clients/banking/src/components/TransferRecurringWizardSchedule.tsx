@@ -59,7 +59,6 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
       initialValue: dayjs.utc().format(locale.dateFormat),
       sanitize: trim,
       validate: value => {
-        resetField("firstExecutionTime");
         return validateTodayOrAfter(value);
       },
     },
@@ -182,7 +181,12 @@ export const TransferRecurringWizardSchedule = ({ onPressPrevious, onSave, loadi
                       error={error}
                       format={locale.dateFormat}
                       firstWeekDay={locale.firstWeekday}
-                      onChange={onChange}
+                      onChange={value => {
+                        onChange(value);
+                        if (dayjs.utc(value, locale.dateFormat).isSame(dayjs(), "day")) {
+                          resetField("firstExecutionTime");
+                        }
+                      }}
                       isSelectable={isDateInRange(
                         dayjs.utc().toDate(),
                         dayjs.utc().add(1, "year").toDate(),

@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -7,6 +7,7 @@ import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { FullViewportLayer } from "@swan-io/lake/src/components/FullViewportLayer";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
+import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
@@ -20,6 +21,7 @@ import { P, match } from "ts-pattern";
 import {
   MerchantPaymentLinkFiltersInput,
   MerchantPaymentLinksDocument,
+  MerchantPaymentMethodType,
   PaymentLinkFragment,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -47,10 +49,17 @@ const styles = StyleSheet.create({
 
 const PER_PAGE = 20;
 
+const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
+  "Card",
+  "SepaDirectDebitB2b",
+  "SepaDirectDebitCore",
+]);
+
 type Props = {
   params: GetRouteParams<"AccountMerchantsProfilePaymentLinkArea">;
   large: boolean;
 };
+
 export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
 
@@ -104,35 +113,29 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
   const search = nullishOrEmptyToUndefined(params.search);
 
+  const shouldEnableNewButton = data
+    .toOption()
+    .flatMap(result => result.toOption())
+    .flatMap(({ merchantProfile }) => Option.fromNullable(merchantProfile))
+    .map(merchantProfile => {
+      const paymentMethods = merchantProfile.merchantPaymentMethods ?? [];
+      return paymentMethods.some(
+        paymentMethod =>
+          ALLOWED_PAYMENT_METHODS.has(paymentMethod.type) &&
+          paymentMethod.statusInfo.status === "Enabled",
+      );
+    });
+
   return (
     <>
       {!large && (
         <Box style={styles.containerMobile} alignItems="stretch">
-          <LakeButton
-            size="small"
-            icon="add-circle-filled"
-            color="current"
-            onPress={() =>
-              Router.push("AccountMerchantsProfilePaymentLinkList", {
-                new: "true",
-                accountMembershipId,
-                merchantProfileId,
-              })
-            }
+          <LakeTooltip
+            content={t("merchantProfile.paymentLink.button.new.disable")}
+            disabled={shouldEnableNewButton !== Option.Some(false)}
           >
-            {t("merchantProfile.paymentLink.button.new")}
-          </LakeButton>
-        </Box>
-      )}
-
-      <Box
-        direction="row"
-        alignItems="center"
-        style={[styles.filters, large && styles.filtersLarge]}
-      >
-        {large && (
-          <>
             <LakeButton
+              disabled={!shouldEnableNewButton.getOr(false)}
               size="small"
               icon="add-circle-filled"
               color="current"
@@ -146,6 +149,37 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
             >
               {t("merchantProfile.paymentLink.button.new")}
             </LakeButton>
+          </LakeTooltip>
+        </Box>
+      )}
+
+      <Box
+        direction="row"
+        alignItems="center"
+        style={[styles.filters, large && styles.filtersLarge]}
+      >
+        {large && (
+          <>
+            <LakeTooltip
+              content={t("merchantProfile.paymentLink.button.new.disable")}
+              disabled={shouldEnableNewButton !== Option.Some(false)}
+            >
+              <LakeButton
+                disabled={!shouldEnableNewButton.getOr(false)}
+                size="small"
+                icon="add-circle-filled"
+                color="current"
+                onPress={() =>
+                  Router.push("AccountMerchantsProfilePaymentLinkList", {
+                    new: "true",
+                    accountMembershipId,
+                    merchantProfileId,
+                  })
+                }
+              >
+                {t("merchantProfile.paymentLink.button.new")}
+              </LakeButton>
+            </LakeTooltip>
 
             <Space width={12} />
           </>
@@ -199,85 +233,87 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
-          <PlainListViewPlaceholder count={5} groupHeaderHeight={48} rowHeight={56} />
+          <PlainListViewPlaceholder
+            count={5}
+            groupHeaderHeight={48}
+            rowHeight={56}
+            marginHorizontal={spacings[16]}
+          />
         ))
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
-        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => (
-          <Connection connection={merchantProfile?.merchantPaymentLinks}>
-            {paymentLinks => (
-              <>
-                <MerchantProfilePaymentLinksList
-                  isLoading={isLoading}
-                  paymentLinks={paymentLinks?.edges.map(item => item.node) ?? []}
-                  large={large}
-                  getRowLink={getRowLink}
-                  activeRowId={activePaymentLinkId ?? undefined}
-                  onActiveRowChange={onActiveRowChange}
-                  onEndReached={() => {
-                    if (merchantProfile?.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
-                      setVariables({
-                        after:
-                          merchantProfile?.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
-                      });
-                    }
-                  }}
-                />
-
-                {isNotNullish(merchantProfile?.merchantPaymentMethods) ? (
-                  <FullViewportLayer visible={isNotNullish(route?.params.new)}>
-                    <MerchantProfilePaymentLinkNew
-                      accentColor={merchantProfile.accentColor ?? undefined}
-                      merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
-                      merchantName={merchantProfile.merchantName}
-                      merchantProfileId={merchantProfileId}
-                      paymentMethods={merchantProfile.merchantPaymentMethods}
-                      paymentLinks={paymentLinks}
-                      onPressClose={() =>
-                        Router.push("AccountMerchantsProfilePaymentLinkList", {
-                          accountMembershipId,
-                          merchantProfileId,
-                          new: undefined,
-                        })
-                      }
-                      onSave={() => {
-                        Router.replace("AccountMerchantsProfilePaymentLinkList", {
-                          accountMembershipId,
-                          merchantProfileId,
+        .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => {
+          return (
+            <Connection connection={merchantProfile?.merchantPaymentLinks}>
+              {paymentLinks => (
+                <>
+                  <MerchantProfilePaymentLinksList
+                    isLoading={isLoading}
+                    paymentLinks={paymentLinks?.edges.map(item => item.node) ?? []}
+                    large={large}
+                    getRowLink={getRowLink}
+                    activeRowId={activePaymentLinkId ?? undefined}
+                    onActiveRowChange={onActiveRowChange}
+                    onEndReached={() => {
+                      if (merchantProfile?.merchantPaymentLinks?.pageInfo.hasNextPage ?? false) {
+                        setVariables({
+                          after:
+                            merchantProfile?.merchantPaymentLinks?.pageInfo.endCursor ?? undefined,
                         });
-                      }}
-                    />
-                  </FullViewportLayer>
-                ) : null}
+                      }
+                    }}
+                  />
 
-                <ListRightPanel
-                  ref={panelRef}
-                  keyExtractor={item => item.id}
-                  activeId={activePaymentLinkId}
-                  onActiveIdChange={paymentLinkId =>
-                    Router.push("AccountMerchantsProfilePaymentLinkDetails", {
-                      accountMembershipId,
-                      merchantProfileId,
-                      paymentLinkId,
-                    })
-                  }
-                  onClose={() =>
-                    Router.push("AccountMerchantsProfilePaymentLinkList", {
-                      accountMembershipId,
-                      merchantProfileId,
-                    })
-                  }
-                  items={paymentLinks?.edges.map(item => item.node) ?? []}
-                  render={(item, large) => (
-                    <MerchantProfilePaymentLinkDetail large={large} paymentLinkId={item.id} />
-                  )}
-                  closeLabel={t("common.closeButton")}
-                  previousLabel={t("common.previous")}
-                  nextLabel={t("common.next")}
-                />
-              </>
-            )}
-          </Connection>
-        ))
+                  {isNotNullish(merchantProfile?.merchantPaymentMethods) ? (
+                    <FullViewportLayer visible={isNotNullish(route?.params.new)}>
+                      <MerchantProfilePaymentLinkNew
+                        accentColor={merchantProfile.accentColor ?? undefined}
+                        merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
+                        merchantName={merchantProfile.merchantName}
+                        merchantProfileId={merchantProfileId}
+                        paymentMethods={merchantProfile.merchantPaymentMethods}
+                        paymentLinks={paymentLinks}
+                        onPressClose={() =>
+                          Router.push("AccountMerchantsProfilePaymentLinkList", {
+                            accountMembershipId,
+                            merchantProfileId,
+                            new: undefined,
+                          })
+                        }
+                        accountMembershipId={accountMembershipId}
+                      />
+                    </FullViewportLayer>
+                  ) : null}
+
+                  <ListRightPanel
+                    ref={panelRef}
+                    keyExtractor={item => item.id}
+                    activeId={activePaymentLinkId}
+                    onActiveIdChange={paymentLinkId =>
+                      Router.push("AccountMerchantsProfilePaymentLinkDetails", {
+                        accountMembershipId,
+                        merchantProfileId,
+                        paymentLinkId,
+                      })
+                    }
+                    onClose={() =>
+                      Router.push("AccountMerchantsProfilePaymentLinkList", {
+                        accountMembershipId,
+                        merchantProfileId,
+                      })
+                    }
+                    items={paymentLinks?.edges.map(item => item.node) ?? []}
+                    render={(item, large) => (
+                      <MerchantProfilePaymentLinkDetail large={large} paymentLinkId={item.id} />
+                    )}
+                    closeLabel={t("common.closeButton")}
+                    previousLabel={t("common.previous")}
+                    nextLabel={t("common.next")}
+                  />
+                </>
+              )}
+            </Connection>
+          );
+        })
         .exhaustive()}
     </>
   );

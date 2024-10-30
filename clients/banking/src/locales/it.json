@@ -578,6 +578,7 @@
   "merchantProfile.list.noResults": "Nessun profilo di commerciante",
   "merchantProfile.list.paymentMethods": "Metodi di pagamento",
   "merchantProfile.paymentLink.button.new": "Crea un link di pagamento",
+  "merchantProfile.paymentLink.button.new.disable": "Il tuo profilo commerciante non ha attivato alcun metodo di pagamento idoneo",
   "merchantProfile.paymentLink.buttonForm.create": "Crea link",
   "merchantProfile.paymentLink.list.action": "Azione",
   "merchantProfile.paymentLink.list.amount": "Importo",

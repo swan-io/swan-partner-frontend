@@ -578,6 +578,7 @@
   "merchantProfile.list.noResults": "Geen handelaarsprofielen",
   "merchantProfile.list.paymentMethods": "Betaalmethoden",
   "merchantProfile.paymentLink.button.new": "Maak een betalingslink aan",
+  "merchantProfile.paymentLink.button.new.disable": "Uw handelaarsprofiel heeft geen geschikte betaalmethode ingeschakeld",
   "merchantProfile.paymentLink.buttonForm.create": "Link aanmaken",
   "merchantProfile.paymentLink.list.action": "Actie",
   "merchantProfile.paymentLink.list.amount": "Bedrag",

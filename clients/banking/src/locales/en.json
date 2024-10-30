@@ -578,6 +578,7 @@
   "merchantProfile.list.noResults": "No merchant profiles",
   "merchantProfile.list.paymentMethods": "Payment methods",
   "merchantProfile.paymentLink.button.new": "Create a payment link",
+  "merchantProfile.paymentLink.button.new.disable": "Your merchant profile doesn't have any eligible payment method enabled",
   "merchantProfile.paymentLink.buttonForm.create": "Create link",
   "merchantProfile.paymentLink.new.paymentMethods": "Payment methods",
   "merchantProfile.paymentLink.new.advancedOptions": "Advanced options",

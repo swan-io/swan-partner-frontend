@@ -14,10 +14,11 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { IdentificationLevelFragment } from "../graphql/partner";
+import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -48,8 +49,7 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  fullName: string;
-  initials: string;
+  user: NonNullable<AccountAreaQuery["user"]>;
   identificationStatusInfo: Option<IdentificationLevelFragment>;
   accountMembershipId: string;
   shouldDisplayIdVerification: boolean;
@@ -58,20 +58,21 @@ type Props = {
 
 export const ProfileButton = memo<Props>(
   ({
-    fullName,
-    initials,
+    user,
     identificationStatusInfo,
     accountMembershipId,
     shouldDisplayIdVerification,
     hasRequiredIdentificationLevel,
   }) => {
+    const fullName = user.fullName;
+
     return (
       <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>
         {({ active }) => (
           <View role="button" style={styles.button}>
-            <Avatar size={25} initials={initials} />
+            <Avatar size={25} user={user} />
 
-            {fullName && (
+            {isNotNullish(fullName) && (
               <>
                 <Space width={16} />
 

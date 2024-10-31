@@ -238,10 +238,7 @@ export const AccountArea = ({
   const userId = user?.id ?? "";
   const firstName = user?.firstName ?? "";
   const preferredLastName = user?.preferredLastName ?? "";
-  const fullName = user?.fullName ?? "";
   const phoneNumber = user?.mobilePhoneNumber ?? "";
-
-  const initials = firstName.charAt(0) + preferredLastName.charAt(0);
 
   const [, setAccountMembershipState] = usePersistedState<unknown>(
     `swan_session_webBankingAccountMembershipState${projectConfiguration
@@ -473,8 +470,7 @@ export const AccountArea = ({
                     identificationStatusInfo={lastRelevantIdentification.map(
                       getIdentificationLevelStatusInfo,
                     )}
-                    fullName={fullName}
-                    initials={initials}
+                    user={user}
                     accountMembershipId={accountMembershipId}
                     shouldDisplayIdVerification={shouldDisplayIdVerification}
                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
@@ -826,8 +822,7 @@ export const AccountArea = ({
                   accountMembership={accountMembership}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}
                   entries={menu}
-                  fullName={fullName}
-                  initials={initials}
+                  user={user}
                   refetchAccountAreaQuery={reload}
                   isScrolled={isScrolled}
                   onScrollToTop={scrollToTop}

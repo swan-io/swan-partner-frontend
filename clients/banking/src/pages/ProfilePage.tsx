@@ -154,9 +154,6 @@ export const ProfilePage = ({
       const phoneNumber = user.mobilePhoneNumber ?? undefined;
       const birthDate = user.birthDate ?? undefined;
 
-      const initials =
-        (user.firstName?.charAt(0) ?? "") + (user.preferredLastName?.charAt(0) ?? "");
-
       return (
         <ResponsiveContainer style={styles.container} breakpoint={breakpoints.large}>
           {({ small, large }) => (
@@ -179,7 +176,7 @@ export const ProfilePage = ({
                 <View>
                   <Tile footer={tileFooter}>
                     <Box alignItems="center">
-                      <Avatar initials={initials} size={100} />
+                      <Avatar user={user} size={100} />
                       <Space height={16} />
 
                       <LakeHeading level={3} variant="h3">
@@ -285,7 +282,7 @@ export const ProfilePage = ({
               ) : (
                 <Tile footer={tileFooter}>
                   <Box direction="row" alignItems="center">
-                    <Avatar initials={initials} size={100} />
+                    <Avatar user={user} size={100} />
                     <Space width={32} />
 
                     <View>

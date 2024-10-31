@@ -85,11 +85,7 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
   return (
     <View>
       {currentCardIndividualDeliveryConfig.map((config, index) => {
-        const { user } = config.member;
         const hasError = isNotNullish(validateAddressLine(config.address.addressLine1));
-
-        const initials =
-          (user?.firstName?.charAt(0) ?? "") + (user?.preferredLastName?.charAt(0) ?? "");
 
         return (
           <View key={config.member.id}>
@@ -106,7 +102,7 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
               }
             >
               <Box direction="row" alignItems="center">
-                <Avatar size={28} initials={initials} />
+                <Avatar size={28} user={config.member.user} />
                 <Space width={24} />
 
                 <View style={commonStyles.fill}>

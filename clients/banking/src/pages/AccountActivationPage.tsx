@@ -361,9 +361,6 @@ export const AccountActivationPage = ({
         const hasIBAN = isNotNullish(IBAN);
         const hasTransactions = (account?.transactions?.totalCount ?? 0) >= 1;
 
-        const initials =
-          (user?.firstName?.charAt(0) ?? "") + (user?.preferredLastName?.charAt(0) ?? "");
-
         const step = match({
           hasRequiredIdentificationLevel,
           account,
@@ -498,7 +495,7 @@ export const AccountActivationPage = ({
                       justifyContent="center"
                       style={styles.identityVerification}
                     >
-                      <Avatar initials={initials} size={96} />
+                      <Avatar user={user} size={96} />
                       <Space height={24} />
 
                       <LakeHeading align="center" level={3} variant="h3">

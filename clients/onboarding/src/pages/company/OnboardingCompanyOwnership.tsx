@@ -15,7 +15,6 @@ import { animations, breakpoints, colors, radii } from "@swan-io/lake/src/consta
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
@@ -215,13 +214,6 @@ const formatUboBirthAddress = ({
   return [birthCountry, birthCity, birthCityPostalCode].filter(Boolean).join(", ");
 };
 
-const getUboInitials = (ubo: LocalStateUbo) => {
-  return [ubo.firstName, ubo.lastName]
-    .map(name => name[0])
-    .filter(isNotNullishOrEmpty)
-    .join("");
-};
-
 type UboTileProps = {
   ubo: LocalStateUbo;
   companyName: string;
@@ -242,7 +234,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
           small ? (
             <Box>
               <Box direction="row" alignItems="center">
-                <Avatar initials={getUboInitials(ubo)} size={32} />
+                <Avatar user={ubo} size={32} />
 
                 {isUboInvalid(ubo) && (
                   <>
@@ -289,7 +281,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
             </Box>
           ) : (
             <Box direction="row" alignItems="center">
-              <Avatar initials={getUboInitials(ubo)} size={32} />
+              <Avatar user={ubo} size={32} />
               <Space width={24} />
 
               <Box style={styles.uboInfo}>

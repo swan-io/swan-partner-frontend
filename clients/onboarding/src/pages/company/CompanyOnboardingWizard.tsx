@@ -168,6 +168,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         .returnType<Organisation1FieldName | null>()
         .with("name", () => "name")
         .with("registrationNumber", () => "registrationNumber")
+        .with("vatNumber", () => "vatNumber")
         .with("taxIdentificationNumber", () => "taxIdentificationNumber")
         .with("residencyAddress.addressLine1", () => "address")
         .with("residencyAddress.city", () => "city")
@@ -364,6 +365,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
               initialIsRegistered={isRegistered ?? undefined}
               initialName={holder.name ?? ""}
               initialRegistrationNumber={holder.registrationNumber ?? ""}
+              initialVatNumber={holder.vatNumber ?? ""}
               initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
               initialAddressLine1={companyAddressLine1}
               initialCity={companyCity}

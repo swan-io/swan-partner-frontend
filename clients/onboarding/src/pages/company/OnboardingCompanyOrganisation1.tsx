@@ -51,11 +51,13 @@ import {
   getValidationErrorMessage,
   validateRequired,
   validateRequiredBoolean,
+  validateVatNumber,
 } from "../../utils/validation";
 
 export type Organisation1FieldName =
   | "name"
   | "registrationNumber"
+  | "vatNumber"
   | "taxIdentificationNumber"
   | "address"
   | "city"
@@ -74,6 +76,7 @@ type Props = {
   initialIsRegistered?: boolean;
   initialName: string;
   initialRegistrationNumber: string;
+  initialVatNumber: string;
   initialTaxIdentificationNumber: string;
   initialAddressLine1: string;
   initialCity: string;
@@ -111,6 +114,7 @@ export const OnboardingCompanyOrganisation1 = ({
   initialIsRegistered,
   initialName,
   initialRegistrationNumber,
+  initialVatNumber,
   initialTaxIdentificationNumber,
   initialAddressLine1,
   initialCity,
@@ -132,6 +136,8 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
+  // const isVatNumberRequired = accountCountry === "ITA";
+
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
       initialValue: initialIsRegistered,
@@ -149,6 +155,12 @@ export const OnboardingCompanyOrganisation1 = ({
         const isRegistered = getFieldValue("isRegistered");
         return isRegistered === true ? validateRequired(value) : undefined;
       },
+    },
+    vatNumber: {
+      initialValue: initialVatNumber,
+      sanitize: trim,
+      // validate: combineValidators(isVatNumberRequired && validateRequired, validateVatNumber),
+      validate: validateVatNumber,
     },
     taxIdentificationNumber: {
       initialValue: initialTaxIdentificationNumber,
@@ -208,7 +220,8 @@ export const OnboardingCompanyOrganisation1 = ({
           taxIdentificationNumber,
         };
 
-        const { isRegistered, name, registrationNumber, address, city, postalCode } = currentValues;
+        const { isRegistered, name, registrationNumber, vatNumber, address, city, postalCode } =
+          currentValues;
 
         updateOnboarding({
           input: {
@@ -216,6 +229,7 @@ export const OnboardingCompanyOrganisation1 = ({
             isRegistered,
             name,
             registrationNumber,
+            vatNumber: emptyToUndefined(vatNumber),
             taxIdentificationNumber,
             residencyAddress: {
               addressLine1: address,
@@ -235,6 +249,7 @@ export const OnboardingCompanyOrganisation1 = ({
                 const invalidFields = extractServerValidationErrors(error, path =>
                   match(path)
                     .with(["registrationNumber"] as const, ([fieldName]) => fieldName)
+                    .with(["vatNumber"] as const, ([fieldName]) => fieldName)
                     .with(["taxIdentificationNumber"] as const, ([fieldName]) => fieldName)
                     .with(["residencyAddress", "addressLine1"], () => "address" as const)
                     .with(["residencyAddress", "city"] as const, ([, fieldName]) => fieldName)
@@ -274,10 +289,11 @@ export const OnboardingCompanyOrganisation1 = ({
   useEffect(() => {
     match(companyInfo)
       .with({ __typename: "CompanyInfoBySirenSuccessPayload" }, ({ companyInfo }) => {
-        const { companyName, siren, headquarters } = companyInfo;
+        const { companyName, siren, headquarters, vatNumber } = companyInfo;
 
         setFieldValue("name", companyName);
         setFieldValue("registrationNumber", siren);
+        setFieldValue("vatNumber", vatNumber ?? "");
         setFieldValue("address", headquarters.address);
         setFieldValue("city", headquarters.town);
         setFieldValue("postalCode", headquarters.zipCode);
@@ -439,6 +455,27 @@ export const OnboardingCompanyOrganisation1 = ({
                 </FieldsListener>
 
                 <Space height={12} />
+
+                <Field name="vatNumber">
+                  {({ value, valid, error, onChange, ref }) => (
+                    <LakeLabel
+                      label={t("company.step.organisation1.vatLabel")}
+                      // optionalLabel={isVatNumberRequired ? undefined : t("common.optional")}
+                      optionalLabel={t("common.optional")}
+                      render={id => (
+                        <LakeTextInput
+                          id={id}
+                          ref={ref}
+                          placeholder={t("company.step.organisation1.vatPlaceholder")}
+                          value={value}
+                          valid={valid}
+                          error={error}
+                          onChangeText={onChange}
+                        />
+                      )}
+                    />
+                  )}
+                </Field>
 
                 {canSetTaxIdentification && (
                   <>

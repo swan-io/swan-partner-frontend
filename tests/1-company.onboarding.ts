@@ -117,6 +117,10 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   await expect(page.getByLabel("What’s your registration number")).toHaveValue("853827103");
 
+  await expect(page.getByLabel(t("onboarding.company.step.organisation1.vatLabel"))).toHaveValue(
+    "FR90853827103",
+  );
+
   await expect(
     page.getByLabel(t("onboarding.company.step.organisation1.addressLabel")),
   ).toHaveValue("95 AVENUE DU PRESIDENT WILSON");

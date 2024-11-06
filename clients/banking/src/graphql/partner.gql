@@ -1271,6 +1271,7 @@ fragment AccountMembership on AccountMembership {
         lastName
         phoneNumber
       }
+      emailVerifiedMatchError
       idVerifiedMatchError
     }
     ... on AccountMembershipInvitationSentStatusInfo {

@@ -518,6 +518,11 @@
       "StandingOrderConsentPendingStatusInfo",
       "StandingOrderEnabledStatusInfo"
     ],
+    "SupportingDocumentCollectionRelatedInfo": [
+      "SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo",
+      "SupportingDocumentCollectionOnboardingRelatedInfo",
+      "SupportingDocumentCollectionTransactionRelatedInfo"
+    ],
     "SupportingDocumentCollectionStatusInfo": [
       "SupportingDocumentCollectionApprovedStatusInfo",
       "SupportingDocumentCollectionCanceledStatusInfo",

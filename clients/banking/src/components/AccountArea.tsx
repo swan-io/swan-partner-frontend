@@ -474,12 +474,71 @@ export const AccountArea = ({
                         ) : (
                           <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                             {match({
+                              accountMembership,
                               status: account?.statusInfo.status,
                               balance:
                                 account?.balances?.available.value != null
                                   ? Number(account?.balances?.available.value)
                                   : null,
                             })
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                      emailVerifiedMatchError: true,
+                                    },
+                                  },
+                                },
+                                ({
+                                  accountMembership: { recommendedIdentificationLevel, email },
+                                }) => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="warning"
+                                          title={t("accountMembership.verifyEmailAlert")}
+                                          callToAction={
+                                            <LakeButton
+                                              size="small"
+                                              mode="tertiary"
+                                              color="warning"
+                                              icon="arrow-swap-regular"
+                                              onPress={() => {
+                                                const params = new URLSearchParams();
+
+                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "identificationLevel",
+                                                  recommendedIdentificationLevel,
+                                                );
+                                                params.set("email", email);
+
+                                                match(
+                                                  projectConfiguration.map(
+                                                    ({ projectId }) => projectId,
+                                                  ),
+                                                )
+                                                  .with(Option.P.Some(P.select()), projectId =>
+                                                    params.set("projectId", projectId),
+                                                  )
+                                                  .otherwise(() => {});
+
+                                                window.location.replace(
+                                                  `/auth/login?${params.toString()}`,
+                                                );
+                                              }}
+                                            >
+                                              {t("account.statusAlert.transferBalance")}
+                                            </LakeButton>
+                                          }
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
                               .with({ status: "Suspended" }, () => (
                                 <ResponsiveContainer breakpoint={breakpoints.large}>
                                   {({ large }) => (

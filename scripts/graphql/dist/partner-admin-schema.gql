@@ -610,6 +610,7 @@ enum AccountLanguage {
   nl
   es
   pt
+  fi
 }
 
 """
@@ -1244,6 +1245,11 @@ enum AuthenticatorStatus {
 
   """The authenticator was suspended - this status is final"""
   Suspended
+
+  """
+  This authenticator is not verified and the user hasn't validated any authentication factor.
+  """
+  WaitingForAuthentication
 }
 
 enum AuthenticatorType {
@@ -1463,11 +1469,18 @@ type CapitalDepositCaseEdge implements Edge {
 """Filters that can be applied when listing capital deposit cases"""
 input CapitalDepositCaseFiltersInput {
   """
-  Searches company shareholder name, individual shareholder first name, last name, and id
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Company shareholder's name
+   - Individual shareholder's first name
+   - Individual shareholder's last name
+   - Company name
+   - ID
   """
   search: String
 
-  """Status we want to filter on"""
+  """Filter by status"""
   status: [CapitalDepositCaseStatus!]
 }
 
@@ -7706,7 +7719,6 @@ input SimulateIncomingCardAuthorizationCardDetails {
 enum SimulateIncomingCardAuthorizationCardScheme {
   Visa
   Mastercard
-  Maestro
   CartesBancaires
 }
 
@@ -7723,7 +7735,6 @@ input SimulateIncomingCardAuthorizationInput {
   paymentLinkId: ID!
   authorization: SimulateIncomingCardAuthorizationAuthorization!
   threeDS: SimulateIncomingCardAuthorizationThreeDS!
-  autoCapture: Boolean!
   cardDetails: SimulateIncomingCardAuthorizationCardDetails!
 }
 

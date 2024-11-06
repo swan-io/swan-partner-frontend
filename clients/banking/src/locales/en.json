@@ -134,6 +134,7 @@
   "accountDetails.virtualIbans.status.suspended": "Suspended",
   "accountDetails.virtualIbans.tab": "Virtual IBANs",
   "accountDetails.zipcodeLabel": "Zip code",
+  "accountMembership.verifyEmailAlert": "Most actions aren't available because your email isn't verified yet",
   "accountStatements.action": "Action",
   "accountStatements.empty.subtitle": "Once you start generating custom statements, they'll be displayed here",
   "accountStatements.empty.title": "No custom account statements yet",

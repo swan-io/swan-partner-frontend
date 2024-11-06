@@ -394,8 +394,9 @@ export const OnboardingCompanyOwnership = ({
 
   const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    syncUbos([...currentUbos, { ...newUbo, errors: {} }]);
-    resetPageState();
+    syncUbos([...currentUbos, { ...newUbo, errors: {} }]).tap(() => {
+      resetPageState();
+    });
   };
 
   const updateUbo = (ubo: SaveValue) => {
@@ -404,9 +405,9 @@ export const OnboardingCompanyOwnership = ({
       currentUbos.map(item =>
         item[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : item,
       ),
-    );
-
-    resetPageState();
+    ).tap(() => {
+      resetPageState();
+    });
   };
 
   const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
@@ -419,11 +420,13 @@ export const OnboardingCompanyOwnership = ({
 
   const deleteUbo = () => {
     // Should be always true because we only open the modal when the pageState is deleting
-    if (pageState.type === "deleting") {
-      syncUbos(currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference));
+    if (pageState.type !== "deleting") {
+      return resetPageState();
     }
 
-    resetPageState();
+    syncUbos(currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference)).tap(() => {
+      resetPageState();
+    });
   };
 
   const onPressPrevious = () => {
@@ -431,12 +434,6 @@ export const OnboardingCompanyOwnership = ({
   };
 
   const syncUbos = (nextUbos: LocalStateUbo[]) => {
-    // if there are some ubos with errors, we don't submit
-    if (nextUbos.filter(isUboInvalid).length > 0) {
-      setShakeError.on();
-      return;
-    }
-
     const individualUltimateBeneficialOwners = nextUbos.map(
       ({
         residencyAddressCountry,
@@ -532,7 +529,12 @@ export const OnboardingCompanyOwnership = ({
   };
 
   const submitStep = () => {
-    syncUbos(currentUbos)?.tapOk(() => Router.push(nextStep, { onboardingId }));
+    // if there are some ubos with errors, we don't submit
+    if (currentUbos.filter(isUboInvalid).length > 0) {
+      setShakeError.on();
+    } else {
+      syncUbos(currentUbos).tapOk(() => Router.push(nextStep, { onboardingId }));
+    }
   };
 
   const onPressNext = () => {

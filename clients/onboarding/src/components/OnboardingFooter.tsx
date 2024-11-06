@@ -17,10 +17,6 @@ const styles = StyleSheet.create({
   containerDesktop: {
     paddingVertical: spacings[32],
   },
-  buttons: {
-    flex: 1,
-    maxWidth: 1280,
-  },
 });
 
 type Props = {
@@ -41,50 +37,41 @@ export const OnboardingFooter = ({
   return (
     <ResponsiveContainer style={styles.root}>
       {({ large, small }) => (
-        <>
-          <Box
-            direction="row"
-            justifyContent="center"
-            style={[styles.container, large && styles.containerDesktop]}
-          >
-            <Box
-              style={styles.buttons}
-              direction="row"
-              alignItems="center"
-              justifyContent={justifyContent}
-            >
-              {onPrevious ? (
-                <>
-                  <TrackPressable action="Go back">
-                    <LakeButton
-                      color="gray"
-                      mode="secondary"
-                      size={large ? "large" : "small"}
-                      onPress={onPrevious}
-                      grow={small}
-                    >
-                      {t("wizard.back")}
-                    </LakeButton>
-                  </TrackPressable>
-
-                  <Space width={16} />
-                </>
-              ) : null}
-
-              <TrackPressable action="Go next">
+        <Box
+          direction="row"
+          justifyContent={justifyContent}
+          style={[styles.container, large && styles.containerDesktop]}
+        >
+          {onPrevious ? (
+            <>
+              <TrackPressable action="Go back">
                 <LakeButton
-                  loading={loading}
-                  color="partner"
+                  color="gray"
+                  mode="secondary"
                   size={large ? "large" : "small"}
-                  onPress={onNext}
+                  onPress={onPrevious}
                   grow={small}
                 >
-                  {t(nextLabel)}
+                  {t("wizard.back")}
                 </LakeButton>
               </TrackPressable>
-            </Box>
-          </Box>
-        </>
+
+              <Space width={16} />
+            </>
+          ) : null}
+
+          <TrackPressable action="Go next">
+            <LakeButton
+              loading={loading}
+              color="partner"
+              size={large ? "large" : "small"}
+              onPress={onNext}
+              grow={small}
+            >
+              {t(nextLabel)}
+            </LakeButton>
+          </TrackPressable>
+        </Box>
       )}
     </ResponsiveContainer>
   );

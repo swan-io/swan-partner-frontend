@@ -9,6 +9,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
 import { AccountCountry, ScheduleStandingOrderDocument } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -46,7 +47,6 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
-  canViewAccount: boolean;
 };
 
 export const TransferRecurringWizard = ({
@@ -54,8 +54,8 @@ export const TransferRecurringWizard = ({
   accountCountry,
   accountId,
   accountMembershipId,
-  canViewAccount,
 }: Props) => {
+  const canReadTransaction = usePermission("readTransaction");
   const [scheduleStandingOrder, standingOrderScheduling] = useMutation(
     ScheduleStandingOrderDocument,
   );
@@ -72,7 +72,7 @@ export const TransferRecurringWizard = ({
   }) => {
     const consentRedirectUrl =
       window.location.origin +
-      (canViewAccount
+      (canReadTransaction
         ? Router.AccountPaymentsRecurringTransferList({
             accountMembershipId,
             kind: "standingOrder",

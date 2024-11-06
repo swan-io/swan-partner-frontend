@@ -184,7 +184,6 @@ type Props = {
   onPressClose?: () => void;
   accountMembership: AccountMembershipFragment;
   preselectedAccountMembership?: AccountMembershipFragment;
-  physicalCardOrderVisible: boolean;
 };
 
 const Title = ({ visible, children }: { visible: boolean; children: string }) => (
@@ -203,7 +202,6 @@ export const CardWizard = ({
   accountMembership,
   onPressClose,
   preselectedAccountMembership,
-  physicalCardOrderVisible,
 }: Props) => {
   const [data, { setVariables }] = useQuery(GetCardProductsDocument, {
     accountMembershipId: accountMembership.id,
@@ -578,7 +576,6 @@ export const CardWizard = ({
                           ref={cardWizardFormatRef}
                           cardProduct={cardProduct}
                           initialCardFormat={cardFormat}
-                          physicalCardOrderVisible={physicalCardOrderVisible}
                           onSubmit={cardFormat =>
                             setStep({ name: "CardProductSettings", cardProduct, cardFormat })
                           }
@@ -597,7 +594,6 @@ export const CardWizard = ({
                           nonMainCurrencyTransactions,
                         }) => (
                           <CardWizardSettings
-                            canManageCards={accountMembership.canManageCards}
                             ref={cardWizardSettingsRef}
                             cardProduct={cardProduct}
                             cardFormat={cardFormat}

@@ -35,7 +35,7 @@ import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partne
 import { env } from "../utils/env";
 import { partnerAdminClient } from "../utils/gql";
 import { t } from "../utils/i18n";
-import { Router, accountAreaRoutes } from "../utils/routes";
+import { Router, accountRoutes } from "../utils/routes";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
 import { SandboxUserPickerContents, SandboxUserTag } from "./SandboxUserPicker";
@@ -164,7 +164,7 @@ export const NavigationTabBar = ({
   const fullName = user.fullName;
 
   const [screen, setScreen] = useState<null | "menu" | "memberships" | "sandboxUsers">(null);
-  const route = Router.useRoute([...accountAreaRoutes, "AccountActivation", "AccountProfile"]);
+  const route = Router.useRoute(accountRoutes);
 
   const activeMenuItem =
     entries.find(item => item.matchRoutes.some(name => name === route?.name)) ?? entries[0];

@@ -18,6 +18,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageQuery, IdentificationFragment, UpdateCardDocument } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { getMemberName } from "../utils/accountMembership";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -46,7 +47,6 @@ type Props = {
   isCurrentUserCardOwner: boolean;
   onRefreshAccountRequest: () => void;
   lastRelevantIdentification: Option<IdentificationFragment>;
-  canManageCards: boolean;
 };
 
 export const CardItemSettings = ({
@@ -58,12 +58,13 @@ export const CardItemSettings = ({
   isCurrentUserCardOwner,
   onRefreshAccountRequest,
   lastRelevantIdentification,
-  canManageCards,
 }: Props) => {
   const [updateCard, cardUpdate] = useMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
   const settingsRef = useRef<CardWizardSettingsRef | null>(null);
+
+  const canUpdateCard = usePermission("updateCard");
 
   const onSubmit = ({
     spendingLimit,
@@ -138,7 +139,7 @@ export const CardItemSettings = ({
     </View>
   ) : (
     <>
-      {!canManageCards && (
+      {canUpdateCard ? null : (
         <>
           <LakeAlert title={t("card.settings.notAllowed")} variant="info" />
           <Space height={24} />
@@ -162,7 +163,6 @@ export const CardItemSettings = ({
         }}
         onSubmit={onSubmit}
         accountHolder={accountHolder}
-        canManageCards={canManageCards}
       />
 
       {match({
@@ -222,11 +222,11 @@ export const CardItemSettings = ({
             <View />
           ))}
 
-        {canManageCards && (
+        {canUpdateCard ? (
           <LakeButton color="current" onPress={onPressSubmit} loading={cardUpdate.isLoading()}>
             {t("common.save")}
           </LakeButton>
-        )}
+        ) : null}
       </LakeButtonGroup>
 
       <CardCancelConfirmationModal

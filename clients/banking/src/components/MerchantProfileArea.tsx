@@ -27,24 +27,9 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   merchantProfileId: string;
-  merchantProfileCardVisible: boolean;
-  merchantProfileSepaDirectDebitCoreVisible: boolean;
-  merchantProfileSepaDirectDebitB2BVisible: boolean;
-  merchantProfileInternalDirectDebitCoreVisible: boolean;
-  merchantProfileInternalDirectDebitB2BVisible: boolean;
-  merchantProfileCheckVisible: boolean;
 };
 
-export const AccountMerchantsProfileArea = ({
-  accountMembershipId,
-  merchantProfileId,
-  merchantProfileCardVisible,
-  merchantProfileSepaDirectDebitCoreVisible,
-  merchantProfileSepaDirectDebitB2BVisible,
-  merchantProfileInternalDirectDebitCoreVisible,
-  merchantProfileInternalDirectDebitB2BVisible,
-  merchantProfileCheckVisible,
-}: Props) => {
+export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfileId }: Props) => {
   const route = Router.useRoute([
     "AccountMerchantsProfileSettings",
     "AccountMerchantsProfilePaymentLinkArea",
@@ -116,20 +101,6 @@ export const AccountMerchantsProfileArea = ({
                       params={params}
                       merchantProfile={merchantProfile}
                       large={large}
-                      merchantProfileCardVisible={merchantProfileCardVisible}
-                      merchantProfileSepaDirectDebitCoreVisible={
-                        merchantProfileSepaDirectDebitCoreVisible
-                      }
-                      merchantProfileSepaDirectDebitB2BVisible={
-                        merchantProfileSepaDirectDebitB2BVisible
-                      }
-                      merchantProfileInternalDirectDebitCoreVisible={
-                        merchantProfileInternalDirectDebitCoreVisible
-                      }
-                      merchantProfileInternalDirectDebitB2BVisible={
-                        merchantProfileInternalDirectDebitB2BVisible
-                      }
-                      merchantProfileCheckVisible={merchantProfileCheckVisible}
                       onUpdate={() => {
                         refresh();
                       }}

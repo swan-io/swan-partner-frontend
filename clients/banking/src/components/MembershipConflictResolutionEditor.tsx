@@ -14,6 +14,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountMembershipFragment, UpdateAccountMembershipDocument } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -46,6 +47,7 @@ export const MembershipConflictResolutionEditor = ({
   accountMembership,
   onAction,
 }: Props) => {
+  const canUpdateMembership = usePermission("updateAccountMembership");
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
@@ -212,24 +214,26 @@ export const MembershipConflictResolutionEditor = ({
         </View>
       </ScrollView>
 
-      <LakeButtonGroup>
-        <LakeButton
-          color="current"
-          onPress={acceptMembership}
-          loading={membershipUpdate.isLoading()}
-        >
-          {t("membershipDetail.bindingUserError.accept")}
-        </LakeButton>
+      {canUpdateMembership ? (
+        <LakeButtonGroup>
+          <LakeButton
+            color="current"
+            onPress={acceptMembership}
+            loading={membershipUpdate.isLoading()}
+          >
+            {t("membershipDetail.bindingUserError.accept")}
+          </LakeButton>
 
-        <LakeButton
-          color="negative"
-          mode="secondary"
-          icon="subtract-circle-regular"
-          onPress={() => setIsCancelConfirmationModalOpen(true)}
-        >
-          {t("membershipDetail.bindingUserError.blockPermanently")}
-        </LakeButton>
-      </LakeButtonGroup>
+          <LakeButton
+            color="negative"
+            mode="secondary"
+            icon="subtract-circle-regular"
+            onPress={() => setIsCancelConfirmationModalOpen(true)}
+          >
+            {t("membershipDetail.bindingUserError.blockPermanently")}
+          </LakeButton>
+        </LakeButtonGroup>
+      ) : null}
 
       <MembershipCancelConfirmationModal
         visible={isCancelConfirmationModalOpen}

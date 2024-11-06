@@ -22,6 +22,7 @@ import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { TransactionFilters, TransactionListFilter } from "../components/TransactionListFilter";
 import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -52,9 +53,6 @@ const PAGE_SIZE = 20;
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  accountStatementsVisible: boolean;
-  canViewAccount: boolean;
   transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>;
   params: {
     isAfterUpdatedAt?: string | undefined;
@@ -78,14 +76,13 @@ export const TransactionListPage = ({
   accountMembershipId,
   transferConsent,
   params,
-  canQueryCardOnTransaction,
-  accountStatementsVisible,
-  canViewAccount,
 }: Props) => {
   useTransferToastWithRedirect(transferConsent, () =>
     Router.replace("AccountTransactionsListRoot", { accountMembershipId }),
   );
   const route = Router.useRoute(["AccountTransactionsListDetail"]);
+
+  const canReadAccountStatement = usePermission("readAccountStatement");
 
   const filters: TransactionFilters = useMemo(() => {
     return {
@@ -135,6 +132,7 @@ export const TransactionListPage = ({
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
+  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: PAGE_SIZE,
@@ -145,7 +143,6 @@ export const TransactionListPage = ({
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
-    canViewAccount,
   });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -183,7 +180,7 @@ export const TransactionListPage = ({
                 });
               }}
             >
-              {accountStatementsVisible ? (
+              {canReadAccountStatement ? (
                 <LakeButton
                   onPress={() =>
                     Router.push("AccountTransactionsListStatementsRoot", {
@@ -290,8 +287,6 @@ export const TransactionListPage = ({
                                       accountMembershipId={accountMembershipId}
                                       large={large}
                                       transactionId={transactionId}
-                                      canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                      canViewAccount={canViewAccount}
                                     />
 
                                     <Space height={24} />
@@ -313,8 +308,6 @@ export const TransactionListPage = ({
                                   accountMembershipId={accountMembershipId}
                                   large={large}
                                   transactionId={transaction.id}
-                                  canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                  canViewAccount={canViewAccount}
                                 />
                               )}
                               closeLabel={t("common.closeButton")}

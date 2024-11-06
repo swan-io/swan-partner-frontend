@@ -63,8 +63,6 @@ type Props = {
   accountCountry: CountryCCA3;
   shouldDisplayIdVerification: boolean;
   onAccountMembershipUpdate: () => void;
-  canAddCard: boolean;
-  physicalCardOrderVisible: boolean;
   onRefreshRequest: () => void;
   large: boolean;
   params: {
@@ -86,8 +84,6 @@ export const MembershipDetailArea = ({
   accountCountry,
   shouldDisplayIdVerification,
   onAccountMembershipUpdate,
-  canAddCard,
-  physicalCardOrderVisible,
   onRefreshRequest,
   large,
   params,
@@ -365,13 +361,10 @@ export const MembershipDetailArea = ({
                           }) => (
                             <View style={large ? styles.cardListLarge : styles.cardList}>
                               <AccountMembersDetailsCardList
-                                canAddCard={canAddCard}
                                 editingAccountMembership={accountMembership}
                                 currentUserAccountMembership={currentUserAccountMembership}
                                 currentUserAccountMembershipId={currentUserAccountMembershipId}
-                                totalDisplayableCardCount={accountMembership.allCards.totalCount}
                                 params={params}
-                                physicalCardOrderVisible={physicalCardOrderVisible}
                               />
                             </View>
                           ),

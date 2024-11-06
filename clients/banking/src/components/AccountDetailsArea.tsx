@@ -7,6 +7,7 @@ import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";
@@ -25,8 +26,6 @@ type Props = {
   accountMembershipLanguage: AccountLanguage;
   accountId: string;
   accountMembershipId: string;
-  canManageAccountMembership: boolean;
-  virtualIbansVisible: boolean;
   isIndividual: boolean;
 };
 
@@ -34,10 +33,9 @@ export const AccountDetailsArea = ({
   accountMembershipLanguage,
   accountId,
   accountMembershipId,
-  canManageAccountMembership,
-  virtualIbansVisible,
   isIndividual,
 }: Props) => {
+  const canReadVirtualIBAN = usePermission("readVirtualIBAN");
   const route = Router.useRoute([
     "AccountDetailsIban",
     "AccountDetailsVirtualIbans",
@@ -51,7 +49,7 @@ export const AccountDetailsArea = ({
         label: t("accountDetails.iban.tab"),
         url: Router.AccountDetailsIban({ accountMembershipId }),
       },
-      ...(virtualIbansVisible
+      ...(canReadVirtualIBAN
         ? [
             {
               label: t("accountDetails.virtualIbans.tab"),
@@ -73,7 +71,7 @@ export const AccountDetailsArea = ({
         url: Router.AccountDetailsSettings({ accountMembershipId }),
       },
     ],
-    [accountMembershipId, virtualIbansVisible, isIndividual],
+    [accountMembershipId, canReadVirtualIBAN, isIndividual],
   );
 
   return (
@@ -108,7 +106,6 @@ export const AccountDetailsArea = ({
                 accountMembershipLanguage={accountMembershipLanguage}
                 accountId={accountId}
                 largeBreakpoint={large}
-                canManageAccountMembership={canManageAccountMembership}
               />
             ))
 

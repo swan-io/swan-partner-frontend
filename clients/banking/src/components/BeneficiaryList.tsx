@@ -49,6 +49,7 @@ import {
   BeneficiariesListQueryVariables,
   BeneficiaryType,
 } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
@@ -325,28 +326,20 @@ type Filters = FiltersState<typeof filtersDefinition>;
 const BeneficiaryListImpl = ({
   accountId,
   accountCountry,
-  canManageBeneficiaries,
   hasSearchOrFilters,
   rowHeight,
   beneficiaries,
   isLoading,
-  transferCreationVisible,
-  canViewAccount,
-  canQueryCardOnTransaction,
   params,
   setVariables,
 }: {
   accountId: string;
   accountCountry: AccountCountry;
-  canManageBeneficiaries: boolean;
   hasSearchOrFilters: boolean;
   rowHeight: number;
   beneficiaries: Beneficiaries;
   isLoading: boolean;
   params: RouteParams;
-  transferCreationVisible: boolean;
-  canViewAccount: boolean;
-  canQueryCardOnTransaction: boolean;
   setVariables: (variables: Partial<BeneficiariesListQueryVariables>) => void;
 }) => {
   const route = Router.useRoute(["AccountPaymentsBeneficiariesDetails"]);
@@ -428,12 +421,8 @@ const BeneficiaryListImpl = ({
               id={item.id}
               accountCountry={accountCountry}
               accountId={accountId}
-              canManageBeneficiaries={canManageBeneficiaries}
-              canQueryCardOnTransaction={canQueryCardOnTransaction}
-              canViewAccount={canViewAccount}
               large={large}
               params={route.params}
-              transferCreationVisible={transferCreationVisible}
             />
           )
         }
@@ -446,19 +435,13 @@ export const BeneficiaryList = ({
   accountId,
   accountCountry,
   params,
-  transferCreationVisible,
-  canManageBeneficiaries,
-  canViewAccount,
-  canQueryCardOnTransaction,
 }: {
   accountId: string;
   accountCountry: AccountCountry;
   params: RouteParams;
-  transferCreationVisible: boolean;
-  canManageBeneficiaries: boolean;
-  canViewAccount: boolean;
-  canQueryCardOnTransaction: boolean;
 }) => {
+  const canCreateTrustedBeneficiary = usePermission("createTrustedBeneficiary");
+
   const { filters, canceled, label, hasSearchOrFilters } = useMemo(() => {
     const filters: Filters = {
       currency: params.currency,
@@ -526,7 +509,7 @@ export const BeneficiaryList = ({
           <>
             <Box style={[styles.header, large && styles.headerLarge]}>
               <Box direction="row" alignItems="center">
-                {canManageBeneficiaries && (
+                {canCreateTrustedBeneficiary ? (
                   <>
                     <LakeButton
                       icon="add-circle-filled"
@@ -543,7 +526,7 @@ export const BeneficiaryList = ({
 
                     <Space width={16} />
                   </>
-                )}
+                ) : null}
 
                 <FilterChooser
                   large={large}
@@ -643,15 +626,11 @@ export const BeneficiaryList = ({
                 <BeneficiaryListImpl
                   accountId={accountId}
                   accountCountry={accountCountry}
-                  canManageBeneficiaries={canManageBeneficiaries}
                   hasSearchOrFilters={hasSearchOrFilters}
                   rowHeight={rowHeight}
                   beneficiaries={beneficiaries}
                   isLoading={isLoading}
                   params={params}
-                  transferCreationVisible={transferCreationVisible}
-                  canViewAccount={canViewAccount}
-                  canQueryCardOnTransaction={canQueryCardOnTransaction}
                   setVariables={setVariables}
                 />
               ))

@@ -31,6 +31,7 @@ import {
   SpendingLimitInput,
   SpendingLimitPeriodInput,
 } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { CardFormat } from "./CardWizardFormat";
 
@@ -138,7 +139,6 @@ type Props = {
   initialSettings?: OptionalCardSettings;
   onSubmit: (cardSettings: CardSettings) => void;
   accountHolder?: AccountHolderForCardSettingsFragment;
-  canManageCards: boolean;
   maxSpendingLimit?: { amount: Amount };
 };
 
@@ -231,17 +231,10 @@ const PERIODS = [
 
 export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
   (
-    {
-      accountHolder,
-      cardFormat,
-      initialSettings,
-      cardProduct,
-      canManageCards,
-      onSubmit,
-      maxSpendingLimit,
-    }: Props,
+    { accountHolder, cardFormat, initialSettings, cardProduct, onSubmit, maxSpendingLimit }: Props,
     ref,
   ) => {
+    const canUpdateCard = usePermission("updateCard");
     const spendingLimitMaxValue = match({
       accountHolderType: accountHolder?.info.__typename,
       maxSpendingLimit,
@@ -347,7 +340,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                 render={id => (
                   <LakeTextInput
                     id={id}
-                    disabled={!canManageCards}
+                    disabled={!canUpdateCard}
                     value={currentSettings.cardName ?? ""}
                     onChangeText={cardName =>
                       setCurrentSettings(settings => ({
@@ -396,7 +389,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                                         onChangeText={setDirtyValue}
                                         onBlur={sanitizeInput}
                                         inputMode="decimal"
-                                        disabled={!canManageCards}
+                                        disabled={!canUpdateCard}
                                       />
                                     </View>
                                   </Box>
@@ -406,7 +399,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                                     min={0}
                                     max={spendingLimitMaxValue}
                                     step={1}
-                                    disabled={!canManageCards}
+                                    disabled={!canUpdateCard}
                                     onChange={value =>
                                       setCurrentSettings(settings => ({
                                         ...settings,
@@ -429,7 +422,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                                   onChangeText={setDirtyValue}
                                   onBlur={sanitizeInput}
                                   inputMode="decimal"
-                                  disabled={!canManageCards}
+                                  disabled={!canUpdateCard}
                                 />
                               )
                             }
@@ -447,7 +440,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                           id={id}
                           items={PERIODS}
                           value={currentSettings.spendingLimit.period}
-                          disabled={!canManageCards}
+                          disabled={!canUpdateCard}
                           onValueChange={period =>
                             setCurrentSettings({
                               ...currentSettings,
@@ -473,7 +466,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                           onChangeText={setDirtyValue}
                           onBlur={sanitizeInput}
                           inputMode="decimal"
-                          disabled={!canManageCards}
+                          disabled={!canUpdateCard}
                           error={
                             (validation?.includes("InvalidAmount") ?? false)
                               ? t("common.form.invalidAmount")
@@ -500,7 +493,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     onChange={eCommerce =>
                       setCurrentSettings(settings => ({ ...settings, eCommerce }))
                     }
-                    disabled={!canManageCards}
+                    disabled={!canUpdateCard}
                     desktop={large}
                   />
                 </View>
@@ -514,7 +507,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     onChange={withdrawal =>
                       setCurrentSettings(settings => ({ ...settings, withdrawal }))
                     }
-                    disabled={!canManageCards}
+                    disabled={!canUpdateCard}
                     desktop={large}
                   />
                 </View>
@@ -528,7 +521,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     onChange={nonMainCurrencyTransactions =>
                       setCurrentSettings(settings => ({ ...settings, nonMainCurrencyTransactions }))
                     }
-                    disabled={!canManageCards}
+                    disabled={!canUpdateCard}
                     desktop={large}
                   />
                 </View>
@@ -542,7 +535,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     onChange={international =>
                       setCurrentSettings(settings => ({ ...settings, international }))
                     }
-                    disabled={!canManageCards}
+                    disabled={!canUpdateCard}
                     desktop={large}
                   />
                 </View>
@@ -561,7 +554,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                     },
                   })
                 }
-                disabled={!canManageCards}
+                disabled={!canUpdateCard}
                 renderItem={period => {
                   return (
                     <View style={styles.item}>

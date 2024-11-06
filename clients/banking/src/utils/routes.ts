@@ -133,17 +133,17 @@ type Routes = InferRoutes<typeof Router>;
 export type RouteName = keyof Routes;
 export type GetRouteParams<T extends RouteName> = Routes[T];
 
-export const accountMinimalRoutes = [
+export const accountRoutes = [
   "AccountRoot",
   "AccountProfile",
-] as const satisfies RouteName[];
-
-export const historyMenuRoutes = [
-  "AccountTransactionsArea",
   "AccountActivation",
+  "AccountTransactionsArea",
+  "AccountDetailsArea",
+  "AccountPaymentsArea",
+  "AccountCardsArea",
+  "AccountMembersArea",
+  "AccountMerchantsArea",
 ] as const satisfies RouteName[];
-
-export const paymentMenuRoutes = ["AccountPaymentsArea"] as const satisfies RouteName[];
 
 export const paymentRoutes = [
   "AccountPaymentsRoot",
@@ -153,15 +153,6 @@ export const paymentRoutes = [
   "AccountPaymentsBeneficiariesList",
   "AccountPaymentsBeneficiariesDetails",
   "AccountPaymentsBeneficiariesNew",
-] as const satisfies RouteName[];
-
-export const accountAreaRoutes = [
-  "AccountTransactionsArea",
-  "AccountPaymentsArea",
-  "AccountCardsArea",
-  "AccountMembersArea",
-  "AccountDetailsArea",
-  "AccountMerchantsArea",
 ] as const satisfies RouteName[];
 
 export const accountTransactionsRoutes = [

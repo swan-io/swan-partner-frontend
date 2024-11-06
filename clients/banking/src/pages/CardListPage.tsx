@@ -18,6 +18,7 @@ import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { CardListPageDocument } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 
@@ -39,8 +40,6 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  canAddCard: boolean;
-  cardOrderVisible: boolean;
   accountMembershipId: string;
   accountId: string | undefined;
   totalDisplayableCardCount: number;
@@ -53,13 +52,12 @@ const ACTIVE_STATUSES = ["Processing" as const, "Enabled" as const];
 const CANCELED_STATUSES = ["Canceling" as const, "Canceled" as const];
 
 export const CardListPage = ({
-  canAddCard,
-  cardOrderVisible,
   accountMembershipId,
   accountId,
   totalDisplayableCardCount,
   params,
 }: Props) => {
+  const canOrderCard = usePermission("addCard");
   const filters: CardFilters = useMemo(() => {
     return {
       type: isNotNullish(params.type)
@@ -95,7 +93,7 @@ export const CardListPage = ({
       title={t("cardList.noResults")}
       subtitle={t("cardList.noResultsDescription")}
     >
-      {canAddCard && cardOrderVisible && (
+      {canOrderCard ? (
         <LakeButtonGroup>
           <LakeButton
             size="small"
@@ -106,13 +104,13 @@ export const CardListPage = ({
             {t("common.new")}
           </LakeButton>
         </LakeButtonGroup>
-      )}
+      ) : null}
     </EmptyView>
   );
 
   const cards = data.mapOk(data => data.cards);
 
-  if (totalDisplayableCardCount === 0 && canAddCard && cardOrderVisible) {
+  if (totalDisplayableCardCount === 0 && canOrderCard) {
     return <View style={styles.empty}>{empty}</View>;
   }
 
@@ -137,7 +135,7 @@ export const CardListPage = ({
                 Router.replace("AccountCardsList", { accountMembershipId, ...params, status });
               }}
             >
-              {canAddCard && cardOrderVisible ? (
+              {canOrderCard ? (
                 <LakeButton
                   size="small"
                   icon="add-circle-filled"

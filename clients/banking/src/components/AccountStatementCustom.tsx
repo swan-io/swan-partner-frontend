@@ -38,6 +38,7 @@ import {
   GenerateAccountStatementDocument,
   StatementType,
 } from "../graphql/partner";
+import { usePermission } from "../hooks/usePermission";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
 import { Connection } from "./Connection";
@@ -440,6 +441,8 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
   // it avoid to animate the first time the list is displayed
   const [newWasOpened, setNewWasOpened] = useState(false);
 
+  const canGenerateAccountStatement = usePermission("generateAccountStatement");
+
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
   const [data, { isLoading, reload, setVariables }] = useQuery(AccountStatementsPageDocument, {
     first: PER_PAGE,
@@ -480,7 +483,8 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                     >
                       {displayedView === "list" ? (
                         <>
-                          {isNotNullish(account) &&
+                          {canGenerateAccountStatement &&
+                            isNotNullish(account) &&
                             isNotNullish(account.statements) &&
                             account.statements.totalCount > 0 && (
                               <>
@@ -552,19 +556,23 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                                     title={t("accountStatements.empty.title")}
                                     subtitle={t("accountStatements.empty.subtitle")}
                                   >
-                                    <Space height={24} />
+                                    {canGenerateAccountStatement ? (
+                                      <>
+                                        <Space height={24} />
 
-                                    <LakeButton
-                                      size="small"
-                                      icon="add-circle-filled"
-                                      onPress={() => {
-                                        setNewWasOpened(true);
-                                        setDisplayedView("new");
-                                      }}
-                                      color="current"
-                                    >
-                                      {t("common.new")}
-                                    </LakeButton>
+                                        <LakeButton
+                                          size="small"
+                                          icon="add-circle-filled"
+                                          onPress={() => {
+                                            setNewWasOpened(true);
+                                            setDisplayedView("new");
+                                          }}
+                                          color="current"
+                                        >
+                                          {t("common.new")}
+                                        </LakeButton>
+                                      </>
+                                    ) : null}
                                   </EmptyView>
                                 )}
                                 smallColumns={smallColumns}

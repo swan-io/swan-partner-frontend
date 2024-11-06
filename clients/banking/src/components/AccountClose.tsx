@@ -312,8 +312,6 @@ const TransferScreen = ({
         accountId={accountId}
         isAccountClosing={true}
         accountMembershipId={accountMembershipId}
-        canViewAccount={true} // guaranteed as legal rep
-        canManageBeneficiaries={true} // guaranteed as legal rep
         onPressClose={() => Router.push("AccountRoot", { accountMembershipId })}
       />
     ))

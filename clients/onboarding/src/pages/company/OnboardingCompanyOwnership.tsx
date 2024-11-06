@@ -394,14 +394,14 @@ export const OnboardingCompanyOwnership = ({
 
   const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    syncUbos([...currentUbos, { ...newUbo, errors: {} }]).tap(() => {
+    updateOnboardingUbos([...currentUbos, { ...newUbo, errors: {} }]).tap(() => {
       resetPageState();
     });
   };
 
   const updateUbo = (ubo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    syncUbos(
+    updateOnboardingUbos(
       currentUbos.map(item =>
         item[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : item,
       ),
@@ -424,7 +424,9 @@ export const OnboardingCompanyOwnership = ({
       return resetPageState();
     }
 
-    syncUbos(currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference)).tap(() => {
+    updateOnboardingUbos(
+      currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference),
+    ).tap(() => {
       resetPageState();
     });
   };
@@ -433,7 +435,7 @@ export const OnboardingCompanyOwnership = ({
     Router.push(previousStep, { onboardingId });
   };
 
-  const syncUbos = (nextUbos: LocalStateUbo[]) => {
+  const updateOnboardingUbos = (nextUbos: LocalStateUbo[]) => {
     const individualUltimateBeneficialOwners = nextUbos.map(
       ({
         residencyAddressCountry,
@@ -531,10 +533,12 @@ export const OnboardingCompanyOwnership = ({
   const submitStep = () => {
     // if there are some ubos with errors, we don't submit
     if (currentUbos.filter(isUboInvalid).length > 0) {
-      setShakeError.on();
-    } else {
-      syncUbos(currentUbos).tapOk(() => Router.push(nextStep, { onboardingId }));
+      return setShakeError.on();
     }
+
+    updateOnboardingUbos(currentUbos).tapOk(() => {
+      Router.push(nextStep, { onboardingId });
+    });
   };
 
   const onPressNext = () => {

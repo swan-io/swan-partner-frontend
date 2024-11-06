@@ -392,6 +392,8 @@ export const OnboardingCompanyOwnership = ({
   const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
     setEditableUbos(ubos => [...ubos, { ...newUbo, errors: {} }]);
+    submitStep(false);
+
     resetPageState();
   };
 
@@ -400,6 +402,8 @@ export const OnboardingCompanyOwnership = ({
     setEditableUbos(ubos =>
       ubos.map(u => (u[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : u)),
     );
+    submitStep(false);
+
     resetPageState();
   };
 
@@ -414,7 +418,7 @@ export const OnboardingCompanyOwnership = ({
   const deleteUbo = () => {
     // Should be always true because we only open the modal when the pageState is deleting
     if (pageState.type === "deleting") {
-      setEditableUbos(ubos => ubos.filter(u => u[REFERENCE_SYMBOL] !== pageState.reference));
+      submitStep(false);
     }
     resetPageState();
   };
@@ -423,7 +427,7 @@ export const OnboardingCompanyOwnership = ({
     Router.push(previousStep, { onboardingId });
   };
 
-  const submitStep = () => {
+  const submitStep = (shouldGoNext: boolean) => {
     // if there are some ubos with errors, we don't submit
     if (editableUbos.filter(isUboInvalid).length > 0) {
       setShakeError.on();
@@ -509,16 +513,53 @@ export const OnboardingCompanyOwnership = ({
         };
       },
     );
+
+    // let uboToUpdate;
+    // match(pageState)
+    //   .with(
+    //     { type: "deleting" },
+    //     ({ reference }) =>
+    //       (uboToUpdate = individualUltimateBeneficialOwners.filter(
+    //         u => u[REFERENCE_SYMBOL] !== reference,
+    //       )),
+    //   )
+    //   .with(
+    //     { type: "edit" },
+    //     () =>
+    //       (uboToUpdate = individualUltimateBeneficialOwners.map(u =>
+    //         u[REFERENCE_SYMBOL] === individualUltimateBeneficialOwners[REFERENCE_SYMBOL]
+    //           ? { ...individualUltimateBeneficialOwners, errors: {} }
+    //           : u,
+    //       )),
+    //   )
+    //   .otherwise(() => (uboToUpdate = individualUltimateBeneficialOwners));
+    // .with({type:"add"}, ()=> )
+
+    let deletedUbo;
+    if (pageState.type === "deleting") {
+      deletedUbo = individualUltimateBeneficialOwners.filter(
+        u => u[REFERENCE_SYMBOL] !== pageState.reference,
+      );
+    }
+
     updateOnboarding({
       input: {
         onboardingId,
-        individualUltimateBeneficialOwners,
+        individualUltimateBeneficialOwners: deletedUbo ?? individualUltimateBeneficialOwners,
+        // individualUltimateBeneficialOwners: uboToUpdate,
       },
       language: locale.language,
     })
       .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => Router.push(nextStep, { onboardingId }))
+      .tapOk(() => {
+        if (pageState.type === "deleting") {
+          setEditableUbos(ubos => ubos.filter(u => u[REFERENCE_SYMBOL] !== pageState.reference));
+        }
+        if (shouldGoNext) {
+          Router.push(nextStep, { onboardingId });
+        }
+      })
       .tapError(error => {
         showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
       });
@@ -529,7 +570,7 @@ export const OnboardingCompanyOwnership = ({
       setShowConfirmNoUboModal.on();
       return;
     }
-    submitStep();
+    submitStep(true);
   };
 
   return (
@@ -619,7 +660,7 @@ export const OnboardingCompanyOwnership = ({
           openNewUbo();
         }}
         cancelText={t("company.step.owners.confirmModal.next")}
-        onCancel={submitStep}
+        onCancel={() => submitStep(true)}
         loading={updateResult.isLoading()}
       />
 

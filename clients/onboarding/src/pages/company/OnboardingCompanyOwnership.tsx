@@ -27,7 +27,7 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
@@ -349,9 +349,12 @@ export const OnboardingCompanyOwnership = ({
   ubos,
 }: Props) => {
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
-  const [editableUbos, setEditableUbos] = useState(() =>
-    ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
+
+  const currentUbos = useMemo(
+    () => ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
+    [accountCountry, ubos],
   );
+
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
   const [showConfirmNoUboModal, setShowConfirmNoUboModal] = useBoolean(false);
@@ -391,16 +394,20 @@ export const OnboardingCompanyOwnership = ({
 
   const addUbo = (newUbo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    setEditableUbos(ubos => [...ubos, { ...newUbo, errors: {} }]);
-    resetPageState();
+    updateOnboardingUbos([...currentUbos, { ...newUbo, errors: {} }]).tap(() => {
+      resetPageState();
+    });
   };
 
   const updateUbo = (ubo: SaveValue) => {
     // errors is empty because beneficiaries form already validates the ubo
-    setEditableUbos(ubos =>
-      ubos.map(u => (u[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : u)),
-    );
-    resetPageState();
+    updateOnboardingUbos(
+      currentUbos.map(item =>
+        item[REFERENCE_SYMBOL] === ubo[REFERENCE_SYMBOL] ? { ...ubo, errors: {} } : item,
+      ),
+    ).tap(() => {
+      resetPageState();
+    });
   };
 
   const openRemoveUboConfirmation = (ubo: LocalStateUbo) => {
@@ -413,24 +420,23 @@ export const OnboardingCompanyOwnership = ({
 
   const deleteUbo = () => {
     // Should be always true because we only open the modal when the pageState is deleting
-    if (pageState.type === "deleting") {
-      setEditableUbos(ubos => ubos.filter(u => u[REFERENCE_SYMBOL] !== pageState.reference));
+    if (pageState.type !== "deleting") {
+      return resetPageState();
     }
-    resetPageState();
+
+    updateOnboardingUbos(
+      currentUbos.filter(item => item[REFERENCE_SYMBOL] !== pageState.reference),
+    ).tap(() => {
+      resetPageState();
+    });
   };
 
   const onPressPrevious = () => {
     Router.push(previousStep, { onboardingId });
   };
 
-  const submitStep = () => {
-    // if there are some ubos with errors, we don't submit
-    if (editableUbos.filter(isUboInvalid).length > 0) {
-      setShakeError.on();
-      return;
-    }
-
-    const individualUltimateBeneficialOwners = editableUbos.map(
+  const updateOnboardingUbos = (nextUbos: LocalStateUbo[]) => {
+    const individualUltimateBeneficialOwners = nextUbos.map(
       ({
         residencyAddressCountry,
         residencyAddressLine1,
@@ -509,7 +515,8 @@ export const OnboardingCompanyOwnership = ({
         };
       },
     );
-    updateOnboarding({
+
+    return updateOnboarding({
       input: {
         onboardingId,
         individualUltimateBeneficialOwners,
@@ -518,14 +525,24 @@ export const OnboardingCompanyOwnership = ({
     })
       .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
       .mapOkToResult(filterRejectionsToResult)
-      .tapOk(() => Router.push(nextStep, { onboardingId }))
       .tapError(error => {
         showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
       });
   };
 
+  const submitStep = () => {
+    // if there are some ubos with errors, we don't submit
+    if (currentUbos.filter(isUboInvalid).length > 0) {
+      return setShakeError.on();
+    }
+
+    updateOnboardingUbos(currentUbos).tapOk(() => {
+      Router.push(nextStep, { onboardingId });
+    });
+  };
+
   const onPressNext = () => {
-    if (editableUbos.length === 0) {
+    if (currentUbos.length === 0) {
       setShowConfirmNoUboModal.on();
       return;
     }
@@ -537,7 +554,7 @@ export const OnboardingCompanyOwnership = ({
       <OnboardingStepContent>
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) =>
-            editableUbos.length === 0 ? (
+            currentUbos.length === 0 ? (
               <Box>
                 <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
                 <Space height={12} />
@@ -576,7 +593,7 @@ export const OnboardingCompanyOwnership = ({
                     <LakeText>{t("company.step.owners.addAnother")}</LakeText>
                   </Pressable>
 
-                  {editableUbos.map(ubo => (
+                  {currentUbos.map(ubo => (
                     <UboTile
                       key={ubo[REFERENCE_SYMBOL]}
                       ubo={ubo}

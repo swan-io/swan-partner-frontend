@@ -4,6 +4,7 @@
   "error.pageNotFound": "Page not found",
   "form.invalidField": "Invalid field",
   "paymentLink.addressLine1": "Address",
+  "paymentLink.alert": "Please note that this is a sandbox page and it's not possible to create test payments on this page. Instead, use the merchant simulations in the Explorer API.",
   "paymentLink.button.downloadMandate": "Download mandate",
   "paymentLink.button.returnToWebsite": "Return to website",
   "paymentLink.card.cardNumber": "Card number",

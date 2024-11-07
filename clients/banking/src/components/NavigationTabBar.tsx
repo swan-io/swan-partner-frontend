@@ -24,9 +24,8 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { insets } from "@swan-io/lake/src/constants/insets";
-import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { Request, badStatusToError } from "@swan-io/request";
-import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
@@ -139,12 +138,10 @@ type Props = {
   hasMultipleMemberships: boolean;
   activationTag: AccountActivationTag;
   entries: Menu;
-  firstName: string;
-  lastName: string;
+  user: NonNullable<AccountAreaQuery["user"]>;
   accountMembershipId: string;
   identificationStatusInfo: Option<IdentificationLevelFragment>;
   refetchAccountAreaQuery: () => void;
-  additionalInfo: AdditionalInfo;
   shouldDisplayIdVerification: boolean;
   isScrolled: boolean;
   onScrollToTop: () => void;
@@ -157,14 +154,15 @@ export const NavigationTabBar = ({
   activationTag,
   entries,
   accountMembershipId,
-  firstName,
-  lastName,
+  user,
   identificationStatusInfo,
   shouldDisplayIdVerification,
   isScrolled,
   hasRequiredIdentificationLevel,
   onScrollToTop,
 }: Props) => {
+  const fullName = user.fullName;
+
   const [screen, setScreen] = useState<null | "menu" | "memberships" | "sandboxUsers">(null);
   const route = Router.useRoute([...accountAreaRoutes, "AccountActivation", "AccountProfile"]);
 
@@ -183,10 +181,6 @@ export const NavigationTabBar = ({
   if (!activeMenuItem) {
     return null;
   }
-
-  const names = [firstName, lastName].filter(isNotEmpty);
-  const fullName = names.join(" ");
-  const initials = names.map(name => name[0]).join("");
 
   return (
     <View style={styles.tabBarContainer}>
@@ -216,7 +210,7 @@ export const NavigationTabBar = ({
             ))
             .with({ name: "AccountProfile" }, () => (
               <>
-                <Avatar size={22} initials={initials} />
+                <Avatar size={22} user={user} />
                 <Space width={12} />
 
                 <LakeText numberOfLines={1} variant="regular" color={colors.gray[700]}>
@@ -306,9 +300,9 @@ export const NavigationTabBar = ({
                   >
                     {({ active }) => (
                       <>
-                        <Avatar size={22} initials={initials} />
+                        <Avatar size={22} user={user} />
 
-                        {fullName && (
+                        {isNotNullish(fullName) && (
                           <>
                             <Space width={12} />
 

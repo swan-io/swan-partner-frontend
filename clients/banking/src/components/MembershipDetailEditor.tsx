@@ -107,7 +107,7 @@ export const MembershipDetailEditor = ({
           },
           ({ statusInfo }) => statusInfo.restrictedTo.lastName,
         )
-        .with({ user: { lastName: P.string } }, ({ user }) => user.lastName)
+        .with({ user: { preferredLastName: P.string } }, ({ user }) => user.preferredLastName)
         .otherwise(() => ""),
       sanitize: trim,
       validate: validateName,

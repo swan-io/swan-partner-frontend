@@ -767,7 +767,7 @@ export const CardWizard = ({
                                 country:
                                   accountMembership.account.holder.residencyAddress.country ?? "",
                                 firstName: accountMembership.user.firstName ?? "",
-                                lastName: accountMembership.user.lastName ?? "",
+                                lastName: accountMembership.user.preferredLastName ?? "",
                                 phoneNumber: accountMembership.user.mobilePhoneNumber ?? "",
                                 postalCode:
                                   accountMembership.account.holder.residencyAddress.postalCode ??
@@ -865,7 +865,7 @@ export const CardWizard = ({
                                         accountMembership.account.holder.residencyAddress.country ??
                                         "",
                                       firstName: accountMembership.user.firstName ?? "",
-                                      lastName: accountMembership.user.lastName ?? "",
+                                      lastName: accountMembership.user.preferredLastName ?? "",
                                       phoneNumber: accountMembership.user.mobilePhoneNumber ?? "",
                                       postalCode:
                                         accountMembership.account.holder.residencyAddress

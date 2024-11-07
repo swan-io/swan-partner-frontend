@@ -167,16 +167,11 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
           <Space height={12} />
 
           {currentCardGroupedDeliveryConfig.members.map(node => {
-            const initials =
-              node.user?.firstName != null && node.user?.lastName != null
-                ? `${node.user.firstName.charAt(0)}${node.user.lastName.charAt(0)}`
-                : undefined;
-
             return (
               <Fragment key={node.id}>
                 <Tile selected={false} paddingVertical={16}>
                   <View style={styles.lineContainer}>
-                    <Avatar size={32} initials={initials} />
+                    <Avatar size={32} user={node.user} />
                     <Space width={16} />
 
                     <View>

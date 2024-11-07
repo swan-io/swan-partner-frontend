@@ -363,14 +363,13 @@ type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently closed"""
   reasonInfo: CloseAccountStatusReason!
+  closedAt: DateTime!
+  closingAt: DateTime!
 }
 
 """Account Closing status information"""
@@ -378,14 +377,12 @@ type AccountClosingStatus implements AccountStatusInfo {
   """Account status (always Closing for type AccountClosingStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently in closing"""
   reasonInfo: CloseAccountStatusReason!
+  closingAt: DateTime!
 }
 
 """
@@ -998,25 +995,30 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user bound doesn't match with the invitation
+  `true` if the first name of the bound user doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
+
+  """
+  `true` if the email of the bound user doesn't match with the invitation
+  """
+  emailVerifiedMatchError: Boolean!
 
   """`true` if Swan hasn't verified the user's identity"""
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user bound doesn't match with the invitation
+  `true` if the last name of the bound user doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user bound doesn't match with the invitation
+  `true` if the phone number of the bound user doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user bound doesn't match with the invitation
+  `true` if the birth date of the bound user doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -1121,6 +1123,10 @@ type AccountMembershipNotReadyToBeBoundRejection implements Rejection {
   message: String!
 }
 
+type AccountMembershipNotReadyToBeUpdatedRejection {
+  message: String!
+}
+
 """
 Field we can use when ordering that can be applied when listing account memberships
 """
@@ -1170,6 +1176,9 @@ input AccountMembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+
+  """Filtered by accountId"""
+  accountId: String
 }
 
 """AccountMembership enabled"""
@@ -1314,11 +1323,8 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   """Account status (always Suspended for type AccountSuspendedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently suspend"""
   reasonInfo: SuspendAccountStatusReason!
@@ -2673,7 +2679,7 @@ union CancelPhysicalCardPayload = CancelPhysicalCardSuccessPayload | AccountMemb
 
 """reason why the physical card is canceled"""
 enum CancelPhysicalCardReason {
-  """When the card holder never received the card"""
+  """When the cardholder never received the card"""
   NonReceived
 
   """When the card has been stolen"""
@@ -2685,7 +2691,7 @@ enum CancelPhysicalCardReason {
   """When the card doesn't work anymore"""
   Defected
 
-  """When the card holder wants to block his card"""
+  """When the cardholder wants to block his card"""
   Blocked
 }
 
@@ -3056,7 +3062,7 @@ type Card {
   updatedAt: DateTime!
 
   """
-  Account membership to define the card holder and the account linked to the card.
+  Account membership to define the cardholder and the account linked to the card.
   """
   accountMembership: AccountMembership!
 
@@ -3094,7 +3100,7 @@ type Card {
   """Periodic Spending limit list"""
   spendingLimits: [SpendingLimit!]
 
-  """Physical card if the card holder has ordered one"""
+  """Physical card if the cardholder has ordered one"""
   physicalCard: PhysicalCard
 
   """Masked Card Number"""
@@ -3908,6 +3914,9 @@ type CardTransaction implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 }
 
 enum CardTransactionCategory {
@@ -4156,6 +4165,9 @@ type CheckTransaction implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 
   """merchant profile associated"""
   merchant: MerchantProfile
@@ -4594,6 +4606,9 @@ enum ConsentPurpose {
 
   """when returning a transaction for direct debit"""
   ReturnTransactionForDirectDebit
+
+  """when returning a transaction for international credit transfer"""
+  ReturnTransactionForInternationalCreditTransfer
 }
 
 """
@@ -5943,6 +5958,9 @@ type ExternalCard {
   """The card scheme"""
   scheme: CardPaymentMandateScheme!
 
+  """The local card scheme"""
+  localScheme: CardPaymentMandateScheme
+
   """The card type"""
   cardType: CardPaymentMandateType
 
@@ -6349,6 +6367,9 @@ type FeeTransaction implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 }
 
 interface Field {
@@ -6785,11 +6806,7 @@ type GenerateSupportingDocumentUploadUrlSuccessPayload {
   upload: SupportingDocumentUploadInfo!
 }
 
-"""
-***COMING SOON***
-
-Inputs to generate an account
-"""
+"""Inputs to generate an account"""
 input GenerateTransactionStatementInput {
   """Id of the transaction for which the statement is generated."""
   transactionId: ID!
@@ -6800,11 +6817,7 @@ input GenerateTransactionStatementInput {
   language: TransactionStatementLanguage
 }
 
-"""
-***COMING SOON***
-
-Result of the generation.
-"""
+"""Result of the generation."""
 union GenerateTransactionStatementPayload = GenerateTransactionStatementSuccessPayload | GenerationNotAllowedRejection | ValidationRejection | ForbiddenRejection | TransactionNotFoundRejection
 
 type GenerateTransactionStatementSuccessPayload {
@@ -6843,8 +6856,6 @@ type GenerateTransactionSupportingDocumentUploadUrlSuccessPayload {
 }
 
 """
-***COMING SOON***
-
 Rejection returned if a transaction statement can’t be generated for this transaction.
 """
 type GenerationNotAllowedRejection implements Rejection {
@@ -7002,7 +7013,7 @@ type IdentificationConnection {
   totalCount: Int!
 
   """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo
+  pageInfo: PageInfo!
 
   """IdentificationEdge list"""
   edges: [IdentificationEdge!]!
@@ -7382,13 +7393,13 @@ input IndividualUltimateBeneficialOwnerInput {
   totalCapitalPercentage: Float
 
   """Define UBO is a Legal Representative"""
-  type: IndividualUltimateBeneficialOwnerTypeEnum!
+  type: IndividualUltimateBeneficialOwnerTypeEnum
 
   """Individual beneficial owner Tax or Identification Number"""
   taxIdentificationNumber: String
 
   """Individual beneficial owner residency address"""
-  residencyAddress: AddressInformationInput
+  residencyAddress: ResidencyAddressInput
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
@@ -7778,6 +7789,9 @@ type InternalCreditTransfer implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 }
 
 """Internal Credit Transfer creditor"""
@@ -8046,6 +8060,9 @@ type InternalDirectDebitTransaction implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 
   """merchant profile associated"""
   merchant: MerchantProfile
@@ -8908,6 +8925,9 @@ type InternationalCreditTransferTransaction implements Transaction {
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
 
+  """project id of the transaction"""
+  projectId: ID!
+
   """International beneficiary linked to the transaction"""
   beneficiary: InternationalBeneficiary
 }
@@ -9204,6 +9224,14 @@ type LegalRepresentativeAccountMembershipCannotBeSuspendedRejection implements R
   message: String!
 }
 
+type LegalRepresentativeEmailCannotBeUpdatedRejection {
+  message: String!
+}
+
+type LegalRepresentativePermissionsCannotBeUpdatedRejection {
+  message: String!
+}
+
 """Language: ISO 639-1 language code"""
 enum MandateLanguage {
   de
@@ -9303,6 +9331,9 @@ input MembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+
+  """Filtered by userId"""
+  userId: String
 }
 
 """
@@ -9310,28 +9341,28 @@ The different balances of the payment. Use this to understand in details what ac
 """
 type MerchantBalance {
   """The amount that can be canceled on this payment"""
-  availableToCancel: AmountValue!
+  availableToCancel: Amount!
 
   """The amount that can be captured on this payment"""
-  availableToCapture: AmountValue!
+  availableToCapture: Amount!
 
   """The amount that can be refunded on this payment"""
-  availableToRefund: AmountValue!
+  availableToRefund: Amount!
 
   """The amount authorised"""
-  totalAuthorized: AmountValue!
+  totalAuthorized: Amount!
 
   """The amount canceled"""
-  totalCanceled: AmountValue!
+  totalCanceled: Amount!
 
   """The amount captured"""
-  totalCaptured: AmountValue!
+  totalCaptured: Amount!
 
   """The amount disputed"""
-  totalDisputed: AmountValue!
+  totalDisputed: Amount!
 
   """The amount refunded"""
-  totalRefunded: AmountValue!
+  totalRefunded: Amount!
 }
 
 """Rejection returned when the Merchant Card Payment is declined"""
@@ -9663,6 +9694,29 @@ type MerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
 
+  """
+  List of transactions associated with the Merchant Payment.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
+
   """status information"""
   statusInfo: MerchantPaymentStatusInfo!
 
@@ -9860,6 +9914,7 @@ type MerchantPaymentLink {
   If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   """
   paymentMethods: [MerchantPaymentMethod!]!
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLinkConnection implements Connection {
@@ -9998,6 +10053,10 @@ enum MerchantPaymentMethodType {
   SepaDirectDebitB2b
   Check
   Card
+}
+
+interface MerchantPaymentMethodUpdateRequest {
+  id: ID!
 }
 
 type MerchantPaymentMethodWrongStatusRejection implements Rejection {
@@ -10236,6 +10295,10 @@ enum MerchantSubCategory {
   Other
 }
 
+type MissingBirthDateRejection {
+  message: String!
+}
+
 """Rejection returned when mandatory fields are missing from the call."""
 type MissingMandatoryFieldRejection implements Rejection {
   message: String!
@@ -10468,8 +10531,6 @@ type Mutation {
   generateAccountStatement(input: GenerateAccountStatementInput!): Statement!
 
   """
-  ***COMING SOON***
-  
   Generate a transaction statement for a booked incoming or outgoing Credit Transfer.
   """
   generateTransactionStatement(input: GenerateTransactionStatementInput!): GenerateTransactionStatementPayload!
@@ -10554,7 +10615,7 @@ type Mutation {
   
   This mutation is restricted to an User access token ([Learn More](https://docs.swan.io/api/authentication)) and ask the user to consent to this request.
   
-  The user must be the card holder
+  The user must be the cardholder
   
   A digital card will only be valid for 1 hour after consent validation
   """
@@ -11452,9 +11513,7 @@ type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
 """Rejection returned if an onboarding is not completed"""
 type OnboardingNotCompletedRejection implements Rejection {
   message: String!
-
-  """@deprecated(reason: "use `onboarding.id` instead")"""
-  onboardingId: String!
+  onboardingId: String! @deprecated(reason: "use `onboarding.id` instead")
   onboarding: Onboarding!
 }
 
@@ -12973,11 +13032,7 @@ type Query {
     filters: PaymentFiltersInput
   ): PaymentConnection!
 
-  """
-  ***COMING SOON***
-  
-  Returns a transaction statement in PDF for the provided Id
-  """
+  """Returns a transaction statement in PDF for the provided Id"""
   transactionStatement(id: ID!): TransactionStatement!
 
   """
@@ -13129,6 +13184,18 @@ type Query {
 
   """Return a merchant payment link by id"""
   merchantPaymentLink(id: ID!): MerchantPaymentLink
+
+  """Returns a merchant payment method update request by id."""
+  merchantPaymentMethodUpdateRequest(id: ID!): MerchantPaymentMethodUpdateRequest
+
+  """Returns a merchant payment method by id."""
+  merchantPaymentMethod(id: ID!): MerchantPaymentMethod
+
+  """Return a merchant payment by id"""
+  merchantPayment(id: ID!): MerchantPayment
+
+  """Returns a merchant profile update request by id."""
+  merchantProfileUpdateRequest(id: ID!): RequestMerchantProfileUpdate
 
   """Returns a merchant profile by id."""
   merchantProfile(id: ID!): MerchantProfile
@@ -13717,6 +13784,11 @@ enum RejectedReasonCode {
   """
   InvalidOrMissingAmount
 
+  """
+  Rejected because the security number entered does not match the one on the card
+  """
+  InvalidSecurityNumber
+
   """Rejected by debtor because the mandate is invalid"""
   MandateInvalid
 
@@ -13817,11 +13889,6 @@ enum RejectedReasonCode {
 
   """Rejected because the digital wallet's token is suspended"""
   DigitalWalletSuspended @deprecated
-
-  """
-  Rejected because the security number entered does not match the one on the card
-  """
-  InvalidSecurityNumber @deprecated
 }
 
 """Rejected transaction status information"""
@@ -14675,6 +14742,9 @@ type SEPACreditTransferTransaction implements Transaction {
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
 
+  """project id of the transaction"""
+  projectId: ID!
+
   """SEPA beneficiary linked to the transaction"""
   beneficiary: Beneficiary
 }
@@ -14932,7 +15002,7 @@ input SepaDirectDebitPaymentMethodInput {
   sepaCreditorIdentifier: String
 }
 
-type SepaDirectDebitPaymentMethodUpdateRequest {
+type SepaDirectDebitPaymentMethodUpdateRequest implements MerchantPaymentMethodUpdateRequest {
   id: ID!
 
   """
@@ -15073,6 +15143,9 @@ type SEPADirectDebitTransaction implements Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 
   """merchant profile associated"""
   merchant: MerchantProfile
@@ -16058,6 +16131,16 @@ type SupportingDocumentPurpose {
   Corresponding supporting document types accepted for this supporting document purpose
   """
   acceptableSupportingDocumentTypes: [SupportingDocumentType!]!
+
+  """
+  Corresponding Supporting Document Purpose Title translation according to accept-language header
+  """
+  label: String!
+
+  """
+  Corresponding Supporting Document Purpose Description translation according to accept-language header
+  """
+  description: String!
 }
 
 """Supporting document purpose"""
@@ -16157,18 +16240,18 @@ enum SupportingDocumentPurposeEnum {
 
   """Company Obligations"""
   CompanyObligations
+
+  """Politically exposed person declaration"""
+  PepDeclaration
+
+  """Proof of the company creation process"""
+  CompanyFormationRegistration
 }
 
 """Supporting document with Refused status"""
 type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been refused by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document collection has been refused"""
   refusedAt: DateTime!
@@ -16355,18 +16438,15 @@ enum SupportingDocumentType {
 
   """Invoice"""
   Invoice
+
+  """Politically exposed person declaration"""
+  PepDeclaration
 }
 
 """Supporting document with Uploaded status"""
 type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded but not verified by Swan yet"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Original file name"""
   filename: String!
@@ -16389,12 +16469,6 @@ type SupportingDocumentUploadNotAllowedRejection implements Rejection {
 type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded and verified by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document has been validated"""
   validatedAt: DateTime!
@@ -16715,6 +16789,9 @@ interface Transaction {
 
   """true if a transaction statement can be generated for this transaction"""
   statementCanBeGenerated: Boolean
+
+  """project id of the transaction"""
+  projectId: ID!
 }
 
 """Please see the Connection interface"""
@@ -17069,11 +17146,7 @@ input TransactionsOrderByInput {
   direction: OrderByDirection
 }
 
-"""
-***COMING SOON***
-
-A transaction statement represent metadata around a BOOKED transaction
-"""
+"""A transaction statement represent metadata around a BOOKED transaction"""
 type TransactionStatement {
   """unique identifier of the transaction statement"""
   id: ID!
@@ -17092,6 +17165,9 @@ type TransactionStatement {
 
   """date at which the statement generation status has been updated"""
   updatedAt: DateTime!
+
+  """projectId of this transaction"""
+  projectId: ID!
 }
 
 """Language: ISO 639-1 language code"""
@@ -17868,7 +17944,7 @@ input UpdateAccountMembershipInput {
   taxIdentificationNumber: String
 }
 
-union UpdateAccountMembershipPayload = UpdateAccountMembershipSuccessPayload | AccountMembershipCannotBeUpdatedRejection | AccountMembershipNotFoundRejection | ForbiddenRejection | InvalidPhoneNumberRejection | PermissionCannotBeGrantedRejection | UserNotAllowedToManageAccountMembershipRejection | ValidationRejection
+union UpdateAccountMembershipPayload = AccountMembershipCannotBeUpdatedRejection | AccountMembershipNotFoundRejection | AccountMembershipNotReadyToBeUpdatedRejection | AccountNotFoundRejection | ForbiddenRejection | InternalErrorRejection | InvalidPhoneNumberRejection | LegalRepresentativeEmailCannotBeUpdatedRejection | LegalRepresentativePermissionsCannotBeUpdatedRejection | MissingBirthDateRejection | MissingPhoneNumberRestrictionRejection | PermissionCannotBeGrantedRejection | UpdateAccountMembershipSuccessPayload | UserNotAllowedToManageAccountMembershipRejection | ValidationRejection
 
 type UpdateAccountMembershipSuccessPayload {
   consent: Consent!
@@ -18285,6 +18361,11 @@ type User {
   """list of first names"""
   allFirstNames: [String!]
 
+  """
+  full name : concatenation of firstName + [ birthLastName | lastName ] depending on preferredLastName setting
+  """
+  fullName: String
+
   """birth date"""
   birthDate: Date
 
@@ -18326,16 +18407,19 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """Define the last name the user prefers to use"""
-  preferredLastName: UserPreferredLastName!
+  """The last name that the user prefers to use"""
+  preferredLastName: String
 
   """
   Date on which the user joined the project. Joining the project is done after the first accepted OAuth login.
   """
   joinedAt: DateTime!
 
+  """@deprecated Use verifiedEmails field instead"""
+  emailAddresses: [String!]! @deprecated(reason: "Use verifiedEmails field instead")
+
   """Returns the verified emails"""
-  emailAddresses: [String!]!
+  verifiedEmails: [String!]!
   identifications(
     """Maximum number of elements in the list (default value 50)"""
     first: Int! = 50
@@ -18409,19 +18493,40 @@ type UserEdge implements Edge {
   node: User!
 }
 
+"""Filters that can be applied when listing users"""
 input UserFilterInput {
+  """Filter by birth date"""
   birthDate: Date
+
+  """Filter by first name"""
   firstName: String
+
+  """Filter by identification level"""
   identificationLevel: IdentificationLevelInput
+
+  """Filter by last name"""
   lastName: String
+
+  """Filter by phone number"""
   mobilePhoneNumber: String
+
+  """Filter by nationality"""
   nationalityCCA3: CCA3
+
+  """Filter by preferred notification channel"""
   preferredNotificationChannel: PreferredNotificationChannel
+
+  """Filter by status"""
   status: [UserStatus!]
 
   """
-  Searches first name, last name, phone number and id
-  Min length : 3 characters
+  Search string to look for (min length : 3 characters)
+  
+  Search will be performed in following fields:
+   - First name
+   - Last name
+   - Mobile phone number
+   - ID
   """
   search: String
 }
@@ -18472,14 +18577,6 @@ enum UserOrderByFieldInput {
 input UserOrderByInput {
   field: UserOrderByFieldInput
   direction: OrderByDirection
-}
-
-enum UserPreferredLastName {
-  """The user prefers to be called by their last name"""
-  LastName
-
-  """The user prefers to be called by their birth last name"""
-  BirthLastName
 }
 
 enum UserStatus {
@@ -18577,13 +18674,35 @@ type VerificationRequirement {
   type: VerificationRequirementType!
 }
 
+type VerificationRequirementsNotUpdatableRejection implements Rejection {
+  accountHolderId: String!
+  accountHolderVerificationStatus: VerificationStatus!
+  message: String!
+}
+
 enum VerificationRequirementType {
+  """Swan is requesting for a 1st transfer"""
   FirstTransferRequired
+
+  """Swan is requesting some Supporting Documents"""
   SupportingDocumentsRequired
+
+  """Swan is requesting some clarification on the UBO"""
   UboDetailsRequired
+
+  """
+  Swan is requesting some clarification on the legal representative or on the account member with legal representative permissions
+  """
   LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some clarification on the organisation"""
   OrganizationDetailsRequired
+
+  """Swan is requesting some tax identifier"""
   TaxIdRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
 }
 
 """Verification status of an account holder"""

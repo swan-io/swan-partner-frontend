@@ -136,14 +136,13 @@ type AccountClosedStatus implements AccountStatusInfo {
   """Account status (always Closed for type AccountClosedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently closed"""
   reasonInfo: CloseAccountStatusReason!
+  closedAt: DateTime!
+  closingAt: DateTime!
 }
 
 """Account Closing status information"""
@@ -151,14 +150,12 @@ type AccountClosingStatus implements AccountStatusInfo {
   """Account status (always Closing for type AccountClosingStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently in closing"""
   reasonInfo: CloseAccountStatusReason!
+  closingAt: DateTime!
 }
 
 """
@@ -673,25 +670,30 @@ type AccountMembershipBindingUserErrorStatusInfo implements AccountMembershipSta
   status: AccountMembershipStatus!
 
   """
-  `true` if the first name of the user bound doesn't match with the invitation
+  `true` if the first name of the bound user doesn't match with the invitation
   """
   firstNameMatchError: Boolean!
+
+  """
+  `true` if the email of the bound user doesn't match with the invitation
+  """
+  emailVerifiedMatchError: Boolean!
 
   """`true` if Swan hasn't verified the user's identity"""
   idVerifiedMatchError: Boolean!
 
   """
-  `true` if the last name of the user bound doesn't match with the invitation
+  `true` if the last name of the bound user doesn't match with the invitation
   """
   lastNameMatchError: Boolean!
 
   """
-  `true` if the phone number of the user bound doesn't match with the invitation
+  `true` if the phone number of the bound user doesn't match with the invitation
   """
   phoneNumberMatchError: Boolean!
 
   """
-  `true` if the birth date of the user bound doesn't match with the invitation
+  `true` if the birth date of the bound user doesn't match with the invitation
   """
   birthDateMatchError: Boolean!
 
@@ -796,6 +798,10 @@ type AccountMembershipNotReadyToBeBoundRejection implements Rejection {
   message: String!
 }
 
+type AccountMembershipNotReadyToBeUpdatedRejection {
+  message: String!
+}
+
 """
 Field we can use when ordering that can be applied when listing account memberships
 """
@@ -845,6 +851,9 @@ input AccountMembershipsFilterInput {
 
   """Searches email, first name, last name, and id"""
   search: String
+
+  """Filtered by accountId"""
+  accountId: String
 }
 
 """AccountMembership enabled"""
@@ -938,11 +947,8 @@ type AccountSuspendedStatus implements AccountStatusInfo {
   """Account status (always Suspended for type AccountSuspendedStatus)"""
   status: AccountStatus!
 
-  """
-  Reason why the account is suspended
-  @Deprecated
-  """
-  reason: String!
+  """Reason why the account is suspended"""
+  reason: String! @deprecated(reason: "Use `reasonInfo` instead.")
 
   """Reason why the account is currently suspend"""
   reasonInfo: SuspendAccountStatusReason!
@@ -1306,7 +1312,7 @@ type Card {
   updatedAt: DateTime!
 
   """
-  Account membership to define the card holder and the account linked to the card.
+  Account membership to define the cardholder and the account linked to the card.
   """
   accountMembership: AccountMembership!
 
@@ -1344,7 +1350,7 @@ type Card {
   """Periodic Spending limit list"""
   spendingLimits: [SpendingLimit!]
 
-  """Physical card if the card holder has ordered one"""
+  """Physical card if the cardholder has ordered one"""
   physicalCard: PhysicalCard
 
   """Masked Card Number"""
@@ -2301,6 +2307,9 @@ enum ConsentPurpose {
 
   """when returning a transaction for direct debit"""
   ReturnTransactionForDirectDebit
+
+  """when returning a transaction for international credit transfer"""
+  ReturnTransactionForInternationalCreditTransfer
 }
 
 """Status of a consent"""
@@ -3020,13 +3029,13 @@ input IndividualUltimateBeneficialOwnerInput {
   totalCapitalPercentage: Float
 
   """Define UBO is a Legal Representative"""
-  type: IndividualUltimateBeneficialOwnerTypeEnum!
+  type: IndividualUltimateBeneficialOwnerTypeEnum
 
   """Individual beneficial owner Tax or Identification Number"""
   taxIdentificationNumber: String
 
   """Individual beneficial owner residency address"""
-  residencyAddress: AddressInformationInput
+  residencyAddress: ResidencyAddressInput
 
   """Individual ultimate beneficial owner title (Mr/Ms)"""
   title: TitleEnum
@@ -3180,6 +3189,14 @@ type LegalRepresentativeAccountMembershipCannotBeSuspendedRejection implements R
   message: String!
 }
 
+type LegalRepresentativeEmailCannotBeUpdatedRejection {
+  message: String!
+}
+
+type LegalRepresentativePermissionsCannotBeUpdatedRejection {
+  message: String!
+}
+
 type MaskedCardInfo {
   maskedPan: String!
   maskedExpiryDate: String!
@@ -3229,28 +3246,28 @@ The different balances of the payment. Use this to understand in details what ac
 """
 type MerchantBalance {
   """The amount that can be canceled on this payment"""
-  availableToCancel: AmountValue!
+  availableToCancel: Amount!
 
   """The amount that can be captured on this payment"""
-  availableToCapture: AmountValue!
+  availableToCapture: Amount!
 
   """The amount that can be refunded on this payment"""
-  availableToRefund: AmountValue!
+  availableToRefund: Amount!
 
   """The amount authorised"""
-  totalAuthorized: AmountValue!
+  totalAuthorized: Amount!
 
   """The amount canceled"""
-  totalCanceled: AmountValue!
+  totalCanceled: Amount!
 
   """The amount captured"""
-  totalCaptured: AmountValue!
+  totalCaptured: Amount!
 
   """The amount disputed"""
-  totalDisputed: AmountValue!
+  totalDisputed: Amount!
 
   """The amount refunded"""
-  totalRefunded: AmountValue!
+  totalRefunded: Amount!
 }
 
 """Rejection returned when the Merchant Card Payment is declined"""
@@ -3459,6 +3476,7 @@ type MerchantPaymentLink {
   If the array is empty Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   """
   paymentMethods: [MerchantPaymentMethod!]!
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLinkConnection implements Connection {
@@ -3595,6 +3613,10 @@ enum MerchantPaymentMethodType {
   Card
 }
 
+interface MerchantPaymentMethodUpdateRequest {
+  id: ID!
+}
+
 type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
@@ -3726,6 +3748,10 @@ type MerchantProfileWrongStatusRejection implements Rejection {
   message: String!
   currentStatus: MerchantProfileStatus!
   expectedStatus: MerchantProfileStatus!
+}
+
+type MissingBirthDateRejection {
+  message: String!
 }
 
 """Rejection returned when mandatory fields are missing from the call."""
@@ -4117,9 +4143,7 @@ type OnboardingInvalidStatusInfo implements OnboardingStatusInfo {
 """Rejection returned if an onboarding is not completed"""
 type OnboardingNotCompletedRejection implements Rejection {
   message: String!
-
-  """@deprecated(reason: "use `onboarding.id` instead")"""
-  onboardingId: String!
+  onboardingId: String! @deprecated(reason: "use `onboarding.id` instead")
   onboarding: Onboarding!
 }
 
@@ -5291,7 +5315,7 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   updateRequest: SepaDirectDebitPaymentMethodUpdateRequest
 }
 
-type SepaDirectDebitPaymentMethodUpdateRequest {
+type SepaDirectDebitPaymentMethodUpdateRequest implements MerchantPaymentMethodUpdateRequest {
   id: ID!
 
   """
@@ -5642,6 +5666,16 @@ type SupportingDocumentPurpose {
   Corresponding supporting document types accepted for this supporting document purpose
   """
   acceptableSupportingDocumentTypes: [SupportingDocumentType!]!
+
+  """
+  Corresponding Supporting Document Purpose Title translation according to accept-language header
+  """
+  label: String!
+
+  """
+  Corresponding Supporting Document Purpose Description translation according to accept-language header
+  """
+  description: String!
 }
 
 """Supporting document purpose"""
@@ -5741,18 +5775,18 @@ enum SupportingDocumentPurposeEnum {
 
   """Company Obligations"""
   CompanyObligations
+
+  """Politically exposed person declaration"""
+  PepDeclaration
+
+  """Proof of the company creation process"""
+  CompanyFormationRegistration
 }
 
 """Supporting document with Refused status"""
 type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been refused by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document collection has been refused"""
   refusedAt: DateTime!
@@ -5939,18 +5973,15 @@ enum SupportingDocumentType {
 
   """Invoice"""
   Invoice
+
+  """Politically exposed person declaration"""
+  PepDeclaration
 }
 
 """Supporting document with Uploaded status"""
 type SupportingDocumentUploadedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded but not verified by Swan yet"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Original file name"""
   filename: String!
@@ -5973,12 +6004,6 @@ type SupportingDocumentUploadNotAllowedRejection implements Rejection {
 type SupportingDocumentValidatedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been uploaded and verified by Swan"""
   status: SupportingDocumentStatus!
-
-  """
-  An unique URL and one-time URL to download the Document
-  @Deprecated
-  """
-  downloadUrl: String!
 
   """Date on which the supporting document has been validated"""
   validatedAt: DateTime!
@@ -6573,6 +6598,11 @@ type User {
   """list of first names"""
   allFirstNames: [String!]
 
+  """
+  full name : concatenation of firstName + [ birthLastName | lastName ] depending on preferredLastName setting
+  """
+  fullName: String
+
   """birth date"""
   birthDate: Date
 
@@ -6614,8 +6644,8 @@ type User {
   """Last update date of the user"""
   updatedAt: DateTime!
 
-  """Define the last name the user prefers to use"""
-  preferredLastName: UserPreferredLastName!
+  """The last name that the user prefers to use"""
+  preferredLastName: String
 }
 
 """
@@ -6663,14 +6693,6 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
 """Rejection returned when the User is not the Card Holder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
-}
-
-enum UserPreferredLastName {
-  """The user prefers to be called by their last name"""
-  LastName
-
-  """The user prefers to be called by their birth last name"""
-  BirthLastName
 }
 
 enum UserStatus {
@@ -6742,13 +6764,35 @@ type VerificationRequirement {
   type: VerificationRequirementType!
 }
 
+type VerificationRequirementsNotUpdatableRejection implements Rejection {
+  accountHolderId: String!
+  accountHolderVerificationStatus: VerificationStatus!
+  message: String!
+}
+
 enum VerificationRequirementType {
+  """Swan is requesting for a 1st transfer"""
   FirstTransferRequired
+
+  """Swan is requesting some Supporting Documents"""
   SupportingDocumentsRequired
+
+  """Swan is requesting some clarification on the UBO"""
   UboDetailsRequired
+
+  """
+  Swan is requesting some clarification on the legal representative or on the account member with legal representative permissions
+  """
   LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some clarification on the organisation"""
   OrganizationDetailsRequired
+
+  """Swan is requesting some tax identifier"""
   TaxIdRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
 }
 
 """Verification status of an account holder"""

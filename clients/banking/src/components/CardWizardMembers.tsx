@@ -142,16 +142,11 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
               {memberships.edges.map(({ node }) => {
                 const isSelected = selectedIds.has(node.id);
 
-                const initials =
-                  node.user?.firstName != null && node.user?.lastName != null
-                    ? `${node.user.firstName.charAt(0)}${node.user.lastName.charAt(0)}`
-                    : undefined;
-
                 const contents = (
                   <View style={styles.lineContainer}>
                     <LakeCheckbox value={isSelected} />
                     <Space width={16} />
-                    <Avatar size={large ? 32 : 24} initials={initials} />
+                    <Avatar size={large ? 32 : 24} user={node.user} />
                     <Space width={16} />
 
                     <View style={styles.names}>

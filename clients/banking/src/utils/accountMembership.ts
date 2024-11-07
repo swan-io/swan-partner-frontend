@@ -1,4 +1,4 @@
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotEmpty } from "@swan-io/lake/src/utils/nullish";
 import { match } from "ts-pattern";
 
 type AccountMembership = {
@@ -16,8 +16,7 @@ type AccountMembership = {
       }
     | { __typename: "AccountMembershipSuspendedStatusInfo" };
   user?: {
-    firstName?: string | null;
-    lastName?: string | null;
+    fullName?: string | null;
   } | null;
 };
 
@@ -27,11 +26,7 @@ export const getMemberName = ({ accountMembership }: { accountMembership: Accoun
       { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
       { __typename: "AccountMembershipInvitationSentStatusInfo" },
       ({ restrictedTo }) =>
-        [restrictedTo.firstName, restrictedTo.lastName].filter(isNotNullish).join(" "),
+        [restrictedTo.firstName, restrictedTo.lastName].filter(isNotEmpty).join(" "),
     )
-    .otherwise(() =>
-      [accountMembership.user?.firstName, accountMembership.user?.lastName]
-        .filter(isNotNullish)
-        .join(" "),
-    );
+    .otherwise(() => accountMembership.user?.fullName ?? "");
 };

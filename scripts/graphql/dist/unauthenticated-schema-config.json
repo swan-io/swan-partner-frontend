@@ -129,7 +129,8 @@
       "UserNotAllowedToManageAccountMembershipRejection",
       "UserNotAllowedToSuspendItsOwnAccountMembershipRejection",
       "UserNotCardHolderRejection",
-      "ValidationRejection"
+      "ValidationRejection",
+      "VerificationRequirementsNotUpdatableRejection"
     ],
     "AccountHolderVerificationStatusInfo": [
       "AccountHolderNotStartedVerificationStatusInfo",
@@ -250,6 +251,9 @@
       "PhysicalCardSuspendedStatusInfo",
       "PhysicalCardToActivateStatusInfo",
       "PhysicalCardToRenewStatusInfo"
+    ],
+    "MerchantPaymentMethodUpdateRequest": [
+      "SepaDirectDebitPaymentMethodUpdateRequest"
     ],
     "SupportingDocumentCollectionStatusInfo": [
       "SupportingDocumentCollectionApprovedStatusInfo",

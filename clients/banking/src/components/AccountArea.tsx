@@ -27,7 +27,9 @@ import {
 import { insets } from "@swan-io/lake/src/constants/insets";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { usePersistedState } from "@swan-io/lake/src/hooks/usePersistedState";
+import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/components/SkipToContent";
+import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -235,7 +237,7 @@ export const AccountArea = ({
 
   const userId = user?.id ?? "";
   const firstName = user?.firstName ?? "";
-  const lastName = user?.lastName ?? "";
+  const preferredLastName = user?.preferredLastName ?? "";
   const phoneNumber = user?.mobilePhoneNumber ?? "";
 
   const [, setAccountMembershipState] = usePersistedState<unknown>(
@@ -252,9 +254,9 @@ export const AccountArea = ({
   useEffect(() => {
     setSentryUser({
       id: user.id,
-      firstName: user.firstName ?? undefined,
-      lastName: user.lastName ?? undefined,
-      phoneNumber: user.mobilePhoneNumber ?? undefined,
+      firstName: nullishOrEmptyToUndefined(user.firstName),
+      lastName: nullishOrEmptyToUndefined(user.preferredLastName),
+      phoneNumber: nullishOrEmptyToUndefined(user.mobilePhoneNumber),
     });
   }, [user]);
 
@@ -344,16 +346,16 @@ export const AccountArea = ({
     updateTgglContext({ accountCountry, userId, email });
   }, [accountCountry, userId, email]);
 
-  const additionalInfo = useMemo(
+  const additionalInfo = useMemo<AdditionalInfo>(
     () => ({
       firstName,
-      lastName,
+      lastName: preferredLastName,
       phoneNumber,
       userId,
       email,
       projectName,
     }),
-    [firstName, lastName, phoneNumber, userId, email, projectName],
+    [firstName, preferredLastName, phoneNumber, userId, email, projectName],
   );
 
   const accountPickerButtonRef = useRef<View | null>(null);
@@ -468,8 +470,7 @@ export const AccountArea = ({
                     identificationStatusInfo={lastRelevantIdentification.map(
                       getIdentificationLevelStatusInfo,
                     )}
-                    firstName={firstName}
-                    lastName={lastName}
+                    user={user}
                     accountMembershipId={accountMembershipId}
                     shouldDisplayIdVerification={shouldDisplayIdVerification}
                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
@@ -820,10 +821,8 @@ export const AccountArea = ({
                   activationTag={activationTag}
                   accountMembership={accountMembership}
                   shouldDisplayIdVerification={shouldDisplayIdVerification}
-                  additionalInfo={additionalInfo}
                   entries={menu}
-                  firstName={firstName}
-                  lastName={lastName}
+                  user={user}
                   refetchAccountAreaQuery={reload}
                   isScrolled={isScrolled}
                   onScrollToTop={scrollToTop}

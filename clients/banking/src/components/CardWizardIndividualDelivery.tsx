@@ -85,11 +85,8 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
   return (
     <View>
       {currentCardIndividualDeliveryConfig.map((config, index) => {
-        const initials =
-          config.member.user?.firstName != null && config.member.user?.lastName != null
-            ? `${config.member.user.firstName.charAt(0)}${config.member.user.lastName.charAt(0)}`
-            : undefined;
         const hasError = isNotNullish(validateAddressLine(config.address.addressLine1));
+
         return (
           <View key={config.member.id}>
             <Tile
@@ -105,7 +102,7 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
               }
             >
               <Box direction="row" alignItems="center">
-                <Avatar size={28} initials={initials} />
+                <Avatar size={28} user={config.member.user} />
                 <Space width={24} />
 
                 <View style={commonStyles.fill}>
@@ -221,7 +218,7 @@ export const CardWizardIndividualDelivery = forwardRef<CardWizardIndividualDeliv
                   address: {
                     ...address,
                     firstName: member.user?.firstName ?? "",
-                    lastName: member.user?.lastName ?? "",
+                    lastName: member.user?.preferredLastName ?? "",
                     phoneNumber: member.user?.mobilePhoneNumber ?? "",
                   },
                   choosePin: false,

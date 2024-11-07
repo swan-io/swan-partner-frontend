@@ -5,6 +5,7 @@ import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Grid } from "@swan-io/lake/src/components/Grid";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
+import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -53,7 +54,7 @@ import {
 } from "./ownership-beneficiary/OnboardingCompanyOwnershipBeneficiaryForm";
 
 const styles = StyleSheet.create({
-  uboInfo: {
+  fill: {
     flex: 1,
   },
   uboTile: {
@@ -268,7 +269,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
 
               <Space height={12} />
 
-              <Box style={styles.uboInfo}>
+              <Box style={styles.fill}>
                 <LakeText variant="medium" color={colors.gray[900]}>
                   {ubo.firstName} {ubo.lastName}
                 </LakeText>
@@ -284,7 +285,7 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
               <Avatar user={ubo} size={32} />
               <Space width={24} />
 
-              <Box style={styles.uboInfo}>
+              <Box style={styles.fill}>
                 <LakeText variant="medium" color={colors.gray[900]}>
                   {ubo.firstName} {ubo.lastName}
                 </LakeText>
@@ -347,6 +348,7 @@ export const OnboardingCompanyOwnership = ({
     [accountCountry, ubos],
   );
 
+  const [noUbosConfirmed, setNoUbosConfirmed] = useState(false);
   const [pageState, setPageState] = useState<PageState>({ type: "list" });
   const [shakeError, setShakeError] = useBoolean(false);
   const [showConfirmNoUboModal, setShowConfirmNoUboModal] = useBoolean(false);
@@ -617,20 +619,49 @@ export const OnboardingCompanyOwnership = ({
         />
       </OnboardingStepContent>
 
-      <ConfirmModal
+      <LakeModal
         visible={showConfirmNoUboModal}
         title={t("company.step.owners.confirmModal.title")}
-        message={t("company.step.owners.confirmModal.description")}
         icon="warning-regular"
-        confirmText={t("company.step.owners.confirmModal.add")}
-        onConfirm={() => {
-          setShowConfirmNoUboModal.off();
-          openNewUbo();
-        }}
-        cancelText={t("company.step.owners.confirmModal.next")}
-        onCancel={submitStep}
-        loading={updateResult.isLoading()}
-      />
+        color="partner"
+      >
+        <LakeText>{t("company.step.owners.confirmModal.description")}</LakeText>
+        <Space height={16} />
+
+        <LakeLabelledCheckbox
+          value={noUbosConfirmed}
+          onValueChange={setNoUbosConfirmed}
+          label={t("company.step.owners.confirmModal.checkbox")}
+        />
+
+        <Space height={40} />
+
+        <Box direction="row">
+          <LakeButton
+            mode="secondary"
+            style={styles.fill}
+            onPress={() => {
+              setShowConfirmNoUboModal.off();
+              setNoUbosConfirmed(false);
+              openNewUbo();
+            }}
+          >
+            {t("company.step.owners.confirmModal.add")}
+          </LakeButton>
+
+          <Space width={24} />
+
+          <LakeButton
+            color="partner"
+            style={styles.fill}
+            loading={updateResult.isLoading()}
+            onPress={submitStep}
+            disabled={!noUbosConfirmed}
+          >
+            {t("company.step.owners.confirmModal.next")}
+          </LakeButton>
+        </Box>
+      </LakeModal>
 
       <ConfirmModal
         visible={pageState.type === "deleting"}

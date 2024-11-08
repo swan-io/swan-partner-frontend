@@ -66,6 +66,12 @@ type FormValues = {
   canManageCards?: boolean;
 };
 
+const validateMustBeFalse = (value: boolean) => {
+  if (value === true) {
+    return "MustBeFalse";
+  }
+};
+
 export const MembershipDetailRights = ({
   editingAccountMembership,
   editingAccountMembershipId,
@@ -86,6 +92,21 @@ export const MembershipDetailRights = ({
     ResumeAccountMembershipDocument,
   );
 
+  const validateSensitivePermission = match(editingAccountMembership)
+    .with(
+      {
+        statusInfo: {
+          __typename: P.union(
+            "AccountMembershipBindingUserErrorStatusInfo",
+            "AccountMembershipInvitationSentStatusInfo",
+          ),
+          restrictedTo: { phoneNumber: P.nullish },
+        },
+      },
+      () => validateMustBeFalse,
+    )
+    .otherwise(() => undefined);
+
   const { Field, submitForm } = useForm({
     canViewAccount: {
       initialValue: editingAccountMembership.canViewAccount,
@@ -95,12 +116,15 @@ export const MembershipDetailRights = ({
     },
     canManageBeneficiaries: {
       initialValue: editingAccountMembership.canManageBeneficiaries,
+      validate: validateSensitivePermission,
     },
     canManageAccountMembership: {
       initialValue: editingAccountMembership.canManageAccountMembership,
+      validate: validateSensitivePermission,
     },
     canManageCards: {
       initialValue: editingAccountMembership.canManageCards,
+      validate: validateSensitivePermission,
     },
   });
 
@@ -266,7 +290,7 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canInitiatePayments">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
               !canUpdateMembership ||
@@ -279,6 +303,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canInitiatePayments")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>
@@ -286,7 +311,7 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canManageBeneficiaries">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
               !canUpdateMembership ||
@@ -299,6 +324,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canManageBeneficiaries")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>
@@ -306,7 +332,7 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canManageAccountMembership">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
               !canUpdateMembership ||
@@ -319,6 +345,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canManageAccountMembership")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>

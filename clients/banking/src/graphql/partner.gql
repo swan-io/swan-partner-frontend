@@ -1304,6 +1304,7 @@ fragment AccountMembership on AccountMembership {
     preferredLastName
     fullName
     mobilePhoneNumber
+    verifiedEmails
   }
   account {
     id

@@ -156,6 +156,20 @@ export const MembershipDetailArea = ({
                   .with(
                     {
                       __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                      emailVerifiedMatchError: true,
+                      user: { verifiedEmails: [] },
+                    },
+                    () => (
+                      <LakeAlert
+                        anchored={true}
+                        title={t("membershipDetail.emailVerifiedMatchError.description")}
+                        variant="warning"
+                      />
+                    ),
+                  )
+                  .with(
+                    {
+                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
                       idVerifiedMatchError: true,
                     },
                     () => (
@@ -184,6 +198,11 @@ export const MembershipDetailArea = ({
                       {
                         __typename: "AccountMembershipBindingUserErrorStatusInfo",
                         idVerifiedMatchError: true,
+                      },
+                      {
+                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                        emailVerifiedMatchError: true,
+                        user: { verifiedEmails: [] },
                       },
                       () => <Tag color="warning">{t("memberships.status.limitedAccess")}</Tag>,
                     )
@@ -223,13 +242,32 @@ export const MembershipDetailArea = ({
 
             {match(accountMembership)
               .with(
-                {
-                  statusInfo: {
-                    __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                    idVerifiedMatchError: P.not(true),
+                P.intersection(
+                  // we're in BindingUserError
+                  {
+                    statusInfo: {
+                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                    },
+                    user: P.nonNullable,
                   },
-                  user: P.nonNullable,
-                },
+                  // but not due to the lack of identification
+                  P.not({
+                    statusInfo: {
+                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                      idVerifiedMatchError: true,
+                    },
+                  }),
+                  // or due to the lack of verified email
+                  P.not({
+                    statusInfo: {
+                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                      emailVerifiedMatchError: true,
+                    },
+                    user: {
+                      verifiedEmails: [],
+                    },
+                  }),
+                ),
                 accountMembership => (
                   <ListRightPanelContent large={large} style={styles.contents}>
                     <MembershipConflictResolutionEditor

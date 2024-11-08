@@ -2,6 +2,7 @@ import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
@@ -61,10 +62,15 @@ export const MembershipConflictResolutionEditor = ({
   const lastNamesMismatch =
     user.lastName !== restrictedTo.lastName && user.birthLastName !== restrictedTo.lastName;
 
+  const [selectedVerifiedEmail, setSelectedVerifiedEmail] = useState<string | undefined>(
+    accountMembership.user.verifiedEmails[0],
+  );
+
   const acceptMembership = () => {
     updateMembership({
       input: {
         accountMembershipId: editingAccountMembershipId,
+        email: selectedVerifiedEmail,
         restrictedTo: {
           firstName: user.firstName,
           lastName: user.preferredLastName,
@@ -206,6 +212,42 @@ export const MembershipConflictResolutionEditor = ({
                     color={phoneNumbersMismatch ? colors.negative[500] : colors.gray[900]}
                   >
                     {user.mobilePhoneNumber}
+                  </LakeText>
+                )}
+              />
+
+              <LakeLabel
+                label={t("membershipDetail.bindingUserError.email")}
+                readOnly={true}
+                readOnlyColor={
+                  !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                    ? colors.negative[500]
+                    : colors.gray[500]
+                }
+                render={() => (
+                  <LakeText
+                    variant={
+                      !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                        ? "semibold"
+                        : "regular"
+                    }
+                    color={
+                      !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                        ? colors.negative[500]
+                        : colors.gray[900]
+                    }
+                  >
+                    {accountMembership.user.verifiedEmails.length === 1 ? (
+                      accountMembership.user.verifiedEmails[0]
+                    ) : (
+                      <LakeSelect
+                        items={accountMembership.user.verifiedEmails.map(value => ({
+                          value,
+                          name: value,
+                        }))}
+                        onValueChange={verifiedEmail => setSelectedVerifiedEmail(verifiedEmail)}
+                      />
+                    )}
                   </LakeText>
                 )}
               />

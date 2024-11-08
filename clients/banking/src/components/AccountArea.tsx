@@ -488,6 +488,7 @@ export const AccountArea = ({
                                       __typename: "AccountMembershipBindingUserErrorStatusInfo",
                                       emailVerifiedMatchError: true,
                                     },
+                                    user: { verifiedEmails: [] },
                                   },
                                 },
                                 ({

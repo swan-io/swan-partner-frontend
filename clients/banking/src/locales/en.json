@@ -507,6 +507,7 @@
   "membershipDetail.bindingUserError.birthDate": "Birth date",
   "membershipDetail.bindingUserError.blockPermanently": "Block permanently",
   "membershipDetail.bindingUserError.description": "Some ID information doesn't match up. Until it's resolved, this member can only view the account and card.",
+  "membershipDetail.bindingUserError.email": "Email",
   "membershipDetail.bindingUserError.firstName": "First name",
   "membershipDetail.bindingUserError.fromUser": "From user",
   "membershipDetail.bindingUserError.fromYou": "From you",

@@ -461,7 +461,7 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
                               text={formatMaskedPan(cardDetails.maskedPan)}
                             />
 
-                            {match(cardDetails.card.accountMembership.user)
+                            {match(cardDetails.card?.accountMembership.user)
                               .with({ fullName: P.string }, ({ fullName }) => (
                                 <DetailLine
                                   label={t("transaction.cardHolder")}

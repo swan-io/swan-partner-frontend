@@ -1,4 +1,5 @@
 import react from "@vitejs/plugin-react-swc";
+import fs from "node:fs";
 import path from "pathe";
 import { searchForWorkspaceRoot } from "vite";
 import { defineConfig } from "vitest/config";
@@ -6,12 +7,14 @@ import { defineConfig } from "vitest/config";
 const root = path.resolve(__dirname, "./src");
 
 const getLakePaths = () => {
-  try {
-    const { lake } = require("../../locale.config");
-    return typeof lake === "string" ? [lake] : [];
-  } catch {
-    return []; // locale-config.js doesn't exist
+  if (!fs.existsSync(path.resolve(__dirname, "../../.linked"))) {
+    return []; // .linked doesn't exist
   }
+
+  return [
+    path.resolve(__dirname, "../../../lake/packages/lake"),
+    path.resolve(__dirname, "../../../lake/packages/shared-business"),
+  ];
 };
 
 /** @type {import('vitest/config').UserConfigFn} */

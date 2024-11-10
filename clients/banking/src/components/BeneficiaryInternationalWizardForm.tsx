@@ -98,7 +98,6 @@ export const BeneficiaryInternationalWizardForm = ({
       // TODO: Remove English fallback as soon as the backend manages "fi" in the InternationalCreditTransferDisplayLanguage type
       language: locale.language === "fi" ? "en" : locale.language,
     },
-    { normalize: false },
   );
 
   const { Field, submitForm } = useForm<{ name: string }>({

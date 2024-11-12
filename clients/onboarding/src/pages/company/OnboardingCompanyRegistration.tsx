@@ -384,7 +384,7 @@ export const OnboardingCompanyRegistration = ({
               )}
 
               <Box alignItems="start">
-                <Box direction="row" justifyContent="start">
+                <Box>
                   {haveToAcceptTcu && (
                     <>
                       <Field name="tcuAccepted">

@@ -1,5 +1,5 @@
 import { Option } from "@swan-io/boxed";
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
@@ -26,28 +26,28 @@ const columns: ColumnConfig<AccountMembershipFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("membershipList.fullName"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <FullNameAndStatusCell accountMembership={item} />,
   },
   {
     id: "rights",
     width: 220,
     title: t("membershipList.rights"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <RightsCell accountMembership={item} />,
   },
   {
     id: "email",
     width: 220,
     title: t("membershipList.email"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <EmailCell accountMembership={item} />,
   },
   {
     id: "phone",
     width: 180,
     title: t("membershipList.phoneNumber"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <PhoneNumberCell accountMembership={item} />,
   },
   {

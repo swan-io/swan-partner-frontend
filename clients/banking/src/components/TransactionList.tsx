@@ -1,4 +1,4 @@
-import { CellAction, EndAlignedCell, SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { CellAction, EndAlignedCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -43,7 +43,7 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     id: "type",
     width: 48,
     title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
   },
   {
@@ -57,21 +57,21 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     id: "method",
     width: 180,
     title: t("transactions.method"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionMethodCell transaction={item} />,
   },
   {
     id: "date",
     width: 200,
     title: t("transactions.date"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionExecutionDateCell transaction={item} />,
   },
   {
     id: "amount",
     width: 160,
     title: t("transactions.amount"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionAmountCell transaction={item} />,
   },
   {
@@ -98,14 +98,14 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     id: "type",
     width: 48,
     title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
   },
   {
     id: "label",
     width: "grow",
     title: "label",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
   },
   {

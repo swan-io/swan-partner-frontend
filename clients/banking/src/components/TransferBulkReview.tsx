@@ -2,7 +2,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import {
   CopyableRegularTextCell,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
 } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -121,7 +121,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "label",
     title: t("transfer.bulk.label"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const label = item.label;
       return (
@@ -137,7 +137,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "iban",
     title: t("transfer.bulk.iban"),
     width: 340,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const iban = item.sepaBeneficiary?.iban;
       if (iban == null) {
@@ -158,7 +158,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "reference",
     title: t("transfer.bulk.reference"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const reference = item.reference;
       return (
@@ -177,7 +177,7 @@ const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "amount",
     title: t("transfer.bulk.amount"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => {
       const amount = item.amount;
       return (

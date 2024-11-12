@@ -2,7 +2,7 @@ import {
   CellAction,
   CopyableRegularTextCell,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
   StartAlignedCell,
 } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -71,7 +71,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "label",
     width: 300,
     title: t("merchantProfile.paymentLink.list.label"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <StartAlignedCell>
         {isNullishOrEmpty(item.label) ? (
@@ -90,7 +90,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "link",
     width: "grow",
     title: t("merchantProfile.paymentLink.list.link"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <CopyableRegularTextCell
         text={item.url}
@@ -104,7 +104,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "status",
     width: 150,
     title: t("merchantProfile.paymentLink.list.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <EndAlignedCell>
         {match(item.statusInfo.status)
@@ -125,7 +125,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "amount",
     width: 200,
     title: t("transactions.amount"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <EndAlignedCell>
         <LakeText variant="regular" color={colors.gray[900]}>
@@ -165,7 +165,7 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "status",
     width: 120,
     title: t("merchantProfile.paymentLink.list.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <EndAlignedCell>
         {match(item.statusInfo.status)

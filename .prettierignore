@@ -1,7 +1,9 @@
 *.min.js
 
+LICENSE_REPORT.md
 coverage/
 dist/
-pnpm-lock.yaml
+docs/.docusaurus/
+docs/build/
 node_modules/
-LICENSE_REPORT.md
+pnpm-lock.yaml

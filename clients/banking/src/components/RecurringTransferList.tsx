@@ -4,7 +4,7 @@ import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
   SimpleRegularTextCell,
   StartAlignedCell,
 } from "@swan-io/lake/src/components/Cells";
@@ -438,7 +438,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "recipient",
     title: t("recurringTransfer.table.recipient"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary } }) => (
       <View style={styles.cell}>
         <BorderedIcon name="clock-regular" color="gray" size={32} padding={8} />
@@ -454,14 +454,14 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "label",
     title: t("recurringTransfer.table.explanation"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { label } }) => <SimpleRegularTextCell text={label ?? "-"} />,
   },
   {
     id: "period",
     title: t("recurringTransfer.table.period"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { period } }) => (
       <SimpleRegularTextCell
         text={match(period)
@@ -476,7 +476,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
     width: 250,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
         .with({ status: "Canceled" }, () => (
@@ -496,7 +496,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "amount",
     title: t("recurringTransfer.table.amount"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell
         variant="medium"
@@ -512,7 +512,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "actions",
     title: t("recurringTransfer.table.actions"),
     width: 100,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item, extraInfo: { onCancel } }) => (
       <EndAlignedCell>
         {item.statusInfo.status === "Enabled" && (
@@ -539,7 +539,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "recipient",
     title: t("recurringTransfer.table.recipient"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary, amount, statusInfo } }) => (
       <StartAlignedCell>
         <BorderedIcon
@@ -569,7 +569,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
     width: 36,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { statusInfo } }) =>
       match(statusInfo)
         .with({ status: "Canceled" }, () => (
@@ -583,7 +583,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "actions",
     title: t("recurringTransfer.table.actions"),
     width: 36,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: () => (
       <EndAlignedCell>
         <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />

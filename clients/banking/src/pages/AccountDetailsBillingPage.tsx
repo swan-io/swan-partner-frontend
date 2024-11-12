@@ -4,7 +4,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import {
   CellAction,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
   SimpleRegularTextCell,
   StartAlignedCell,
 } from "@swan-io/lake/src/components/Cells";
@@ -58,7 +58,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.name"),
     width: "grow",
     id: "name",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
       <StartAlignedCell>
         <Box direction="column">
@@ -84,7 +84,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.date"),
     width: 200,
     id: "date",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { createdAt } }) => (
       <SimpleRegularTextCell text={dayjs(createdAt).format("LL")} textAlign="right" />
     ),
@@ -93,7 +93,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.amount"),
     width: 200,
     id: "invoice",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell
         text={formatCurrency(Number(amount.value), amount.currency)}
@@ -105,7 +105,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     width: 120,
     id: "status",
     title: t("accountDetails.billing.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { status } }) => (
       <EndAlignedCell>
         {match(status)
@@ -123,7 +123,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     width: 120,
     id: "download",
     title: t("accountDetails.billing.actions"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { url, status } }) => {
       return (
         <EndAlignedCell>
@@ -162,7 +162,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.name"),
     width: "grow",
     id: "name",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
       <StartAlignedCell>
         <Box direction="column">
@@ -189,7 +189,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.amount"),
     width: 150,
     id: "invoice",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
       <SimpleRegularTextCell text={formatCurrency(Number(amount.value), amount.currency)} />
     ),
@@ -198,7 +198,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     width: 120,
     id: "status",
     title: t("accountDetails.billing.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { status } }) => (
       <StartAlignedCell>
         {match(status)

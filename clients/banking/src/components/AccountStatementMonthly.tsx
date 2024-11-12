@@ -6,7 +6,7 @@ import {
   CellAction,
   CenteredCell,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
   SimpleRegularTextCell,
   SimpleTitleCell,
 } from "@swan-io/lake/src/components/Cells";
@@ -59,7 +59,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     title: t("accountStatements.period"),
     width: 150,
     id: "period",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { openingDate } }) => (
       <SimpleTitleCell text={dayjs(openingDate).format("MMMM YYYY")} />
     ),
@@ -68,7 +68,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     title: t("accountStatements.generated"),
     width: "grow",
     id: "generated",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { createdAt, status } }) => {
       return status === "Available" ? (
         <SimpleRegularTextCell
@@ -99,7 +99,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     title: t("accountStatements.action"),
     width: 70,
     id: "action",
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="center" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="center" text={title} />,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
         <CenteredCell>

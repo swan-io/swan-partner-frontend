@@ -1,5 +1,5 @@
 import { Option } from "@swan-io/boxed";
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { ReactElement, ReactNode, useState } from "react";
@@ -38,21 +38,21 @@ const columns: ColumnConfig<CardListItemFragment, ExtraInfo>[] = [
     id: "type",
     width: "grow",
     title: t("cardList.fullNameAndCardType"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <FullNameAndCardTypeCell card={item} />,
   },
   {
     id: "name",
     width: 150,
     title: t("cardList.cardName"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <CardNameCell card={item} />,
   },
   {
     id: "spendingLimit",
     width: 200,
     title: t("cardList.spendingLimit"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <CardSpendingLimitCell card={item} />,
   },
   {

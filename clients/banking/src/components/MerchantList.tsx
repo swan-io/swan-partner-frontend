@@ -5,7 +5,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import {
   CellAction,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
   StartAlignedCell,
 } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -67,7 +67,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("merchantProfile.list.name"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <StartAlignedCell>
         <LakeText variant="medium" color={colors.gray[900]}>
@@ -80,7 +80,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "paymentMethods",
     width: 200,
     title: t("merchantProfile.list.paymentMethods"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item }) => {
       const paymentMethods = item.merchantPaymentMethods ?? [];
       const activePaymentMethods = paymentMethods.filter(
@@ -143,7 +143,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("merchantProfile.list.name"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <LakeText variant="medium" color={colors.gray[900]} style={styles.mobileCell}>
         {item.merchantName}

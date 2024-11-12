@@ -3,7 +3,7 @@ import { useMutation, useQuery } from "@swan-io/graphql-client";
 import {
   CopyableRegularTextCell,
   EndAlignedCell,
-  SimpleHeaderCell,
+  HeaderCell,
 } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -73,14 +73,14 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: "grow",
     id: "id",
     title: t("accountDetails.virtualIbans.iban"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => <IbanCell IBAN={node.IBAN} />,
   },
   {
     width: 200,
     id: "bic",
     title: t("accountDetails.virtualIbans.bic"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => (
       <CopyableRegularTextCell
         text={node.BIC}
@@ -93,7 +93,7 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: 180,
     id: "status",
     title: t("accountDetails.virtualIbans.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { node } }) => (
       <EndAlignedCell>
         {match(node.status)
@@ -125,14 +125,14 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: "grow",
     id: "id",
     title: t("accountDetails.virtualIbans.iban"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => <IbanCell IBAN={node.IBAN} />,
   },
   {
     width: 180,
     id: "status",
     title: t("accountDetails.virtualIbans.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { node } }) => (
       <EndAlignedCell>
         {match(node.status)

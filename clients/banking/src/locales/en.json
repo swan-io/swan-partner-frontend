@@ -685,6 +685,7 @@
   "merchantProfile.status.rejected.description": "This merchant profile was rejected and can’t be updated or reactivated. If needed, please request a new profile.",
   "merchantProfile.status.suspended": "Suspended",
   "merchantProfile.status.suspended.description": "This merchant profile was suspended and can't be reactivated. Please contact Swan Support with any questions.",
+  "merchantProfile.tab.payments": "Payments",
   "merchantProfile.tab.paymentLinks": "Payments links",
   "merchantProfile.tab.settings": "Settings",
   "navigation.account": "Account",

@@ -114,6 +114,11 @@ const routes = {
           List: "/",
           Details: "/:paymentLinkId",
         }),
+        ...createGroup("Payments", "/payments?:status{Active|Archived}&:search", {
+          Area: "/*",
+          List: "/",
+          Details: "/:paymentId",
+        }),
       }),
     }),
   }),

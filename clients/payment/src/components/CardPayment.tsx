@@ -244,10 +244,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
     <>
       <Box>
         {isSandbox && (
-          <Box>
+          <>
             <LakeAlert variant="info" title={t("paymentLink.alert")} />
             <Space height={24} />
-          </Box>
+          </>
         )}
 
         <LakeLabel

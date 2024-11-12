@@ -3,14 +3,7 @@ import { Link } from "@swan-io/chicane";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CellAction,
-  CenteredCell,
-  EndAlignedCell,
-  HeaderCell,
-  SimpleRegularTextCell,
-  SimpleTitleCell,
-} from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -121,7 +114,9 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderCell: ({ item: { openingDate, closingDate } }) => {
       const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
       const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
-      return <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />;
+      return (
+        <TextCell variant="medium" text={`${openingDateStatement} - ${closingDateStatement}`} />
+      );
     },
   },
   {
@@ -131,8 +126,8 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { createdAt, status } }) => {
       return status === "Available" ? (
-        <SimpleRegularTextCell
-          textAlign="left"
+        <TextCell
+          align="left"
           variant="smallMedium"
           text={dayjs(createdAt).format("MMM, DD YYYY")}
         />
@@ -146,11 +141,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? null : (
-        <SimpleRegularTextCell
-          textAlign="right"
-          variant="smallMedium"
-          text={t("accountStatements.notReady")}
-        />
+        <TextCell align="right" variant="smallMedium" text={t("accountStatements.notReady")} />
       );
     },
   },
@@ -161,9 +152,9 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} align="center" />,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
-        <CenteredCell>
+        <Cell align="center">
           <Icon name="open-regular" size={16} color={colors.gray[300]} />
-        </CenteredCell>
+        </Cell>
       ) : null;
     },
   },
@@ -178,7 +169,9 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderCell: ({ item: { openingDate, closingDate } }) => {
       const openingDateStatement = dayjs.utc(openingDate).add(1, "hour").format("MMM, DD YYYY");
       const closingDateStatement = dayjs.utc(closingDate).add(1, "hour").format("MMM, DD YYYY");
-      return <SimpleTitleCell text={`${openingDateStatement} - ${closingDateStatement}`} />;
+      return (
+        <TextCell variant="medium" text={`${openingDateStatement} - ${closingDateStatement}`} />
+      );
     },
   },
 
@@ -189,14 +182,14 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
-        <EndAlignedCell>
-          <CellAction>
+        <Cell align="right">
+          <ActionCell>
             <Icon name="open-regular" size={16} color={colors.gray[300]} />
-          </CellAction>
-        </EndAlignedCell>
+          </ActionCell>
+        </Cell>
       ) : (
-        <EndAlignedCell>
-          <CellAction>
+        <Cell align="right">
+          <ActionCell>
             <BorderedIcon
               name="clock-regular"
               padding={4}
@@ -204,8 +197,8 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               color="warning"
               borderRadius={4}
             />
-          </CellAction>
-        </EndAlignedCell>
+          </ActionCell>
+        </Cell>
       );
     },
   },

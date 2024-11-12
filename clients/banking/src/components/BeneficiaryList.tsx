@@ -1,8 +1,8 @@
 import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
-import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
-import { CellAction, EndAlignedCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -66,26 +66,12 @@ const styles = StyleSheet.create({
   headerLarge: {
     paddingHorizontal: spacings[40],
   },
-  cell: {
-    paddingHorizontal: spacings[16],
-  },
 });
 
 type Account = NonNullable<BeneficiariesListQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
 type Beneficiary = GetNode<Beneficiaries>;
 type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
-
-const Cell = (props: BoxProps) => (
-  <Box
-    direction="row"
-    alignItems="center"
-    grow={1}
-    shrink={1}
-    {...props}
-    style={[styles.cell, props.style]}
-  />
-);
 
 export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
@@ -291,15 +277,15 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Icon
             name="chevron-right-filled"
             color={isHovered ? colors.gray[900] : colors.gray[500]}
             size={16}
           />
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];

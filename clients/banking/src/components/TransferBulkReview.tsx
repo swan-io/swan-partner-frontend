@@ -1,9 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CopyableRegularTextCell,
-  EndAlignedCell,
-  HeaderCell,
-} from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -144,7 +140,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
         return null;
       }
       return (
-        <CopyableRegularTextCell
+        <CopyableTextCell
           variant="regular"
           text={printFormat(iban)}
           textToCopy={printFormat(iban)}
@@ -181,11 +177,11 @@ const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderCell: ({ item }) => {
       const amount = item.amount;
       return (
-        <EndAlignedCell>
+        <Cell align="right">
           <LakeText variant="medium" color={colors.gray[900]}>
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeText>
-        </EndAlignedCell>
+        </Cell>
       );
     },
   },

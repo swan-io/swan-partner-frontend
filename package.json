@@ -18,7 +18,6 @@
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
     "format": "prettier '**/*' --ignore-unknown --write",
-    "format-locales": "prettier '**/locales/*.json' --write",
     "link-local-lake": "sh scripts/lake/link-local-lake.sh",
     "unlink-local-lake": "sh scripts/lake/unlink-local-lake.sh",
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
@@ -34,11 +33,11 @@
     "generate-cookie-key": "tsx scripts/cookie/generateCookieKey.ts",
     "deploy-ci": "node scripts/deploy/deploy.js",
     "ai-translate": "tsx -r dotenv/config scripts/locales/aiTranslate.ts",
-    "sort-locales": "tsx scripts/locales/sort.ts",
+    "format-locales": "tsx scripts/locales/sort.ts && prettier '**/locales/*.json' --write",
     "pull-banking-locales": "localazy download banking -k localazy.keys.banking.json",
     "pull-onboarding-locales": "localazy download onboarding -k localazy.keys.onboarding.json",
     "pull-payment-locales": "localazy download payment -k localazy.keys.payment.json",
-    "pull-locales": "pnpm pull-banking-locales && pnpm pull-onboarding-locales && pnpm pull-payment-locales && pnpm sort-locales && pnpm format-locales",
+    "pull-locales": "pnpm pull-banking-locales && pnpm pull-onboarding-locales && pnpm pull-payment-locales && pnpm format-locales",
     "remove-unused-locales": "tsx scripts/locales/removeUnused.ts",
     "release": "tsx scripts/release/createPullRequest.ts",
     "dev-e2e": "tsx -r dotenv/config server/src/index.ts --dev dotenv_config_path=.env.e2e",
@@ -48,10 +47,10 @@
     "match-e2e-translations": "tsx scripts/tests/matchTranslations.ts",
     "configure-hooks": "git config --local core.hooksPath .hooks",
     "ci-get-changelog": "tsx scripts/changelog/getChangelog.ts",
-    "tggl-gen-type": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY"
+    "tggl-gen-type": "tggl typing -o types/tggl/index.d.ts -k $TGGL_SERVER_KEY && prettier 'types/tggl/*' --write"
   },
   "lint-staged": {
-    "clients/**/src/locales/*.json": "pnpm sort-locales",
+    "clients/**/src/locales/*.json": "pnpm format-locales",
     "*": "prettier --ignore-unknown --write",
     "**/*.{js,ts,tsx}": "eslint --fix",
     "clients/**/src/**/*.gql": "pnpm graphql-codegen"

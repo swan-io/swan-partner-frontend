@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { CellAction, EndAlignedCell } from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -412,8 +412,8 @@ export const CardActionsCell = ({
   onPressCancel: ({ cardId }: { cardId: string }) => void;
 }) => {
   return (
-    <EndAlignedCell>
-      <CellAction>
+    <Cell align="right">
+      <ActionCell>
         <Box direction="row" justifyContent="end" alignItems="center">
           {match(card.statusInfo)
             .with(
@@ -454,7 +454,7 @@ export const CardActionsCell = ({
             size={16}
           />
         </Box>
-      </CellAction>
-    </EndAlignedCell>
+      </ActionCell>
+    </Cell>
   );
 };

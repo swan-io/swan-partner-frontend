@@ -1,8 +1,8 @@
 import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
-import { Box, BoxProps } from "@swan-io/lake/src/components/Box";
-import { CellAction, EndAlignedCell, SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { Box } from "@swan-io/lake/src/components/Box";
+import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -66,26 +66,12 @@ const styles = StyleSheet.create({
   headerLarge: {
     paddingHorizontal: spacings[40],
   },
-  cell: {
-    paddingHorizontal: spacings[16],
-  },
 });
 
 type Account = NonNullable<BeneficiariesListQuery["account"]>;
 type Beneficiaries = NonNullable<Account["trustedBeneficiaries"]>;
 type Beneficiary = GetNode<Beneficiaries>;
 type RouteParams = GetRouteParams<"AccountPaymentsBeneficiariesList">;
-
-const Cell = (props: BoxProps) => (
-  <Box
-    direction="row"
-    alignItems="center"
-    grow={1}
-    shrink={1}
-    {...props}
-    style={[styles.cell, props.style]}
-  />
-);
 
 export const getBeneficiaryIdentifier = (beneficiary: Beneficiary) =>
   match(beneficiary)
@@ -143,7 +129,7 @@ const smallColumns: ColumnConfig<Beneficiary, undefined>[] = [
     id: "name",
     title: t("beneficiaries.label.title"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const identifier = getBeneficiaryIdentifier(item);
 
@@ -183,7 +169,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     id: "name",
     title: t("beneficiaries.label.title"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <Cell>
         <Tag
@@ -213,7 +199,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     id: "identifier",
     title: t("beneficiaries.details.title"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const identifier = getBeneficiaryIdentifier(item);
 
@@ -237,7 +223,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     id: "currency",
     title: t("beneficiaries.currency.title"),
     width: 200,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const currency = match(item)
         .with({ __typename: "TrustedInternationalBeneficiary" }, ({ currency }) => currency)
@@ -272,7 +258,7 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     id: "type",
     title: t("beneficiaries.type.title"),
     width: 200,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <Cell>
         <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
@@ -291,15 +277,15 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Icon
             name="chevron-right-filled"
             color={isHovered ? colors.gray[900] : colors.gray[500]}
             size={16}
           />
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];

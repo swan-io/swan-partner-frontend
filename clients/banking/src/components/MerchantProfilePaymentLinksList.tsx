@@ -1,10 +1,4 @@
-import {
-  CellAction,
-  CopyableRegularTextCell,
-  EndAlignedCell,
-  SimpleHeaderCell,
-  StartAlignedCell,
-} from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -71,9 +65,9 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "label",
     width: 300,
     title: t("merchantProfile.paymentLink.list.label"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         {isNullishOrEmpty(item.label) ? (
           <LakeText variant="smallRegular" color={colors.gray[300]}>
             {"-"}
@@ -83,16 +77,16 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
             {item.label}
           </LakeText>
         )}
-      </StartAlignedCell>
+      </Cell>
     ),
   },
   {
     id: "link",
     width: "grow",
     title: t("merchantProfile.paymentLink.list.link"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <CopyableRegularTextCell
+      <CopyableTextCell
         text={item.url}
         textToCopy={item.url}
         copyWording={t("copyButton.copyTooltip")}
@@ -104,9 +98,9 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "status",
     width: 150,
     title: t("merchantProfile.paymentLink.list.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(item.statusInfo.status)
           .with("Active", () => (
             <Tag color="shakespear"> {t("merchantProfile.paymentLink.status.active")} </Tag>
@@ -118,20 +112,20 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
             <Tag color="gray"> {t("merchantProfile.paymentLink.status.expired")} </Tag>
           ))
           .exhaustive()}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
     id: "amount",
     width: 200,
     title: t("transactions.amount"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         <LakeText variant="regular" color={colors.gray[900]}>
           {formatCurrency(Number(item.amount.value), item.amount.currency)}
         </LakeText>
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -140,15 +134,15 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Icon
             name="chevron-right-filled"
             color={isHovered ? colors.gray[900] : colors.gray[500]}
             size={16}
           />
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];
@@ -165,9 +159,9 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     id: "status",
     width: 120,
     title: t("merchantProfile.paymentLink.list.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(item.statusInfo.status)
           .with("Active", () => (
             <Tag color="shakespear"> {t("merchantProfile.paymentLink.status.active")} </Tag>
@@ -179,7 +173,7 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
             <Tag color="gray"> {t("merchantProfile.paymentLink.status.expired")} </Tag>
           ))
           .exhaustive()}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -188,15 +182,15 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Icon
             name="chevron-right-filled"
             color={isHovered ? colors.gray[700] : colors.gray[200]}
             size={16}
           />
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];

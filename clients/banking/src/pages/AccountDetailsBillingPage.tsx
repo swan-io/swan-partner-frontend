@@ -1,13 +1,7 @@
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CellAction,
-  EndAlignedCell,
-  SimpleHeaderCell,
-  SimpleRegularTextCell,
-  StartAlignedCell,
-} from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -58,9 +52,9 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.name"),
     width: "grow",
     id: "name",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         <Box direction="column">
           <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
             {name}
@@ -77,37 +71,34 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
             ))
             .otherwise(() => null)}
         </Box>
-      </StartAlignedCell>
+      </Cell>
     ),
   },
   {
     title: t("accountDetails.billing.date"),
     width: 200,
     id: "date",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { createdAt } }) => (
-      <SimpleRegularTextCell text={dayjs(createdAt).format("LL")} textAlign="right" />
+      <TextCell text={dayjs(createdAt).format("LL")} align="right" />
     ),
   },
   {
     title: t("accountDetails.billing.amount"),
     width: 200,
     id: "invoice",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { amount } }) => (
-      <SimpleRegularTextCell
-        text={formatCurrency(Number(amount.value), amount.currency)}
-        textAlign="right"
-      />
+      <TextCell text={formatCurrency(Number(amount.value), amount.currency)} align="right" />
     ),
   },
   {
     width: 120,
     id: "status",
     title: t("accountDetails.billing.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { status } }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(status)
           .with("Failed", value => <Tag color="negative">{value}</Tag>)
           .with("NotPaid", value => <Tag color="negative">{value}</Tag>)
@@ -116,26 +107,26 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
           .with("Pending", value => <Tag color="warning">{value}</Tag>)
           .with("Voided", value => <Tag color="gray">{value}</Tag>)
           .exhaustive()}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
     width: 120,
     id: "download",
     title: t("accountDetails.billing.actions"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { url, status } }) => {
       return (
-        <EndAlignedCell>
+        <Cell align="right">
           {isNotNullish(url) &&
           (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
             <Link target="blank" to={url} download={true}>
-              <CellAction>
+              <ActionCell>
                 <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-              </CellAction>
+              </ActionCell>
             </Link>
           ) : (
-            <CellAction>
+            <ActionCell>
               <LakeTooltip
                 content={t("accountDetails.billing.noDocumentTooltip")}
                 placement="right"
@@ -149,9 +140,9 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
                   tabIndex={0}
                 />
               </LakeTooltip>
-            </CellAction>
+            </ActionCell>
           )}
-        </EndAlignedCell>
+        </Cell>
       );
     },
   },
@@ -162,9 +153,9 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.name"),
     width: "grow",
     id: "name",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         <Box direction="column">
           <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
             {name}
@@ -181,7 +172,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
             ))
             .otherwise(() => null)}
         </Box>
-      </StartAlignedCell>
+      </Cell>
     ),
   },
 
@@ -189,18 +180,18 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.amount"),
     width: 150,
     id: "invoice",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
-      <SimpleRegularTextCell text={formatCurrency(Number(amount.value), amount.currency)} />
+      <TextCell text={formatCurrency(Number(amount.value), amount.currency)} />
     ),
   },
   {
     width: 120,
     id: "status",
     title: t("accountDetails.billing.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { status } }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         {match(status)
           .with("Failed", value => <Tag color="negative">{value}</Tag>) //pas montré
           .with("NotPaid", value => <Tag color="negative">{value}</Tag>)
@@ -209,7 +200,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
           .with("Pending", value => <Tag color="warning">{value}</Tag>) //pas montré
           .with("Voided", value => <Tag color="gray">{value}</Tag>)
           .exhaustive()}
-      </StartAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -219,16 +210,16 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ item: { url, status } }) => {
       return (
-        <EndAlignedCell>
+        <Cell align="right">
           {isNotNullish(url) &&
           (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
             <Link target="blank" to={url} download={true}>
-              <CellAction>
+              <ActionCell>
                 <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-              </CellAction>
+              </ActionCell>
             </Link>
           ) : (
-            <CellAction>
+            <ActionCell>
               <LakeTooltip
                 content={t("accountDetails.billing.noDocumentTooltip")}
                 placement="right"
@@ -242,9 +233,9 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
                   tabIndex={0}
                 />
               </LakeTooltip>
-            </CellAction>
+            </ActionCell>
           )}
-        </EndAlignedCell>
+        </Cell>
       );
     },
   },

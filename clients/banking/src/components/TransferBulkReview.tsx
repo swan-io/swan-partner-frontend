@@ -1,9 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CopyableRegularTextCell,
-  EndAlignedCell,
-  SimpleHeaderCell,
-} from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -121,7 +117,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "label",
     title: t("transfer.bulk.label"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const label = item.label;
       return (
@@ -137,14 +133,14 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "iban",
     title: t("transfer.bulk.iban"),
     width: 340,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const iban = item.sepaBeneficiary?.iban;
       if (iban == null) {
         return null;
       }
       return (
-        <CopyableRegularTextCell
+        <CopyableTextCell
           variant="regular"
           text={printFormat(iban)}
           textToCopy={printFormat(iban)}
@@ -158,7 +154,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "reference",
     title: t("transfer.bulk.reference"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const reference = item.reference;
       return (
@@ -177,15 +173,15 @@ const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     id: "amount",
     title: t("transfer.bulk.amount"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => {
       const amount = item.amount;
       return (
-        <EndAlignedCell>
+        <Cell align="right">
           <LakeText variant="medium" color={colors.gray[900]}>
             {formatCurrency(Number(amount.value), amount.currency)}
           </LakeText>
-        </EndAlignedCell>
+        </Cell>
       );
     },
   },

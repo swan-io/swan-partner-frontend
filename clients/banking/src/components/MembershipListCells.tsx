@@ -1,10 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CellAction,
-  CopyableRegularTextCell,
-  EndAlignedCell,
-  SimpleRegularTextCell,
-} from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, CopyableTextCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -352,7 +347,7 @@ export const RightsCell = ({ accountMembership }: { accountMembership: AccountMe
 
 export const EmailCell = ({ accountMembership }: { accountMembership: AccountMembership }) => {
   return (
-    <CopyableRegularTextCell
+    <CopyableTextCell
       variant="smallMedium"
       text={accountMembership.email}
       copyWording={t("copyButton.copyTooltip")}
@@ -384,10 +379,10 @@ export const PhoneNumberCell = ({
     )
     .otherwise(() => accountMembership.user?.mobilePhoneNumber);
   if (mobilePhoneNumber == null) {
-    return <SimpleRegularTextCell text={"-"} variant="smallRegular" />;
+    return <TextCell text={"-"} variant="smallRegular" />;
   }
   return (
-    <CopyableRegularTextCell
+    <CopyableTextCell
       variant="smallMedium"
       text={mobilePhoneNumber}
       copyWording={t("copyButton.copyTooltip")}
@@ -408,8 +403,8 @@ export const MembershipActionsCell = ({
   onPressCancel: ({ accountMembershipId }: { accountMembershipId: string }) => void;
 }) => {
   return (
-    <EndAlignedCell>
-      <CellAction>
+    <Cell align="right">
+      <ActionCell>
         <Box direction="row" justifyContent="end" alignItems="center">
           {match({
             accountMembership,
@@ -461,7 +456,7 @@ export const MembershipActionsCell = ({
             size={16}
           />
         </Box>
-      </CellAction>
-    </EndAlignedCell>
+      </ActionCell>
+    </Cell>
   );
 };

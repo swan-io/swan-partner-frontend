@@ -2,12 +2,7 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  EndAlignedCell,
-  SimpleHeaderCell,
-  SimpleRegularTextCell,
-  StartAlignedCell,
-} from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -438,7 +433,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "recipient",
     title: t("recurringTransfer.table.recipient"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary } }) => (
       <View style={styles.cell}>
         <BorderedIcon name="clock-regular" color="gray" size={32} padding={8} />
@@ -454,16 +449,16 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "label",
     title: t("recurringTransfer.table.explanation"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
-    renderCell: ({ item: { label } }) => <SimpleRegularTextCell text={label ?? "-"} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { label } }) => <TextCell text={label ?? "-"} />,
   },
   {
     id: "period",
     title: t("recurringTransfer.table.period"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { period } }) => (
-      <SimpleRegularTextCell
+      <TextCell
         text={match(period)
           .with("Daily", () => t("payments.new.standingOrder.details.daily"))
           .with("Weekly", () => t("payments.new.standingOrder.details.weekly"))
@@ -476,17 +471,17 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
     width: 250,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
         .with({ status: "Canceled" }, () => (
-          <EndAlignedCell>
+          <Cell align="right">
             <Tag color="negative">{t("recurringTransfer.filters.status.canceled")}</Tag>
-          </EndAlignedCell>
+          </Cell>
         ))
         .with({ status: P.union("Enabled", "ConsentPending") }, () => (
-          <SimpleRegularTextCell
-            textAlign="right"
+          <TextCell
+            align="right"
             text={nextExecutionDate != null ? formatDateTime(nextExecutionDate, "LLL") : "-"}
           />
         ))
@@ -496,9 +491,9 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "amount",
     title: t("recurringTransfer.table.amount"),
     width: 150,
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { amount } }) => (
-      <SimpleRegularTextCell
+      <TextCell
         variant="medium"
         text={
           amount != null
@@ -512,9 +507,9 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "actions",
     title: t("recurringTransfer.table.actions"),
     width: 100,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item, extraInfo: { onCancel } }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {item.statusInfo.status === "Enabled" && (
           <Pressable onPress={() => onCancel(item.id)}>
             {({ hovered }) => (
@@ -529,7 +524,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
 
         <Space width={8} />
         <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
-      </EndAlignedCell>
+      </Cell>
     ),
   },
 ];
@@ -539,9 +534,9 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "recipient",
     title: t("recurringTransfer.table.recipient"),
     width: "grow",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary, amount, statusInfo } }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         <BorderedIcon
           name="clock-regular"
           color={statusInfo.status === "Canceled" ? "negative" : "gray"}
@@ -562,20 +557,20 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
               : t("recurringTransfer.table.fullBalanceTransfer")}
           </LakeText>
         </View>
-      </StartAlignedCell>
+      </Cell>
     ),
   },
   {
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
     width: 36,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { statusInfo } }) =>
       match(statusInfo)
         .with({ status: "Canceled" }, () => (
-          <EndAlignedCell>
+          <Cell align="right">
             <BorderedIcon name="subtract-circle-regular" color="negative" size={32} padding={8} />
-          </EndAlignedCell>
+          </Cell>
         ))
         .otherwise(() => null),
   },
@@ -583,11 +578,11 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     id: "actions",
     title: t("recurringTransfer.table.actions"),
     width: 36,
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: () => (
-      <EndAlignedCell>
+      <Cell align="right">
         <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
-      </EndAlignedCell>
+      </Cell>
     ),
   },
 ];

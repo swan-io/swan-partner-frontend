@@ -1,4 +1,4 @@
-import { SimpleHeaderCell } from "@swan-io/lake/src/components/Cells";
+import { HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { ReactNode } from "react";
@@ -37,14 +37,14 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     id: "date",
     width: 200,
     title: t("transactions.date"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionExecutionDateCell transaction={item} />,
   },
   {
     id: "amount",
     width: 160,
     title: t("transactions.amount"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} justifyContent="flex-end" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionAmountCell transaction={item} />,
   },
 ];
@@ -54,7 +54,7 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     id: "label",
     width: "grow",
     title: "label",
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
   },
 ];

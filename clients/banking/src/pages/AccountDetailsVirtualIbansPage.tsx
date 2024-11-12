@@ -1,10 +1,6 @@
 import { Option } from "@swan-io/boxed";
 import { useMutation, useQuery } from "@swan-io/graphql-client";
-import {
-  CopyableRegularTextCell,
-  EndAlignedCell,
-  SimpleHeaderCell,
-} from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -60,7 +56,7 @@ const IbanCell = ({ IBAN }: { IBAN: string }) => {
   const formattedIban = useMemo(() => printIbanFormat(IBAN), [IBAN]);
 
   return (
-    <CopyableRegularTextCell
+    <CopyableTextCell
       text={formattedIban}
       copyWording={t("copyButton.copyTooltip")}
       copiedWording={t("copyButton.copiedTooltip")}
@@ -73,16 +69,16 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: "grow",
     id: "id",
     title: t("accountDetails.virtualIbans.iban"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => <IbanCell IBAN={node.IBAN} />,
   },
   {
     width: 200,
     id: "bic",
     title: t("accountDetails.virtualIbans.bic"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => (
-      <CopyableRegularTextCell
+      <CopyableTextCell
         text={node.BIC}
         copyWording={t("copyButton.copyTooltip")}
         copiedWording={t("copyButton.copiedTooltip")}
@@ -93,9 +89,9 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: 180,
     id: "status",
     title: t("accountDetails.virtualIbans.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { node } }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(node.status)
           .with("Enabled", () => (
             <Tag color="positive">{t("accountDetails.virtualIbans.status.enabled")}</Tag>
@@ -107,7 +103,7 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
             <Tag color="warning">{t("accountDetails.virtualIbans.status.suspended")}</Tag>
           ))
           .exhaustive()}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -125,16 +121,16 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     width: "grow",
     id: "id",
     title: t("accountDetails.virtualIbans.iban"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { node } }) => <IbanCell IBAN={node.IBAN} />,
   },
   {
     width: 180,
     id: "status",
     title: t("accountDetails.virtualIbans.status"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { node } }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(node.status)
           .with("Enabled", () => (
             <Tag
@@ -158,7 +154,7 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
             />
           ))
           .exhaustive()}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {

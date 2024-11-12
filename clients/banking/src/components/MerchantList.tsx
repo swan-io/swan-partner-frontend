@@ -2,12 +2,7 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import {
-  CellAction,
-  EndAlignedCell,
-  SimpleHeaderCell,
-  StartAlignedCell,
-} from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -67,20 +62,20 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("merchantProfile.list.name"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <StartAlignedCell>
+      <Cell align="left">
         <LakeText variant="medium" color={colors.gray[900]}>
           {item.merchantName}
         </LakeText>
-      </StartAlignedCell>
+      </Cell>
     ),
   },
   {
     id: "paymentMethods",
     width: 200,
     title: t("merchantProfile.list.paymentMethods"),
-    renderTitle: ({ title }) => <SimpleHeaderCell justifyContent="flex-end" text={title} />,
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item }) => {
       const paymentMethods = item.merchantPaymentMethods ?? [];
       const activePaymentMethods = paymentMethods.filter(
@@ -88,9 +83,9 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
       );
 
       return (
-        <EndAlignedCell>
+        <Cell align="right">
           <LakeText variant="regular">{activePaymentMethods.length}</LakeText>
-        </EndAlignedCell>
+        </Cell>
       );
     },
   },
@@ -100,7 +95,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ item }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(item.statusInfo.status)
           .with("Disabled", () => <Tag color="gray">{t("merchantProfile.status.disabled")}</Tag>)
           .with("Enabled", () => <Tag color="positive">{t("merchantProfile.status.enabled")}</Tag>)
@@ -114,7 +109,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
             <Tag color="warning">{t("merchantProfile.status.suspended")}</Tag>
           ))
           .otherwise(() => null)}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -123,8 +118,8 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Box direction="row" justifyContent="end" alignItems="center">
             <Icon
               name="chevron-right-filled"
@@ -132,8 +127,8 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
               size={16}
             />
           </Box>
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];
@@ -143,7 +138,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("merchantProfile.list.name"),
-    renderTitle: ({ title }) => <SimpleHeaderCell text={title} />,
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <LakeText variant="medium" color={colors.gray[900]} style={styles.mobileCell}>
         {item.merchantName}
@@ -156,7 +151,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ item }) => (
-      <EndAlignedCell>
+      <Cell align="right">
         {match(item.statusInfo.status)
           .with("Disabled", () => <Tag color="gray">{t("merchantProfile.status.disabled")}</Tag>)
           .with("Enabled", () => <Tag color="positive">{t("merchantProfile.status.enabled")}</Tag>)
@@ -170,7 +165,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
             <Tag color="warning">{t("merchantProfile.status.suspended")}</Tag>
           ))
           .otherwise(() => null)}
-      </EndAlignedCell>
+      </Cell>
     ),
   },
   {
@@ -179,8 +174,8 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <EndAlignedCell>
-        <CellAction>
+      <Cell align="right">
+        <ActionCell>
           <Box direction="row" justifyContent="end" alignItems="center">
             <Icon
               name="chevron-right-filled"
@@ -188,8 +183,8 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
               size={16}
             />
           </Box>
-        </CellAction>
-      </EndAlignedCell>
+        </ActionCell>
+      </Cell>
     ),
   },
 ];

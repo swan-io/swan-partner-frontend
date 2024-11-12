@@ -1,6 +1,7 @@
 import { Future, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -17,6 +18,7 @@ import {
   GetMerchantPaymentLinkQuery,
   InitiateCardMerchantPaymentDocument,
 } from "../graphql/unauthenticated";
+import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CarteBancaireLogo, MaestroLogo, MastercardLogo, VisaLogo } from "./CardLogos";
@@ -55,6 +57,8 @@ type Props = {
 };
 
 export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: Props) => {
+  const isSandbox = env.SWAN_ENVIRONMENT === "SANDBOX";
+
   const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
 
   const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
@@ -239,6 +243,13 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
   return (
     <>
       <Box>
+        {isSandbox && (
+          <>
+            <LakeAlert variant="info" title={t("paymentLink.alert")} />
+            <Space height={24} />
+          </>
+        )}
+
         <LakeLabel
           label={t("paymentLink.card.cardNumber")}
           render={() => (
@@ -399,7 +410,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
 
       <Space height={32} />
 
-      <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading}>
+      <LakeButton color="partner" onPress={onPressSubmit} loading={isLoading} disabled={isSandbox}>
         {t("button.pay")}
       </LakeButton>
     </>

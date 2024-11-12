@@ -3,4 +3,5 @@ export const env = {
   IS_SWAN_MODE: __env.IS_SWAN_MODE,
   PAYMENT_URL: __env.PAYMENT_URL,
   CLIENT_CHECKOUT_API_KEY: __env.CLIENT_CHECKOUT_API_KEY as string | undefined,
+  SWAN_ENVIRONMENT: __env.SWAN_ENVIRONMENT,
 };

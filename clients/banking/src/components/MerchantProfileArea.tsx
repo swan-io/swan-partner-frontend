@@ -15,8 +15,8 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { ErrorView } from "./ErrorView";
+import { MerchantProfilePaymentArea } from "./MerchantProfilePaymentArea";
 import { MerchantProfilePaymentLinkArea } from "./MerchantProfilePaymentLinkArea";
-import { MerchantProfilePaymentsArea } from "./MerchantProfilePaymentsArea";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
 
 const styles = StyleSheet.create({
@@ -119,7 +119,7 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
                     <MerchantProfilePaymentLinkArea large={large} params={params} />
                   ))
                   .with({ name: "AccountMerchantsProfilePaymentsArea" }, ({ params }) => (
-                    <MerchantProfilePaymentsArea large={large} params={params} />
+                    <MerchantProfilePaymentArea large={large} params={params} />
                   ))
                   .with(P.nullish, () => <NotFoundPage />)
                   .exhaustive()}

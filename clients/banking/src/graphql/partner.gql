@@ -2273,6 +2273,48 @@ fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
   }
 }
 
+fragment MerchantPayment on MerchantPayment {
+  id
+  label
+  createdAt
+  __typename
+  externalReference
+  statusInfo {
+    status
+  }
+  amount {
+    currency
+    value
+  }
+  paymentMethodId
+  merchantProfileId
+}
+
+fragment MerchantPaymentsConnection on MerchantPaymentConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  edges {
+    node {
+      ...MerchantPayment
+    }
+  }
+}
+
+query MerchantPayments(
+  $merchantProfileId: ID!
+  $filters: MerchantPaymentFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  merchantProfile(id: $merchantProfileId) {
+    merchantPayments(filters: $filters, first: $first, after: $after) {
+      ...MerchantPaymentsConnection
+    }
+  }
+}
+
 query MerchantPaymentLinks(
   $merchantProfileId: ID!
   $filters: MerchantPaymentLinkFiltersInput!
@@ -2807,22 +2849,6 @@ fragment MerchantPaymentMethod on MerchantPaymentMethod {
     useSwanSepaCreditorIdentifier
   }
 }
-fragment MerchantPayments on MerchantPaymentEdge {
-  node {
-    id
-    label
-    createdAt
-    __typename
-    externalReference
-    statusInfo {
-      status
-    }
-    amount {
-      currency
-      value
-    }
-  }
-}
 
 fragment MerchantProfile on MerchantProfile {
   id
@@ -2844,11 +2870,6 @@ fragment MerchantProfile on MerchantProfile {
   productType
   statusInfo {
     status
-  }
-  merchantPayments {
-    edges {
-      ...MerchantPayments
-    }
   }
   merchantPaymentMethods {
     ...MerchantPaymentMethod

@@ -50,7 +50,7 @@ type Statement = GetNode<
 const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   {
     title: t("accountStatements.period"),
-    width: 150,
+    width: "grow",
     id: "period",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { openingDate } }) => (
@@ -59,7 +59,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   },
   {
     title: t("accountStatements.generated"),
-    width: "grow",
+    width: 150,
     id: "generated",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { createdAt, status } }) => {
@@ -70,14 +70,14 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   },
   {
     title: "notReady",
-    width: "grow",
+    width: 180,
     id: "notReady",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? null : (
         <TextCell
-          color={colors.gray[300]}
           align="right"
+          color={colors.gray[300]}
           variant="smallMedium"
           text={t("accountStatements.notReady")}
         />
@@ -86,7 +86,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
   },
   {
     title: t("accountStatements.action"),
-    width: 70,
+    width: 90,
     id: "action",
     renderTitle: ({ title }) => <HeaderCell align="center" text={title} />,
     renderCell: ({ item: { status } }) => {
@@ -166,7 +166,7 @@ export const AccountStatementMonthly = ({ accountId, large }: Props) => {
                         <PlainListView
                           headerStyle={styles.columnHeaders}
                           rowStyle={() => (large ? styles.containerRowLarge : styles.containerRow)}
-                          breakpoint={breakpoints.tiny}
+                          breakpoint={breakpoints.medium}
                           data={statements?.edges?.map(({ node }) => node) ?? []}
                           keyExtractor={item => item.id}
                           headerHeight={48}

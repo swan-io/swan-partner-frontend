@@ -116,33 +116,24 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.actions"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { url, status } }) => {
-      return (
-        <Cell align="right">
-          {isNotNullish(url) &&
-          (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
-            <Link target="blank" to={url} download={true}>
-              <ActionCell>
-                <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-              </ActionCell>
-            </Link>
-          ) : (
-            <ActionCell>
-              <LakeTooltip
-                content={t("accountDetails.billing.noDocumentTooltip")}
-                placement="right"
-                togglableOnFocus={true}
-                hideArrow={true}
-              >
-                <Icon
-                  color={colors.gray[300]}
-                  size={18}
-                  name="arrow-download-filled"
-                  tabIndex={0}
-                />
-              </LakeTooltip>
-            </ActionCell>
-          )}
-        </Cell>
+      return isNotNullish(url) &&
+        (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
+        <Link target="blank" to={url} download={true}>
+          <ActionCell align="right">
+            <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
+          </ActionCell>
+        </Link>
+      ) : (
+        <ActionCell align="right">
+          <LakeTooltip
+            content={t("accountDetails.billing.noDocumentTooltip")}
+            placement="right"
+            togglableOnFocus={true}
+            hideArrow={true}
+          >
+            <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
+          </LakeTooltip>
+        </ActionCell>
       );
     },
   },
@@ -209,33 +200,24 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.actions"),
     renderTitle: () => null,
     renderCell: ({ item: { url, status } }) => {
-      return (
-        <Cell align="right">
-          {isNotNullish(url) &&
-          (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
-            <Link target="blank" to={url} download={true}>
-              <ActionCell>
-                <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-              </ActionCell>
-            </Link>
-          ) : (
-            <ActionCell>
-              <LakeTooltip
-                content={t("accountDetails.billing.noDocumentTooltip")}
-                placement="right"
-                togglableOnFocus={true}
-                hideArrow={true}
-              >
-                <Icon
-                  color={colors.gray[300]}
-                  size={18}
-                  name="arrow-download-filled"
-                  tabIndex={0}
-                />
-              </LakeTooltip>
-            </ActionCell>
-          )}
-        </Cell>
+      return isNotNullish(url) &&
+        (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
+        <Link target="blank" to={url} download={true}>
+          <ActionCell align="right">
+            <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
+          </ActionCell>
+        </Link>
+      ) : (
+        <ActionCell align="right">
+          <LakeTooltip
+            content={t("accountDetails.billing.noDocumentTooltip")}
+            placement="right"
+            togglableOnFocus={true}
+            hideArrow={true}
+          >
+            <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
+          </LakeTooltip>
+        </ActionCell>
       );
     },
   },

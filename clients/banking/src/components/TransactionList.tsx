@@ -1,4 +1,4 @@
-import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { ActionCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -80,15 +80,13 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];
@@ -114,15 +112,13 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[700] : colors.gray[200]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[700] : colors.gray[200]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];

@@ -25,7 +25,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -48,6 +48,10 @@ import { ErrorView } from "./ErrorView";
 import { RightPanelTransactionList } from "./RightPanelTransactionList";
 
 const styles = StyleSheet.create({
+  paddedCell: {
+    paddingVertical: spacings[12],
+    minHeight: 72,
+  },
   filters: {
     paddingHorizontal: 24,
   },
@@ -57,24 +61,12 @@ const styles = StyleSheet.create({
   cancelButton: {
     alignSelf: "flex-start",
   },
-  overflowingText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
   rightPanelMobile: {
     // used only for sticky tabs
     minHeight: "100%",
   },
   rightPanelDesktop: {
     ...commonStyles.fill,
-  },
-  cell: {
-    display: "flex",
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
   },
 });
 
@@ -435,14 +427,14 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     width: "grow",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary } }) => (
-      <View style={styles.cell}>
+      <Cell>
         <BorderedIcon name="clock-regular" color="gray" size={32} padding={8} />
         <Space width={24} />
 
-        <LakeHeading variant="h5" level={3} style={styles.overflowingText}>
+        <LakeHeading variant="h5" level={3} numberOfLines={1}>
           {sepaBeneficiary.name}
         </LakeHeading>
-      </View>
+      </Cell>
     ),
   },
   {
@@ -470,7 +462,7 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
   {
     id: "nextExecutionDate",
     title: t("recurringTransfer.table.nextExecution"),
-    width: 250,
+    width: 260,
     renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item: { nextExecutionDate, statusInfo } }) =>
       match(statusInfo)
@@ -536,7 +528,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     width: "grow",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary, amount, statusInfo } }) => (
-      <Cell>
+      <Cell style={styles.paddedCell}>
         <BorderedIcon
           name="clock-regular"
           color={statusInfo.status === "Canceled" ? "negative" : "gray"}
@@ -547,11 +539,11 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
         <Space width={12} />
 
         <View style={commonStyles.fill}>
-          <LakeText variant="smallRegular" style={styles.overflowingText}>
+          <LakeText variant="smallRegular" numberOfLines={1}>
             {sepaBeneficiary.name}
           </LakeText>
 
-          <LakeText variant="medium" color={colors.gray[900]} style={styles.overflowingText}>
+          <LakeText variant="medium" numberOfLines={1} color={colors.gray[900]}>
             {amount != null
               ? formatCurrency(Number(amount.value), amount.currency)
               : t("recurringTransfer.table.fullBalanceTransfer")}

@@ -8,7 +8,6 @@ import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -19,21 +18,8 @@ import { t } from "../utils/i18n";
 type AccountMembership = AccountMembershipFragment;
 
 const styles = StyleSheet.create({
-  cell: {
-    display: "flex",
-    paddingHorizontal: spacings[16],
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
-  },
   paddedCell: {
     paddingVertical: spacings[12],
-  },
-  name: {
-    ...commonStyles.fill,
-    flexDirection: "row",
-    alignItems: "center",
   },
   rightsIcon: {
     marginHorizontal: spacings[4],
@@ -266,49 +252,47 @@ export const FullNameAndStatusCell = ({
   accountMembership: AccountMembership;
 }) => {
   return (
-    <View style={styles.cell}>
-      <View style={styles.name}>
-        <LakeHeading variant="h5" level={3}>
-          {getMemberName({ accountMembership })}
-        </LakeHeading>
+    <Cell>
+      <LakeHeading variant="h5" level={3} numberOfLines={1}>
+        {getMemberName({ accountMembership })}
+      </LakeHeading>
 
-        <Space width={16} />
+      <Space width={16} />
 
-        {match(accountMembership.statusInfo)
-          .with({ __typename: "AccountMembershipEnabledStatusInfo" }, () => (
-            <Tag color="positive">{t("memberships.status.active")}</Tag>
-          ))
-          .with(
-            {
-              __typename: "AccountMembershipBindingUserErrorStatusInfo",
-              idVerifiedMatchError: true,
-            },
-            () => (
-              <>
-                <Tag color="warning">{t("memberships.status.limitedAccess")}</Tag>
-              </>
-            ),
-          )
-          .with({ __typename: "AccountMembershipBindingUserErrorStatusInfo" }, () => (
+      {match(accountMembership.statusInfo)
+        .with({ __typename: "AccountMembershipEnabledStatusInfo" }, () => (
+          <Tag color="positive">{t("memberships.status.active")}</Tag>
+        ))
+        .with(
+          {
+            __typename: "AccountMembershipBindingUserErrorStatusInfo",
+            idVerifiedMatchError: true,
+          },
+          () => (
             <>
-              <Tag color="negative">{t("memberships.status.conflict")}</Tag>
-              <Space width={16} />
-              <View style={styles.notificationPill} />
+              <Tag color="warning">{t("memberships.status.limitedAccess")}</Tag>
             </>
-          ))
-          .with({ __typename: "AccountMembershipInvitationSentStatusInfo" }, () => (
-            <Tag color="shakespear">{t("memberships.status.invitationSent")}</Tag>
-          ))
-          .with({ __typename: "AccountMembershipSuspendedStatusInfo" }, () => (
-            <Tag color="warning">{t("memberships.status.temporarilyBlocked")}</Tag>
-          ))
-          .with({ __typename: "AccountMembershipDisabledStatusInfo" }, () => (
-            <Tag color="gray">{t("memberships.status.permanentlyBlocked")}</Tag>
-          ))
-          .with({ __typename: "AccountMembershipConsentPendingStatusInfo" }, () => null)
-          .exhaustive()}
-      </View>
-    </View>
+          ),
+        )
+        .with({ __typename: "AccountMembershipBindingUserErrorStatusInfo" }, () => (
+          <>
+            <Tag color="negative">{t("memberships.status.conflict")}</Tag>
+            <Space width={16} />
+            <View style={styles.notificationPill} />
+          </>
+        ))
+        .with({ __typename: "AccountMembershipInvitationSentStatusInfo" }, () => (
+          <Tag color="shakespear">{t("memberships.status.invitationSent")}</Tag>
+        ))
+        .with({ __typename: "AccountMembershipSuspendedStatusInfo" }, () => (
+          <Tag color="warning">{t("memberships.status.temporarilyBlocked")}</Tag>
+        ))
+        .with({ __typename: "AccountMembershipDisabledStatusInfo" }, () => (
+          <Tag color="gray">{t("memberships.status.permanentlyBlocked")}</Tag>
+        ))
+        .with({ __typename: "AccountMembershipConsentPendingStatusInfo" }, () => null)
+        .exhaustive()}
+    </Cell>
   );
 };
 
@@ -318,26 +302,24 @@ export const MembershipSummaryCell = ({
   accountMembership: AccountMembership;
 }) => {
   return (
-    <View style={[styles.cell, styles.paddedCell]}>
-      <View style={styles.name}>
-        <View>
-          <LakeHeading variant="h5" level={3}>
-            {getMemberName({ accountMembership })}
-          </LakeHeading>
+    <Cell style={styles.paddedCell}>
+      <View>
+        <LakeHeading variant="h5" level={3}>
+          {getMemberName({ accountMembership })}
+        </LakeHeading>
 
-          <Space height={8} />
+        <Space height={8} />
 
-          {getRightsTag({ accountMembership })}
-        </View>
-
-        <Fill minWidth={16} />
-
-        {getStatusIcon({ accountMembership })}
-
-        <Space width={8} />
-        <Icon name="chevron-right-filled" color={colors.gray[200]} size={16} />
+        {getRightsTag({ accountMembership })}
       </View>
-    </View>
+
+      <Fill minWidth={16} />
+
+      {getStatusIcon({ accountMembership })}
+
+      <Space width={8} />
+      <Icon name="chevron-right-filled" color={colors.gray[200]} size={16} />
+    </Cell>
   );
 };
 
@@ -378,9 +360,11 @@ export const PhoneNumberCell = ({
       }) => phoneNumber,
     )
     .otherwise(() => accountMembership.user?.mobilePhoneNumber);
+
   if (mobilePhoneNumber == null) {
     return <TextCell text={"-"} variant="smallRegular" />;
   }
+
   return (
     <CopyableTextCell
       variant="smallMedium"
@@ -403,60 +387,56 @@ export const MembershipActionsCell = ({
   onPressCancel: ({ accountMembershipId }: { accountMembershipId: string }) => void;
 }) => {
   return (
-    <Cell align="right">
-      <ActionCell>
-        <Box direction="row" justifyContent="end" alignItems="center">
-          {match({
-            accountMembership,
-            isCurrentUserMembership: currentUserAccountMembershipId === accountMembership.id,
-          })
-            .with(
-              {
-                accountMembership: {
-                  statusInfo: { __typename: P.not("AccountMembershipDisabledStatusInfo") },
-                  legalRepresentative: P.not(true),
-                },
-                isCurrentUserMembership: false,
-              },
-              ({ accountMembership: { id: accountMembershipId } }) => (
-                <>
-                  <Pressable
-                    onPress={event => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      onPressCancel({ accountMembershipId });
-                    }}
-                  >
-                    {({ hovered }) => (
-                      <Icon
-                        name="subtract-circle-regular"
-                        color={
-                          hovered
-                            ? colors.negative[500]
-                            : isRowHovered
-                              ? colors.gray[700]
-                              : colors.gray[500]
-                        }
-                        size={16}
-                      />
-                    )}
-                  </Pressable>
+    <ActionCell align="right">
+      {match({
+        accountMembership,
+        isCurrentUserMembership: currentUserAccountMembershipId === accountMembership.id,
+      })
+        .with(
+          {
+            accountMembership: {
+              statusInfo: { __typename: P.not("AccountMembershipDisabledStatusInfo") },
+              legalRepresentative: P.not(true),
+            },
+            isCurrentUserMembership: false,
+          },
+          ({ accountMembership: { id: accountMembershipId } }) => (
+            <>
+              <Pressable
+                onPress={event => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  onPressCancel({ accountMembershipId });
+                }}
+              >
+                {({ hovered }) => (
+                  <Icon
+                    name="subtract-circle-regular"
+                    color={
+                      hovered
+                        ? colors.negative[500]
+                        : isRowHovered
+                          ? colors.gray[700]
+                          : colors.gray[500]
+                    }
+                    size={16}
+                  />
+                )}
+              </Pressable>
 
-                  <Space width={8} />
-                </>
-              ),
-            )
-            .otherwise(() => (
-              <Space width={24} />
-            ))}
+              <Space width={8} />
+            </>
+          ),
+        )
+        .otherwise(() => (
+          <Space width={24} />
+        ))}
 
-          <Icon
-            name="chevron-right-filled"
-            color={isRowHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </Box>
-      </ActionCell>
-    </Cell>
+      <Icon
+        name="chevron-right-filled"
+        color={isRowHovered ? colors.gray[900] : colors.gray[500]}
+        size={16}
+      />
+    </ActionCell>
   );
 };

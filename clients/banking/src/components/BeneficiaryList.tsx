@@ -277,15 +277,13 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];

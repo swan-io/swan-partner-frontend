@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
@@ -28,14 +28,7 @@ const styles = StyleSheet.create({
     userSelect: "none",
     flexGrow: 1,
     flexShrink: 1,
-    paddingHorizontal: spacings[12],
-  },
-  ellipsis: {
-    overflow: "hidden",
-    whiteSpace: "nowrap",
-    textOverflow: "ellipsis",
-    flexGrow: 1,
-    flexShrink: 1,
+    paddingHorizontal: spacings[16],
   },
 });
 
@@ -75,7 +68,7 @@ const stickedToStartColumns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
           <LakeCheckbox value={checked} />
           <Space width={8} />
 
-          <LakeText variant="semibold" color={colors.gray[900]}>
+          <LakeText variant="semibold" color={colors.gray[900]} numberOfLines={1}>
             {title}
           </LakeText>
         </Pressable>
@@ -99,12 +92,7 @@ const stickedToStartColumns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
         <LakeCheckbox value={selected.has(index)} />
         <Space width={8} />
 
-        <LakeText
-          variant="semibold"
-          color={colors.gray[900]}
-          numberOfLines={1}
-          style={styles.ellipsis}
-        >
+        <LakeText variant="semibold" color={colors.gray[900]} numberOfLines={1}>
           {item.sepaBeneficiary?.name}
         </LakeText>
       </Pressable>
@@ -120,13 +108,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const label = item.label;
-      return (
-        <View style={styles.name}>
-          <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
-            {label ?? "-"}
-          </LakeText>
-        </View>
-      );
+      return <TextCell color={colors.gray[700]} text={label ?? "-"} />;
     },
   },
   {
@@ -157,13 +139,7 @@ const columns: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => {
       const reference = item.reference;
-      return (
-        <View style={styles.name}>
-          <LakeText color={colors.gray[700]} style={styles.ellipsis} numberOfLines={1}>
-            {reference ?? "-"}
-          </LakeText>
-        </View>
-      );
+      return <TextCell color={colors.gray[700]} text={reference ?? "-"} />;
     },
   },
 ];
@@ -177,11 +153,12 @@ const stickedToEndColumn: ColumnConfig<CreditTransferInput, ExtraInfo>[] = [
     renderCell: ({ item }) => {
       const amount = item.amount;
       return (
-        <Cell align="right">
-          <LakeText variant="medium" color={colors.gray[900]}>
-            {formatCurrency(Number(amount.value), amount.currency)}
-          </LakeText>
-        </Cell>
+        <TextCell
+          variant="medium"
+          align="right"
+          color={colors.gray[900]}
+          text={formatCurrency(Number(amount.value), amount.currency)}
+        />
       );
     },
   },

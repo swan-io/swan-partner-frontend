@@ -126,28 +126,29 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { createdAt, status } }) => {
       return status === "Available" ? (
-        <TextCell
-          align="left"
-          variant="smallMedium"
-          text={dayjs(createdAt).format("MMM, DD YYYY")}
-        />
+        <TextCell variant="smallMedium" text={dayjs(createdAt).format("MMM, DD YYYY")} />
       ) : null;
     },
   },
   {
     title: "notReady",
-    width: "grow",
+    width: 180,
     id: "notReady",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? null : (
-        <TextCell align="right" variant="smallMedium" text={t("accountStatements.notReady")} />
+        <TextCell
+          align="right"
+          color={colors.gray[300]}
+          variant="smallMedium"
+          text={t("accountStatements.notReady")}
+        />
       );
     },
   },
   {
     title: t("accountStatements.action"),
-    width: 70,
+    width: 90,
     id: "action",
     renderTitle: ({ title }) => <HeaderCell text={title} align="center" />,
     renderCell: ({ item: { status } }) => {
@@ -174,22 +175,17 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
       );
     },
   },
-
   {
     title: t("accountStatements.action"),
     width: 50,
     id: "actions",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
-      return status === "Available" ? (
-        <Cell align="right">
-          <ActionCell>
+      return (
+        <ActionCell align="right">
+          {status === "Available" ? (
             <Icon name="open-regular" size={16} color={colors.gray[300]} />
-          </ActionCell>
-        </Cell>
-      ) : (
-        <Cell align="right">
-          <ActionCell>
+          ) : (
             <BorderedIcon
               name="clock-regular"
               padding={4}
@@ -197,8 +193,8 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               color="warning"
               borderRadius={4}
             />
-          </ActionCell>
-        </Cell>
+          )}
+        </ActionCell>
       );
     },
   },
@@ -518,7 +514,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
                                 rowStyle={() =>
                                   large ? styles.containerRowLarge : styles.containerRow
                                 }
-                                breakpoint={breakpoints.tiny}
+                                breakpoint={breakpoints.medium}
                                 data={statements?.edges?.map(({ node }) => node) ?? []}
                                 keyExtractor={item => item.id}
                                 headerHeight={48}

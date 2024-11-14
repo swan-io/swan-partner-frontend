@@ -1,4 +1,4 @@
-import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { ActionCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -14,10 +14,9 @@ import { t } from "../utils/i18n";
 import {
   TransactionAmountCell,
   TransactionExecutionDateCell,
+  TransactionLabelCell,
   TransactionMethodCell,
-  TransactionNameCell,
   TransactionSummaryCell,
-  TransactionTypeCell,
 } from "./TransactionListCells";
 
 type Props = {
@@ -40,18 +39,11 @@ type ExtraInfo = undefined;
 
 const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
-    id: "type",
-    width: 48,
-    title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
-  },
-  {
     id: "label",
     width: "grow",
-    title: "label",
-    renderTitle: () => null,
-    renderCell: ({ item }) => <TransactionNameCell transaction={item} />,
+    title: t("transactions.transaction"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item }) => <TransactionLabelCell transaction={item} />,
   },
   {
     id: "method",
@@ -80,31 +72,22 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];
 
 const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
-    id: "type",
-    width: 48,
-    title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
-  },
-  {
     id: "label",
     width: "grow",
-    title: "label",
+    title: t("transactions.transaction"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
   },
@@ -114,15 +97,13 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[700] : colors.gray[200]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[700] : colors.gray[200]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];

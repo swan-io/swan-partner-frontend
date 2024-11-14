@@ -2,12 +2,11 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -34,16 +33,6 @@ const styles = StyleSheet.create({
   filtersLarge: {
     paddingHorizontal: spacings[40],
   },
-  endFilters: {
-    flexGrow: 0,
-    flexShrink: 1,
-  },
-  mobileCell: {
-    paddingHorizontal: spacings[16],
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
 });
 
 type Props = {
@@ -64,11 +53,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: t("merchantProfile.list.name"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <Cell align="left">
-        <LakeText variant="medium" color={colors.gray[900]}>
-          {item.merchantName}
-        </LakeText>
-      </Cell>
+      <TextCell variant="medium" color={colors.gray[900]} text={item.merchantName} />
     ),
   },
   {
@@ -83,9 +68,11 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
       );
 
       return (
-        <Cell align="right">
-          <LakeText variant="regular">{activePaymentMethods.length}</LakeText>
-        </Cell>
+        <TextCell
+          align="right"
+          text={String(activePaymentMethods.length)}
+          color={colors.gray[500]}
+        />
       );
     },
   },
@@ -118,17 +105,13 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Box direction="row" justifyContent="end" alignItems="center">
-            <Icon
-              name="chevron-right-filled"
-              color={isHovered ? colors.gray[900] : colors.gray[500]}
-              size={16}
-            />
-          </Box>
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];
@@ -139,11 +122,7 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     width: "grow",
     title: t("merchantProfile.list.name"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => (
-      <LakeText variant="medium" color={colors.gray[900]} style={styles.mobileCell}>
-        {item.merchantName}
-      </LakeText>
-    ),
+    renderCell: ({ item }) => <TextCell variant="medium" text={item.merchantName} />,
   },
   {
     id: "status",
@@ -174,17 +153,13 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Box direction="row" justifyContent="end" alignItems="center">
-            <Icon
-              name="chevron-right-filled"
-              color={isHovered ? colors.gray[900] : colors.gray[500]}
-              size={16}
-            />
-          </Box>
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];
@@ -228,7 +203,7 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
+        <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
           <Toggle
             mode={large ? "desktop" : "mobile"}
             value={params.status === "Active"}

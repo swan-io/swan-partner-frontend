@@ -1,3 +1,4 @@
+import { Lazy } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { ActionCell, Cell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -7,8 +8,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
@@ -18,18 +18,6 @@ import { formatCurrency, t } from "../utils/i18n";
 type Card = CardListItemFragment;
 
 const styles = StyleSheet.create({
-  cell: {
-    display: "flex",
-    paddingHorizontal: spacings[16],
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
-  },
-  cellRightAlign: {
-    justifyContent: "flex-end",
-  },
-
   cardDesign: {
     width: 80,
     height: 52,
@@ -51,26 +39,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
   },
-  name: {
-    ...commonStyles.fill,
-  },
-  nameSmall: {
-    ...commonStyles.fill,
-    flexDirection: "column",
-  },
-  spendingContainer: {
-    ...commonStyles.fill,
-  },
-  spendingLimitText: {
-    flexDirection: "row",
-    justifyContent: "flex-end",
-    alignItems: "baseline",
-  },
-  spendingLimitTextSmall: {
-    flexDirection: "row",
-    justifyContent: "flex-start",
-    alignItems: "baseline",
-  },
   progress: {
     height: 2,
     borderRadius: 1,
@@ -86,7 +54,7 @@ const styles = StyleSheet.create({
   },
 });
 
-const cardChip = (
+const cardChip = Lazy(() => (
   <Svg viewBox="0 0 80 52" style={styles.cardChip}>
     <G fill="none" fillRule="evenodd">
       <Path
@@ -100,22 +68,23 @@ const cardChip = (
       />
     </G>
   </Svg>
-);
+));
 
 export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
+
   return (
-    <View style={styles.cell}>
+    <Cell>
       <View>
         <Image source={{ uri: card.cardDesignUrl }} style={styles.cardDesign} />
 
-        {card.type === "VirtualAndPhysical" ? cardChip : null}
+        {card.type === "VirtualAndPhysical" && cardChip.get()}
       </View>
 
       <Space width={24} />
 
-      <View style={styles.name}>
-        <LakeHeading variant="h5" level={3}>
+      <Box grow={1}>
+        <LakeHeading variant="h5" level={3} numberOfLines={1}>
           {getMemberName({ accountMembership: card.accountMembership })}
         </LakeHeading>
 
@@ -166,16 +135,8 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
 
             .exhaustive()}
         </Box>
-      </View>
-    </View>
-  );
-};
-
-export const CardNameCell = ({ card }: { card: Card }) => {
-  return (
-    <View style={styles.cell}>
-      <LakeText color={colors.gray[600]}>{card.name ?? "-"}</LakeText>
-    </View>
+      </Box>
+    </Cell>
   );
 };
 
@@ -196,48 +157,41 @@ export const CardSpendingLimitCell = ({ card }: { card: Card }) => {
           1,
         );
         return (
-          <View style={styles.cell}>
-            <View style={styles.spendingContainer}>
-              <View style={styles.spendingLimitText}>
-                <LakeText
-                  color={
-                    Number(spending.amount.value) >= Number(spendingLimit.amount.value)
-                      ? colors.negative[500]
-                      : colors.gray[800]
-                  }
-                  variant="smallSemibold"
-                >
-                  {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
-                </LakeText>
+          <Cell direction="column" align="right">
+            <LakeText numberOfLines={1} variant="smallRegular">
+              <LakeText
+                variant="smallSemibold"
+                color={
+                  Number(spending.amount.value) >= Number(spendingLimit.amount.value)
+                    ? colors.negative[500]
+                    : colors.gray[800]
+                }
+              >
+                {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
+              </LakeText>
 
-                <Space width={4} />
-                <LakeText variant="smallRegular">{"/"}</LakeText>
-                <Space width={4} />
+              {" / "}
 
-                <LakeText color={colors.gray[500]} variant="smallRegular">
-                  {formatCurrency(
-                    Number(spendingLimit.amount.value),
-                    spendingLimit.amount.currency,
-                  )}
-                </LakeText>
-              </View>
+              <LakeText variant="smallRegular" color={colors.gray[500]}>
+                {formatCurrency(Number(spendingLimit.amount.value), spendingLimit.amount.currency)}
+              </LakeText>
+            </LakeText>
 
-              <Space height={8} />
+            <Space height={8} />
 
-              <View style={styles.progress}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {
-                      backgroundColor:
-                        spentOverLimitRatio >= 1 ? colors.negative[500] : colors.current[500],
-                      width: `${spentOverLimitRatio * 100}%`,
-                    },
-                  ]}
-                />
-              </View>
+            <View style={styles.progress}>
+              <View
+                style={[
+                  styles.progressFill,
+                  {
+                    backgroundColor:
+                      spentOverLimitRatio >= 1 ? colors.negative[500] : colors.current[500],
+                    width: `${spentOverLimitRatio * 100}%`,
+                  },
+                ]}
+              />
             </View>
-          </View>
+          </Cell>
         );
       },
     )
@@ -246,7 +200,7 @@ export const CardSpendingLimitCell = ({ card }: { card: Card }) => {
 
 export const CardStatusCell = ({ card }: { card: Card }) => {
   return (
-    <View style={[styles.cell, styles.cellRightAlign]}>
+    <Cell align="right">
       {match(card)
         .with(
           { statusInfo: { __typename: "CardCanceledStatusInfo" } },
@@ -259,24 +213,24 @@ export const CardStatusCell = ({ card }: { card: Card }) => {
           () => <Tag color="positive">{t("cardList.status.Active")}</Tag>,
         )
         .otherwise(() => null)}
-    </View>
+    </Cell>
   );
 };
 
 export const CardSummaryCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
   return (
-    <View style={styles.cell}>
+    <Cell>
       <View>
         <Image source={{ uri: card.cardDesignUrl }} style={styles.cardDesignSmall} />
 
-        {card.type === "VirtualAndPhysical" ? cardChip : null}
+        {card.type === "VirtualAndPhysical" && cardChip.get()}
       </View>
 
       <Space width={12} />
 
-      <View style={styles.nameSmall}>
-        <LakeText variant="smallMedium" color={colors.gray[700]}>
+      <Box grow={1}>
+        <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
           {getMemberName({ accountMembership: card.accountMembership })}
         </LakeText>
 
@@ -294,34 +248,26 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                 return null;
               }
               return (
-                <View style={styles.spendingLimitTextSmall}>
+                <LakeHeading level="none" variant="h5" color={colors.gray[500]} numberOfLines={1}>
                   <LakeHeading
                     level="none"
+                    variant="h5"
                     color={
                       Number(spending.amount.value) >= Number(spendingLimit.amount.value)
                         ? colors.negative[500]
                         : colors.gray[800]
                     }
-                    variant="h5"
                   >
                     {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
                   </LakeHeading>
 
-                  <Space width={4} />
+                  {" / "}
 
-                  <LakeHeading level="none" variant="h5">
-                    {"/"}
-                  </LakeHeading>
-
-                  <Space width={4} />
-
-                  <LakeHeading level="none" color={colors.gray[500]} variant="h5">
-                    {formatCurrency(
-                      Number(spendingLimit.amount.value),
-                      spendingLimit.amount.currency,
-                    )}
-                  </LakeHeading>
-                </View>
+                  {formatCurrency(
+                    Number(spendingLimit.amount.value),
+                    spendingLimit.amount.currency,
+                  )}
+                </LakeHeading>
               );
             },
           )
@@ -333,7 +279,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
             <LakeText color={colors.gray[600]}>{card.name}</LakeText>
           </>
         ) : null}
-      </View>
+      </Box>
 
       <Box direction="row">
         {match(card)
@@ -398,7 +344,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
 
       <Space width={12} />
       <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
-    </View>
+    </Cell>
   );
 };
 
@@ -412,49 +358,45 @@ export const CardActionsCell = ({
   onPressCancel: ({ cardId }: { cardId: string }) => void;
 }) => {
   return (
-    <Cell align="right">
-      <ActionCell>
-        <Box direction="row" justifyContent="end" alignItems="center">
-          {match(card.statusInfo)
-            .with(
-              { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },
-              () => (
-                <>
-                  <Pressable
-                    onPress={event => {
-                      event.stopPropagation();
-                      event.preventDefault();
-                      onPressCancel({ cardId: card.id });
-                    }}
-                  >
-                    {({ hovered }) => (
-                      <Icon
-                        name="subtract-circle-regular"
-                        color={
-                          hovered
-                            ? colors.negative[500]
-                            : isRowHovered
-                              ? colors.gray[700]
-                              : colors.gray[500]
-                        }
-                        size={16}
-                      />
-                    )}
-                  </Pressable>
+    <ActionCell align="right">
+      {match(card.statusInfo)
+        .with(
+          { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },
+          () => (
+            <>
+              <Pressable
+                onPress={event => {
+                  event.stopPropagation();
+                  event.preventDefault();
+                  onPressCancel({ cardId: card.id });
+                }}
+              >
+                {({ hovered }) => (
+                  <Icon
+                    name="subtract-circle-regular"
+                    color={
+                      hovered
+                        ? colors.negative[500]
+                        : isRowHovered
+                          ? colors.gray[700]
+                          : colors.gray[500]
+                    }
+                    size={16}
+                  />
+                )}
+              </Pressable>
 
-                  <Space width={8} />
-                </>
-              ),
-            )
-            .otherwise(() => null)}
+              <Space width={8} />
+            </>
+          ),
+        )
+        .otherwise(() => null)}
 
-          <Icon
-            name="chevron-right-filled"
-            color={isRowHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </Box>
-      </ActionCell>
-    </Cell>
+      <Icon
+        name="chevron-right-filled"
+        color={isRowHovered ? colors.gray[900] : colors.gray[500]}
+        size={16}
+      />
+    </ActionCell>
   );
 };

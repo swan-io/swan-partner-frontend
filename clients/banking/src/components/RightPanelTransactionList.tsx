@@ -7,7 +7,7 @@ import { t } from "../utils/i18n";
 import {
   TransactionAmountCell,
   TransactionExecutionDateCell,
-  TransactionNameCell,
+  TransactionLabelCell,
   TransactionSummaryCell,
 } from "./TransactionListCells";
 
@@ -29,9 +29,9 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
     id: "label",
     width: "grow",
-    title: "label",
-    renderTitle: () => null,
-    renderCell: ({ item }) => <TransactionNameCell transaction={item} />,
+    title: t("transactions.transaction"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item }) => <TransactionLabelCell transaction={item} />,
   },
   {
     id: "date",
@@ -53,7 +53,7 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
     id: "label",
     width: "grow",
-    title: "label",
+    title: t("transactions.transaction"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
   },

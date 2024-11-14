@@ -1,4 +1,10 @@
-import { ActionCell, Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import {
+  ActionCell,
+  Cell,
+  CopyableTextCell,
+  HeaderCell,
+  TextCell,
+} from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -8,32 +14,15 @@ import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { ReactElement } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { PaymentLinkFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  cell: {
-    display: "flex",
-    paddingHorizontal: spacings[16],
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
-  },
   paddedCell: {
     paddingVertical: spacings[12],
     minHeight: 72,
-  },
-  transactionSummary: {
-    flexShrink: 1,
-    flexGrow: 1,
-  },
-  overflowingText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
   },
 });
 
@@ -41,23 +30,21 @@ type ExtraInfo = undefined;
 
 const PaymentLinkCell = ({ paymentLink }: { paymentLink: PaymentLinkFragment }) => {
   return (
-    <View style={[styles.cell, styles.paddedCell]}>
-      <View style={styles.transactionSummary}>
-        {isNullishOrEmpty(paymentLink.label) ? (
-          <LakeText variant="smallRegular" color={colors.gray[500]}>
-            {"-"}
-          </LakeText>
-        ) : (
-          <LakeText variant="smallRegular" color={colors.gray[900]} style={styles.overflowingText}>
-            {paymentLink.label}
-          </LakeText>
-        )}
-
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
+    <Cell direction="column" style={styles.paddedCell}>
+      {isNullishOrEmpty(paymentLink.label) ? (
+        <LakeText variant="smallRegular" color={colors.gray[500]}>
+          {"-"}
         </LakeText>
-      </View>
-    </View>
+      ) : (
+        <LakeText variant="smallRegular" color={colors.gray[900]} numberOfLines={1}>
+          {paymentLink.label}
+        </LakeText>
+      )}
+
+      <LakeText variant="regular" color={colors.gray[900]}>
+        {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
+      </LakeText>
+    </Cell>
   );
 };
 const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
@@ -66,19 +53,12 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     width: 300,
     title: t("merchantProfile.paymentLink.list.label"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => (
-      <Cell align="left">
-        {isNullishOrEmpty(item.label) ? (
-          <LakeText variant="smallRegular" color={colors.gray[300]}>
-            {"-"}
-          </LakeText>
-        ) : (
-          <LakeText variant="medium" color={colors.gray[900]}>
-            {item.label}
-          </LakeText>
-        )}
-      </Cell>
-    ),
+    renderCell: ({ item }) =>
+      isNullishOrEmpty(item.label) ? (
+        <TextCell variant="smallRegular" color={colors.gray[300]} text={"-"} />
+      ) : (
+        <TextCell variant="medium" color={colors.gray[900]} text={item.label} />
+      ),
   },
   {
     id: "link",
@@ -121,11 +101,11 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: t("transactions.amount"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
-      <Cell align="right">
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {formatCurrency(Number(item.amount.value), item.amount.currency)}
-        </LakeText>
-      </Cell>
+      <TextCell
+        variant="regular"
+        align="right"
+        text={formatCurrency(Number(item.amount.value), item.amount.currency)}
+      />
     ),
   },
   {
@@ -134,15 +114,13 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];
@@ -182,15 +160,13 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[700] : colors.gray[200]}
-            size={16}
-          />
-        </ActionCell>
-      </Cell>
+      <ActionCell align="right">
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[700] : colors.gray[200]}
+          size={16}
+        />
+      </ActionCell>
     ),
   },
 ];

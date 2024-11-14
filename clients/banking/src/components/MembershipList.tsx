@@ -31,14 +31,14 @@ const columns: ColumnConfig<AccountMembershipFragment, ExtraInfo>[] = [
   },
   {
     id: "rights",
-    width: 220,
+    width: 230,
     title: t("membershipList.rights"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <RightsCell accountMembership={item} />,
   },
   {
     id: "email",
-    width: 220,
+    width: 230,
     title: t("membershipList.email"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <EmailCell accountMembership={item} />,

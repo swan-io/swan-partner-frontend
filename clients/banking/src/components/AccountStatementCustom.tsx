@@ -181,15 +181,11 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
     id: "actions",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
-      return status === "Available" ? (
-        <Cell align="right">
-          <ActionCell>
+      return (
+        <ActionCell align="right">
+          {status === "Available" ? (
             <Icon name="open-regular" size={16} color={colors.gray[300]} />
-          </ActionCell>
-        </Cell>
-      ) : (
-        <Cell align="right">
-          <ActionCell>
+          ) : (
             <BorderedIcon
               name="clock-regular"
               padding={4}
@@ -197,8 +193,8 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               color="warning"
               borderRadius={4}
             />
-          </ActionCell>
-        </Cell>
+          )}
+        </ActionCell>
       );
     },
   },

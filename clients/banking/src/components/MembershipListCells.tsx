@@ -342,7 +342,7 @@ export const MembershipSummaryCell = ({
 };
 
 export const RightsCell = ({ accountMembership }: { accountMembership: AccountMembership }) => {
-  return <View style={styles.cell}>{getRightsTag({ accountMembership })}</View>;
+  return <Cell>{getRightsTag({ accountMembership })}</Cell>;
 };
 
 export const EmailCell = ({ accountMembership }: { accountMembership: AccountMembership }) => {

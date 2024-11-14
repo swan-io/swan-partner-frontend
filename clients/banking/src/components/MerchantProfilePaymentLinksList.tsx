@@ -67,7 +67,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: t("merchantProfile.paymentLink.list.label"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <Cell align="left">
+      <Cell>
         {isNullishOrEmpty(item.label) ? (
           <LakeText variant="smallRegular" color={colors.gray[300]}>
             {"-"}

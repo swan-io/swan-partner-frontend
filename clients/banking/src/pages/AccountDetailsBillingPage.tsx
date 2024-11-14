@@ -54,7 +54,7 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     id: "name",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
-      <Cell align="left">
+      <Cell>
         <Box direction="column">
           <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
             {name}
@@ -155,7 +155,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     id: "name",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
-      <Cell align="left">
+      <Cell>
         <Box direction="column">
           <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
             {name}
@@ -191,7 +191,7 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.status"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { status } }) => (
-      <Cell align="left">
+      <Cell>
         {match(status)
           .with("Failed", value => <Tag color="negative">{value}</Tag>) //pas montré
           .with("NotPaid", value => <Tag color="negative">{value}</Tag>)

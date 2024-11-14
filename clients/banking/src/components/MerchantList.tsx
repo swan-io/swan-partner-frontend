@@ -64,7 +64,7 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: t("merchantProfile.list.name"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <Cell align="left">
+      <Cell>
         <LakeText variant="medium" color={colors.gray[900]}>
           {item.merchantName}
         </LakeText>

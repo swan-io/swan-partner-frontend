@@ -536,7 +536,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
     width: "grow",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { sepaBeneficiary, amount, statusInfo } }) => (
-      <Cell align="left">
+      <Cell>
         <BorderedIcon
           name="clock-regular"
           color={statusInfo.status === "Canceled" ? "negative" : "gray"}

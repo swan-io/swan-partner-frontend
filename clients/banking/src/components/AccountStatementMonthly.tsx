@@ -64,11 +64,7 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { createdAt, status } }) => {
       return status === "Available" ? (
-        <TextCell
-          align="left"
-          variant="smallMedium"
-          text={dayjs(createdAt).format("MMM, DD YYYY")}
-        />
+        <TextCell variant="smallMedium" text={dayjs(createdAt).format("MMM, DD YYYY")} />
       ) : null;
     },
   },

@@ -303,7 +303,7 @@ export const MembershipSummaryCell = ({
 }) => {
   return (
     <Cell style={styles.paddedCell}>
-      <View>
+      <Box grow={1} shrink={1}>
         <LakeHeading variant="h5" level={3}>
           {getMemberName({ accountMembership })}
         </LakeHeading>
@@ -311,7 +311,7 @@ export const MembershipSummaryCell = ({
         <Space height={8} />
 
         {getRightsTag({ accountMembership })}
-      </View>
+      </Box>
 
       <Fill minWidth={16} />
 

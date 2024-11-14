@@ -14,10 +14,9 @@ import { t } from "../utils/i18n";
 import {
   TransactionAmountCell,
   TransactionExecutionDateCell,
+  TransactionLabelCell,
   TransactionMethodCell,
-  TransactionNameCell,
   TransactionSummaryCell,
-  TransactionTypeCell,
 } from "./TransactionListCells";
 
 type Props = {
@@ -40,18 +39,11 @@ type ExtraInfo = undefined;
 
 const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
-    id: "type",
-    width: 48,
-    title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
-  },
-  {
     id: "label",
     width: "grow",
-    title: "label",
-    renderTitle: () => null,
-    renderCell: ({ item }) => <TransactionNameCell transaction={item} />,
+    title: t("transactions.transaction"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item }) => <TransactionLabelCell transaction={item} />,
   },
   {
     id: "method",
@@ -93,16 +85,9 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
 
 const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
   {
-    id: "type",
-    width: 48,
-    title: t("transactions.transaction"),
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <TransactionTypeCell transaction={item} />,
-  },
-  {
     id: "label",
     width: "grow",
-    title: "label",
+    title: t("transactions.transaction"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
   },

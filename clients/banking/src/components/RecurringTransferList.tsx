@@ -32,7 +32,7 @@ import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useCallback, useMemo, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   CancelStandingOrderDocument,
@@ -538,7 +538,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
 
         <Space width={12} />
 
-        <View style={commonStyles.fill}>
+        <Box grow={1} shrink={1}>
           <LakeText variant="smallRegular" numberOfLines={1}>
             {sepaBeneficiary.name}
           </LakeText>
@@ -548,7 +548,7 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
               ? formatCurrency(Number(amount.value), amount.currency)
               : t("recurringTransfer.table.fullBalanceTransfer")}
           </LakeText>
-        </View>
+        </Box>
       </Cell>
     ),
   },

@@ -1,3 +1,5 @@
+import { Box } from "@swan-io/lake/src/components/Box";
+import { Cell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -6,7 +8,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, radii, spacings } from "@swan-io/lake/src/constants/design";
 import dayjs from "dayjs";
-import { Image, StyleSheet, View } from "react-native";
+import { Image, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import {
   MerchantCategory,
@@ -18,32 +20,9 @@ import { formatCurrency, isTranslationKey, t } from "../utils/i18n";
 type Transaction = TransactionDetailsFragment;
 
 const styles = StyleSheet.create({
-  cell: {
-    display: "flex",
-    paddingHorizontal: spacings[16],
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
-  },
-  cellRightAlign: {
-    justifyContent: "flex-end",
-  },
   paddedCell: {
     paddingVertical: spacings[12],
     minHeight: 72,
-  },
-  amounts: {
-    alignItems: "flex-end",
-  },
-  overflowingText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-  transactionSummary: {
-    flexShrink: 1,
-    flexGrow: 1,
   },
   merchantLogo: {
     width: spacings[24],
@@ -128,9 +107,9 @@ export const getTransactionLabel = (transaction: Transaction): string =>
     )
     .otherwise(() => transaction.label);
 
-export const TransactionTypeCell = ({ transaction }: { transaction: Transaction }) => {
+export const TransactionLabelCell = ({ transaction }: { transaction: Transaction }) => {
   return (
-    <View style={styles.cell}>
+    <Cell>
       {match(transaction)
         .with(
           {
@@ -152,14 +131,10 @@ export const TransactionTypeCell = ({ transaction }: { transaction: Transaction 
               .otherwise(() => "gray" as const)}
           />
         ))}
-    </View>
-  );
-};
 
-export const TransactionNameCell = ({ transaction }: { transaction: Transaction }) => {
-  return (
-    <View style={styles.cell}>
-      <LakeHeading variant="h5" level={3} style={styles.overflowingText}>
+      <Space width={20} />
+
+      <LakeHeading variant="h5" level={3} numberOfLines={1}>
         {getTransactionLabel(transaction)}
       </LakeHeading>
 
@@ -183,7 +158,7 @@ export const TransactionNameCell = ({ transaction }: { transaction: Transaction 
           </>
         ))
         .otherwise(() => null)}
-    </View>
+    </Cell>
   );
 };
 
@@ -205,41 +180,43 @@ export const TransactionMethodCell = ({
   transaction: Transaction | { __typename: string };
 }) => {
   return (
-    <View style={[styles.cell, styles.cellRightAlign]}>
-      <LakeText align="right" variant="smallMedium" color={colors.gray[600]}>
-        {match(transaction)
-          .with({ __typename: "CardTransaction" }, () => t("transactions.method.Card"))
-          .with({ __typename: "CheckTransaction" }, () => t("transactions.method.Check"))
-          .with({ __typename: "FeeTransaction" }, () => t("transactions.method.Fees"))
-          .with(
-            { __typename: "InternalCreditTransfer" },
-            { type: "SepaInstantCreditTransferIn" },
-            { type: "SepaInstantCreditTransferOut" },
-            () => t("transactions.method.InstantTransfer"),
-          )
-          .with(
-            { __typename: "SEPACreditTransferTransaction" },
-            { __typename: "InternationalCreditTransferTransaction" },
-            () => t("transactions.method.Transfer"),
-          )
-          .with(
-            { __typename: "InternalDirectDebitTransaction" },
-            { __typename: "SEPADirectDebitTransaction" },
-            () => t("transactions.method.DirectDebit"),
-          )
-          .otherwise(({ __typename }) => formatTransactionType(__typename))}
-      </LakeText>
-    </View>
+    <TextCell
+      align="right"
+      variant="smallMedium"
+      color={colors.gray[600]}
+      text={match(transaction)
+        .with({ __typename: "CardTransaction" }, () => t("transactions.method.Card"))
+        .with({ __typename: "CheckTransaction" }, () => t("transactions.method.Check"))
+        .with({ __typename: "FeeTransaction" }, () => t("transactions.method.Fees"))
+        .with(
+          { __typename: "InternalCreditTransfer" },
+          { type: "SepaInstantCreditTransferIn" },
+          { type: "SepaInstantCreditTransferOut" },
+          () => t("transactions.method.InstantTransfer"),
+        )
+        .with(
+          { __typename: "SEPACreditTransferTransaction" },
+          { __typename: "InternationalCreditTransferTransaction" },
+          () => t("transactions.method.Transfer"),
+        )
+        .with(
+          { __typename: "InternalDirectDebitTransaction" },
+          { __typename: "SEPADirectDebitTransaction" },
+          () => t("transactions.method.DirectDebit"),
+        )
+        .otherwise(({ __typename }) => formatTransactionType(__typename))}
+    />
   );
 };
 
 export const TransactionExecutionDateCell = ({ transaction }: { transaction: Transaction }) => {
   return (
-    <View style={[styles.cell, styles.cellRightAlign]}>
-      <LakeText align="right" variant="smallMedium" color={colors.gray[600]}>
-        {dayjs(transaction.executionDate).format("LL")}
-      </LakeText>
-    </View>
+    <TextCell
+      variant="smallMedium"
+      align="right"
+      color={colors.gray[600]}
+      text={dayjs(transaction.executionDate).format("LL")}
+    />
   );
 };
 
@@ -311,76 +288,72 @@ const TransactionOriginalAmount = ({
 
 export const TransactionAmountCell = ({ transaction }: { transaction: Transaction }) => {
   return (
-    <View style={[styles.cell, styles.cellRightAlign]}>
-      <View style={styles.amounts}>
-        <TransactionAmount transaction={transaction} />
+    <Cell align="right" direction="column">
+      <TransactionAmount transaction={transaction} />
 
-        {match(transaction)
-          .with(
-            {
-              __typename: "CardTransaction",
-              originalAmount: { value: P.string, currency: P.string },
+      {match(transaction)
+        .with(
+          {
+            __typename: "CardTransaction",
+            originalAmount: { value: P.string, currency: P.string },
+          },
+          transaction =>
+            transaction.originalAmount.currency !== transaction.amount.currency ? (
+              <TransactionOriginalAmount transaction={transaction} />
+            ) : null,
+        )
+        .with(
+          {
+            __typename: "InternationalCreditTransferTransaction",
+            internationalCurrencyExchange: {
+              sourceAmount: { currency: P.string },
+              targetAmount: { value: P.string, currency: P.string },
             },
-            transaction =>
-              transaction.originalAmount.currency !== transaction.amount.currency ? (
-                <TransactionOriginalAmount transaction={transaction} />
-              ) : null,
-          )
-          .with(
-            {
-              __typename: "InternationalCreditTransferTransaction",
-              internationalCurrencyExchange: {
-                sourceAmount: { currency: P.string },
-                targetAmount: { value: P.string, currency: P.string },
-              },
-            },
-            transaction =>
-              transaction.internationalCurrencyExchange.sourceAmount.currency !==
-              transaction.internationalCurrencyExchange.targetAmount.currency ? (
-                <TransactionOriginalAmount transaction={transaction} />
-              ) : null,
-          )
-          .otherwise(() => null)}
-      </View>
-    </View>
+          },
+          transaction =>
+            transaction.internationalCurrencyExchange.sourceAmount.currency !==
+            transaction.internationalCurrencyExchange.targetAmount.currency ? (
+              <TransactionOriginalAmount transaction={transaction} />
+            ) : null,
+        )
+        .otherwise(() => null)}
+    </Cell>
   );
 };
 
 export const TransactionSummaryCell = ({ transaction }: { transaction: Transaction }) => {
   return (
-    <View style={[styles.cell, styles.paddedCell]}>
-      <View style={styles.transactionSummary}>
-        <LakeText variant="smallRegular" style={styles.overflowingText}>
+    <Cell style={styles.paddedCell}>
+      <Box grow={1} shrink={1}>
+        <LakeText variant="smallRegular" numberOfLines={1}>
           {getTransactionLabel(transaction)}
         </LakeText>
 
         <TransactionAmount transaction={transaction} />
-      </View>
+      </Box>
 
       <Fill minWidth={32} />
 
-      <View>
-        {match(transaction.statusInfo.__typename)
-          .with("PendingTransactionStatusInfo", () => (
-            <>
-              <Space width={12} />
-              <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
-            </>
-          ))
-          .with("RejectedTransactionStatusInfo", () => (
-            <>
-              <Space width={12} />
-              <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
-            </>
-          ))
-          .with("CanceledTransactionStatusInfo", () => (
-            <>
-              <Space width={12} />
-              <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
-            </>
-          ))
-          .otherwise(() => null)}
-      </View>
-    </View>
+      {match(transaction.statusInfo.__typename)
+        .with("PendingTransactionStatusInfo", () => (
+          <>
+            <Space width={12} />
+            <Tag color="shakespear">{t("transactionStatus.pending")}</Tag>
+          </>
+        ))
+        .with("RejectedTransactionStatusInfo", () => (
+          <>
+            <Space width={12} />
+            <Tag color="negative">{t("transactionStatus.rejected")}</Tag>
+          </>
+        ))
+        .with("CanceledTransactionStatusInfo", () => (
+          <>
+            <Space width={12} />
+            <Tag color="gray">{t("transactionStatus.canceled")}</Tag>
+          </>
+        ))
+        .otherwise(() => null)}
+    </Cell>
   );
 };

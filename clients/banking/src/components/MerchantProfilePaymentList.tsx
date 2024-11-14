@@ -244,8 +244,6 @@ export const MerchantProfilePaymentList = ({
   onActiveRowChange,
   isLoading,
 }: Props) => {
-  console.log(payments);
-
   return (
     <PlainListView
       withoutScroll={!large}

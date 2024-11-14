@@ -25,6 +25,7 @@ import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
+import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
 
 const styles = StyleSheet.create({
@@ -277,8 +278,11 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                     }
                     items={payments?.edges.map(item => item.node) ?? []}
                     render={(item, large) => (
-                      // <MerchantProfilePaymentsDetail large={large} paymentLinkId={item.id} />
-                      <p>detail</p>
+                      <MerchantProfilePaymentDetail
+                        paymentLinkId={item.paymentLinkId}
+                        paymentId={item.id}
+                        large={large}
+                      />
                     )}
                     closeLabel={t("common.closeButton")}
                     previousLabel={t("common.previous")}

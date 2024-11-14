@@ -2288,6 +2288,41 @@ fragment MerchantPayment on MerchantPayment {
   }
   paymentMethodId
   merchantProfileId
+  balance {
+    totalAuthorized {
+      currency
+      value
+    }
+    totalCaptured {
+      currency
+      value
+    }
+    availableToCapture {
+      currency
+      value
+    }
+    totalRefunded {
+      currency
+      value
+    }
+    availableToRefund {
+      currency
+      value
+    }
+    availableToCancel {
+      currency
+      value
+    }
+  }
+  paymentLinkId
+  id
+  reference
+  threeDS {
+    requested
+    statusInfo {
+      status
+    }
+  }
 }
 
 fragment MerchantPaymentsConnection on MerchantPaymentConnection {
@@ -2312,6 +2347,15 @@ query MerchantPayments(
     merchantPayments(filters: $filters, first: $first, after: $after) {
       ...MerchantPaymentsConnection
     }
+  }
+}
+
+query GetMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+  merchantPaymentLink(id: $paymentLinkId) {
+    ...PaymentLink
   }
 }
 

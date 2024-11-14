@@ -1,14 +1,14 @@
 import { Option } from "@swan-io/boxed";
-import { HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
+import { colors } from "@swan-io/lake/src/constants/design";
 import { ReactElement, ReactNode, useState } from "react";
 import { CardListItemFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
 import {
   CardActionsCell,
-  CardNameCell,
   CardSpendingLimitCell,
   CardStatusCell,
   CardSummaryCell,
@@ -46,7 +46,7 @@ const columns: ColumnConfig<CardListItemFragment, ExtraInfo>[] = [
     width: 150,
     title: t("cardList.cardName"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <CardNameCell card={item} />,
+    renderCell: ({ item }) => <TextCell color={colors.gray[600]} text={item.name ?? "-"} />,
   },
   {
     id: "spendingLimit",

@@ -3,10 +3,10 @@
   "description": "Swan front-end code",
   "version": "1.23.2",
   "private": true,
-  "packageManager": "pnpm@9.9.0",
+  "packageManager": "pnpm@9.13.0",
   "engines": {
     "node": ">=18.20.0",
-    "pnpm": "9.9.0"
+    "pnpm": "^9.13.0"
   },
   "repository": {
     "type": "git",

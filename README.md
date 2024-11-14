@@ -16,7 +16,7 @@ $ cd swan-partner-frontend
 
 ### 1. Dependencies
 
-Install [pnpm 9.9.0](https://pnpm.io/installation#installing-a-specific-version) (needed for the monorepo management).
+Install [pnpm](https://pnpm.io/installation) (needed for the monorepo management).
 
 ```console
 $ pnpm install

@@ -1,6 +1,5 @@
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
-import { Box } from "@swan-io/lake/src/components/Box";
 import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -13,7 +12,7 @@ import {
 } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import dayjs from "dayjs";
@@ -28,11 +27,9 @@ import {
 import { formatCurrency, t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
-  regularText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    flexGrow: 1,
-    whiteSpace: "nowrap",
+  paddedCell: {
+    paddingVertical: spacings[12],
+    minHeight: 72,
   },
 });
 
@@ -55,22 +52,20 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
       <Cell>
-        <Box direction="column">
-          <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
-            {name}
-          </LakeText>
+        <LakeText color={colors.gray[900]} variant="regular" numberOfLines={1}>
+          {name}
+        </LakeText>
 
-          <Space height={4} />
+        <Space width={12} />
 
-          {match(type)
-            .with("Invoice", () => (
-              <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
-            ))
-            .with("RefundNote", () => (
-              <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
-            ))
-            .otherwise(() => null)}
-        </Box>
+        {match(type)
+          .with("Invoice", () => (
+            <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
+          ))
+          .with("RefundNote", () => (
+            <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
+          ))
+          .otherwise(() => null)}
       </Cell>
     ),
   },
@@ -146,27 +141,24 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     id: "name",
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { name, type } }) => (
-      <Cell>
-        <Box direction="column">
-          <LakeText color={colors.gray[900]} style={styles.regularText} variant="regular">
-            {name}
-          </LakeText>
+      <Cell direction="column" style={styles.paddedCell}>
+        <LakeText color={colors.gray[900]} numberOfLines={1} variant="regular">
+          {name}
+        </LakeText>
 
-          <Space height={4} />
+        <Space height={4} />
 
-          {match(type)
-            .with("Invoice", () => (
-              <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
-            ))
-            .with("RefundNote", () => (
-              <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
-            ))
-            .otherwise(() => null)}
-        </Box>
+        {match(type)
+          .with("Invoice", () => (
+            <Tag color="shakespear">{t("accountDetails.billing.type.Invoice")}</Tag>
+          ))
+          .with("RefundNote", () => (
+            <Tag color="darkPink">{t("accountDetails.billing.type.RefundNote")}</Tag>
+          ))
+          .otherwise(() => null)}
       </Cell>
     ),
   },
-
   {
     title: t("accountDetails.billing.amount"),
     width: 150,

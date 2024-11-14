@@ -20,6 +20,7 @@ type AccountMembership = AccountMembershipFragment;
 const styles = StyleSheet.create({
   paddedCell: {
     paddingVertical: spacings[12],
+    minHeight: 72,
   },
   rightsIcon: {
     marginHorizontal: spacings[4],

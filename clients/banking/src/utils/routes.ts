@@ -101,14 +101,14 @@ const routes = {
       },
     ),
 
-    ...createGroup("Merchants", "/merchants?:new", {
+    ...createGroup("Merchants", "/merchants?:new{true}&:check{declare|next}", {
       Area: "/*",
-      Root: "/?:new{true}",
+      Root: "/",
       List: "/profiles?:status{Active|Inactive}",
 
       ...createGroup("Profile", "/:merchantProfileId", {
         Area: "/*",
-        Settings: "/settings?:check{declare|next}",
+        Settings: "/settings",
         ...createGroup("PaymentLink", "/payment-links?:status{Active|Archived}&:search", {
           Area: "/*",
           List: "/",

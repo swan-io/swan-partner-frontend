@@ -15,6 +15,8 @@ import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { MerchantPaymentFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
+import { GetRouteParams } from "../utils/routes";
+import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
 
 const styles = StyleSheet.create({
   cell: {
@@ -226,6 +228,7 @@ const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
 ];
 
 type Props = {
+  params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
   payments: MerchantPaymentFragment[];
   getRowLink: (item: LinkConfig<MerchantPaymentFragment, ExtraInfo>) => ReactElement;
   activeRowId: string | undefined;
@@ -236,6 +239,7 @@ type Props = {
 };
 
 export const MerchantProfilePaymentList = ({
+  params,
   payments,
   onEndReached,
   large,
@@ -263,14 +267,7 @@ export const MerchantProfilePaymentList = ({
         isLoading,
         count: 5,
       }}
-      renderEmptyList={() => (
-        <p>todo</p>
-        // <EmptyView
-        //   icon="lake-transfer"
-        //   borderedIcon={true}
-        //   title={t("merchantProfile.payments.noResults")}
-        // />
-      )}
+      renderEmptyList={() => <MerchantProfilePaymentPicker params={params} />}
     />
   );
 };

@@ -225,6 +225,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
               {payments => (
                 <>
                   <MerchantProfilePaymentList
+                    params={params}
                     isLoading={isLoading}
                     payments={payments?.edges.map(item => item.node) ?? []}
                     large={large}

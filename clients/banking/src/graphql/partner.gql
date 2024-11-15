@@ -2339,13 +2339,20 @@ fragment MerchantPaymentsConnection on MerchantPaymentConnection {
 
 query MerchantPayments(
   $merchantProfileId: ID!
-  $filters: MerchantPaymentFiltersInput!
+  # $filters: MerchantPaymentFiltersInput!
   $first: Int!
   $after: String
 ) {
   merchantProfile(id: $merchantProfileId) {
-    merchantPayments(filters: $filters, first: $first, after: $after) {
+    merchantPayments(first: $first, after: $after) {
       ...MerchantPaymentsConnection
+    }
+    merchantPaymentMethods {
+      id
+      type
+      statusInfo {
+        status
+      }
     }
   }
 }

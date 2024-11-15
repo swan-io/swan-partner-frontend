@@ -1,4 +1,4 @@
-import { AsyncData, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -13,12 +13,12 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
 import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
-  MerchantPaymentFiltersInput,
   MerchantPaymentFragment,
+  MerchantPaymentMethodType,
   MerchantPaymentsDocument,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -45,6 +45,12 @@ const styles = StyleSheet.create({
 
 const PER_PAGE = 20;
 
+const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
+  "Card",
+  "SepaDirectDebitB2b",
+  "SepaDirectDebitCore",
+]);
+
 type Props = {
   params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
   large: boolean;
@@ -58,17 +64,9 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
     "AccountMerchantsProfilePaymentsDetails",
   ]);
 
-  const filters: MerchantPaymentFiltersInput = useMemo(() => {
-    return {
-      status: params.status,
-      search: nullishOrEmptyToUndefined(params.search),
-    } as const;
-  }, [params]);
-
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
     merchantProfileId,
     first: PER_PAGE,
-    filters,
   });
 
   const panelRef = useRef<FocusTrapRef | null>(null);
@@ -100,16 +98,29 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
   const search = nullishOrEmptyToUndefined(params.search);
 
+  const shouldEnableNewButton = data
+    .toOption()
+    .flatMap(result => result.toOption())
+    .flatMap(({ merchantProfile }) => Option.fromNullable(merchantProfile))
+    .map(merchant => {
+      const paymentMethods = merchant.merchantPaymentMethods ?? [];
+      return paymentMethods.some(
+        paymentMethod =>
+          ALLOWED_PAYMENT_METHODS.has(paymentMethod.type) &&
+          paymentMethod.statusInfo.status === "Enabled",
+      );
+    });
+
   return (
     <>
       {!large && (
         <Box style={styles.containerMobile} alignItems="stretch">
           <LakeTooltip
-            content={t("merchantProfile.paymentLink.button.new.disable")} //TODO
-            // disabled={shouldEnableNewButton !== Option.Some(false)}
+            content={t("merchantProfile.paymentLink.button.new.disable")}
+            disabled={shouldEnableNewButton !== Option.Some(false)}
           >
             <LakeButton
-              // disabled={!shouldEnableNewButton.getOr(false)}
+              disabled={!shouldEnableNewButton.getOr(false)}
               size="small"
               icon="add-circle-filled"
               color="current"
@@ -121,7 +132,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                 })
               }
             >
-              {t("merchantProfile.payments.button.new")} //TODO
+              {t("merchantProfile.paymentLink.button.new")}
             </LakeButton>
           </LakeTooltip>
         </Box>
@@ -135,11 +146,11 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
         {large && (
           <>
             <LakeTooltip
-              content={t("merchantProfile.paymentLink.button.new.disable")} //TODO
-              // disabled={shoul={shouldEnableNewButton !== Option.Some(false)}
+              content={t("merchantProfile.paymentLink.button.new.disable")}
+              disabled={shouldEnableNewButton !== Option.Some(false)}
             >
               <LakeButton
-                // disabled={!shouldEnableNewButton.getOr(false)}
+                disabled={!shouldEnableNewButton.getOr(false)}
                 size="small"
                 icon="add-circle-filled"
                 color="current"
@@ -155,24 +166,6 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
               </LakeButton>
             </LakeTooltip>
             {/* // TODO USE FILL */}
-            <Space width={12} />
-
-            <LakeButton
-              // disabled={!shouldEnableNewButton.getOr(false)}
-              size="small"
-              mode="secondary"
-              onPress={
-                () => {}
-                // Router.push("AccountMerchantsProfilePaymentLinkList", {
-                //   new: "true",
-                //   accountMembershipId,
-                //   merchantProfileId,
-                // })
-              }
-            >
-              {t("merchantProfile.payments.button.refund")}
-            </LakeButton>
-
             <Space width={12} />
           </>
         )}

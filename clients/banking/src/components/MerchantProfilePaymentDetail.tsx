@@ -194,19 +194,18 @@ export const MerchantProfilePaymentDetail = ({ paymentLinkId, paymentId, large }
               )}
             />
 
-            <LakeLabel
+            {/* <LakeLabel
               type="view"
               label={t("merchantProfile.payments.details.chargebackBalance")}
               render={() => (
                 <LakeText variant="regular" color={colors.gray[900]}>
-                  TODO
-                  {/* {formatCurrency(
-                        Number(payment.balance.availableToCancel.value),
-                        payment.balance.availableToCancel.currency,
-                      )} */}
+                  {formatCurrency(
+                        Number(payment.balance.chargebackBalance.value),
+                        payment.balance.chargebackBalance.currency,
+                      )}
                 </LakeText>
               )}
-            />
+            /> */}
 
             <LakeLabel
               type="view"

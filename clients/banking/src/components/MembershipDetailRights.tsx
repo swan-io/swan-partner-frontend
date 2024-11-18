@@ -22,7 +22,7 @@ import {
   UpdateAccountMembershipDocument,
   UpdateAccountMembershipInput,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -81,7 +81,7 @@ export const MembershipDetailRights = ({
   onRefreshRequest,
   large,
 }: Props) => {
-  const canUpdateMembership = usePermission("updateAccountMembership");
+  const { canUpdateAccountMembership } = usePermissions();
 
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
   const [valuesToConfirm, setValuesToConfirm] = useState<Option<FormValues>>(Option.None());
@@ -273,7 +273,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange }) => (
           <LakeLabelledCheckbox
             disabled={
-              !canUpdateMembership ||
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canViewAccount === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -293,7 +293,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
-              !canUpdateMembership ||
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canInitiatePayments === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -314,7 +314,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
-              !canUpdateMembership ||
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageBeneficiaries === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -335,7 +335,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
-              !canUpdateMembership ||
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageAccountMembership === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -356,7 +356,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange }) => (
           <LakeLabelledCheckbox
             disabled={
-              !canUpdateMembership ||
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageCards === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -386,7 +386,7 @@ export const MembershipDetailRights = ({
                 },
               },
               () =>
-                canUpdateMembership && !isEditingCurrentUserAccountMembership ? (
+                canUpdateAccountMembership && !isEditingCurrentUserAccountMembership ? (
                   <LakeButton
                     color="current"
                     loading={membershipUpdate.isLoading() && valuesToConfirm.isNone()}
@@ -402,7 +402,7 @@ export const MembershipDetailRights = ({
           {match({
             isEditingCurrentUserAccountMembership,
             editingAccountMembership,
-            canUpdateMembership,
+            canUpdateAccountMembership,
           })
             .with(
               // Can't suspend yourself
@@ -411,7 +411,7 @@ export const MembershipDetailRights = ({
               {
                 editingAccountMembership: { legalRepresentative: true },
               },
-              { canUpdateMembership: false },
+              { canUpdateAccountMembership: false },
               () => null,
             )
             .with(

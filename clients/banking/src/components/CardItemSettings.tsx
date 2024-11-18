@@ -18,7 +18,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageQuery, IdentificationFragment, UpdateCardDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { getMemberName } from "../utils/accountMembership";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -64,7 +64,7 @@ export const CardItemSettings = ({
   const accountHolder = card.accountMembership.account?.holder;
   const settingsRef = useRef<CardWizardSettingsRef | null>(null);
 
-  const canUpdateCard = usePermission("updateCard");
+  const { canUpdateCard } = usePermissions();
 
   const onSubmit = ({
     spendingLimit,

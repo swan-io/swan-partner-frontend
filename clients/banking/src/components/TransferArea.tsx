@@ -15,7 +15,7 @@ import { ErrorView } from "../components/ErrorView";
 import { RecurringTransferList } from "../components/RecurringTransferList";
 import { TransferList } from "../components/TransferList";
 import { AccountCountry } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -54,12 +54,13 @@ export const TransferArea = ({
   transferConsent,
 }: Props) => {
   const route = Router.useRoute(paymentRoutes);
-  const canInitiateCreditTransfer = usePermission("initiateCreditTransfer");
-
-  const canReadCreditTransfer = usePermission("readCreditTransfer");
-  const canCreateTrustedBeneficiary = usePermission("createTrustedBeneficiary");
-  const canReadStandingOrder = usePermission("readStandingOrder");
-  const canReadTrustedBeneficiary = usePermission("readTrustedBeneficiary");
+  const {
+    canInitiateCreditTransfer,
+    canReadCreditTransfer,
+    canCreateTrustedBeneficiary,
+    canReadStandingOrder,
+    canReadTrustedBeneficiary,
+  } = usePermissions();
 
   useTransferToastWithRedirect(transferConsent, () => {
     match(route?.name)

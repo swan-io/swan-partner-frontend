@@ -46,7 +46,7 @@ import {
   AccountLanguage,
   UpdateAccountDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import {
   validateAccountNameLength,
@@ -166,7 +166,7 @@ const UpdateAccountForm = ({
 
   const { statusInfo } = account;
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
-  const canUpdateAccount = usePermission("updateAccount");
+  const { canUpdateAccount } = usePermissions();
   const formDisabled = !canUpdateAccount || accountClosed;
   const shouldEditTaxIdentificationNumber =
     account.country === "DEU" && account.holder.residencyAddress.country === "DEU";

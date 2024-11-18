@@ -35,7 +35,7 @@ import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } 
 import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
-import { usePermissionMatrix } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -224,7 +224,7 @@ export const AccountArea = ({
   const projectName = projectInfo.name;
   const projectLogo = projectInfo.logoUri ?? undefined;
 
-  const permissions = usePermissionMatrix();
+  const permissions = usePermissions();
   const isMerchantFlagActive = useTgglFlag("merchantWebBanking").getOr(false);
 
   const menu: Menu =
@@ -237,7 +237,7 @@ export const AccountArea = ({
             icon: "apps-list-regular",
             name: t("navigation.history"),
             to: Router.AccountTransactionsListRoot({ accountMembershipId }),
-            visible: permissions.readTransaction,
+            visible: permissions.canReadTransaction,
           },
           {
             matchRoutes: ["AccountDetailsArea"],
@@ -245,7 +245,7 @@ export const AccountArea = ({
             icon: "building-bank-regular",
             name: t("navigation.account"),
             to: Router.AccountDetailsIban({ accountMembershipId }),
-            visible: permissions.readAccountDetails,
+            visible: permissions.canReadAccountDetails,
           },
           {
             matchRoutes: ["AccountPaymentsArea"],
@@ -253,7 +253,7 @@ export const AccountArea = ({
             icon: "arrow-swap-regular",
             name: t("navigation.transfer"),
             to: Router.AccountPaymentsRoot({ accountMembershipId }),
-            visible: permissions.readCreditTransfer || permissions.initiateCreditTransfer,
+            visible: permissions.canReadCreditTransfer || permissions.canInitiateCreditTransfer,
           },
           {
             matchRoutes: ["AccountCardsArea"],
@@ -261,7 +261,7 @@ export const AccountArea = ({
             icon: "payment-regular",
             name: t("navigation.cards"),
             to: Router.AccountCardsList({ accountMembershipId }),
-            visible: permissions.readCard,
+            visible: permissions.canReadCard,
           },
           {
             matchRoutes: ["AccountMembersArea"],
@@ -269,7 +269,7 @@ export const AccountArea = ({
             icon: "people-regular",
             name: t("navigation.members"),
             to: Router.AccountMembersList({ accountMembershipId }),
-            visible: permissions.readAccountMembership,
+            visible: permissions.canReadAccountMembership,
             hasNotifications: Option.fromNullable(accountMembership.account)
               .map(
                 ({ accountMembershipsWithBindingUserError }) =>
@@ -284,7 +284,7 @@ export const AccountArea = ({
             icon: "building-shop-regular",
             name: t("navigation.merchant"),
             to: Router.AccountMerchantsRoot({ accountMembershipId }),
-            visible: account?.holder.info.type === "Company" && permissions.readMerchantProfile,
+            visible: account?.holder.info.type === "Company" && permissions.canReadMerchantProfile,
           },
         ];
 
@@ -367,7 +367,7 @@ export const AccountArea = ({
                     accountMembershipId={accountMembershipId}
                     activationTag={activationTag}
                     activationLinkActive={
-                      route?.name === "AccountActivation" && permissions.readAccountDetails
+                      route?.name === "AccountActivation" && permissions.canReadAccountDetails
                     }
                     hasMultipleMemberships={hasMultipleMemberships}
                     selectedAccountMembership={accountMembership}
@@ -665,7 +665,7 @@ export const AccountArea = ({
                                 />
                               ))
                               .with({ name: "AccountDetailsArea" }, () =>
-                                permissions.readAccountDetails ? (
+                                permissions.canReadAccountDetails ? (
                                   <AccountDetailsArea
                                     accountMembershipLanguage={accountMembershipLanguage}
                                     accountId={accountId}
@@ -679,7 +679,7 @@ export const AccountArea = ({
                               .with(
                                 { name: "AccountTransactionsArea" },
                                 ({ params: { accountMembershipId } }) =>
-                                  permissions.readTransaction ? (
+                                  permissions.canReadTransaction ? (
                                     <TransactionsArea
                                       accountId={accountId}
                                       accountMembershipId={accountMembershipId}
@@ -692,8 +692,8 @@ export const AccountArea = ({
                               .with(
                                 { name: "AccountPaymentsArea" },
                                 ({ params: { consentId, kind, status } }) =>
-                                  permissions.readCreditTransfer ||
-                                  permissions.initiateCreditTransfer ? (
+                                  permissions.canReadCreditTransfer ||
+                                  permissions.canInitiateCreditTransfer ? (
                                     <TransferArea
                                       accountCountry={accountCountry}
                                       accountId={accountId}
@@ -709,7 +709,7 @@ export const AccountArea = ({
                                   ),
                               )
                               .with({ name: "AccountCardsArea" }, () =>
-                                permissions.readCard ? (
+                                permissions.canReadCard ? (
                                   <CardsArea
                                     accountMembershipId={accountMembershipId}
                                     accountId={accountId}
@@ -722,7 +722,7 @@ export const AccountArea = ({
                                 ),
                               )
                               .with({ name: "AccountMembersArea" }, ({ params }) =>
-                                permissions.readAccountMembership ? (
+                                permissions.canReadAccountMembership ? (
                                   <MembershipsArea
                                     accountMembershipId={accountMembershipId}
                                     accountId={accountId}
@@ -737,7 +737,7 @@ export const AccountArea = ({
                                 ),
                               )
                               .with({ name: "AccountMerchantsArea" }, () =>
-                                permissions.readMerchantProfile && isMerchantFlagActive ? (
+                                permissions.canReadMerchantProfile && isMerchantFlagActive ? (
                                   <MerchantArea
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
@@ -747,7 +747,7 @@ export const AccountArea = ({
                                 ),
                               )
                               .with({ name: "AccountActivation" }, () =>
-                                permissions.readAccountDetails ? (
+                                permissions.canReadAccountDetails ? (
                                   <AccountActivationPage
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
                                     lastRelevantIdentification={lastRelevantIdentification}

@@ -17,7 +17,7 @@ import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { TransactionListPageDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -90,7 +90,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,

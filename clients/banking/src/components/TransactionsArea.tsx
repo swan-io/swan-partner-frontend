@@ -26,7 +26,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { GetAccountBalanceDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
 
 export const TransactionsArea = ({ accountId, accountMembershipId }: Props) => {
   const [data] = useQuery(GetAccountBalanceDocument, { accountId });
-  const canReadAccountStatement = usePermission("readAccountStatement");
+  const { canReadAccountStatement } = usePermissions();
 
   const [updatedUpcommingTransactionCount, setUpdatedUpcommingTransactionCount] = useState<
     number | undefined

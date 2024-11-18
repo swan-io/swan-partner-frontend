@@ -15,7 +15,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountMembershipFragment, UpdateAccountMembershipDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -48,7 +48,7 @@ export const MembershipConflictResolutionEditor = ({
   accountMembership,
   onAction,
 }: Props) => {
-  const canUpdateMembership = usePermission("updateAccountMembership");
+  const { canUpdateAccountMembership } = usePermissions();
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
@@ -256,7 +256,7 @@ export const MembershipConflictResolutionEditor = ({
         </View>
       </ScrollView>
 
-      {canUpdateMembership ? (
+      {canUpdateAccountMembership ? (
         <LakeButtonGroup>
           <LakeButton
             color="current"

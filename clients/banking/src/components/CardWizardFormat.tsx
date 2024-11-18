@@ -9,7 +9,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { GetCardProductsQuery } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -40,7 +40,7 @@ export type CardWizardFormatRef = { submit: () => void };
 
 export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
   ({ cardProduct, initialCardFormat, onSubmit }: Props, ref) => {
-    const canOrderPhysicalCard = usePermission("printPhysicalCard");
+    const { canPrintPhysicalCard: canOrderPhysicalCard } = usePermissions();
     const [currentFormat, setCurrentCardFormat] = useState<CardFormat>(
       () => initialCardFormat ?? "Virtual",
     );

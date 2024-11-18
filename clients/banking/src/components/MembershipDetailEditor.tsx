@@ -31,7 +31,7 @@ import {
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
@@ -78,7 +78,7 @@ export const MembershipDetailEditor = ({
   showInvitationLink,
   large,
 }: Props) => {
-  const canUpdateAccountMembership = usePermission("updateAccountMembership");
+  const { canUpdateAccountMembership } = usePermissions();
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);

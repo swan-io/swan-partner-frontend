@@ -49,7 +49,7 @@ import {
   BeneficiariesListQueryVariables,
   BeneficiaryType,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { currencies, currencyFlags, currencyResolver, isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { BeneficiaryDetail } from "./BeneficiaryDetail";
@@ -440,7 +440,7 @@ export const BeneficiaryList = ({
   accountCountry: AccountCountry;
   params: RouteParams;
 }) => {
-  const canCreateTrustedBeneficiary = usePermission("createTrustedBeneficiary");
+  const { canCreateTrustedBeneficiary } = usePermissions();
 
   const { filters, canceled, label, hasSearchOrFilters } = useMemo(() => {
     const filters: Filters = {

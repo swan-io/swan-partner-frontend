@@ -18,7 +18,7 @@ import {
   AccountMembershipCardListPageDocument,
   AccountMembershipFragment,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { CardList } from "./CardList";
@@ -59,8 +59,7 @@ export const AccountMembersDetailsCardList = ({
   params,
 }: Props) => {
   const isCardWizardOpen = params.newCard != null;
-  const canAddCard = usePermission("addCard");
-  const canAddCardForOtherMemberships = usePermission("addCardForOtherMemberships");
+  const { canAddCard, canAddCardForOtherMemberships } = usePermissions();
   const isUserOwnMembership = currentUserAccountMembership.id === editingAccountMembership.id;
 
   const showAddCard = canAddCard && (isUserOwnMembership || canAddCardForOtherMemberships);

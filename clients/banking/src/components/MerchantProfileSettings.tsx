@@ -40,7 +40,7 @@ import {
   MerchantProfileFragment,
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
-import { usePermissionMatrix } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
@@ -455,50 +455,50 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
   const merchantPaymentMethods = merchantProfile.merchantPaymentMethods ?? [];
 
-  const permissions = usePermissionMatrix();
+  const permissions = usePermissions();
 
   const hasAnyPaymentMethod =
-    permissions.requestMerchantOnlineCardsPaymentMethod ||
-    permissions.requestMerchantSepaDirectDebitCorePaymentMethod ||
-    permissions.requestMerchantSepaDirectDebitB2BPaymentMethod ||
-    permissions.requestMerchantInternalDirectDebitB2BPaymentMethod ||
-    permissions.requestMerchantInternalDirectDebitB2BPaymentMethod ||
-    permissions.requestMerchantChecksPaymentMethod ||
+    permissions.canRequestMerchantOnlineCardsPaymentMethod ||
+    permissions.canRequestMerchantSepaDirectDebitCorePaymentMethod ||
+    permissions.canRequestMerchantSepaDirectDebitB2BPaymentMethod ||
+    permissions.canRequestMerchantInternalDirectDebitB2BPaymentMethod ||
+    permissions.canRequestMerchantInternalDirectDebitB2BPaymentMethod ||
+    permissions.canRequestMerchantChecksPaymentMethod ||
     merchantPaymentMethods.length > 0;
 
   const cardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantOnlineCardsPaymentMethod,
+    isRequestable: permissions.canRequestMerchantOnlineCardsPaymentMethod,
     type: "CardMerchantPaymentMethod",
   });
 
   const internalDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantInternalDirectDebitB2BPaymentMethod,
+    isRequestable: permissions.canRequestMerchantInternalDirectDebitB2BPaymentMethod,
     type: "InternalDirectDebitB2BMerchantPaymentMethod",
   });
 
   const internalDirectDebitStandardPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantInternalDirectDebitCorePaymentMethod,
+    isRequestable: permissions.canRequestMerchantInternalDirectDebitCorePaymentMethod,
     type: "InternalDirectDebitStandardMerchantPaymentMethod",
   });
 
   const sepaDirectDebitB2BPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantSepaDirectDebitB2BPaymentMethod,
+    isRequestable: permissions.canRequestMerchantSepaDirectDebitB2BPaymentMethod,
     type: "SepaDirectDebitB2BMerchantPaymentMethod",
   });
 
   const sepaDirectDebitCorePaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantSepaDirectDebitCorePaymentMethod,
+    isRequestable: permissions.canRequestMerchantSepaDirectDebitCorePaymentMethod,
     type: "SepaDirectDebitCoreMerchantPaymentMethod",
   });
 
   const checkPaymentMethod = getPaymentMethod({
     merchantPaymentMethods,
-    isRequestable: permissions.requestMerchantChecksPaymentMethod,
+    isRequestable: permissions.canRequestMerchantChecksPaymentMethod,
     type: "CheckMerchantPaymentMethod",
   });
 

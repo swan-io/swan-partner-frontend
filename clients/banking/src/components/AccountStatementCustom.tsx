@@ -38,7 +38,7 @@ import {
   GenerateAccountStatementDocument,
   StatementType,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
 import { Connection } from "./Connection";
@@ -441,7 +441,7 @@ export const AccountStatementCustom = ({ accountId, large }: Props) => {
   // it avoid to animate the first time the list is displayed
   const [newWasOpened, setNewWasOpened] = useState(false);
 
-  const canGenerateAccountStatement = usePermission("generateAccountStatement");
+  const { canGenerateAccountStatement } = usePermissions();
 
   const [displayedView, setDisplayedView] = useState<"list" | "new">("list");
   const [data, { isLoading, reload, setVariables }] = useQuery(AccountStatementsPageDocument, {

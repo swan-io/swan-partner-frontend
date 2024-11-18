@@ -24,7 +24,7 @@ import {
   MembersPageDocument,
   MembershipDetailDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
@@ -73,7 +73,7 @@ export const MembershipsArea = ({
   currentUserAccountMembership,
   onAccountMembershipUpdate,
 }: Props) => {
-  const canAddAccountMembership = usePermission("addAccountMembership");
+  const { canAddAccountMembership } = usePermissions();
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 

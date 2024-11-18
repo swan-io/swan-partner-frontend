@@ -25,7 +25,7 @@ import {
   TrustedBeneficiaryDetailsFragment,
   TrustedBeneficiaryTransfersDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -80,10 +80,10 @@ export const BeneficiaryDetailTransferList = ({
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearch = isNotNullish(search);
 
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
-  const canInitiateCreditTransferToExistingBeneficiary = usePermission(
-    "initiateCreditTransferToExistingBeneficiary",
-  );
+  const {
+    canReadOtherMembersCards: canQueryCardOnTransaction,
+    canInitiateCreditTransferToExistingBeneficiary,
+  } = usePermissions();
 
   const [data, { isLoading, setVariables }] = useQuery(TrustedBeneficiaryTransfersDocument, {
     id: beneficiary.id,

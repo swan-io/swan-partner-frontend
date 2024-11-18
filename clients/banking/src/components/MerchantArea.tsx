@@ -10,7 +10,7 @@ import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { MerchantRootDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -43,7 +43,7 @@ type Props = {
 
 export const MerchantArea = ({ accountId, accountMembershipId }: Props) => {
   const [merchantProfiles] = useQuery(MerchantRootDocument, { accountId });
-  const canCreateMerchantProfile = usePermission("createMerchantProfile");
+  const { canCreateMerchantProfile } = usePermissions();
 
   const route = Router.useRoute([
     "AccountMerchantsRoot",

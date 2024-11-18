@@ -11,7 +11,7 @@ import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { UpcomingTransactionListPageDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 
 const NUM_TO_RENDER = 20;
@@ -27,7 +27,7 @@ export const UpcomingTransactionListPage = ({
   accountMembershipId,
   onUpcomingTransactionCountUpdated,
 }: Props) => {
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, setVariables }] = useQuery(UpcomingTransactionListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,

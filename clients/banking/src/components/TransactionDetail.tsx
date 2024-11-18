@@ -42,7 +42,7 @@ import {
   TransactionStatementDocument,
   TransactionStatementLanguage,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -156,7 +156,7 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
       .tapError(error => showToast({ variant: "error", title: translateError(error), error }));
   };
 
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data] = useQuery(
     TransactionDocument,
     {

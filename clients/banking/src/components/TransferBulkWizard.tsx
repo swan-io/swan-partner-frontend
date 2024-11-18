@@ -11,7 +11,7 @@ import {
   CreditTransferInput,
   InitiateSepaCreditTransfersDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -42,7 +42,7 @@ type Props = {
 };
 
 export const TransferBulkWizard = ({ onPressClose, accountId, accountMembershipId }: Props) => {
-  const canReadTransaction = usePermission("readTransaction");
+  const { canReadTransaction } = usePermissions();
   const [initiateTransfers, transfer] = useMutation(InitiateSepaCreditTransfersDocument);
   const [step, setStep] = useState<Step>({ name: "Upload" });
 

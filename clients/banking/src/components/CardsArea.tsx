@@ -13,7 +13,7 @@ import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountAreaQuery, CardCountDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { CardListPage } from "../pages/CardListPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -74,7 +74,7 @@ export const CardsArea = ({
   refetchAccountAreaQuery,
   userId,
 }: Props) => {
-  const canOrderCard = usePermission("addCard");
+  const { canAddCard: canOrderCard } = usePermissions();
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
   const [data] = useQuery(CardCountDocument, {

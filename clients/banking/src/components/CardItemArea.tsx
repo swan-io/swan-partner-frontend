@@ -13,7 +13,7 @@ import { Suspense, useCallback, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageDocument, LastRelevantIdentificationDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -63,7 +63,7 @@ export const CardItemArea = ({
     "AccountCardsItemOrderAddress",
   ]);
 
-  const canPrintPhysicalCard = usePermission("printPhysicalCard");
+  const { canPrintPhysicalCard } = usePermissions();
   const [data, { query }] = useDeferredQuery(CardPageDocument);
   const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,

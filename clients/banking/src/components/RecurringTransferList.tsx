@@ -41,7 +41,7 @@ import {
   StandingOrdersHistoryPageDocument,
   TransactionDetailsFragment,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -95,7 +95,7 @@ const RecurringTransferHistory = ({
   recurringTransferId,
   large,
 }: RecurringTransferHistoryProps) => {
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(StandingOrdersHistoryPageDocument, {
     standingOrderId: recurringTransferId,
     orderBy: { field: "createdAt", direction: "Desc" },
@@ -572,7 +572,7 @@ const PAGE_SIZE = 20;
 
 export const RecurringTransferList = ({ accountId, accountMembershipId, large }: Props) => {
   const route = Router.useRoute(["AccountPaymentsRecurringTransferDetailsArea"]);
-  const canCancelStandingOrder = usePermission("cancelStandingOrder");
+  const { canCancelStandingOrder } = usePermissions();
   const [cancelRecurringTransfer, cancelResult] = useMutation(CancelStandingOrderDocument);
 
   const [canceled, setCanceled] = useState(false);

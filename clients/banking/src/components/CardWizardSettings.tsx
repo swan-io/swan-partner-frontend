@@ -31,7 +31,7 @@ import {
   SpendingLimitInput,
   SpendingLimitPeriodInput,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { CardFormat } from "./CardWizardFormat";
 
@@ -234,7 +234,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
     { accountHolder, cardFormat, initialSettings, cardProduct, onSubmit, maxSpendingLimit }: Props,
     ref,
   ) => {
-    const canUpdateCard = usePermission("updateCard");
+    const { canUpdateCard } = usePermissions();
     const spendingLimitMaxValue = match({
       accountHolderType: accountHolder?.info.__typename,
       maxSpendingLimit,

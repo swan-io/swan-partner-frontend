@@ -30,7 +30,7 @@ import {
   AddVirtualIbanDocument,
   CancelVirtualIbanDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -223,8 +223,7 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
 export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
-  const canCreateVirtualIBAN = usePermission("createVirtualIBAN");
-  const canCancelVirtualIBAN = usePermission("cancelVirtualIBAN");
+  const { canCreateVirtualIBAN, canCancelVirtualIBAN } = usePermissions();
   const [addVirtualIban, virtualIbanAddition] = useMutation(AddVirtualIbanDocument);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(

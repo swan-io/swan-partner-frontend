@@ -10,7 +10,7 @@ const ENABLED_OR_BINDING_USER_ERROR = P.union("BindingUserError", "Enabled");
 const ENABLED = "Enabled";
 
 const PERMISSIONS_MATRIX = {
-  readAccountDetails: {
+  canReadAccountDetails: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
@@ -19,22 +19,13 @@ const PERMISSIONS_MATRIX = {
       canViewAccountDetails: true,
     },
   },
-  readTransaction: {
+  canReadTransaction: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
     },
   },
-  readAccountStatement: {
-    accountMembership: {
-      canViewAccount: true,
-      statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
-    },
-    settings: {
-      canViewAccountStatement: true,
-    },
-  },
-  generateAccountStatement: {
+  canReadAccountStatement: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
@@ -43,7 +34,16 @@ const PERMISSIONS_MATRIX = {
       canViewAccountStatement: true,
     },
   },
-  readVirtualIBAN: {
+  canGenerateAccountStatement: {
+    accountMembership: {
+      canViewAccount: true,
+      statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
+    },
+    settings: {
+      canViewAccountStatement: true,
+    },
+  },
+  canReadVirtualIBAN: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
@@ -52,7 +52,7 @@ const PERMISSIONS_MATRIX = {
       canManageVirtualIbans: true,
     },
   },
-  createVirtualIBAN: {
+  canCreateVirtualIBAN: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED },
@@ -64,7 +64,7 @@ const PERMISSIONS_MATRIX = {
       canManageVirtualIbans: true,
     },
   },
-  cancelVirtualIBAN: {
+  canCancelVirtualIBAN: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED },
@@ -73,34 +73,34 @@ const PERMISSIONS_MATRIX = {
       canManageVirtualIbans: true,
     },
   },
-  updateAccount: {
+  canUpdateAccount: {
     accountMembership: {
       canViewAccount: true,
       legalRepresentative: true,
       statusInfo: { status: ENABLED },
     },
   },
-  readStandingOrder: {
+  canReadStandingOrder: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
     },
   },
-  createStandingOrder: {
+  canCreateStandingOrder: {
     accountMembership: {
       canViewAccount: true,
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
     },
   },
-  cancelStandingOrder: {
+  canCancelStandingOrder: {
     accountMembership: {
       canViewAccount: true,
       canInitiatePayments: true,
       statusInfo: { status: ENABLED },
     },
   },
-  readCreditTransfer: {
+  canReadCreditTransfer: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
@@ -109,7 +109,7 @@ const PERMISSIONS_MATRIX = {
       canViewPaymentList: true,
     },
   },
-  initiateCreditTransfer: P.union(
+  canInitiateCreditTransfer: P.union(
     {
       accountMembership: {
         // `canViewAccount` is required since trusted beneficiaries
@@ -129,7 +129,7 @@ const PERMISSIONS_MATRIX = {
       },
     },
   ),
-  initiateCreditTransferToExistingBeneficiary: {
+  canInitiateCreditTransferToExistingBeneficiary: {
     accountMembership: {
       // `canViewAccount` is required since trusted beneficiaries
       canViewAccount: true,
@@ -137,7 +137,7 @@ const PERMISSIONS_MATRIX = {
       statusInfo: { status: ENABLED },
     },
   },
-  initiateCreditTransferToNewBeneficiary: {
+  canInitiateCreditTransferToNewBeneficiary: {
     accountMembership: {
       canInitiatePayments: true,
       canManageBeneficiaries: true,
@@ -147,19 +147,19 @@ const PERMISSIONS_MATRIX = {
       canInitiatePaymentsToNewBeneficiaries: true,
     },
   },
-  readTrustedBeneficiary: {
+  canReadTrustedBeneficiary: {
     accountMembership: {
       canViewAccount: true,
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
     },
   },
-  createTrustedBeneficiary: {
+  canCreateTrustedBeneficiary: {
     accountMembership: {
       canManageBeneficiaries: true,
       statusInfo: { status: ENABLED },
     },
   },
-  readCard: P.union(
+  canReadCard: P.union(
     // User can read card list if they have at least one
     {
       accountMembership: {
@@ -185,14 +185,14 @@ const PERMISSIONS_MATRIX = {
       },
     },
   ),
-  readOtherMembersCards: {
+  canReadOtherMembersCards: {
     accountMembership: {
       canManageAccountMembership: true,
       canManageCards: true,
       statusInfo: { status: ENABLED },
     },
   },
-  addCard: {
+  canAddCard: {
     accountMembership: {
       canManageCards: true,
       statusInfo: { status: ENABLED },
@@ -201,7 +201,7 @@ const PERMISSIONS_MATRIX = {
       canOrderVirtualCards: true,
     },
   },
-  addCardForOtherMemberships: {
+  canAddCardForOtherMemberships: {
     accountMembership: {
       canManageCards: true,
       canManageAccountMembership: true,
@@ -211,7 +211,7 @@ const PERMISSIONS_MATRIX = {
       canOrderVirtualCards: true,
     },
   },
-  printPhysicalCard: {
+  canPrintPhysicalCard: {
     accountMembership: {
       statusInfo: { status: ENABLED_OR_BINDING_USER_ERROR },
     },
@@ -219,19 +219,19 @@ const PERMISSIONS_MATRIX = {
       canOrderPhysicalCards: true,
     },
   },
-  updateCard: {
+  canUpdateCard: {
     accountMembership: {
       canManageCards: true,
       statusInfo: { status: ENABLED },
     },
   },
-  cancelCardForOtherMembership: {
+  canCancelCardForOtherMembership: {
     accountMembership: {
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },
   },
-  readAccountMembership: {
+  canReadAccountMembership: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -241,7 +241,7 @@ const PERMISSIONS_MATRIX = {
       canViewMembers: true,
     },
   },
-  addAccountMembership: {
+  canAddAccountMembership: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -251,14 +251,14 @@ const PERMISSIONS_MATRIX = {
       canAddNewMembers: true,
     },
   },
-  updateAccountMembership: {
+  canUpdateAccountMembership: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
       statusInfo: { status: ENABLED },
     },
   },
-  readMerchantProfile: P.union(
+  canReadMerchantProfile: P.union(
     // either you already have one
     {
       accountMembership: {
@@ -278,7 +278,7 @@ const PERMISSIONS_MATRIX = {
       },
     },
   ),
-  createMerchantProfile: {
+  canCreateMerchantProfile: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -287,7 +287,7 @@ const PERMISSIONS_MATRIX = {
       canCreateMerchantProfile: true,
     },
   },
-  requestMerchantOnlineCardsPaymentMethod: {
+  canRequestMerchantOnlineCardsPaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -296,7 +296,7 @@ const PERMISSIONS_MATRIX = {
       canRequestOnlineCardsPaymentMethod: true,
     },
   },
-  requestMerchantSepaDirectDebitCorePaymentMethod: {
+  canRequestMerchantSepaDirectDebitCorePaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -305,7 +305,7 @@ const PERMISSIONS_MATRIX = {
       canRequestSepaDirectDebitCorePaymentMethod: true,
     },
   },
-  requestMerchantSepaDirectDebitB2BPaymentMethod: {
+  canRequestMerchantSepaDirectDebitB2BPaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -314,7 +314,7 @@ const PERMISSIONS_MATRIX = {
       canRequestSepaDirectDebitB2BPaymentMethod: true,
     },
   },
-  requestMerchantInternalDirectDebitCorePaymentMethod: {
+  canRequestMerchantInternalDirectDebitCorePaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -323,7 +323,7 @@ const PERMISSIONS_MATRIX = {
       canRequestInternalDirectDebitCorePaymentMethod: true,
     },
   },
-  requestMerchantInternalDirectDebitB2BPaymentMethod: {
+  canRequestMerchantInternalDirectDebitB2BPaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -332,7 +332,7 @@ const PERMISSIONS_MATRIX = {
       canRequestInternalDirectDebitB2BPaymentMethod: true,
     },
   },
-  requestMerchantChecksPaymentMethod: {
+  canRequestMerchantChecksPaymentMethod: {
     accountMembership: {
       canViewAccount: true,
       canManageAccountMembership: true,
@@ -381,11 +381,6 @@ export const PermissionProvider = ({ value, children }: { value: Input; children
   );
 };
 
-export const usePermission = <Key extends PermissionMatrixKey>(key: Key): boolean => {
-  const permissions = useContext(PermissionContext);
-  return permissions[key];
-};
-
-export const usePermissionMatrix = () => {
+export const usePermissions = () => {
   return useContext(PermissionContext);
 };

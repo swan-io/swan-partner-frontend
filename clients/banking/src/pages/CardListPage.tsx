@@ -18,7 +18,7 @@ import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { CardListPageDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 
@@ -57,7 +57,7 @@ export const CardListPage = ({
   totalDisplayableCardCount,
   params,
 }: Props) => {
-  const canOrderCard = usePermission("addCard");
+  const { canAddCard: canOrderCard } = usePermissions();
   const filters: CardFilters = useMemo(() => {
     return {
       type: isNotNullish(params.type)

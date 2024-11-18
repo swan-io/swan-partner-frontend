@@ -50,7 +50,7 @@ import {
   ViewPhysicalCardNumbersDocument,
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
 import { formatCurrency, t } from "../utils/i18n";
@@ -344,8 +344,8 @@ export const CardItemPhysicalDetails = ({
   onRefreshRequest,
   hasBindingUserError,
 }: Props) => {
-  const canOrderPhysicalCard = usePermission("printPhysicalCard");
-  const canCancelCardForOtherMembership = usePermission("cancelCardForOtherMembership");
+  const { canPrintPhysicalCard: canOrderPhysicalCard, canCancelCardForOtherMembership } =
+    usePermissions();
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
   );

@@ -10,7 +10,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
 import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -38,10 +38,8 @@ const BeneficiaryStep = ({
   initialBeneficiary: SepaBeneficiary | undefined;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const canInitiateCreditTransferToNewBeneficiary = usePermission(
-    "initiateCreditTransferToNewBeneficiary",
-  );
-  const canCreateTrustedBeneficiary = usePermission("createTrustedBeneficiary");
+  const { canInitiateCreditTransferToNewBeneficiary, canCreateTrustedBeneficiary } =
+    usePermissions();
 
   const [activeTab, setActiveTab] = useState(
     canInitiateCreditTransferToNewBeneficiary ? (initialBeneficiary?.kind ?? "new") : "saved",
@@ -142,7 +140,7 @@ export const TransferRegularWizard = ({
       : { name: "Beneficiary" },
   );
 
-  const canReadTransaction = usePermission("readTransaction");
+  const { canReadTransaction } = usePermissions();
 
   const initiateTransfer = ({
     beneficiary,

@@ -7,7 +7,7 @@ import { useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
 import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";
@@ -35,7 +35,7 @@ export const AccountDetailsArea = ({
   accountMembershipId,
   isIndividual,
 }: Props) => {
-  const canReadVirtualIBAN = usePermission("readVirtualIBAN");
+  const { canReadVirtualIBAN } = usePermissions();
   const route = Router.useRoute([
     "AccountDetailsIban",
     "AccountDetailsVirtualIbans",

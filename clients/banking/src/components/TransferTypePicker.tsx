@@ -7,7 +7,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
-import { usePermissionMatrix } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
@@ -52,7 +52,7 @@ export const TransferTypePicker = ({
   params,
 }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
-  const permissions = usePermissionMatrix();
+  const permissions = usePermissions();
 
   useCrumb(
     useMemo(
@@ -66,7 +66,7 @@ export const TransferTypePicker = ({
 
   const links = useMemo(
     () => [
-      ...(permissions.initiateCreditTransfer
+      ...(permissions.canInitiateCreditTransfer
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
@@ -76,7 +76,7 @@ export const TransferTypePicker = ({
             },
           ]
         : []),
-      ...(permissions.createStandingOrder
+      ...(permissions.canCreateStandingOrder
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "recurring" }),
@@ -86,7 +86,7 @@ export const TransferTypePicker = ({
             },
           ]
         : []),
-      ...(permissions.initiateCreditTransfer && ictEnabled.getOr(false)
+      ...(permissions.canInitiateCreditTransfer && ictEnabled.getOr(false)
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
@@ -96,7 +96,7 @@ export const TransferTypePicker = ({
             },
           ]
         : []),
-      ...(permissions.initiateCreditTransferToNewBeneficiary
+      ...(permissions.canInitiateCreditTransferToNewBeneficiary
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
@@ -138,7 +138,9 @@ export const TransferTypePicker = ({
         )}
       </ResponsiveContainer>
 
-      <FullViewportLayer visible={params.type === "transfer" && permissions.initiateCreditTransfer}>
+      <FullViewportLayer
+        visible={params.type === "transfer" && permissions.canInitiateCreditTransfer}
+      >
         <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
           {({ large }) => (
             <TransferRegularWizard
@@ -152,7 +154,9 @@ export const TransferTypePicker = ({
         </WizardLayout>
       </FullViewportLayer>
 
-      <FullViewportLayer visible={params.type === "recurring" && permissions.createStandingOrder}>
+      <FullViewportLayer
+        visible={params.type === "recurring" && permissions.canCreateStandingOrder}
+      >
         <TransferRecurringWizard
           accountCountry={accountCountry}
           accountId={accountId}
@@ -162,7 +166,7 @@ export const TransferTypePicker = ({
       </FullViewportLayer>
 
       <FullViewportLayer
-        visible={params.type === "international" && permissions.initiateCreditTransfer}
+        visible={params.type === "international" && permissions.canInitiateCreditTransfer}
       >
         <TransferInternationalWizard
           accountId={accountId}
@@ -172,7 +176,7 @@ export const TransferTypePicker = ({
       </FullViewportLayer>
 
       <FullViewportLayer
-        visible={params.type === "bulk" && permissions.initiateCreditTransferToNewBeneficiary}
+        visible={params.type === "bulk" && permissions.canInitiateCreditTransferToNewBeneficiary}
       >
         <TransferBulkWizard
           accountCountry={accountCountry}

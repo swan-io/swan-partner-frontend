@@ -22,7 +22,7 @@ import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { TransactionFilters, TransactionListFilter } from "../components/TransactionListFilter";
 import { PaymentProduct, TransactionListPageDocument } from "../graphql/partner";
-import { usePermission } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermission";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -82,7 +82,7 @@ export const TransactionListPage = ({
   );
   const route = Router.useRoute(["AccountTransactionsListDetail"]);
 
-  const canReadAccountStatement = usePermission("readAccountStatement");
+  const { canReadAccountStatement } = usePermissions();
 
   const filters: TransactionFilters = useMemo(() => {
     return {
@@ -132,7 +132,7 @@ export const TransactionListPage = ({
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
-  const canQueryCardOnTransaction = usePermission("readOtherMembersCards");
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: PAGE_SIZE,

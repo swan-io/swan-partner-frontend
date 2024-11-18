@@ -146,10 +146,7 @@ type ValidationError = "InvalidAmount";
 
 const validate = (input: DirtyCardSettings): Result<CardSettings, ValidationError[]> => {
   const errors: ValidationError[] = [];
-  if (
-    isNullish(input.spendingLimit.amount.value) ||
-    Number(input.spendingLimit.amount.value) === 0
-  ) {
+  if (isNullish(input.spendingLimit.amount.value)) {
     errors.push("InvalidAmount" as const);
   }
   return errors.length > 0 ? Result.Error(errors) : Result.Ok(input as CardSettings);

@@ -11,7 +11,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { Currency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {

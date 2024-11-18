@@ -7,7 +7,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";

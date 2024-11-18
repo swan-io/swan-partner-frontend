@@ -50,7 +50,7 @@ import {
   ViewPhysicalCardNumbersDocument,
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
 import { formatCurrency, t } from "../utils/i18n";

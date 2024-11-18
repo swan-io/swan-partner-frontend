@@ -11,7 +11,7 @@ import {
   CreditTransferInput,
   InitiateSepaCreditTransfersDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";

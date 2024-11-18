@@ -42,7 +42,7 @@ import {
   TransactionStatementDocument,
   TransactionStatementLanguage,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";

@@ -40,7 +40,7 @@ import {
   MerchantProfileFragment,
   RequestMerchantPaymentMethodsDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";

@@ -18,7 +18,7 @@ import { CardFilters, CardListFilter } from "../components/CardListFilter";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { CardListPageDocument } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 

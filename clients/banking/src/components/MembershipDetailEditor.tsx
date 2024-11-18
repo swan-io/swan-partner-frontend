@@ -31,7 +31,7 @@ import {
   SuspendAccountMembershipDocument,
   UpdateAccountMembershipDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";

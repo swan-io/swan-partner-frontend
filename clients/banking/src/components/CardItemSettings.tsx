@@ -18,7 +18,7 @@ import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageQuery, IdentificationFragment, UpdateCardDocument } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";

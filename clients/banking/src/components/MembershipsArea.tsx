@@ -24,7 +24,7 @@ import {
   MembersPageDocument,
   MembershipDetailDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";

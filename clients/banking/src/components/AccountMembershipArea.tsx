@@ -9,7 +9,7 @@ import {
   LastRelevantIdentificationDocument,
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
-import { PermissionProvider } from "../hooks/usePermission";
+import { PermissionProvider } from "../hooks/usePermissions";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
 import { AccountArea } from "./AccountArea";

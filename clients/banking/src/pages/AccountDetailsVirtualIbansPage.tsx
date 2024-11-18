@@ -30,7 +30,7 @@ import {
   AddVirtualIbanDocument,
   CancelVirtualIbanDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({

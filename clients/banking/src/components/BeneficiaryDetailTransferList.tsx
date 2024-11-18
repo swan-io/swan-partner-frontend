@@ -25,7 +25,7 @@ import {
   TrustedBeneficiaryDetailsFragment,
   TrustedBeneficiaryTransfersDocument,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";

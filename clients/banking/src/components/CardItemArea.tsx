@@ -13,7 +13,7 @@ import { Suspense, useCallback, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageDocument, LastRelevantIdentificationDocument } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";

@@ -41,7 +41,7 @@ import {
   StandingOrdersHistoryPageDocument,
   TransactionDetailsFragment,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";

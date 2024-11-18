@@ -15,7 +15,7 @@ import { ErrorView } from "../components/ErrorView";
 import { RecurringTransferList } from "../components/RecurringTransferList";
 import { TransferList } from "../components/TransferList";
 import { AccountCountry } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";

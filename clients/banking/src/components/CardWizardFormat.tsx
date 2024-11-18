@@ -9,7 +9,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { GetCardProductsQuery } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({

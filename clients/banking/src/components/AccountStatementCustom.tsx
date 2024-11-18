@@ -38,7 +38,7 @@ import {
   GenerateAccountStatementDocument,
   StatementType,
 } from "../graphql/partner";
-import { usePermissions } from "../hooks/usePermission";
+import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, languages, locale, rifmDateProps, t } from "../utils/i18n";
 import { validateDate, validateRequired } from "../utils/validations";
 import { Connection } from "./Connection";

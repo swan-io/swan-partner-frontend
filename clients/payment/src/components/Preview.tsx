@@ -66,6 +66,7 @@ type Props = {
 
 export const Preview = ({
   params: {
+    cancelUrl,
     accentColor,
     logo,
     merchantName,
@@ -86,7 +87,7 @@ export const Preview = ({
   const hasNoPaymentMethods = sepaDirectDebit == null && card == null;
 
   const paymentMethods = [
-    ...(sepaDirectDebit != null || hasNoPaymentMethods
+    ...(sepaDirectDebit != null
       ? [
           {
             id: "1",
@@ -95,7 +96,7 @@ export const Preview = ({
           },
         ]
       : []),
-    ...(card != null || hasNoPaymentMethods
+    ...(card != null
       ? [
           {
             id: "2",
@@ -117,14 +118,16 @@ export const Preview = ({
             <ScrollView contentContainerStyle={styles.content}>
               <>
                 <Box direction="row" alignItems="center">
-                  <LakeButton
-                    ariaLabel={t("common.cancel")}
-                    icon="dismiss-regular"
-                    mode="tertiary"
-                    onPress={() => {}}
-                  >
-                    {large ? t("common.cancel") : null}
-                  </LakeButton>
+                  {isNotNullish(cancelUrl) ? (
+                    <LakeButton
+                      ariaLabel={t("common.cancel")}
+                      icon="dismiss-regular"
+                      mode="tertiary"
+                      onPress={() => {}}
+                    >
+                      {large ? t("common.cancel") : null}
+                    </LakeButton>
+                  ) : null}
 
                   <Fill minWidth={16} />
 

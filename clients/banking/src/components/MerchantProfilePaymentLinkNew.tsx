@@ -44,7 +44,7 @@ import {
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateArrayRequired, validateRequired } from "../utils/validations";
+import { validateArrayRequired, validateRequired, validateUrl } from "../utils/validations";
 
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
@@ -232,6 +232,8 @@ export const MerchantProfilePaymentLinkNew = ({
   const { Field, FieldsListener, submitForm } = useForm<{
     label: string;
     amount: string;
+    reference: string;
+    externalReference: string;
     paymentMethodIds: string[];
     cancelRedirectUrl: string;
     customerName: string;
@@ -248,6 +250,14 @@ export const MerchantProfilePaymentLinkNew = ({
       sanitize: trim,
       validate: validateRequired,
     },
+    reference: {
+      initialValue: "",
+      sanitize: trim,
+    },
+    externalReference: {
+      initialValue: "",
+      sanitize: trim,
+    },
     paymentMethodIds: {
       initialValue: selectablePaymentMethods.map(paymentMethod => paymentMethod.id),
       validate: validateArrayRequired,
@@ -255,6 +265,7 @@ export const MerchantProfilePaymentLinkNew = ({
     cancelRedirectUrl: {
       initialValue: "",
       sanitize: trim,
+      validate: validateUrl,
     },
     customerName: {
       initialValue: "",
@@ -267,8 +278,11 @@ export const MerchantProfilePaymentLinkNew = ({
     redirectUrl: {
       initialValue: "",
       sanitize: trim,
+      validate: validateUrl,
     },
   });
+
+  const [cancelUrlPreview, setCancelUrlPreview] = useState("");
 
   const [createMerchantPaymentLink, merchantPaymentLinkCreation] = useMutation(
     CreatePaymentLinkDocument,
@@ -406,8 +420,40 @@ export const MerchantProfilePaymentLinkNew = ({
                         render={id => (
                           <LakeTextInput
                             id={id}
-                            value={value}
+                            value={value.replace(",", ".")}
                             unit="EUR"
+                            onChangeText={onChange}
+                            error={error}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+
+                  <Field name="reference">
+                    {({ value, onChange, error }) => (
+                      <LakeLabel
+                        label={t("merchantProfile.paymentLink.new.reference")}
+                        render={id => (
+                          <LakeTextInput
+                            id={id}
+                            value={value}
+                            onChangeText={onChange}
+                            error={error}
+                          />
+                        )}
+                      />
+                    )}
+                  </Field>
+
+                  <Field name="externalReference">
+                    {({ value, onChange, error }) => (
+                      <LakeLabel
+                        label={t("merchantProfile.paymentLink.new.externalReference")}
+                        render={id => (
+                          <LakeTextInput
+                            id={id}
+                            value={value}
                             onChangeText={onChange}
                             error={error}
                           />
@@ -523,13 +569,18 @@ export const MerchantProfilePaymentLinkNew = ({
                     <Field name="cancelRedirectUrl">
                       {({ value, onChange, error }) => (
                         <LakeLabel
-                          label={t("merchantProfile.paymentLink.new.customCancelUrl")}
+                          label={t("merchantProfile.paymentLink.new.cancelRedirectUrl")}
                           optionalLabel={t("form.optional")}
                           render={id => (
                             <LakeTextInput
                               id={id}
                               value={value}
-                              onChangeText={onChange}
+                              onChangeText={val => {
+                                console.log(val);
+
+                                setCancelUrlPreview(val);
+                                onChange;
+                              }}
                               error={error}
                             />
                           )}
@@ -555,6 +606,10 @@ export const MerchantProfilePaymentLinkNew = ({
                         {({ label, amount, paymentMethodIds }) => {
                           const url = new URL(env.PAYMENT_URL);
                           url.pathname = "/preview";
+
+                          if (cancelUrlPreview !== null) {
+                            url.searchParams.append("cancelUrl", cancelUrlPreview);
+                          }
 
                           if (accentColor != null) {
                             url.searchParams.append("accentColor", accentColor);

@@ -72,6 +72,7 @@
     "@graphql-codegen/typescript": "4.1.0",
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.3.0",
+    "@graphql-eslint/eslint-plugin": "3.20.1",
     "@localazy/cli": "1.7.14",
     "@playwright/test": "1.48.1",
     "@sentry/cli": "2.38.0",

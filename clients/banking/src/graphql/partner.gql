@@ -863,6 +863,7 @@ fragment DigitalCard on DigitalCard {
   createdAt
   updatedAt
   walletProvider {
+    id
     name
   }
   ... on CompleteDigitalCard {
@@ -1144,6 +1145,8 @@ query StandingOrdersHistoryPage(
     amount {
       value
     }
+    # id is deprecated here
+    # eslint-disable-next-line @graphql-eslint/require-id-when-available
     sepaBeneficiary {
       name
     }
@@ -1196,6 +1199,8 @@ query getStandingOrders(
           statusInfo {
             status
           }
+          # id is deprecated here
+          # eslint-disable-next-line @graphql-eslint/require-id-when-available
           sepaBeneficiary {
             name
           }
@@ -1595,6 +1600,7 @@ query TrustedBeneficiaryTransfers(
   $filters: TransactionsFiltersInput
 ) {
   trustedBeneficiary(id: $id) {
+    id
     transactions(first: $first, after: $after, filters: $filters) {
       pageInfo {
         endCursor
@@ -1622,6 +1628,7 @@ mutation AddSepaBeneficiary($input: AddTrustedSepaBeneficiaryInput!) {
 
           ... on TrustedBeneficiaryConsentPendingStatusInfo {
             consent {
+              id
               consentUrl
             }
           }
@@ -1648,6 +1655,7 @@ mutation AddInternationalBeneficiary($input: AddTrustedInternationalBeneficiaryI
 
           ... on TrustedBeneficiaryConsentPendingStatusInfo {
             consent {
+              id
               consentUrl
             }
           }
@@ -2173,6 +2181,7 @@ query GetInternationalCreditTransferTransactionDetailsDynamicForm(
 
 query MerchantRoot($accountId: ID!) {
   account(accountId: $accountId) {
+    id
     merchantProfiles(
       first: 1
       orderBy: { field: createdAt, direction: Desc }
@@ -2201,6 +2210,7 @@ query MerchantProfiles(
   $after: String
 ) {
   account(accountId: $accountId) {
+    id
     merchantProfiles(filters: $filters, first: $first, after: $after) {
       totalCount
       edges {
@@ -2446,6 +2456,7 @@ mutation InitiateSepaCreditTransfers($input: InitiateCreditTransfersInput!) {
   initiateCreditTransfers(input: $input) {
     __typename
     ... on AccountNotFoundRejection {
+      id
       message
     }
     ... on ForbiddenRejection {
@@ -2476,6 +2487,7 @@ mutation ResumeAccountMembership($input: ResumeAccountMembershipInput!) {
     __typename
     ... on ResumeAccountMembershipSuccessPayload {
       consent {
+        id
         consentUrl
       }
     }
@@ -2693,6 +2705,7 @@ mutation AddAccountMembership($input: AddAccountMembershipInput!) {
           status
           ... on AccountMembershipConsentPendingStatusInfo {
             consent {
+              id
               consentUrl
             }
           }
@@ -2799,6 +2812,7 @@ fragment MerchantProfile on MerchantProfile {
     ...MerchantPaymentMethod
   }
   requestMerchantProfileUpdate {
+    id
     status
     merchantName
     merchantWebsite

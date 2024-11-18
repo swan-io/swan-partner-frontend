@@ -10,7 +10,7 @@ import { colors, negativeSpacings, radii, spacings } from "@swan-io/lake/src/con
 import { StyleSheet, View } from "react-native";
 import { Fragment } from "react/jsx-runtime";
 import { t } from "../utils/i18n";
-import { RouteName, Router, accountAreaRoutes } from "../utils/routes";
+import { RouteName, Router, accountRoutes } from "../utils/routes";
 
 const TRANSPARENT = "transparent";
 
@@ -88,7 +88,7 @@ export type Menu = {
   icon: IconName;
   iconActive: IconName;
   name: string;
-  hidden: boolean;
+  visible: boolean;
   hasNotifications?: boolean;
   separator?: boolean;
 }[];
@@ -100,14 +100,14 @@ type Props = {
 };
 
 export const AccountNavigation = ({ menu, desktop = true, onPressLink }: Props) => {
-  const route = Router.useRoute([...accountAreaRoutes]);
+  const route = Router.useRoute(accountRoutes);
 
   return (
     <View role="navigation" style={[styles.sidebar, desktop && styles.desktopSidebar]}>
-      {menu.map(({ hidden = false, ...item }) => {
+      {menu.map(({ visible = false, ...item }) => {
         const isActive = item.matchRoutes.some(name => name === route?.name);
 
-        if (hidden) {
+        if (visible === false) {
           return null;
         }
 

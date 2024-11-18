@@ -41,6 +41,7 @@ import {
   StandingOrdersHistoryPageDocument,
   TransactionDetailsFragment,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { formatCurrency, formatDateTime, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -75,8 +76,6 @@ const NUM_TO_RENDER = 20;
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  canViewAccount: boolean;
   large: boolean;
 };
 
@@ -84,27 +83,24 @@ type Node = GetNode<NonNullable<GetStandingOrdersQuery["account"]>["standingOrde
 
 type ExtraInfo = {
   onCancel: (id: string) => void;
+  canCancelStandingOrder: boolean;
 };
 
 type RecurringTransferHistoryProps = {
-  canQueryCardOnTransaction: boolean;
-  canViewAccount: boolean;
   recurringTransferId: string;
   large: boolean;
 };
 
 const RecurringTransferHistory = ({
-  canQueryCardOnTransaction,
   recurringTransferId,
   large,
-  canViewAccount,
 }: RecurringTransferHistoryProps) => {
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(StandingOrdersHistoryPageDocument, {
     standingOrderId: recurringTransferId,
     orderBy: { field: "createdAt", direction: "Desc" },
     first: NUM_TO_RENDER,
     canQueryCardOnTransaction,
-    canViewAccount,
   });
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -182,8 +178,6 @@ type RecurringTransferPanelProps = {
   large: boolean;
   recurringTransfer: Node;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  canViewAccount: boolean;
   onCancel: (id: string) => void;
 };
 
@@ -191,8 +185,6 @@ const RecurringTransferPanel = ({
   large,
   recurringTransfer,
   accountMembershipId,
-  canQueryCardOnTransaction,
-  canViewAccount,
   onCancel,
 }: RecurringTransferPanelProps) => {
   const routes = Router.useRoute([
@@ -389,12 +381,7 @@ const RecurringTransferPanel = ({
             </ListRightPanelContent>
           ))
           .with({ name: "AccountPaymentsRecurringTransferDetailsHistory" }, () => (
-            <RecurringTransferHistory
-              recurringTransferId={recurringTransferId}
-              canQueryCardOnTransaction={canQueryCardOnTransaction}
-              canViewAccount={canViewAccount}
-              large={large}
-            />
+            <RecurringTransferHistory recurringTransferId={recurringTransferId} large={large} />
           ))
           .otherwise(() => null)}
       </ScrollView>
@@ -500,9 +487,9 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     title: t("recurringTransfer.table.actions"),
     width: 100,
     renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
-    renderCell: ({ item, extraInfo: { onCancel } }) => (
+    renderCell: ({ item, extraInfo: { onCancel, canCancelStandingOrder } }) => (
       <Cell align="right">
-        {item.statusInfo.status === "Enabled" && (
+        {item.statusInfo.status === "Enabled" && canCancelStandingOrder && (
           <Pressable onPress={() => onCancel(item.id)}>
             {({ hovered }) => (
               <Icon
@@ -583,14 +570,9 @@ const keyExtractor = (item: Node) => item.id;
 
 const PAGE_SIZE = 20;
 
-export const RecurringTransferList = ({
-  accountId,
-  accountMembershipId,
-  canQueryCardOnTransaction,
-  canViewAccount,
-  large,
-}: Props) => {
+export const RecurringTransferList = ({ accountId, accountMembershipId, large }: Props) => {
   const route = Router.useRoute(["AccountPaymentsRecurringTransferDetailsArea"]);
+  const { canCancelStandingOrder } = usePermissions();
   const [cancelRecurringTransfer, cancelResult] = useMutation(CancelStandingOrderDocument);
 
   const [canceled, setCanceled] = useState(false);
@@ -656,8 +638,9 @@ export const RecurringTransferList = ({
   const extraInfo = useMemo<ExtraInfo>(
     () => ({
       onCancel: setRecurringTransferToCancelId,
+      canCancelStandingOrder,
     }),
-    [],
+    [canCancelStandingOrder],
   );
 
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -767,9 +750,7 @@ export const RecurringTransferList = ({
                           large={large}
                           accountMembershipId={accountMembershipId}
                           recurringTransfer={item}
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
                           onCancel={setRecurringTransferToCancelId}
-                          canViewAccount={canViewAccount}
                         />
                       )}
                     />

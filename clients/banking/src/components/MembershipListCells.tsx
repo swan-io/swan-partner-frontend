@@ -269,6 +269,11 @@ export const FullNameAndStatusCell = ({
             __typename: "AccountMembershipBindingUserErrorStatusInfo",
             idVerifiedMatchError: true,
           },
+          {
+            __typename: "AccountMembershipBindingUserErrorStatusInfo",
+            emailVerifiedMatchError: true,
+            user: { verifiedEmails: [] },
+          },
           () => (
             <>
               <Tag color="warning">{t("memberships.status.limitedAccess")}</Tag>
@@ -358,7 +363,7 @@ export const PhoneNumberCell = ({
         statusInfo: {
           restrictedTo: { phoneNumber },
         },
-      }) => phoneNumber,
+      }) => phoneNumber ?? "—",
     )
     .otherwise(() => accountMembership.user?.mobilePhoneNumber);
 

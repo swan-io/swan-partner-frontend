@@ -13,6 +13,7 @@ import { Suspense, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { AccountAreaQuery, CardCountDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { CardListPage } from "../pages/CardListPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -58,10 +59,6 @@ type Props = {
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   accountMembershipId: string;
   accountId: string;
-  canAddCard: boolean;
-  canManageAccountMembership: boolean;
-  cardOrderVisible: boolean;
-  physicalCardOrderVisible: boolean;
   refetchAccountAreaQuery: () => void;
   userId: string;
 };
@@ -74,13 +71,10 @@ export const CardsArea = ({
   accountMembership,
   accountMembershipId,
   accountId,
-  canAddCard,
-  canManageAccountMembership,
-  cardOrderVisible,
-  physicalCardOrderVisible,
   refetchAccountAreaQuery,
   userId,
 }: Props) => {
+  const { canAddCard: canOrderCard } = usePermissions();
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
   const [data] = useQuery(CardCountDocument, {
@@ -152,16 +146,14 @@ export const CardsArea = ({
                             <CardListPage
                               accountMembershipId={accountMembershipId}
                               accountId={accountId}
-                              canAddCard={canAddCard}
                               totalDisplayableCardCount={totalDisplayableCardCount}
                               params={params}
-                              cardOrderVisible={cardOrderVisible}
                             />
                           ),
                         )
                         .with({ name: "AccountCardsItemArea" }, ({ params: { cardId } }) => (
                           <>
-                            {canAddCard && cardOrderVisible && onlyCardId.isSome() ? (
+                            {canOrderCard && onlyCardId.isSome() ? (
                               <View style={[styles.addButton, large && styles.addButtonDesktop]}>
                                 <LakeButton
                                   size="small"
@@ -186,11 +178,7 @@ export const CardsArea = ({
                               userId={userId}
                               cardId={cardId}
                               refetchAccountAreaQuery={refetchAccountAreaQuery}
-                              canManageAccountMembership={canManageAccountMembership}
-                              physicalCardOrderVisible={physicalCardOrderVisible}
                               large={large}
-                              canViewAccount={accountMembership.canViewAccount}
-                              canManageCards={accountMembership.canManageCards}
                             />
                           </>
                         ))
@@ -201,7 +189,6 @@ export const CardsArea = ({
 
                   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
                     <CardWizard
-                      physicalCardOrderVisible={physicalCardOrderVisible}
                       accountMembership={accountMembership}
                       onPressClose={() => {
                         match(route)

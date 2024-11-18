@@ -30,6 +30,7 @@ import {
   AddVirtualIbanDocument,
   CancelVirtualIbanDocument,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -50,7 +51,7 @@ type Props = {
 
 type Account = NonNullable<AccountDetailsVirtualIbansPageQuery["account"]>;
 type Edge = GetEdge<Account["virtualIbanEntries"]>;
-type ExtraInfo = { reload: () => void };
+type ExtraInfo = { reload: () => void; canCancelVirtualIBAN: boolean };
 
 const IbanCell = ({ IBAN }: { IBAN: string }) => {
   const formattedIban = useMemo(() => printIbanFormat(IBAN), [IBAN]);
@@ -111,8 +112,10 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     id: "actions",
     title: "",
     renderTitle: () => null,
-    renderCell: ({ item: { node }, extraInfo: { reload } }) =>
-      node.status === "Enabled" ? <Actions virtualIbanId={node.id} onCancel={reload} /> : null,
+    renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) =>
+      node.status === "Enabled" && canCancelVirtualIBAN ? (
+        <Actions virtualIbanId={node.id} onCancel={reload} />
+      ) : null,
   },
 ];
 
@@ -220,6 +223,7 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
 const keyExtractor = ({ node: { id } }: Edge) => id;
 
 export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
+  const { canCreateVirtualIBAN, canCancelVirtualIBAN } = usePermissions();
   const [addVirtualIban, virtualIbanAddition] = useMutation(AddVirtualIbanDocument);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(
@@ -247,13 +251,11 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
           <Connection connection={data.account?.virtualIbanEntries}>
             {virtualIbanEntries => {
               const edges = virtualIbanEntries?.edges ?? [];
-              const unlimited = data.account?.paymentLevel === "Unlimited";
               const totalCount = virtualIbanEntries?.totalCount ?? 0;
-              const isAccountOpen = data.account?.statusInfo.status === "Opened";
 
               return (
                 <>
-                  {totalCount > 0 && unlimited && isAccountOpen && (
+                  {canCreateVirtualIBAN && totalCount > 0 && (
                     <View style={[styles.header, large && styles.headerDesktop]}>
                       <LakeButton
                         loading={virtualIbanAddition.isLoading()}
@@ -270,7 +272,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
                   <PlainListView
                     withoutScroll={!large}
                     data={edges}
-                    extraInfo={{ reload }}
+                    extraInfo={{ reload, canCancelVirtualIBAN }}
                     columns={columns}
                     smallColumns={smallColumns}
                     keyExtractor={keyExtractor}
@@ -291,7 +293,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
                         title={t("accountDetails.virtualIbans.emptyTitle")}
                         subtitle={t("accountDetails.virtualIbans.emptyDescription")}
                       >
-                        {unlimited && isAccountOpen && (
+                        {canCreateVirtualIBAN ? (
                           <LakeButtonGroup justifyContent="center">
                             <LakeButton
                               loading={virtualIbanAddition.isLoading()}
@@ -303,7 +305,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
                               {t("common.new")}
                             </LakeButton>
                           </LakeButtonGroup>
-                        )}
+                        ) : null}
                       </EmptyView>
                     )}
                   />

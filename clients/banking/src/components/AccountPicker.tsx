@@ -287,14 +287,12 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
           >
             <View style={styles.accountIdentifier}>
               <LakeHeading variant="h5" level={3} numberOfLines={3} color={colors.gray[900]}>
-                {selectedAccountMembership.canViewAccount &&
-                selectedAccountMembership.account != null
+                {selectedAccountMembership.account != null
                   ? selectedAccountMembership.account.name
                   : selectedAccountMembership.email}
               </LakeHeading>
 
-              {selectedAccountMembership.canViewAccount &&
-              selectedAccountMembership.account != null ? (
+              {selectedAccountMembership.account != null ? (
                 <LakeText variant="smallRegular" numberOfLines={1} color={colors.gray[500]}>
                   {selectedAccountMembership.account.holder.info.name}
                 </LakeText>
@@ -308,15 +306,13 @@ export const AccountPickerButton = forwardRef<View, AccountPickerButtonProps>(
             )}
           </Pressable>
 
-          {isNotNullish(availableBalance) &&
-            desktop &&
-            selectedAccountMembership.canViewAccount && (
-              <View style={styles.balance}>
-                <LakeText variant="semibold" color={colors.gray[900]}>
-                  {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
-                </LakeText>
-              </View>
-            )}
+          {isNotNullish(availableBalance) && desktop && (
+            <View style={styles.balance}>
+              <LakeText variant="semibold" color={colors.gray[900]}>
+                {formatCurrency(Number(availableBalance.value), availableBalance.currency)}
+              </LakeText>
+            </View>
+          )}
 
           {activationTag !== "none" && (
             <View>

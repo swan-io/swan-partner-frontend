@@ -10,6 +10,7 @@ import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { MerchantRootDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -38,27 +39,11 @@ const styles = StyleSheet.create({
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  merchantProfileCreationVisible: boolean;
-  merchantProfileCardVisible: boolean;
-  merchantProfileSepaDirectDebitCoreVisible: boolean;
-  merchantProfileSepaDirectDebitB2BVisible: boolean;
-  merchantProfileInternalDirectDebitCoreVisible: boolean;
-  merchantProfileInternalDirectDebitB2BVisible: boolean;
-  merchantProfileCheckVisible: boolean;
 };
 
-export const MerchantArea = ({
-  accountId,
-  accountMembershipId,
-  merchantProfileCreationVisible,
-  merchantProfileCardVisible,
-  merchantProfileSepaDirectDebitCoreVisible,
-  merchantProfileSepaDirectDebitB2BVisible,
-  merchantProfileInternalDirectDebitCoreVisible,
-  merchantProfileInternalDirectDebitB2BVisible,
-  merchantProfileCheckVisible,
-}: Props) => {
+export const MerchantArea = ({ accountId, accountMembershipId }: Props) => {
   const [merchantProfiles] = useQuery(MerchantRootDocument, { accountId });
+  const { canCreateMerchantProfile } = usePermissions();
 
   const route = Router.useRoute([
     "AccountMerchantsRoot",
@@ -115,7 +100,7 @@ export const MerchantArea = ({
                           ),
                         )
                         .with({ totalCount: 0 }, () => {
-                          if (merchantProfileCreationVisible) {
+                          if (canCreateMerchantProfile) {
                             return (
                               <>
                                 <MerchantIntro accountMembershipId={accountMembershipId} />
@@ -160,20 +145,6 @@ export const MerchantArea = ({
                         <AccountMerchantsProfileArea
                           accountMembershipId={accountMembershipId}
                           merchantProfileId={merchantProfileId}
-                          merchantProfileCardVisible={merchantProfileCardVisible}
-                          merchantProfileSepaDirectDebitCoreVisible={
-                            merchantProfileSepaDirectDebitCoreVisible
-                          }
-                          merchantProfileSepaDirectDebitB2BVisible={
-                            merchantProfileSepaDirectDebitB2BVisible
-                          }
-                          merchantProfileInternalDirectDebitCoreVisible={
-                            merchantProfileInternalDirectDebitCoreVisible
-                          }
-                          merchantProfileInternalDirectDebitB2BVisible={
-                            merchantProfileInternalDirectDebitB2BVisible
-                          }
-                          merchantProfileCheckVisible={merchantProfileCheckVisible}
                         />
                       ),
                     )

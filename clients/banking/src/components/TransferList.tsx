@@ -17,6 +17,7 @@ import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { TransactionListPageDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -44,8 +45,6 @@ const NUM_TO_RENDER = 20;
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  canViewAccount: boolean;
   params: {
     isAfterUpdatedAt?: string | undefined;
     isBeforeUpdatedAt?: string | undefined;
@@ -61,13 +60,7 @@ const DEFAULT_STATUSES = [
   "Rejected" as const,
 ];
 
-export const TransferList = ({
-  accountId,
-  accountMembershipId,
-  params,
-  canQueryCardOnTransaction,
-  canViewAccount,
-}: Props) => {
+export const TransferList = ({ accountId, accountMembershipId, params }: Props) => {
   const filters: TransactionFilters = useMemo(() => {
     return {
       includeRejectedWithFallback: false,
@@ -97,6 +90,7 @@ export const TransferList = ({
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);
 
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, reload, setVariables }] = useQuery(TransactionListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
@@ -107,7 +101,6 @@ export const TransferList = ({
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
-    canViewAccount,
   });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -220,8 +213,6 @@ export const TransferList = ({
                               large={large}
                               accountMembershipId={accountMembershipId}
                               transactionId={transaction.id}
-                              canQueryCardOnTransaction={canQueryCardOnTransaction}
-                              canViewAccount={canViewAccount}
                             />
                           )}
                           closeLabel={t("common.closeButton")}

@@ -2,6 +2,7 @@ import { useMutation } from "@swan-io/graphql-client";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ReadOnlyFieldList } from "@swan-io/lake/src/components/ReadOnlyFieldList";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
@@ -14,6 +15,7 @@ import dayjs from "dayjs";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountMembershipFragment, UpdateAccountMembershipDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -46,6 +48,7 @@ export const MembershipConflictResolutionEditor = ({
   accountMembership,
   onAction,
 }: Props) => {
+  const { canUpdateAccountMembership } = usePermissions();
   const [updateMembership, membershipUpdate] = useMutation(UpdateAccountMembershipDocument);
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
 
@@ -59,10 +62,15 @@ export const MembershipConflictResolutionEditor = ({
   const lastNamesMismatch =
     user.lastName !== restrictedTo.lastName && user.birthLastName !== restrictedTo.lastName;
 
+  const [selectedVerifiedEmail, setSelectedVerifiedEmail] = useState<string | undefined>(
+    accountMembership.user.verifiedEmails[0],
+  );
+
   const acceptMembership = () => {
     updateMembership({
       input: {
         accountMembershipId: editingAccountMembershipId,
+        email: selectedVerifiedEmail,
         restrictedTo: {
           firstName: user.firstName,
           lastName: user.preferredLastName,
@@ -207,29 +215,67 @@ export const MembershipConflictResolutionEditor = ({
                   </LakeText>
                 )}
               />
+
+              <LakeLabel
+                label={t("membershipDetail.bindingUserError.email")}
+                readOnly={true}
+                readOnlyColor={
+                  !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                    ? colors.negative[500]
+                    : colors.gray[500]
+                }
+                render={() => (
+                  <LakeText
+                    variant={
+                      !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                        ? "semibold"
+                        : "regular"
+                    }
+                    color={
+                      !accountMembership.user.verifiedEmails.includes(accountMembership.email)
+                        ? colors.negative[500]
+                        : colors.gray[900]
+                    }
+                  >
+                    {accountMembership.user.verifiedEmails.length === 1 ? (
+                      accountMembership.user.verifiedEmails[0]
+                    ) : (
+                      <LakeSelect
+                        items={accountMembership.user.verifiedEmails.map(value => ({
+                          value,
+                          name: value,
+                        }))}
+                        onValueChange={verifiedEmail => setSelectedVerifiedEmail(verifiedEmail)}
+                      />
+                    )}
+                  </LakeText>
+                )}
+              />
             </ReadOnlyFieldList>
           </View>
         </View>
       </ScrollView>
 
-      <LakeButtonGroup>
-        <LakeButton
-          color="current"
-          onPress={acceptMembership}
-          loading={membershipUpdate.isLoading()}
-        >
-          {t("membershipDetail.bindingUserError.accept")}
-        </LakeButton>
+      {canUpdateAccountMembership ? (
+        <LakeButtonGroup>
+          <LakeButton
+            color="current"
+            onPress={acceptMembership}
+            loading={membershipUpdate.isLoading()}
+          >
+            {t("membershipDetail.bindingUserError.accept")}
+          </LakeButton>
 
-        <LakeButton
-          color="negative"
-          mode="secondary"
-          icon="subtract-circle-regular"
-          onPress={() => setIsCancelConfirmationModalOpen(true)}
-        >
-          {t("membershipDetail.bindingUserError.blockPermanently")}
-        </LakeButton>
-      </LakeButtonGroup>
+          <LakeButton
+            color="negative"
+            mode="secondary"
+            icon="subtract-circle-regular"
+            onPress={() => setIsCancelConfirmationModalOpen(true)}
+          >
+            {t("membershipDetail.bindingUserError.blockPermanently")}
+          </LakeButton>
+        </LakeButtonGroup>
+      ) : null}
 
       <MembershipCancelConfirmationModal
         visible={isCancelConfirmationModalOpen}

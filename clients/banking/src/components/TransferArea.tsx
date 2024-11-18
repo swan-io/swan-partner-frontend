@@ -15,6 +15,7 @@ import { ErrorView } from "../components/ErrorView";
 import { RecurringTransferList } from "../components/RecurringTransferList";
 import { TransferList } from "../components/TransferList";
 import { AccountCountry } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { useTransferToastWithRedirect } from "../hooks/useTransferToastWithRedirect";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
@@ -43,24 +44,23 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  canManageBeneficiaries: boolean;
-  canViewAccount: boolean;
   transferConsent: Option<{ kind: "transfer" | "standingOrder" | "beneficiary"; status: string }>;
-  transferCreationVisible: boolean;
 };
 
 export const TransferArea = ({
   accountCountry,
   accountId,
   accountMembershipId,
-  canQueryCardOnTransaction,
-  canManageBeneficiaries,
-  canViewAccount,
   transferConsent,
-  transferCreationVisible,
 }: Props) => {
   const route = Router.useRoute(paymentRoutes);
+  const {
+    canInitiateCreditTransfer,
+    canReadCreditTransfer,
+    canCreateTrustedBeneficiary,
+    canReadStandingOrder,
+    canReadTrustedBeneficiary,
+  } = usePermissions();
 
   useTransferToastWithRedirect(transferConsent, () => {
     match(route?.name)
@@ -81,7 +81,11 @@ export const TransferArea = ({
     ];
   }, [accountMembershipId]);
 
-  if (canViewAccount === false && route?.name !== "AccountPaymentsNew") {
+  if (
+    canReadCreditTransfer === false &&
+    canInitiateCreditTransfer &&
+    route?.name !== "AccountPaymentsNew"
+  ) {
     return <Redirect to={Router.AccountPaymentsNew({ accountMembershipId })} />;
   }
 
@@ -99,7 +103,7 @@ export const TransferArea = ({
               <ResponsiveContainer breakpoint={breakpoints.large} style={commonStyles.fill}>
                 {({ small, large }) => (
                   <>
-                    {transferCreationVisible ? (
+                    {canInitiateCreditTransfer ? (
                       <Box direction="row">
                         <ResponsiveContainer
                           breakpoint={breakpoints.small}
@@ -137,16 +141,26 @@ export const TransferArea = ({
                           label: t("transfer.tabs.transfers"),
                           url: Router.AccountPaymentsRoot({ accountMembershipId }),
                         },
-                        {
-                          label: t("transfer.tabs.recurringTransfer"),
-                          url: Router.AccountPaymentsRecurringTransferList({ accountMembershipId }),
-                        },
-                        {
-                          label: t("transfer.tabs.beneficiaries"),
-                          url: Router.AccountPaymentsBeneficiariesList({
-                            accountMembershipId,
-                          }),
-                        },
+                        ...(canReadStandingOrder
+                          ? [
+                              {
+                                label: t("transfer.tabs.recurringTransfer"),
+                                url: Router.AccountPaymentsRecurringTransferList({
+                                  accountMembershipId,
+                                }),
+                              },
+                            ]
+                          : []),
+                        ...(canReadTrustedBeneficiary
+                          ? [
+                              {
+                                label: t("transfer.tabs.beneficiaries"),
+                                url: Router.AccountPaymentsBeneficiariesList({
+                                  accountMembershipId,
+                                }),
+                              },
+                            ]
+                          : []),
                       ]}
                     />
 
@@ -157,38 +171,36 @@ export const TransferArea = ({
                         <TransferList
                           accountId={accountId}
                           accountMembershipId={accountMembershipId}
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
-                          canViewAccount={canViewAccount}
                           params={params}
                         />
                       ))
                       .with(
                         { name: "AccountPaymentsRecurringTransferList" },
                         { name: "AccountPaymentsRecurringTransferDetailsArea" },
-                        () => (
-                          <RecurringTransferList
-                            accountId={accountId}
-                            accountMembershipId={accountMembershipId}
-                            canQueryCardOnTransaction={canQueryCardOnTransaction}
-                            canViewAccount={canViewAccount}
-                            large={large}
-                          />
-                        ),
+                        () =>
+                          canReadStandingOrder ? (
+                            <RecurringTransferList
+                              accountId={accountId}
+                              accountMembershipId={accountMembershipId}
+                              large={large}
+                            />
+                          ) : (
+                            <NotFoundPage />
+                          ),
                       )
                       .with(
                         { name: "AccountPaymentsBeneficiariesList" },
                         { name: "AccountPaymentsBeneficiariesDetails" },
-                        ({ params }) => (
-                          <BeneficiaryList
-                            accountId={accountId}
-                            accountCountry={accountCountry}
-                            params={params}
-                            transferCreationVisible={transferCreationVisible}
-                            canManageBeneficiaries={canManageBeneficiaries}
-                            canViewAccount={canViewAccount}
-                            canQueryCardOnTransaction={canQueryCardOnTransaction}
-                          />
-                        ),
+                        ({ params }) =>
+                          canReadTrustedBeneficiary ? (
+                            <BeneficiaryList
+                              accountId={accountId}
+                              accountCountry={accountCountry}
+                              params={params}
+                            />
+                          ) : (
+                            <NotFoundPage />
+                          ),
                       )
                       .otherwise(() => (
                         <ErrorView />
@@ -199,21 +211,19 @@ export const TransferArea = ({
             ),
           )
           .with({ name: "AccountPaymentsNew" }, ({ params }) =>
-            transferCreationVisible ? (
+            canInitiateCreditTransfer ? (
               <TransferTypePicker
                 accountCountry={accountCountry}
                 accountId={accountId}
                 accountMembershipId={accountMembershipId}
                 params={params}
-                canViewAccount={canViewAccount}
-                canManageBeneficiaries={canManageBeneficiaries}
               />
             ) : (
               <NotFoundPage />
             ),
           )
           .with({ name: "AccountPaymentsBeneficiariesNew" }, ({ params }) =>
-            canManageBeneficiaries ? (
+            canCreateTrustedBeneficiary ? (
               <BeneficiaryTypePicker
                 accountCountry={accountCountry}
                 accountId={accountId}

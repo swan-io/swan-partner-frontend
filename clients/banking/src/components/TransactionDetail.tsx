@@ -42,6 +42,7 @@ import {
   TransactionStatementDocument,
   TransactionStatementLanguage,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { formatCurrency, formatDateTime, locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -111,19 +112,11 @@ type Props = {
   accountMembershipId: string;
   transactionId: string;
   large: boolean;
-  canQueryCardOnTransaction: boolean;
-  canViewAccount: boolean;
 };
 
 type Tab = "details" | "beneficiary" | "merchantInfo";
 
-export const TransactionDetail = ({
-  accountMembershipId,
-  transactionId,
-  large,
-  canQueryCardOnTransaction,
-  canViewAccount,
-}: Props) => {
+export const TransactionDetail = ({ accountMembershipId, transactionId, large }: Props) => {
   const suspense = useIsSuspendable();
 
   const [generateTransactionStatement] = useMutation(GenerateTransactionStatementDocument);
@@ -163,11 +156,11 @@ export const TransactionDetail = ({
       .tapError(error => showToast({ variant: "error", title: translateError(error), error }));
   };
 
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data] = useQuery(
     TransactionDocument,
     {
       id: transactionId,
-      canViewAccount,
       canQueryCardOnTransaction,
     },
     { suspense },
@@ -468,7 +461,7 @@ export const TransactionDetail = ({
                               text={formatMaskedPan(cardDetails.maskedPan)}
                             />
 
-                            {match(cardDetails.card.accountMembership.user)
+                            {match(cardDetails.card?.accountMembership.user)
                               .with({ fullName: P.string }, ({ fullName }) => (
                                 <DetailLine
                                   label={t("transaction.cardHolder")}

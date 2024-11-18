@@ -21,7 +21,7 @@ import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constant
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, useForm } from "@swan-io/use-form";
+import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -38,6 +38,7 @@ import { Router } from "../utils/routes";
 import {
   validateAddressLine,
   validateEmail,
+  validateForPermissions,
   validateName,
   validateNullableRequired,
   validateRequired,
@@ -151,7 +152,16 @@ export const NewMembershipWizard = ({
     phoneNumber: {
       initialValue: partiallySavedValues?.phoneNumber ?? "",
       sanitize: trim,
-      validate: combineValidators(validateRequired, validatePhoneNumber),
+      validate: (value, { getFieldValue }) => {
+        if (
+          getFieldValue("canManageAccountMembership") ||
+          getFieldValue("canManageBeneficiaries") ||
+          getFieldValue("canInitiatePayments")
+        ) {
+          return combineValidators(validateForPermissions, validatePhoneNumber)(value);
+        }
+        return toOptionalValidator(validatePhoneNumber)(value);
+      },
     },
     language: {
       initialValue: accountLanguages.is(locale.language) ? locale.language : "en",
@@ -442,7 +452,7 @@ export const NewMembershipWizard = ({
               restrictedTo: {
                 firstName: computedValues.firstName,
                 lastName: computedValues.lastName,
-                phoneNumber: computedValues.phoneNumber,
+                phoneNumber: emptyToUndefined(computedValues.phoneNumber),
                 birthDate: computedValues.birthDate,
               },
               taxIdentificationNumber: emptyToUndefined(
@@ -559,6 +569,7 @@ export const NewMembershipWizard = ({
                                 onChangeText={onChange}
                                 onBlur={onBlur}
                                 inputMode="tel"
+                                help={t("membershipDetail.edit.phoneNumber.requiredForPermissions")}
                               />
                             )}
                           />
@@ -646,46 +657,63 @@ export const NewMembershipWizard = ({
                           </View>
 
                           <View style={checkboxStyle}>
-                            <Field name="canInitiatePayments">
-                              {({ value, onChange }) => (
-                                <LakeLabelledCheckbox
-                                  disabled={!currentUserAccountMembership.canInitiatePayments}
-                                  label={t("membershipDetail.edit.canInitiatePayments")}
-                                  value={value}
-                                  onValueChange={onChange}
-                                />
+                            <FieldsListener names={["phoneNumber"]}>
+                              {({ phoneNumber }) => (
+                                <Field name="canInitiatePayments">
+                                  {({ value, onChange }) => (
+                                    <LakeLabelledCheckbox
+                                      disabled={!currentUserAccountMembership.canInitiatePayments}
+                                      label={t("membershipDetail.edit.canInitiatePayments")}
+                                      value={value}
+                                      onValueChange={onChange}
+                                      isError={phoneNumber.error != null}
+                                    />
+                                  )}
+                                </Field>
                               )}
-                            </Field>
+                            </FieldsListener>
                           </View>
                         </Box>
 
                         <Box direction={boxDirection}>
                           <View style={checkboxStyle}>
-                            <Field name="canManageBeneficiaries">
-                              {({ value, onChange }) => (
-                                <LakeLabelledCheckbox
-                                  disabled={!currentUserAccountMembership.canManageBeneficiaries}
-                                  label={t("membershipDetail.edit.canManageBeneficiaries")}
-                                  value={value}
-                                  onValueChange={onChange}
-                                />
+                            <FieldsListener names={["phoneNumber"]}>
+                              {({ phoneNumber }) => (
+                                <Field name="canManageBeneficiaries">
+                                  {({ value, onChange }) => (
+                                    <LakeLabelledCheckbox
+                                      disabled={
+                                        !currentUserAccountMembership.canManageBeneficiaries
+                                      }
+                                      label={t("membershipDetail.edit.canManageBeneficiaries")}
+                                      value={value}
+                                      onValueChange={onChange}
+                                      isError={phoneNumber.error != null}
+                                    />
+                                  )}
+                                </Field>
                               )}
-                            </Field>
+                            </FieldsListener>
                           </View>
 
                           <View style={checkboxStyle}>
-                            <Field name="canManageAccountMembership">
-                              {({ value, onChange }) => (
-                                <LakeLabelledCheckbox
-                                  disabled={
-                                    !currentUserAccountMembership.canManageAccountMembership
-                                  }
-                                  label={t("membershipDetail.edit.canManageAccountMembership")}
-                                  value={value}
-                                  onValueChange={onChange}
-                                />
+                            <FieldsListener names={["phoneNumber"]}>
+                              {({ phoneNumber }) => (
+                                <Field name="canManageAccountMembership">
+                                  {({ value, onChange }) => (
+                                    <LakeLabelledCheckbox
+                                      disabled={
+                                        !currentUserAccountMembership.canManageAccountMembership
+                                      }
+                                      label={t("membershipDetail.edit.canManageAccountMembership")}
+                                      value={value}
+                                      onValueChange={onChange}
+                                      isError={phoneNumber.error != null}
+                                    />
+                                  )}
+                                </Field>
                               )}
-                            </Field>
+                            </FieldsListener>
                           </View>
                         </Box>
 

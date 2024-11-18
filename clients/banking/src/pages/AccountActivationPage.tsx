@@ -292,7 +292,6 @@ type Props = {
   accentColor: string;
   accountMembershipId: string;
   additionalInfo: AdditionalInfo;
-  accountVisible: boolean;
   projectName: string;
   refetchAccountAreaQuery: () => void;
   requireFirstTransfer: boolean;
@@ -304,7 +303,6 @@ export const AccountActivationPage = ({
   accentColor,
   accountMembershipId,
   additionalInfo,
-  accountVisible,
   projectName,
   refetchAccountAreaQuery,
   requireFirstTransfer,
@@ -414,7 +412,7 @@ export const AccountActivationPage = ({
             }
 
             if (requireFirstTransfer && !hasTransactions) {
-              return accountVisible && hasIBAN
+              return hasIBAN
                 ? "AddMoneyToYourNewAccountViaIbanTodo"
                 : "AddMoneyToYourNewAccountIbanMissing";
             }

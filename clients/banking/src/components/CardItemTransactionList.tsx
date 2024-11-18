@@ -54,8 +54,6 @@ type Props = {
   lastRelevantIdentification: Option<IdentificationFragment>;
 
   params: GetRouteParams<"AccountCardsItemTransactions">;
-
-  canViewAccount: boolean;
 };
 
 const availableFilters = [
@@ -82,7 +80,6 @@ export const CardItemTransactionList = ({
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
   lastRelevantIdentification,
-  canViewAccount,
 }: Props) => {
   const filters: TransactionFilters = useMemo(() => {
     return {
@@ -114,7 +111,6 @@ export const CardItemTransactionList = ({
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction: true,
-    canViewAccount,
   });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -249,8 +245,6 @@ export const CardItemTransactionList = ({
                               accountMembershipId={params.accountMembershipId}
                               large={large}
                               transactionId={transaction.id}
-                              canQueryCardOnTransaction={true}
-                              canViewAccount={canViewAccount}
                             />
                           )}
                           closeLabel={t("common.closeButton")}

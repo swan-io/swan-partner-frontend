@@ -10,6 +10,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
 import { AccountCountry, InitiateSepaCreditTransfersDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { encodeDateTime } from "../utils/date";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -30,19 +31,24 @@ const BeneficiaryStep = ({
   accountCountry,
   accountId,
   initialBeneficiary,
-  canManageBeneficiaries,
   onPressSubmit,
 }: {
   accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary: SepaBeneficiary | undefined;
-  canManageBeneficiaries: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
+  const { canInitiateCreditTransferToNewBeneficiary, canCreateTrustedBeneficiary } =
+    usePermissions();
+
+  const [activeTab, setActiveTab] = useState(
+    canInitiateCreditTransferToNewBeneficiary ? (initialBeneficiary?.kind ?? "new") : "saved",
+  );
 
   const tabs: { id: SepaBeneficiary["kind"]; label: string }[] = [
-    { id: "new", label: t("transfer.new.beneficiary.new") },
+    ...(canInitiateCreditTransferToNewBeneficiary
+      ? [{ id: "new" as const, label: t("transfer.new.beneficiary.new") }]
+      : []),
     { id: "saved" as const, label: t("transfer.new.beneficiary.saved") },
   ];
 
@@ -74,7 +80,7 @@ const BeneficiaryStep = ({
             accountCountry={accountCountry}
             accountId={accountId}
             onPressSubmit={onPressSubmit}
-            saveCheckboxVisible={canManageBeneficiaries}
+            saveCheckboxVisible={canCreateTrustedBeneficiary}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)
@@ -112,8 +118,6 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   accountMembershipId: string;
-  canViewAccount: boolean;
-  canManageBeneficiaries: boolean;
   // Enforce prefill with saved beneficiary data only
   initialBeneficiary?: Extract<SepaBeneficiary, { kind: "saved" }>;
 };
@@ -125,8 +129,6 @@ export const TransferRegularWizard = ({
   accountCountry,
   accountId,
   accountMembershipId,
-  canViewAccount,
-  canManageBeneficiaries,
   initialBeneficiary,
 }: Props) => {
   const hasInitialBeneficiary = isNotNullish(initialBeneficiary);
@@ -137,6 +139,8 @@ export const TransferRegularWizard = ({
       ? { name: "Details", beneficiary: initialBeneficiary }
       : { name: "Beneficiary" },
   );
+
+  const { canReadTransaction } = usePermissions();
 
   const initiateTransfer = ({
     beneficiary,
@@ -152,12 +156,12 @@ export const TransferRegularWizard = ({
         accountId,
         consentRedirectUrl:
           window.location.origin +
-          match({ isAccountClosing, canViewAccount })
+          match({ isAccountClosing, canReadTransaction })
             .with({ isAccountClosing: true }, () => Router.AccountClose({ accountId }))
-            .with({ canViewAccount: true }, () =>
+            .with({ canReadTransaction: true }, () =>
               Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" }),
             )
-            .with({ canViewAccount: false }, () =>
+            .with({ canReadTransaction: false }, () =>
               Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" }),
             )
             .exhaustive(),
@@ -233,7 +237,6 @@ export const TransferRegularWizard = ({
             accountCountry={accountCountry}
             accountId={accountId}
             initialBeneficiary={beneficiary}
-            canManageBeneficiaries={canManageBeneficiaries}
             onPressSubmit={beneficiary => {
               setStep({ name: "Details", beneficiary });
             }}

@@ -11,6 +11,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useState } from "react";
 import { P, match } from "ts-pattern";
 import { InitiateInternationalCreditTransferDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { Currency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import {
@@ -30,7 +31,6 @@ const BeneficiaryStep = ({
   accountId,
   amount,
   errors,
-  canManageBeneficiaries,
   initialBeneficiary,
   onPressSubmit,
   onPressPrevious,
@@ -38,15 +38,20 @@ const BeneficiaryStep = ({
   accountId: string;
   amount: Amount;
   errors?: string[] | undefined;
-  canManageBeneficiaries: boolean;
   initialBeneficiary: InternationalBeneficiary | undefined;
   onPressSubmit: (beneficiary: InternationalBeneficiary) => void;
   onPressPrevious: () => void;
 }) => {
-  const [activeTab, setActiveTab] = useState(initialBeneficiary?.kind ?? "new");
+  const { canInitiateCreditTransferToNewBeneficiary, canCreateTrustedBeneficiary } =
+    usePermissions();
+  const [activeTab, setActiveTab] = useState(
+    canInitiateCreditTransferToNewBeneficiary ? (initialBeneficiary?.kind ?? "new") : "saved",
+  );
 
   const tabs: { id: InternationalBeneficiary["kind"]; label: string }[] = [
-    { id: "new", label: t("transfer.new.beneficiary.new") },
+    ...(canInitiateCreditTransferToNewBeneficiary
+      ? [{ id: "new" as const, label: t("transfer.new.beneficiary.new") }]
+      : []),
     { id: "saved" as const, label: t("transfer.new.beneficiary.saved") },
   ];
 
@@ -79,7 +84,7 @@ const BeneficiaryStep = ({
             errors={errors}
             onPressSubmit={onPressSubmit}
             onPressPrevious={onPressPrevious}
-            saveCheckboxVisible={canManageBeneficiaries}
+            saveCheckboxVisible={canCreateTrustedBeneficiary}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)
@@ -122,8 +127,6 @@ type Props = {
   accountId: string;
   accountMembershipId: string;
   forcedCurrency?: Currency;
-  canManageBeneficiaries: boolean;
-  canViewAccount: boolean;
   // Enforce prefill with saved beneficiary data only
   initialBeneficiary?: Extract<InternationalBeneficiary, { kind: "saved" }>;
 };
@@ -133,10 +136,10 @@ export const TransferInternationalWizard = ({
   accountId,
   accountMembershipId,
   forcedCurrency,
-  canManageBeneficiaries,
-  canViewAccount,
   initialBeneficiary,
 }: Props) => {
+  const { canReadTransaction } = usePermissions();
+
   const hasInitialBeneficiary = isNotNullish(initialBeneficiary);
   const [initiateTransfers, transfer] = useMutation(InitiateInternationalCreditTransferDocument);
 
@@ -177,7 +180,7 @@ export const TransferInternationalWizard = ({
         internationalCreditTransferDetails: details.values,
         consentRedirectUrl:
           window.location.origin +
-          (canViewAccount
+          (canReadTransaction
             ? Router.AccountTransactionsListRoot({ accountMembershipId, kind: "transfer" })
             : Router.AccountPaymentsRoot({ accountMembershipId, kind: "transfer" })),
       },
@@ -256,7 +259,6 @@ export const TransferInternationalWizard = ({
 
               <BeneficiaryStep
                 accountId={accountId}
-                canManageBeneficiaries={canManageBeneficiaries}
                 initialBeneficiary={beneficiary}
                 amount={amount}
                 errors={errors}

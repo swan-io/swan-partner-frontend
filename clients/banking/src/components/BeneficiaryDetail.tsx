@@ -75,23 +75,9 @@ type Props = {
   large: boolean;
   accountCountry: AccountCountry;
   accountId: string;
-  transferCreationVisible: boolean;
-  canManageBeneficiaries: boolean;
-  canViewAccount: boolean;
-  canQueryCardOnTransaction: boolean;
 };
 
-export const BeneficiaryDetail = ({
-  id,
-  params,
-  large,
-  accountCountry,
-  accountId,
-  transferCreationVisible,
-  canManageBeneficiaries,
-  canViewAccount,
-  canQueryCardOnTransaction,
-}: Props) => {
+export const BeneficiaryDetail = ({ id, params, large, accountCountry, accountId }: Props) => {
   const activeTab: Tab = params.tab ?? "details";
   const suspense = useIsSuspendable();
 
@@ -201,10 +187,6 @@ export const BeneficiaryDetail = ({
                   accountCountry={accountCountry}
                   accountId={accountId}
                   beneficiary={beneficiary}
-                  transferCreationVisible={transferCreationVisible}
-                  canManageBeneficiaries={canManageBeneficiaries}
-                  canViewAccount={canViewAccount}
-                  canQueryCardOnTransaction={canQueryCardOnTransaction}
                   params={params}
                 />
               ))

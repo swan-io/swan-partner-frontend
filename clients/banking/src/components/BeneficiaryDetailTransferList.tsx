@@ -25,6 +25,7 @@ import {
   TrustedBeneficiaryDetailsFragment,
   TrustedBeneficiaryTransfersDocument,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { isSupportedCurrency, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -59,10 +60,6 @@ type Props = {
   accountCountry: AccountCountry;
   accountId: string;
   beneficiary: TrustedBeneficiaryDetailsFragment;
-  transferCreationVisible: boolean;
-  canManageBeneficiaries: boolean;
-  canViewAccount: boolean;
-  canQueryCardOnTransaction: boolean;
   params: GetRouteParams<"AccountPaymentsBeneficiariesDetails">;
 };
 
@@ -70,10 +67,6 @@ export const BeneficiaryDetailTransferList = ({
   accountCountry,
   accountId,
   beneficiary,
-  transferCreationVisible,
-  canManageBeneficiaries,
-  canViewAccount,
-  canQueryCardOnTransaction,
   params,
 }: Props) => {
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -87,10 +80,14 @@ export const BeneficiaryDetailTransferList = ({
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearch = isNotNullish(search);
 
+  const {
+    canReadOtherMembersCards: canQueryCardOnTransaction,
+    canInitiateCreditTransferToExistingBeneficiary,
+  } = usePermissions();
+
   const [data, { isLoading, setVariables }] = useQuery(TrustedBeneficiaryTransfersDocument, {
     id: beneficiary.id,
     first: PAGE_SIZE,
-    canViewAccount,
     canQueryCardOnTransaction,
     filters: {
       status: DEFAULT_STATUSES,
@@ -108,7 +105,7 @@ export const BeneficiaryDetailTransferList = ({
       <Space height={24} />
 
       <Box alignItems="center" direction="row">
-        {transferCreationVisible ? (
+        {canInitiateCreditTransferToExistingBeneficiary ? (
           <LakeButton
             icon="add-circle-filled"
             size="small"
@@ -207,8 +204,6 @@ export const BeneficiaryDetailTransferList = ({
                         accountMembershipId={params.accountMembershipId}
                         large={large}
                         transactionId={node.id}
-                        canQueryCardOnTransaction={canQueryCardOnTransaction}
-                        canViewAccount={canViewAccount}
                       />
                     )}
                   />
@@ -234,8 +229,6 @@ export const BeneficiaryDetailTransferList = ({
                     accountCountry={accountCountry}
                     accountId={accountId}
                     accountMembershipId={params.accountMembershipId}
-                    canViewAccount={canViewAccount}
-                    canManageBeneficiaries={canManageBeneficiaries}
                     initialBeneficiary={{ kind: "saved", iban, id, name }}
                     onPressClose={onPressClose}
                   />
@@ -259,8 +252,6 @@ export const BeneficiaryDetailTransferList = ({
                   accountId={accountId}
                   accountMembershipId={params.accountMembershipId}
                   forcedCurrency={currency}
-                  canViewAccount={canViewAccount}
-                  canManageBeneficiaries={canManageBeneficiaries}
                   initialBeneficiary={{ kind: "saved", currency, id, name, route, values }}
                   onPressClose={() => {
                     Router.push("AccountPaymentsBeneficiariesDetails", omit(params, ["new"]));

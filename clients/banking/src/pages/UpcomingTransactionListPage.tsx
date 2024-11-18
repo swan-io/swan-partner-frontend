@@ -11,6 +11,7 @@ import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
 import { TransactionList } from "../components/TransactionList";
 import { UpcomingTransactionListPageDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const NUM_TO_RENDER = 20;
@@ -18,23 +19,19 @@ const NUM_TO_RENDER = 20;
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
   onUpcomingTransactionCountUpdated?: (count: number | undefined) => void;
-  canViewAccount: boolean;
 };
 
 export const UpcomingTransactionListPage = ({
   accountId,
   accountMembershipId,
-  canQueryCardOnTransaction,
   onUpcomingTransactionCountUpdated,
-  canViewAccount,
 }: Props) => {
+  const { canReadOtherMembersCards: canQueryCardOnTransaction } = usePermissions();
   const [data, { isLoading, setVariables }] = useQuery(UpcomingTransactionListPageDocument, {
     accountId,
     first: NUM_TO_RENDER,
     canQueryCardOnTransaction,
-    canViewAccount,
   });
 
   const [activeTransactionId, setActiveTransactionId] = useState<string | null>(null);
@@ -119,8 +116,6 @@ export const UpcomingTransactionListPage = ({
                           accountMembershipId={accountMembershipId}
                           large={large}
                           transactionId={transaction.id}
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
-                          canViewAccount={canViewAccount}
                         />
                       )}
                       closeLabel={t("common.closeButton")}

@@ -289,6 +289,7 @@ const accountLanguageUnion = deriveUnion<AccountLanguage>({
   it: true,
   nl: true,
   pt: true,
+  fi: true,
 });
 
 export const accountLanguages = {

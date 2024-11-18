@@ -14,11 +14,11 @@ fragment TransactionDetails on Transaction {
     id
     createdAt
   }
-  account @include(if: $canViewAccount) {
+  account {
     id
     language
   }
-  originTransaction @include(if: $canViewAccount) {
+  originTransaction {
     id
     type
     executionDate
@@ -393,9 +393,55 @@ query LastRelevantIdentification(
   }
 }
 
+fragment AccountMembershipPermissions on AccountMembership {
+  id
+  canViewAccount
+  canManageBeneficiaries
+  canInitiatePayments
+  canManageAccountMembership
+  canManageCards
+  legalRepresentative
+  statusInfo {
+    status
+  }
+  allCards: cards(filters: { statuses: [Enabled, Processing, Canceling, Canceled] }) {
+    totalCount
+  }
+  account {
+    id
+    statusInfo {
+      status
+    }
+    paymentLevel
+    merchantProfiles(first: 0) {
+      totalCount
+    }
+  }
+}
+
+fragment WebBankingSettings on WebBankingSettings {
+  canViewAccountStatement
+  canViewAccountDetails
+  canAddNewMembers
+  canViewMembers
+  canViewPaymentList
+  canOrderPhysicalCards
+  canInitiatePaymentsToNewBeneficiaries
+  canOrderVirtualCards
+  canManageVirtualIbans
+  canCreateMerchantProfile
+  canRequestOnlineCardsPaymentMethod
+  canRequestSepaDirectDebitCorePaymentMethod
+  canRequestSepaDirectDebitB2BPaymentMethod
+  canRequestInternalDirectDebitCorePaymentMethod
+  canRequestInternalDirectDebitB2BPaymentMethod
+  canRequestChecksPaymentMethod
+}
+
 query AccountArea($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
+    ...AccountMembershipPermissions
     ...AccountMembership
     account {
       statusInfo {
@@ -427,9 +473,6 @@ query AccountArea($accountMembershipId: ID!) {
         }
         verificationStatus
       }
-      merchantProfiles(first: 0) {
-        totalCount
-      }
       transactions(first: 0) {
         totalCount
       }
@@ -454,22 +497,7 @@ query AccountArea($accountMembershipId: ID!) {
     logoUri
     B2BMembershipIDVerification
     webBankingSettings {
-      accountStatementsVisible: canViewAccountStatement
-      accountVisible: canViewAccountDetails
-      memberCreationVisible: canAddNewMembers
-      memberListVisible: canViewMembers
-      paymentListVisible: canViewPaymentList
-      physicalCardOrderVisible: canOrderPhysicalCards
-      transferCreationVisible: canInitiatePaymentsToNewBeneficiaries
-      virtualCardOrderVisible: canOrderVirtualCards
-      virtualIbansVisible: canManageVirtualIbans
-      merchantProfileCreationVisible: canCreateMerchantProfile
-      merchantProfileCardVisible: canRequestOnlineCardsPaymentMethod
-      merchantProfileSepaDirectDebitCoreVisible: canRequestSepaDirectDebitCorePaymentMethod
-      merchantProfileSepaDirectDebitB2BVisible: canRequestSepaDirectDebitB2BPaymentMethod
-      merchantProfileInternalDirectDebitCoreVisible: canRequestInternalDirectDebitCorePaymentMethod
-      merchantProfileInternalDirectDebitB2BVisible: canRequestInternalDirectDebitB2BPaymentMethod
-      merchantProfileCheckVisible: canRequestChecksPaymentMethod
+      ...WebBankingSettings
     }
     supportingDocumentSettings {
       collectMode
@@ -519,10 +547,6 @@ query AccountDetailsIbanPage($accountId: ID!) {
 query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: String) {
   account(accountId: $accountId) {
     id
-    paymentLevel
-    statusInfo {
-      status
-    }
     virtualIbanEntries(first: $first, after: $after) {
       totalCount
       pageInfo {
@@ -1044,7 +1068,6 @@ query CardTransactionsPage(
   $cardId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
   $after: String
   $filters: TransactionsFiltersInput
 ) {
@@ -1124,7 +1147,6 @@ query StandingOrdersHistoryPage(
   $standingOrderId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
   $after: String
   $filters: PaymentFiltersInput
   $orderBy: PaymentOrderByInput
@@ -1249,6 +1271,7 @@ fragment AccountMembership on AccountMembership {
         lastName
         phoneNumber
       }
+      emailVerifiedMatchError
       idVerifiedMatchError
     }
     ... on AccountMembershipInvitationSentStatusInfo {
@@ -1281,6 +1304,7 @@ fragment AccountMembership on AccountMembership {
     preferredLastName
     fullName
     mobilePhoneNumber
+    verifiedEmails
   }
   account {
     id
@@ -1292,9 +1316,6 @@ fragment AccountMembership on AccountMembership {
     }
   }
   activeCards: cards(filters: { statuses: [Enabled, Processing] }) {
-    totalCount
-  }
-  allCards: cards(filters: { statuses: [Enabled, Processing, Canceling, Canceled] }) {
     totalCount
   }
 }
@@ -1503,7 +1524,6 @@ query TransactionListPage(
   $accountId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
   $after: String
   $filters: TransactionsFiltersInput
   $orderBy: TransactionsOrderByInput
@@ -1595,7 +1615,6 @@ query TrustedBeneficiaryTransfers(
   $id: String!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
   $after: String
   $filters: TransactionsFiltersInput
 ) {
@@ -1670,7 +1689,7 @@ mutation AddInternationalBeneficiary($input: AddTrustedInternationalBeneficiaryI
   }
 }
 
-query Transaction($id: ID!, $canViewAccount: Boolean!, $canQueryCardOnTransaction: Boolean!) {
+query Transaction($id: ID!, $canQueryCardOnTransaction: Boolean!) {
   transaction(id: $id) {
     ...TransactionDetails
   }
@@ -1680,7 +1699,6 @@ query UpcomingTransactionListPage(
   $accountId: ID!
   $first: Int!
   $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
   $after: String
 ) {
   account(accountId: $accountId) {
@@ -1923,11 +1941,7 @@ query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, 
   }
 }
 
-query GetTransactionDetails(
-  $transactionId: ID!
-  $canQueryCardOnTransaction: Boolean!
-  $canViewAccount: Boolean!
-) {
+query GetTransactionDetails($transactionId: ID!, $canQueryCardOnTransaction: Boolean!) {
   transaction(id: $transactionId) {
     ...TransactionDetails
   }

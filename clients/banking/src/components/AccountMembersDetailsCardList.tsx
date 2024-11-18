@@ -11,13 +11,14 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
-import { StyleSheet, View } from "react-native";
+import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
   AccountMembershipCardListPageDocument,
   AccountMembershipFragment,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { CardList } from "./CardList";
@@ -37,20 +38,13 @@ const styles = StyleSheet.create({
   filtersLarge: {
     paddingHorizontal: spacings[40],
   },
-  empty: {
-    flexGrow: 1,
-    justifyContent: "center",
-  },
 });
 
 type Props = {
-  canAddCard: boolean;
   currentUserAccountMembershipId: string;
   currentUserAccountMembership: AccountMembershipFragment;
   editingAccountMembership: AccountMembershipFragment;
-  totalDisplayableCardCount: number;
   params: Except<GetRouteParams<"AccountMembersDetailsCardList">, "accountMembershipId">;
-  physicalCardOrderVisible: boolean;
 };
 
 const PER_PAGE = 20;
@@ -59,15 +53,16 @@ const ACTIVE_STATUSES = ["Processing" as const, "Enabled" as const];
 const CANCELED_STATUSES = ["Canceling" as const, "Canceled" as const];
 
 export const AccountMembersDetailsCardList = ({
-  canAddCard,
   currentUserAccountMembershipId,
   currentUserAccountMembership,
   editingAccountMembership,
-  totalDisplayableCardCount,
   params,
-  physicalCardOrderVisible,
 }: Props) => {
   const isCardWizardOpen = params.newCard != null;
+  const { canAddCard, canAddCardForOtherMemberships } = usePermissions();
+  const isUserOwnMembership = currentUserAccountMembership.id === editingAccountMembership.id;
+
+  const showAddCard = canAddCard && (isUserOwnMembership || canAddCardForOtherMemberships);
 
   const filters: CardFilters = useMemo(() => {
     return {
@@ -107,7 +102,7 @@ export const AccountMembersDetailsCardList = ({
       title={t("cardList.noResults")}
       subtitle={t("cardList.noResultsDescription")}
     >
-      {canAddCard ? (
+      {showAddCard ? (
         <LakeButtonGroup>
           <LakeButton
             size="small"
@@ -130,126 +125,121 @@ export const AccountMembersDetailsCardList = ({
 
   return (
     <>
-      {totalDisplayableCardCount === 0 ? (
-        <View style={styles.empty}>{empty}</View>
-      ) : (
-        <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
-          {({ large }) => (
-            <>
-              <Box style={[styles.filters, large && styles.filtersLarge]}>
-                <CardListFilter
-                  large={large}
-                  filters={filters}
-                  search={search}
-                  status={status}
-                  onRefresh={reload}
-                  onChangeFilters={filters => {
-                    Router.replace("AccountMembersDetailsCardList", {
-                      accountMembershipId: currentUserAccountMembershipId,
-                      ...params,
-                      cardType: filters.type,
-                    });
-                  }}
-                  onChangeSearch={cardSearch => {
-                    Router.replace("AccountMembersDetailsCardList", {
-                      accountMembershipId: currentUserAccountMembershipId,
-                      ...params,
-                      cardSearch,
-                    });
-                  }}
-                  onChangeStatus={cardStatus => {
-                    Router.replace("AccountMembersDetailsCardList", {
-                      accountMembershipId: currentUserAccountMembershipId,
-                      ...params,
-                      cardStatus,
-                    });
-                  }}
-                >
-                  {canAddCard ? (
-                    <LakeButton
-                      size="small"
-                      icon="add-circle-filled"
-                      color="current"
-                      onPress={() =>
-                        Router.push("AccountMembersDetailsCardList", {
-                          accountMembershipId: currentUserAccountMembershipId,
-                          ...params,
-                          newCard: "",
-                        })
-                      }
-                    >
-                      {t("common.new")}
-                    </LakeButton>
-                  ) : null}
-                </CardListFilter>
-              </Box>
+      <ResponsiveContainer style={styles.root} breakpoint={breakpoints.large}>
+        {({ large }) => (
+          <>
+            <Box style={[styles.filters, large && styles.filtersLarge]}>
+              <CardListFilter
+                large={large}
+                filters={filters}
+                search={search}
+                status={status}
+                onRefresh={reload}
+                onChangeFilters={filters => {
+                  Router.replace("AccountMembersDetailsCardList", {
+                    accountMembershipId: currentUserAccountMembershipId,
+                    ...params,
+                    cardType: filters.type,
+                  });
+                }}
+                onChangeSearch={cardSearch => {
+                  Router.replace("AccountMembersDetailsCardList", {
+                    accountMembershipId: currentUserAccountMembershipId,
+                    ...params,
+                    cardSearch,
+                  });
+                }}
+                onChangeStatus={cardStatus => {
+                  Router.replace("AccountMembersDetailsCardList", {
+                    accountMembershipId: currentUserAccountMembershipId,
+                    ...params,
+                    cardStatus,
+                  });
+                }}
+              >
+                {showAddCard ? (
+                  <LakeButton
+                    size="small"
+                    icon="add-circle-filled"
+                    color="current"
+                    onPress={() =>
+                      Router.push("AccountMembersDetailsCardList", {
+                        accountMembershipId: currentUserAccountMembershipId,
+                        ...params,
+                        newCard: "",
+                      })
+                    }
+                  >
+                    {t("common.new")}
+                  </LakeButton>
+                ) : null}
+              </CardListFilter>
+            </Box>
 
-              {data.match({
-                NotAsked: () => null,
-                Loading: () => (
-                  <PlainListViewPlaceholder
-                    count={20}
-                    headerHeight={large ? 48 : 0}
-                    rowHeight={104}
-                  />
-                ),
-                Done: result =>
-                  result.match({
-                    Error: error => <ErrorView error={error} />,
-                    Ok: ({ accountMembership }) => (
-                      <Connection connection={accountMembership?.cards}>
-                        {cards => (
-                          <CardList
-                            large={large}
-                            cards={cards?.edges ?? []}
-                            getRowLink={({ item }) => (
-                              <Link
-                                to={Router.AccountCardsItem({
-                                  accountMembershipId: currentUserAccountMembershipId,
-                                  cardId: item.id,
-                                })}
-                              />
-                            )}
-                            loading={{
-                              isLoading,
-                              count: 20,
-                            }}
-                            onRefreshRequest={() => {
-                              reload();
-                            }}
-                            onEndReached={() => {
-                              if (cards?.pageInfo.hasNextPage ?? false) {
-                                setVariables({
-                                  after: cards?.pageInfo.endCursor ?? undefined,
-                                });
-                              }
-                            }}
-                            renderEmptyList={() =>
-                              hasSearchOrFilters ? (
-                                <EmptyView
-                                  icon="lake-card"
-                                  borderedIcon={true}
-                                  title={t("cardList.noResultsWithFilters")}
-                                  subtitle={t("common.list.noResultsSuggestion")}
-                                />
-                              ) : (
-                                empty
-                              )
+            {data.match({
+              NotAsked: () => null,
+              Loading: () => (
+                <PlainListViewPlaceholder
+                  count={20}
+                  headerHeight={large ? 48 : 0}
+                  rowHeight={104}
+                />
+              ),
+              Done: result =>
+                result.match({
+                  Error: error => <ErrorView error={error} />,
+                  Ok: ({ accountMembership }) => (
+                    <Connection connection={accountMembership?.cards}>
+                      {cards => (
+                        <CardList
+                          large={large}
+                          cards={cards?.edges ?? []}
+                          getRowLink={({ item }) => (
+                            <Link
+                              to={Router.AccountCardsItem({
+                                accountMembershipId: currentUserAccountMembershipId,
+                                cardId: item.id,
+                              })}
+                            />
+                          )}
+                          loading={{
+                            isLoading,
+                            count: 20,
+                          }}
+                          onRefreshRequest={() => {
+                            reload();
+                          }}
+                          onEndReached={() => {
+                            if (cards?.pageInfo.hasNextPage ?? false) {
+                              setVariables({
+                                after: cards?.pageInfo.endCursor ?? undefined,
+                              });
                             }
-                          />
-                        )}
-                      </Connection>
-                    ),
-                  }),
-              })}
-            </>
-          )}
-        </ResponsiveContainer>
-      )}
+                          }}
+                          renderEmptyList={() =>
+                            hasSearchOrFilters ? (
+                              <EmptyView
+                                icon="lake-card"
+                                borderedIcon={true}
+                                title={t("cardList.noResultsWithFilters")}
+                                subtitle={t("common.list.noResultsSuggestion")}
+                              />
+                            ) : (
+                              empty
+                            )
+                          }
+                        />
+                      )}
+                    </Connection>
+                  ),
+                }),
+            })}
+          </>
+        )}
+      </ResponsiveContainer>
 
       <FullViewportLayer visible={isCardWizardOpen}>
         <CardWizard
-          physicalCardOrderVisible={physicalCardOrderVisible}
           accountMembership={currentUserAccountMembership}
           preselectedAccountMembership={editingAccountMembership}
           onPressClose={() => {

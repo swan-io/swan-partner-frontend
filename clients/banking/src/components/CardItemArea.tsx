@@ -13,6 +13,7 @@ import { Suspense, useCallback, useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardPageDocument, LastRelevantIdentificationDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -42,10 +43,6 @@ type Props = {
   userId: string;
   cardId: string;
   refetchAccountAreaQuery: () => void;
-  canManageAccountMembership: boolean;
-  physicalCardOrderVisible: boolean;
-  canViewAccount: boolean;
-  canManageCards: boolean;
   large?: boolean;
 };
 
@@ -54,10 +51,6 @@ export const CardItemArea = ({
   userId,
   cardId,
   refetchAccountAreaQuery,
-  canManageAccountMembership,
-  physicalCardOrderVisible,
-  canViewAccount,
-  canManageCards,
   large = true,
 }: Props) => {
   const route = Router.useRoute([
@@ -70,6 +63,7 @@ export const CardItemArea = ({
     "AccountCardsItemOrderAddress",
   ]);
 
+  const { canPrintPhysicalCard } = usePermissions();
   const [data, { query }] = useDeferredQuery(CardPageDocument);
   const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,
@@ -157,10 +151,10 @@ export const CardItemArea = ({
             ),
           );
 
-        const shouldShowPhysicalCardTab = match({ physicalCardOrderVisible, card })
+        const shouldShowPhysicalCardTab = match({ canPrintPhysicalCard, card })
           .with(
             {
-              physicalCardOrderVisible: true,
+              canPrintPhysicalCard: true,
               card: {
                 cardProduct: { applicableToPhysicalCards: true },
                 type: P.not("SingleUseVirtual"),
@@ -340,12 +334,10 @@ export const CardItemArea = ({
                         cardId={cardId}
                         accountMembershipId={accountMembershipId}
                         isCurrentUserCardOwner={isCurrentUserCardOwner}
-                        canManageAccountMembership={canManageAccountMembership}
                         onRefreshRequest={reload}
                         cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                         onRefreshAccountRequest={refetchAccountAreaQuery}
                         lastRelevantIdentification={lastRelevantIdentification}
-                        physicalCardOrderVisible={physicalCardOrderVisible}
                       />
 
                       <Space height={24} />
@@ -381,7 +373,6 @@ export const CardItemArea = ({
                     cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                     onRefreshAccountRequest={refetchAccountAreaQuery}
                     lastRelevantIdentification={lastRelevantIdentification}
-                    canViewAccount={canViewAccount}
                   />
                 ))
                 .with({ name: "AccountCardsItemSettings" }, ({ params: { cardId } }) => (
@@ -400,7 +391,6 @@ export const CardItemArea = ({
                       cardRequiresIdentityVerification={cardRequiresIdentityVerification}
                       onRefreshAccountRequest={refetchAccountAreaQuery}
                       lastRelevantIdentification={lastRelevantIdentification}
-                      canManageCards={canManageCards}
                     />
 
                     <Space height={24} />

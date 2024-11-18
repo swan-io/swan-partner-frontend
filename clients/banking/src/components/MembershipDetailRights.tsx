@@ -22,6 +22,7 @@ import {
   UpdateAccountMembershipDocument,
   UpdateAccountMembershipInput,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
@@ -65,6 +66,12 @@ type FormValues = {
   canManageCards?: boolean;
 };
 
+const validateMustBeFalse = (value: boolean) => {
+  if (value === true) {
+    return "MustBeFalse";
+  }
+};
+
 export const MembershipDetailRights = ({
   editingAccountMembership,
   editingAccountMembershipId,
@@ -74,6 +81,8 @@ export const MembershipDetailRights = ({
   onRefreshRequest,
   large,
 }: Props) => {
+  const { canUpdateAccountMembership } = usePermissions();
+
   const [isCancelConfirmationModalOpen, setIsCancelConfirmationModalOpen] = useState(false);
   const [valuesToConfirm, setValuesToConfirm] = useState<Option<FormValues>>(Option.None());
 
@@ -82,6 +91,21 @@ export const MembershipDetailRights = ({
   const [unsuspendMembership, membershipUnsuspension] = useMutation(
     ResumeAccountMembershipDocument,
   );
+
+  const validateSensitivePermission = match(editingAccountMembership)
+    .with(
+      {
+        statusInfo: {
+          __typename: P.union(
+            "AccountMembershipBindingUserErrorStatusInfo",
+            "AccountMembershipInvitationSentStatusInfo",
+          ),
+          restrictedTo: { phoneNumber: P.nullish },
+        },
+      },
+      () => validateMustBeFalse,
+    )
+    .otherwise(() => undefined);
 
   const { Field, submitForm } = useForm({
     canViewAccount: {
@@ -92,12 +116,15 @@ export const MembershipDetailRights = ({
     },
     canManageBeneficiaries: {
       initialValue: editingAccountMembership.canManageBeneficiaries,
+      validate: validateSensitivePermission,
     },
     canManageAccountMembership: {
       initialValue: editingAccountMembership.canManageAccountMembership,
+      validate: validateSensitivePermission,
     },
     canManageCards: {
       initialValue: editingAccountMembership.canManageCards,
+      validate: validateSensitivePermission,
     },
   });
 
@@ -246,6 +273,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange }) => (
           <LakeLabelledCheckbox
             disabled={
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canViewAccount === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -262,9 +290,10 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canInitiatePayments">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canInitiatePayments === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -274,6 +303,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canInitiatePayments")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>
@@ -281,9 +311,10 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canManageBeneficiaries">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageBeneficiaries === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -293,6 +324,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canManageBeneficiaries")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>
@@ -300,9 +332,10 @@ export const MembershipDetailRights = ({
       <Space height={12} />
 
       <Field name="canManageAccountMembership">
-        {({ value, onChange }) => (
+        {({ value, onChange, error }) => (
           <LakeLabelledCheckbox
             disabled={
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageAccountMembership === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -312,6 +345,7 @@ export const MembershipDetailRights = ({
             label={t("membershipDetail.edit.canManageAccountMembership")}
             value={value}
             onValueChange={onChange}
+            isError={error != null}
           />
         )}
       </Field>
@@ -322,6 +356,7 @@ export const MembershipDetailRights = ({
         {({ value, onChange }) => (
           <LakeLabelledCheckbox
             disabled={
+              !canUpdateAccountMembership ||
               currentUserAccountMembership.canManageCards === false ||
               accountMemberHasBirthDate === false ||
               hasEditableStatus === false ||
@@ -350,20 +385,25 @@ export const MembershipDetailRights = ({
                   ),
                 },
               },
-              () => (
-                <LakeButton
-                  color="current"
-                  loading={membershipUpdate.isLoading() && valuesToConfirm.isNone()}
-                  disabled={isEditingCurrentUserAccountMembership}
-                  onPress={onPressSave}
-                >
-                  {t("common.save")}
-                </LakeButton>
-              ),
+              () =>
+                canUpdateAccountMembership && !isEditingCurrentUserAccountMembership ? (
+                  <LakeButton
+                    color="current"
+                    loading={membershipUpdate.isLoading() && valuesToConfirm.isNone()}
+                    disabled={isEditingCurrentUserAccountMembership}
+                    onPress={onPressSave}
+                  >
+                    {t("common.save")}
+                  </LakeButton>
+                ) : null,
             )
             .otherwise(() => null)}
 
-          {match({ isEditingCurrentUserAccountMembership, editingAccountMembership })
+          {match({
+            isEditingCurrentUserAccountMembership,
+            editingAccountMembership,
+            canUpdateAccountMembership,
+          })
             .with(
               // Can't suspend yourself
               { isEditingCurrentUserAccountMembership: true },
@@ -371,6 +411,7 @@ export const MembershipDetailRights = ({
               {
                 editingAccountMembership: { legalRepresentative: true },
               },
+              { canUpdateAccountMembership: false },
               () => null,
             )
             .with(

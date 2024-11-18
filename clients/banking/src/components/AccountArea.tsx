@@ -1,4 +1,4 @@
-import { Array, Dict, Option } from "@swan-io/boxed";
+import { Array, Option } from "@swan-io/boxed";
 import { ClientContext } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -32,9 +32,10 @@ import { CONTENT_ID, SkipToContent } from "@swan-io/shared-business/src/componen
 import { AdditionalInfo } from "@swan-io/shared-business/src/components/SupportChat";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { NativeScrollEvent, NativeSyntheticEvent, Pressable, StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import logoSwan from "../assets/images/logo-swan.svg";
 import { AccountAreaQuery, AccountLanguage, IdentificationFragment } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { AccountActivationPage } from "../pages/AccountActivationPage";
 import { AccountNotFoundPage, NotFoundPage } from "../pages/NotFoundPage";
 import { ProfilePage } from "../pages/ProfilePage";
@@ -44,14 +45,9 @@ import { t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { logFrontendError, setSentryUser } from "../utils/logger";
 import { projectConfiguration } from "../utils/projectId";
-import {
-  Router,
-  accountMinimalRoutes,
-  historyMenuRoutes,
-  paymentMenuRoutes,
-} from "../utils/routes";
+import { accountRoutes, Router } from "../utils/routes";
 import { signout } from "../utils/signout";
-import { updateTgglContext } from "../utils/tggl";
+import { updateTgglContext, useTgglFlag } from "../utils/tggl";
 import { AccountDetailsArea } from "./AccountDetailsArea";
 import { AccountNavigation, Menu } from "./AccountNavigation";
 import { AccountActivationTag, AccountPicker, AccountPickerButton } from "./AccountPicker";
@@ -162,40 +158,7 @@ type Props = {
   lastRelevantIdentification: Option<IdentificationFragment>;
   shouldDisplayIdVerification: boolean;
   requireFirstTransfer: boolean;
-  permissions: {
-    canInitiatePayments: boolean;
-    canManageBeneficiaries: boolean;
-    canManageCards: boolean;
-    canViewAccount: boolean;
-    canManageAccountMembership: boolean;
-  };
-  features: {
-    accountStatementsVisible: boolean;
-    accountVisible: boolean;
-    transferCreationVisible: boolean;
-    paymentListVisible: boolean;
-    virtualIbansVisible: boolean;
-    memberCreationVisible: boolean;
-    memberListVisible: boolean;
-    physicalCardOrderVisible: boolean;
-    virtualCardOrderVisible: boolean;
-    merchantProfileCreationVisible: boolean;
-    merchantProfileCardVisible: boolean;
-    merchantProfileSepaDirectDebitCoreVisible: boolean;
-    merchantProfileSepaDirectDebitB2BVisible: boolean;
-    merchantProfileInternalDirectDebitCoreVisible: boolean;
-    merchantProfileInternalDirectDebitB2BVisible: boolean;
-    merchantProfileCheckVisible: boolean;
-  };
   activationTag: AccountActivationTag;
-  sections: {
-    history: boolean;
-    account: boolean;
-    transfer: boolean;
-    cards: boolean;
-    members: boolean;
-    merchants: boolean;
-  };
   reload: () => void;
 };
 
@@ -205,13 +168,10 @@ export const AccountArea = ({
   accountMembership,
   projectInfo,
   user,
-  sections,
-  features,
   activationTag,
   lastRelevantIdentification,
   shouldDisplayIdVerification,
   requireFirstTransfer,
-  permissions,
   reload,
 }: Props) => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -264,6 +224,9 @@ export const AccountArea = ({
   const projectName = projectInfo.name;
   const projectLogo = projectInfo.logoUri ?? undefined;
 
+  const permissions = usePermissions();
+  const isMerchantFlagActive = useTgglFlag("merchantWebBanking").getOr(false);
+
   const menu: Menu =
     holder?.verificationStatus === "Refused"
       ? []
@@ -274,7 +237,7 @@ export const AccountArea = ({
             icon: "apps-list-regular",
             name: t("navigation.history"),
             to: Router.AccountTransactionsListRoot({ accountMembershipId }),
-            hidden: !sections.history,
+            visible: permissions.canReadTransaction,
           },
           {
             matchRoutes: ["AccountDetailsArea"],
@@ -282,7 +245,7 @@ export const AccountArea = ({
             icon: "building-bank-regular",
             name: t("navigation.account"),
             to: Router.AccountDetailsIban({ accountMembershipId }),
-            hidden: !sections.account,
+            visible: permissions.canReadAccountDetails,
           },
           {
             matchRoutes: ["AccountPaymentsArea"],
@@ -290,7 +253,7 @@ export const AccountArea = ({
             icon: "arrow-swap-regular",
             name: t("navigation.transfer"),
             to: Router.AccountPaymentsRoot({ accountMembershipId }),
-            hidden: !sections.transfer,
+            visible: permissions.canReadCreditTransfer || permissions.canInitiateCreditTransfer,
           },
           {
             matchRoutes: ["AccountCardsArea"],
@@ -298,7 +261,7 @@ export const AccountArea = ({
             icon: "payment-regular",
             name: t("navigation.cards"),
             to: Router.AccountCardsList({ accountMembershipId }),
-            hidden: !sections.cards,
+            visible: permissions.canReadCard,
           },
           {
             matchRoutes: ["AccountMembersArea"],
@@ -306,7 +269,7 @@ export const AccountArea = ({
             icon: "people-regular",
             name: t("navigation.members"),
             to: Router.AccountMembersList({ accountMembershipId }),
-            hidden: !sections.members,
+            visible: permissions.canReadAccountMembership,
             hasNotifications: Option.fromNullable(accountMembership.account)
               .map(
                 ({ accountMembershipsWithBindingUserError }) =>
@@ -321,23 +284,11 @@ export const AccountArea = ({
             icon: "building-shop-regular",
             name: t("navigation.merchant"),
             to: Router.AccountMerchantsRoot({ accountMembershipId }),
-            hidden: account?.holder.info.type !== "Company" || !sections.merchants,
+            visible: account?.holder.info.type === "Company" && permissions.canReadMerchantProfile,
           },
         ];
 
-  const routes = useMemo(() => {
-    return [
-      ...accountMinimalRoutes,
-      ...(sections.history ? historyMenuRoutes : []),
-      ...(sections.account ? (["AccountDetailsArea"] as const) : []),
-      ...(sections.transfer ? paymentMenuRoutes : []),
-      ...(sections.cards ? (["AccountCardsArea"] as const) : []),
-      ...(sections.members ? (["AccountMembersArea"] as const) : []),
-      ...(sections.merchants ? (["AccountMerchantsArea"] as const) : []),
-    ];
-  }, [sections]);
-
-  const route = Router.useRoute(routes);
+  const route = Router.useRoute(accountRoutes);
 
   const email = accountMembership.email;
   const hasRequiredIdentificationLevel = accountMembership.hasRequiredIdentificationLevel ?? false;
@@ -363,24 +314,9 @@ export const AccountArea = ({
 
   const accountId = accountMembership.accountId;
 
-  const roots = {
-    history: Router.AccountTransactionsListRoot({ accountMembershipId }),
-    account: Router.AccountDetailsIban({ accountMembershipId }),
-    transfer: Router.AccountPaymentsRoot({ accountMembershipId }),
-    cards: Router.AccountCardsList({ accountMembershipId }),
-    members: Router.AccountMembersList({ accountMembershipId }),
-  };
-
-  const firstAccesibleRoute = Array.findMap(Dict.entries(roots), ([key, route]) =>
-    sections[key] ? Option.Some(route) : Option.None(),
+  const firstAccesibleRoute = Array.findMap(menu, item =>
+    item.visible ? Option.Some(item.to) : Option.None(),
   );
-
-  const canQueryCardOnTransaction =
-    accountMembership.statusInfo.status !== "BindingUserError" &&
-    accountMembership.canManageAccountMembership &&
-    accountMembership.canManageCards;
-
-  const { canManageBeneficiaries } = accountMembership;
 
   if (accountMembership.user?.id !== user?.id) {
     return <Redirect to={Router.ProjectRootRedirect()} />;
@@ -430,7 +366,9 @@ export const AccountArea = ({
                     desktop={true}
                     accountMembershipId={accountMembershipId}
                     activationTag={activationTag}
-                    activationLinkActive={route?.name === "AccountActivation"}
+                    activationLinkActive={
+                      route?.name === "AccountActivation" && permissions.canReadAccountDetails
+                    }
                     hasMultipleMemberships={hasMultipleMemberships}
                     selectedAccountMembership={accountMembership}
                     onPress={setAccountPickerOpen.on}
@@ -530,19 +468,78 @@ export const AccountArea = ({
                             accentColor={accentColor}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
-                            accountVisible={features.accountVisible}
                             projectName={projectName}
                             refetchAccountAreaQuery={reload}
                           />
                         ) : (
                           <Suspense fallback={<LoadingView color={colors.current[500]} />}>
                             {match({
+                              accountMembership,
                               status: account?.statusInfo.status,
                               balance:
                                 account?.balances?.available.value != null
                                   ? Number(account?.balances?.available.value)
                                   : null,
                             })
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                      emailVerifiedMatchError: true,
+                                    },
+                                    user: { verifiedEmails: [] },
+                                  },
+                                },
+                                ({
+                                  accountMembership: { recommendedIdentificationLevel, email },
+                                }) => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="warning"
+                                          title={t("accountMembership.verifyEmailAlert")}
+                                          callToAction={
+                                            <LakeButton
+                                              size="small"
+                                              mode="tertiary"
+                                              color="warning"
+                                              icon="arrow-swap-regular"
+                                              onPress={() => {
+                                                const params = new URLSearchParams();
+
+                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "identificationLevel",
+                                                  recommendedIdentificationLevel,
+                                                );
+                                                params.set("email", email);
+
+                                                match(
+                                                  projectConfiguration.map(
+                                                    ({ projectId }) => projectId,
+                                                  ),
+                                                )
+                                                  .with(Option.P.Some(P.select()), projectId =>
+                                                    params.set("projectId", projectId),
+                                                  )
+                                                  .otherwise(() => {});
+
+                                                window.location.replace(
+                                                  `/auth/login?${params.toString()}`,
+                                                );
+                                              }}
+                                            >
+                                              {t("account.statusAlert.transferBalance")}
+                                            </LakeButton>
+                                          }
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
                               .with({ status: "Suspended" }, () => (
                                 <ResponsiveContainer breakpoint={breakpoints.large}>
                                   {({ large }) => (
@@ -668,128 +665,103 @@ export const AccountArea = ({
                                 />
                               ))
                               .with({ name: "AccountDetailsArea" }, () =>
-                                !features.accountVisible ? (
-                                  <ErrorView />
-                                ) : (
+                                permissions.canReadAccountDetails ? (
                                   <AccountDetailsArea
                                     accountMembershipLanguage={accountMembershipLanguage}
                                     accountId={accountId}
                                     accountMembershipId={accountMembershipId}
-                                    canManageAccountMembership={
-                                      permissions.canManageAccountMembership
-                                    }
-                                    virtualIbansVisible={features.virtualIbansVisible}
                                     isIndividual={isIndividual}
                                   />
+                                ) : (
+                                  <NotFoundPage />
                                 ),
                               )
                               .with(
                                 { name: "AccountTransactionsArea" },
-                                ({ params: { accountMembershipId } }) => (
-                                  <TransactionsArea
-                                    accountId={accountId}
-                                    accountMembershipId={accountMembershipId}
-                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                    accountStatementsVisible={features.accountStatementsVisible}
-                                    canViewAccount={accountMembership.canViewAccount}
-                                  />
-                                ),
+                                ({ params: { accountMembershipId } }) =>
+                                  permissions.canReadTransaction ? (
+                                    <TransactionsArea
+                                      accountId={accountId}
+                                      accountMembershipId={accountMembershipId}
+                                    />
+                                  ) : (
+                                    <NotFoundPage />
+                                  ),
                               )
 
                               .with(
                                 { name: "AccountPaymentsArea" },
-                                ({ params: { consentId, kind, status } }) => (
-                                  <TransferArea
-                                    accountCountry={accountCountry}
-                                    accountId={accountId}
+                                ({ params: { consentId, kind, status } }) =>
+                                  permissions.canReadCreditTransfer ||
+                                  permissions.canInitiateCreditTransfer ? (
+                                    <TransferArea
+                                      accountCountry={accountCountry}
+                                      accountId={accountId}
+                                      accountMembershipId={accountMembershipId}
+                                      transferConsent={
+                                        consentId != null && kind != null && status != null
+                                          ? Option.Some({ kind, status })
+                                          : Option.None()
+                                      }
+                                    />
+                                  ) : (
+                                    <NotFoundPage />
+                                  ),
+                              )
+                              .with({ name: "AccountCardsArea" }, () =>
+                                permissions.canReadCard ? (
+                                  <CardsArea
                                     accountMembershipId={accountMembershipId}
-                                    canQueryCardOnTransaction={canQueryCardOnTransaction}
-                                    canManageBeneficiaries={canManageBeneficiaries}
-                                    canViewAccount={accountMembership.canViewAccount}
-                                    transferConsent={
-                                      consentId != null && kind != null && status != null
-                                        ? Option.Some({ kind, status })
-                                        : Option.None()
-                                    }
-                                    transferCreationVisible={features.transferCreationVisible}
+                                    accountId={accountId}
+                                    userId={userId}
+                                    refetchAccountAreaQuery={reload}
+                                    accountMembership={accountMembership}
                                   />
+                                ) : (
+                                  <NotFoundPage />
                                 ),
                               )
-                              .with({ name: "AccountCardsArea" }, () => (
-                                <CardsArea
-                                  accountMembershipId={accountMembershipId}
-                                  accountId={accountId}
-                                  userId={userId}
-                                  refetchAccountAreaQuery={reload}
-                                  canAddCard={permissions.canManageCards}
-                                  accountMembership={accountMembership}
-                                  canManageAccountMembership={
-                                    permissions.canManageAccountMembership
-                                  }
-                                  cardOrderVisible={features.virtualCardOrderVisible}
-                                  physicalCardOrderVisible={features.physicalCardOrderVisible}
-                                />
-                              ))
                               .with({ name: "AccountMembersArea" }, ({ params }) =>
-                                match(accountMembership)
-                                  .with(
-                                    { account: { country: P.string } },
-                                    currentUserAccountMembership => (
-                                      <MembershipsArea
-                                        accountMembershipId={accountMembershipId}
-                                        accountId={accountId}
-                                        memberCreationVisible={features.memberCreationVisible}
-                                        canAddCard={
-                                          permissions.canViewAccount && permissions.canManageCards
-                                        }
-                                        onAccountMembershipUpdate={reload}
-                                        accountCountry={accountCountry}
-                                        params={params}
-                                        currentUserAccountMembership={currentUserAccountMembership}
-                                        cardOrderVisible={features.virtualCardOrderVisible}
-                                        physicalCardOrderVisible={features.physicalCardOrderVisible}
-                                        shouldDisplayIdVerification={shouldDisplayIdVerification}
-                                      />
-                                    ),
-                                  )
-                                  .otherwise(() => <ErrorView />),
+                                permissions.canReadAccountMembership ? (
+                                  <MembershipsArea
+                                    accountMembershipId={accountMembershipId}
+                                    accountId={accountId}
+                                    onAccountMembershipUpdate={reload}
+                                    accountCountry={accountCountry}
+                                    params={params}
+                                    currentUserAccountMembership={accountMembership}
+                                    shouldDisplayIdVerification={shouldDisplayIdVerification}
+                                  />
+                                ) : (
+                                  <NotFoundPage />
+                                ),
                               )
-                              .with({ name: "AccountMerchantsArea" }, () => (
-                                <MerchantArea
-                                  accountId={accountId}
-                                  accountMembershipId={accountMembershipId}
-                                  merchantProfileCreationVisible={
-                                    features.merchantProfileCreationVisible
-                                  }
-                                  merchantProfileCardVisible={features.merchantProfileCardVisible}
-                                  merchantProfileSepaDirectDebitCoreVisible={
-                                    features.merchantProfileSepaDirectDebitCoreVisible
-                                  }
-                                  merchantProfileSepaDirectDebitB2BVisible={
-                                    features.merchantProfileSepaDirectDebitB2BVisible
-                                  }
-                                  merchantProfileInternalDirectDebitCoreVisible={
-                                    features.merchantProfileInternalDirectDebitCoreVisible
-                                  }
-                                  merchantProfileInternalDirectDebitB2BVisible={
-                                    features.merchantProfileInternalDirectDebitB2BVisible
-                                  }
-                                  merchantProfileCheckVisible={features.merchantProfileCheckVisible}
-                                />
-                              ))
-                              .with({ name: "AccountActivation" }, () => (
-                                <AccountActivationPage
-                                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                                  lastRelevantIdentification={lastRelevantIdentification}
-                                  requireFirstTransfer={requireFirstTransfer}
-                                  accentColor={accentColor}
-                                  accountMembershipId={accountMembershipId}
-                                  additionalInfo={additionalInfo}
-                                  accountVisible={features.accountVisible}
-                                  projectName={projectName}
-                                  refetchAccountAreaQuery={reload}
-                                />
-                              ))
+                              .with({ name: "AccountMerchantsArea" }, () =>
+                                permissions.canReadMerchantProfile && isMerchantFlagActive ? (
+                                  <MerchantArea
+                                    accountId={accountId}
+                                    accountMembershipId={accountMembershipId}
+                                  />
+                                ) : (
+                                  <NotFoundPage />
+                                ),
+                              )
+                              .with({ name: "AccountActivation" }, () =>
+                                permissions.canReadAccountDetails ? (
+                                  <AccountActivationPage
+                                    hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
+                                    lastRelevantIdentification={lastRelevantIdentification}
+                                    requireFirstTransfer={requireFirstTransfer}
+                                    accentColor={accentColor}
+                                    accountMembershipId={accountMembershipId}
+                                    additionalInfo={additionalInfo}
+                                    projectName={projectName}
+                                    refetchAccountAreaQuery={reload}
+                                  />
+                                ) : (
+                                  <NotFoundPage />
+                                ),
+                              )
                               .otherwise(() => (
                                 <NotFoundPage
                                   title={

@@ -9,6 +9,7 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { GetCardProductsQuery } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -33,13 +34,13 @@ type Props = {
   cardProduct: CardProduct;
   initialCardFormat?: CardFormat;
   onSubmit: (cardFormat: CardFormat) => void;
-  physicalCardOrderVisible: boolean;
 };
 
 export type CardWizardFormatRef = { submit: () => void };
 
 export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
-  ({ cardProduct, initialCardFormat, onSubmit, physicalCardOrderVisible }: Props, ref) => {
+  ({ cardProduct, initialCardFormat, onSubmit }: Props, ref) => {
+    const { canPrintPhysicalCard: canOrderPhysicalCard } = usePermissions();
     const [currentFormat, setCurrentCardFormat] = useState<CardFormat>(
       () => initialCardFormat ?? "Virtual",
     );
@@ -56,7 +57,7 @@ export const CardWizardFormat = forwardRef<CardWizardFormatRef, Props>(
 
     const items: CardFormat[] = [
       "Virtual",
-      ...(cardProduct.applicableToPhysicalCards && physicalCardOrderVisible
+      ...(cardProduct.applicableToPhysicalCards && canOrderPhysicalCard
         ? ["VirtualAndPhysical" as const]
         : []),
       "SingleUseVirtual",

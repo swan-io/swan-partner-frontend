@@ -46,6 +46,7 @@ import {
   AccountLanguage,
   UpdateAccountDocument,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import {
   validateAccountNameLength,
@@ -103,12 +104,10 @@ const Contract = ({ children, to }: { children: ReactNode; to: string }) => (
 const UpdateAccountForm = ({
   accountId,
   account,
-  canManageAccountMembership,
   projectInfo,
 }: {
   accountId: string;
   account: NonNullable<AccountDetailsSettingsPageQuery["account"]>;
-  canManageAccountMembership: boolean;
   projectInfo: NonNullable<AccountDetailsSettingsPageQuery["projectInfo"]>;
 }) => {
   const accountCountry = account.country ?? "FRA";
@@ -156,6 +155,7 @@ const UpdateAccountForm = ({
       it: { name: "Italiano", cca3: "ITA" },
       nl: { name: "Nederlands", cca3: "NLD" },
       pt: { name: "Português", cca3: "PRT" },
+      fi: { name: "Suomi", cca3: "FIN" },
     };
 
     return Dict.entries(map).map(([value, { name }]) => ({
@@ -166,7 +166,8 @@ const UpdateAccountForm = ({
 
   const { statusInfo } = account;
   const accountClosed = statusInfo.status === "Closing" || statusInfo.status === "Closed";
-  const formDisabled = !canManageAccountMembership || accountClosed;
+  const { canUpdateAccount } = usePermissions();
+  const formDisabled = !canUpdateAccount || accountClosed;
   const shouldEditTaxIdentificationNumber =
     account.country === "DEU" && account.holder.residencyAddress.country === "DEU";
 
@@ -388,14 +389,12 @@ const UpdateAccountForm = ({
 type Props = {
   accountMembershipLanguage: AccountLanguage;
   accountId: string;
-  canManageAccountMembership: boolean;
   largeBreakpoint: boolean;
 };
 
 export const AccountDetailsSettingsPage = ({
   accountMembershipLanguage,
   accountId,
-  canManageAccountMembership,
   largeBreakpoint,
 }: Props) => {
   const [data] = useQuery(AccountDetailsSettingsPageDocument, {
@@ -413,12 +412,7 @@ export const AccountDetailsSettingsPage = ({
           isNullish(account) ? (
             <NotFoundPage />
           ) : (
-            <UpdateAccountForm
-              accountId={accountId}
-              account={account}
-              canManageAccountMembership={canManageAccountMembership}
-              projectInfo={projectInfo}
-            />
+            <UpdateAccountForm accountId={accountId} account={account} projectInfo={projectInfo} />
           ),
         )
         .exhaustive()}

@@ -7,6 +7,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { useCallback, useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { AccountCountry } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
@@ -42,8 +43,6 @@ type Props = {
   accountId: string;
   accountCountry: AccountCountry;
   params: GetRouteParams<"AccountPaymentsNew">;
-  canViewAccount: boolean;
-  canManageBeneficiaries: boolean;
 };
 
 export const TransferTypePicker = ({
@@ -51,10 +50,9 @@ export const TransferTypePicker = ({
   accountId,
   accountCountry,
   params,
-  canViewAccount,
-  canManageBeneficiaries,
 }: Props) => {
   const ictEnabled = useTgglFlag("initiate_international_credit_transfer_outgoing");
+  const permissions = usePermissions();
 
   useCrumb(
     useMemo(
@@ -68,19 +66,27 @@ export const TransferTypePicker = ({
 
   const links = useMemo(
     () => [
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
-        icon: "arrow-swap-regular" as const,
-        title: t("transfer.tile.transfer.title"),
-        subtitle: t("transfer.tile.transfer.subtitle"),
-      },
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "recurring" }),
-        icon: "lake-clock-arrow-swap" as const,
-        title: t("transfer.tile.recurringTransfer.title"),
-        subtitle: t("transfer.tile.recurringTransfer.subtitle"),
-      },
-      ...(ictEnabled.getOr(false)
+      ...(permissions.canInitiateCreditTransfer
+        ? [
+            {
+              url: Router.AccountPaymentsNew({ accountMembershipId, type: "transfer" }),
+              icon: "arrow-swap-regular" as const,
+              title: t("transfer.tile.transfer.title"),
+              subtitle: t("transfer.tile.transfer.subtitle"),
+            },
+          ]
+        : []),
+      ...(permissions.canCreateStandingOrder
+        ? [
+            {
+              url: Router.AccountPaymentsNew({ accountMembershipId, type: "recurring" }),
+              icon: "lake-clock-arrow-swap" as const,
+              title: t("transfer.tile.recurringTransfer.title"),
+              subtitle: t("transfer.tile.recurringTransfer.subtitle"),
+            },
+          ]
+        : []),
+      ...(permissions.canInitiateCreditTransfer && ictEnabled.getOr(false)
         ? [
             {
               url: Router.AccountPaymentsNew({ accountMembershipId, type: "international" }),
@@ -90,14 +96,18 @@ export const TransferTypePicker = ({
             },
           ]
         : []),
-      {
-        url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
-        icon: "lake-document-csv" as const,
-        title: t("transfer.tile.bulkTransfer.title"),
-        subtitle: t("transfer.tile.bulkTransfer.subtitle"),
-      },
+      ...(permissions.canInitiateCreditTransferToNewBeneficiary
+        ? [
+            {
+              url: Router.AccountPaymentsNew({ accountMembershipId, type: "bulk" }),
+              icon: "lake-document-csv" as const,
+              title: t("transfer.tile.bulkTransfer.title"),
+              subtitle: t("transfer.tile.bulkTransfer.subtitle"),
+            },
+          ]
+        : []),
     ],
-    [ictEnabled, accountMembershipId],
+    [ictEnabled, accountMembershipId, permissions],
   );
 
   const onPressClose = useCallback(
@@ -128,7 +138,9 @@ export const TransferTypePicker = ({
         )}
       </ResponsiveContainer>
 
-      <FullViewportLayer visible={params.type === "transfer"}>
+      <FullViewportLayer
+        visible={params.type === "transfer" && permissions.canInitiateCreditTransfer}
+      >
         <WizardLayout title={t("transfer.newTransfer")} onPressClose={onPressClose}>
           {({ large }) => (
             <TransferRegularWizard
@@ -137,40 +149,40 @@ export const TransferTypePicker = ({
               accountId={accountId}
               accountMembershipId={accountMembershipId}
               onPressClose={onPressClose}
-              canViewAccount={canViewAccount}
-              canManageBeneficiaries={canManageBeneficiaries}
             />
           )}
         </WizardLayout>
       </FullViewportLayer>
 
-      <FullViewportLayer visible={params.type === "recurring"}>
+      <FullViewportLayer
+        visible={params.type === "recurring" && permissions.canCreateStandingOrder}
+      >
         <TransferRecurringWizard
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
-          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={params.type === "international"}>
+      <FullViewportLayer
+        visible={params.type === "international" && permissions.canInitiateCreditTransfer}
+      >
         <TransferInternationalWizard
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
-          canViewAccount={canViewAccount}
-          canManageBeneficiaries={canManageBeneficiaries}
         />
       </FullViewportLayer>
 
-      <FullViewportLayer visible={params.type === "bulk"}>
+      <FullViewportLayer
+        visible={params.type === "bulk" && permissions.canInitiateCreditTransferToNewBeneficiary}
+      >
         <TransferBulkWizard
           accountCountry={accountCountry}
           accountId={accountId}
           accountMembershipId={accountMembershipId}
           onPressClose={onPressClose}
-          canViewAccount={canViewAccount}
         />
       </FullViewportLayer>
     </>

@@ -50,6 +50,7 @@ import {
   ViewPhysicalCardNumbersDocument,
   ViewPhysicalCardPinDocument,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
 import { formatCurrency, t } from "../utils/i18n";
@@ -324,12 +325,10 @@ type Props = {
   cardId: string;
   accountMembershipId: string;
   isCurrentUserCardOwner: boolean;
-  canManageAccountMembership: boolean;
   cardRequiresIdentityVerification: boolean;
   onRefreshRequest: () => void;
   onRefreshAccountRequest: () => void;
   lastRelevantIdentification: Option<IdentificationFragment>;
-  physicalCardOrderVisible: boolean;
   hasBindingUserError: boolean;
 };
 
@@ -339,14 +338,14 @@ export const CardItemPhysicalDetails = ({
   accountMembershipId,
   card,
   isCurrentUserCardOwner,
-  canManageAccountMembership,
   cardRequiresIdentityVerification,
   onRefreshAccountRequest,
   lastRelevantIdentification,
   onRefreshRequest,
-  physicalCardOrderVisible,
   hasBindingUserError,
 }: Props) => {
+  const { canPrintPhysicalCard: canOrderPhysicalCard, canCancelCardForOtherMembership } =
+    usePermissions();
   const [orderModal, setOrderModal] = useState<Option<{ initialShippingAddress?: Address }>>(
     Option.None(),
   );
@@ -890,10 +889,10 @@ export const CardItemPhysicalDetails = ({
                     </>
                   ) : null}
 
-                  {match({ card, physicalCardOrderVisible })
+                  {match({ card, canOrderPhysicalCard })
                     .with(
                       {
-                        physicalCardOrderVisible: true,
+                        canOrderPhysicalCard: true,
                         card: {
                           statusInfo: {
                             __typename: P.not(
@@ -1061,11 +1060,6 @@ export const CardItemPhysicalDetails = ({
                             )
 
                             .otherwise(() => []),
-                          ...match({
-                            currentUserHasRights:
-                              isCurrentUserCardOwner || canManageAccountMembership,
-                            physicalCard,
-                          }).otherwise(() => []),
                           ...match({ statusInfo: physicalCard.statusInfo, isCurrentUserCardOwner })
                             .with(
                               {
@@ -1330,7 +1324,7 @@ export const CardItemPhysicalDetails = ({
                     .otherwise(() => [])}
 
                   {match({
-                    currentUserHasRights: isCurrentUserCardOwner || canManageAccountMembership,
+                    currentUserHasRights: isCurrentUserCardOwner || canCancelCardForOtherMembership,
                     physicalCard,
                   })
                     .with(
@@ -1584,10 +1578,10 @@ export const CardItemPhysicalDetails = ({
                     </View>
                   </View>
 
-                  {match({ physicalCardOrderVisible, card })
+                  {match({ canOrderPhysicalCard, card })
                     .with(
                       {
-                        physicalCardOrderVisible: true,
+                        canOrderPhysicalCard: true,
                         card: {
                           statusInfo: {
                             __typename: P.not(

@@ -24,6 +24,12 @@ export const validateRequired: Validator<string> = value => {
   }
 };
 
+export const validateForPermissions: Validator<string> = value => {
+  if (!value) {
+    return t("common.form.required.permissions");
+  }
+};
+
 // This regex was copied from the backend to ensure that the validation is the same
 // Matches all unicode letters, spaces, dashes, apostrophes, commas, and single quotes
 const VALID_NAME_RE =

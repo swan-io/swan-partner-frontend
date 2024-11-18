@@ -874,6 +874,7 @@ enum AccountLanguage {
   nl
   es
   pt
+  fi
 }
 
 """
@@ -2813,11 +2814,18 @@ type CapitalDepositCaseEdge implements Edge {
 """Filters that can be applied when listing capital deposit cases"""
 input CapitalDepositCaseFiltersInput {
   """
-  Searches company shareholder name, individual shareholder first name, last name, and id
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Company shareholder's name
+   - Individual shareholder's first name
+   - Individual shareholder's last name
+   - Company name
+   - ID
   """
   search: String
 
-  """Status we want to filter on"""
+  """Filter by status"""
   status: [CapitalDepositCaseStatus!]
 }
 
@@ -3419,7 +3427,7 @@ input CardOrderByInput {
 
 type CardOutDetails {
   """card used for this transaction"""
-  card: Card!
+  card: Card
 
   """card numbers masked (Primary Account Number)"""
   maskedPan: String!
@@ -5284,7 +5292,7 @@ input DisableMerchantPaymentMethodInput {
   merchantPaymentMethodId: ID!
 }
 
-union DisableMerchantPaymentMethodPayload = DisableMerchantPaymentMethodSuccessPayload | ForbiddenRejection | InternalErrorRejection | NotFoundRejection
+union DisableMerchantPaymentMethodPayload = DisableMerchantPaymentMethodSuccessPayload | ForbiddenRejection | InternalErrorRejection | NotFoundRejection | MerchantPaymentMethodWrongStatusRejection
 
 type DisableMerchantPaymentMethodSuccessPayload {
   """Merchant Payment Method ID"""
@@ -14306,7 +14314,7 @@ input ReturnTransactionInput {
   consentRedirectUrl: String!
 }
 
-union ReturnTransactionPayload = ReturnTransactionSuccessPayload | ReturnTransactionRejection | TransactionNotFoundRejection
+union ReturnTransactionPayload = ReturnTransactionSuccessPayload | ReturnTransactionRejection | TransactionNotFoundRejection | ForbiddenRejection
 
 """
 Rejection returned if the refund is not applicable for this transaction
@@ -15950,6 +15958,12 @@ type SupportingDocumentCollection {
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
   transaction: SupportingDocumentTransaction!
+  relatedInfo: SupportingDocumentCollectionRelatedInfo!
+}
+
+"""Onboarding supporting document collection"""
+type SupportingDocumentCollectionAccountHolderVerificationRenewalRelatedInfo implements SupportingDocumentCollectionRelatedInfo {
+  type: SupportingDocumentCollectionType!
 }
 
 """Supporting document collection with Approved status"""
@@ -16010,6 +16024,11 @@ type SupportingDocumentCollectionNotFoundRejection implements Rejection {
   message: String!
 }
 
+"""Onboarding supporting document collection"""
+type SupportingDocumentCollectionOnboardingRelatedInfo implements SupportingDocumentCollectionRelatedInfo {
+  type: SupportingDocumentCollectionType!
+}
+
 """Supporting document collection with PendingReview status"""
 type SupportingDocumentCollectionPendingReviewStatusInfo implements SupportingDocumentCollectionStatusInfo {
   """
@@ -16025,6 +16044,16 @@ type SupportingDocumentCollectionRejectedStatusInfo implements SupportingDocumen
 
   """Date on which the supporting document collection has been rejected"""
   rejectedAt: DateTime!
+}
+
+interface SupportingDocumentCollectionRelatedInfo {
+  """
+  Type of the supporting document collection
+  - Onboarding is the one created along with an onboarding
+  - AccountHolderVerificationRenewal is created for verification renewal
+  - Transaction is related to a transaction
+  """
+  type: SupportingDocumentCollectionType!
 }
 
 """Verification status of a supporting document collection"""
@@ -16075,6 +16104,12 @@ type SupportingDocumentCollectionStatusNotAllowedRejection implements Rejection 
   oldStatus: SupportingDocumentCollectionStatus!
   newStatus: SupportingDocumentCollectionStatus!
   message: String!
+}
+
+"""Transaction supporting document collection: related to a transaction"""
+type SupportingDocumentCollectionTransactionRelatedInfo implements SupportingDocumentCollectionRelatedInfo {
+  type: SupportingDocumentCollectionType!
+  transaction: Transaction!
 }
 
 enum SupportingDocumentCollectionType {
@@ -18662,6 +18697,10 @@ enum VerificationFlow {
   When you ask the account holder the minimum required to comply the law at the beginning of the relationship.
   """
   Progressive
+}
+
+type VerificationRenewal {
+  verificationRenewalId: ID
 }
 
 """

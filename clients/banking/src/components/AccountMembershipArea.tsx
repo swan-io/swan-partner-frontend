@@ -3,15 +3,15 @@ import { useDeferredQuery, useMutation } from "@swan-io/graphql-client";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { Request } from "@swan-io/request";
 import { useCallback, useEffect, useMemo } from "react";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountAreaDocument,
   LastRelevantIdentificationDocument,
   UpdateAccountLanguageDocument,
 } from "../graphql/partner";
+import { PermissionProvider } from "../hooks/usePermissions";
 import { getIdentificationLevelStatusInfo } from "../utils/identification";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { AccountArea } from "./AccountArea";
 import { AccountActivationTag } from "./AccountPicker";
 import { ErrorView } from "./ErrorView";
@@ -27,8 +27,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
     LastRelevantIdentificationDocument,
   );
-
-  const isMerchantFlagActive = useTgglFlag("merchantWebBanking").getOr(false);
 
   const [updateAccountLanguage] = useMutation(UpdateAccountLanguageDocument);
 
@@ -47,10 +45,16 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
           Router.replace("ProjectRootRedirect");
         }
 
-        const { account, recommendedIdentificationLevel } = accountMembership;
+        const { account, recommendedIdentificationLevel, legalRepresentative } = accountMembership;
         const { id: accountId, language, IBAN, bankDetails } = account ?? {};
 
-        if (accountId != null && language != null && IBAN != null && bankDetails == null) {
+        if (
+          accountId != null &&
+          language != null &&
+          IBAN != null &&
+          bankDetails == null &&
+          legalRepresentative
+        ) {
           void updateAccountLanguage({ id: accountId, language });
         }
 
@@ -140,7 +144,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   canInitiatePayments,
                   canManageBeneficiaries,
                   canManageCards,
-                  canViewAccount,
                   canManageAccountMembership,
                 } = accountMembership;
 
@@ -154,34 +157,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   canManageBeneficiaries === false &&
                   canManageCards === false
                 );
-
-                const webBankingSettings = projectInfo.webBankingSettings;
-
-                const features = {
-                  accountStatementsVisible: webBankingSettings?.accountStatementsVisible ?? false,
-                  accountVisible: webBankingSettings?.accountVisible ?? false,
-                  transferCreationVisible: webBankingSettings?.transferCreationVisible ?? false,
-                  paymentListVisible: webBankingSettings?.paymentListVisible ?? false,
-                  virtualIbansVisible: webBankingSettings?.virtualIbansVisible ?? false,
-                  memberCreationVisible: webBankingSettings?.memberCreationVisible ?? false,
-                  memberListVisible: webBankingSettings?.memberListVisible ?? false,
-                  physicalCardOrderVisible: webBankingSettings?.physicalCardOrderVisible ?? false,
-                  virtualCardOrderVisible: webBankingSettings?.virtualCardOrderVisible ?? false,
-                  merchantProfileCreationVisible:
-                    webBankingSettings?.merchantProfileCreationVisible ?? false,
-                  merchantProfileCardVisible:
-                    webBankingSettings?.merchantProfileCardVisible ?? false,
-                  merchantProfileSepaDirectDebitCoreVisible:
-                    webBankingSettings?.merchantProfileSepaDirectDebitCoreVisible ?? false,
-                  merchantProfileSepaDirectDebitB2BVisible:
-                    webBankingSettings?.merchantProfileSepaDirectDebitB2BVisible ?? false,
-                  merchantProfileInternalDirectDebitCoreVisible:
-                    webBankingSettings?.merchantProfileInternalDirectDebitCoreVisible ?? false,
-                  merchantProfileInternalDirectDebitB2BVisible:
-                    webBankingSettings?.merchantProfileInternalDirectDebitB2BVisible ?? false,
-                  merchantProfileCheckVisible:
-                    webBankingSettings?.merchantProfileCheckVisible ?? false,
-                };
 
                 const account = accountMembership.account;
                 const documentCollection =
@@ -294,9 +269,6 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   )
                   .otherwise(() => "none");
 
-                const merchantProfilesCount =
-                  accountMembership.account?.merchantProfiles?.totalCount ?? 0;
-
                 return Result.Ok({
                   accountMembership,
                   user,
@@ -304,39 +276,14 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
                   lastRelevantIdentification,
                   shouldDisplayIdVerification,
                   requireFirstTransfer,
-                  permissions: {
-                    canInitiatePayments,
-                    canManageBeneficiaries,
-                    canManageCards,
-                    canViewAccount,
-                    canManageAccountMembership,
-                  },
-                  features,
+
                   activationTag,
-                  sections: {
-                    history: canViewAccount,
-                    account: canViewAccount && features.accountVisible,
-                    transfer:
-                      canInitiatePayments &&
-                      accountMembership.statusInfo.status === "Enabled" &&
-                      (features.transferCreationVisible || features.paymentListVisible),
-                    cards:
-                      accountMembership.allCards.totalCount > 0 ||
-                      (canManageCards && features.virtualCardOrderVisible) ||
-                      (canManageAccountMembership && canManageCards),
-                    members:
-                      canViewAccount && canManageAccountMembership && features.memberListVisible,
-                    merchants:
-                      isMerchantFlagActive &&
-                      canManageAccountMembership &&
-                      (merchantProfilesCount > 0 || features.merchantProfileCreationVisible),
-                  },
                 });
               },
             )
             .otherwise(() => Result.Error(undefined));
         }),
-    [data, lastRelevantIdentification, isMerchantFlagActive],
+    [data, lastRelevantIdentification],
   );
 
   return match(info)
@@ -349,28 +296,29 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
         accountMembership,
         projectInfo,
         shouldDisplayIdVerification,
-        permissions,
         requireFirstTransfer,
-        features,
         lastRelevantIdentification,
         activationTag,
-        sections,
       }) => (
-        <AccountArea
-          accountMembershipLanguage={accountMembership.account?.language ?? "en"}
-          accountMembershipId={accountMembershipId}
-          user={user}
-          accountMembership={accountMembership}
-          projectInfo={projectInfo}
-          shouldDisplayIdVerification={shouldDisplayIdVerification}
-          permissions={permissions}
-          features={features}
-          lastRelevantIdentification={lastRelevantIdentification}
-          requireFirstTransfer={requireFirstTransfer}
-          activationTag={activationTag}
-          sections={sections}
-          reload={reload}
-        />
+        <PermissionProvider
+          value={Option.Some({
+            accountMembership,
+            settings: projectInfo.webBankingSettings,
+          })}
+        >
+          <AccountArea
+            accountMembershipLanguage={accountMembership.account?.language ?? "en"}
+            accountMembershipId={accountMembershipId}
+            user={user}
+            accountMembership={accountMembership}
+            projectInfo={projectInfo}
+            shouldDisplayIdVerification={shouldDisplayIdVerification}
+            lastRelevantIdentification={lastRelevantIdentification}
+            requireFirstTransfer={requireFirstTransfer}
+            activationTag={activationTag}
+            reload={reload}
+          />
+        </PermissionProvider>
       ),
     )
     .exhaustive();

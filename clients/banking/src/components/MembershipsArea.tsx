@@ -24,6 +24,7 @@ import {
   MembersPageDocument,
   MembershipDetailDocument,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { GetRouteParams, Router, membershipsRoutes } from "../utils/routes";
@@ -52,10 +53,6 @@ const styles = StyleSheet.create({
 type Props = {
   accountMembershipId: string;
   accountId: string;
-  memberCreationVisible: boolean;
-  canAddCard: boolean;
-  cardOrderVisible: boolean;
-  physicalCardOrderVisible: boolean;
   accountCountry: AccountCountry;
   shouldDisplayIdVerification: boolean;
   params: Except<GetRouteParams<"AccountMembersArea">, "accountMembershipId">;
@@ -70,16 +67,13 @@ const statusList = ["BindingUserError", "Enabled", "InvitationSent", "Suspended"
 export const MembershipsArea = ({
   accountMembershipId,
   accountId,
-  memberCreationVisible,
-  canAddCard,
-  cardOrderVisible,
-  physicalCardOrderVisible,
   accountCountry,
   shouldDisplayIdVerification,
   params,
   currentUserAccountMembership,
   onAccountMembershipUpdate,
 }: Props) => {
+  const { canAddAccountMembership } = usePermissions();
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
@@ -225,7 +219,7 @@ export const MembershipsArea = ({
                 totalCount={data.mapOk(data => data.account?.memberships.totalCount ?? 0)}
                 large={large}
               >
-                {memberCreationVisible ? (
+                {canAddAccountMembership ? (
                   <LakeButton
                     size="small"
                     icon="add-circle-filled"
@@ -326,8 +320,6 @@ export const MembershipsArea = ({
                                   currentUserAccountMembership={currentUserAccountMembership}
                                   editingAccountMembershipId={membership.id}
                                   onAccountMembershipUpdate={onAccountMembershipUpdate}
-                                  canAddCard={cardOrderVisible && canAddCard}
-                                  physicalCardOrderVisible={physicalCardOrderVisible}
                                   accountCountry={accountCountry}
                                   shouldDisplayIdVerification={shouldDisplayIdVerification}
                                   onRefreshRequest={() => {
@@ -350,7 +342,7 @@ export const MembershipsArea = ({
           </View>
 
           <LakeModal
-            visible={params.new != null}
+            visible={params.new != null && canAddAccountMembership}
             icon="add-circle-regular"
             maxWidth={breakpoints.medium}
             title={t("membershipList.newMember.title")}

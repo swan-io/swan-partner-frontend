@@ -26,6 +26,7 @@ import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { GetAccountBalanceDocument } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { TransactionListPage } from "../pages/TransactionListPage";
 import { UpcomingTransactionListPage } from "../pages/UpcomingTransactionListPage";
 import { formatCurrency, t } from "../utils/i18n";
@@ -36,9 +37,6 @@ import { ErrorView } from "./ErrorView";
 type Props = {
   accountId: string;
   accountMembershipId: string;
-  canQueryCardOnTransaction: boolean;
-  accountStatementsVisible: boolean;
-  canViewAccount: boolean;
 };
 
 const styles = StyleSheet.create({
@@ -97,14 +95,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const TransactionsArea = ({
-  accountId,
-  accountMembershipId,
-  canQueryCardOnTransaction,
-  accountStatementsVisible,
-  canViewAccount,
-}: Props) => {
+export const TransactionsArea = ({ accountId, accountMembershipId }: Props) => {
   const [data] = useQuery(GetAccountBalanceDocument, { accountId });
+  const { canReadAccountStatement } = usePermissions();
 
   const [updatedUpcommingTransactionCount, setUpdatedUpcommingTransactionCount] = useState<
     number | undefined
@@ -425,9 +418,6 @@ export const TransactionsArea = ({
                               ? Option.Some({ kind, status })
                               : Option.None()
                           }
-                          canQueryCardOnTransaction={canQueryCardOnTransaction}
-                          accountStatementsVisible={accountStatementsVisible}
-                          canViewAccount={canViewAccount}
                         />
 
                         <LakeModal
@@ -436,7 +426,7 @@ export const TransactionsArea = ({
                           title={t("accountStatements.title")}
                           visible={
                             name === "AccountTransactionsListStatementsArea" &&
-                            accountStatementsVisible
+                            canReadAccountStatement
                           }
                           onPressClose={() =>
                             Router.push("AccountTransactionsListRoot", {
@@ -464,9 +454,7 @@ export const TransactionsArea = ({
                     <UpcomingTransactionListPage
                       accountId={accountId}
                       accountMembershipId={accountMembershipId}
-                      canQueryCardOnTransaction={canQueryCardOnTransaction}
                       onUpcomingTransactionCountUpdated={setUpdatedUpcommingTransactionCount}
-                      canViewAccount={canViewAccount}
                     />
                   );
                 })

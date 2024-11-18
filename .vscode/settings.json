@@ -1,0 +1,3 @@
+{
+  "eslint.validate": ["graphql", "typescript", "typescriptreact"]
+}

@@ -8,10 +8,12 @@ query GetMerchantPaymentLink($paymentLinkId: ID!) {
       status
     }
     merchantProfile {
+      id
       accentColor
       merchantLogoUrl
       merchantName
       merchantPaymentMethods {
+        id
         type
       }
       merchantWebsite

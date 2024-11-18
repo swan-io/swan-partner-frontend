@@ -104,7 +104,7 @@ const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
   FRA: "Registre du Commerce et des Sociétés (RCS)",
   ITA: "Registro Imprese",
   NLD: "Handelsregister",
-  ESP: "Registrado Mercantil",
+  ESP: "Registro Mercantil",
 };
 
 export const OnboardingCompanyOrganisation1 = ({

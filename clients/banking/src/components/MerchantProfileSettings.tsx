@@ -508,10 +508,8 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
       permissions.canDeclareChecks &&
       checkPaymentMethod
         .flatMap(identity)
-        .flatMap(check =>
-          check.statusInfo.status === "Enabled" ? Option.Some(check) : Option.None(),
-        )
-        .isSome() ? (
+        .map(check => check.statusInfo.status === "Enabled")
+        .getOr(false) ? (
         <>
           <Box direction="row" alignItems="center">
             <LakeButton

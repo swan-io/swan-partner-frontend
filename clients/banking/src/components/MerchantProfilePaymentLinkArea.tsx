@@ -127,7 +127,8 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
           ALLOWED_PAYMENT_METHODS.has(paymentMethod.type) &&
           paymentMethod.statusInfo.status === "Enabled",
       );
-    });
+    })
+    .getOr(false);
 
   return (
     <>
@@ -135,10 +136,10 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
         <Box style={styles.containerMobile} alignItems="stretch">
           <LakeTooltip
             content={t("merchantProfile.paymentLink.button.new.disable")}
-            disabled={shouldEnableNewButton !== Option.Some(false)}
+            disabled={shouldEnableNewButton !== false}
           >
             <LakeButton
-              disabled={!shouldEnableNewButton.getOr(false)}
+              disabled={shouldEnableNewButton === false}
               size="small"
               icon="add-circle-filled"
               color="current"
@@ -165,10 +166,10 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
           <>
             <LakeTooltip
               content={t("merchantProfile.paymentLink.button.new.disable")}
-              disabled={shouldEnableNewButton !== Option.Some(false)}
+              disabled={shouldEnableNewButton !== false}
             >
               <LakeButton
-                disabled={!shouldEnableNewButton.getOr(false)}
+                disabled={shouldEnableNewButton === false}
                 size="small"
                 icon="add-circle-filled"
                 color="current"

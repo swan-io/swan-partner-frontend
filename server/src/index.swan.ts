@@ -110,7 +110,7 @@ const getMailjetInput = ({
                 .with("it", () => 5987088)
                 .with("nl", () => 5987163)
                 .with("pt", () => 5987107)
-                // .with("fi", () => 5987184) // Finnish is not ready yet
+                .with("fi", () => 5987184)
                 .otherwise(() => 2850442), // English
               Subject: match(language)
                 .with("es", () => `Únete a tu espacio bancario en ${projectInfo.name}`)

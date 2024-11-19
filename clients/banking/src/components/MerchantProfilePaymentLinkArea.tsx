@@ -24,6 +24,7 @@ import {
   MerchantPaymentMethodType,
   PaymentLinkFragment,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -113,6 +114,8 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
   const search = nullishOrEmptyToUndefined(params.search);
 
+  const { canCreateMerchantPaymentLinks } = usePermissions();
+
   const shouldEnableNewButton = data
     .toOption()
     .flatMap(result => result.toOption())
@@ -128,7 +131,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
   return (
     <>
-      {!large && (
+      {canCreateMerchantPaymentLinks && !large ? (
         <Box style={styles.containerMobile} alignItems="stretch">
           <LakeTooltip
             content={t("merchantProfile.paymentLink.button.new.disable")}
@@ -151,14 +154,14 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
             </LakeButton>
           </LakeTooltip>
         </Box>
-      )}
+      ) : null}
 
       <Box
         direction="row"
         alignItems="center"
         style={[styles.filters, large && styles.filtersLarge]}
       >
-        {large && (
+        {canCreateMerchantPaymentLinks && large ? (
           <>
             <LakeTooltip
               content={t("merchantProfile.paymentLink.button.new.disable")}
@@ -183,7 +186,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
 
             <Space width={12} />
           </>
-        )}
+        ) : null}
 
         <LakeButton
           ariaLabel={t("common.refresh")}

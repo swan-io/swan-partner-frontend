@@ -341,6 +341,24 @@ const PERMISSIONS_MATRIX = {
       canRequestChecksPaymentMethod: true,
     },
   },
+  canDeclareChecks: {
+    accountMembership: {
+      canViewAccount: true,
+      canManageAccountMembership: true,
+    },
+    settings: {
+      canInitiateCheckMerchantPayments: true,
+    },
+  },
+  canCreateMerchantPaymentLinks: {
+    accountMembership: {
+      canViewAccount: true,
+      canManageAccountMembership: true,
+    },
+    settings: {
+      canCreateMerchantPaymentLinks: true,
+    },
+  },
 } satisfies Record<
   string,
   Pattern.Pattern<{

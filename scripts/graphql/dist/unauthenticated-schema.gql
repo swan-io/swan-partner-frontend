@@ -371,22 +371,22 @@ type AccountHolderCompanyInfo implements AccountHolderInfo {
 Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination)).
 """
 type AccountHolderConnection implements Connection {
-  """Total number of element in the list."""
+  """Total number of element in the list"""
   totalCount: Int!
 
-  """Information about the current, the previous and the next page."""
+  """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
 
-  """AccountHolderEdge list."""
+  """AccountHolderEdge list"""
   edges: [AccountHolderEdge!]!
 }
 
 """Implements the Relay Edge interface."""
 type AccountHolderEdge implements Edge {
-  """Opaque identifier pointing to this node in the pagination mechanism."""
+  """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
 
-  """The account holder."""
+  """The account holder"""
   node: AccountHolder!
 }
 
@@ -396,22 +396,52 @@ type AccountHolderEnabledStatusInfo implements AccountHolderStatusInfo {
   status: AccountHolderStatus!
 }
 
+"""Filters that can be applied when listing account holders"""
 input AccountHolderFilterInput {
-  status: [AccountHolderStatus!]
-  types: [AccountHolderType!]
-  verificationStatus: [VerificationStatus!]
-
-  """Searches company name, first name, last name"""
-  search: String
-  firstName: String
-  lastName: String
+  """Filter by birth date"""
   birthDate: String
 
   """
-  Registration number of the company (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  Filter by registration number of the company
+  (for example, Système d'Identification du Répertoire des ENtreprises [SIREN] in France, ...).
+  
   - Length must be from 0 to 50 characters.
   """
   registrationNumber: String
+
+  """Filter by status"""
+  status: [AccountHolderStatus!]
+
+  """Filter by type"""
+  types: [AccountHolderType!]
+
+  """Filter by verification status"""
+  verificationStatus: [VerificationStatus!]
+
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - First name
+   - Last name
+   - Company name
+   - ID
+  """
+  search: String
+
+  """
+  Search by first name
+  
+  @deprecated(reason: "use `search` instead")
+  """
+  firstName: String
+
+  """
+  Search by last name
+  
+  @deprecated(reason: "use `search` instead")
+  """
+  lastName: String
 }
 
 """Individual account holder."""
@@ -544,10 +574,13 @@ type AccountHolderWaitingForInformationVerificationStatusInfo implements Account
   status: VerificationStatus!
   verificationRequirements: [VerificationRequirement!]!
 
+  """@deprecated(reason: "Use `waitingForInformationAt` instead")"""
+  WaitingForInformationAt: DateTime! @deprecated
+
   """
   ISO Date string at which the account holder status was set to WaitingForInformation
   """
-  WaitingForInformationAt: DateTime!
+  waitingForInformationAt: DateTime!
 }
 
 """Language: ISO 639-1 language code"""
@@ -817,9 +850,7 @@ input AccountMembershipOrderByInput {
   direction: OrderByDirection
 }
 
-"""
-Filters that can be applied when listing accounts (Only applied in user context)
-"""
+"""Filters that can be applied when listing account memberships"""
 input AccountMembershipsFilterInput {
   """
   `true` if this account membership can manage cards for himself or to the memberships he manages
@@ -841,19 +872,39 @@ input AccountMembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """Filtered by email"""
+  """
+  Search by email
+  
+  @deprecated(reason: "use `search` instead")
+  """
   email: String
 
-  """Filtered by first name"""
+  """
+  Search by first name
+  
+  @deprecated(reason: "use `search` instead")
+  """
   firstName: String
 
-  """Filtered by last name"""
+  """
+  Search by last name
+  
+  @deprecated(reason: "use `search` instead")
+  """
   lastName: String
 
-  """Searches email, first name, last name, and id"""
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - First name
+   - Last name
+   - Email
+   - ID
+  """
   search: String
 
-  """Filtered by accountId"""
+  """Filter by account"""
   accountId: String
 }
 
@@ -1515,6 +1566,14 @@ input CardFiltersInput {
   This filter is only available for User Access Token, for the moment
   """
   accountId: String
+}
+
+enum CardFundingType {
+  """Default funding type for cards"""
+  Debit
+
+  """Credit funding type for cards"""
+  DeferredDebit
 }
 
 type CardInfo {
@@ -2762,10 +2821,10 @@ type FundingLimitSettingsChangeRequestEdge implements Edge {
 Filters that can be applied when listing funding limit settings change requests
 """
 input FundingLimitSettingsChangeRequestFiltersInput {
-  """The ids of the funding limit settings change requests"""
+  """Filter by IDs"""
   id: [String!]
 
-  """Status we want to filter on"""
+  """Filter by status"""
   status: [FundingLimitSettingsChangeRequestStatus!]
 }
 
@@ -3205,9 +3264,7 @@ type MaskedCardInfo {
   cardHolderName: String!
 }
 
-"""
-Filters that can be applied when listing accounts (Only applied in user context)
-"""
+"""Filters that can be applied when listing account memberships"""
 input MembershipsFilterInput {
   """
   `true` if this account membership can manage cards for himself or to the memberships he manages
@@ -3229,16 +3286,36 @@ input MembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """Filtered by email"""
+  """
+  Search by email
+  
+  @deprecated(reason: "use `search` instead")
+  """
   email: String
 
-  """Filtered by first name"""
+  """
+  Search by first name
+  
+  @deprecated(reason: "use `search` instead")
+  """
   firstName: String
 
-  """Filtered by last name"""
+  """
+  Search by last name
+  
+  @deprecated(reason: "use `search` instead")
+  """
   lastName: String
 
-  """Searches email, first name, last name, and id"""
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - First name
+   - Last name
+   - Email
+   - ID
+  """
   search: String
 }
 
@@ -4033,17 +4110,31 @@ type OnboardingEdge implements Edge {
 
 """Filters that can be applied when listing onboardings"""
 input OnboardingFiltersInput {
-  """Type/Types we want to filter on"""
-  types: [AccountHolderType!]
-
-  """Email we want to filter on"""
+  """
+  Search by email
+  
+  @deprecated(reason: "use `search` instead")
+  """
   email: String
 
-  """Searches company name, first name, last name"""
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Account holder's first name
+   - Account holder's last name
+   - Account holder's company name
+   - Account holder's ID
+   - Email
+   - ID
+  """
   search: String
 
-  """Status we want to filter on"""
+  """Filter by status"""
   status: [OnboardingStatus!]
+
+  """Filter by type"""
+  types: [AccountHolderType!]
 }
 
 """StatusInfo when onboarding has been finalized"""
@@ -5479,10 +5570,7 @@ type SupportingDocumentCollection {
   onboarding: SupportingDocumentOnboarding!
   projectInfo: ProjectInfo!
 
-  """
-  Not available, coming soon !
-  SupportingDocumentCollection URL to Swan portal
-  """
+  """SupportingDocumentCollection URL to Swan portal"""
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
   transaction: SupportingDocumentTransaction!
@@ -5784,6 +5872,74 @@ enum SupportingDocumentPurposeEnum {
   CompanyFormationRegistration
 }
 
+"""Refused supporting document reason code"""
+enum SupportingDocumentReasonCode {
+  """The company name in document doesn’t match our records."""
+  CompanyNameMismatch
+
+  """The document must be dated less than 3 months ago."""
+  ExpiredDocument
+
+  """The address in document doesn’t match our records."""
+  InvalidAddress
+
+  """The document is not valid."""
+  InvalidDocument
+
+  """
+  The name of shareholder is not clearly visible or some fields are not duely completed.
+  """
+  InvalidOrMissingData
+
+  """Document cannot be accepted for the requested document type."""
+  UnacceptableDocument
+
+  """The document must be in color."""
+  ProviderColorIdDocumentRequired
+
+  """Documents are not signed or dated."""
+  MissingSignature
+
+  """The quality of the document is really low."""
+  BadDocumentQuality
+
+  """Full Document required."""
+  FullDocumentRequired
+
+  """
+  The document provided is missing essential details required to comprehend the transaction's nature. Please submit an additional supporting document to supplement the initial one.
+  """
+  MissingDescription
+
+  """
+  The document appears to be inconsistent with the specified transaction.
+  """
+  InvalidTransaction
+
+  """
+  The issuer or beneficiary name on the document we received does not match the information requested for the transaction.
+  """
+  TransactionNameMismatch
+
+  """
+  The date on the document we received does not match the information requested for the transaction.
+  """
+  TransactionDateMismatch
+
+  """
+  The amount on the document we received does not match the information requested for the transaction.
+  """
+  TransactionAmountMismatch
+
+  """
+  The beneficiary IBAN on the document we received does not match the information requested for the transaction.
+  """
+  IbanMismatch
+
+  """Other"""
+  Other
+}
+
 """Supporting document with Refused status"""
 type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo {
   """When the document has been refused by Swan"""
@@ -5794,6 +5950,9 @@ type SupportingDocumentRefusedStatusInfo implements SupportingDocumentStatusInfo
 
   """Reason why the supporting document has been refused"""
   reason: String!
+
+  """Reason code why the supporting document has been refused"""
+  reasonCode: SupportingDocumentReasonCode!
 
   """Original file name"""
   filename: String!
@@ -6670,7 +6829,7 @@ type UserEdge implements Edge {
   """
   cursor: String!
 
-  """The consent"""
+  """The user"""
   node: User!
 }
 
@@ -6790,7 +6949,7 @@ enum VerificationRequirementType {
   """
   LegalRepresentativeDetailsRequired
 
-  """Swan is requesting some clarification on the organisation"""
+  """Swan is requesting some clarification on the organization"""
   OrganizationDetailsRequired
 
   """Swan is requesting some tax identifier"""
@@ -6896,4 +7055,6 @@ type WebBankingSettings {
   canRequestInternalDirectDebitCorePaymentMethod: Boolean
   canRequestInternalDirectDebitB2BPaymentMethod: Boolean
   canRequestChecksPaymentMethod: Boolean
+  canInitiateCheckMerchantPayments: Boolean
+  canCreateMerchantPaymentLinks: Boolean
 }

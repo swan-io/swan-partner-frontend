@@ -443,7 +443,7 @@ type Props = {
 };
 
 export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpdate }: Props) => {
-  const checkDeclarationEnabled = useTgglFlag("checks");
+  const checkDeclarationEnabled = useTgglFlag("checks").getOr(false);
 
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
@@ -504,14 +504,12 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
-      {Option.all([
-        checkDeclarationEnabled,
-        checkPaymentMethod
-          .flatMap(identity)
-          .flatMap(check =>
-            check.statusInfo.status === "Enabled" ? Option.Some(check) : Option.None(),
-          ),
-      ]).isSome() && (
+      {checkDeclarationEnabled &&
+      permissions.canDeclareChecks &&
+      checkPaymentMethod
+        .flatMap(identity)
+        .map(check => check.statusInfo.status === "Enabled")
+        .getOr(false) ? (
         <>
           <Box direction="row" alignItems="center">
             <LakeButton
@@ -531,7 +529,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
           <Space height={32} />
         </>
-      )}
+      ) : null}
 
       <LakeHeading level={2} variant="h4">
         {t("merchantProfile.settings.information.title")}

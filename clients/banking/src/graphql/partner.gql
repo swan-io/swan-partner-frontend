@@ -436,6 +436,8 @@ fragment WebBankingSettings on WebBankingSettings {
   canRequestInternalDirectDebitCorePaymentMethod
   canRequestInternalDirectDebitB2BPaymentMethod
   canRequestChecksPaymentMethod
+  canInitiateCheckMerchantPayments
+  canCreateMerchantPaymentLinks
 }
 
 query AccountArea($accountMembershipId: ID!) {

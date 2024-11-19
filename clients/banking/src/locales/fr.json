@@ -588,7 +588,7 @@
   "merchantProfile.paymentLink.list.amount": "Montant",
   "merchantProfile.paymentLink.list.creationDate": "Date de création",
   "merchantProfile.paymentLink.list.externalReference": "Référence externe",
-  "merchantProfile.paymentLink.list.id": "IDENTIFIANT",
+  "merchantProfile.paymentLink.list.id": "Identifiant",
   "merchantProfile.paymentLink.list.label": "Libellé",
   "merchantProfile.paymentLink.list.link": "Lien",
   "merchantProfile.paymentLink.list.reference": "Référence",

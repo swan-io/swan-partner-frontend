@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Array, Dict, Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Accordion } from "@swan-io/lake/src/components/Accordion";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -25,14 +25,19 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
+import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import {
+  isNotNullish,
+  isNotNullishOrEmpty,
+  nullishOrEmptyToUndefined,
+} from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { useForm } from "@swan-io/use-form";
-import { ReactNode, useState } from "react";
+import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
+import { ReactNode, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -44,7 +49,12 @@ import {
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { validateArrayRequired, validateRequired, validateUrl } from "../utils/validations";
+import {
+  validateArrayRequired,
+  validateNumeric,
+  validateRequired,
+  validateUrl,
+} from "../utils/validations";
 
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
@@ -179,6 +189,15 @@ const Container = ({
   );
 };
 
+type DataPreviewProps = {
+  cancelRedirectUrl: string | undefined;
+  label: string | undefined;
+  amount: string | undefined;
+  card: string | undefined;
+  sepaDirectDebit: string | undefined;
+  paymentMethodIds: string[];
+};
+
 type Props = {
   accountMembershipId: string;
   merchantProfileId: string;
@@ -202,34 +221,35 @@ export const MerchantProfilePaymentLinkNew = ({
 }: Props) => {
   const [selectedPreview, setSelectedPreview] = useState<"desktop" | "mobile">("desktop");
 
-  const cardPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
-    match(paymentMethod)
-      .with(
-        {
-          statusInfo: { status: "Enabled" },
-          type: "Card",
-        },
-        () => Option.Some(paymentMethod),
-      )
-      .otherwise(() => Option.None()),
-  );
-  const sepaDirectDebitPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
-    match(paymentMethod)
-      .with(
-        {
-          statusInfo: { status: "Enabled" },
-          type: P.union("SepaDirectDebitB2b", "SepaDirectDebitCore"),
-        },
-        () => Option.Some(paymentMethod),
-      )
-      .otherwise(() => Option.None()),
-  );
-  const selectablePaymentMethods = Array.filterMap(
-    [cardPaymentMethod, sepaDirectDebitPaymentMethod],
-    identity,
-  );
+  const selectablePaymentMethods = useMemo(() => {
+    const cardPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
+      match(paymentMethod)
+        .with(
+          {
+            statusInfo: { status: "Enabled" },
+            type: "Card",
+          },
+          () => Option.Some(paymentMethod),
+        )
+        .otherwise(() => Option.None()),
+    );
 
-  const { Field, FieldsListener, submitForm } = useForm<{
+    const sepaDirectDebitPaymentMethod = Array.findMap(paymentMethods, paymentMethod =>
+      match(paymentMethod)
+        .with(
+          {
+            statusInfo: { status: "Enabled" },
+            type: P.union("SepaDirectDebitB2b", "SepaDirectDebitCore"),
+          },
+          () => Option.Some(paymentMethod),
+        )
+        .otherwise(() => Option.None()),
+    );
+
+    return Array.filterMap([cardPaymentMethod, sepaDirectDebitPaymentMethod], identity);
+  }, [paymentMethods]);
+
+  const { Field, submitForm } = useForm<{
     label: string;
     amount: string;
     reference: string;
@@ -248,7 +268,7 @@ export const MerchantProfilePaymentLinkNew = ({
     amount: {
       initialValue: "",
       sanitize: trim,
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateNumeric({ min: 0 })),
     },
     reference: {
       initialValue: "",
@@ -265,7 +285,7 @@ export const MerchantProfilePaymentLinkNew = ({
     cancelRedirectUrl: {
       initialValue: "",
       sanitize: trim,
-      validate: validateUrl,
+      validate: toOptionalValidator(validateUrl),
     },
     customerName: {
       initialValue: "",
@@ -278,11 +298,9 @@ export const MerchantProfilePaymentLinkNew = ({
     redirectUrl: {
       initialValue: "",
       sanitize: trim,
-      validate: validateUrl,
+      validate: toOptionalValidator(validateUrl),
     },
   });
-
-  const [cancelUrlPreview, setCancelUrlPreview] = useState("");
 
   const [createMerchantPaymentLink, merchantPaymentLinkCreation] = useMutation(
     CreatePaymentLinkDocument,
@@ -304,6 +322,71 @@ export const MerchantProfilePaymentLinkNew = ({
       ],
     },
   );
+
+  const [dataPreview, setDataPreview] = useState<DataPreviewProps>({
+    cancelRedirectUrl: undefined,
+    label: undefined,
+    amount: undefined,
+    card: undefined,
+    sepaDirectDebit: undefined,
+    paymentMethodIds: selectablePaymentMethods.map(paymentMethod => paymentMethod.id),
+  });
+
+  const updateDataPreview = useDebounce((partialDataPreview: Partial<DataPreviewProps>) => {
+    const entries = Dict.entries(partialDataPreview).map(
+      ([key, value]) => [key, typeof value === "string" ? value.trim() : value] as const,
+    );
+
+    setDataPreview(prevState => ({ ...prevState, ...Dict.fromEntries(entries) }));
+  }, 500);
+
+  const previewUrl = useMemo(() => {
+    const { amount, cancelRedirectUrl, label, paymentMethodIds } = dataPreview;
+
+    const url = new URL(env.PAYMENT_URL);
+    url.pathname = "/preview";
+
+    if (accentColor != null) {
+      url.searchParams.append("accentColor", accentColor);
+    }
+    if (merchantLogoUrl != null) {
+      url.searchParams.append("logo", merchantLogoUrl);
+    }
+    if (merchantName != null) {
+      url.searchParams.append("merchantName", merchantName);
+    }
+    if (cancelRedirectUrl != null) {
+      url.searchParams.append("cancelUrl", cancelRedirectUrl);
+    }
+    if (isNotNullishOrEmpty(label)) {
+      url.searchParams.append("label", label);
+    }
+    if (isNotNullishOrEmpty(amount) && !isNaN(Number(amount))) {
+      url.searchParams.append("amount", amount);
+    }
+
+    url.searchParams.append("currency", "EUR");
+
+    paymentMethodIds.forEach(paymentMethodId => {
+      const paymentMethod = selectablePaymentMethods.find(item => item.id === paymentMethodId);
+
+      if (paymentMethod == null) {
+        return;
+      }
+
+      if (paymentMethod.type === "Card") {
+        url.searchParams.append("card", "true");
+      }
+      if (
+        paymentMethod.type === "SepaDirectDebitB2b" ||
+        paymentMethod.type === "SepaDirectDebitCore"
+      ) {
+        url.searchParams.append("sepaDirectDebit", "true");
+      }
+    });
+
+    return url.toString();
+  }, [accentColor, dataPreview, merchantLogoUrl, merchantName, selectablePaymentMethods]);
 
   const onPressSubmit = () => {
     submitForm({
@@ -405,7 +488,10 @@ export const MerchantProfilePaymentLinkNew = ({
                           <LakeTextInput
                             id={id}
                             value={value}
-                            onChangeText={onChange}
+                            onChangeText={label => {
+                              onChange(label);
+                              updateDataPreview({ label });
+                            }}
                             error={error}
                           />
                         )}
@@ -422,7 +508,10 @@ export const MerchantProfilePaymentLinkNew = ({
                             id={id}
                             value={value.replace(",", ".")}
                             unit="EUR"
-                            onChangeText={onChange}
+                            onChangeText={amount => {
+                              onChange(amount);
+                              updateDataPreview({ amount });
+                            }}
                             error={error}
                           />
                         )}
@@ -488,9 +577,22 @@ export const MerchantProfilePaymentLinkNew = ({
                                         paymentMethodId => paymentMethodId !== paymentMethod.id,
                                       ),
                                 );
+                                updateDataPreview({
+                                  paymentMethodIds: isChecked
+                                    ? [...value, paymentMethod.id]
+                                    : value.filter(
+                                        paymentMethodId => paymentMethodId !== paymentMethod.id,
+                                      ),
+                                });
                               }}
                             />
                           ))}
+
+                          {error != null && (
+                            <LakeText variant="smallRegular" color={colors.negative[500]}>
+                              {error}
+                            </LakeText>
+                          )}
                         </>
                       )}
                     </Field>
@@ -575,11 +677,9 @@ export const MerchantProfilePaymentLinkNew = ({
                             <LakeTextInput
                               id={id}
                               value={value}
-                              onChangeText={val => {
-                                console.log(val);
-
-                                setCancelUrlPreview(val);
-                                onChange;
+                              onChangeText={cancelRedirectUrl => {
+                                onChange(cancelRedirectUrl);
+                                updateDataPreview({ cancelRedirectUrl });
                               }}
                               error={error}
                             />
@@ -602,97 +702,47 @@ export const MerchantProfilePaymentLinkNew = ({
                         }}
                       />
 
-                      <FieldsListener names={["label", "amount", "paymentMethodIds"]}>
-                        {({ label, amount, paymentMethodIds }) => {
-                          const url = new URL(env.PAYMENT_URL);
-                          url.pathname = "/preview";
+                      <Container>
+                        {({ width, height }) => {
+                          const scaleFactor = Math.min(
+                            (height -
+                              PREVIEW_CONTAINER_VERTICAL_SPACING * 2 -
+                              PREVIEW_TOP_BAR_HEIGHT) /
+                              IFRAME_ORIGINAL_HEIGHT,
+                            width / (selectedPreview === "desktop" ? 1280 : 440),
+                          );
 
-                          if (cancelUrlPreview !== null) {
-                            url.searchParams.append("cancelUrl", cancelUrlPreview);
-                          }
-
-                          if (accentColor != null) {
-                            url.searchParams.append("accentColor", accentColor);
-                          }
-                          if (merchantLogoUrl != null) {
-                            url.searchParams.append("logo", merchantLogoUrl);
-                          }
-                          if (merchantName != null) {
-                            url.searchParams.append("merchantName", merchantName);
-                          }
-                          if (label.value != "") {
-                            url.searchParams.append("label", label.value);
-                          }
-                          if (amount.value != "" && !isNaN(Number(amount.value))) {
-                            url.searchParams.append("amount", amount.value);
-                          }
-                          url.searchParams.append("currency", "EUR");
-
-                          paymentMethodIds.value.forEach(paymentMethodId => {
-                            const paymentMethod = selectablePaymentMethods.find(
-                              item => item.id === paymentMethodId,
-                            );
-                            if (paymentMethod == null) {
-                              return;
-                            }
-
-                            if (paymentMethod.type === "Card") {
-                              url.searchParams.append("card", "true");
-                            }
-                            if (
-                              paymentMethod.type === "SepaDirectDebitB2b" ||
-                              paymentMethod.type === "SepaDirectDebitCore"
-                            ) {
-                              url.searchParams.append("sepaDirectDebit", "true");
-                            }
-                          });
                           return (
-                            <Container>
-                              {({ width, height }) => {
-                                const scaleFactor = Math.min(
-                                  (height -
-                                    PREVIEW_CONTAINER_VERTICAL_SPACING * 2 -
-                                    PREVIEW_TOP_BAR_HEIGHT) /
-                                    IFRAME_ORIGINAL_HEIGHT,
-                                  width / (selectedPreview === "desktop" ? 1280 : 440),
-                                );
-
-                                return (
-                                  <View
-                                    style={[
-                                      styles.previewFrameContainer,
-                                      {
-                                        height: scaleFactor * IFRAME_ORIGINAL_HEIGHT,
-                                        width:
-                                          scaleFactor *
-                                          (selectedPreview === "desktop" ? 1280 : 440),
-                                      },
-                                    ]}
-                                  >
-                                    <iframe
-                                      tabIndex={-1}
-                                      src={url.toString()}
-                                      style={
-                                        // eslint-disable-next-line react-native/no-inline-styles
-                                        {
-                                          backgroundColor: backgroundColor.default,
-                                          pointerEvents: "none",
-                                          border: "none",
-                                          width: selectedPreview === "desktop" ? 1280 : 440,
-                                          height: IFRAME_ORIGINAL_HEIGHT,
-                                          minHeight: IFRAME_ORIGINAL_HEIGHT,
-                                          transformOrigin: "0 0",
-                                          transform: `scale(${scaleFactor * 100}%)`,
-                                        }
-                                      }
-                                    />
-                                  </View>
-                                );
-                              }}
-                            </Container>
+                            <View
+                              style={[
+                                styles.previewFrameContainer,
+                                {
+                                  height: scaleFactor * IFRAME_ORIGINAL_HEIGHT,
+                                  width: scaleFactor * (selectedPreview === "desktop" ? 1280 : 440),
+                                },
+                              ]}
+                            >
+                              <iframe
+                                tabIndex={-1}
+                                src={previewUrl}
+                                style={
+                                  // eslint-disable-next-line react-native/no-inline-styles
+                                  {
+                                    backgroundColor: backgroundColor.default,
+                                    pointerEvents: "none",
+                                    border: "none",
+                                    width: selectedPreview === "desktop" ? 1280 : 440,
+                                    height: IFRAME_ORIGINAL_HEIGHT,
+                                    minHeight: IFRAME_ORIGINAL_HEIGHT,
+                                    transformOrigin: "0 0",
+                                    transform: `scale(${scaleFactor * 100}%)`,
+                                  }
+                                }
+                              />
+                            </View>
                           );
                         }}
-                      </FieldsListener>
+                      </Container>
                     </Box>
                   </Box>
                 )}

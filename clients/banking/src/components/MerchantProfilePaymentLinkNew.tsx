@@ -37,7 +37,7 @@ import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
-import { ReactNode, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import {
@@ -249,7 +249,7 @@ export const MerchantProfilePaymentLinkNew = ({
     return Array.filterMap([cardPaymentMethod, sepaDirectDebitPaymentMethod], identity);
   }, [paymentMethods]);
 
-  const { Field, submitForm } = useForm<{
+  const { Field, submitForm, listenFields } = useForm<{
     label: string;
     amount: string;
     reference: string;
@@ -339,6 +339,20 @@ export const MerchantProfilePaymentLinkNew = ({
 
     setDataPreview(prevState => ({ ...prevState, ...Dict.fromEntries(entries) }));
   }, 500);
+
+  useEffect(() => {
+    listenFields(
+      ["amount", "cancelRedirectUrl", "label", "paymentMethodIds"],
+      ({ amount, cancelRedirectUrl, label, paymentMethodIds }) => {
+        updateDataPreview({
+          amount: amount.value,
+          cancelRedirectUrl: cancelRedirectUrl.value,
+          label: label.value,
+          paymentMethodIds: paymentMethodIds.value,
+        });
+      },
+    );
+  }, [listenFields, updateDataPreview]);
 
   const previewUrl = useMemo(() => {
     const { amount, cancelRedirectUrl, label, paymentMethodIds } = dataPreview;
@@ -488,10 +502,7 @@ export const MerchantProfilePaymentLinkNew = ({
                           <LakeTextInput
                             id={id}
                             value={value}
-                            onChangeText={label => {
-                              onChange(label);
-                              updateDataPreview({ label });
-                            }}
+                            onChangeText={onChange}
                             error={error}
                           />
                         )}
@@ -508,10 +519,7 @@ export const MerchantProfilePaymentLinkNew = ({
                             id={id}
                             value={value.replace(",", ".")}
                             unit="EUR"
-                            onChangeText={amount => {
-                              onChange(amount);
-                              updateDataPreview({ amount });
-                            }}
+                            onChangeText={onChange}
                             error={error}
                           />
                         )}
@@ -577,13 +585,6 @@ export const MerchantProfilePaymentLinkNew = ({
                                         paymentMethodId => paymentMethodId !== paymentMethod.id,
                                       ),
                                 );
-                                updateDataPreview({
-                                  paymentMethodIds: isChecked
-                                    ? [...value, paymentMethod.id]
-                                    : value.filter(
-                                        paymentMethodId => paymentMethodId !== paymentMethod.id,
-                                      ),
-                                });
                               }}
                             />
                           ))}
@@ -677,10 +678,7 @@ export const MerchantProfilePaymentLinkNew = ({
                             <LakeTextInput
                               id={id}
                               value={value}
-                              onChangeText={cancelRedirectUrl => {
-                                onChange(cancelRedirectUrl);
-                                updateDataPreview({ cancelRedirectUrl });
-                              }}
+                              onChangeText={onChange}
                               error={error}
                             />
                           )}

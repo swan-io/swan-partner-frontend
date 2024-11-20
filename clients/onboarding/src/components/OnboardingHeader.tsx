@@ -6,10 +6,15 @@ import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { spacings } from "@swan-io/lake/src/constants/design";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
 import { env } from "../utils/env";
+import { graphql } from "../utils/gql";
 import { languages, locale, setPreferredLanguage } from "../utils/i18n";
+
+import { Option } from "@swan-io/boxed";
+import DEFAULT_LOGO from "../../assets/imgs/logo-swan.svg";
 
 const styles = StyleSheet.create({
   container: {
@@ -31,12 +36,22 @@ const styles = StyleSheet.create({
   },
 });
 
+export const OnboardingHeaderFragment = graphql(`
+  fragment OnboardingHeader on ProjectInfo {
+    name
+    logoUri
+  }
+`);
+
 type Props = {
-  projectName: string;
-  projectLogo: string;
+  projectInfoData: FragmentOf<typeof OnboardingHeaderFragment> | null;
 };
 
-export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
+export const OnboardingHeader = ({ projectInfoData }: Props) => {
+  const projectInfo = Option.fromNull(projectInfoData).map(projectInfo =>
+    readFragment(OnboardingHeaderFragment, projectInfo),
+  );
+
   const isSandbox = env.SWAN_ENVIRONMENT !== "LIVE";
 
   const languageOptions = useMemo(() => {
@@ -56,8 +71,10 @@ export const OnboardingHeader = ({ projectName, projectLogo }: Props) => {
           style={[styles.container, large && styles.containerDesktop]}
         >
           <AutoWidthImage
-            ariaLabel={projectName}
-            sourceUri={projectLogo}
+            ariaLabel={projectInfo.map(projectInfo => projectInfo.name).toUndefined()}
+            sourceUri={projectInfo
+              .flatMap(projectInfo => Option.fromNull(projectInfo.logoUri))
+              .getOr(DEFAULT_LOGO)}
             height={small ? 30 : 40}
             resizeMode="contain"
             style={styles.logo}

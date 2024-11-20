@@ -48,8 +48,8 @@ export type SaveValue = WithReference<CommonInput & Partial<AddressInput> & Part
 
 type Props = {
   initialValues?: Partial<Input>;
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
+  accountCountry: AccountCountry | null;
+  companyCountry: CountryCCA3 | null;
   step: BeneficiaryFormStep;
   placekitApiKey: string;
   onStepChange: (step: BeneficiaryFormStep) => void;
@@ -233,7 +233,7 @@ const validateCca3CountryCode: Validator<string | undefined> = value => {
 
 export const validateUbo = (
   editorState: Partial<Input>,
-  accountCountry: AccountCountry,
+  accountCountry: AccountCountry | null,
 ): Partial<Record<keyof Input, string | void>> => {
   const isAddressRequired = match(accountCountry)
     .with("DEU", "ESP", () => true)
@@ -249,7 +249,7 @@ export const validateUbo = (
 
   const validateTaxNumber = isTaxIdentificationNumberRequired
     ? combineValidators(validateRequired, validateIndividualTaxNumber(accountCountry))
-    : validateIndividualTaxNumber(accountCountry);
+    : combineValidators(accountCountry != null && validateIndividualTaxNumber(accountCountry));
 
   return {
     firstName: validateRequired(editorState.firstName ?? ""),

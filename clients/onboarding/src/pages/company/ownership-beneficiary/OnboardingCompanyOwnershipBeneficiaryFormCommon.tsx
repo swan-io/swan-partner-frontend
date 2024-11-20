@@ -68,8 +68,8 @@ export type Input = {
 
 type Props = {
   placekitApiKey: string | undefined;
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
+  accountCountry: AccountCountry | null;
+  companyCountry: CountryCCA3 | null;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -101,7 +101,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
       initialValue: initialValues.birthDate ?? undefined,
     },
     birthCountryCode: {
-      initialValue: initialValues.birthCountryCode ?? companyCountry,
+      initialValue: initialValues.birthCountryCode ?? companyCountry ?? "FRA",
       validate: validateRequired,
     },
     birthCity: {

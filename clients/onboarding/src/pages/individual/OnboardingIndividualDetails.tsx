@@ -15,23 +15,22 @@ import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
-import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
-  AccountCountry,
   EmploymentStatus,
   MonthlyIncome,
   UpdateIndividualOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   ServerInvalidFieldCode,
@@ -62,54 +61,93 @@ const monthlyIncomes: RadioGroupItem<MonthlyIncome>[] = [
 
 export type DetailsFieldName = "employmentStatus" | "monthlyIncome" | "taxIdentificationNumber";
 
+export const IndividualDetailsOnboardingInfoFragment = graphql(`
+  fragment IndividualDetailsOnboardingInfo on OnboardingInfo {
+    accountCountry
+  }
+`);
+
+export const IndividualDetailsAccountHolderInfoFragment = graphql(`
+  fragment IndividualDetailsAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+    employmentStatus
+    monthlyIncome
+    taxIdentificationNumber
+    residencyAddress {
+      country
+    }
+  }
+`);
+
 type Props = {
-  initialEmploymentStatus: EmploymentStatus;
-  initialMonthlyIncome: MonthlyIncome;
-  initialTaxIdentificationNumber: string;
-  country: CountryCCA3;
-  accountCountry: AccountCountry;
   onboardingId: string;
+
+  onboardingInfoData: FragmentOf<typeof IndividualDetailsOnboardingInfoFragment>;
+  accountHolderInfoData: FragmentOf<typeof IndividualDetailsAccountHolderInfoFragment>;
+
   serverValidationErrors: {
     fieldName: DetailsFieldName;
     code: ServerInvalidFieldCode;
   }[];
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 export const OnboardingIndividualDetails = ({
   onboardingId,
-  initialEmploymentStatus,
-  initialMonthlyIncome,
-  initialTaxIdentificationNumber,
-  country,
-  accountCountry,
+
+  onboardingInfoData,
+  accountHolderInfoData,
+
   serverValidationErrors,
+
+  onPressPrevious,
+  onSave,
 }: Props) => {
+  const onboardingInfo = readFragment(IndividualDetailsOnboardingInfoFragment, onboardingInfoData);
+  const accountHolderInfo = readFragment(
+    IndividualDetailsAccountHolderInfoFragment,
+    accountHolderInfoData,
+  );
+
   const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+
   const isFirstMount = useFirstMountState();
 
-  const canSetTaxIdentification =
-    (accountCountry === "DEU" && country === "DEU") ||
-    (accountCountry === "ESP" && country === "ESP") ||
-    (accountCountry === "ITA" && country === "ITA");
+  const canSetTaxIdentification = match({
+    accountCountry: onboardingInfo.accountCountry,
+    residencyCountry: accountHolderInfo.residencyAddress?.country,
+  })
+    .with(
+      { accountCountry: "DEU", residencyCountry: "DEU" },
+      { accountCountry: "ESP", residencyCountry: "ESP" },
+      { accountCountry: "ITA", residencyCountry: "ITA" },
+      () => true,
+    )
+    .otherwise(() => false);
 
-  const isTaxIdentificationRequired = match({ accountCountry, country })
+  const isTaxIdentificationRequired = match({
+    accountCountry: onboardingInfo.accountCountry,
+    residencyCountry: accountHolderInfo.residencyAddress?.country,
+  })
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
   const { Field, submitForm, setFieldError } = useForm({
     employmentStatus: {
-      initialValue: initialEmploymentStatus,
+      initialValue: accountHolderInfo.employmentStatus,
     },
     monthlyIncome: {
-      initialValue: initialMonthlyIncome,
+      initialValue: accountHolderInfo.monthlyIncome,
     },
     taxIdentificationNumber: {
-      initialValue: initialTaxIdentificationNumber,
+      initialValue: accountHolderInfo.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
-            validateIndividualTaxNumber(accountCountry),
+            onboardingInfo.accountCountry != null &&
+              validateIndividualTaxNumber(onboardingInfo.accountCountry),
           )
         : undefined,
     },
@@ -123,10 +161,6 @@ export const OnboardingIndividualDetails = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push("Location", { onboardingId });
-  };
 
   const onPressNext = () => {
     submitForm({
@@ -155,13 +189,15 @@ export const OnboardingIndividualDetails = ({
         })
           .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Finalize", { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             showToast({ variant: "error", error, ...getUpdateOnboardingError(error) });
           });
       },
     });
   };
+
+  const accountCountry = onboardingInfo.accountCountry;
 
   return (
     <>
@@ -174,7 +210,8 @@ export const OnboardingIndividualDetails = ({
 
               <Tile
                 footer={
-                  accountCountry === "DEU" && country === "DEU" ? (
+                  onboardingInfo.accountCountry === "DEU" &&
+                  accountHolderInfo.residencyAddress?.country === "DEU" ? (
                     <LakeAlert
                       variant="info"
                       anchored={true}
@@ -220,7 +257,7 @@ export const OnboardingIndividualDetails = ({
                   )}
                 </Field>
 
-                {canSetTaxIdentification && (
+                {canSetTaxIdentification && accountCountry != null ? (
                   <>
                     <Space height={32} />
 
@@ -240,7 +277,7 @@ export const OnboardingIndividualDetails = ({
                       )}
                     </Field>
                   </>
-                )}
+                ) : null}
               </Tile>
 
               <Space height={small ? 24 : 32} />

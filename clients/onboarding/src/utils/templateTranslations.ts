@@ -49,7 +49,10 @@ export const getUpdateOnboardingError = (
     });
 };
 
-export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
+export const getRegistrationNumberName = (
+  country: CountryCCA3 | null | undefined,
+  companyType: CompanyType | null,
+) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
     .with("BEL", () => "CBE or Ondernemingsnummer")

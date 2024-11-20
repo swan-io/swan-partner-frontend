@@ -11,8 +11,8 @@ import { animations, colors, spacings } from "@swan-io/lake/src/constants/design
 import { CSSProperties, Fragment } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
+import { WizardStep } from "../types/WizardStep";
 import { t } from "../utils/i18n";
-import { CompanyOnboardingRoute, IndividualOnboardingRoute, Router } from "../utils/routes";
 import { getErrorFieldLabel } from "../utils/templateTranslations";
 
 const inlineStyles = {
@@ -41,21 +41,13 @@ const styles = StyleSheet.create({
   },
 });
 
-type StepRoute = IndividualOnboardingRoute | CompanyOnboardingRoute;
-
-type Props<R extends StepRoute> = {
-  onboardingId: string;
-  steps: WizardStep<R>[];
+type Props = {
+  steps: WizardStep[];
   isShaking: boolean;
   isMobile: boolean;
 };
 
-export const FinalizeInvalidSteps = <R extends StepRoute>({
-  onboardingId,
-  steps,
-  isShaking,
-  isMobile,
-}: Props<R>) => {
+export const FinalizeInvalidSteps = ({ steps, isShaking, isMobile }: Props) => {
   return (
     <>
       <Box alignItems="center" style={isShaking && animations.shake.enter}>
@@ -79,12 +71,9 @@ export const FinalizeInvalidSteps = <R extends StepRoute>({
       <Box alignItems="center" style={[styles.tilesContainer, isShaking && animations.shake.enter]}>
         {steps.map(step =>
           match(step)
-            .with({ errors: P.when(errors => errors.length > 0) }, ({ id, label, errors }) => (
+            .with({ errors: [P.nonNullable, ...P.array()] }, ({ id, url, label, errors }) => (
               <Fragment key={id}>
-                <Link
-                  to={Router[id]({ onboardingId })}
-                  style={isMobile ? inlineStyles.link : inlineStyles.linkDesktop}
-                >
+                <Link to={url} style={isMobile ? inlineStyles.link : inlineStyles.linkDesktop}>
                   <Tile style={styles.tile}>
                     <Box direction="row" alignItems="center">
                       <Box>

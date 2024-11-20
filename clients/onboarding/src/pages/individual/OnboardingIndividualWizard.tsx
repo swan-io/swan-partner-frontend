@@ -1,3 +1,5 @@
+import { Array, Option } from "@swan-io/boxed";
+import { pushUnsafe } from "@swan-io/chicane";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { LakeStepper, MobileStepTitle, Step } from "@swan-io/lake/src/components/LakeStepper";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
@@ -5,26 +7,37 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import {
-  individualFallbackCountry,
-  isCountryCCA3,
-} from "@swan-io/shared-business/src/constants/countries";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import logoSwan from "../../assets/imgs/logo-swan.svg";
-import { OnboardingHeader } from "../../components/OnboardingHeader";
-import { GetOnboardingQuery, IndividualAccountHolderFragment } from "../../graphql/unauthenticated";
+import { OnboardingHeader, OnboardingHeaderFragment } from "../../components/OnboardingHeader";
+import { OnboardingStatusInfoFragment } from "../../fragments/OnboardingStatusInfoFragment";
+import { WizardStep } from "../../types/WizardStep";
+import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { IndividualFlowPresentation } from "./IndividualFlowPresentation";
-import { DetailsFieldName, OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
-import { OnboardingIndividualEmail } from "./OnboardingIndividualEmail";
+import {
+  DetailsFieldName,
+  IndividualDetailsAccountHolderInfoFragment,
+  IndividualDetailsOnboardingInfoFragment,
+  OnboardingIndividualDetails,
+} from "./OnboardingIndividualDetails";
+import {
+  IndividualEmailOnboardingInfoFragment,
+  OnboardingIndividualEmail,
+} from "./OnboardingIndividualEmail";
 import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
-import { LocationFieldName, OnboardingIndividualLocation } from "./OnboardingIndividualLocation";
+import {
+  IndividualLocationAccountHolderInfoFragment,
+  IndividualLocationOnboardingInfoFragment,
+  LocationFieldName,
+  OnboardingIndividualLocation,
+} from "./OnboardingIndividualLocation";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -41,42 +54,76 @@ const styles = StyleSheet.create({
   },
 });
 
+export const IndividualOnboardingInfoFragment = graphql(
+  `
+    fragment IndividualOnboardingInfo on OnboardingInfo {
+      id
+      statusInfo {
+        ...OnboardingStatusInfo
+      }
+      projectInfo {
+        ...OnboardingHeader
+      }
+      legalRepresentativeRecommendedIdentificationLevel
+      ...IndividualEmailOnboardingInfo
+      ...IndividualLocationOnboardingInfo
+      ...IndividualDetailsOnboardingInfo
+    }
+  `,
+  [
+    OnboardingHeaderFragment,
+    OnboardingStatusInfoFragment,
+    IndividualEmailOnboardingInfoFragment,
+    IndividualLocationOnboardingInfoFragment,
+    IndividualDetailsOnboardingInfoFragment,
+  ],
+);
+
+export const IndividualAccountHolderInfoFragment = graphql(
+  `
+    fragment IndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+      ...IndividualLocationAccountHolderInfo
+      ...IndividualDetailsAccountHolderInfo
+    }
+  `,
+  [IndividualLocationAccountHolderInfoFragment, IndividualDetailsAccountHolderInfoFragment],
+);
+
 type Props = {
-  onboarding: NonNullable<GetOnboardingQuery["onboardingInfo"]>;
-  onboardingId: string;
-  holder: IndividualAccountHolderFragment;
+  onboardingInfoData: FragmentOf<typeof IndividualOnboardingInfoFragment>;
+  individualAccountHolderInfoData: FragmentOf<typeof IndividualAccountHolderInfoFragment>;
 };
 
-export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }: Props) => {
+export const OnboardingIndividualWizard = ({
+  onboardingInfoData,
+  individualAccountHolderInfoData,
+}: Props) => {
+  const onboardingInfo = readFragment(IndividualOnboardingInfoFragment, onboardingInfoData);
+  const accountHolderInfo = readFragment(
+    IndividualAccountHolderInfoFragment,
+    individualAccountHolderInfoData,
+  );
+
+  const onboardingId = onboardingInfo.id;
+
   const route = Router.useRoute(individualOnboardingRoutes);
   const isStepperDisplayed = !isNullish(route) && route.name !== "Root";
 
-  const projectName = onboarding.projectInfo?.name ?? "";
-  const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
-  const accountCountry = onboarding.accountCountry ?? "FRA";
-
-  const address = holder.residencyAddress;
-  const addressCountry = address?.country;
-  const country = isCountryCCA3(addressCountry)
-    ? addressCountry
-    : (accountCountry ?? individualFallbackCountry);
-  const addressLine1 = address?.addressLine1 ?? "";
-  const city = address?.city ?? "";
-  const postalCode = address?.postalCode ?? "";
-
   const [finalized, setFinalized] = useBoolean(false);
 
+  const statusInfo = readFragment(OnboardingStatusInfoFragment, onboardingInfo.statusInfo);
+
   const emailStepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<"email" | null>()
         .with("email", () => "email")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
   const locationStepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<LocationFieldName | null>()
         .with("residencyAddress.country", () => "country")
@@ -85,10 +132,10 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
         .with("residencyAddress.postalCode", () => "postalCode")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
   const detailsStepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<DetailsFieldName | null>()
         .with("employmentStatus", () => "employmentStatus")
@@ -96,32 +143,36 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
         .with("taxIdentificationNumber", () => "taxIdentificationNumber")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
-  const steps = useMemo<WizardStep<IndividualOnboardingRoute>[]>(
+  const steps = useMemo<WizardStep[]>(
     () => [
       {
         id: "Email",
+        url: Router.Email({ onboardingId }),
         label: t("step.title.email"),
         errors: emailStepErrors,
       },
       {
         id: "Location",
+        url: Router.Location({ onboardingId }),
         label: t("step.title.address"),
         errors: locationStepErrors,
       },
       {
         id: "Details",
+        url: Router.Details({ onboardingId }),
         label: t("step.title.occupation"),
         errors: detailsStepErrors,
       },
       {
         id: "Finalize",
+        url: Router.Finalize({ onboardingId }),
         label: t("step.title.swanApp"),
         errors: [],
       },
     ],
-    [emailStepErrors, locationStepErrors, detailsStepErrors],
+    [onboardingId, emailStepErrors, locationStepErrors, detailsStepErrors],
   );
 
   const stepperSteps = useMemo<Step[]>(
@@ -129,11 +180,23 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
       steps.map(step => ({
         id: step.id,
         label: step.label,
-        url: Router[step.id]({ onboardingId }),
+        url: step.url,
         hasErrors: finalized && step.errors.length > 0,
       })),
-    [onboardingId, steps, finalized],
+    [steps, finalized],
   );
+
+  const goToNextStepFrom = (currentStep: IndividualOnboardingRoute) => {
+    Array.findIndex(steps, step => step.id === currentStep)
+      .flatMap(index => Option.fromNullable(steps[index + 1]))
+      .tapSome(step => pushUnsafe(step.url));
+  };
+
+  const goToPreviousStepFrom = (currentStep: IndividualOnboardingRoute) => {
+    Array.findIndex(steps, step => step.id === currentStep)
+      .flatMap(index => Option.fromNullable(steps[index - 1]))
+      .tapSome(step => pushUnsafe(step.url));
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -142,7 +205,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
   return (
     <Box grow={1}>
       <Box style={styles.sticky}>
-        <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
+        <OnboardingHeader projectInfoData={onboardingInfo.projectInfo} />
 
         {isStepperDisplayed ? (
           <ResponsiveContainer>
@@ -170,55 +233,54 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
       ) : null}
 
       {match(route)
-        .with({ name: "Root" }, ({ params }) => (
+        .with({ name: "Root" }, () => (
           <TrackingProvider category="Presentation">
-            <IndividualFlowPresentation onboardingId={params.onboardingId} />
+            <IndividualFlowPresentation
+              onPressNext={() => Router.push("Email", { onboardingId })}
+            />
           </TrackingProvider>
         ))
-        .with({ name: "Email" }, ({ params }) => (
+        .with({ name: "Email" }, ({ name }) => (
           <TrackingProvider category="Email">
             <OnboardingIndividualEmail
-              onboardingId={params.onboardingId}
-              initialEmail={onboarding.email ?? ""}
-              projectName={onboarding.projectInfo?.name ?? ""}
-              accountCountry={accountCountry}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
               serverValidationErrors={finalized ? emailStepErrors : []}
-              tcuUrl={onboarding.tcuUrl}
-              tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Location" }, ({ params }) => (
+        .with({ name: "Location" }, ({ name }) => (
           <TrackingProvider category="Location">
             <OnboardingIndividualLocation
-              onboardingId={params.onboardingId}
-              initialCountry={country}
-              initialAddressLine1={addressLine1}
-              initialCity={city}
-              initialPostalCode={postalCode}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
               serverValidationErrors={finalized ? locationStepErrors : []}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Details" }, ({ params }) => (
+        .with({ name: "Details" }, ({ name }) => (
           <TrackingProvider category="Details">
             <OnboardingIndividualDetails
-              onboardingId={params.onboardingId}
-              initialEmploymentStatus={holder.employmentStatus ?? "Employee"}
-              initialMonthlyIncome={holder.monthlyIncome ?? "Between1500And3000"}
-              initialTaxIdentificationNumber={onboarding.info.taxIdentificationNumber ?? ""}
-              country={country}
-              accountCountry={accountCountry}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
               serverValidationErrors={finalized ? detailsStepErrors : []}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Finalize" }, ({ params }) => (
+        .with({ name: "Finalize" }, () => (
           <TrackingProvider category="Finalize">
             <OnboardingIndividualFinalize
-              onboardingId={params.onboardingId}
+              onboardingId={onboardingId}
               legalRepresentativeRecommendedIdentificationLevel={
-                onboarding.legalRepresentativeRecommendedIdentificationLevel
+                onboardingInfo.legalRepresentativeRecommendedIdentificationLevel
               }
               steps={steps}
               alreadySubmitted={finalized}

@@ -43,8 +43,8 @@ export type Input = {
 
 type Props = {
   placekitApiKey: string | undefined;
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
+  accountCountry: AccountCountry | null;
+  companyCountry: CountryCCA3 | null;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -77,7 +77,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
     residencyAddressCountry: {
       initialValue: isCountryCCA3(initialValues.residencyAddressCountry)
         ? initialValues.residencyAddressCountry
-        : companyCountry,
+        : (companyCountry ?? "FRA"),
       validate: validateRequired,
     },
     taxIdentificationNumber: {
@@ -94,6 +94,10 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
             validateRequired,
             validateIndividualTaxNumber(accountCountry),
           )(value);
+        }
+
+        if (accountCountry == null) {
+          return;
         }
 
         return validateIndividualTaxNumber(accountCountry)(value);
@@ -249,7 +253,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
                 { accountCountry: "DEU", residencyAddressCountry: "DEU" },
                 { accountCountry: "ESP" },
                 { accountCountry: "ITA" },
-                () => (
+                ({ accountCountry }) => (
                   <>
                     <Space height={12} />
 

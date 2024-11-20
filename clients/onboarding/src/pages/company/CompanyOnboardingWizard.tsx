@@ -1,4 +1,5 @@
 import { Array, Option } from "@swan-io/boxed";
+import { pushUnsafe } from "@swan-io/chicane";
 import { Box } from "@swan-io/lake/src/components/Box";
 import {
   LakeStepper,
@@ -10,35 +11,49 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import {
-  companyFallbackCountry,
-  isCompanyCountryCCA3,
-} from "@swan-io/shared-business/src/constants/countries";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import logoSwan from "../../assets/imgs/logo-swan.svg";
-import { OnboardingHeader } from "../../components/OnboardingHeader";
-import { CompanyAccountHolderFragment, GetOnboardingQuery } from "../../graphql/unauthenticated";
+import { OnboardingHeader, OnboardingHeaderFragment } from "../../components/OnboardingHeader";
+import { OnboardingStatusInfoFragment } from "../../fragments/OnboardingStatusInfoFragment";
+import { WizardStep } from "../../types/WizardStep";
+import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
-import { OnboardingCompanyBasicInfo } from "./OnboardingCompanyBasicInfo";
-import { OnboardingCompanyDocuments } from "./OnboardingCompanyDocuments";
+import {
+  CompanyBasicInfoAccountHolderInfoFragment,
+  CompanyBasicInfoOnboardingInfoFragment,
+  OnboardingCompanyBasicInfo,
+} from "./OnboardingCompanyBasicInfo";
+import {
+  DocumentsOnboardingInfoFragment,
+  OnboardingCompanyDocuments,
+} from "./OnboardingCompanyDocuments";
 import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
 import {
+  CompanyOrganizationFirstStepAccountHolderInfoFragment,
+  CompanyOrganizationFirstStepOnboardingInfoFragment,
   OnboardingCompanyOrganisation1,
   Organisation1FieldName,
 } from "./OnboardingCompanyOrganisation1";
 import {
+  CompanyOrganizationSecondStepAccountHolderInfoFragment,
   OnboardingCompanyOrganisation2,
   Organisation2FieldName,
 } from "./OnboardingCompanyOrganisation2";
-import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
 import {
+  CompanyOwnershipAccountHolderInfoFragment,
+  CompanyOwnershipOnboardingInfoFragment,
+  OnboardingCompanyOwnership,
+} from "./OnboardingCompanyOwnership";
+import {
+  CompanyRegistrationAccountHolderInfoFragment,
+  CompanyRegistrationOnboardingInfoFragment,
   OnboardingCompanyRegistration,
   RegistrationFieldName,
 } from "./OnboardingCompanyRegistration";
@@ -58,99 +73,115 @@ const styles = StyleSheet.create({
   },
 });
 
+export const CompanyAccountHolderInfoFragment = graphql(
+  `
+    fragment CompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+      companyType
+      residencyAddress {
+        country
+      }
+      individualUltimateBeneficialOwners {
+        __typename
+      }
+      ...CompanyBasicInfoAccountHolderInfo
+      ...CompanyRegistrationAccountHolderInfo
+      ...CompanyOrganizationFirstStepAccountHolderInfo
+      ...CompanyOrganizationSecondStepAccountHolderInfo
+      ...CompanyOwnershipAccountHolderInfo
+    }
+  `,
+  [
+    CompanyBasicInfoAccountHolderInfoFragment,
+    CompanyRegistrationAccountHolderInfoFragment,
+    CompanyOrganizationFirstStepAccountHolderInfoFragment,
+    CompanyOrganizationSecondStepAccountHolderInfoFragment,
+    CompanyOwnershipAccountHolderInfoFragment,
+  ],
+);
+
+export const CompanyOnboardingInfoFragment = graphql(
+  `
+    fragment CompanyOnboardingInfo on OnboardingInfo {
+      id
+      statusInfo {
+        ...OnboardingStatusInfo
+      }
+      projectInfo {
+        ...OnboardingHeader
+      }
+      supportingDocumentCollection {
+        id
+        requiredSupportingDocumentPurposes {
+          name
+        }
+        statusInfo {
+          status
+        }
+      }
+      legalRepresentativeRecommendedIdentificationLevel
+      accountCountry
+      ...CompanyBasicInfoOnboardingInfo
+      ...CompanyRegistrationOnboardingInfo
+      ...CompanyOrganizationFirstStepOnboardingInfo
+      ...CompanyOwnershipOnboardingInfo
+      ...DocumentsOnboardingInfo
+    }
+  `,
+  [
+    OnboardingStatusInfoFragment,
+    OnboardingHeaderFragment,
+    CompanyBasicInfoOnboardingInfoFragment,
+    CompanyRegistrationOnboardingInfoFragment,
+    CompanyOrganizationFirstStepOnboardingInfoFragment,
+    CompanyOwnershipOnboardingInfoFragment,
+    DocumentsOnboardingInfoFragment,
+  ],
+);
+
 type Props = {
-  onboarding: NonNullable<GetOnboardingQuery["onboardingInfo"]>;
-  onboardingId: string;
-  holder: CompanyAccountHolderFragment;
+  onboardingInfoData: FragmentOf<typeof CompanyOnboardingInfoFragment>;
+  companyAccountHolderData: FragmentOf<typeof CompanyAccountHolderInfoFragment>;
 };
 
-const getNextStep = (
-  currentStep: CompanyOnboardingRoute,
-  steps: WizardStep<CompanyOnboardingRoute>[],
-): CompanyOnboardingRoute => {
-  return Array.findIndex(steps, step => step.id === currentStep)
-    .flatMap(index => Option.fromNullable(steps[index + 1]))
-    .map(step => step.id)
-    .getOr(currentStep);
-};
+export const OnboardingCompanyWizard = ({
+  onboardingInfoData,
+  companyAccountHolderData,
+}: Props) => {
+  const onboardingInfo = readFragment(CompanyOnboardingInfoFragment, onboardingInfoData);
+  const accountHolderInfo = readFragment(
+    CompanyAccountHolderInfoFragment,
+    companyAccountHolderData,
+  );
 
-const getPreviousStep = (
-  currentStep: CompanyOnboardingRoute,
-  steps: WizardStep<CompanyOnboardingRoute>[],
-): CompanyOnboardingRoute => {
-  return Array.findIndex(steps, step => step.id === currentStep)
-    .flatMap(index => Option.fromNullable(steps[index - 1]))
-    .map(step => step.id)
-    .getOr(currentStep);
-};
+  const onboardingId = onboardingInfo.id;
 
-export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Props) => {
   const route = Router.useRoute(companyOnboardingRoutes);
 
   const isStepperDisplayed =
     !isNullish(route) && route.name !== "Root" && route.name !== "Presentation";
 
-  const projectName = onboarding.projectInfo?.name ?? "";
-  const projectLogo = onboarding.projectInfo?.logoUri ?? logoSwan;
-  const accountCountry = onboarding.accountCountry ?? "FRA";
+  const hasOwnershipStep = match(accountHolderInfo)
+    .with({ companyType: P.union("Company", "Other") }, () => true)
+    .with(
+      {
+        residencyAddress: { country: "NLD" },
+        companyType: P.union("Association", "HomeOwnerAssociation"),
+      },
+      () => true,
+    )
+    .with({ individualUltimateBeneficialOwners: [P.nonNullable, ...P.array()] }, () => true)
+    .otherwise(() => false);
 
-  const ubos = useMemo(() => {
-    return onboarding.info.__typename === "OnboardingCompanyAccountHolderInfo"
-      ? (onboarding.info.individualUltimateBeneficialOwners ?? [])
-      : [];
-  }, [onboarding.info]);
-
-  const address = holder.residencyAddress;
-  const country = address?.country;
-  const companyCountry = isCompanyCountryCCA3(country)
-    ? country
-    : (accountCountry ?? companyFallbackCountry);
-  const companyAddressLine1 = address?.addressLine1 ?? "";
-  const companyCity = address?.city ?? "";
-  const companyPostalCode = address?.postalCode ?? "";
-
-  const legalRepresentativeAddress = holder.legalRepresentativePersonalAddress;
-  const legalRepresentativeCountry =
-    legalRepresentativeAddress != null && isCompanyCountryCCA3(legalRepresentativeAddress.country)
-      ? legalRepresentativeAddress.country
-      : (accountCountry ?? companyFallbackCountry);
-  const legalRepresentativeAddressLine1 = legalRepresentativeAddress?.addressLine1 ?? "";
-  const legalRepresentativeCity = legalRepresentativeAddress?.city ?? "";
-  const legalRepresentativePostalCode = legalRepresentativeAddress?.postalCode ?? "";
-
-  const typeOfRepresentation = holder.typeOfRepresentation ?? "LegalRepresentative";
-  const companyType = holder.companyType ?? "Company";
-  const isRegistered = holder.isRegistered;
-
-  const requiredDocumentsPurposes =
-    onboarding?.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(d => d.name) ??
-    [];
-
-  const hasOwnershipStep =
-    ["Company", "Other"].includes(companyType) ||
-    match(onboarding.info)
-      .with(
-        {
-          __typename: "OnboardingCompanyAccountHolderInfo",
-          residencyAddress: { country: "NLD" },
-          companyType: P.union("Association", "HomeOwnerAssociation"),
-        },
-        () => true,
-      )
-      .with(
-        { __typename: "OnboardingCompanyAccountHolderInfo" },
-        info => (info.individualUltimateBeneficialOwners ?? []).length > 0,
-      )
-
-      .otherwise(() => false);
   const hasDocumentsStep =
-    onboarding?.supportingDocumentCollection.statusInfo.status === "WaitingForDocument" &&
-    requiredDocumentsPurposes.length > 0;
+    onboardingInfo.supportingDocumentCollection.statusInfo.status === "WaitingForDocument" &&
+    onboardingInfo.supportingDocumentCollection.requiredSupportingDocumentPurposes.length > 0;
 
   const [finalized, setFinalized] = useBoolean(false);
 
+  const statusInfo = readFragment(OnboardingStatusInfoFragment, onboardingInfo.statusInfo);
+
   const registrationStepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<RegistrationFieldName | null>()
         .with("email", () => "email")
@@ -160,10 +191,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         .with("legalRepresentativePersonalAddress.country", () => "country")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
   const organisation1StepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<Organisation1FieldName | null>()
         .with("name", () => "name")
@@ -175,10 +206,10 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         .with("residencyAddress.postalCode", () => "postalCode")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
   const organisation2StepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field =>
+    return extractServerInvalidFields(statusInfo, field =>
       match(field)
         .returnType<Organisation2FieldName | null>()
         .with("businessActivity", () => "businessActivity")
@@ -186,65 +217,74 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
         .with("monthlyPaymentVolume", () => "monthlyPaymentVolume")
         .otherwise(() => null),
     );
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
-  const ownerStepErrors = useMemo(() => {
-    return extractServerInvalidFields(onboarding.statusInfo, field => {
+  const ownershipStepErrors = useMemo(() => {
+    return extractServerInvalidFields(statusInfo, field => {
       if (field.startsWith("individualUltimateBeneficialOwners")) {
         return field;
       }
       return null;
     });
-  }, [onboarding.statusInfo]);
+  }, [statusInfo]);
 
-  const steps = useMemo<WizardStep<CompanyOnboardingRoute>[]>(() => {
-    const steps: WizardStep<CompanyOnboardingRoute>[] = [];
-    steps.push(
+  const steps = useMemo<WizardStep[]>(
+    () => [
       {
         id: "Registration",
+        url: Router.Registration({ onboardingId }),
         label: t("step.title.registration"),
         errors: registrationStepErrors,
       },
       {
         id: "Organisation1",
+        url: Router.Organisation1({ onboardingId }),
         label: t("step.title.organisationPart1"),
         errors: organisation1StepErrors,
       },
       {
         id: "Organisation2",
+        url: Router.Organisation2({ onboardingId }),
         label: t("step.title.organisationPart2"),
         errors: organisation2StepErrors,
       },
-    );
-    if (hasOwnershipStep) {
-      steps.push({
-        id: "Ownership",
-        label: t("step.title.ownership"),
-        errors: ownerStepErrors,
-      });
-    }
-    if (hasDocumentsStep) {
-      steps.push({
-        id: "Documents",
-        label: t("step.title.document"),
+      ...(hasOwnershipStep
+        ? [
+            {
+              id: "Ownership",
+              url: Router.Ownership({ onboardingId }),
+              label: t("step.title.ownership"),
+              errors: ownershipStepErrors,
+            },
+          ]
+        : []),
+      ...(hasDocumentsStep
+        ? [
+            {
+              id: "Documents",
+              url: Router.Documents({ onboardingId }),
+              label: t("step.title.document"),
+              errors: [],
+            },
+          ]
+        : []),
+      {
+        id: "Finalize",
+        url: Router.Finalize({ onboardingId }),
+        label: t("step.title.swanApp"),
         errors: [],
-      });
-    }
-    steps.push({
-      id: "Finalize",
-      label: t("step.title.swanApp"),
-      errors: [],
-    });
-
-    return steps;
-  }, [
-    hasOwnershipStep,
-    hasDocumentsStep,
-    registrationStepErrors,
-    organisation1StepErrors,
-    organisation2StepErrors,
-    ownerStepErrors,
-  ]);
+      },
+    ],
+    [
+      hasOwnershipStep,
+      hasDocumentsStep,
+      organisation1StepErrors,
+      organisation2StepErrors,
+      ownershipStepErrors,
+      registrationStepErrors,
+      onboardingId,
+    ],
+  );
 
   const stepperSteps = useMemo<TopLevelStep[]>(
     () =>
@@ -261,7 +301,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
                 .map(step => ({
                   id: step.id,
                   label: step.label,
-                  url: Router[step.id]({ onboardingId }),
+                  url: step.url,
                   hasErrors: finalized && step.errors.length > 0,
                 })),
             };
@@ -270,12 +310,24 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
           return {
             id: step.id,
             label: step.label,
-            url: Router[step.id]({ onboardingId }),
+            url: step.url,
             hasErrors: finalized && step.errors.length > 0,
           };
         }),
-    [onboardingId, steps, finalized],
+    [steps, finalized],
   );
+
+  const goToNextStepFrom = (currentStep: CompanyOnboardingRoute) => {
+    Array.findIndex(steps, step => step.id === currentStep)
+      .flatMap(index => Option.fromNullable(steps[index + 1]))
+      .tapSome(step => pushUnsafe(step.url));
+  };
+
+  const goToPreviousStepFrom = (currentStep: CompanyOnboardingRoute) => {
+    Array.findIndex(steps, step => step.id === currentStep)
+      .flatMap(index => Option.fromNullable(steps[index - 1]))
+      .tapSome(step => pushUnsafe(step.url));
+  };
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -284,7 +336,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
   return (
     <Box grow={1}>
       <Box style={styles.sticky}>
-        <OnboardingHeader projectName={projectName} projectLogo={projectLogo} />
+        <OnboardingHeader projectInfoData={onboardingInfo.projectInfo} />
 
         {isStepperDisplayed ? (
           <ResponsiveContainer>
@@ -312,126 +364,93 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
       ) : null}
 
       {match(route)
-        .with({ name: "Root" }, ({ params }) => (
+        .with({ name: "Root" }, () => (
           <TrackingProvider category="Basic info">
             <OnboardingCompanyBasicInfo
-              nextStep="Presentation"
-              onboardingId={params.onboardingId}
-              initialValues={{
-                companyType,
-                country: companyCountry,
-                typeOfRepresentation,
-              }}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
+              onSave={() => Router.push("Presentation", { onboardingId })}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Presentation" }, ({ params }) => (
+        .with({ name: "Presentation" }, () => (
           <TrackingProvider category="Presentation">
             <CompanyFlowPresentation
-              previousStep="Root"
-              nextStep="Registration"
-              onboardingId={params.onboardingId}
               hasOwnershipStep={hasOwnershipStep}
               hasDocumentsStep={hasDocumentsStep}
+              onPressPrevious={() => Router.push("Root", { onboardingId })}
+              onPressNext={() => Router.push("Registration", { onboardingId })}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Registration" }, ({ params }) => (
+        .with({ name: "Registration" }, ({ name }) => (
           <TrackingProvider category="Registration">
             <OnboardingCompanyRegistration
-              previousStep="Presentation"
-              nextStep="Organisation1"
-              onboardingId={params.onboardingId}
-              initialEmail={onboarding.email ?? ""}
-              initialAddressLine1={legalRepresentativeAddressLine1}
-              initialCity={legalRepresentativeCity}
-              initialPostalCode={legalRepresentativePostalCode}
-              initialCountry={legalRepresentativeCountry}
-              projectName={projectName}
-              accountCountry={accountCountry}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
               serverValidationErrors={finalized ? registrationStepErrors : []}
-              tcuUrl={onboarding.tcuUrl}
-              tcuDocumentUri={onboarding.projectInfo?.tcuDocumentUri}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Organisation1" }, ({ params }) => (
+        .with({ name: "Organisation1" }, ({ name }) => (
           <TrackingProvider category="Organisation 1">
             <OnboardingCompanyOrganisation1
-              previousStep="Registration"
-              nextStep="Organisation2"
-              onboardingId={params.onboardingId}
-              companyType={companyType}
-              initialIsRegistered={isRegistered ?? undefined}
-              initialName={holder.name ?? ""}
-              initialRegistrationNumber={holder.registrationNumber ?? ""}
-              initialVatNumber={holder.vatNumber ?? ""}
-              initialTaxIdentificationNumber={holder.taxIdentificationNumber ?? ""}
-              initialAddressLine1={companyAddressLine1}
-              initialCity={companyCity}
-              initialPostalCode={companyPostalCode}
-              country={companyCountry}
-              accountCountry={accountCountry}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
               serverValidationErrors={finalized ? organisation1StepErrors : []}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Organisation2" }, ({ params }) => (
+        .with({ name: "Organisation2" }, ({ name }) => (
           <TrackingProvider category="Organisation 2">
             <OnboardingCompanyOrganisation2
-              previousStep="Organisation1"
-              nextStep={getNextStep("Organisation2", steps)}
-              onboardingId={params.onboardingId}
-              initialBusinessActivity={holder.businessActivity ?? ""}
-              initialBusinessActivityDescription={holder.businessActivityDescription ?? ""}
-              initialMonthlyPaymentVolume={holder.monthlyPaymentVolume ?? "LessThan10000"}
+              onboardingId={onboardingId}
+              accountHolderInfoData={accountHolderInfo}
               serverValidationErrors={finalized ? organisation2StepErrors : []}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Ownership" }, ({ params }) => (
+        .with({ name: "Ownership" }, ({ name }) => (
           <TrackingProvider category="Ownership">
             <OnboardingCompanyOwnership
-              previousStep="Organisation2"
-              nextStep={getNextStep("Ownership", steps)}
-              onboardingId={params.onboardingId}
-              accountCountry={accountCountry}
-              country={companyCountry}
-              companyName={holder.name ?? ""}
-              ubos={ubos}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              accountHolderInfoData={accountHolderInfo}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Documents" }, ({ params }) => (
+        .with({ name: "Documents" }, ({ name }) => (
           <TrackingProvider category="Documents">
             <OnboardingCompanyDocuments
-              previousStep={getPreviousStep("Documents", steps)}
-              nextStep="Finalize"
-              onboardingId={params.onboardingId}
-              documents={Array.filterMap(
-                onboarding?.supportingDocumentCollection.supportingDocuments ?? [],
-                Option.fromNullable,
-              )}
-              requiredDocumentsPurposes={requiredDocumentsPurposes}
-              supportingDocumentCollectionId={onboarding?.supportingDocumentCollection.id}
-              supportingDocumentCollectionStatus={
-                onboarding?.supportingDocumentCollection.statusInfo.status
-              }
-              templateLanguage={onboarding.language ?? "en"}
+              onboardingId={onboardingId}
+              onboardingInfoData={onboardingInfo}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
+              onSave={() => goToNextStepFrom(name)}
             />
           </TrackingProvider>
         ))
-        .with({ name: "Finalize" }, ({ params }) => (
+        .with({ name: "Finalize" }, ({ name }) => (
           <TrackingProvider category="Finalize">
             <OnboardingCompanyFinalize
-              previousStep={getPreviousStep("Finalize", steps)}
-              onboardingId={params.onboardingId}
+              onboardingId={onboardingId}
               legalRepresentativeRecommendedIdentificationLevel={
-                onboarding.legalRepresentativeRecommendedIdentificationLevel
+                onboardingInfo.legalRepresentativeRecommendedIdentificationLevel
               }
               steps={steps}
               alreadySubmitted={finalized}
               onSubmitWithErrors={setFinalized.on}
+              onPressPrevious={() => goToPreviousStepFrom(name)}
             />
           </TrackingProvider>
         ))

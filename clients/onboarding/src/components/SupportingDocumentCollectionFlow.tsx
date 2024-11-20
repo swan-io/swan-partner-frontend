@@ -23,18 +23,64 @@ import {
   DeleteSupportingDocumentDocument,
   GenerateSupportingDocumentUploadUrlDocument,
   RequestSupportingDocumentCollectionReviewDocument,
-  SupportingDocumentCollectionDocument,
   SupportingDocumentPurposeEnum,
 } from "../graphql/unauthenticated";
 import { NotFoundPage } from "../pages/NotFoundPage";
+import { graphql } from "../utils/gql";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { OnboardingFooter } from "./OnboardingFooter";
-import { OnboardingHeader } from "./OnboardingHeader";
+import { OnboardingHeader, OnboardingHeaderFragment } from "./OnboardingHeader";
 import { OnboardingStepContent } from "./OnboardingStepContent";
 import { StepTitle } from "./StepTitle";
 import { SupportingDocumentCollectionSuccessPage } from "./SupportingDocumentCollectionSuccess";
+
+const SupportingCollectionQuery = graphql(
+  `
+    query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
+      supportingDocumentCollection(id: $supportingDocumentCollectionId) {
+        id
+        accountHolder {
+          id
+          name
+        }
+        requiredSupportingDocumentPurposes {
+          name
+        }
+        statusInfo {
+          status
+        }
+        supportingDocuments {
+          id
+          supportingDocumentPurpose
+          supportingDocumentType
+          updatedAt
+          statusInfo {
+            __typename
+            status
+            ... on SupportingDocumentUploadedStatusInfo {
+              filename
+            }
+            ... on SupportingDocumentValidatedStatusInfo {
+              filename
+            }
+            ... on SupportingDocumentRefusedStatusInfo {
+              reason
+              filename
+            }
+          }
+        }
+        projectInfo {
+          id
+          accentColor
+          ...OnboardingHeader
+        }
+      }
+    }
+  `,
+  [OnboardingHeaderFragment],
+);
 
 type Props = {
   supportingDocumentCollectionId: string;
@@ -52,7 +98,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
     "SupportingDocumentCollectionRoot",
     "SupportingDocumentCollectionSuccess",
   ]);
-  const [data] = useQuery(SupportingDocumentCollectionDocument, { supportingDocumentCollectionId });
+  const [data] = useQuery(SupportingCollectionQuery, { supportingDocumentCollectionId });
 
   const [generateSupportingDocumentUploadUrl] = useMutation(
     GenerateSupportingDocumentUploadUrlDocument,
@@ -195,11 +241,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             }
           >
             <>
-              {match(supportingDocumentCollection.projectInfo)
-                .with({ name: P.string, logoUri: P.string }, ({ name, logoUri }) => (
-                  <OnboardingHeader projectName={name} projectLogo={logoUri} />
-                ))
-                .otherwise(() => null)}
+              <OnboardingHeader projectInfoData={supportingDocumentCollection.projectInfo} />
 
               {match(route)
                 .with(Router.P.SupportingDocumentCollectionRoot(P._), () => {

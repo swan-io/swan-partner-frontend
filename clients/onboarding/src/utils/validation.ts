@@ -3,9 +3,10 @@ import { isEmpty } from "@swan-io/lake/src/utils/nullish";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
+import { ResultOf } from "gql.tada";
 import { match } from "ts-pattern";
+import { type OnboardingStatusInfoFragment } from "../fragments/OnboardingStatusInfoFragment";
 import {
-  OnboardingInvalidInfoFragment,
   UpdateValidationErrorsFragment,
   ValidationFieldErrorCode,
 } from "../graphql/unauthenticated";
@@ -77,7 +78,7 @@ export const extractServerValidationErrors = <T extends string>(
 };
 
 export const extractServerInvalidFields = <T extends string>(
-  statusInfo: OnboardingInvalidInfoFragment,
+  statusInfo: ResultOf<typeof OnboardingStatusInfoFragment>,
   getFieldName: (field: string) => T | null,
 ): { fieldName: T; code: ServerInvalidFieldCode }[] => {
   return match(statusInfo)

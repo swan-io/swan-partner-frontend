@@ -20,13 +20,11 @@ import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmMod
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import {
   CountryCCA3,
-  getCCA3forCCA2,
   getCountryName,
-  isCountryCCA2,
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
-import { getCountryUbo } from "@swan-io/shared-business/src/constants/ubos";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -34,14 +32,14 @@ import { v4 as uuid } from "uuid";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { getCountryUbo } from "../../constants/ubo";
 import {
   AccountCountry,
   IndividualUltimateBeneficialOwnerInput,
-  UboFragment,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { graphql } from "../../utils/gql";
 import { TranslationKey, locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   BeneficiaryFormStep,
@@ -98,14 +96,75 @@ type PageState =
       withIdentityPart: boolean;
     };
 
+const IndividualUltimateBeneficialOwnerFragment = graphql(`
+  fragment IndividualUltimateBeneficialOwner on IndividualUltimateBeneficialOwner {
+    __typename
+    firstName
+    lastName
+    birthDate
+    birthCountryCode
+    birthCity
+    birthCityPostalCode
+    info {
+      __typename
+      type
+      ... on IndividualUltimateBeneficialOwnerTypeHasCapital {
+        indirect
+        direct
+        totalCapitalPercentage
+      }
+    }
+    taxIdentificationNumber
+    residencyAddress {
+      addressLine1
+      addressLine2
+      city
+      country
+      postalCode
+      state
+    }
+    identityDocumentDetails {
+      type
+      issueDate
+      issuingAuthority
+      expiryDate
+      number
+    }
+  }
+`);
+
+export const CompanyOwnershipAccountHolderInfoFragment = graphql(
+  `
+    fragment CompanyOwnershipAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+      name
+      individualUltimateBeneficialOwners {
+        ...IndividualUltimateBeneficialOwner
+      }
+      residencyAddress {
+        country
+      }
+    }
+  `,
+  [IndividualUltimateBeneficialOwnerFragment],
+);
+
+export const CompanyOwnershipOnboardingInfoFragment = graphql(
+  `
+    fragment CompanyOwnershipOnboardingInfo on OnboardingInfo {
+      accountCountry
+    }
+  `,
+  [IndividualUltimateBeneficialOwnerFragment],
+);
+
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
   onboardingId: string;
-  accountCountry: AccountCountry;
-  country: CountryCCA3;
-  companyName: string;
-  ubos: UboFragment[];
+
+  accountHolderInfoData: FragmentOf<typeof CompanyOwnershipAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof CompanyOwnershipOnboardingInfoFragment>;
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 type LocalStateUbo = SaveValue & {
@@ -113,9 +172,10 @@ type LocalStateUbo = SaveValue & {
 };
 
 const convertFetchUboToInput = (
-  fetchedUbo: UboFragment,
-  accountCountry: AccountCountry,
+  data: FragmentOf<typeof IndividualUltimateBeneficialOwnerFragment>,
+  accountCountry: AccountCountry | null,
 ): LocalStateUbo => {
+  const fetchedUbo = readFragment(IndividualUltimateBeneficialOwnerFragment, data);
   const { direct, indirect, totalCapitalPercentage } = match(fetchedUbo.info)
     .returnType<
       Partial<
@@ -135,18 +195,13 @@ const convertFetchUboToInput = (
     )
     .otherwise(() => ({}));
 
-  const birthCountryCode = isCountryCCA3(fetchedUbo.birthCountryCode)
-    ? fetchedUbo.birthCountryCode
-    : isCountryCCA2(fetchedUbo.birthCountryCode)
-      ? (getCCA3forCCA2(fetchedUbo.birthCountryCode) ?? accountCountry)
-      : accountCountry;
-
   const ubo = {
     [REFERENCE_SYMBOL]: uuid(),
     type: fetchedUbo.info.type,
     firstName: fetchedUbo.firstName ?? "",
     lastName: fetchedUbo.lastName ?? "",
-    birthCountryCode,
+    // Not ideal, but needed as long as `accountCountry` is nullable
+    birthCountryCode: fetchedUbo.birthCountryCode ?? accountCountry ?? "FRA",
     birthCity: fetchedUbo.birthCity ?? "",
     birthCityPostalCode: fetchedUbo.birthCityPostalCode ?? "",
     // Slice to remove the time part because the backend sends a DateTime instead of a Date
@@ -180,7 +235,11 @@ const isUboInvalid = (ubo: LocalStateUbo) => {
   return Object.values(ubo.errors).some(error => error != null);
 };
 
-const formatUboMainInfo = (ubo: SaveValue, companyName: string, country: CountryCCA3) => {
+const formatUboMainInfo = (
+  ubo: SaveValue,
+  companyName: string,
+  country: CountryCCA3 | undefined,
+) => {
   const key = match(ubo)
     .returnType<TranslationKey>()
     .with({ type: P.nullish }, () => "ownersPage.other")
@@ -218,7 +277,7 @@ const formatUboBirthAddress = ({
 type UboTileProps = {
   ubo: LocalStateUbo;
   companyName: string;
-  country: CountryCCA3;
+  country: CountryCCA3 | undefined;
   shakeError: boolean;
   onEdit: () => void;
   onDelete: () => void;
@@ -333,19 +392,27 @@ const UboTile = ({ ubo, companyName, country, shakeError, onEdit, onDelete }: Ub
 };
 
 export const OnboardingCompanyOwnership = ({
-  previousStep,
-  nextStep,
   onboardingId,
-  accountCountry,
-  country,
-  companyName,
-  ubos,
+  onboardingInfoData,
+  accountHolderInfoData,
+
+  onPressPrevious,
+  onSave,
 }: Props) => {
+  const onboardingInfo = readFragment(CompanyOwnershipOnboardingInfoFragment, onboardingInfoData);
+  const accountHolderInfo = readFragment(
+    CompanyOwnershipAccountHolderInfoFragment,
+    accountHolderInfoData,
+  );
+
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
 
   const currentUbos = useMemo(
-    () => ubos.map(ubo => convertFetchUboToInput(ubo, accountCountry)),
-    [accountCountry, ubos],
+    () =>
+      accountHolderInfo.individualUltimateBeneficialOwners?.map(ubo =>
+        convertFetchUboToInput(ubo, onboardingInfo.accountCountry),
+      ) ?? [],
+    [onboardingInfo.accountCountry, accountHolderInfo.individualUltimateBeneficialOwners],
   );
 
   const [noUbosConfirmed, setNoUbosConfirmed] = useState(false);
@@ -354,11 +421,11 @@ export const OnboardingCompanyOwnership = ({
   const [showConfirmNoUboModal, setShowConfirmNoUboModal] = useBoolean(false);
   const beneficiaryFormRef = useRef<OnboardingCompanyOwnershipBeneficiaryFormRef>(null);
 
-  const withAddressPart = match(accountCountry)
+  const withAddressPart = match(onboardingInfo.accountCountry)
     .with("DEU", "ESP", "FRA", "NLD", "ITA", () => true)
     .otherwise(() => false);
 
-  const withIdentityPart = match(accountCountry)
+  const withIdentityPart = match(onboardingInfo.accountCountry)
     .with("ITA", () => true)
     .otherwise(() => false);
 
@@ -423,10 +490,6 @@ export const OnboardingCompanyOwnership = ({
     ).tap(() => {
       resetPageState();
     });
-  };
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
   };
 
   const updateOnboardingUbos = (nextUbos: LocalStateUbo[]) => {
@@ -530,9 +593,7 @@ export const OnboardingCompanyOwnership = ({
       return setShakeError.on();
     }
 
-    updateOnboardingUbos(currentUbos).tapOk(() => {
-      Router.push(nextStep, { onboardingId });
-    });
+    updateOnboardingUbos(currentUbos).tapOk(onSave);
   };
 
   const onPressNext = () => {
@@ -552,7 +613,13 @@ export const OnboardingCompanyOwnership = ({
               <Box>
                 <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
                 <Space height={12} />
-                <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
+
+                <LakeText>
+                  {t("company.step.owners.description", {
+                    companyName: accountHolderInfo.name ?? "",
+                  })}
+                </LakeText>
+
                 <Space height={24} />
 
                 <LakeText style={styles.additionalDescription}>
@@ -571,7 +638,13 @@ export const OnboardingCompanyOwnership = ({
               <Box>
                 <StepTitle isMobile={small}>{t("company.step.owners.title")}</StepTitle>
                 <Space height={12} />
-                <LakeText>{t("company.step.owners.description", { companyName })}</LakeText>
+
+                <LakeText>
+                  {t("company.step.owners.description", {
+                    companyName: accountHolderInfo.name ?? "",
+                  })}
+                </LakeText>
+
                 <Space height={24} />
 
                 <LakeText style={styles.additionalDescription}>
@@ -591,8 +664,8 @@ export const OnboardingCompanyOwnership = ({
                     <UboTile
                       key={ubo[REFERENCE_SYMBOL]}
                       ubo={ubo}
-                      companyName={companyName}
-                      country={country}
+                      companyName={accountHolderInfo.name ?? ""}
+                      country={accountHolderInfo.residencyAddress?.country ?? undefined}
                       shakeError={shakeError}
                       onEdit={() =>
                         setPageState({
@@ -694,8 +767,8 @@ export const OnboardingCompanyOwnership = ({
           initialValues={match(pageState)
             .with({ type: "edit" }, ({ ubo }) => ubo)
             .otherwise(() => undefined)}
-          accountCountry={accountCountry}
-          companyCountry={country}
+          accountCountry={onboardingInfo.accountCountry}
+          companyCountry={accountHolderInfo.residencyAddress?.country ?? null}
           step={match(pageState)
             .with({ step: "Address" }, ({ step }) => step)
             .with({ step: "Identity" }, ({ step }) => step)

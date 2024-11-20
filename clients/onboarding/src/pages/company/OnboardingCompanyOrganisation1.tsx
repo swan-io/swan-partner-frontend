@@ -24,6 +24,7 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -32,15 +33,13 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
-  AccountCountry,
-  CompanyType,
   GetCompanyInfoDocument,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
+import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import {
   getRegistrationNumberName,
   getUpdateOnboardingError,
@@ -69,25 +68,41 @@ const styles = StyleSheet.create({
   },
 });
 
+export const CompanyOrganizationFirstStepOnboardingInfoFragment = graphql(`
+  fragment CompanyOrganizationFirstStepOnboardingInfo on OnboardingInfo {
+    accountCountry
+  }
+`);
+
+export const CompanyOrganizationFirstStepAccountHolderInfoFragment = graphql(`
+  fragment CompanyOrganizationFirstStepAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    companyType
+    isRegistered
+    name
+    registrationNumber
+    vatNumber
+    taxIdentificationNumber
+    residencyAddress {
+      addressLine1
+      city
+      postalCode
+      country
+    }
+  }
+`);
+
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
-  companyType: CompanyType;
-  initialIsRegistered?: boolean;
-  initialName: string;
-  initialRegistrationNumber: string;
-  initialVatNumber: string;
-  initialTaxIdentificationNumber: string;
-  initialAddressLine1: string;
-  initialCity: string;
-  initialPostalCode: string;
-  country: CountryCCA3;
-  accountCountry: AccountCountry;
+  onboardingInfoData: FragmentOf<typeof CompanyOrganizationFirstStepOnboardingInfoFragment>;
+  accountHolderInfoData: FragmentOf<typeof CompanyOrganizationFirstStepAccountHolderInfoFragment>;
+
   onboardingId: string;
   serverValidationErrors: {
     fieldName: Organisation1FieldName;
     code: ServerInvalidFieldCode;
   }[];
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 const associationRegisterNamePerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -108,46 +123,55 @@ const registerNamePerCountry: Partial<Record<CountryCCA3, string>> = {
 };
 
 export const OnboardingCompanyOrganisation1 = ({
-  previousStep,
-  nextStep,
-  companyType,
-  initialIsRegistered,
-  initialName,
-  initialRegistrationNumber,
-  initialVatNumber,
-  initialTaxIdentificationNumber,
-  initialAddressLine1,
-  initialCity,
-  initialPostalCode,
-  country,
-  accountCountry,
+  onboardingInfoData,
+  accountHolderInfoData,
   onboardingId,
   serverValidationErrors,
+  onPressPrevious,
+  onSave,
 }: Props) => {
+  const onboardingInfo = readFragment(
+    CompanyOrganizationFirstStepOnboardingInfoFragment,
+    onboardingInfoData,
+  );
+
+  const accountHolderInfo = readFragment(
+    CompanyOrganizationFirstStepAccountHolderInfoFragment,
+    accountHolderInfoData,
+  );
+
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
-  const canSetTaxIdentification = match({ accountCountry, country })
+
+  const canSetTaxIdentification = match({
+    accountCountry: onboardingInfo.accountCountry,
+    country: accountHolderInfo.residencyAddress?.country,
+  })
     .with({ accountCountry: "DEU", country: "DEU" }, () => true)
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
-  const isTaxIdentificationRequired = match({ accountCountry, country })
+
+  const isTaxIdentificationRequired = match({
+    accountCountry: onboardingInfo.accountCountry,
+    country: accountHolderInfo.residencyAddress?.country,
+  })
     .with({ accountCountry: "ESP", country: "ESP" }, () => true)
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
-      initialValue: initialIsRegistered,
+      initialValue: accountHolderInfo.isRegistered ?? undefined,
       validate: validateRequiredBoolean,
     },
     name: {
-      initialValue: initialName,
+      initialValue: accountHolderInfo.name ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     registrationNumber: {
-      initialValue: initialRegistrationNumber,
+      initialValue: accountHolderInfo.registrationNumber ?? "",
       sanitize: trim,
       validate: (value, { getFieldValue }) => {
         const isRegistered = getFieldValue("isRegistered");
@@ -155,32 +179,33 @@ export const OnboardingCompanyOrganisation1 = ({
       },
     },
     vatNumber: {
-      initialValue: initialVatNumber,
+      initialValue: accountHolderInfo.vatNumber ?? "",
       sanitize: trim,
       validate: validateVatNumber,
     },
     taxIdentificationNumber: {
-      initialValue: initialTaxIdentificationNumber,
+      initialValue: accountHolderInfo.taxIdentificationNumber ?? "",
       sanitize: trim,
       validate: canSetTaxIdentification
         ? combineValidators(
             isTaxIdentificationRequired && validateRequired,
-            validateCompanyTaxNumber(accountCountry),
+            onboardingInfo.accountCountry != null &&
+              validateCompanyTaxNumber(onboardingInfo.accountCountry),
           )
         : undefined,
     },
     address: {
-      initialValue: initialAddressLine1,
+      initialValue: accountHolderInfo.residencyAddress?.addressLine1 ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     city: {
-      initialValue: initialCity,
+      initialValue: accountHolderInfo.residencyAddress?.city ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     postalCode: {
-      initialValue: initialPostalCode,
+      initialValue: accountHolderInfo.residencyAddress?.postalCode ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
@@ -194,10 +219,6 @@ export const OnboardingCompanyOrganisation1 = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
 
   const onPressNext = () => {
     submitForm({
@@ -239,7 +260,7 @@ export const OnboardingCompanyOrganisation1 = ({
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
@@ -306,10 +327,21 @@ export const OnboardingCompanyOrganisation1 = ({
     setSiren(siren);
   }, []);
 
-  const countryRegisterName = match(companyType)
-    .with("Association", () => associationRegisterNamePerCountry[country])
-    .with("SelfEmployed", () => selfEmployedRegisterNamePerCountry[country])
-    .otherwise(() => registerNamePerCountry[country]);
+  const localRegistrationsOrganizationName = Option.fromNullable(
+    accountHolderInfo.residencyAddress?.country,
+  )
+    .map(accountHolderResidencyCountry =>
+      match(accountHolderInfo.companyType)
+        .with("Association", () => associationRegisterNamePerCountry[accountHolderResidencyCountry])
+        .with(
+          "SelfEmployed",
+          () => selfEmployedRegisterNamePerCountry[accountHolderResidencyCountry],
+        )
+        .otherwise(() => registerNamePerCountry[accountHolderResidencyCountry]),
+    )
+    .flatMap(Option.fromNullable);
+
+  const accountCountry = onboardingInfo.accountCountry;
 
   const onSuggestion = useCallback(
     (place: AddressDetail) => {
@@ -333,7 +365,8 @@ export const OnboardingCompanyOrganisation1 = ({
 
               <Tile
                 footer={
-                  accountCountry === "DEU" && country === "DEU" ? (
+                  accountCountry === "DEU" &&
+                  accountHolderInfo.residencyAddress?.country === "DEU" ? (
                     <LakeAlert
                       variant="info"
                       anchored={true}
@@ -345,20 +378,20 @@ export const OnboardingCompanyOrganisation1 = ({
                 <Field name="isRegistered">
                   {({ value, error, onChange, ref }) => (
                     <LakeLabel
-                      label={
-                        countryRegisterName != null
-                          ? t("company.step.organisation1.isRegisteredWithNameLabel", {
-                              countryRegisterName,
-                            })
-                          : t("company.step.organisation1.isRegisteredLabel")
-                      }
+                      label={localRegistrationsOrganizationName
+                        .map(countryRegisterName =>
+                          t("company.step.organisation1.isRegisteredWithNameLabel", {
+                            countryRegisterName,
+                          }),
+                        )
+                        .getOr(t("company.step.organisation1.isRegisteredLabel"))}
                       render={() => (
                         <>
                           <LakeText variant="smallRegular" style={styles.registrationHelp}>
                             {t("company.step.organisation1.isRegisteredLabel.description", {
                               registrationNumberLegalName: getRegistrationNumberName(
-                                country,
-                                companyType,
+                                accountHolderInfo.residencyAddress?.country,
+                                accountHolderInfo.companyType,
                               ),
                             })}
                           </LakeText>
@@ -388,7 +421,7 @@ export const OnboardingCompanyOrganisation1 = ({
                     <LakeLabel
                       label={t("company.step.organisation1.organisationLabel")}
                       render={id =>
-                        country === "FRA" ? (
+                        accountHolderInfo.residencyAddress?.country === "FRA" ? (
                           <LakeCompanyInput
                             id={id}
                             ref={ref}
@@ -424,8 +457,8 @@ export const OnboardingCompanyOrganisation1 = ({
                         <LakeLabel
                           label={t("company.step.organisation1.registrationNumberLabel", {
                             registrationNumberLegalName: getRegistrationNumberName(
-                              country,
-                              companyType,
+                              accountHolderInfo.residencyAddress?.country,
+                              accountHolderInfo.companyType,
                             ),
                           })}
                           optionalLabel={
@@ -473,7 +506,7 @@ export const OnboardingCompanyOrganisation1 = ({
                   )}
                 </Field>
 
-                {canSetTaxIdentification && (
+                {canSetTaxIdentification && accountCountry != null ? (
                   <>
                     <Space height={12} />
 
@@ -493,7 +526,7 @@ export const OnboardingCompanyOrganisation1 = ({
                       )}
                     </Field>
                   </>
-                )}
+                ) : null}
               </Tile>
 
               <Space height={small ? 24 : 32} />
@@ -513,7 +546,7 @@ export const OnboardingCompanyOrganisation1 = ({
                           placeholder={t("company.step.organisation1.addressPlaceholder")}
                           language={locale.language}
                           id={id}
-                          country={country}
+                          country={accountHolderInfo.residencyAddress?.country ?? undefined}
                           value={value}
                           error={error}
                           onValueChange={onChange}

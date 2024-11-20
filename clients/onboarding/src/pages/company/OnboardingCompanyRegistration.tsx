@@ -21,9 +21,13 @@ import {
   AddressDetail,
   PlacekitAddressSearchInput,
 } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  allCountries,
+  companyFallbackCountry,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -32,12 +36,11 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import {
-  AccountCountry,
   UnauthenticatedUpdateCompanyOnboardingInput,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { graphql } from "../../utils/gql";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   ServerInvalidFieldCode,
@@ -70,71 +73,100 @@ const styles = StyleSheet.create({
 
 export type RegistrationFieldName = "email" | "address" | "city" | "postalCode" | "country";
 
+export const CompanyRegistrationOnboardingInfoFragment = graphql(`
+  fragment CompanyRegistrationOnboardingInfo on OnboardingInfo {
+    email
+    projectInfo {
+      name
+      tcuDocumentUri(language: $language)
+    }
+    accountCountry
+    tcuUrl
+  }
+`);
+
+export const CompanyRegistrationAccountHolderInfoFragment = graphql(`
+  fragment CompanyRegistrationAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    residencyAddress {
+      addressLine1
+      city
+      postalCode
+      country
+    }
+  }
+`);
+
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
+  onboardingInfoData: FragmentOf<typeof CompanyRegistrationOnboardingInfoFragment>;
+  accountHolderInfoData: FragmentOf<typeof CompanyRegistrationAccountHolderInfoFragment>;
+
   onboardingId: string;
-  initialEmail: string;
-  initialAddressLine1: string;
-  initialCity: string;
-  initialPostalCode: string;
-  initialCountry: CountryCCA3;
-  projectName: string;
-  accountCountry: AccountCountry;
+
   serverValidationErrors: {
     fieldName: RegistrationFieldName;
     code: ServerInvalidFieldCode;
   }[];
-  tcuDocumentUri?: string;
-  tcuUrl: string;
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 export const OnboardingCompanyRegistration = ({
-  previousStep,
-  nextStep,
+  onboardingInfoData,
+  accountHolderInfoData,
+
   onboardingId,
-  initialEmail,
-  initialAddressLine1,
-  initialCity,
-  initialPostalCode,
-  initialCountry,
-  projectName,
-  accountCountry,
   serverValidationErrors,
-  tcuDocumentUri,
-  tcuUrl,
+
+  onPressPrevious,
+  onSave,
 }: Props) => {
+  const onboardingInfo = readFragment(
+    CompanyRegistrationOnboardingInfoFragment,
+    onboardingInfoData,
+  );
+
+  const accountHolderInfo = readFragment(
+    CompanyRegistrationAccountHolderInfoFragment,
+    accountHolderInfoData,
+  );
+
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
   const isFirstMount = useFirstMountState();
 
-  const haveToAcceptTcu = accountCountry === "DEU" || accountCountry === "ITA";
-  const isAddressRequired = match(accountCountry)
+  const haveToAcceptTcu =
+    onboardingInfo.accountCountry === "DEU" || onboardingInfo.accountCountry === "ITA";
+
+  const isAddressRequired = match(onboardingInfo.accountCountry)
     .with("DEU", "NLD", () => true)
     .otherwise(() => false);
 
   const { Field, submitForm, setFieldValue, setFieldError, FieldsListener } = useForm({
     email: {
-      initialValue: initialEmail,
+      initialValue: onboardingInfo.email ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
     },
     address: {
-      initialValue: initialAddressLine1,
+      initialValue: accountHolderInfo.residencyAddress?.addressLine1 ?? "",
       sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
     },
     city: {
-      initialValue: initialCity,
+      initialValue: accountHolderInfo.residencyAddress?.city ?? "",
       sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
     },
     postalCode: {
-      initialValue: initialPostalCode,
+      initialValue: accountHolderInfo.residencyAddress?.postalCode ?? "",
       sanitize: trim,
       validate: isAddressRequired ? validateRequired : undefined,
     },
     country: {
-      initialValue: initialCountry,
+      initialValue:
+        accountHolderInfo.residencyAddress?.country ??
+        onboardingInfo.accountCountry ??
+        companyFallbackCountry,
       validate: isAddressRequired ? validateRequired : undefined,
     },
     tcuAccepted: {
@@ -155,10 +187,6 @@ export const OnboardingCompanyRegistration = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
 
   const onPressNext = () => {
     submitForm({
@@ -201,7 +229,7 @@ export const OnboardingCompanyRegistration = ({
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             match(error)
               .with({ __typename: "ValidationRejection" }, error => {
@@ -402,7 +430,11 @@ export const OnboardingCompanyRegistration = ({
                             <LakeText>
                               {formatNestedMessage("step.finalize.terms", {
                                 firstLink: (
-                                  <Link target="blank" to={tcuUrl} style={styles.link}>
+                                  <Link
+                                    target="blank"
+                                    to={onboardingInfo.tcuUrl}
+                                    style={styles.link}
+                                  >
                                     {t("emailPage.firstLink")}
 
                                     <Icon name="open-filled" size={16} style={styles.linkIcon} />
@@ -411,10 +443,12 @@ export const OnboardingCompanyRegistration = ({
                                 secondLink: (
                                   <Link
                                     target="blank"
-                                    to={tcuDocumentUri ?? "#"}
+                                    to={onboardingInfo.projectInfo?.tcuDocumentUri ?? "#"}
                                     style={styles.link}
                                   >
-                                    {t("emailPage.secondLink", { partner: projectName })}
+                                    {t("emailPage.secondLink", {
+                                      partner: onboardingInfo.projectInfo?.name ?? "",
+                                    })}
 
                                     <Icon name="open-filled" size={16} style={styles.linkIcon} />
                                   </Link>
@@ -433,15 +467,21 @@ export const OnboardingCompanyRegistration = ({
                     <LakeText>
                       {formatNestedMessage("emailPage.terms", {
                         firstLink: (
-                          <Link target="blank" to={tcuUrl} style={styles.link}>
+                          <Link target="blank" to={onboardingInfo.tcuUrl} style={styles.link}>
                             {t("emailPage.firstLink")}
 
                             <Icon name="open-filled" size={16} style={styles.linkIcon} />
                           </Link>
                         ),
                         secondLink: (
-                          <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                            {t("emailPage.secondLink", { partner: projectName })}
+                          <Link
+                            target="blank"
+                            to={onboardingInfo.projectInfo?.tcuDocumentUri ?? "#"}
+                            style={styles.link}
+                          >
+                            {t("emailPage.secondLink", {
+                              partner: onboardingInfo.projectInfo?.name ?? "",
+                            })}
 
                             <Icon name="open-filled" size={16} style={styles.linkIcon} />
                           </Link>

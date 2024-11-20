@@ -12,17 +12,24 @@ import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
 import {
   AccountCountry,
-  GetOnboardingDocument,
   UpdateCompanyOnboardingDocument,
   UpdateIndividualOnboardingDocument,
 } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
-import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
-import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
+import {
+  CompanyAccountHolderInfoFragment,
+  CompanyOnboardingInfoFragment,
+  OnboardingCompanyWizard,
+} from "./pages/company/CompanyOnboardingWizard";
+import {
+  IndividualAccountHolderInfoFragment,
+  IndividualOnboardingInfoFragment,
+  OnboardingIndividualWizard,
+} from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
-import { client } from "./utils/gql";
+import { client, graphql } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
@@ -52,8 +59,47 @@ const PageMetadata = ({
   return null;
 };
 
+const OnboardingInfoQuery = graphql(
+  `
+    query OnboardingInfo($id: ID!, $language: String!) {
+      onboardingInfo(id: $id) {
+        id
+        accountCountry
+        language
+        onboardingState
+        oAuthRedirectParameters {
+          redirectUrl
+        }
+        redirectUrl
+        projectInfo {
+          id
+          accentColor
+          name
+        }
+        ...CompanyOnboardingInfo
+        ...IndividualOnboardingInfo
+        info {
+          __typename
+          ... on OnboardingCompanyAccountHolderInfo {
+            ...CompanyAccountHolderInfo
+          }
+          ... on OnboardingIndividualAccountHolderInfo {
+            ...IndividualAccountHolderInfo
+          }
+        }
+      }
+    }
+  `,
+  [
+    CompanyAccountHolderInfoFragment,
+    CompanyOnboardingInfoFragment,
+    IndividualAccountHolderInfoFragment,
+    IndividualOnboardingInfoFragment,
+  ],
+);
+
 const FlowPicker = ({ onboardingId }: Props) => {
-  const [data, { query }] = useDeferredQuery(GetOnboardingDocument);
+  const [data, { query }] = useDeferredQuery(OnboardingInfoQuery);
   const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
     UpdateIndividualOnboardingDocument,
   );
@@ -87,26 +133,21 @@ const FlowPicker = ({ onboardingId }: Props) => {
     return () => request.cancel();
   }, [onboardingId, query, updateCompanyOnboarding, updateIndividualOnboarding]);
 
-  return match({ data, companyOnboardingUpdate, individualOnboardingUpdate })
-    .with(
-      { data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) },
-      { companyOnboardingUpdate: AsyncData.P.Loading },
-      { individualOnboardingUpdate: AsyncData.P.Loading },
-      () => <LoadingView color={colors.gray[400]} />,
-    )
-    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
-      <ErrorView error={error} />
-    ))
-    .with({ data: AsyncData.P.Done(Result.P.Ok(P.select())) }, data => {
-      const onboardingInfo = data.onboardingInfo;
+  if (companyOnboardingUpdate.isLoading() || individualOnboardingUpdate.isLoading()) {
+    return <LoadingView color={colors.gray[400]} />;
+  }
 
+  return match(data)
+    .with(P.union(AsyncData.P.NotAsked, AsyncData.P.Loading), () => (
+      <LoadingView color={colors.gray[400]} />
+    ))
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ onboardingInfo }) => {
       if (onboardingInfo == null) {
         return <ErrorView />;
       }
-
       const accountCountry = onboardingInfo.accountCountry ?? undefined;
       const projectInfo = onboardingInfo.projectInfo;
-      const projectColor = projectInfo?.accentColor ?? invariantColors.defaultAccentColor;
       const accountHolder = onboardingInfo.info;
 
       // In case of the user returns to an already completed onboarding (back navigator, or a bookmarked one)
@@ -134,23 +175,26 @@ const FlowPicker = ({ onboardingId }: Props) => {
             projectName={projectInfo?.name}
           />
 
-          <WithPartnerAccentColor color={projectColor}>
+          <WithPartnerAccentColor
+            color={projectInfo?.accentColor ?? invariantColors.defaultAccentColor}
+          >
             {match(accountHolder)
-              .with({ __typename: "OnboardingIndividualAccountHolderInfo" }, holder => (
-                <TrackingProvider category="Individual">
-                  <OnboardingIndividualWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
-                  />
-                </TrackingProvider>
-              ))
-              .with({ __typename: "OnboardingCompanyAccountHolderInfo" }, holder => (
+              .with(
+                { __typename: "OnboardingIndividualAccountHolderInfo" },
+                individualAccountHolderInfo => (
+                  <TrackingProvider category="Individual">
+                    <OnboardingIndividualWizard
+                      onboardingInfoData={onboardingInfo}
+                      individualAccountHolderInfoData={individualAccountHolderInfo}
+                    />
+                  </TrackingProvider>
+                ),
+              )
+              .with({ __typename: "OnboardingCompanyAccountHolderInfo" }, companyAccountHolder => (
                 <TrackingProvider category="Company">
                   <OnboardingCompanyWizard
-                    onboarding={onboardingInfo}
-                    onboardingId={onboardingId}
-                    holder={holder}
+                    onboardingInfoData={onboardingInfo}
+                    companyAccountHolderData={companyAccountHolder}
                   />
                 </TrackingProvider>
               ))

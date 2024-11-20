@@ -9,11 +9,15 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { CountryCCA3, companyCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  companyCountries,
+  companyFallbackCountry,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
-import { useEffect, useState } from "react";
+import { FragmentOf, readFragment } from "gql.tada";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
@@ -22,19 +26,30 @@ import {
   TypeOfRepresentation,
   UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
-type BasicInfoValues = {
-  country: CountryCCA3;
-  typeOfRepresentation: TypeOfRepresentation;
-  companyType: CompanyType;
-};
+export const CompanyBasicInfoAccountHolderInfoFragment = graphql(`
+  fragment CompanyBasicInfoAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    residencyAddress {
+      country
+    }
+    typeOfRepresentation
+    companyType
+  }
+`);
+
+export const CompanyBasicInfoOnboardingInfoFragment = graphql(`
+  fragment CompanyBasicInfoOnboardingInfo on OnboardingInfo {
+    accountCountry
+  }
+`);
 
 type Props = {
-  nextStep: CompanyOnboardingRoute;
+  onSave: () => void;
   onboardingId: string;
-  initialValues: BasicInfoValues;
+  accountHolderInfoData: FragmentOf<typeof CompanyBasicInfoAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof CompanyBasicInfoOnboardingInfoFragment>;
 };
 
 const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -93,36 +108,42 @@ const getCompanyTypes = (country: CountryCCA3): RadioGroupItem<CompanyType>[] =>
   return items;
 };
 
-export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValues }: Props) => {
+export const OnboardingCompanyBasicInfo = ({
+  onSave,
+  onboardingId,
+  accountHolderInfoData,
+  onboardingInfoData,
+}: Props) => {
+  const accountHolderInfo = readFragment(
+    CompanyBasicInfoAccountHolderInfoFragment,
+    accountHolderInfoData,
+  );
+  const onboardingInfo = readFragment(CompanyBasicInfoOnboardingInfoFragment, onboardingInfoData);
+
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
 
-  const { Field, submitForm, listenFields, setFieldValue } = useForm({
+  const { Field, submitForm, FieldsListener } = useForm({
     country: {
-      initialValue: initialValues.country,
+      initialValue:
+        accountHolderInfo.residencyAddress?.country ??
+        onboardingInfo.accountCountry ??
+        companyFallbackCountry,
     },
     typeOfRepresentation: {
-      initialValue: initialValues.typeOfRepresentation,
+      initialValue: accountHolderInfo.typeOfRepresentation,
     },
     companyType: {
-      initialValue: initialValues.companyType,
+      initialValue: accountHolderInfo.companyType,
+      validate: (value, { getFieldValue }) => {
+        if (value == null) {
+          return t("error.requiredField");
+        }
+        if (!getCompanyTypes(getFieldValue("country")).some(item => item.value === value)) {
+          return t("error.requiredField");
+        }
+      },
     },
   });
-
-  const [companyTypes, setCompanyTypes] = useState<RadioGroupItem<CompanyType>[]>(() =>
-    getCompanyTypes(initialValues.country),
-  );
-
-  useEffect(() => {
-    return listenFields(["country", "companyType"], ({ country, companyType }) => {
-      const companyTypes = getCompanyTypes(country.value);
-      const companyTypeIsAvailable = companyTypes.some(({ value }) => value === companyType.value);
-      if (!companyTypeIsAvailable) {
-        setFieldValue("companyType", "Company");
-      }
-
-      setCompanyTypes(companyTypes);
-    });
-  }, [listenFields, setFieldValue]);
 
   const onPressNext = () => {
     submitForm({
@@ -147,7 +168,7 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             // No need to add specific message depending on validation
             // because all fields are select or radio (so we can't have syntax error)
@@ -217,18 +238,26 @@ export const OnboardingCompanyBasicInfo = ({ nextStep, onboardingId, initialValu
                 {/* use 12 instead of 24 for large screen because RadioGroup with row direction has 12px margin bottom */}
                 <Space height={small ? 24 : 12} />
 
-                <Field name="companyType">
-                  {({ value, onChange }) => (
-                    <LakeLabel
-                      label={t("company.step.basicInfo.organisationTypeLabel")}
-                      type="radioGroup"
-                      optionalLabel={t("company.step.basicInfo.organisationTypeOptional")}
-                      render={() => (
-                        <RadioGroup items={companyTypes} value={value} onValueChange={onChange} />
+                <FieldsListener names={["country"]}>
+                  {({ country }) => (
+                    <Field name="companyType">
+                      {({ value, onChange }) => (
+                        <LakeLabel
+                          label={t("company.step.basicInfo.organisationTypeLabel")}
+                          type="radioGroup"
+                          optionalLabel={t("company.step.basicInfo.organisationTypeOptional")}
+                          render={() => (
+                            <RadioGroup
+                              items={getCompanyTypes(country.value)}
+                              value={value}
+                              onValueChange={onChange}
+                            />
+                          )}
+                        />
                       )}
-                    />
+                    </Field>
                   )}
-                </Field>
+                </FieldsListener>
               </Tile>
             </>
           )}

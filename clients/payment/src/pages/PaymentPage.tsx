@@ -8,16 +8,17 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
 import { ErrorView } from "../components/ErrorView";
-import { SddPayment } from "../components/SddPayment";
+import { SddPayment, SDDPaymentLinkFragment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
-import { GetMerchantPaymentLinkQuery, MerchantPaymentMethodType } from "../graphql/unauthenticated";
 import { env } from "../utils/env";
+import { graphql } from "../utils/gql";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -33,22 +34,38 @@ type SupportedMethodType = "Card" | "DirectDebit";
 
 const orderedSupportedMethodTypes: SupportedMethodType[] = ["DirectDebit", "Card"];
 
+export const PaymentPageMerchantLinkFragment = graphql(
+  `
+    fragment PaymentPageMerchantLink on MerchantPaymentLink {
+      id
+      merchantProfile {
+        accentColor
+      }
+      label
+      amount {
+        value
+        currency
+      }
+      paymentMethods {
+        type
+        id
+      }
+      ...SDDPaymentLinkFragment
+    }
+  `,
+  [SDDPaymentLinkFragment],
+);
+
 type Props = {
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
-  setMandateUrl: (value: string) => void;
+  data: FragmentOf<typeof PaymentPageMerchantLinkFragment>;
+  onMandateReceive: (value: string) => void;
   nonEeaCountries: string[];
-  merchantPaymentMethods: { type: MerchantPaymentMethodType; id: string }[];
   large: boolean;
 };
 
-export const PaymentPage = ({
-  paymentLink,
-  setMandateUrl,
-  nonEeaCountries,
-  merchantPaymentMethods,
-  large,
-}: Props) => {
-  const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
+export const PaymentPage = ({ data, onMandateReceive, nonEeaCountries, large }: Props) => {
+  const paymentLink = readFragment(PaymentPageMerchantLinkFragment, data);
+  const methodIds = paymentLink.paymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)
         .with("Card", () => ({ ...acc, Card: id }))
@@ -77,6 +94,10 @@ export const PaymentPage = ({
   );
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
+
+  if (paymentMethods.length === 0) {
+    return <ErrorView />;
+  }
 
   return (
     <WithPartnerAccentColor
@@ -124,7 +145,7 @@ export const PaymentPage = ({
           } else {
             return (
               <CardPayment
-                paymentLink={paymentLink}
+                paymentLinkId={paymentLink.id}
                 paymentMethodId={id}
                 publicKey={env.CLIENT_CHECKOUT_API_KEY}
                 large={large}
@@ -134,9 +155,9 @@ export const PaymentPage = ({
         })
         .with({ name: "Direct Debit" }, () => (
           <SddPayment
+            data={paymentLink}
             nonEeaCountries={nonEeaCountries}
-            paymentLink={paymentLink}
-            setMandateUrl={setMandateUrl}
+            onMandateReceive={onMandateReceive}
             large={large}
           />
         ))

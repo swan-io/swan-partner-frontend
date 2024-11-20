@@ -7,7 +7,6 @@ import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { StyleSheet } from "react-native";
-import { GetMerchantPaymentLinkQuery } from "../graphql/unauthenticated";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -20,10 +19,10 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+  redirectUrl: string | undefined;
 };
 
-export const ExpiredPage = ({ paymentLink }: Props) => {
+export const ExpiredPage = ({ redirectUrl }: Props) => {
   return (
     <Box alignItems="center" justifyContent="center" style={styles.fill}>
       <BorderedIcon name={"lake-warning"} color="warning" size={70} padding={16} />
@@ -35,11 +34,11 @@ export const ExpiredPage = ({ paymentLink }: Props) => {
 
       <Space height={32} />
 
-      {isNotNullish(paymentLink.redirectUrl) && (
+      {isNotNullish(redirectUrl) && (
         <LakeButton
           ariaLabel={t("paymentLink.button.returnToWebsite")}
           mode="secondary"
-          href={paymentLink.redirectUrl}
+          href={redirectUrl}
         >
           {t("paymentLink.button.returnToWebsite")}
         </LakeButton>

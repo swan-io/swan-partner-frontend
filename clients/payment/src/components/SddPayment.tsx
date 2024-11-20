@@ -18,14 +18,10 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { FragmentOf, readFragment } from "gql.tada";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import {
-  AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
-  GetMerchantPaymentLinkQuery,
-  InitiateSddPaymentCollectionDocument,
-  Language,
-} from "../graphql/unauthenticated";
+import { graphql } from "../utils/gql";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -35,10 +31,28 @@ const styles = StyleSheet.create({
   },
 });
 
+export const SDDPaymentLinkFragment = graphql(`
+  fragment SDDPaymentLinkFragment on MerchantPaymentLink {
+    id
+    customer {
+      iban
+      name
+    }
+    billingAddress {
+      addressLine1
+      city
+      postalCode
+    }
+    merchantProfile {
+      merchantName
+    }
+  }
+`);
+
 type Props = {
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+  data: FragmentOf<typeof SDDPaymentLinkFragment>;
   nonEeaCountries: string[];
-  setMandateUrl: (value: string) => void;
+  onMandateReceive: (value: string) => void;
   large: boolean;
 };
 
@@ -60,7 +74,53 @@ const fieldToPathMap = {
   postalCode: ["address", "postalCode"],
 } as const;
 
-export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large }: Props) => {
+const AddSepaDirectDebitPaymentMandateFromPaymentLink = graphql(`
+  mutation AddSepaDirectDebitPaymentMandateFromPaymentLink(
+    $input: AddSepaDirectDebitPaymentMandateFromPaymentLinkInput!
+  ) {
+    addSepaDirectDebitPaymentMandateFromPaymentLink(input: $input) {
+      __typename
+      ... on AddSepaDirectDebitPaymentMandateFromPaymentLinkSuccessPayload {
+        paymentMandate {
+          mandateDocumentUrl
+          id
+        }
+      }
+      ... on ValidationRejection {
+        fields {
+          path
+          message
+        }
+      }
+    }
+  }
+`);
+
+const InitiateMerchantSddPaymentCollectionFromPaymentLink = graphql(`
+  mutation InitiateMerchantSddPaymentCollectionFromPaymentLink(
+    $input: UnauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLinkInput!
+  ) {
+    unauthenticatedInitiateMerchantSddPaymentCollectionFromPaymentLink(input: $input) {
+      __typename
+      ... on ForbiddenRejection {
+        message
+      }
+      ... on InternalErrorRejection {
+        message
+      }
+      ... on ValidationRejection {
+        fields {
+          code
+          message
+          path
+        }
+      }
+    }
+  }
+`);
+
+export const SddPayment = ({ data, nonEeaCountries, onMandateReceive, large }: Props) => {
+  const paymentLink = readFragment(SDDPaymentLinkFragment, data);
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",
@@ -109,11 +169,11 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large 
   });
 
   const [addSepaDirectDebitPaymentMandate, addSepaDirectDebitPaymentMandateData] = useMutation(
-    AddSepaDirectDebitPaymentMandateFromPaymentLinkDocument,
+    AddSepaDirectDebitPaymentMandateFromPaymentLink,
   );
 
   const [initiateSddPaymentCollection, initiateSddPaymentCollectionData] = useMutation(
-    InitiateSddPaymentCollectionDocument,
+    InitiateMerchantSddPaymentCollectionFromPaymentLink,
   );
 
   const onPressSubmit = () => {
@@ -137,7 +197,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large 
                   postalCode,
                 },
               },
-              language: locale.language as Language,
+              language: locale.language === "pt" ? "en" : locale.language,
             },
           })
             .mapOk(data => data.addSepaDirectDebitPaymentMandateFromPaymentLink)
@@ -157,7 +217,7 @@ export const SddPayment = ({ paymentLink, nonEeaCountries, setMandateUrl, large 
                 .mapOk(() => paymentMandate.mandateDocumentUrl),
             )
             .tapOk(mandateUrl => {
-              setMandateUrl(mandateUrl);
+              onMandateReceive(mandateUrl);
               Router.replace("PaymentSuccess", { paymentLinkId: paymentLink.id });
             })
             .tapError(error => {

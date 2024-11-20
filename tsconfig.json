@@ -21,6 +21,30 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": true,
     "forceConsistentCasingInFileNames": true,
-    "typeRoots": ["types", "node_modules/@types"]
+    "typeRoots": ["types", "node_modules/@types"],
+
+    "plugins": [
+      {
+        "name": "gql.tada/ts-plugin",
+        "trackFieldUsage": false,
+        "schemas": [
+          {
+            "name": "partner-admin",
+            "schema": "./scripts/graphql/dist/partner-admin-schema.gql",
+            "tadaOutputLocation": "./scripts/graphql/dist/partner-admin.d.ts"
+          },
+          {
+            "name": "partner",
+            "schema": "./scripts/graphql/dist/partner-schema.gql",
+            "tadaOutputLocation": "./scripts/graphql/dist/partner.d.ts"
+          },
+          {
+            "name": "unauthenticated",
+            "schema": "./scripts/graphql/dist/unauthenticated-schema.gql",
+            "tadaOutputLocation": "./scripts/graphql/dist/unauthenticated.d.ts"
+          }
+        ]
+      }
+    ]
   }
 }

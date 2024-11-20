@@ -13,7 +13,7 @@
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "postinstall": "pnpm graphql-codegen",
+    "postinstall": "pnpm graphql-codegen && pnpm gql-tada generate output",
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",
@@ -90,6 +90,7 @@
     "eslint-plugin-react-native": "4.1.0",
     "eslint-plugin-swan": "file:scripts/eslint",
     "fast-glob": "3.3.2",
+    "gql.tada": "1.8.10",
     "graphql": "16.9.0",
     "lint-staged": "15.2.10",
     "openai": "4.68.2",

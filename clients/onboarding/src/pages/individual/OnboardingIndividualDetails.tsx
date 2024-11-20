@@ -24,11 +24,8 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  EmploymentStatus,
-  MonthlyIncome,
-  UpdateIndividualOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { EmploymentStatus, MonthlyIncome } from "../../graphql/unauthenticated";
+import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -110,7 +107,7 @@ export const OnboardingIndividualDetails = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
 
   const isFirstMount = useFirstMountState();
 

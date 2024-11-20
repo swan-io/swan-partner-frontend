@@ -35,10 +35,7 @@ import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  UnauthenticatedUpdateCompanyOnboardingInput,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -77,6 +74,7 @@ export const CompanyRegistrationOnboardingInfoFragment = graphql(`
   fragment CompanyRegistrationOnboardingInfo on OnboardingInfo {
     email
     projectInfo {
+      id
       name
       tcuDocumentUri(language: $language)
     }
@@ -131,7 +129,7 @@ export const OnboardingCompanyRegistration = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const haveToAcceptTcu =
@@ -205,26 +203,25 @@ export const OnboardingCompanyRegistration = ({
 
         const { address, city, postalCode, country } = currentValues;
 
-        const updateInput: UnauthenticatedUpdateCompanyOnboardingInput = isAddressRequired
-          ? {
-              onboardingId,
-              email: currentValues.email,
-              language: locale.language,
-              legalRepresentativePersonalAddress: {
-                addressLine1: address ?? "",
-                city: city ?? "",
-                postalCode: postalCode ?? "",
-                country: country ?? "",
-              },
-            }
-          : {
-              onboardingId,
-              email: currentValues.email,
-              language: locale.language,
-            };
-
         updateOnboarding({
-          input: updateInput,
+          input:
+            isAddressRequired && country != undefined
+              ? {
+                  onboardingId,
+                  email: currentValues.email,
+                  language: locale.language,
+                  legalRepresentativePersonalAddress: {
+                    addressLine1: address ?? "",
+                    city: city ?? "",
+                    postalCode: postalCode ?? "",
+                    country: country,
+                  },
+                }
+              : {
+                  onboardingId,
+                  email: currentValues.email,
+                  language: locale.language,
+                },
           language: locale.language,
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)

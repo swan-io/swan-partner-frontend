@@ -6,10 +6,8 @@ import dayjs from "dayjs";
 import { ResultOf } from "gql.tada";
 import { match } from "ts-pattern";
 import { type OnboardingStatusInfoFragment } from "../fragments/OnboardingStatusInfoFragment";
-import {
-  UpdateValidationErrorsFragment,
-  ValidationFieldErrorCode,
-} from "../graphql/unauthenticated";
+import { type ValidationRejectionFragment } from "../fragments/ValidationRejectionFragment";
+import { ValidationFieldErrorCode } from "../graphql/unauthenticated";
 import { locale, t } from "./i18n";
 
 export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
@@ -65,7 +63,7 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
 export type ServerInvalidFieldCode = "Missing";
 
 export const extractServerValidationErrors = <T extends string>(
-  { fields }: UpdateValidationErrorsFragment,
+  { fields }: ValidationRejectionFragment,
   pathToFieldName: (path: string[]) => T | null = () => null,
 ): { fieldName: T; code: ValidationFieldErrorCode }[] => {
   return Array.filterMap(fields, ({ path, code }) => {

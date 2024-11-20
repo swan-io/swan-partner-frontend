@@ -24,7 +24,7 @@ import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -83,7 +83,7 @@ export const OnboardingIndividualLocation = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({

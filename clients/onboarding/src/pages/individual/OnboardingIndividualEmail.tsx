@@ -27,7 +27,7 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -60,6 +60,7 @@ export const IndividualEmailOnboardingInfoFragment = graphql(`
   fragment IndividualEmailOnboardingInfo on OnboardingInfo {
     accountCountry
     projectInfo {
+      id
       name
       tcuDocumentUri(language: $language)
     }
@@ -90,7 +91,7 @@ export const OnboardingIndividualEmail = ({
   onSave,
 }: Props) => {
   const onboardingInfo = readFragment(IndividualEmailOnboardingInfoFragment, onboardingInfoData);
-  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const hasToAcceptTcu = onboardingInfo.accountCountry === "DEU";

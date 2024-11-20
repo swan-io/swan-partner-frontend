@@ -107,6 +107,7 @@ export const CompanyOnboardingInfoFragment = graphql(
         ...OnboardingStatusInfo
       }
       projectInfo {
+        id
         ...OnboardingHeader
       }
       supportingDocumentCollection {

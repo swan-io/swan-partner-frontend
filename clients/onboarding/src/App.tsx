@@ -10,12 +10,10 @@ import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
-import {
-  AccountCountry,
-  UpdateCompanyOnboardingDocument,
-  UpdateIndividualOnboardingDocument,
-} from "./graphql/unauthenticated";
+import { AccountCountry } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
+import { UpdateCompanyOnboardingMutation } from "./mutations/UpdateCompanyOnboardingMutation";
+import { UpdateIndividualOnboardingMutation } from "./mutations/UpdateIndividualOnboardingMutation";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import {
@@ -100,11 +98,12 @@ const OnboardingInfoQuery = graphql(
 
 const FlowPicker = ({ onboardingId }: Props) => {
   const [data, { query }] = useDeferredQuery(OnboardingInfoQuery);
+
   const [updateIndividualOnboarding, individualOnboardingUpdate] = useMutation(
-    UpdateIndividualOnboardingDocument,
+    UpdateIndividualOnboardingMutation,
   );
   const [updateCompanyOnboarding, companyOnboardingUpdate] = useMutation(
-    UpdateCompanyOnboardingDocument,
+    UpdateCompanyOnboardingMutation,
   );
 
   useEffect(() => {
@@ -138,9 +137,8 @@ const FlowPicker = ({ onboardingId }: Props) => {
   }
 
   return match(data)
-    .with(P.union(AsyncData.P.NotAsked, AsyncData.P.Loading), () => (
-      <LoadingView color={colors.gray[400]} />
-    ))
+    .with(AsyncData.P.NotAsked, () => <LoadingView color={colors.gray[400]} />)
+    .with(AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ onboardingInfo }) => {
       if (onboardingInfo == null) {

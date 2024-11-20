@@ -19,12 +19,9 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";
-import {
-  DeleteSupportingDocumentDocument,
-  GenerateSupportingDocumentUploadUrlDocument,
-  RequestSupportingDocumentCollectionReviewDocument,
-  SupportingDocumentPurposeEnum,
-} from "../graphql/unauthenticated";
+import { SupportingDocumentPurposeEnum } from "../graphql/unauthenticated";
+import { DeleteSupportingDocumentMutation } from "../mutations/DeleteSupportingDocumentMutation";
+import { GenerateSupportingDocumentUploadUrlMutation } from "../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { graphql } from "../utils/gql";
 import { locale, t } from "../utils/i18n";
@@ -93,6 +90,24 @@ const DocumentsStepTile = ({ small, children }: { small: boolean; children: Reac
   return <Tile>{children}</Tile>;
 };
 
+const RequestSupportingDocumentCollectionReviewMutation = graphql(`
+  mutation RequestSupportingDocumentCollectionReview(
+    $input: RequestSupportingDocumentCollectionReviewInput!
+  ) {
+    requestSupportingDocumentCollectionReview(input: $input) {
+      __typename
+      ... on RequestSupportingDocumentCollectionReviewSuccessPayload {
+        supportingDocumentCollection {
+          id
+        }
+      }
+      ... on Rejection {
+        message
+      }
+    }
+  }
+`);
+
 export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionId }: Props) => {
   const route = Router.useRoute([
     "SupportingDocumentCollectionRoot",
@@ -101,13 +116,13 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
   const [data] = useQuery(SupportingCollectionQuery, { supportingDocumentCollectionId });
 
   const [generateSupportingDocumentUploadUrl] = useMutation(
-    GenerateSupportingDocumentUploadUrlDocument,
+    GenerateSupportingDocumentUploadUrlMutation,
   );
-  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentMutation);
   const [
     requestSupportingDocumentCollectionReviewDocument,
     supportingDocumentCollectionReviewDocumentRequest,
-  ] = useMutation(RequestSupportingDocumentCollectionReviewDocument);
+  ] = useMutation(RequestSupportingDocumentCollectionReviewMutation);
 
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);

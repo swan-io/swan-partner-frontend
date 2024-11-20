@@ -32,10 +32,8 @@ import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  GetCompanyInfoDocument,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { GetCompanyInfoDocument } from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
 import { graphql } from "../../utils/gql";
@@ -140,7 +138,7 @@ export const OnboardingCompanyOrganisation1 = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const canSetTaxIdentification = match({

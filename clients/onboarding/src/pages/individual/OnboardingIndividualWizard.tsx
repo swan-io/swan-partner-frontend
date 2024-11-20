@@ -62,6 +62,7 @@ export const IndividualOnboardingInfoFragment = graphql(
         ...OnboardingStatusInfo
       }
       projectInfo {
+        id
         ...OnboardingHeader
       }
       legalRepresentativeRecommendedIdentificationLevel

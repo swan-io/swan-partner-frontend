@@ -36,8 +36,8 @@ import { getCountryUbo } from "../../constants/ubo";
 import {
   AccountCountry,
   IndividualUltimateBeneficialOwnerInput,
-  UpdateCompanyOnboardingDocument,
 } from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { TranslationKey, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -405,7 +405,7 @@ export const OnboardingCompanyOwnership = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
 
   const currentUbos = useMemo(
     () =>

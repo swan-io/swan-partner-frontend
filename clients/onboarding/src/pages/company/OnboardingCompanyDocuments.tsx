@@ -20,12 +20,10 @@ import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  DeleteSupportingDocumentDocument,
-  GenerateSupportingDocumentUploadUrlDocument,
-  SupportingDocumentPurposeEnum,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { SupportingDocumentPurposeEnum } from "../../graphql/unauthenticated";
+import { DeleteSupportingDocumentMutation } from "../../mutations/DeleteSupportingDocumentMutation";
+import { GenerateSupportingDocumentUploadUrlMutation } from "../../mutations/GenerateSupportingDocumentUploadUrlMutation";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 
@@ -86,11 +84,11 @@ export const OnboardingCompanyDocuments = ({
 }: Props) => {
   const onboardingInfo = readFragment(DocumentsOnboardingInfoFragment, onboardingInfoData);
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const [generateSupportingDocumentUploadUrl] = useMutation(
-    GenerateSupportingDocumentUploadUrlDocument,
+    GenerateSupportingDocumentUploadUrlMutation,
   );
-  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentMutation);
   const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);

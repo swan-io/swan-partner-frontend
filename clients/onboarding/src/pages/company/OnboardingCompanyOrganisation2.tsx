@@ -25,11 +25,8 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  BusinessActivity,
-  MonthlyPaymentVolume,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { BusinessActivity, MonthlyPaymentVolume } from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
@@ -102,7 +99,7 @@ export const OnboardingCompanyOrganisation2 = ({
     accountHolderInfoData,
   );
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const { Field, submitForm, setFieldError } = useForm({

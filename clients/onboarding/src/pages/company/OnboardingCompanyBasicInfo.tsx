@@ -21,11 +21,8 @@ import { FragmentOf, readFragment } from "gql.tada";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import {
-  CompanyType,
-  TypeOfRepresentation,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { CompanyType, TypeOfRepresentation } from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 
@@ -120,7 +117,7 @@ export const OnboardingCompanyBasicInfo = ({
   );
   const onboardingInfo = readFragment(CompanyBasicInfoOnboardingInfoFragment, onboardingInfoData);
 
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
 
   const { Field, submitForm, FieldsListener } = useForm({
     country: {

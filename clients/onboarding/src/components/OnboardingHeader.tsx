@@ -14,7 +14,7 @@ import { graphql } from "../utils/gql";
 import { languages, locale, setPreferredLanguage } from "../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
-import DEFAULT_LOGO from "../../assets/imgs/logo-swan.svg";
+import DEFAULT_LOGO from "../assets/imgs/logo-swan.svg";
 
 const styles = StyleSheet.create({
   container: {
@@ -38,6 +38,7 @@ const styles = StyleSheet.create({
 
 export const OnboardingHeaderFragment = graphql(`
   fragment OnboardingHeader on ProjectInfo {
+    id
     name
     logoUri
   }

@@ -94,14 +94,6 @@ const config: CodegenConfig = {
   },
 
   generates: {
-    [file("../../clients/onboarding/src/graphql/unauthenticated.ts")]: {
-      documents: file("../../clients/onboarding/src/graphql/unauthenticated.gql"),
-      schema: file("./dist/unauthenticated-schema.gql"),
-      plugins: frontendPlugins.filter(item => item !== "typescript-urql-graphcache"),
-      config: frontendConfig,
-      documentTransforms: [{ transform: addTypenames }],
-    },
-
     [file("../../clients/banking/src/graphql/partner.ts")]: {
       documents: file("../../clients/banking/src/graphql/partner.gql"),
       schema: file("./dist/partner-schema.gql"),

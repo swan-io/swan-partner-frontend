@@ -1,18 +1,16 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
-import { useDeferredQuery } from "@swan-io/graphql-client";
+import { useQuery } from "@swan-io/graphql-client";
 import { useCrumb } from "@swan-io/lake/src/components/Breadcrumbs";
-import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
-import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { Suspense, useCallback, useEffect, useMemo } from "react";
+import { Suspense, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageDocument, LastRelevantIdentificationDocument } from "../graphql/partner";
+import { CardPageDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
@@ -42,17 +40,10 @@ type Props = {
   accountMembershipId: string;
   userId: string;
   cardId: string;
-  refetchAccountAreaQuery: () => void;
   large?: boolean;
 };
 
-export const CardItemArea = ({
-  accountMembershipId,
-  userId,
-  cardId,
-  refetchAccountAreaQuery,
-  large = true,
-}: Props) => {
+export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true }: Props) => {
   const route = Router.useRoute([
     "AccountCardsItem",
     "AccountCardsItemPhysicalCard",
@@ -64,41 +55,7 @@ export const CardItemArea = ({
   ]);
 
   const { canPrintPhysicalCard } = usePermissions();
-  const [data, { query }] = useDeferredQuery(CardPageDocument);
-  const [lastRelevantIdentification, { query: queryLastRelevantIdentification }] = useDeferredQuery(
-    LastRelevantIdentificationDocument,
-  );
-
-  const reload = useCallback(() => {
-    query({ cardId }).tapOk(({ card }) => {
-      const cardAccountMembershipId = card?.accountMembership?.id ?? undefined;
-      const hasRequiredIdentificationLevel =
-        card?.accountMembership?.hasRequiredIdentificationLevel ?? undefined;
-
-      if (cardAccountMembershipId != null && hasRequiredIdentificationLevel === false) {
-        return queryLastRelevantIdentification({
-          accountMembershipId: cardAccountMembershipId,
-          identificationProcess: card?.accountMembership?.recommendedIdentificationLevel,
-        });
-      }
-    });
-  }, [cardId, query, queryLastRelevantIdentification]);
-
-  useEffect(() => {
-    const request = query({ cardId }).tapOk(({ card }) => {
-      const cardAccountMembershipId = card?.accountMembership?.id ?? undefined;
-      const hasRequiredIdentificationLevel =
-        card?.accountMembership?.hasRequiredIdentificationLevel ?? undefined;
-
-      if (cardAccountMembershipId != null && hasRequiredIdentificationLevel === false) {
-        return queryLastRelevantIdentification({
-          accountMembershipId: cardAccountMembershipId,
-          identificationProcess: card?.accountMembership?.recommendedIdentificationLevel,
-        });
-      }
-    });
-    return () => request.cancel();
-  }, [cardId, query, queryLastRelevantIdentification]);
+  const [data, { refresh }] = useQuery(CardPageDocument, { cardId });
 
   useCrumb(
     useMemo(() => {
@@ -118,291 +75,194 @@ export const CardItemArea = ({
     }, [data, accountMembershipId, cardId]),
   );
 
-  return match({ data, lastRelevantIdentification })
-    .with(
-      { data: P.union(AsyncData.P.NotAsked, AsyncData.P.Loading) },
-      { lastRelevantIdentification: AsyncData.P.Loading },
-      () => <LoadingView />,
-    )
-    .with({ data: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
-      <ErrorView error={error} />
-    ))
-    .with({ lastRelevantIdentification: AsyncData.P.Done(Result.P.Error(P.select())) }, error => (
-      <ErrorView error={error} />
-    ))
-    .with(
-      {
-        data: AsyncData.Done(Result.P.Ok(P.select("data"))),
-        lastRelevantIdentification: P.select("lastRelevantIdentificationData"),
-      },
-      ({
-        data: {
-          card,
-          projectInfo: { id: projectId, B2BMembershipIDVerification },
-        },
-        lastRelevantIdentificationData,
-      }) => {
-        const lastRelevantIdentification = lastRelevantIdentificationData
-          .toOption()
-          .flatMap(result => result.toOption())
-          .flatMap(lastRelevantIdentification =>
-            Option.fromNullable(
-              lastRelevantIdentification.accountMembership?.user?.identifications?.edges?.[0]?.node,
-            ),
-          );
+  return match(data)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+    .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ card }) => {
+      const shouldShowPhysicalCardTab = match({ canPrintPhysicalCard, card })
+        .with(
+          {
+            canPrintPhysicalCard: true,
+            card: {
+              cardProduct: { applicableToPhysicalCards: true },
+              type: P.not("SingleUseVirtual"),
+            },
+          },
+          () => true,
+        )
+        .with({ card: { type: "VirtualAndPhysical" } }, () => true)
+        .otherwise(() => false);
 
-        const shouldShowPhysicalCardTab = match({ canPrintPhysicalCard, card })
-          .with(
-            {
-              canPrintPhysicalCard: true,
-              card: {
-                cardProduct: { applicableToPhysicalCards: true },
-                type: P.not("SingleUseVirtual"),
+      const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
+
+      if (card == null) {
+        return <ErrorView />;
+      }
+
+      //don't display the previousPhysicalCards if a physicalCard has a "ToRenew" status
+      const cardToDisplay = match(card.physicalCard)
+        .with(
+          {
+            statusInfo: { status: "ToRenew" },
+            previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
+          },
+          physicalCard => ({
+            ...card,
+            physicalCard: { ...physicalCard, previousPhysicalCards: [] },
+          }),
+        )
+        .otherwise(() => ({ ...card }));
+
+      return (
+        <>
+          <TabView
+            padding={large ? 40 : 24}
+            sticky={true}
+            tabs={[
+              {
+                label: t("cardDetail.virtualCard"),
+                url: Router.AccountCardsItem({ accountMembershipId, cardId }),
               },
-            },
-            () => true,
-          )
-          .with({ card: { type: "VirtualAndPhysical" } }, () => true)
-          .otherwise(() => false);
-
-        const isCurrentUserCardOwner = userId === card?.accountMembership.user?.id;
-
-        const membershipStatus = card?.accountMembership.statusInfo;
-
-        const hasStrictlyNoPermission =
-          card?.accountMembership?.canManageAccountMembership === false &&
-          card?.accountMembership?.canInitiatePayments === false &&
-          card?.accountMembership?.canManageBeneficiaries === false &&
-          card?.accountMembership?.canManageCards === false;
-
-        const cardRequiresIdentityVerification =
-          B2BMembershipIDVerification === false && hasStrictlyNoPermission
-            ? false
-            : card?.accountMembership.hasRequiredIdentificationLevel === false;
-
-        const hasBindingUserError =
-          membershipStatus?.__typename === "AccountMembershipBindingUserErrorStatusInfo" &&
-          (membershipStatus.birthDateMatchError ||
-            membershipStatus.firstNameMatchError ||
-            membershipStatus.lastNameMatchError ||
-            membershipStatus.phoneNumberMatchError);
-
-        if (card == null) {
-          return <ErrorView />;
-        }
-
-        //don't display the previousPhysicalCards if a physicalCard has a "ToRenew" status
-        const cardToDisplay = match(card.physicalCard)
-          .with(
-            {
-              statusInfo: { status: "ToRenew" },
-              previousPhysicalCards: [{ isExpired: true }, ...P.array(P._)],
-            },
-            physicalCard => ({
-              ...card,
-              physicalCard: { ...physicalCard, previousPhysicalCards: [] },
-            }),
-          )
-          .otherwise(() => ({ ...card }));
-
-        return (
-          <>
-            <TabView
-              padding={large ? 40 : 24}
-              sticky={true}
-              tabs={[
-                {
-                  label: t("cardDetail.virtualCard"),
-                  url: Router.AccountCardsItem({ accountMembershipId, cardId }),
-                },
-                ...(shouldShowPhysicalCardTab
-                  ? [
-                      {
-                        label: t("cardDetail.physicalCard"),
-                        url: Router.AccountCardsItemPhysicalCard({
-                          accountMembershipId,
-                          cardId,
-                        }),
-                      },
-                    ]
-                  : []),
-                ...match({ isCurrentUserCardOwner, card })
-                  .with(
-                    { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
-                    () => [
-                      {
-                        label: t("cardDetail.mobilePayment"),
-                        url: Router.AccountCardsItemMobilePayment({
-                          accountMembershipId,
-                          cardId,
-                        }),
-                      },
-                    ],
-                  )
-                  .otherwise(() => []),
-                {
-                  label: t("cardDetail.transactions"),
-                  url: Router.AccountCardsItemTransactions({ accountMembershipId, cardId }),
-                },
-                ...match(card)
-                  .with(
+              ...(shouldShowPhysicalCardTab
+                ? [
                     {
-                      statusInfo: {
-                        __typename: P.not(
-                          P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
-                        ),
-                      },
+                      label: t("cardDetail.physicalCard"),
+                      url: Router.AccountCardsItemPhysicalCard({
+                        accountMembershipId,
+                        cardId,
+                      }),
                     },
-                    () => [
-                      {
-                        label: t("cardDetail.settings"),
-                        url: Router.AccountCardsItemSettings({
-                          accountMembershipId,
-                          cardId,
-                        }),
-                      },
-                    ],
-                  )
-                  .otherwise(() => []),
-              ]}
-              otherLabel={t("common.tabs.other")}
-            />
-
-            <Suspense fallback={<LoadingView color={colors.current[500]} />}>
-              {match(route)
-                .with({ name: "AccountCardsItem" }, ({ params: { cardId } }) => (
-                  <ScrollView
-                    style={styles.container}
-                    contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
-                  >
-                    {hasBindingUserError && (
-                      <>
-                        <Space height={24} />
-
-                        <LakeAlert
-                          title={t("card.alert.informationConflict.title")}
-                          variant="error"
-                        >
-                          <LakeText color={colors.gray[500]} variant="regular">
-                            {t("card.alert.informationConflict")}
-                          </LakeText>
-                        </LakeAlert>
-                      </>
-                    )}
-
-                    <CardItemVirtualDetails
-                      hasBindingUserError={hasBindingUserError}
-                      projectId={projectId}
-                      cardId={cardId}
-                      accountMembershipId={accountMembershipId}
-                      card={card}
-                      isCurrentUserCardOwner={isCurrentUserCardOwner}
-                      cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                      onRefreshAccountRequest={refetchAccountAreaQuery}
-                      lastRelevantIdentification={lastRelevantIdentification}
-                    />
-
-                    <Space height={24} />
-                  </ScrollView>
-                ))
+                  ]
+                : []),
+              ...match({ isCurrentUserCardOwner, card })
                 .with(
-                  { name: "AccountCardsItemPhysicalCard" },
-                  ({ params: { cardId, accountMembershipId } }) => (
-                    <ScrollView
-                      style={styles.container}
-                      contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
-                    >
-                      {hasBindingUserError && (
-                        <>
-                          <Space height={24} />
-
-                          <LakeAlert
-                            title={t("card.alert.informationConflict.title")}
-                            variant="error"
-                          >
-                            <LakeText color={colors.gray[500]} variant="regular">
-                              {t("card.alert.informationConflict")}
-                            </LakeText>
-                          </LakeAlert>
-                        </>
-                      )}
-
-                      <CardItemPhysicalDetails
-                        hasBindingUserError={hasBindingUserError}
-                        projectId={projectId}
-                        card={cardToDisplay}
-                        cardId={cardId}
-                        accountMembershipId={accountMembershipId}
-                        isCurrentUserCardOwner={isCurrentUserCardOwner}
-                        onRefreshRequest={reload}
-                        cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                        onRefreshAccountRequest={refetchAccountAreaQuery}
-                        lastRelevantIdentification={lastRelevantIdentification}
-                      />
-
-                      <Space height={24} />
-                    </ScrollView>
-                  ),
+                  { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
+                  () => [
+                    {
+                      label: t("cardDetail.mobilePayment"),
+                      url: Router.AccountCardsItemMobilePayment({
+                        accountMembershipId,
+                        cardId,
+                      }),
+                    },
+                  ],
                 )
-                .with({ name: "AccountCardsItemMobilePayment" }, () => (
-                  <ScrollView
-                    style={styles.container}
-                    contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
-                  >
-                    <Space height={24} />
+                .otherwise(() => []),
+              {
+                label: t("cardDetail.transactions"),
+                url: Router.AccountCardsItemTransactions({ accountMembershipId, cardId }),
+              },
+              ...match(card)
+                .with(
+                  {
+                    statusInfo: {
+                      __typename: P.not(
+                        P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo"),
+                      ),
+                    },
+                  },
+                  () => [
+                    {
+                      label: t("cardDetail.settings"),
+                      url: Router.AccountCardsItemSettings({
+                        accountMembershipId,
+                        cardId,
+                      }),
+                    },
+                  ],
+                )
+                .otherwise(() => []),
+            ]}
+            otherLabel={t("common.tabs.other")}
+          />
 
-                    <CardItemMobilePayment
-                      projectId={projectId}
-                      card={card}
-                      onRefreshRequest={reload}
-                      isCurrentUserCardOwner={isCurrentUserCardOwner}
-                      cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                      onRefreshAccountRequest={refetchAccountAreaQuery}
-                      lastRelevantIdentification={lastRelevantIdentification}
-                    />
-
-                    <Space height={24} />
-                  </ScrollView>
-                ))
-                .with({ name: "AccountCardsItemTransactions" }, ({ params }) => (
-                  <CardItemTransactionList
-                    projectId={projectId}
+          <Suspense fallback={<LoadingView color={colors.current[500]} />}>
+            {match(route)
+              .with({ name: "AccountCardsItem" }, ({ params: { cardId } }) => (
+                <ScrollView
+                  style={styles.container}
+                  contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
+                >
+                  <CardItemVirtualDetails
+                    hasBindingUserError={
+                      card.accountMembership.statusInfo.status === "BindingUserError"
+                    }
+                    cardId={cardId}
+                    accountMembershipId={accountMembershipId}
                     card={card}
-                    params={params}
                     isCurrentUserCardOwner={isCurrentUserCardOwner}
-                    cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                    onRefreshAccountRequest={refetchAccountAreaQuery}
-                    lastRelevantIdentification={lastRelevantIdentification}
                   />
-                ))
-                .with({ name: "AccountCardsItemSettings" }, ({ params: { cardId } }) => (
+
+                  <Space height={24} />
+                </ScrollView>
+              ))
+              .with(
+                { name: "AccountCardsItemPhysicalCard" },
+                ({ params: { cardId, accountMembershipId } }) => (
                   <ScrollView
                     style={styles.container}
                     contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
                   >
-                    <Space height={24} />
-
-                    <CardItemSettings
-                      projectId={projectId}
-                      accountMembershipId={accountMembershipId}
+                    <CardItemPhysicalDetails
+                      hasBindingUserError={
+                        card.accountMembership.statusInfo.status === "BindingUserError"
+                      }
+                      card={cardToDisplay}
                       cardId={cardId}
-                      card={card}
+                      accountMembershipId={accountMembershipId}
                       isCurrentUserCardOwner={isCurrentUserCardOwner}
-                      cardRequiresIdentityVerification={cardRequiresIdentityVerification}
-                      onRefreshAccountRequest={refetchAccountAreaQuery}
-                      lastRelevantIdentification={lastRelevantIdentification}
+                      onRefreshRequest={() => {
+                        refresh();
+                      }}
                     />
 
                     <Space height={24} />
                   </ScrollView>
-                ))
-                .otherwise(() => (
-                  <ErrorView />
-                ))}
-            </Suspense>
-          </>
-        );
-      },
-    )
+                ),
+              )
+              .with({ name: "AccountCardsItemMobilePayment" }, () => (
+                <ScrollView
+                  style={styles.container}
+                  contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
+                >
+                  <Space height={24} />
+
+                  <CardItemMobilePayment
+                    card={card}
+                    onRefreshRequest={() => {
+                      refresh();
+                    }}
+                  />
+
+                  <Space height={24} />
+                </ScrollView>
+              ))
+              .with({ name: "AccountCardsItemTransactions" }, ({ params }) => (
+                <CardItemTransactionList params={params} />
+              ))
+              .with({ name: "AccountCardsItemSettings" }, ({ params: { cardId } }) => (
+                <ScrollView
+                  style={styles.container}
+                  contentContainerStyle={[styles.contents, large && styles.contentsLarge]}
+                >
+                  <Space height={24} />
+
+                  <CardItemSettings
+                    accountMembershipId={accountMembershipId}
+                    cardId={cardId}
+                    card={card}
+                  />
+
+                  <Space height={24} />
+                </ScrollView>
+              ))
+              .otherwise(() => (
+                <ErrorView />
+              ))}
+          </Suspense>
+        </>
+      );
+    })
     .otherwise(() => <ErrorView />);
 };

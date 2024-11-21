@@ -3,8 +3,9 @@ import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabelledCheckbox } from "@swan-io/lake/src/components/LakeCheckbox";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { backgroundColor } from "@swan-io/lake/src/constants/design";
+import { backgroundColor, colors } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { ConfirmModal } from "@swan-io/shared-business/src/components/ConfirmModal";
@@ -107,12 +108,13 @@ export const MembershipDetailRights = ({
     )
     .otherwise(() => undefined);
 
-  const { Field, submitForm } = useForm({
+  const { Field, FieldsListener, submitForm } = useForm({
     canViewAccount: {
       initialValue: editingAccountMembership.canViewAccount,
     },
     canInitiatePayments: {
       initialValue: editingAccountMembership.canInitiatePayments,
+      validate: validateSensitivePermission,
     },
     canManageBeneficiaries: {
       initialValue: editingAccountMembership.canManageBeneficiaries,
@@ -124,7 +126,6 @@ export const MembershipDetailRights = ({
     },
     canManageCards: {
       initialValue: editingAccountMembership.canManageCards,
-      validate: validateSensitivePermission,
     },
   });
 
@@ -369,6 +370,24 @@ export const MembershipDetailRights = ({
           />
         )}
       </Field>
+
+      <FieldsListener
+        names={["canInitiatePayments", "canManageAccountMembership", "canManageBeneficiaries"]}
+      >
+        {({ canInitiatePayments, canManageAccountMembership, canManageBeneficiaries }) =>
+          canInitiatePayments.error != null ||
+          canManageAccountMembership.error != null ||
+          canManageBeneficiaries.error != null ? (
+            <>
+              <Space height={16} />
+
+              <LakeText color={colors.negative[500]}>
+                {t("membershipDetail.edit.sensitivePermissionsRequirePhoneNumber")}
+              </LakeText>
+            </>
+          ) : null
+        }
+      </FieldsListener>
 
       <Fill minHeight={24} />
 

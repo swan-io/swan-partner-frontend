@@ -7,21 +7,14 @@ import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
-import { Space } from "@swan-io/lake/src/components/Space";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
-import {
-  CardPageQuery,
-  CardTransactionsPageDocument,
-  IdentificationFragment,
-} from "../graphql/partner";
-import { getMemberName } from "../utils/accountMembership";
+import { CardTransactionsPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
-import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
@@ -45,14 +38,6 @@ const styles = StyleSheet.create({
 const NUM_TO_RENDER = 20;
 
 type Props = {
-  card: Card;
-  projectId: string;
-
-  isCurrentUserCardOwner: boolean;
-  cardRequiresIdentityVerification: boolean;
-  onRefreshAccountRequest: () => void;
-  lastRelevantIdentification: Option<IdentificationFragment>;
-
   params: GetRouteParams<"AccountCardsItemTransactions">;
 };
 
@@ -70,17 +55,7 @@ const DEFAULT_STATUSES = [
   "Rejected" as const,
 ];
 
-type Card = NonNullable<CardPageQuery["card"]>;
-
-export const CardItemTransactionList = ({
-  card: cardFromProps,
-  projectId,
-  params,
-  isCurrentUserCardOwner,
-  cardRequiresIdentityVerification,
-  onRefreshAccountRequest,
-  lastRelevantIdentification,
-}: Props) => {
+export const CardItemTransactionList = ({ params }: Props) => {
   const filters: TransactionFilters = useMemo(() => {
     return {
       isAfterUpdatedAt: params.isAfterUpdatedAt,
@@ -202,33 +177,7 @@ export const CardItemTransactionList = ({
                                 icon="lake-transfer"
                                 borderedIcon={true}
                                 title={t("transansactionList.noResults")}
-                              >
-                                {cardRequiresIdentityVerification ? (
-                                  <>
-                                    <Space height={24} />
-
-                                    <CardItemIdentityVerificationGate
-                                      recommendedIdentificationLevel={
-                                        card?.accountMembership.recommendedIdentificationLevel ??
-                                        "Expert"
-                                      }
-                                      isCurrentUserCardOwner={isCurrentUserCardOwner}
-                                      projectId={projectId}
-                                      description={t("card.identityVerification.transactions")}
-                                      descriptionForOtherMember={t(
-                                        "card.identityVerification.transactions.otherMember",
-                                        {
-                                          name: getMemberName({
-                                            accountMembership: cardFromProps.accountMembership,
-                                          }),
-                                        },
-                                      )}
-                                      onComplete={onRefreshAccountRequest}
-                                      lastRelevantIdentification={lastRelevantIdentification}
-                                    />
-                                  </>
-                                ) : null}
-                              </EmptyView>
+                              />
                             )
                           }
                         />

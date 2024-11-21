@@ -260,18 +260,22 @@ export const FullNameAndStatusCell = ({
 
       <Space width={16} />
 
-      {match(accountMembership.statusInfo)
-        .with({ __typename: "AccountMembershipEnabledStatusInfo" }, () => (
+      {match(accountMembership)
+        .with({ statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } }, () => (
           <Tag color="positive">{t("memberships.status.active")}</Tag>
         ))
         .with(
           {
-            __typename: "AccountMembershipBindingUserErrorStatusInfo",
-            idVerifiedMatchError: true,
+            statusInfo: {
+              __typename: "AccountMembershipBindingUserErrorStatusInfo",
+              idVerifiedMatchError: true,
+            },
           },
           {
-            __typename: "AccountMembershipBindingUserErrorStatusInfo",
-            emailVerifiedMatchError: true,
+            statusInfo: {
+              __typename: "AccountMembershipBindingUserErrorStatusInfo",
+              emailVerifiedMatchError: true,
+            },
             user: { verifiedEmails: [] },
           },
           () => (
@@ -280,23 +284,26 @@ export const FullNameAndStatusCell = ({
             </>
           ),
         )
-        .with({ __typename: "AccountMembershipBindingUserErrorStatusInfo" }, () => (
+        .with({ statusInfo: { __typename: "AccountMembershipBindingUserErrorStatusInfo" } }, () => (
           <>
             <Tag color="negative">{t("memberships.status.conflict")}</Tag>
             <Space width={16} />
             <View style={styles.notificationPill} />
           </>
         ))
-        .with({ __typename: "AccountMembershipInvitationSentStatusInfo" }, () => (
+        .with({ statusInfo: { __typename: "AccountMembershipInvitationSentStatusInfo" } }, () => (
           <Tag color="shakespear">{t("memberships.status.invitationSent")}</Tag>
         ))
-        .with({ __typename: "AccountMembershipSuspendedStatusInfo" }, () => (
+        .with({ statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } }, () => (
           <Tag color="warning">{t("memberships.status.temporarilyBlocked")}</Tag>
         ))
-        .with({ __typename: "AccountMembershipDisabledStatusInfo" }, () => (
+        .with({ statusInfo: { __typename: "AccountMembershipDisabledStatusInfo" } }, () => (
           <Tag color="gray">{t("memberships.status.permanentlyBlocked")}</Tag>
         ))
-        .with({ __typename: "AccountMembershipConsentPendingStatusInfo" }, () => null)
+        .with(
+          { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+          () => null,
+        )
         .exhaustive()}
     </Cell>
   );

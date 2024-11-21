@@ -941,6 +941,7 @@ query CardPage($cardId: ID!) {
           firstNameMatchError
           lastNameMatchError
           phoneNumberMatchError
+          emailVerifiedMatchError
           birthDateMatchError
           restrictedTo {
             firstName
@@ -964,6 +965,7 @@ query CardPage($cardId: ID!) {
           QES
           PVID
         }
+        verifiedEmails
       }
       account {
         id

@@ -20,15 +20,8 @@ import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import applePayLogo from "../assets/images/apple-pay.svg";
 import googlePayLogo from "../assets/images/google-pay.svg";
-import {
-  CancelDigitalCardDocument,
-  CardPageQuery,
-  DigitalCardFragment,
-  IdentificationFragment,
-} from "../graphql/partner";
-import { getMemberName } from "../utils/accountMembership";
+import { CancelDigitalCardDocument, CardPageQuery, DigitalCardFragment } from "../graphql/partner";
 import { t } from "../utils/i18n";
-import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 
 const styles = StyleSheet.create({
   providerLogo: {
@@ -107,22 +100,9 @@ const DigitalCardTile = ({
 type Props = {
   card: Card;
   onRefreshRequest: () => void;
-  cardRequiresIdentityVerification: boolean;
-  isCurrentUserCardOwner: boolean;
-  onRefreshAccountRequest: () => void;
-  projectId: string;
-  lastRelevantIdentification: Option<IdentificationFragment>;
 };
 
-export const CardItemMobilePayment = ({
-  card,
-  onRefreshRequest,
-  cardRequiresIdentityVerification,
-  isCurrentUserCardOwner,
-  onRefreshAccountRequest,
-  projectId,
-  lastRelevantIdentification,
-}: Props) => {
+export const CardItemMobilePayment = ({ card, onRefreshRequest }: Props) => {
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<
     Option<CompleteDigitalCard>
   >(Option.None());
@@ -165,28 +145,7 @@ export const CardItemMobilePayment = ({
               icon="lake-phone"
               title={t("card.mobilePayment.empty")}
               subtitle={t("card.mobilePayment.empty.description")}
-            >
-              {cardRequiresIdentityVerification ? (
-                <>
-                  <Space height={24} />
-
-                  <CardItemIdentityVerificationGate
-                    recommendedIdentificationLevel={
-                      card.accountMembership.recommendedIdentificationLevel
-                    }
-                    isCurrentUserCardOwner={isCurrentUserCardOwner}
-                    projectId={projectId}
-                    description={t("card.identityVerification.mobilePayments")}
-                    descriptionForOtherMember={t(
-                      "card.identityVerification.mobilePayments.otherMember",
-                      { name: getMemberName({ accountMembership: card.accountMembership }) },
-                    )}
-                    onComplete={onRefreshAccountRequest}
-                    lastRelevantIdentification={lastRelevantIdentification}
-                  />
-                </>
-              ) : null}
-            </EmptyView>
+            />
           </View>
         ))
         .otherwise(digitalCards =>

@@ -43,7 +43,6 @@ import {
   CardPageQuery,
   CompleteAddressInput,
   ConfirmPhysicalCardRenewalDocument,
-  IdentificationFragment,
   PrintPhysicalCardDocument,
   ResumePhysicalCardDocument,
   SuspendPhysicalCardDocument,
@@ -56,7 +55,6 @@ import { partnerClient } from "../utils/gql";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNullableRequired, validateRequired } from "../utils/validations";
-import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { Address } from "./CardItemPhysicalDeliveryAddressForm";
 import { CardItemPhysicalDeliveryWizard } from "./CardItemPhysicalDeliveryWizard";
 import { CardItemPhysicalRenewalWizard } from "./CardItemPhysicalRenewalWizard";
@@ -321,26 +319,18 @@ const CardItemPhysicalActivationForm = ({
 
 type Props = {
   card: Card;
-  projectId: string;
   cardId: string;
   accountMembershipId: string;
   isCurrentUserCardOwner: boolean;
-  cardRequiresIdentityVerification: boolean;
   onRefreshRequest: () => void;
-  onRefreshAccountRequest: () => void;
-  lastRelevantIdentification: Option<IdentificationFragment>;
   hasBindingUserError: boolean;
 };
 
 export const CardItemPhysicalDetails = ({
-  projectId,
   cardId,
   accountMembershipId,
   card,
   isCurrentUserCardOwner,
-  cardRequiresIdentityVerification,
-  onRefreshAccountRequest,
-  lastRelevantIdentification,
   onRefreshRequest,
   hasBindingUserError,
 }: Props) => {
@@ -865,29 +855,6 @@ export const CardItemPhysicalDetails = ({
                           />
                         ))
                     : null}
-
-                  {cardRequiresIdentityVerification ? (
-                    <>
-                      <Space height={24} />
-
-                      <CardItemIdentityVerificationGate
-                        recommendedIdentificationLevel={
-                          card.accountMembership.recommendedIdentificationLevel
-                        }
-                        isCurrentUserCardOwner={isCurrentUserCardOwner}
-                        projectId={projectId}
-                        description={t("card.identityVerification.payments")}
-                        descriptionForOtherMember={t(
-                          "card.identityVerification.payments.otherMember",
-                          {
-                            name: getMemberName({ accountMembership: card.accountMembership }),
-                          },
-                        )}
-                        onComplete={onRefreshAccountRequest}
-                        lastRelevantIdentification={lastRelevantIdentification}
-                      />
-                    </>
-                  ) : null}
 
                   {match({ card, canOrderPhysicalCard })
                     .with(

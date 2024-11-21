@@ -152,11 +152,13 @@ export const MembershipDetailArea = ({
           <View style={styles.container}>
             <ListRightPanelContent large={large}>
               <Tile
-                footer={match(accountMembership.statusInfo)
+                footer={match(accountMembership)
                   .with(
                     {
-                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                      emailVerifiedMatchError: true,
+                      statusInfo: {
+                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                        emailVerifiedMatchError: true,
+                      },
                       user: { verifiedEmails: [] },
                     },
                     () => (
@@ -169,8 +171,10 @@ export const MembershipDetailArea = ({
                   )
                   .with(
                     {
-                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                      idVerifiedMatchError: true,
+                      statusInfo: {
+                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                        idVerifiedMatchError: true,
+                      },
                     },
                     () => (
                       <LakeAlert
@@ -180,45 +184,60 @@ export const MembershipDetailArea = ({
                       />
                     ),
                   )
-                  .with({ __typename: "AccountMembershipBindingUserErrorStatusInfo" }, () => (
-                    <LakeAlert
-                      anchored={true}
-                      title={t("membershipDetail.bindingUserError.description")}
-                      variant="error"
-                    />
-                  ))
+                  .with(
+                    { statusInfo: { __typename: "AccountMembershipBindingUserErrorStatusInfo" } },
+                    () => (
+                      <LakeAlert
+                        anchored={true}
+                        title={t("membershipDetail.bindingUserError.description")}
+                        variant="error"
+                      />
+                    ),
+                  )
                   .otherwise(() => null)}
               >
                 <Box alignItems="center">
-                  {match(accountMembership.statusInfo)
-                    .with({ __typename: "AccountMembershipEnabledStatusInfo" }, () => (
-                      <Tag color="positive">{t("memberships.status.active")}</Tag>
-                    ))
+                  {match(accountMembership)
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" } },
+                      () => <Tag color="positive">{t("memberships.status.active")}</Tag>,
+                    )
                     .with(
                       {
-                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                        idVerifiedMatchError: true,
+                        statusInfo: {
+                          __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                          idVerifiedMatchError: true,
+                        },
                       },
                       {
-                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                        emailVerifiedMatchError: true,
+                        statusInfo: {
+                          __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                          emailVerifiedMatchError: true,
+                        },
                         user: { verifiedEmails: [] },
                       },
                       () => <Tag color="warning">{t("memberships.status.limitedAccess")}</Tag>,
                     )
-                    .with({ __typename: "AccountMembershipBindingUserErrorStatusInfo" }, () => (
-                      <Tag color="negative">{t("memberships.status.conflict")}</Tag>
-                    ))
-                    .with({ __typename: "AccountMembershipInvitationSentStatusInfo" }, () => (
-                      <Tag color="shakespear">{t("memberships.status.invitationSent")}</Tag>
-                    ))
-                    .with({ __typename: "AccountMembershipSuspendedStatusInfo" }, () => (
-                      <Tag color="warning">{t("memberships.status.temporarilyBlocked")}</Tag>
-                    ))
-                    .with({ __typename: "AccountMembershipDisabledStatusInfo" }, () => (
-                      <Tag color="gray">{t("memberships.status.permanentlyBlocked")}</Tag>
-                    ))
-                    .with({ __typename: "AccountMembershipConsentPendingStatusInfo" }, () => null)
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipBindingUserErrorStatusInfo" } },
+                      () => <Tag color="negative">{t("memberships.status.conflict")}</Tag>,
+                    )
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipInvitationSentStatusInfo" } },
+                      () => <Tag color="shakespear">{t("memberships.status.invitationSent")}</Tag>,
+                    )
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipSuspendedStatusInfo" } },
+                      () => <Tag color="warning">{t("memberships.status.temporarilyBlocked")}</Tag>,
+                    )
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipDisabledStatusInfo" } },
+                      () => <Tag color="gray">{t("memberships.status.permanentlyBlocked")}</Tag>,
+                    )
+                    .with(
+                      { statusInfo: { __typename: "AccountMembershipConsentPendingStatusInfo" } },
+                      () => null,
+                    )
                     .exhaustive()}
 
                   <Space height={12} />

@@ -403,16 +403,7 @@ export const AccountArea = ({
                   </Pressable>
 
                   <Space height={12} />
-
-                  <ProfileButton
-                    identificationStatusInfo={lastRelevantIdentification.map(
-                      getIdentificationLevelStatusInfo,
-                    )}
-                    user={user}
-                    accountMembershipId={accountMembershipId}
-                    shouldDisplayIdVerification={shouldDisplayIdVerification}
-                    hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                  />
+                  <ProfileButton user={user} accountMembershipId={accountMembershipId} />
                 </SidebarNavigationTracker>
               )}
 
@@ -480,6 +471,9 @@ export const AccountArea = ({
                                 account?.balances?.available.value != null
                                   ? Number(account?.balances?.available.value)
                                   : null,
+                              lastRelevantIdentification: lastRelevantIdentification.map(
+                                getIdentificationLevelStatusInfo,
+                              ),
                             })
                               .with(
                                 {
@@ -490,22 +484,43 @@ export const AccountArea = ({
                                     },
                                     user: { verifiedEmails: [] },
                                   },
+                                  lastRelevantIdentification: Option.P.Some({ status: "Pending" }),
                                 },
-                                ({
-                                  accountMembership: { recommendedIdentificationLevel, email },
-                                }) => (
+                                () => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="info"
+                                          title={t("account.statusAlert.pendingIdentification")}
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                      idVerifiedMatchError: true,
+                                    },
+                                  },
+                                },
+                                ({ accountMembership: { recommendedIdentificationLevel } }) => (
                                   <ResponsiveContainer breakpoint={breakpoints.large}>
                                     {({ large }) => (
                                       <View style={[styles.alert, large && styles.alertLarge]}>
                                         <LakeAlert
                                           variant="warning"
-                                          title={t("accountMembership.verifyEmailAlert")}
+                                          title={t("account.statusAlert.missingIdentification")}
                                           callToAction={
                                             <LakeButton
                                               size="small"
                                               mode="tertiary"
                                               color="warning"
-                                              icon="arrow-swap-regular"
+                                              icon="shield-checkmark-regular"
                                               onPress={() => {
                                                 const params = new URLSearchParams();
 
@@ -531,9 +546,86 @@ export const AccountArea = ({
                                                 );
                                               }}
                                             >
-                                              {t("account.statusAlert.transferBalance")}
+                                              {t("account.statusAlert.verifyIdentity")}
                                             </LakeButton>
                                           }
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                      idVerifiedMatchError: true,
+                                    },
+                                  },
+                                },
+                                ({ accountMembership: { recommendedIdentificationLevel } }) => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="warning"
+                                          title={t("account.statusAlert.missingIdentification")}
+                                          callToAction={
+                                            <LakeButton
+                                              size="small"
+                                              mode="tertiary"
+                                              color="warning"
+                                              icon="shield-checkmark-regular"
+                                              onPress={() => {
+                                                const params = new URLSearchParams();
+
+                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "identificationLevel",
+                                                  recommendedIdentificationLevel,
+                                                );
+                                                params.set("email", email);
+
+                                                match(
+                                                  projectConfiguration.map(
+                                                    ({ projectId }) => projectId,
+                                                  ),
+                                                )
+                                                  .with(Option.P.Some(P.select()), projectId =>
+                                                    params.set("projectId", projectId),
+                                                  )
+                                                  .otherwise(() => {});
+
+                                                window.location.replace(
+                                                  `/auth/login?${params.toString()}`,
+                                                );
+                                              }}
+                                            >
+                                              {t("account.statusAlert.verifyIdentity")}
+                                            </LakeButton>
+                                          }
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                    },
+                                  },
+                                },
+                                () => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="error"
+                                          title={t("account.statusAlert.conflict")}
                                         />
                                       </View>
                                     )}
@@ -653,15 +745,8 @@ export const AccountArea = ({
                               .with({ name: "AccountProfile" }, () => (
                                 <ProfilePage
                                   accentColor={accentColor}
-                                  recommendedIdentificationLevel={
-                                    accountMembership.recommendedIdentificationLevel
-                                  }
                                   additionalInfo={additionalInfo}
-                                  refetchAccountAreaQuery={reload}
                                   email={accountMembership.email}
-                                  shouldDisplayIdVerification={shouldDisplayIdVerification}
-                                  hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                                  lastRelevantIdentification={lastRelevantIdentification}
                                 />
                               ))
                               .with({ name: "AccountDetailsArea" }, () =>
@@ -714,7 +799,6 @@ export const AccountArea = ({
                                     accountMembershipId={accountMembershipId}
                                     accountId={accountId}
                                     userId={userId}
-                                    refetchAccountAreaQuery={reload}
                                     accountMembership={accountMembership}
                                   />
                                 ) : (

@@ -21,7 +21,7 @@ import {
   invariantColors,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { useMemo, useState } from "react";
@@ -66,6 +66,7 @@ type Props = {
 
 export const Preview = ({
   params: {
+    cancelUrl,
     accentColor,
     logo,
     merchantName,
@@ -86,7 +87,7 @@ export const Preview = ({
   const hasNoPaymentMethods = sepaDirectDebit == null && card == null;
 
   const paymentMethods = [
-    ...(sepaDirectDebit != null || hasNoPaymentMethods
+    ...(sepaDirectDebit != null
       ? [
           {
             id: "1",
@@ -95,7 +96,7 @@ export const Preview = ({
           },
         ]
       : []),
-    ...(card != null || hasNoPaymentMethods
+    ...(card != null
       ? [
           {
             id: "2",
@@ -117,14 +118,16 @@ export const Preview = ({
             <ScrollView contentContainerStyle={styles.content}>
               <>
                 <Box direction="row" alignItems="center">
-                  <LakeButton
-                    ariaLabel={t("common.cancel")}
-                    icon="dismiss-regular"
-                    mode="tertiary"
-                    onPress={() => {}}
-                  >
-                    {large ? t("common.cancel") : null}
-                  </LakeButton>
+                  {isNotNullishOrEmpty(cancelUrl) ? (
+                    <LakeButton
+                      ariaLabel={t("common.cancel")}
+                      icon="dismiss-regular"
+                      mode="tertiary"
+                      onPress={() => {}}
+                    >
+                      {large ? t("common.cancel") : null}
+                    </LakeButton>
+                  ) : null}
 
                   <Fill minWidth={16} />
 
@@ -169,131 +172,137 @@ export const Preview = ({
 
               <Space height={32} />
 
-              {isNotNullish(selectedPaymentMethod) && (
-                <LakeLabel
-                  style={
-                    large && (card == null || sepaDirectDebit == null)
-                      ? styles.segmentedControlDesktop
-                      : styles.segmentedControl
-                  }
-                  label={t("paymentLink.paymentMethod")}
-                  render={() => (
-                    <SegmentedControl
-                      minItemWidth={250}
-                      selected={selectedPaymentMethod.id}
-                      items={paymentMethods}
-                      onValueChange={id => {
-                        setSelectedPaymentMethod(paymentMethods.find(method => method.id === id));
-                      }}
-                    />
-                  )}
-                />
-              )}
-
-              <Space height={24} />
-
-              {match(selectedPaymentMethod)
-                .with({ name: "Card" }, () => (
-                  <>
-                    <Box>
-                      <LakeLabel
-                        label={t("paymentLink.card.cardNumber")}
-                        render={() => (
-                          <Box direction="row" grow={1} shrink={1}>
-                            <LakeTextInput value={""} />
-                          </Box>
-                        )}
-                      />
-                    </Box>
-
-                    <Box direction={large ? "row" : "column"}>
-                      <Box grow={1}>
-                        <LakeLabel
-                          label={t("paymentLink.card.expiryDate")}
-                          render={() => <LakeTextInput value={""} />}
-                        />
-                      </Box>
-
-                      <Space width={24} />
-
-                      <Box grow={1}>
-                        <LakeLabel
-                          label={t("paymentLink.card.cvv")}
-                          render={() => <LakeTextInput value={""} />}
-                        />
-                      </Box>
-                    </Box>
-
-                    <Space height={32} />
-
-                    <LakeButton color="partner" onPress={() => {}}>
-                      {t("button.pay")}
-                    </LakeButton>
-                  </>
-                ))
-                .with({ name: "Direct Debit" }, () => (
-                  <>
+              {!hasNoPaymentMethods && (
+                <>
+                  {isNotNullish(selectedPaymentMethod) && (
                     <LakeLabel
-                      label={t("paymentLink.iban")}
-                      render={() => <LakeTextInput value={""} />}
-                    />
-
-                    <LakeLabel
-                      label={t("paymentLink.country")}
-                      render={id => (
-                        <CountryPicker
-                          id={id}
-                          countries={allCountries}
-                          value={"FRA"}
-                          onValueChange={() => {}}
+                      style={
+                        large && (card == null || sepaDirectDebit == null)
+                          ? styles.segmentedControlDesktop
+                          : styles.segmentedControl
+                      }
+                      label={t("paymentLink.paymentMethod")}
+                      render={() => (
+                        <SegmentedControl
+                          minItemWidth={250}
+                          selected={selectedPaymentMethod.id}
+                          items={paymentMethods}
+                          onValueChange={id => {
+                            setSelectedPaymentMethod(
+                              paymentMethods.find(method => method.id === id),
+                            );
+                          }}
                         />
                       )}
                     />
+                  )}
 
-                    <LakeLabel
-                      label={t("paymentLink.name")}
-                      render={() => <LakeTextInput value={""} />}
-                    />
+                  <Space height={24} />
 
-                    <LakeLabel
-                      label={t("paymentLink.addressLine1")}
-                      render={() => <LakeTextInput value={""} />}
-                    />
+                  {match(selectedPaymentMethod)
+                    .with({ name: "Card" }, () => (
+                      <>
+                        <Box>
+                          <LakeLabel
+                            label={t("paymentLink.card.cardNumber")}
+                            render={() => (
+                              <Box direction="row" grow={1} shrink={1}>
+                                <LakeTextInput value={""} />
+                              </Box>
+                            )}
+                          />
+                        </Box>
 
-                    <Box direction={large ? "row" : "column"}>
-                      <Box grow={1}>
+                        <Box direction={large ? "row" : "column"}>
+                          <Box grow={1}>
+                            <LakeLabel
+                              label={t("paymentLink.card.expiryDate")}
+                              render={() => <LakeTextInput value={""} />}
+                            />
+                          </Box>
+
+                          <Space width={24} />
+
+                          <Box grow={1}>
+                            <LakeLabel
+                              label={t("paymentLink.card.cvv")}
+                              render={() => <LakeTextInput value={""} />}
+                            />
+                          </Box>
+                        </Box>
+
+                        <Space height={32} />
+
+                        <LakeButton color="partner" onPress={() => {}}>
+                          {t("button.pay")}
+                        </LakeButton>
+                      </>
+                    ))
+                    .with({ name: "Direct Debit" }, () => (
+                      <>
                         <LakeLabel
-                          label={t("paymentLink.city")}
+                          label={t("paymentLink.iban")}
                           render={() => <LakeTextInput value={""} />}
                         />
-                      </Box>
 
-                      <Space width={24} />
-
-                      <Box grow={1}>
                         <LakeLabel
-                          label={t("paymentLink.postalCode")}
+                          label={t("paymentLink.country")}
+                          render={id => (
+                            <CountryPicker
+                              id={id}
+                              countries={allCountries}
+                              value={"FRA"}
+                              onValueChange={() => {}}
+                            />
+                          )}
+                        />
+
+                        <LakeLabel
+                          label={t("paymentLink.name")}
                           render={() => <LakeTextInput value={""} />}
                         />
-                      </Box>
-                    </Box>
 
-                    <Space height={32} />
+                        <LakeLabel
+                          label={t("paymentLink.addressLine1")}
+                          render={() => <LakeTextInput value={""} />}
+                        />
 
-                    <LakeButton color="partner" onPress={() => {}}>
-                      {t("button.pay")}
-                    </LakeButton>
+                        <Box direction={large ? "row" : "column"}>
+                          <Box grow={1}>
+                            <LakeLabel
+                              label={t("paymentLink.city")}
+                              render={() => <LakeTextInput value={""} />}
+                            />
+                          </Box>
 
-                    <Space height={32} />
+                          <Space width={24} />
 
-                    {isNotNullish(merchantName) && (
-                      <LakeText color={colors.gray[700]} align="center" variant="smallRegular">
-                        {t("paymentLink.termsAndConditions", { merchantName })}
-                      </LakeText>
-                    )}
-                  </>
-                ))
-                .otherwise(() => null)}
+                          <Box grow={1}>
+                            <LakeLabel
+                              label={t("paymentLink.postalCode")}
+                              render={() => <LakeTextInput value={""} />}
+                            />
+                          </Box>
+                        </Box>
+
+                        <Space height={32} />
+
+                        <LakeButton color="partner" onPress={() => {}}>
+                          {t("button.pay")}
+                        </LakeButton>
+
+                        <Space height={32} />
+
+                        {isNotNullish(merchantName) && (
+                          <LakeText color={colors.gray[700]} align="center" variant="smallRegular">
+                            {t("paymentLink.termsAndConditions", { merchantName })}
+                          </LakeText>
+                        )}
+                      </>
+                    ))
+                    .otherwise(() => null)}
+                </>
+              )}
             </ScrollView>
           </View>
         )}

@@ -10,21 +10,20 @@ import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
-import { AccountCountry } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
 import { UpdateCompanyOnboardingMutation } from "./mutations/UpdateCompanyOnboardingMutation";
 import { UpdateIndividualOnboardingMutation } from "./mutations/UpdateIndividualOnboardingMutation";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import {
-  CompanyAccountHolderInfoFragment,
-  CompanyOnboardingInfoFragment,
   OnboardingCompanyWizard,
-} from "./pages/company/CompanyOnboardingWizard";
+  OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
+  OnboardingCompanyWizard_OnboardingInfo,
+} from "./pages/company/OnboardingCompanyWizard";
 import {
-  IndividualAccountHolderInfoFragment,
-  IndividualOnboardingInfoFragment,
   OnboardingIndividualWizard,
+  OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
+  OnboardingIndividualWizard_OnboardingInfo,
 } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
 import { client, graphql } from "./utils/gql";
@@ -33,6 +32,8 @@ import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { updateTgglContext } from "./utils/tggl";
+
+type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 type Props = {
   onboardingId: string;
@@ -74,25 +75,25 @@ const OnboardingInfoQuery = graphql(
           accentColor
           name
         }
-        ...CompanyOnboardingInfo
-        ...IndividualOnboardingInfo
+        ...OnboardingCompanyWizard_OnboardingInfo
+        ...OnboardingIndividualWizard_OnboardingInfo
         info {
           __typename
           ... on OnboardingCompanyAccountHolderInfo {
-            ...CompanyAccountHolderInfo
+            ...OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
           }
           ... on OnboardingIndividualAccountHolderInfo {
-            ...IndividualAccountHolderInfo
+            ...OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
           }
         }
       }
     }
   `,
   [
-    CompanyAccountHolderInfoFragment,
-    CompanyOnboardingInfoFragment,
-    IndividualAccountHolderInfoFragment,
-    IndividualOnboardingInfoFragment,
+    OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
+    OnboardingCompanyWizard_OnboardingInfo,
+    OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
+    OnboardingIndividualWizard_OnboardingInfo,
   ],
 );
 
@@ -137,8 +138,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
   }
 
   return match(data)
-    .with(AsyncData.P.NotAsked, () => <LoadingView color={colors.gray[400]} />)
-    .with(AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
+    .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView color={colors.gray[400]} />)
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ onboardingInfo }) => {
       if (onboardingInfo == null) {

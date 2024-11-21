@@ -56,8 +56,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export const IndividualEmailOnboardingInfoFragment = graphql(`
-  fragment IndividualEmailOnboardingInfo on OnboardingInfo {
+export const OnboardingIndividualEmail_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualEmail_OnboardingInfo on OnboardingInfo {
     accountCountry
     projectInfo {
       id
@@ -71,7 +71,7 @@ export const IndividualEmailOnboardingInfoFragment = graphql(`
 
 type Props = {
   onboardingId: string;
-  onboardingInfoData: FragmentOf<typeof IndividualEmailOnboardingInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingIndividualEmail_OnboardingInfo>;
 
   serverValidationErrors: {
     fieldName: "email";
@@ -90,7 +90,7 @@ export const OnboardingIndividualEmail = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(IndividualEmailOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(OnboardingIndividualEmail_OnboardingInfo, onboardingInfoData);
   const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
@@ -141,8 +141,8 @@ export const OnboardingIndividualEmail = ({
           .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   path[0] === "email" ? "email" : null,
                 );
                 invalidFields.forEach(({ fieldName, code }) => {

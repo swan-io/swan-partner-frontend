@@ -70,8 +70,8 @@ const styles = StyleSheet.create({
 
 export type RegistrationFieldName = "email" | "address" | "city" | "postalCode" | "country";
 
-export const CompanyRegistrationOnboardingInfoFragment = graphql(`
-  fragment CompanyRegistrationOnboardingInfo on OnboardingInfo {
+export const OnboardingCompanyRegistration_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyRegistration_OnboardingInfo on OnboardingInfo {
     email
     projectInfo {
       id
@@ -83,8 +83,8 @@ export const CompanyRegistrationOnboardingInfoFragment = graphql(`
   }
 `);
 
-export const CompanyRegistrationAccountHolderInfoFragment = graphql(`
-  fragment CompanyRegistrationAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+export const OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
     residencyAddress {
       addressLine1
       city
@@ -95,8 +95,10 @@ export const CompanyRegistrationAccountHolderInfoFragment = graphql(`
 `);
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof CompanyRegistrationOnboardingInfoFragment>;
-  accountHolderInfoData: FragmentOf<typeof CompanyRegistrationAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingCompanyRegistration_OnboardingInfo>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo
+  >;
 
   onboardingId: string;
 
@@ -120,12 +122,12 @@ export const OnboardingCompanyRegistration = ({
   onSave,
 }: Props) => {
   const onboardingInfo = readFragment(
-    CompanyRegistrationOnboardingInfoFragment,
+    OnboardingCompanyRegistration_OnboardingInfo,
     onboardingInfoData,
   );
 
   const accountHolderInfo = readFragment(
-    CompanyRegistrationAccountHolderInfoFragment,
+    OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );
 
@@ -214,7 +216,7 @@ export const OnboardingCompanyRegistration = ({
                     addressLine1: address ?? "",
                     city: city ?? "",
                     postalCode: postalCode ?? "",
-                    country: country,
+                    country,
                   },
                 }
               : {
@@ -229,8 +231,8 @@ export const OnboardingCompanyRegistration = ({
           .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   match(path)
                     .with(["email"] as const, ([fieldName]) => fieldName)
                     .with(

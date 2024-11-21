@@ -15,7 +15,7 @@ import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
 import { ErrorView } from "../components/ErrorView";
-import { SddPayment, SDDPaymentLinkFragment } from "../components/SddPayment";
+import { SddPayment, SddPayment_MerchantPaymentLink } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
 import { env } from "../utils/env";
 import { graphql } from "../utils/gql";
@@ -34,9 +34,9 @@ type SupportedMethodType = "Card" | "DirectDebit";
 
 const orderedSupportedMethodTypes: SupportedMethodType[] = ["DirectDebit", "Card"];
 
-export const PaymentPageMerchantLinkFragment = graphql(
+export const PaymentPage_MerchantPaymentLink = graphql(
   `
-    fragment PaymentPageMerchantLink on MerchantPaymentLink {
+    fragment PaymentPage_MerchantPaymentLink on MerchantPaymentLink {
       id
       merchantProfile {
         accentColor
@@ -50,21 +50,21 @@ export const PaymentPageMerchantLinkFragment = graphql(
         type
         id
       }
-      ...SDDPaymentLinkFragment
+      ...SddPayment_MerchantPaymentLink
     }
   `,
-  [SDDPaymentLinkFragment],
+  [SddPayment_MerchantPaymentLink],
 );
 
 type Props = {
-  data: FragmentOf<typeof PaymentPageMerchantLinkFragment>;
+  data: FragmentOf<typeof PaymentPage_MerchantPaymentLink>;
   onMandateReceive: (value: string) => void;
   nonEeaCountries: string[];
   large: boolean;
 };
 
 export const PaymentPage = ({ data, onMandateReceive, nonEeaCountries, large }: Props) => {
-  const paymentLink = readFragment(PaymentPageMerchantLinkFragment, data);
+  const paymentLink = readFragment(PaymentPage_MerchantPaymentLink, data);
   const methodIds = paymentLink.paymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)

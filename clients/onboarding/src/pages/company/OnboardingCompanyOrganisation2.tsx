@@ -25,7 +25,6 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { BusinessActivity, MonthlyPaymentVolume } from "../../graphql/unauthenticated";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
@@ -38,6 +37,9 @@ import {
   validateRequired,
 } from "../../utils/validation";
 
+type BusinessActivity = ReturnType<typeof graphql.scalar<"BusinessActivity">>;
+type MonthlyPaymentVolume = ReturnType<typeof graphql.scalar<"MonthlyPaymentVolume">>;
+
 const styles = StyleSheet.create({
   textArea: {
     height: 128,
@@ -49,8 +51,8 @@ export type Organisation2FieldName =
   | "businessActivityDescription"
   | "monthlyPaymentVolume";
 
-export const CompanyOrganizationSecondStepAccountHolderInfoFragment = graphql(`
-  fragment CompanyOrganizationSecondStepAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+export const OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
     businessActivity
     businessActivityDescription
     monthlyPaymentVolume
@@ -60,7 +62,9 @@ export const CompanyOrganizationSecondStepAccountHolderInfoFragment = graphql(`
 type Props = {
   onboardingId: string;
 
-  accountHolderInfoData: FragmentOf<typeof CompanyOrganizationSecondStepAccountHolderInfoFragment>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
+  >;
 
   serverValidationErrors: {
     fieldName: Organisation2FieldName;
@@ -95,7 +99,7 @@ export const OnboardingCompanyOrganisation2 = ({
   onSave,
 }: Props) => {
   const accountHolderInfo = readFragment(
-    CompanyOrganizationSecondStepAccountHolderInfoFragment,
+    OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );
 
@@ -159,8 +163,8 @@ export const OnboardingCompanyOrganisation2 = ({
           .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
                 );
                 invalidFields.forEach(({ fieldName, code }) => {

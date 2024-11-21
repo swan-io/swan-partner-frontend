@@ -13,7 +13,7 @@
     "url": "https://gitlab.com/swan-io/frontend"
   },
   "scripts": {
-    "postinstall": "pnpm graphql-codegen && pnpm gql-tada generate output",
+    "postinstall": "pnpm graphql-codegen && pnpm gql-tada generate output && pnpm gql-tada turbo",
     "configure": "tsx scripts/configure/configure.ts",
     "graphql-update-schemas": "tsx -r dotenv/config scripts/graphql/downloadSchemas.ts",
     "graphql-codegen": "graphql-codegen --config scripts/graphql/codegen.ts",

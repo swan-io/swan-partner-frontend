@@ -1,8 +1,7 @@
-import { ValidationRejectionFragment } from "../fragments/ValidationRejectionFragment";
 import {
-  CompanyAccountHolderInfoFragment,
-  CompanyOnboardingInfoFragment,
-} from "../pages/company/CompanyOnboardingWizard";
+  OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
+  OnboardingCompanyWizard_OnboardingInfo,
+} from "../pages/company/OnboardingCompanyWizard";
 import { graphql } from "../utils/gql";
 
 export const UpdateCompanyOnboardingMutation = graphql(
@@ -16,20 +15,27 @@ export const UpdateCompanyOnboardingMutation = graphql(
         ... on UnauthenticatedUpdateCompanyOnboardingSuccessPayload {
           onboarding {
             id
-            ...CompanyOnboardingInfo
+            ...OnboardingCompanyWizard_OnboardingInfo
             info {
               __typename
               ... on OnboardingCompanyAccountHolderInfo {
-                ...CompanyAccountHolderInfo
+                ...OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
               }
             }
           }
         }
         ... on ValidationRejection {
-          ...ValidationRejection
+          fields {
+            path
+            code
+            message
+          }
         }
       }
     }
   `,
-  [ValidationRejectionFragment, CompanyAccountHolderInfoFragment, CompanyOnboardingInfoFragment],
+  [
+    OnboardingCompanyWizard_OnboardingInfo,
+    OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
+  ],
 );

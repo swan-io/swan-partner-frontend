@@ -9,12 +9,14 @@ import { useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { P, match } from "ts-pattern";
-import { UboIdentityDocumentType } from "../../../graphql/unauthenticated";
+import { graphql } from "../../../utils/gql";
 import { t } from "../../../utils/i18n";
 import { validateRequired } from "../../../utils/validation";
 
+type UBOIdentityDocumentType = ReturnType<typeof graphql.scalar<"UBOIdentityDocumentType">>;
+
 export type FormValues = {
-  identityDocumentType: UboIdentityDocumentType | undefined;
+  identityDocumentType: UBOIdentityDocumentType | undefined;
   identityDocumentNumber: string;
   identityDocumentIssueDate: string | undefined;
   identityDocumentExpiryDate: string | undefined;
@@ -22,7 +24,7 @@ export type FormValues = {
 };
 
 export type Input = {
-  identityDocumentType?: UboIdentityDocumentType;
+  identityDocumentType?: UBOIdentityDocumentType;
   identityDocumentNumber?: string;
   identityDocumentIssueDate?: string;
   identityDocumentExpiryDate?: string;
@@ -39,7 +41,7 @@ export type OnboardingCompanyOwnershipBeneficiaryFormIdentityRef = {
   submit: () => void;
 };
 
-const types = deriveUnion<UboIdentityDocumentType>({
+const types = deriveUnion<UBOIdentityDocumentType>({
   IdCard: true,
   Passport: true,
 }).array.map(value => ({

@@ -11,7 +11,7 @@ import { Validator, combineValidators } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle, useRef, useState } from "react";
 import { P, match } from "ts-pattern";
 import { v4 as uuid } from "uuid";
-import { AccountCountry } from "../../../graphql/unauthenticated";
+import { graphql } from "../../../utils/gql";
 import { t } from "../../../utils/i18n";
 import {
   Input as AddressInput,
@@ -28,6 +28,8 @@ import {
   OnboardingCompanyOwnershipBeneficiaryFormIdentity,
   OnboardingCompanyOwnershipBeneficiaryFormIdentityRef,
 } from "./OnboardingCompanyOwnershipBeneficiaryFormIdentity";
+
+type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 export type OnboardingCompanyOwnershipBeneficiaryFormRef = {
   cancel: () => void;

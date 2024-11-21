@@ -32,7 +32,6 @@ import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { GetCompanyInfoDocument } from "../../graphql/unauthenticated";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
@@ -66,14 +65,14 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CompanyOrganizationFirstStepOnboardingInfoFragment = graphql(`
-  fragment CompanyOrganizationFirstStepOnboardingInfo on OnboardingInfo {
+export const OnboardingCompanyOrganisation1_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyOrganisation1_OnboardingInfo on OnboardingInfo {
     accountCountry
   }
 `);
 
-export const CompanyOrganizationFirstStepAccountHolderInfoFragment = graphql(`
-  fragment CompanyOrganizationFirstStepAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+export const OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
     companyType
     isRegistered
     name
@@ -89,9 +88,31 @@ export const CompanyOrganizationFirstStepAccountHolderInfoFragment = graphql(`
   }
 `);
 
+const CompanyInfoBySiren = graphql(`
+  query CompanyInfoBySiren($siren: String!) {
+    companyInfoBySiren(input: { headquarterCountry: "FR", siren: $siren }) {
+      __typename
+      ... on CompanyInfoBySirenSuccessPayload {
+        companyInfo {
+          siren
+          companyName
+          vatNumber
+          headquarters {
+            address
+            town
+            zipCode
+          }
+        }
+      }
+    }
+  }
+`);
+
 type Props = {
-  onboardingInfoData: FragmentOf<typeof CompanyOrganizationFirstStepOnboardingInfoFragment>;
-  accountHolderInfoData: FragmentOf<typeof CompanyOrganizationFirstStepAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingCompanyOrganisation1_OnboardingInfo>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo
+  >;
 
   onboardingId: string;
   serverValidationErrors: {
@@ -129,12 +150,12 @@ export const OnboardingCompanyOrganisation1 = ({
   onSave,
 }: Props) => {
   const onboardingInfo = readFragment(
-    CompanyOrganizationFirstStepOnboardingInfoFragment,
+    OnboardingCompanyOrganisation1_OnboardingInfo,
     onboardingInfoData,
   );
 
   const accountHolderInfo = readFragment(
-    CompanyOrganizationFirstStepAccountHolderInfoFragment,
+    OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );
 
@@ -261,8 +282,8 @@ export const OnboardingCompanyOrganisation1 = ({
           .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   match(path)
                     .with(["registrationNumber"] as const, ([fieldName]) => fieldName)
                     .with(["vatNumber"] as const, ([fieldName]) => fieldName)
@@ -287,7 +308,7 @@ export const OnboardingCompanyOrganisation1 = ({
 
   const [siren, setSiren] = useState<string>();
 
-  const [data, { query }] = useDeferredQuery(GetCompanyInfoDocument);
+  const [data, { query }] = useDeferredQuery(CompanyInfoBySiren);
 
   useEffect(() => {
     if (siren != null) {

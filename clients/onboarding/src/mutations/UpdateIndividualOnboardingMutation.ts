@@ -1,7 +1,6 @@
-import { ValidationRejectionFragment } from "../fragments/ValidationRejectionFragment";
 import {
-  IndividualAccountHolderInfoFragment,
-  IndividualOnboardingInfoFragment,
+  OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
+  OnboardingIndividualWizard_OnboardingInfo,
 } from "../pages/individual/OnboardingIndividualWizard";
 import { graphql } from "../utils/gql";
 
@@ -16,24 +15,27 @@ export const UpdateIndividualOnboardingMutation = graphql(
         ... on UnauthenticatedUpdateIndividualOnboardingSuccessPayload {
           onboarding {
             id
-            ...IndividualOnboardingInfo
+            ...OnboardingIndividualWizard_OnboardingInfo
             info {
               __typename
               ... on OnboardingIndividualAccountHolderInfo {
-                ...IndividualAccountHolderInfo
+                ...OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
               }
             }
           }
         }
         ... on ValidationRejection {
-          ...ValidationRejection
+          fields {
+            path
+            code
+            message
+          }
         }
       }
     }
   `,
   [
-    ValidationRejectionFragment,
-    IndividualAccountHolderInfoFragment,
-    IndividualOnboardingInfoFragment,
+    OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
+    OnboardingIndividualWizard_OnboardingInfo,
   ],
 );

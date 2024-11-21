@@ -15,8 +15,7 @@ import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { OnboardingHeader, OnboardingHeaderFragment } from "../../components/OnboardingHeader";
-import { OnboardingStatusInfoFragment } from "../../fragments/OnboardingStatusInfoFragment";
+import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "../../components/OnboardingHeader";
 import { WizardStep } from "../../types/WizardStep";
 import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
@@ -26,35 +25,35 @@ import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
 import {
-  CompanyBasicInfoAccountHolderInfoFragment,
-  CompanyBasicInfoOnboardingInfoFragment,
   OnboardingCompanyBasicInfo,
+  OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
+  OnboardingCompanyBasicInfo_OnboardingInfo,
 } from "./OnboardingCompanyBasicInfo";
 import {
-  DocumentsOnboardingInfoFragment,
   OnboardingCompanyDocuments,
+  OnboardingCompanyDocuments_OnboardingInfo,
 } from "./OnboardingCompanyDocuments";
 import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
 import {
-  CompanyOrganizationFirstStepAccountHolderInfoFragment,
-  CompanyOrganizationFirstStepOnboardingInfoFragment,
   OnboardingCompanyOrganisation1,
+  OnboardingCompanyOrganisation1_OnboardingInfo,
+  OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
   Organisation1FieldName,
 } from "./OnboardingCompanyOrganisation1";
 import {
-  CompanyOrganizationSecondStepAccountHolderInfoFragment,
   OnboardingCompanyOrganisation2,
+  OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
   Organisation2FieldName,
 } from "./OnboardingCompanyOrganisation2";
 import {
-  CompanyOwnershipAccountHolderInfoFragment,
-  CompanyOwnershipOnboardingInfoFragment,
   OnboardingCompanyOwnership,
+  OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo,
+  OnboardingCompanyOwnership_OnboardingInfo,
 } from "./OnboardingCompanyOwnership";
 import {
-  CompanyRegistrationAccountHolderInfoFragment,
-  CompanyRegistrationOnboardingInfoFragment,
   OnboardingCompanyRegistration,
+  OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
+  OnboardingCompanyRegistration_OnboardingInfo,
   RegistrationFieldName,
 } from "./OnboardingCompanyRegistration";
 
@@ -73,9 +72,9 @@ const styles = StyleSheet.create({
   },
 });
 
-export const CompanyAccountHolderInfoFragment = graphql(
+export const OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo = graphql(
   `
-    fragment CompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    fragment OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
       companyType
       residencyAddress {
         country
@@ -83,32 +82,45 @@ export const CompanyAccountHolderInfoFragment = graphql(
       individualUltimateBeneficialOwners {
         __typename
       }
-      ...CompanyBasicInfoAccountHolderInfo
-      ...CompanyRegistrationAccountHolderInfo
-      ...CompanyOrganizationFirstStepAccountHolderInfo
-      ...CompanyOrganizationSecondStepAccountHolderInfo
-      ...CompanyOwnershipAccountHolderInfo
+      ...OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo
+      ...OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo
+      ...OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo
+      ...OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
+      ...OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo
     }
   `,
   [
-    CompanyBasicInfoAccountHolderInfoFragment,
-    CompanyRegistrationAccountHolderInfoFragment,
-    CompanyOrganizationFirstStepAccountHolderInfoFragment,
-    CompanyOrganizationSecondStepAccountHolderInfoFragment,
-    CompanyOwnershipAccountHolderInfoFragment,
+    OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
+    OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
+    OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
+    OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
+    OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo,
   ],
 );
 
-export const CompanyOnboardingInfoFragment = graphql(
+export const OnboardingCompanyWizard_OnboardingInfo = graphql(
   `
-    fragment CompanyOnboardingInfo on OnboardingInfo {
+    fragment OnboardingCompanyWizard_OnboardingInfo on OnboardingInfo {
       id
       statusInfo {
-        ...OnboardingStatusInfo
+        __typename
+        ... on OnboardingInvalidStatusInfo {
+          __typename
+          errors {
+            field
+            errors
+          }
+        }
+        ... on OnboardingFinalizedStatusInfo {
+          __typename
+        }
+        ... on OnboardingValidStatusInfo {
+          __typename
+        }
       }
       projectInfo {
         id
-        ...OnboardingHeader
+        ...OnboardingHeader_ProjectInfo
       }
       supportingDocumentCollection {
         id
@@ -121,36 +133,37 @@ export const CompanyOnboardingInfoFragment = graphql(
       }
       legalRepresentativeRecommendedIdentificationLevel
       accountCountry
-      ...CompanyBasicInfoOnboardingInfo
-      ...CompanyRegistrationOnboardingInfo
-      ...CompanyOrganizationFirstStepOnboardingInfo
-      ...CompanyOwnershipOnboardingInfo
-      ...DocumentsOnboardingInfo
+      ...OnboardingCompanyBasicInfo_OnboardingInfo
+      ...OnboardingCompanyRegistration_OnboardingInfo
+      ...OnboardingCompanyOrganisation1_OnboardingInfo
+      ...OnboardingCompanyOwnership_OnboardingInfo
+      ...OnboardingCompanyDocuments_OnboardingInfo
     }
   `,
   [
-    OnboardingStatusInfoFragment,
-    OnboardingHeaderFragment,
-    CompanyBasicInfoOnboardingInfoFragment,
-    CompanyRegistrationOnboardingInfoFragment,
-    CompanyOrganizationFirstStepOnboardingInfoFragment,
-    CompanyOwnershipOnboardingInfoFragment,
-    DocumentsOnboardingInfoFragment,
+    OnboardingHeader_ProjectInfo,
+    OnboardingCompanyBasicInfo_OnboardingInfo,
+    OnboardingCompanyRegistration_OnboardingInfo,
+    OnboardingCompanyOrganisation1_OnboardingInfo,
+    OnboardingCompanyOwnership_OnboardingInfo,
+    OnboardingCompanyDocuments_OnboardingInfo,
   ],
 );
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof CompanyOnboardingInfoFragment>;
-  companyAccountHolderData: FragmentOf<typeof CompanyAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingCompanyWizard_OnboardingInfo>;
+  companyAccountHolderData: FragmentOf<
+    typeof OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
+  >;
 };
 
 export const OnboardingCompanyWizard = ({
   onboardingInfoData,
   companyAccountHolderData,
 }: Props) => {
-  const onboardingInfo = readFragment(CompanyOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(OnboardingCompanyWizard_OnboardingInfo, onboardingInfoData);
   const accountHolderInfo = readFragment(
-    CompanyAccountHolderInfoFragment,
+    OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
     companyAccountHolderData,
   );
 
@@ -179,10 +192,12 @@ export const OnboardingCompanyWizard = ({
 
   const [finalized, setFinalized] = useBoolean(false);
 
-  const statusInfo = readFragment(OnboardingStatusInfoFragment, onboardingInfo.statusInfo);
+  const validationErrors = match(onboardingInfo.statusInfo)
+    .with({ __typename: "OnboardingInvalidStatusInfo" }, ({ errors }) => errors)
+    .otherwise(() => []);
 
   const registrationStepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<RegistrationFieldName | null>()
         .with("email", () => "email")
@@ -192,10 +207,10 @@ export const OnboardingCompanyWizard = ({
         .with("legalRepresentativePersonalAddress.country", () => "country")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const organisation1StepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<Organisation1FieldName | null>()
         .with("name", () => "name")
@@ -207,10 +222,10 @@ export const OnboardingCompanyWizard = ({
         .with("residencyAddress.postalCode", () => "postalCode")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const organisation2StepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<Organisation2FieldName | null>()
         .with("businessActivity", () => "businessActivity")
@@ -218,16 +233,16 @@ export const OnboardingCompanyWizard = ({
         .with("monthlyPaymentVolume", () => "monthlyPaymentVolume")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const ownershipStepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field => {
+    return extractServerInvalidFields(validationErrors, field => {
       if (field.startsWith("individualUltimateBeneficialOwners")) {
         return field;
       }
       return null;
     });
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const steps = useMemo<WizardStep[]>(
     () => [

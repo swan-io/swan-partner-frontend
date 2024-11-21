@@ -21,7 +21,7 @@ import { P, match } from "ts-pattern";
 import { CardErrorPage } from "../pages/CardErrorPage";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { PaymentPage, PaymentPageMerchantLinkFragment } from "../pages/PaymentPage";
+import { PaymentPage, PaymentPage_MerchantPaymentLink } from "../pages/PaymentPage";
 import { SuccessPage } from "../pages/SuccessPage";
 import { graphql } from "../utils/gql";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
@@ -63,7 +63,7 @@ const query = graphql(
     query PaymentArea($paymentLinkId: ID!) {
       nonEEACountries
       merchantPaymentLink(id: $paymentLinkId) {
-        ...PaymentPageMerchantLink
+        ...PaymentPage_MerchantPaymentLink
         id
         cancelRedirectUrl
         merchantProfile {
@@ -78,7 +78,7 @@ const query = graphql(
       }
     }
   `,
-  [PaymentPageMerchantLinkFragment],
+  [PaymentPage_MerchantPaymentLink],
 );
 
 export const PaymentArea = ({ paymentLinkId }: Props) => {

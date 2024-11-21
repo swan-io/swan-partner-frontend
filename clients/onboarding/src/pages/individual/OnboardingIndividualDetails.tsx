@@ -24,7 +24,6 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { EmploymentStatus, MonthlyIncome } from "../../graphql/unauthenticated";
 import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
@@ -34,6 +33,9 @@ import {
   getValidationErrorMessage,
   validateRequired,
 } from "../../utils/validation";
+
+type MonthlyIncome = ReturnType<typeof graphql.scalar<"MonthlyIncome">>;
+type EmploymentStatus = ReturnType<typeof graphql.scalar<"EmploymentStatus">>;
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },
@@ -58,14 +60,14 @@ const monthlyIncomes: RadioGroupItem<MonthlyIncome>[] = [
 
 export type DetailsFieldName = "employmentStatus" | "monthlyIncome" | "taxIdentificationNumber";
 
-export const IndividualDetailsOnboardingInfoFragment = graphql(`
-  fragment IndividualDetailsOnboardingInfo on OnboardingInfo {
+export const OnboardingIndividualDetails_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualDetails_OnboardingInfo on OnboardingInfo {
     accountCountry
   }
 `);
 
-export const IndividualDetailsAccountHolderInfoFragment = graphql(`
-  fragment IndividualDetailsAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+export const OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo = graphql(`
+  fragment OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
     employmentStatus
     monthlyIncome
     taxIdentificationNumber
@@ -78,8 +80,10 @@ export const IndividualDetailsAccountHolderInfoFragment = graphql(`
 type Props = {
   onboardingId: string;
 
-  onboardingInfoData: FragmentOf<typeof IndividualDetailsOnboardingInfoFragment>;
-  accountHolderInfoData: FragmentOf<typeof IndividualDetailsAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingIndividualDetails_OnboardingInfo>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo
+  >;
 
   serverValidationErrors: {
     fieldName: DetailsFieldName;
@@ -101,9 +105,13 @@ export const OnboardingIndividualDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(IndividualDetailsOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(
+    OnboardingIndividualDetails_OnboardingInfo,
+    onboardingInfoData,
+  );
+
   const accountHolderInfo = readFragment(
-    IndividualDetailsAccountHolderInfoFragment,
+    OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
     accountHolderInfoData,
   );
 

@@ -37,14 +37,14 @@ import {
 
 export type LocationFieldName = "country" | "city" | "address" | "postalCode";
 
-export const IndividualLocationOnboardingInfoFragment = graphql(`
-  fragment IndividualLocationOnboardingInfo on OnboardingInfo {
+export const OnboardingIndividualLocation_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualLocation_OnboardingInfo on OnboardingInfo {
     accountCountry
   }
 `);
 
-export const IndividualLocationAccountHolderInfoFragment = graphql(`
-  fragment IndividualLocationAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+export const OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo = graphql(`
+  fragment OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
     residencyAddress {
       addressLine1
       city
@@ -57,8 +57,10 @@ export const IndividualLocationAccountHolderInfoFragment = graphql(`
 type Props = {
   onboardingId: string;
 
-  onboardingInfoData: FragmentOf<typeof IndividualLocationOnboardingInfoFragment>;
-  accountHolderInfoData: FragmentOf<typeof IndividualLocationAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingIndividualLocation_OnboardingInfo>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
+  >;
 
   serverValidationErrors: {
     fieldName: LocationFieldName;
@@ -77,9 +79,13 @@ export const OnboardingIndividualLocation = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(IndividualLocationOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(
+    OnboardingIndividualLocation_OnboardingInfo,
+    onboardingInfoData,
+  );
+
   const accountHolderInfo = readFragment(
-    IndividualLocationAccountHolderInfoFragment,
+    OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
     accountHolderInfoData,
   );
 
@@ -150,8 +156,8 @@ export const OnboardingIndividualLocation = ({
             .tapOk(onSave)
             .tapError(error => {
               match(error)
-                .with({ __typename: "ValidationRejection" }, error => {
-                  const invalidFields = extractServerValidationErrors(error, path => {
+                .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                  const invalidFields = extractServerValidationErrors(fields, path => {
                     return match(path)
                       .with(["residencyAddress", "addressLine1"], () => "address" as const)
                       .with(["residencyAddress", "city"], () => "city" as const)

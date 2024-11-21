@@ -19,7 +19,6 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";
-import { SupportingDocumentPurposeEnum } from "../graphql/unauthenticated";
 import { DeleteSupportingDocumentMutation } from "../mutations/DeleteSupportingDocumentMutation";
 import { GenerateSupportingDocumentUploadUrlMutation } from "../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -28,10 +27,14 @@ import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { OnboardingFooter } from "./OnboardingFooter";
-import { OnboardingHeader, OnboardingHeaderFragment } from "./OnboardingHeader";
+import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "./OnboardingHeader";
 import { OnboardingStepContent } from "./OnboardingStepContent";
 import { StepTitle } from "./StepTitle";
 import { SupportingDocumentCollectionSuccessPage } from "./SupportingDocumentCollectionSuccess";
+
+type SupportingDocumentPurposeEnum = ReturnType<
+  typeof graphql.scalar<"SupportingDocumentPurposeEnum">
+>;
 
 const SupportingCollectionQuery = graphql(
   `
@@ -71,12 +74,12 @@ const SupportingCollectionQuery = graphql(
         projectInfo {
           id
           accentColor
-          ...OnboardingHeader
+          ...OnboardingHeader_ProjectInfo
         }
       }
     }
   `,
-  [OnboardingHeaderFragment],
+  [OnboardingHeader_ProjectInfo],
 );
 
 type Props = {

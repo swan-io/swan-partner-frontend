@@ -20,15 +20,18 @@ import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { SupportingDocumentPurposeEnum } from "../../graphql/unauthenticated";
 import { DeleteSupportingDocumentMutation } from "../../mutations/DeleteSupportingDocumentMutation";
 import { GenerateSupportingDocumentUploadUrlMutation } from "../../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 
-export const DocumentsOnboardingInfoFragment = graphql(`
-  fragment DocumentsOnboardingInfo on OnboardingInfo {
+type SupportingDocumentPurposeEnum = ReturnType<
+  typeof graphql.scalar<"SupportingDocumentPurposeEnum">
+>;
+
+export const OnboardingCompanyDocuments_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyDocuments_OnboardingInfo on OnboardingInfo {
     supportingDocumentCollection {
       id
       statusInfo {
@@ -64,7 +67,7 @@ export const DocumentsOnboardingInfoFragment = graphql(`
 
 type Props = {
   onboardingId: string;
-  onboardingInfoData: FragmentOf<typeof DocumentsOnboardingInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingCompanyDocuments_OnboardingInfo>;
   onPressPrevious: () => void;
   onSave: () => void;
 };
@@ -82,7 +85,10 @@ export const OnboardingCompanyDocuments = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(DocumentsOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(
+    OnboardingCompanyDocuments_OnboardingInfo,
+    onboardingInfoData,
+  );
 
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const [generateSupportingDocumentUploadUrl] = useMutation(

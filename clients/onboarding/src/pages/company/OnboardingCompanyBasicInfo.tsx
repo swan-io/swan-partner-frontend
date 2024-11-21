@@ -21,13 +21,15 @@ import { FragmentOf, readFragment } from "gql.tada";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { CompanyType, TypeOfRepresentation } from "../../graphql/unauthenticated";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 
-export const CompanyBasicInfoAccountHolderInfoFragment = graphql(`
-  fragment CompanyBasicInfoAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+type CompanyType = ReturnType<typeof graphql.scalar<"CompanyType">>;
+type TypeOfRepresentation = ReturnType<typeof graphql.scalar<"TypeOfRepresentation">>;
+
+export const OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
     residencyAddress {
       country
     }
@@ -36,8 +38,8 @@ export const CompanyBasicInfoAccountHolderInfoFragment = graphql(`
   }
 `);
 
-export const CompanyBasicInfoOnboardingInfoFragment = graphql(`
-  fragment CompanyBasicInfoOnboardingInfo on OnboardingInfo {
+export const OnboardingCompanyBasicInfo_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyBasicInfo_OnboardingInfo on OnboardingInfo {
     accountCountry
   }
 `);
@@ -45,8 +47,10 @@ export const CompanyBasicInfoOnboardingInfoFragment = graphql(`
 type Props = {
   onSave: () => void;
   onboardingId: string;
-  accountHolderInfoData: FragmentOf<typeof CompanyBasicInfoAccountHolderInfoFragment>;
-  onboardingInfoData: FragmentOf<typeof CompanyBasicInfoOnboardingInfoFragment>;
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo
+  >;
+  onboardingInfoData: FragmentOf<typeof OnboardingCompanyBasicInfo_OnboardingInfo>;
 };
 
 const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -112,10 +116,14 @@ export const OnboardingCompanyBasicInfo = ({
   onboardingInfoData,
 }: Props) => {
   const accountHolderInfo = readFragment(
-    CompanyBasicInfoAccountHolderInfoFragment,
+    OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );
-  const onboardingInfo = readFragment(CompanyBasicInfoOnboardingInfoFragment, onboardingInfoData);
+
+  const onboardingInfo = readFragment(
+    OnboardingCompanyBasicInfo_OnboardingInfo,
+    onboardingInfoData,
+  );
 
   const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
 

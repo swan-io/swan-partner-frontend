@@ -36,8 +36,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingHeaderFragment = graphql(`
-  fragment OnboardingHeader on ProjectInfo {
+export const OnboardingHeader_ProjectInfo = graphql(`
+  fragment OnboardingHeader_ProjectInfo on ProjectInfo {
     id
     name
     logoUri
@@ -45,12 +45,12 @@ export const OnboardingHeaderFragment = graphql(`
 `);
 
 type Props = {
-  projectInfoData: FragmentOf<typeof OnboardingHeaderFragment> | null;
+  projectInfoData: FragmentOf<typeof OnboardingHeader_ProjectInfo> | null;
 };
 
 export const OnboardingHeader = ({ projectInfoData }: Props) => {
   const projectInfo = Option.fromNull(projectInfoData).map(projectInfo =>
-    readFragment(OnboardingHeaderFragment, projectInfo),
+    readFragment(OnboardingHeader_ProjectInfo, projectInfo),
   );
 
   const isSandbox = env.SWAN_ENVIRONMENT !== "LIVE";

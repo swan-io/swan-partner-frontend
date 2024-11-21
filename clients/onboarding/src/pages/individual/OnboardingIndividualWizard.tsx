@@ -11,8 +11,7 @@ import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { OnboardingHeader, OnboardingHeaderFragment } from "../../components/OnboardingHeader";
-import { OnboardingStatusInfoFragment } from "../../fragments/OnboardingStatusInfoFragment";
+import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "../../components/OnboardingHeader";
 import { WizardStep } from "../../types/WizardStep";
 import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
@@ -23,20 +22,20 @@ import { NotFoundPage } from "../NotFoundPage";
 import { IndividualFlowPresentation } from "./IndividualFlowPresentation";
 import {
   DetailsFieldName,
-  IndividualDetailsAccountHolderInfoFragment,
-  IndividualDetailsOnboardingInfoFragment,
   OnboardingIndividualDetails,
+  OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
+  OnboardingIndividualDetails_OnboardingInfo,
 } from "./OnboardingIndividualDetails";
 import {
-  IndividualEmailOnboardingInfoFragment,
   OnboardingIndividualEmail,
+  OnboardingIndividualEmail_OnboardingInfo,
 } from "./OnboardingIndividualEmail";
 import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
 import {
-  IndividualLocationAccountHolderInfoFragment,
-  IndividualLocationOnboardingInfoFragment,
   LocationFieldName,
   OnboardingIndividualLocation,
+  OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
+  OnboardingIndividualLocation_OnboardingInfo,
 } from "./OnboardingIndividualLocation";
 
 const styles = StyleSheet.create({
@@ -54,54 +53,75 @@ const styles = StyleSheet.create({
   },
 });
 
-export const IndividualOnboardingInfoFragment = graphql(
+export const OnboardingIndividualWizard_OnboardingInfo = graphql(
   `
-    fragment IndividualOnboardingInfo on OnboardingInfo {
+    fragment OnboardingIndividualWizard_OnboardingInfo on OnboardingInfo {
       id
       statusInfo {
-        ...OnboardingStatusInfo
+        __typename
+        ... on OnboardingInvalidStatusInfo {
+          __typename
+          errors {
+            field
+            errors
+          }
+        }
+        ... on OnboardingFinalizedStatusInfo {
+          __typename
+        }
+        ... on OnboardingValidStatusInfo {
+          __typename
+        }
       }
       projectInfo {
         id
-        ...OnboardingHeader
+        ...OnboardingHeader_ProjectInfo
       }
       legalRepresentativeRecommendedIdentificationLevel
-      ...IndividualEmailOnboardingInfo
-      ...IndividualLocationOnboardingInfo
-      ...IndividualDetailsOnboardingInfo
+      ...OnboardingIndividualEmail_OnboardingInfo
+      ...OnboardingIndividualLocation_OnboardingInfo
+      ...OnboardingIndividualDetails_OnboardingInfo
     }
   `,
   [
-    OnboardingHeaderFragment,
-    OnboardingStatusInfoFragment,
-    IndividualEmailOnboardingInfoFragment,
-    IndividualLocationOnboardingInfoFragment,
-    IndividualDetailsOnboardingInfoFragment,
+    OnboardingHeader_ProjectInfo,
+    OnboardingIndividualEmail_OnboardingInfo,
+    OnboardingIndividualLocation_OnboardingInfo,
+    OnboardingIndividualDetails_OnboardingInfo,
   ],
 );
 
-export const IndividualAccountHolderInfoFragment = graphql(
+export const OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo = graphql(
   `
-    fragment IndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
-      ...IndividualLocationAccountHolderInfo
-      ...IndividualDetailsAccountHolderInfo
+    fragment OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+      ...OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
+      ...OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo
     }
   `,
-  [IndividualLocationAccountHolderInfoFragment, IndividualDetailsAccountHolderInfoFragment],
+  [
+    OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
+    OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
+  ],
 );
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof IndividualOnboardingInfoFragment>;
-  individualAccountHolderInfoData: FragmentOf<typeof IndividualAccountHolderInfoFragment>;
+  onboardingInfoData: FragmentOf<typeof OnboardingIndividualWizard_OnboardingInfo>;
+  individualAccountHolderInfoData: FragmentOf<
+    typeof OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
+  >;
 };
 
 export const OnboardingIndividualWizard = ({
   onboardingInfoData,
   individualAccountHolderInfoData,
 }: Props) => {
-  const onboardingInfo = readFragment(IndividualOnboardingInfoFragment, onboardingInfoData);
+  const onboardingInfo = readFragment(
+    OnboardingIndividualWizard_OnboardingInfo,
+    onboardingInfoData,
+  );
+
   const accountHolderInfo = readFragment(
-    IndividualAccountHolderInfoFragment,
+    OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
     individualAccountHolderInfoData,
   );
 
@@ -112,19 +132,21 @@ export const OnboardingIndividualWizard = ({
 
   const [finalized, setFinalized] = useBoolean(false);
 
-  const statusInfo = readFragment(OnboardingStatusInfoFragment, onboardingInfo.statusInfo);
+  const validationErrors = match(onboardingInfo.statusInfo)
+    .with({ __typename: "OnboardingInvalidStatusInfo" }, ({ errors }) => errors)
+    .otherwise(() => []);
 
   const emailStepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<"email" | null>()
         .with("email", () => "email")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const locationStepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<LocationFieldName | null>()
         .with("residencyAddress.country", () => "country")
@@ -133,10 +155,10 @@ export const OnboardingIndividualWizard = ({
         .with("residencyAddress.postalCode", () => "postalCode")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const detailsStepErrors = useMemo(() => {
-    return extractServerInvalidFields(statusInfo, field =>
+    return extractServerInvalidFields(validationErrors, field =>
       match(field)
         .returnType<DetailsFieldName | null>()
         .with("employmentStatus", () => "employmentStatus")
@@ -144,7 +166,7 @@ export const OnboardingIndividualWizard = ({
         .with("taxIdentificationNumber", () => "taxIdentificationNumber")
         .otherwise(() => null),
     );
-  }, [statusInfo]);
+  }, [validationErrors]);
 
   const steps = useMemo<WizardStep[]>(
     () => [

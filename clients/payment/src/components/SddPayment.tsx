@@ -31,8 +31,8 @@ const styles = StyleSheet.create({
   },
 });
 
-export const SDDPaymentLinkFragment = graphql(`
-  fragment SDDPaymentLinkFragment on MerchantPaymentLink {
+export const SddPayment_MerchantPaymentLink = graphql(`
+  fragment SddPayment_MerchantPaymentLink on MerchantPaymentLink {
     id
     customer {
       iban
@@ -50,7 +50,7 @@ export const SDDPaymentLinkFragment = graphql(`
 `);
 
 type Props = {
-  data: FragmentOf<typeof SDDPaymentLinkFragment>;
+  data: FragmentOf<typeof SddPayment_MerchantPaymentLink>;
   nonEeaCountries: string[];
   onMandateReceive: (value: string) => void;
   large: boolean;
@@ -120,7 +120,7 @@ const InitiateMerchantSddPaymentCollectionFromPaymentLink = graphql(`
 `);
 
 export const SddPayment = ({ data, nonEeaCountries, onMandateReceive, large }: Props) => {
-  const paymentLink = readFragment(SDDPaymentLinkFragment, data);
+  const paymentLink = readFragment(SddPayment_MerchantPaymentLink, data);
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",

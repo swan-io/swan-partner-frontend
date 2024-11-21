@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Hinzufügen des Empfängers abgelehnt.",
   "beneficiary.consent.success.description": "Ihr Empfänger wurde erfolgreich hinzugefügt.",
   "beneficiary.consent.success.title": "Empfänger hinzugefügt.",
-  "card.alert.informationConflict": "Die vom Benutzer und vom Projekteigentümer übermittelten Details sind nicht identisch. Mindestens eine der folgenden Angaben ist unterschiedlich: Vorname, Nachname, Geburtsdatum oder Telefonnummer. \n\nDer Projekteigentümer muss die Nichtübereinstimmung auf der Dashboard-Mitgliederseite beheben, bevor die Karte verwendet werden kann.",
-  "card.alert.informationConflict.title": "Maßnahme erforderlich: Informationen stimmen nicht überein",
   "card.block": "Sperren",
   "card.blocked": "Gesperrt",
   "card.cancel.cancelCard": "Karte stornieren",

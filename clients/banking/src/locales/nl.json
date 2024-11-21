@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Toevoegen begunstigde afgewezen.",
   "beneficiary.consent.success.description": "Je begunstigde is succesvol toegevoegd.",
   "beneficiary.consent.success.title": "Begunstigde toegevoegd.",
-  "card.alert.informationConflict": "De gegevens die zijn opgegeven door de gebruiker en de beheerder zijn niet hetzelfde. Ten minste een van de volgende gegevens is anders: voornaam, achternaam, geboortedatum of telefoonnummer.\n\nDe beheerder moet het verschil oplossen op de ledenpagina voordat de kaart kan worden gebruikt.",
-  "card.alert.informationConflict.title": "Actie nodig: informatie komt niet overeen",
   "card.block": "Blokkeer",
   "card.blocked": "Geblokkeerd",
   "card.cancel.cancelCard": "Kaart annuleren",

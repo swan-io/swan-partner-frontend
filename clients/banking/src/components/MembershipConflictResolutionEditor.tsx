@@ -57,7 +57,8 @@ export const MembershipConflictResolutionEditor = ({
 
   const firstNamesMismatch = user.firstName !== restrictedTo.firstName;
   const birthDatesMismatch = user.birthDate !== restrictedTo.birthDate;
-  const phoneNumbersMismatch = user.mobilePhoneNumber !== restrictedTo.phoneNumber;
+  const phoneNumbersMismatch =
+    restrictedTo.phoneNumber != null && user.mobilePhoneNumber !== restrictedTo.phoneNumber;
 
   const lastNamesMismatch =
     user.lastName !== restrictedTo.lastName && user.birthLastName !== restrictedTo.lastName;
@@ -146,6 +147,16 @@ export const MembershipConflictResolutionEditor = ({
                 render={() => (
                   <LakeText variant="regular" color={colors.gray[900]}>
                     {restrictedTo.phoneNumber}
+                  </LakeText>
+                )}
+              />
+
+              <LakeLabel
+                label={t("membershipDetail.bindingUserError.email")}
+                readOnly={true}
+                render={() => (
+                  <LakeText variant="regular" color={colors.gray[900]}>
+                    {accountMembership.email}
                   </LakeText>
                 )}
               />
@@ -241,6 +252,8 @@ export const MembershipConflictResolutionEditor = ({
                       accountMembership.user.verifiedEmails[0]
                     ) : (
                       <LakeSelect
+                        disabled={!canUpdateAccountMembership}
+                        value={selectedVerifiedEmail}
                         items={accountMembership.user.verifiedEmails.map(value => ({
                           value,
                           name: value,

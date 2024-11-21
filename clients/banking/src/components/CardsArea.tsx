@@ -59,7 +59,6 @@ type Props = {
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   accountMembershipId: string;
   accountId: string;
-  refetchAccountAreaQuery: () => void;
   userId: string;
 };
 
@@ -67,13 +66,7 @@ const relevantCardsFilter = {
   statuses: ["Enabled" as const, "Processing" as const, "Canceling" as const, "Canceled" as const],
 };
 
-export const CardsArea = ({
-  accountMembership,
-  accountMembershipId,
-  accountId,
-  refetchAccountAreaQuery,
-  userId,
-}: Props) => {
+export const CardsArea = ({ accountMembership, accountMembershipId, accountId, userId }: Props) => {
   const { canAddCard: canOrderCard } = usePermissions();
   const route = Router.useRoute(["AccountCardsList", "AccountCardsItemArea"]);
 
@@ -177,7 +170,6 @@ export const CardsArea = ({
                               accountMembershipId={accountMembershipId}
                               userId={userId}
                               cardId={cardId}
-                              refetchAccountAreaQuery={refetchAccountAreaQuery}
                               large={large}
                             />
                           </>

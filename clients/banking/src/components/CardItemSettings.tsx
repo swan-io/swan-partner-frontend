@@ -1,7 +1,6 @@
-import { Option, Result } from "@swan-io/boxed";
+import { Result } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeAlert } from "@swan-io/lake/src/components/LakeAlert";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
@@ -17,19 +16,14 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageQuery, IdentificationFragment, UpdateCardDocument } from "../graphql/partner";
+import { CardPageQuery, UpdateCardDocument } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
-import { getMemberName } from "../utils/accountMembership";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CardCancelConfirmationModal } from "./CardCancelConfirmationModal";
-import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { CardSettings, CardWizardSettings, CardWizardSettingsRef } from "./CardWizardSettings";
 
 const styles = StyleSheet.create({
-  empty: {
-    display: "block",
-  },
   link: {
     color: colors.current.primary,
     display: "inline-block",
@@ -41,24 +35,10 @@ type Card = NonNullable<CardPageQuery["card"]>;
 type Props = {
   card: Card;
   cardId: string;
-  projectId: string;
   accountMembershipId: string;
-  cardRequiresIdentityVerification: boolean;
-  isCurrentUserCardOwner: boolean;
-  onRefreshAccountRequest: () => void;
-  lastRelevantIdentification: Option<IdentificationFragment>;
 };
 
-export const CardItemSettings = ({
-  cardId,
-  projectId,
-  accountMembershipId,
-  card,
-  cardRequiresIdentityVerification,
-  isCurrentUserCardOwner,
-  onRefreshAccountRequest,
-  lastRelevantIdentification,
-}: Props) => {
+export const CardItemSettings = ({ cardId, accountMembershipId, card }: Props) => {
   const [updateCard, cardUpdate] = useMutation(UpdateCardDocument);
   const [isCancelConfirmationModalVisible, setIsCancelConfirmationModalVisible] = useState(false);
   const accountHolder = card.accountMembership.account?.holder;
@@ -119,27 +99,9 @@ export const CardItemSettings = ({
     };
   };
 
-  return cardRequiresIdentityVerification && isCurrentUserCardOwner ? (
-    <View style={styles.empty}>
-      <EmptyView borderedIcon={true} icon="lake-settings" title={t("card.settings.unavailable")}>
-        <Space height={24} />
-
-        <CardItemIdentityVerificationGate
-          recommendedIdentificationLevel={card.accountMembership.recommendedIdentificationLevel}
-          isCurrentUserCardOwner={isCurrentUserCardOwner}
-          projectId={projectId}
-          description={t("card.identityVerification.settings")}
-          descriptionForOtherMember={t("card.identityVerification.settings.otherMember", {
-            name: getMemberName({ accountMembership: card.accountMembership }),
-          })}
-          onComplete={onRefreshAccountRequest}
-          lastRelevantIdentification={lastRelevantIdentification}
-        />
-      </EmptyView>
-    </View>
-  ) : (
+  return (
     <>
-      {canUpdateCard ? null : (
+      {card.accountMembership.canManageCards ? null : (
         <>
           <LakeAlert title={t("card.settings.notAllowed")} variant="info" />
           <Space height={24} />

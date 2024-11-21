@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Añadir beneficiario rechazado.",
   "beneficiary.consent.success.description": "Tu beneficiario se ha añadido correctamente.",
   "beneficiary.consent.success.title": "Beneficiario añadido.",
-  "card.alert.informationConflict": "La información indicada por el usuario y el administrador no coincide en al menos uno de los siguientes datos: nombre, apellidos, fecha de nacimiento o número de teléfono. Para poder usar la tarjeta, el administrador debe corregir esta diferencia en la página de miembros.",
-  "card.alert.informationConflict.title": "Acción necesaria: la información no coincide",
   "card.block": "Bloquear",
   "card.blocked": "Bloqueada",
   "card.cancel.cancelCard": "Cancelar tarjeta",

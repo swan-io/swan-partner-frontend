@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Ajout du bénéficiaire refusé.",
   "beneficiary.consent.success.description": "Votre bénéficiaire a été ajouté avec succès.",
   "beneficiary.consent.success.title": "Bénéficiaire ajouté.",
-  "card.alert.informationConflict": "Les informations fournies par l'utilisateur et l'administrateur sont différentes. Un des éléments suivants au moins diffère : le prénom, le nom, la date de naissance ou le numéro de téléphone.\n\nL'administrateur doit résoudre le problème sur la page « Membres » pour que la carte puisse être utilisée.",
-  "card.alert.informationConflict.title": "Action requise : les informations ne correspondent pas",
   "card.block": "Bloquer",
   "card.blocked": "Bloquée",
   "card.cancel.cancelCard": "Annuler la carte",

@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Adição de beneficiário rejeitada.",
   "beneficiary.consent.success.description": "Seu beneficiário foi adicionado com sucesso.",
   "beneficiary.consent.success.title": "Beneficiário adicionado.",
-  "card.alert.informationConflict": "Os dados do usuário e do administrador do projeto não são os mesmos. Pelo menos uma das seguintes informações é diferente: nome, sobrenome, data de nascimento ou número de telemóvel.\n\nO administrador do projeto deve corrigir a incompatibilidade na página de membros antes que o cartão possa ser utilizado.",
-  "card.alert.informationConflict.title": "Ação necessária: as informações não coincidem",
   "card.block": "Bloquear",
   "card.blocked": "Bloqueado",
   "card.cancel.cancelCard": "Cancelar cartão",

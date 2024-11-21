@@ -9,6 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
+import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
@@ -173,7 +174,15 @@ export const MembershipDetailEditor = ({
         .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
         .otherwise(() => ""),
       sanitize: trim,
-      validate: validateRequired,
+      validate: value => {
+        if (
+          editingAccountMembership.canInitiatePayments ||
+          editingAccountMembership.canManageAccountMembership ||
+          editingAccountMembership.canManageBeneficiaries
+        ) {
+          return validateRequired(value);
+        }
+      },
     },
     // German account specific fields
     addressLine1: {
@@ -244,8 +253,11 @@ export const MembershipDetailEditor = ({
             restrictedTo: match({
               editingAccountMembership,
               isEditingCurrentUser: currentUserAccountMembership.id === editingAccountMembership.id,
-              values: Option.allFromDict(
-                pick(values, ["firstName", "lastName", "phoneNumber", "birthDate"]),
+              values: Option.allFromDict(pick(values, ["firstName", "lastName", "birthDate"])).map(
+                mandatoryValues => ({
+                  ...mandatoryValues,
+                  phoneNumber: nullishOrEmptyToUndefined(values.phoneNumber.toUndefined()),
+                }),
               ),
             })
               .with(
@@ -444,6 +456,7 @@ export const MembershipDetailEditor = ({
                           value={value}
                           valid={valid}
                           error={error}
+                          disabled={!canUpdateAccountMembership}
                           onChangeText={onChange}
                           readOnly={readOnly}
                         />
@@ -464,6 +477,7 @@ export const MembershipDetailEditor = ({
                           items={accountLanguages.items}
                           value={value}
                           onValueChange={onChange}
+                          disabled={!canUpdateAccountMembership}
                           readOnly={readOnly}
                         />
                       )}

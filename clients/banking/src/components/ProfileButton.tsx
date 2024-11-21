@@ -1,11 +1,9 @@
-import { Option } from "@swan-io/boxed";
 import { Avatar } from "@swan-io/lake/src/components/Avatar";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Link } from "@swan-io/lake/src/components/Link";
 import { SidebarNavigationTrackerActiveMarker } from "@swan-io/lake/src/components/SidebarNavigationTracker";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import {
   backgroundColor,
@@ -17,9 +15,7 @@ import {
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { memo } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
-import { AccountAreaQuery, IdentificationLevelFragment } from "../graphql/partner";
-import { t } from "../utils/i18n";
+import { AccountAreaQuery } from "../graphql/partner";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -50,69 +46,41 @@ const styles = StyleSheet.create({
 
 type Props = {
   user: NonNullable<AccountAreaQuery["user"]>;
-  identificationStatusInfo: Option<IdentificationLevelFragment>;
   accountMembershipId: string;
-  shouldDisplayIdVerification: boolean;
-  hasRequiredIdentificationLevel: boolean | undefined;
 };
 
-export const ProfileButton = memo<Props>(
-  ({
-    user,
-    identificationStatusInfo,
-    accountMembershipId,
-    shouldDisplayIdVerification,
-    hasRequiredIdentificationLevel,
-  }) => {
-    const fullName = user.fullName;
+export const ProfileButton = memo<Props>(({ user, accountMembershipId }) => {
+  const fullName = user.fullName;
 
-    return (
-      <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>
-        {({ active }) => (
-          <View role="button" style={styles.button}>
-            <Avatar size={25} user={user} />
+  return (
+    <Link style={styles.link} to={Router.AccountProfile({ accountMembershipId })}>
+      {({ active }) => (
+        <View role="button" style={styles.button}>
+          <Avatar size={25} user={user} />
 
-            {isNotNullish(fullName) && (
-              <>
-                <Space width={16} />
+          {isNotNullish(fullName) && (
+            <>
+              <Space width={16} />
 
-                <View style={styles.informations}>
-                  <LakeText
-                    numberOfLines={1}
-                    userSelect="none"
-                    variant="smallMedium"
-                    color={colors.gray[700]}
-                  >
-                    {fullName}
-                  </LakeText>
+              <View style={styles.informations}>
+                <LakeText
+                  numberOfLines={1}
+                  userSelect="none"
+                  variant="smallMedium"
+                  color={colors.gray[700]}
+                >
+                  {fullName}
+                </LakeText>
+              </View>
+            </>
+          )}
 
-                  {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
-                    ? match(identificationStatusInfo)
-                        .with(
-                          Option.P.None,
-                          Option.P.Some({
-                            status: P.union("Started", "Invalid", "Canceled", "Expired"),
-                          }),
-                          () => (
-                            <>
-                              <Space height={4} />
-                              <Tag color="warning">{t("profile.actionRequired")}</Tag>
-                            </>
-                          ),
-                        )
-                        .otherwise(() => null)
-                    : null}
-                </View>
-              </>
-            )}
+          <Space width={12} />
+          <Icon name="chevron-right-filled" size={16} color={colors.gray[700]} />
 
-            <Space width={12} />
-            <Icon name="chevron-right-filled" size={16} color={colors.gray[700]} />
-
-            {active ? <SidebarNavigationTrackerActiveMarker color={colors.current[500]} /> : null}
-          </View>
-        )}
-      </Link>
-    );
-  },
-);
+          {active ? <SidebarNavigationTrackerActiveMarker color={colors.current[500]} /> : null}
+        </View>
+      )}
+    </Link>
+  );
+});

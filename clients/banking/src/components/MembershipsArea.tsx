@@ -266,18 +266,31 @@ export const MembershipsArea = ({
                               }}
                               getRowLink={({ item }) => (
                                 <Link
-                                  style={match(item.statusInfo)
+                                  style={match(item)
                                     .with(
                                       {
-                                        __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                                        idVerifiedMatchError: true,
+                                        statusInfo: {
+                                          __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                          idVerifiedMatchError: true,
+                                        },
+                                      },
+                                      {
+                                        statusInfo: {
+                                          __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                          emailVerifiedMatchError: true,
+                                        },
+                                        user: { verifiedEmails: [] },
                                       },
                                       () => ({
                                         backgroundColor: colors.warning[50],
                                       }),
                                     )
                                     .with(
-                                      { __typename: "AccountMembershipBindingUserErrorStatusInfo" },
+                                      {
+                                        statusInfo: {
+                                          __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                        },
+                                      },
                                       () => ({
                                         backgroundColor: colors.negative[50],
                                       }),

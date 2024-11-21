@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "L'inserimento del beneficiario è stato rifiutato.",
   "beneficiary.consent.success.description": "Il beneficiario è stato inserito correttamente.",
   "beneficiary.consent.success.title": "Beneficiario aggiunto.",
-  "card.alert.informationConflict": "I dati dell'utente e dell'amministratore non sono gli stessi. Almeno uno dei seguenti dettagli è diverso: nome, cognome, data di nascita o numero di telefono.\n\nL'amministratore deve correggere la discrepanza sulla pagina dei Membri prima di poter utilizzare la carta.",
-  "card.alert.informationConflict.title": "Azione necessaria: le informazioni non corrispondono",
   "card.block": "Blocca",
   "card.blocked": "Bloccata",
   "card.cancel.cancelCard": "Cancella carta",

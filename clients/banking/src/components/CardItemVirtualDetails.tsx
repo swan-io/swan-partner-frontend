@@ -1,4 +1,3 @@
-import { Option } from "@swan-io/boxed";
 import { useMutation } from "@swan-io/graphql-client";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -11,11 +10,10 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { CardPageQuery, IdentificationFragment, ViewCardNumbersDocument } from "../graphql/partner";
+import { CardPageQuery, ViewCardNumbersDocument } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { formatCurrency, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { CardItemIdentityVerificationGate } from "./CardItemIdentityVerificationGate";
 import { MaskedCard } from "./MaskedCard";
 
 const styles = StyleSheet.create({
@@ -58,24 +56,16 @@ type Card = NonNullable<CardPageQuery["card"]>;
 type Props = {
   card: Card;
   cardId: string;
-  projectId: string;
   accountMembershipId: string;
   isCurrentUserCardOwner: boolean;
-  cardRequiresIdentityVerification: boolean;
-  onRefreshAccountRequest: () => void;
-  lastRelevantIdentification: Option<IdentificationFragment>;
   hasBindingUserError: boolean;
 };
 
 export const CardItemVirtualDetails = ({
   cardId,
-  projectId,
   accountMembershipId,
   card,
   isCurrentUserCardOwner,
-  cardRequiresIdentityVerification,
-  onRefreshAccountRequest,
-  lastRelevantIdentification,
   hasBindingUserError,
 }: Props) => {
   const [viewCardNumbers, cardNumberViewing] = useMutation(ViewCardNumbersDocument);
@@ -118,181 +108,155 @@ export const CardItemVirtualDetails = ({
           />
         ) : null}
 
-        {cardRequiresIdentityVerification ? (
-          <>
-            <Space height={24} />
-
-            <CardItemIdentityVerificationGate
-              recommendedIdentificationLevel={card.accountMembership.recommendedIdentificationLevel}
-              isCurrentUserCardOwner={isCurrentUserCardOwner}
-              projectId={projectId}
-              description={t("card.identityVerification.payments")}
-              descriptionForOtherMember={t("card.identityVerification.payments.otherMember", {
-                name: getMemberName({ accountMembership: card.accountMembership }),
-              })}
-              onComplete={onRefreshAccountRequest}
-              lastRelevantIdentification={lastRelevantIdentification}
-            />
-          </>
-        ) : (
-          <>
-            {match({ isCurrentUserCardOwner, card })
-              .with(
-                {
-                  isCurrentUserCardOwner: true,
-                  card: {
-                    statusInfo: { __typename: P.union("CardEnabledStatusInfo") },
-                    accountMembership: {
-                      statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                    },
-                  },
+        {match({ isCurrentUserCardOwner, card })
+          .with(
+            {
+              isCurrentUserCardOwner: true,
+              card: {
+                statusInfo: { __typename: P.union("CardEnabledStatusInfo") },
+                accountMembership: {
+                  statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
                 },
-                () => (
-                  <>
-                    <Space height={24} />
+              },
+            },
+            () => (
+              <>
+                <Space height={24} />
 
-                    <QuickActions
-                      actions={[
-                        ...match({ isCurrentUserCardOwner, card })
-                          .with(
-                            {
-                              isCurrentUserCardOwner: true,
-                              card: {
-                                statusInfo: { __typename: P.union("CardEnabledStatusInfo") },
-                                accountMembership: {
-                                  statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
-                                },
-                              },
+                <QuickActions
+                  actions={[
+                    ...match({ isCurrentUserCardOwner, card })
+                      .with(
+                        {
+                          isCurrentUserCardOwner: true,
+                          card: {
+                            statusInfo: { __typename: P.union("CardEnabledStatusInfo") },
+                            accountMembership: {
+                              statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
                             },
+                          },
+                        },
 
-                            () => [
-                              {
-                                label: t("card.revealNumbers"),
-                                icon: "eye-regular" as const,
-                                onPress: () => onPressRevealCardNumbers(),
-                                isLoading: cardNumberViewing.isLoading(),
-                                disabled: hasBindingUserError,
-                                tooltipDisabled: !hasBindingUserError,
-                                tooltipText: t("card.tooltipConflict"),
-                              },
-                            ],
-                          )
+                        () => [
+                          {
+                            label: t("card.revealNumbers"),
+                            icon: "eye-regular" as const,
+                            onPress: () => onPressRevealCardNumbers(),
+                            isLoading: cardNumberViewing.isLoading(),
+                            disabled: hasBindingUserError,
+                            tooltipDisabled: !hasBindingUserError,
+                            tooltipText: t("card.tooltipConflict"),
+                          },
+                        ],
+                      )
 
-                          .otherwise(() => []),
-                      ]}
-                    />
-                  </>
-                ),
-              )
-              .otherwise(() => null)}
+                      .otherwise(() => []),
+                  ]}
+                />
+              </>
+            ),
+          )
+          .otherwise(() => null)}
 
-            {match(card)
-              .with(
-                {
-                  spending: { amount: { value: P.string, currency: P.string } },
-                  spendingLimits: P.array({ amount: { value: P.string, currency: P.string } }),
-                },
-                ({ spending, spendingLimits }) => {
-                  const spendingLimit = spendingLimits[0];
-                  if (spendingLimit == null) {
-                    return null;
-                  }
-                  const spentOverLimitRatio = Math.min(
-                    Number(spending.amount.value) / Number(spendingLimit.amount.value),
-                    1,
-                  );
-                  const remainderToSpend = Math.max(
-                    0,
-                    Number(spendingLimit.amount.value) - Number(spending.amount.value),
-                  );
-                  return (
-                    <>
-                      <Space height={24} />
+        {match(card)
+          .with(
+            {
+              spending: { amount: { value: P.string, currency: P.string } },
+              spendingLimits: P.array({ amount: { value: P.string, currency: P.string } }),
+            },
+            ({ spending, spendingLimits }) => {
+              const spendingLimit = spendingLimits[0];
+              if (spendingLimit == null) {
+                return null;
+              }
+              const spentOverLimitRatio = Math.min(
+                Number(spending.amount.value) / Number(spendingLimit.amount.value),
+                1,
+              );
+              const remainderToSpend = Math.max(
+                0,
+                Number(spendingLimit.amount.value) - Number(spending.amount.value),
+              );
+              return (
+                <>
+                  <Space height={24} />
 
-                      <View style={styles.spendingContainer}>
-                        <View style={styles.spendingLimitText}>
-                          <LakeText color={textColor} variant="smallRegular">
-                            {t("card.spendingLimit")}
-                          </LakeText>
+                  <View style={styles.spendingContainer}>
+                    <View style={styles.spendingLimitText}>
+                      <LakeText color={textColor} variant="smallRegular">
+                        {t("card.spendingLimit")}
+                      </LakeText>
 
-                          <Fill minWidth={24} />
+                      <Fill minWidth={24} />
 
-                          <LakeText
-                            color={
-                              hasBindingUserError
-                                ? colors.gray[300]
-                                : Number(spending.amount.value) >=
-                                    Number(spendingLimit.amount.value)
-                                  ? colors.negative[500]
-                                  : colors.gray[800]
-                            }
-                            variant="smallSemibold"
-                          >
-                            {formatCurrency(
-                              Number(spending.amount.value),
-                              spending.amount.currency,
-                            )}
-                          </LakeText>
+                      <LakeText
+                        color={
+                          hasBindingUserError
+                            ? colors.gray[300]
+                            : Number(spending.amount.value) >= Number(spendingLimit.amount.value)
+                              ? colors.negative[500]
+                              : colors.gray[800]
+                        }
+                        variant="smallSemibold"
+                      >
+                        {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
+                      </LakeText>
 
-                          <Space width={4} />
+                      <Space width={4} />
 
-                          <LakeText color={textColor} variant="smallRegular">
-                            {"/"}
-                          </LakeText>
+                      <LakeText color={textColor} variant="smallRegular">
+                        {"/"}
+                      </LakeText>
 
-                          <Space width={4} />
+                      <Space width={4} />
 
-                          <LakeText color={textColor} variant="smallRegular">
-                            {formatCurrency(
-                              Number(spendingLimit.amount.value),
-                              spendingLimit.amount.currency,
-                            )}
-                          </LakeText>
-                        </View>
+                      <LakeText color={textColor} variant="smallRegular">
+                        {formatCurrency(
+                          Number(spendingLimit.amount.value),
+                          spendingLimit.amount.currency,
+                        )}
+                      </LakeText>
+                    </View>
 
-                        <Space height={8} />
+                    <Space height={8} />
 
-                        <View style={styles.progress}>
-                          <View
-                            style={[
-                              styles.progressFill,
-                              {
-                                backgroundColor:
-                                  spentOverLimitRatio >= 1
-                                    ? colors.negative[500]
-                                    : colors.current[500],
-                                width: `${spentOverLimitRatio * 100}%`,
-                              },
-                            ]}
-                          />
-                        </View>
+                    <View style={styles.progress}>
+                      <View
+                        style={[
+                          styles.progressFill,
+                          {
+                            backgroundColor:
+                              spentOverLimitRatio >= 1 ? colors.negative[500] : colors.current[500],
+                            width: `${spentOverLimitRatio * 100}%`,
+                          },
+                        ]}
+                      />
+                    </View>
 
-                        <Space height={8} />
+                    <Space height={8} />
 
-                        <View style={styles.spendingLimitText}>
-                          <LakeText color={textColor} variant="smallRegular">
-                            {match(spendingLimit.period)
-                              .with("Daily", () => t("card.spendingLimit.remaining.daily"))
-                              .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
-                              .with("Monthly", () => t("card.spendingLimit.remaining.monthly"))
-                              .with("Always", () => t("card.spendingLimit.remaining.always"))
-                              .exhaustive()}
-                          </LakeText>
+                    <View style={styles.spendingLimitText}>
+                      <LakeText color={textColor} variant="smallRegular">
+                        {match(spendingLimit.period)
+                          .with("Daily", () => t("card.spendingLimit.remaining.daily"))
+                          .with("Weekly", () => t("card.spendingLimit.remaining.weekly"))
+                          .with("Monthly", () => t("card.spendingLimit.remaining.monthly"))
+                          .with("Always", () => t("card.spendingLimit.remaining.always"))
+                          .exhaustive()}
+                      </LakeText>
 
-                          <Fill minWidth={24} />
+                      <Fill minWidth={24} />
 
-                          <LakeText color={textColor} variant="smallRegular">
-                            {formatCurrency(remainderToSpend, spending.amount.currency)}
-                          </LakeText>
-                        </View>
-                      </View>
-                    </>
-                  );
-                },
-              )
-              .otherwise(() => null)}
-          </>
-        )}
+                      <LakeText color={textColor} variant="smallRegular">
+                        {formatCurrency(remainderToSpend, spending.amount.currency)}
+                      </LakeText>
+                    </View>
+                  </View>
+                </>
+              );
+            },
+          )
+          .otherwise(() => null)}
       </View>
     </View>
   );

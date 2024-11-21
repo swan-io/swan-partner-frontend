@@ -183,8 +183,6 @@
   "beneficiary.consent.error.rejected.title": "Edunsaajan lisääminen hylätty.",
   "beneficiary.consent.success.description": "Edunsaaja on lisätty onnistuneesti.",
   "beneficiary.consent.success.title": "Edunsaaja lisätty.",
-  "card.alert.informationConflict": "Käyttäjän ja ylläpitäjän lähettämät tiedot eivät ole samat. Ainakin yksi seuraavista tiedoista on eri: etunimi, sukunimi, syntymäaika tai puhelinnumero. Ennen kortin käyttöönottoa ylläpitäjän on ratkaistava Jäsenet-sivulla, miksi tiedot eivät täsmää.",
-  "card.alert.informationConflict.title": "Toimenpiteitä tarvitaan: tiedot eivät täsmää",
   "card.block": "Sulje kortti",
   "card.blocked": "Kortti suljettu",
   "card.cancel.cancelCard": "Peruuta kortti",

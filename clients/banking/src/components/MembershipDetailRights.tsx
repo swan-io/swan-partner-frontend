@@ -113,6 +113,7 @@ export const MembershipDetailRights = ({
     },
     canInitiatePayments: {
       initialValue: editingAccountMembership.canInitiatePayments,
+      validate: validateSensitivePermission,
     },
     canManageBeneficiaries: {
       initialValue: editingAccountMembership.canManageBeneficiaries,
@@ -124,7 +125,6 @@ export const MembershipDetailRights = ({
     },
     canManageCards: {
       initialValue: editingAccountMembership.canManageCards,
-      validate: validateSensitivePermission,
     },
   });
 

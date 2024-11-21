@@ -19,9 +19,11 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountCountry } from "../../../graphql/unauthenticated";
+import { graphql } from "../../../utils/gql";
 import { t } from "../../../utils/i18n";
 import { validateName } from "../../../utils/validation";
+
+type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 const styles = StyleSheet.create({
   inputContainer: {
@@ -68,8 +70,8 @@ export type Input = {
 
 type Props = {
   placekitApiKey: string | undefined;
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
+  accountCountry: AccountCountry | null;
+  companyCountry: CountryCCA3 | null;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -101,7 +103,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormCommon = forwardRef<
       initialValue: initialValues.birthDate ?? undefined,
     },
     birthCountryCode: {
-      initialValue: initialValues.birthCountryCode ?? companyCountry,
+      initialValue: initialValues.birthCountryCode ?? companyCountry ?? "FRA",
       validate: validateRequired,
     },
     birthCity: {

@@ -11,7 +11,6 @@ import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({
   containerMobile: {
@@ -26,28 +25,18 @@ const styles = StyleSheet.create({
 });
 
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
-  onboardingId: string;
+  onPressPrevious: () => void;
+  onPressNext: () => void;
   hasOwnershipStep: boolean;
   hasDocumentsStep: boolean;
 };
 
 export const CompanyFlowPresentation = ({
-  previousStep,
-  nextStep,
-  onboardingId,
+  onPressPrevious,
+  onPressNext,
   hasOwnershipStep,
   hasDocumentsStep,
 }: Props) => {
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
-
-  const onPressNext = () => {
-    Router.push(nextStep, { onboardingId });
-  };
-
   const steps = useMemo(() => {
     const steps: FlowStep[] = [];
 

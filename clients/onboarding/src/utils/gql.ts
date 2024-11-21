@@ -7,10 +7,13 @@ import {
   print,
 } from "@swan-io/graphql-client";
 import { Request, badStatusToError, emptyToError } from "@swan-io/request";
+import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { registerErrorToRequestId } from "@swan-io/shared-business/src/state/toasts";
+import { initGraphQLTada } from "gql.tada";
 import { GraphQLError } from "graphql";
 import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";
+import { introspection } from "../../../../scripts/graphql/dist/unauthenticated";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
@@ -87,3 +90,11 @@ export const client = new Client({
       });
   },
 });
+
+export const graphql = initGraphQLTada<{
+  introspection: introspection;
+  scalars: {
+    DateTime: string;
+    CCA3: CountryCCA3;
+  };
+}>();

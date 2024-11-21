@@ -10,7 +10,6 @@ import { StyleSheet } from "react-native";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
 
 const styles = StyleSheet.create({
   containerMobile: {
@@ -44,14 +43,10 @@ const steps: FlowStep[] = [
 ];
 
 type Props = {
-  onboardingId: string;
+  onPressNext: () => void;
 };
 
-export const IndividualFlowPresentation = ({ onboardingId }: Props) => {
-  const onPressNext = () => {
-    Router.push("Email", { onboardingId });
-  };
-
+export const IndividualFlowPresentation = ({ onPressNext }: Props) => {
   return (
     <>
       <OnboardingStepContent>

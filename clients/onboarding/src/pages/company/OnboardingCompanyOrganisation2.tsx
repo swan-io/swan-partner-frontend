@@ -10,27 +10,24 @@ import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useFirstMountState } from "@swan-io/lake/src/hooks/useFirstMountState";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { trim } from "@swan-io/lake/src/utils/string";
 import {
   businessActivities,
   monthlyPaymentVolumes,
 } from "@swan-io/shared-business/src/constants/business";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
+import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
+import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  BusinessActivity,
-  MonthlyPaymentVolume,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
+import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   ServerInvalidFieldCode,
@@ -39,6 +36,9 @@ import {
   validateMaxLength,
   validateRequired,
 } from "../../utils/validation";
+
+type BusinessActivity = ReturnType<typeof graphql.scalar<"BusinessActivity">>;
+type MonthlyPaymentVolume = ReturnType<typeof graphql.scalar<"MonthlyPaymentVolume">>;
 
 const styles = StyleSheet.create({
   textArea: {
@@ -51,17 +51,28 @@ export type Organisation2FieldName =
   | "businessActivityDescription"
   | "monthlyPaymentVolume";
 
+export const OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    businessActivity
+    businessActivityDescription
+    monthlyPaymentVolume
+  }
+`);
+
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
   onboardingId: string;
-  initialBusinessActivity: BusinessActivity | "";
-  initialBusinessActivityDescription: string;
-  initialMonthlyPaymentVolume: MonthlyPaymentVolume;
+
+  accountHolderInfoData: FragmentOf<
+    typeof OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
+  >;
+
   serverValidationErrors: {
     fieldName: Organisation2FieldName;
     code: ServerInvalidFieldCode;
   }[];
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 const businessActivitiesItems: Item<BusinessActivity>[] = businessActivities.map(
@@ -81,29 +92,32 @@ const monthlyPaymentVolumeItems: Item<MonthlyPaymentVolume>[] = monthlyPaymentVo
 const CHARACTER_LIMITATION = 500;
 
 export const OnboardingCompanyOrganisation2 = ({
-  previousStep,
-  nextStep,
+  accountHolderInfoData,
   onboardingId,
-  initialBusinessActivity,
-  initialBusinessActivityDescription,
-  initialMonthlyPaymentVolume,
   serverValidationErrors,
+  onPressPrevious,
+  onSave,
 }: Props) => {
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
+  const accountHolderInfo = readFragment(
+    OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
+    accountHolderInfoData,
+  );
+
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const { Field, submitForm, setFieldError } = useForm({
     businessActivity: {
-      initialValue: initialBusinessActivity,
-      validate: validateRequired,
+      initialValue: accountHolderInfo.businessActivity ?? undefined,
+      validate: validateNullableRequired,
     },
     businessActivityDescription: {
-      initialValue: initialBusinessActivityDescription,
+      initialValue: accountHolderInfo.businessActivityDescription ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateMaxLength(CHARACTER_LIMITATION)),
     },
     monthlyPaymentVolume: {
-      initialValue: initialMonthlyPaymentVolume,
+      initialValue: accountHolderInfo.monthlyPaymentVolume ?? "LessThan10000",
     },
   });
 
@@ -115,10 +129,6 @@ export const OnboardingCompanyOrganisation2 = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
 
   const onPressNext = () => {
     submitForm({
@@ -134,7 +144,7 @@ export const OnboardingCompanyOrganisation2 = ({
         const { businessActivity, businessActivityDescription, monthlyPaymentVolume } =
           currentValues;
 
-        if (businessActivity === "") {
+        if (businessActivity === undefined) {
           return;
         }
 
@@ -150,11 +160,11 @@ export const OnboardingCompanyOrganisation2 = ({
         })
           .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push(nextStep, { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   path[0] === "businessActivityDescription" ? "businessActivityDescription" : null,
                 );
                 invalidFields.forEach(({ fieldName, code }) => {
@@ -188,7 +198,7 @@ export const OnboardingCompanyOrganisation2 = ({
                         <LakeSelect
                           id={id}
                           placeholder={t("company.step.organisation2.activityPlaceholder")}
-                          value={emptyToUndefined(value)}
+                          value={value}
                           items={businessActivitiesItems}
                           error={error}
                           onValueChange={onChange}

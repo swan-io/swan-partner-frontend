@@ -22,8 +22,10 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { P, match } from "ts-pattern";
-import { AccountCountry } from "../../../graphql/unauthenticated";
+import { graphql } from "../../../utils/gql";
 import { locale, t } from "../../../utils/i18n";
+
+type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 export type FormValues = {
   residencyAddressLine1: string;
@@ -43,8 +45,8 @@ export type Input = {
 
 type Props = {
   placekitApiKey: string | undefined;
-  accountCountry: AccountCountry;
-  companyCountry: CountryCCA3;
+  accountCountry: AccountCountry | null;
+  companyCountry: CountryCCA3 | null;
   initialValues: Partial<Input>;
   onSave: (input: Input) => void | Promise<void>;
 };
@@ -77,7 +79,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
     residencyAddressCountry: {
       initialValue: isCountryCCA3(initialValues.residencyAddressCountry)
         ? initialValues.residencyAddressCountry
-        : companyCountry,
+        : (companyCountry ?? "FRA"),
       validate: validateRequired,
     },
     taxIdentificationNumber: {
@@ -94,6 +96,10 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
             validateRequired,
             validateIndividualTaxNumber(accountCountry),
           )(value);
+        }
+
+        if (accountCountry == null) {
+          return;
         }
 
         return validateIndividualTaxNumber(accountCountry)(value);
@@ -249,7 +255,7 @@ export const OnboardingCompanyOwnershipBeneficiaryFormAddress = forwardRef<
                 { accountCountry: "DEU", residencyAddressCountry: "DEU" },
                 { accountCountry: "ESP" },
                 { accountCountry: "ITA" },
-                () => (
+                ({ accountCountry }) => (
                   <>
                     <Space height={12} />
 

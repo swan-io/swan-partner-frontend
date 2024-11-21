@@ -13,12 +13,8 @@ import { FrameCardTokenizedEvent, Frames } from "frames-react";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import {
-  AddCardPaymentMandateDocument,
-  GetMerchantPaymentLinkQuery,
-  InitiateCardMerchantPaymentDocument,
-} from "../graphql/unauthenticated";
 import { env } from "../utils/env";
+import { graphql } from "../utils/gql";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { CarteBancaireLogo, MaestroLogo, MastercardLogo, VisaLogo } from "./CardLogos";
@@ -47,21 +43,61 @@ const styles = StyleSheet.create({
   },
 });
 
+const AddCardPaymentMandate = graphql(`
+  mutation AddCardPaymentMandate($input: AddCardPaymentMandateInput!) {
+    unauthenticatedAddCardPaymentMandate(input: $input) {
+      __typename
+      ... on AddCardPaymentMandateSuccessPayload {
+        paymentMandate {
+          id
+          __typename
+        }
+      }
+      ... on Rejection {
+        message
+      }
+    }
+  }
+`);
+
+const InitiateMerchantCardPaymentFromPaymentLink = graphql(`
+  mutation InitiateCardMerchantPayment(
+    $input: UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput!
+  ) {
+    unauthenticatedInitiateMerchantCardPaymentFromPaymentLink(input: $input) {
+      __typename
+      ... on UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload {
+        redirectUrl
+      }
+      ... on Rejection {
+        message
+      }
+      ... on ValidationRejection {
+        fields {
+          code
+          message
+          path
+        }
+      }
+    }
+  }
+`);
+
 type PaymentMethod = "visa" | "maestro" | "mastercard" | "cartes bancaires";
 
 type Props = {
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
+  paymentLinkId: string;
   paymentMethodId: string;
   publicKey: string;
   large: boolean;
 };
 
-export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: Props) => {
+export const CardPayment = ({ paymentLinkId, paymentMethodId, publicKey, large }: Props) => {
   const isSandbox = env.SWAN_ENVIRONMENT === "SANDBOX";
 
-  const [addCardPaymentMandate] = useMutation(AddCardPaymentMandateDocument);
+  const [addCardPaymentMandate] = useMutation(AddCardPaymentMandate);
 
-  const [initiateCardPayment] = useMutation(InitiateCardMerchantPaymentDocument);
+  const [initiateCardPayment] = useMutation(InitiateMerchantCardPaymentFromPaymentLink);
 
   type FieldState = "untouched" | "empty" | "invalid" | "valid";
   type CardFieldState = FieldState | "cardNotSupported";
@@ -206,7 +242,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
         .flatMapOk(data =>
           addCardPaymentMandate({
             input: {
-              paymentLinkId: paymentLink.id,
+              paymentLinkId,
               paymentMethodId,
               sequence: "OneOff",
               token: data.token,
@@ -219,7 +255,7 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
           initiateCardPayment({
             input: {
               cardPaymentMandateId: data.paymentMandate.id,
-              paymentLinkId: paymentLink.id,
+              paymentLinkId,
             },
           })
             .mapOk(data => data.unauthenticatedInitiateMerchantCardPaymentFromPaymentLink)
@@ -231,10 +267,10 @@ export const CardPayment = ({ paymentLink, paymentMethodId, publicKey, large }: 
         .tapError(error => {
           match(error)
             .with({ __typename: "ExpiredPaymentLinkRejection" }, () => {
-              Router.replace("PaymentExpired", { paymentLinkId: paymentLink.id });
+              Router.replace("PaymentExpired", { paymentLinkId });
             })
             .otherwise(() => {
-              Router.replace("PaymentForm", { paymentLinkId: paymentLink.id, error: "true" });
+              Router.replace("PaymentForm", { paymentLinkId, error: "true" });
             });
         });
     }

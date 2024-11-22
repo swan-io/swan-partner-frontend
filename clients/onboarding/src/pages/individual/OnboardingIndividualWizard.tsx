@@ -217,9 +217,6 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
           <TrackingProvider category="Finalize">
             <OnboardingIndividualFinalize
               onboardingId={params.onboardingId}
-              legalRepresentativeRecommendedIdentificationLevel={
-                onboarding.legalRepresentativeRecommendedIdentificationLevel
-              }
               steps={steps}
               alreadySubmitted={finalized}
               onSubmitWithErrors={setFinalized.on}

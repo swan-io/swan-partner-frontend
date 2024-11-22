@@ -426,9 +426,6 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
             <OnboardingCompanyFinalize
               previousStep={getPreviousStep("Finalize", steps)}
               onboardingId={params.onboardingId}
-              legalRepresentativeRecommendedIdentificationLevel={
-                onboarding.legalRepresentativeRecommendedIdentificationLevel
-              }
               steps={steps}
               alreadySubmitted={finalized}
               onSubmitWithErrors={setFinalized.on}

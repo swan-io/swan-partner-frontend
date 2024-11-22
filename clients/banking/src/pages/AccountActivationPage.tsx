@@ -427,14 +427,13 @@ export const AccountActivationPage = ({
           .exhaustive();
 
         const handleProveIdentity = () => {
-          const identificationLevel = accountMembership?.recommendedIdentificationLevel ?? "Expert";
           const params = new URLSearchParams();
 
           match(projectConfiguration.map(({ projectId }) => projectId))
             .with(Option.P.Some(P.select()), projectId => params.set("projectId", projectId))
             .otherwise(() => {});
 
-          params.set("identificationLevel", identificationLevel);
+          params.set("identificationLevel", "Auto");
           params.set("redirectTo", Router.PopupCallback());
 
           openPopup(`/auth/login?${params.toString()}`).onResolve(() => {

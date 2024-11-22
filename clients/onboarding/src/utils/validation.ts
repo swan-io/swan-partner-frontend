@@ -4,11 +4,7 @@ import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/uti
 import { combineValidators, Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { match } from "ts-pattern";
-import {
-  OnboardingInvalidInfoFragment,
-  UpdateValidationErrorsFragment,
-  ValidationFieldErrorCode,
-} from "../graphql/unauthenticated";
+import { ValidationFieldErrorCode } from "../gql/graphql";
 import { locale, t } from "./i18n";
 
 export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
@@ -63,8 +59,13 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
 
 export type ServerInvalidFieldCode = "Missing";
 
+type ValidationField = {
+  path: string[];
+  code: ValidationFieldErrorCode;
+};
+
 export const extractServerValidationErrors = <T extends string>(
-  { fields }: UpdateValidationErrorsFragment,
+  fields: ValidationField[],
   pathToFieldName: (path: string[]) => T | null = () => null,
 ): { fieldName: T; code: ValidationFieldErrorCode }[] => {
   return Array.filterMap(fields, ({ path, code }) => {
@@ -76,21 +77,22 @@ export const extractServerValidationErrors = <T extends string>(
   });
 };
 
+type OnboardingValidationField = {
+  field: string;
+  errors: string[] | null;
+};
+
 export const extractServerInvalidFields = <T extends string>(
-  statusInfo: OnboardingInvalidInfoFragment,
+  fields: OnboardingValidationField[],
   getFieldName: (field: string) => T | null,
 ): { fieldName: T; code: ServerInvalidFieldCode }[] => {
-  return match(statusInfo)
-    .with({ __typename: "OnboardingInvalidStatusInfo" }, ({ errors }) =>
-      Array.filterMap(errors, error => {
-        const fieldName = getFieldName(error.field);
-        if (fieldName != null) {
-          return Option.Some({ fieldName, code: "Missing" as const });
-        }
-        return Option.None();
-      }),
-    )
-    .otherwise(() => []);
+  return Array.filterMap(fields, error => {
+    const fieldName = getFieldName(error.field);
+    if (fieldName != null) {
+      return Option.Some({ fieldName, code: "Missing" as const });
+    }
+    return Option.None();
+  });
 };
 
 export const getValidationErrorMessage = (

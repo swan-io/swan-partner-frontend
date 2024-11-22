@@ -11,7 +11,10 @@ import { noop } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
-import { CountryCCA3, individualCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  individualCountries,
+  individualFallbackCountry,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useForm } from "@swan-io/use-form";
 import { useEffect } from "react";
@@ -20,9 +23,9 @@ import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { locale, t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   ServerInvalidFieldCode,
@@ -33,47 +36,82 @@ import {
 
 export type LocationFieldName = "country" | "city" | "address" | "postalCode";
 
+export const OnboardingIndividualLocation_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualLocation_OnboardingInfo on OnboardingInfo {
+    accountCountry
+  }
+`);
+
+export const OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo = graphql(`
+  fragment OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+    residencyAddress {
+      addressLine1
+      city
+      postalCode
+      country
+    }
+  }
+`);
+
 type Props = {
   onboardingId: string;
-  initialAddressLine1: string;
-  initialCity: string;
-  initialPostalCode: string;
-  initialCountry: CountryCCA3;
+
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualLocation_OnboardingInfo>;
+  accountHolderInfoData: FragmentType<
+    typeof OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
+  >;
+
   serverValidationErrors: {
     fieldName: LocationFieldName;
     code: ServerInvalidFieldCode;
   }[];
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 export const OnboardingIndividualLocation = ({
   onboardingId,
-  initialAddressLine1,
-  initialCity,
-  initialPostalCode,
-  initialCountry,
+  onboardingInfoData,
+  accountHolderInfoData,
   serverValidationErrors,
+  onPressPrevious,
+  onSave,
 }: Props) => {
-  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+  const onboardingInfo = getFragmentData(
+    OnboardingIndividualLocation_OnboardingInfo,
+    onboardingInfoData,
+  );
+
+  const accountHolderInfo = getFragmentData(
+    OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
+    accountHolderInfoData,
+  );
+
+  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
   const { Field, FieldsListener, setFieldValue, setFieldError, submitForm } = useForm({
     address: {
-      initialValue: initialAddressLine1,
+      initialValue: accountHolderInfo.residencyAddress?.addressLine1 ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     city: {
-      initialValue: initialCity,
+      initialValue: accountHolderInfo.residencyAddress?.city ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     postalCode: {
-      initialValue: initialPostalCode,
+      initialValue: accountHolderInfo.residencyAddress?.postalCode ?? "",
       sanitize: trim,
       validate: validateRequired,
     },
     country: {
-      initialValue: initialCountry,
+      initialValue:
+        accountHolderInfo.residencyAddress?.country ??
+        onboardingInfo.accountCountry ??
+        individualFallbackCountry,
       validate: validateRequired,
     },
   });
@@ -86,10 +124,6 @@ export const OnboardingIndividualLocation = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push("Email", { onboardingId });
-  };
 
   const onPressNext = () => {
     // If we submit the form and the manual mode is disabled
@@ -118,11 +152,11 @@ export const OnboardingIndividualLocation = ({
           })
             .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
             .mapOkToResult(filterRejectionsToResult)
-            .tapOk(() => Router.push("Details", { onboardingId }))
+            .tapOk(onSave)
             .tapError(error => {
               match(error)
-                .with({ __typename: "ValidationRejection" }, error => {
-                  const invalidFields = extractServerValidationErrors(error, path => {
+                .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                  const invalidFields = extractServerValidationErrors(fields, path => {
                     return match(path)
                       .with(["residencyAddress", "addressLine1"], () => "address" as const)
                       .with(["residencyAddress", "city"], () => "city" as const)

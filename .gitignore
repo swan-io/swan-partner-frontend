@@ -11,6 +11,7 @@ server/keys/_wildcard.swan.local.pem
 server/src/graphql/*.ts
 
 !scripts/graphql/dist/
+scripts/graphql/dist/*.d.ts
 scripts/graphql/codegen-verify.yml
 scripts/graphql/tmp
 

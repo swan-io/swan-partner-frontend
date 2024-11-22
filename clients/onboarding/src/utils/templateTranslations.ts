@@ -2,7 +2,7 @@ import { ClientError } from "@swan-io/graphql-client";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { match, P } from "ts-pattern";
-import { CompanyType } from "../graphql/unauthenticated";
+import { CompanyType } from "../gql/graphql";
 import { isTranslationKey, t } from "./i18n";
 
 export const getErrorFieldLabel = (field: string) =>
@@ -49,7 +49,10 @@ export const getUpdateOnboardingError = (
     });
 };
 
-export const getRegistrationNumberName = (country: CountryCCA3, companyType: CompanyType) => {
+export const getRegistrationNumberName = (
+  country: CountryCCA3 | null | undefined,
+  companyType: CompanyType | null,
+) => {
   const name = match(country)
     .with("AUT", () => "Firmenbuchnummer")
     .with("BEL", () => "CBE or Ondernemingsnummer")

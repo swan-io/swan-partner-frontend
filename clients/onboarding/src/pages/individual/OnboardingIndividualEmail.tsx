@@ -26,9 +26,9 @@ import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import { AccountCountry, UpdateIndividualOnboardingDocument } from "../../graphql/unauthenticated";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
-import { Router } from "../../utils/routes";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
   ServerInvalidFieldCode,
@@ -55,41 +55,57 @@ const styles = StyleSheet.create({
   },
 });
 
+export const OnboardingIndividualEmail_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualEmail_OnboardingInfo on OnboardingInfo {
+    accountCountry
+    projectInfo {
+      id
+      name
+      tcuDocumentUri(language: $language)
+    }
+    email
+    tcuUrl
+  }
+`);
+
 type Props = {
-  initialEmail: string;
-  projectName: string;
-  accountCountry: AccountCountry;
   onboardingId: string;
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualEmail_OnboardingInfo>;
+
   serverValidationErrors: {
     fieldName: "email";
     code: ServerInvalidFieldCode;
   }[];
-  tcuDocumentUri?: string;
-  tcuUrl: string;
+
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 export const OnboardingIndividualEmail = ({
-  initialEmail,
-  projectName,
-  accountCountry,
   onboardingId,
+  onboardingInfoData,
   serverValidationErrors,
-  tcuDocumentUri,
-  tcuUrl,
+
+  onPressPrevious,
+  onSave,
 }: Props) => {
-  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingDocument);
+  const onboardingInfo = getFragmentData(
+    OnboardingIndividualEmail_OnboardingInfo,
+    onboardingInfoData,
+  );
+  const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 
-  const haveToAcceptTcu = accountCountry === "DEU";
+  const hasToAcceptTcu = onboardingInfo.accountCountry === "DEU";
 
   const { Field, submitForm, setFieldError, FieldsListener } = useForm({
     email: {
-      initialValue: initialEmail,
+      initialValue: onboardingInfo.email ?? "",
       sanitize: trim,
       validate: combineValidators(validateRequired, validateEmail),
     },
     tcuAccepted: {
-      initialValue: !haveToAcceptTcu, // initialize as accepted if not required
+      initialValue: false,
       validate: value => {
         if (value === false) {
           return t("step.finalize.termsError");
@@ -106,10 +122,6 @@ export const OnboardingIndividualEmail = ({
       });
     }
   }, [serverValidationErrors, isFirstMount, setFieldError]);
-
-  const onPressPrevious = () => {
-    Router.push("Root", { onboardingId });
-  };
 
   const onPressNext = () => {
     submitForm({
@@ -128,11 +140,11 @@ export const OnboardingIndividualEmail = ({
         })
           .mapOk(data => data.unauthenticatedUpdateIndividualOnboarding)
           .mapOkToResult(filterRejectionsToResult)
-          .tapOk(() => Router.push("Location", { onboardingId }))
+          .tapOk(onSave)
           .tapError(error => {
             match(error)
-              .with({ __typename: "ValidationRejection" }, error => {
-                const invalidFields = extractServerValidationErrors(error, path =>
+              .with({ __typename: "ValidationRejection" }, ({ fields }) => {
+                const invalidFields = extractServerValidationErrors(fields, path =>
                   path[0] === "email" ? "email" : null,
                 );
                 invalidFields.forEach(({ fieldName, code }) => {
@@ -185,7 +197,7 @@ export const OnboardingIndividualEmail = ({
 
               <Box alignItems="start">
                 <Box direction="row" justifyContent="start">
-                  {haveToAcceptTcu && (
+                  {hasToAcceptTcu ? (
                     <>
                       <Field name="tcuAccepted">
                         {({ value, error, onChange, ref }) => (
@@ -202,7 +214,11 @@ export const OnboardingIndividualEmail = ({
                             <LakeText>
                               {formatNestedMessage("step.finalize.terms", {
                                 firstLink: (
-                                  <Link target="blank" to={tcuUrl} style={styles.link}>
+                                  <Link
+                                    target="blank"
+                                    to={onboardingInfo.tcuUrl}
+                                    style={styles.link}
+                                  >
                                     {t("emailPage.firstLink")}
 
                                     <Icon name="open-filled" size={16} style={styles.linkIcon} />
@@ -211,10 +227,12 @@ export const OnboardingIndividualEmail = ({
                                 secondLink: (
                                   <Link
                                     target="blank"
-                                    to={tcuDocumentUri ?? "#"}
+                                    to={onboardingInfo.projectInfo?.tcuDocumentUri ?? "#"}
                                     style={styles.link}
                                   >
-                                    {t("emailPage.secondLink", { partner: projectName })}
+                                    {t("emailPage.secondLink", {
+                                      partner: onboardingInfo.projectInfo?.name ?? "",
+                                    })}
 
                                     <Icon name="open-filled" size={16} style={styles.linkIcon} />
                                   </Link>
@@ -227,21 +245,27 @@ export const OnboardingIndividualEmail = ({
 
                       <Space width={12} />
                     </>
-                  )}
+                  ) : null}
 
-                  {!haveToAcceptTcu && (
+                  {hasToAcceptTcu ? null : (
                     <LakeText>
                       {formatNestedMessage("emailPage.terms", {
                         firstLink: (
-                          <Link target="blank" to={tcuUrl} style={styles.link}>
+                          <Link target="blank" to={onboardingInfo.tcuUrl} style={styles.link}>
                             {t("emailPage.firstLink")}
 
                             <Icon name="open-filled" size={16} style={styles.linkIcon} />
                           </Link>
                         ),
                         secondLink: (
-                          <Link target="blank" to={tcuDocumentUri ?? "#"} style={styles.link}>
-                            {t("emailPage.secondLink", { partner: projectName })}
+                          <Link
+                            target="blank"
+                            to={onboardingInfo.projectInfo?.tcuDocumentUri ?? "#"}
+                            style={styles.link}
+                          >
+                            {t("emailPage.secondLink", {
+                              partner: onboardingInfo.projectInfo?.name ?? "",
+                            })}
 
                             <Icon name="open-filled" size={16} style={styles.linkIcon} />
                           </Link>
@@ -251,7 +275,7 @@ export const OnboardingIndividualEmail = ({
                   )}
                 </Box>
 
-                {haveToAcceptTcu && (
+                {hasToAcceptTcu ? (
                   <>
                     <Space height={4} />
 
@@ -261,7 +285,7 @@ export const OnboardingIndividualEmail = ({
                       )}
                     </FieldsListener>
                   </>
-                )}
+                ) : null}
               </Box>
             </>
           )}

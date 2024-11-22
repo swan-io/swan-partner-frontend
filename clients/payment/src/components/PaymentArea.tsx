@@ -18,7 +18,7 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
-import { GetMerchantPaymentLinkDocument } from "../graphql/unauthenticated";
+import { graphql } from "../gql";
 import { CardErrorPage } from "../pages/CardErrorPage";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
@@ -58,6 +58,26 @@ type Props = {
   paymentLinkId: string;
 };
 
+const query = graphql(`
+  query PaymentArea($paymentLinkId: ID!) {
+    nonEEACountries
+    merchantPaymentLink(id: $paymentLinkId) {
+      ...PaymentPage_MerchantPaymentLink
+      id
+      cancelRedirectUrl
+      merchantProfile {
+        id
+        merchantLogoUrl
+        merchantName
+      }
+      statusInfo {
+        status
+      }
+      redirectUrl
+    }
+  }
+`);
+
 export const PaymentArea = ({ paymentLinkId }: Props) => {
   const route = Router.useRoute(["PaymentForm", "PaymentSuccess", "PaymentExpired"]);
   const [mandateUrl, setMandateUrl] = useState<string>();
@@ -69,7 +89,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
     }));
   }, []);
 
-  const [data] = useQuery(GetMerchantPaymentLinkDocument, { paymentLinkId });
+  const [data] = useQuery(query, { paymentLinkId });
 
   return (
     <ResponsiveContainer breakpoint={breakpoints.large} style={styles.root}>
@@ -147,32 +167,23 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                     <Space height={24} />
 
                     {match({
-                      route: route?.name,
-                      params: route?.params,
+                      route,
                       mandateUrlStatus,
                       merchantPaymentLink,
                     })
-                      .with({ route: "PaymentForm", mandateUrlStatus: "Active" }, () =>
-                        match({
-                          paymentMethods: merchantPaymentLink.paymentMethods,
-                          params: route?.params,
-                        })
-                          .with({ params: { error: "true" } }, () => (
+                      .with(
+                        { route: { name: "PaymentForm" }, mandateUrlStatus: "Active" },
+                        ({ route: { params } }) =>
+                          params?.error === "true" ? (
                             <CardErrorPage paymentLinkId={merchantPaymentLink.id} />
-                          ))
-                          .with(
-                            { paymentMethods: [P.nonNullable, ...P.array()] },
-                            ({ paymentMethods }) => (
-                              <PaymentPage
-                                merchantPaymentMethods={paymentMethods}
-                                paymentLink={merchantPaymentLink}
-                                setMandateUrl={setMandateUrl}
-                                nonEeaCountries={nonEEACountries}
-                                large={large}
-                              />
-                            ),
-                          )
-                          .otherwise(() => <ErrorView />),
+                          ) : (
+                            <PaymentPage
+                              data={merchantPaymentLink}
+                              onMandateReceive={setMandateUrl}
+                              nonEeaCountries={nonEEACountries}
+                              large={large}
+                            />
+                          ),
                       )
                       .with(
                         {
@@ -191,7 +202,7 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
 
                       .with(
                         {
-                          route: "PaymentSuccess",
+                          route: { name: "PaymentSuccess" },
                           mandateUrlStatus: "Completed",
                         },
                         () => (
@@ -202,12 +213,18 @@ export const PaymentArea = ({ paymentLinkId }: Props) => {
                           />
                         ),
                       )
-                      .with({ route: "PaymentSuccess" }, () => (
+                      .with({ route: { name: "PaymentSuccess" } }, () => (
                         <SuccessPage redirectUrl={redirectUrl} large={large} />
                       ))
-                      .with({ route: "PaymentExpired" }, { mandateUrlStatus: "Expired" }, () => (
-                        <ExpiredPage paymentLink={merchantPaymentLink} />
-                      ))
+                      .with(
+                        { route: { name: "PaymentExpired" } },
+                        { mandateUrlStatus: "Expired" },
+                        () => (
+                          <ExpiredPage
+                            redirectUrl={paymentLink.merchantPaymentLink.redirectUrl ?? undefined}
+                          />
+                        ),
+                      )
                       .otherwise(() => (
                         <NotFoundPage />
                       ))}

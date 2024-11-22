@@ -9,7 +9,7 @@ import { useForm } from "@swan-io/use-form";
 import { forwardRef, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { P, match } from "ts-pattern";
-import { UboIdentityDocumentType } from "../../../graphql/unauthenticated";
+import { UboIdentityDocumentType } from "../../../gql/graphql";
 import { t } from "../../../utils/i18n";
 import { validateRequired } from "../../../utils/validation";
 

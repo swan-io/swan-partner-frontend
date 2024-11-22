@@ -19,13 +19,10 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";
-import {
-  DeleteSupportingDocumentDocument,
-  GenerateSupportingDocumentUploadUrlDocument,
-  RequestSupportingDocumentCollectionReviewDocument,
-  SupportingDocumentCollectionDocument,
-  SupportingDocumentPurposeEnum,
-} from "../graphql/unauthenticated";
+import { graphql } from "../gql";
+import { SupportingDocumentPurposeEnum } from "../gql/graphql";
+import { DeleteSupportingDocumentMutation } from "../mutations/DeleteSupportingDocumentMutation";
+import { GenerateSupportingDocumentUploadUrlMutation } from "../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
@@ -35,6 +32,49 @@ import { OnboardingHeader } from "./OnboardingHeader";
 import { OnboardingStepContent } from "./OnboardingStepContent";
 import { StepTitle } from "./StepTitle";
 import { SupportingDocumentCollectionSuccessPage } from "./SupportingDocumentCollectionSuccess";
+
+const SupportingCollectionQuery = graphql(`
+  query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
+    supportingDocumentCollection(id: $supportingDocumentCollectionId) {
+      id
+      accountHolder {
+        id
+        name
+      }
+      requiredSupportingDocumentPurposes {
+        name
+      }
+      statusInfo {
+        status
+      }
+      supportingDocuments {
+        id
+        supportingDocumentPurpose
+        supportingDocumentType
+        updatedAt
+        statusInfo {
+          __typename
+          status
+          ... on SupportingDocumentUploadedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentValidatedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentRefusedStatusInfo {
+            reason
+            filename
+          }
+        }
+      }
+      projectInfo {
+        id
+        accentColor
+        ...OnboardingHeader_ProjectInfo
+      }
+    }
+  }
+`);
 
 type Props = {
   supportingDocumentCollectionId: string;
@@ -47,21 +87,39 @@ const DocumentsStepTile = ({ small, children }: { small: boolean; children: Reac
   return <Tile>{children}</Tile>;
 };
 
+const RequestSupportingDocumentCollectionReviewMutation = graphql(`
+  mutation RequestSupportingDocumentCollectionReview(
+    $input: RequestSupportingDocumentCollectionReviewInput!
+  ) {
+    requestSupportingDocumentCollectionReview(input: $input) {
+      __typename
+      ... on RequestSupportingDocumentCollectionReviewSuccessPayload {
+        supportingDocumentCollection {
+          id
+        }
+      }
+      ... on Rejection {
+        message
+      }
+    }
+  }
+`);
+
 export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionId }: Props) => {
   const route = Router.useRoute([
     "SupportingDocumentCollectionRoot",
     "SupportingDocumentCollectionSuccess",
   ]);
-  const [data] = useQuery(SupportingDocumentCollectionDocument, { supportingDocumentCollectionId });
+  const [data] = useQuery(SupportingCollectionQuery, { supportingDocumentCollectionId });
 
   const [generateSupportingDocumentUploadUrl] = useMutation(
-    GenerateSupportingDocumentUploadUrlDocument,
+    GenerateSupportingDocumentUploadUrlMutation,
   );
-  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentMutation);
   const [
     requestSupportingDocumentCollectionReviewDocument,
     supportingDocumentCollectionReviewDocumentRequest,
-  ] = useMutation(RequestSupportingDocumentCollectionReviewDocument);
+  ] = useMutation(RequestSupportingDocumentCollectionReviewMutation);
 
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
@@ -195,11 +253,7 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
             }
           >
             <>
-              {match(supportingDocumentCollection.projectInfo)
-                .with({ name: P.string, logoUri: P.string }, ({ name, logoUri }) => (
-                  <OnboardingHeader projectName={name} projectLogo={logoUri} />
-                ))
-                .otherwise(() => null)}
+              <OnboardingHeader projectInfoData={supportingDocumentCollection.projectInfo} />
 
               {match(route)
                 .with(Router.P.SupportingDocumentCollectionRoot(P._), () => {

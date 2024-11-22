@@ -16,7 +16,7 @@ import { CardPayment } from "../components/CardPayment";
 import { ErrorView } from "../components/ErrorView";
 import { SddPayment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
-import { GetMerchantPaymentLinkQuery, MerchantPaymentMethodType } from "../graphql/unauthenticated";
+import { FragmentType, getFragmentData, graphql } from "../gql";
 import { env } from "../utils/env";
 import { t } from "../utils/i18n";
 
@@ -33,22 +33,35 @@ type SupportedMethodType = "Card" | "DirectDebit";
 
 const orderedSupportedMethodTypes: SupportedMethodType[] = ["DirectDebit", "Card"];
 
+export const PaymentPage_MerchantPaymentLink = graphql(`
+  fragment PaymentPage_MerchantPaymentLink on MerchantPaymentLink {
+    id
+    merchantProfile {
+      accentColor
+    }
+    label
+    amount {
+      value
+      currency
+    }
+    paymentMethods {
+      type
+      id
+    }
+    ...SddPayment_MerchantPaymentLink
+  }
+`);
+
 type Props = {
-  paymentLink: NonNullable<GetMerchantPaymentLinkQuery["merchantPaymentLink"]>;
-  setMandateUrl: (value: string) => void;
+  data: FragmentType<typeof PaymentPage_MerchantPaymentLink>;
+  onMandateReceive: (value: string) => void;
   nonEeaCountries: string[];
-  merchantPaymentMethods: { type: MerchantPaymentMethodType; id: string }[];
   large: boolean;
 };
 
-export const PaymentPage = ({
-  paymentLink,
-  setMandateUrl,
-  nonEeaCountries,
-  merchantPaymentMethods,
-  large,
-}: Props) => {
-  const methodIds = merchantPaymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
+export const PaymentPage = ({ data, onMandateReceive, nonEeaCountries, large }: Props) => {
+  const paymentLink = getFragmentData(PaymentPage_MerchantPaymentLink, data);
+  const methodIds = paymentLink.paymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)
         .with("Card", () => ({ ...acc, Card: id }))
@@ -77,6 +90,10 @@ export const PaymentPage = ({
   );
 
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState(paymentMethods[0]);
+
+  if (paymentMethods.length === 0) {
+    return <ErrorView />;
+  }
 
   return (
     <WithPartnerAccentColor
@@ -124,7 +141,7 @@ export const PaymentPage = ({
           } else {
             return (
               <CardPayment
-                paymentLink={paymentLink}
+                paymentLinkId={paymentLink.id}
                 paymentMethodId={id}
                 publicKey={env.CLIENT_CHECKOUT_API_KEY}
                 large={large}
@@ -134,9 +151,9 @@ export const PaymentPage = ({
         })
         .with({ name: "Direct Debit" }, () => (
           <SddPayment
+            data={paymentLink}
             nonEeaCountries={nonEeaCountries}
-            paymentLink={paymentLink}
-            setMandateUrl={setMandateUrl}
+            onMandateReceive={onMandateReceive}
             large={large}
           />
         ))

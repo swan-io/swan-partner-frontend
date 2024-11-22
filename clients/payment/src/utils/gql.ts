@@ -13,6 +13,7 @@ import { customAlphabet } from "nanoid";
 import { P, match } from "ts-pattern";
 import schemaConfig from "../../../../scripts/graphql/dist/unauthenticated-schema-config.json";
 import { env } from "./env";
+
 const alphabet = "0123456789abcdefghijklmnopqrstuvwxyz";
 const nanoid = customAlphabet(alphabet, 8);
 

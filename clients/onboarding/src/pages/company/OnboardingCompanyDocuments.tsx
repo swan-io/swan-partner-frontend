@@ -15,30 +15,57 @@ import {
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
-import { match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
-import {
-  DeleteSupportingDocumentDocument,
-  GenerateSupportingDocumentUploadUrlDocument,
-  SupportingDocumentCollectionStatus,
-  SupportingDocumentFragment,
-  SupportingDocumentPurposeEnum,
-  UpdateCompanyOnboardingDocument,
-} from "../../graphql/unauthenticated";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { SupportingDocumentPurposeEnum } from "../../gql/graphql";
+import { DeleteSupportingDocumentMutation } from "../../mutations/DeleteSupportingDocumentMutation";
+import { GenerateSupportingDocumentUploadUrlMutation } from "../../mutations/GenerateSupportingDocumentUploadUrlMutation";
+import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { locale, t } from "../../utils/i18n";
-import { CompanyOnboardingRoute, Router } from "../../utils/routes";
+
+export const OnboardingCompanyDocuments_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyDocuments_OnboardingInfo on OnboardingInfo {
+    supportingDocumentCollection {
+      id
+      statusInfo {
+        status
+      }
+      requiredSupportingDocumentPurposes {
+        name
+      }
+      supportingDocuments {
+        id
+        supportingDocumentPurpose
+        supportingDocumentType
+        updatedAt
+        statusInfo {
+          __typename
+          status
+          ... on SupportingDocumentUploadedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentValidatedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentRefusedStatusInfo {
+            reason
+            filename
+          }
+        }
+      }
+    }
+    language
+  }
+`);
 
 type Props = {
-  previousStep: CompanyOnboardingRoute;
-  nextStep: CompanyOnboardingRoute;
   onboardingId: string;
-  documents: SupportingDocumentFragment[];
-  requiredDocumentsPurposes: SupportingDocumentPurposeEnum[];
-  supportingDocumentCollectionId: string;
-  supportingDocumentCollectionStatus: SupportingDocumentCollectionStatus;
-  templateLanguage: string;
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyDocuments_OnboardingInfo>;
+  onPressPrevious: () => void;
+  onSave: () => void;
 };
 
 const DocumentsStepTile = ({ small, children }: { small: boolean; children: ReactNode }) => {
@@ -49,31 +76,24 @@ const DocumentsStepTile = ({ small, children }: { small: boolean; children: Reac
 };
 
 export const OnboardingCompanyDocuments = ({
-  previousStep,
-  nextStep,
   onboardingId,
-  documents,
-  requiredDocumentsPurposes,
-  supportingDocumentCollectionId,
-  supportingDocumentCollectionStatus,
-  templateLanguage,
+  onboardingInfoData,
+  onPressPrevious,
+  onSave,
 }: Props) => {
-  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingDocument);
-  const [generateSupportingDocumentUploadUrl] = useMutation(
-    GenerateSupportingDocumentUploadUrlDocument,
+  const onboardingInfo = getFragmentData(
+    OnboardingCompanyDocuments_OnboardingInfo,
+    onboardingInfoData,
   );
-  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentDocument);
+
+  const [updateOnboarding, updateResult] = useMutation(UpdateCompanyOnboardingMutation);
+  const [generateSupportingDocumentUploadUrl] = useMutation(
+    GenerateSupportingDocumentUploadUrlMutation,
+  );
+  const [deleteSupportingDocument] = useMutation(DeleteSupportingDocumentMutation);
   const [showConfirmModal, setShowConfirmModal] = useBoolean(false);
   const supportingDocumentCollectionRef =
     useRef<SupportingDocumentCollectionRef<SupportingDocumentPurposeEnum>>(null);
-
-  const onPressPrevious = () => {
-    Router.push(previousStep, { onboardingId });
-  };
-
-  const goToNextStep = () => {
-    Router.push(nextStep, { onboardingId });
-  };
 
   const onPressNext = () => {
     const supportingDocumentCollection = supportingDocumentCollectionRef.current;
@@ -89,7 +109,7 @@ export const OnboardingCompanyDocuments = ({
       })
         .mapOk(data => data.unauthenticatedUpdateCompanyOnboarding)
         .mapOkToResult(filterRejectionsToResult)
-        .tap(() => goToNextStep());
+        .tap(onSave);
     } else {
       setShowConfirmModal.on();
     }
@@ -104,7 +124,7 @@ export const OnboardingCompanyDocuments = ({
   }) => {
     return generateSupportingDocumentUploadUrl({
       input: {
-        supportingDocumentCollectionId,
+        supportingDocumentCollectionId: onboardingInfo.supportingDocumentCollection.id,
         supportingDocumentPurpose: purpose,
         filename: fileName,
       },
@@ -123,51 +143,54 @@ export const OnboardingCompanyDocuments = ({
     [deleteSupportingDocument],
   );
 
-  const docs = Array.filterMap(documents, document =>
-    match(document)
-      .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
-      .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
-        Option.None(),
-      )
-      .with(
-        {
-          statusInfo: {
-            __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+  const docs = Array.filterMap(
+    onboardingInfo.supportingDocumentCollection.supportingDocuments,
+    document =>
+      match(document)
+        .returnType<Option<Document<SupportingDocumentPurposeEnum>>>()
+        .with({ statusInfo: { __typename: "SupportingDocumentNotUploadedStatusInfo" } }, () =>
+          Option.None(),
+        )
+        .with(
+          {
+            statusInfo: {
+              __typename: "SupportingDocumentWaitingForUploadStatusInfo",
+            },
           },
-        },
-        () => Option.None(),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
-            statusInfo: { status: "Validated" },
-          },
-        }),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
-            statusInfo: { status: "Refused", reason: document.statusInfo.reason },
-          },
-        }),
-      )
-      .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
-        Option.Some({
-          purpose: document.supportingDocumentPurpose,
-          file: {
-            id: document.id,
-            name: document.statusInfo.filename,
-            statusInfo: { status: "Uploaded" },
-          },
-        }),
-      )
-      .exhaustive(),
+          () => Option.None(),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentValidatedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: { status: "Validated" },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentRefusedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: { status: "Refused", reason: document.statusInfo.reason },
+            },
+          }),
+        )
+        .with({ statusInfo: { __typename: "SupportingDocumentUploadedStatusInfo" } }, document =>
+          Option.Some({
+            purpose: document.supportingDocumentPurpose,
+            file: {
+              id: document.id,
+              name: document.statusInfo.filename,
+              statusInfo: { status: "Uploaded" },
+            },
+          }),
+        )
+        .with(P.nullish, () => Option.None())
+        .exhaustive(),
   );
 
   return (
@@ -185,10 +208,12 @@ export const OnboardingCompanyDocuments = ({
                 <SupportingDocumentCollection
                   ref={supportingDocumentCollectionRef}
                   documents={docs}
-                  requiredDocumentPurposes={requiredDocumentsPurposes}
+                  requiredDocumentPurposes={onboardingInfo.supportingDocumentCollection.requiredSupportingDocumentPurposes.map(
+                    purpose => purpose.name,
+                  )}
                   generateUpload={generateUpload}
-                  status={supportingDocumentCollectionStatus}
-                  templateLanguage={templateLanguage}
+                  status={onboardingInfo.supportingDocumentCollection.statusInfo.status}
+                  templateLanguage={onboardingInfo.language ?? "en"}
                   onRemoveFile={onRemoveFile}
                 />
               </DocumentsStepTile>
@@ -209,7 +234,7 @@ export const OnboardingCompanyDocuments = ({
         message={t("company.step.documents.confirmModal.message")}
         icon="document-regular"
         confirmText={t("company.step.documents.confirmModal.confirm")}
-        onConfirm={goToNextStep}
+        onConfirm={onSave}
         loading={updateResult.isLoading()}
         onCancel={setShowConfirmModal.off}
       />

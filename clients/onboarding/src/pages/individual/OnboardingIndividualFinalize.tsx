@@ -9,16 +9,17 @@ import { P, match } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { IdentificationLevel } from "../../graphql/unauthenticated";
+import { IdentificationLevel } from "../../gql/graphql";
+import { WizardStep } from "../../types/WizardStep";
 import { env } from "../../utils/env";
 import { openPopup } from "../../utils/popup";
 import { projectConfiguration } from "../../utils/projectId";
-import { IndividualOnboardingRoute, Router } from "../../utils/routes";
+import { Router } from "../../utils/routes";
 
 type Props = {
   onboardingId: string;
   legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel;
-  steps: WizardStep<IndividualOnboardingRoute>[];
+  steps: WizardStep[];
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;
 };
@@ -30,7 +31,7 @@ export const OnboardingIndividualFinalize = ({
   alreadySubmitted,
   onSubmitWithErrors,
 }: Props) => {
-  const containsErrors = steps.some(({ errors }) => errors != null && errors.length > 0);
+  const hasValidationErrors = steps.some(({ errors }) => errors.length > 0);
   const [shakeError, setShakeError] = useBoolean(false);
 
   useEffect(() => {
@@ -47,7 +48,7 @@ export const OnboardingIndividualFinalize = ({
   };
 
   const onPressNext = () => {
-    if (containsErrors) {
+    if (hasValidationErrors) {
       setShakeError.on();
       onSubmitWithErrors();
       return;
@@ -85,13 +86,8 @@ export const OnboardingIndividualFinalize = ({
         <ResponsiveContainer breakpoint={breakpoints.medium}>
           {({ small }) => (
             <Box alignItems="center" justifyContent="center">
-              {containsErrors && alreadySubmitted ? (
-                <FinalizeInvalidSteps
-                  onboardingId={onboardingId}
-                  steps={steps}
-                  isShaking={shakeError}
-                  isMobile={small}
-                />
+              {hasValidationErrors && alreadySubmitted ? (
+                <FinalizeInvalidSteps steps={steps} isShaking={shakeError} isMobile={small} />
               ) : (
                 <FinalizeBlock isMobile={small} />
               )}

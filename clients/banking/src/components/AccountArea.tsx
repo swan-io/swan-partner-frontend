@@ -508,7 +508,7 @@ export const AccountArea = ({
                                     },
                                   },
                                 },
-                                ({ accountMembership: { recommendedIdentificationLevel } }) => (
+                                () => (
                                   <ResponsiveContainer breakpoint={breakpoints.large}>
                                     {({ large }) => (
                                       <View style={[styles.alert, large && styles.alertLarge]}>
@@ -525,10 +525,7 @@ export const AccountArea = ({
                                                 const params = new URLSearchParams();
 
                                                 params.set("redirectTo", Router.PopupCallback());
-                                                params.set(
-                                                  "identificationLevel",
-                                                  recommendedIdentificationLevel,
-                                                );
+                                                params.set("identificationLevel", "Auto");
                                                 params.set("email", email);
 
                                                 match(
@@ -564,7 +561,7 @@ export const AccountArea = ({
                                     },
                                   },
                                 },
-                                ({ accountMembership: { recommendedIdentificationLevel } }) => (
+                                () => (
                                   <ResponsiveContainer breakpoint={breakpoints.large}>
                                     {({ large }) => (
                                       <View style={[styles.alert, large && styles.alertLarge]}>
@@ -581,10 +578,7 @@ export const AccountArea = ({
                                                 const params = new URLSearchParams();
 
                                                 params.set("redirectTo", Router.PopupCallback());
-                                                params.set(
-                                                  "identificationLevel",
-                                                  recommendedIdentificationLevel,
-                                                );
+                                                params.set("identificationLevel", "Auto");
                                                 params.set("email", email);
 
                                                 match(

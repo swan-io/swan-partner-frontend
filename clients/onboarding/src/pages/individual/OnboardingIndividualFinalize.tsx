@@ -9,7 +9,6 @@ import { P, match } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
-import { IdentificationLevel } from "../../graphql/unauthenticated";
 import { env } from "../../utils/env";
 import { openPopup } from "../../utils/popup";
 import { projectConfiguration } from "../../utils/projectId";
@@ -17,7 +16,6 @@ import { IndividualOnboardingRoute, Router } from "../../utils/routes";
 
 type Props = {
   onboardingId: string;
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel;
   steps: WizardStep<IndividualOnboardingRoute>[];
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;
@@ -25,7 +23,6 @@ type Props = {
 
 export const OnboardingIndividualFinalize = ({
   onboardingId,
-  legalRepresentativeRecommendedIdentificationLevel,
   steps,
   alreadySubmitted,
   onSubmitWithErrors,
@@ -54,7 +51,7 @@ export const OnboardingIndividualFinalize = ({
     }
 
     const queryString = new URLSearchParams();
-    queryString.append("identificationLevel", legalRepresentativeRecommendedIdentificationLevel);
+    queryString.append("identificationLevel", "Auto");
     queryString.append("onboardingId", onboardingId);
 
     match(projectConfiguration)

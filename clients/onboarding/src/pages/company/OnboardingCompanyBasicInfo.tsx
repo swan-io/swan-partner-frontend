@@ -17,16 +17,13 @@ import {
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { CompanyType, TypeOfRepresentation } from "../../gql/graphql";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-
-type CompanyType = ReturnType<typeof graphql.scalar<"CompanyType">>;
-type TypeOfRepresentation = ReturnType<typeof graphql.scalar<"TypeOfRepresentation">>;
 
 export const OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo = graphql(`
   fragment OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
@@ -47,10 +44,10 @@ export const OnboardingCompanyBasicInfo_OnboardingInfo = graphql(`
 type Props = {
   onSave: () => void;
   onboardingId: string;
-  accountHolderInfoData: FragmentOf<
+  accountHolderInfoData: FragmentType<
     typeof OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo
   >;
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyBasicInfo_OnboardingInfo>;
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyBasicInfo_OnboardingInfo>;
 };
 
 const companyTypesPerCountry: Partial<Record<CountryCCA3, string>> = {
@@ -115,12 +112,12 @@ export const OnboardingCompanyBasicInfo = ({
   accountHolderInfoData,
   onboardingInfoData,
 }: Props) => {
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );
 
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingCompanyBasicInfo_OnboardingInfo,
     onboardingInfoData,
   );

@@ -24,7 +24,6 @@ import {
   isCountryCCA3,
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -33,8 +32,9 @@ import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
 import { getCountryUbo } from "../../constants/ubo";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { AccountCountry, IndividualUltimateBeneficialOwnerInput } from "../../gql/graphql";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { TranslationKey, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -46,11 +46,6 @@ import {
   SaveValue,
   validateUbo,
 } from "./ownership-beneficiary/OnboardingCompanyOwnershipBeneficiaryForm";
-
-type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
-type IndividualUltimateBeneficialOwnerInput = ReturnType<
-  typeof graphql.scalar<"IndividualUltimateBeneficialOwnerInput">
->;
 
 const styles = StyleSheet.create({
   fill: {
@@ -134,37 +129,31 @@ const OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner = graphql(`
   }
 `);
 
-export const OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo = graphql(
-  `
-    fragment OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
-      name
-      individualUltimateBeneficialOwners {
-        ...OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner
-      }
-      residencyAddress {
-        country
-      }
+export const OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    name
+    individualUltimateBeneficialOwners {
+      ...OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner
     }
-  `,
-  [OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner],
-);
+    residencyAddress {
+      country
+    }
+  }
+`);
 
-export const OnboardingCompanyOwnership_OnboardingInfo = graphql(
-  `
-    fragment OnboardingCompanyOwnership_OnboardingInfo on OnboardingInfo {
-      accountCountry
-    }
-  `,
-  [],
-);
+export const OnboardingCompanyOwnership_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyOwnership_OnboardingInfo on OnboardingInfo {
+    accountCountry
+  }
+`);
 
 type Props = {
   onboardingId: string;
 
-  accountHolderInfoData: FragmentOf<
+  accountHolderInfoData: FragmentType<
     typeof OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo
   >;
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyOwnership_OnboardingInfo>;
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyOwnership_OnboardingInfo>;
 
   onPressPrevious: () => void;
   onSave: () => void;
@@ -175,10 +164,10 @@ type LocalStateUbo = SaveValue & {
 };
 
 const convertFetchUboToInput = (
-  data: FragmentOf<typeof OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner>,
+  data: FragmentType<typeof OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner>,
   accountCountry: AccountCountry | null,
 ): LocalStateUbo => {
-  const fetchedUbo = readFragment(
+  const fetchedUbo = getFragmentData(
     OnboardingCompanyOwnership_IndividualUltimateBeneficialOwner,
     data,
   );
@@ -406,12 +395,12 @@ export const OnboardingCompanyOwnership = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingCompanyOwnership_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );

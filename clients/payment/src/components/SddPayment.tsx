@@ -18,10 +18,9 @@ import {
   validateRequired,
 } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { graphql } from "../utils/gql";
+import { FragmentType, getFragmentData, graphql } from "../gql";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 
@@ -50,7 +49,7 @@ export const SddPayment_MerchantPaymentLink = graphql(`
 `);
 
 type Props = {
-  data: FragmentOf<typeof SddPayment_MerchantPaymentLink>;
+  data: FragmentType<typeof SddPayment_MerchantPaymentLink>;
   nonEeaCountries: string[];
   onMandateReceive: (value: string) => void;
   large: boolean;
@@ -120,7 +119,7 @@ const InitiateMerchantSddPaymentCollectionFromPaymentLink = graphql(`
 `);
 
 export const SddPayment = ({ data, nonEeaCountries, onMandateReceive, large }: Props) => {
-  const paymentLink = readFragment(SddPayment_MerchantPaymentLink, data);
+  const paymentLink = getFragmentData(SddPayment_MerchantPaymentLink, data);
   const { Field, submitForm, setFieldError, focusField } = useForm<FormState>({
     iban: {
       initialValue: paymentLink?.customer?.iban ?? "",

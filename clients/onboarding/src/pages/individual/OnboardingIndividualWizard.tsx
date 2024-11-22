@@ -7,36 +7,22 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "../../components/OnboardingHeader";
+import { OnboardingHeader } from "../../components/OnboardingHeader";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { WizardStep } from "../../types/WizardStep";
-import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { IndividualOnboardingRoute, Router, individualOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { IndividualFlowPresentation } from "./IndividualFlowPresentation";
-import {
-  DetailsFieldName,
-  OnboardingIndividualDetails,
-  OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
-  OnboardingIndividualDetails_OnboardingInfo,
-} from "./OnboardingIndividualDetails";
-import {
-  OnboardingIndividualEmail,
-  OnboardingIndividualEmail_OnboardingInfo,
-} from "./OnboardingIndividualEmail";
+import { DetailsFieldName, OnboardingIndividualDetails } from "./OnboardingIndividualDetails";
+import { OnboardingIndividualEmail } from "./OnboardingIndividualEmail";
 import { OnboardingIndividualFinalize } from "./OnboardingIndividualFinalize";
-import {
-  LocationFieldName,
-  OnboardingIndividualLocation,
-  OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
-  OnboardingIndividualLocation_OnboardingInfo,
-} from "./OnboardingIndividualLocation";
+import { LocationFieldName, OnboardingIndividualLocation } from "./OnboardingIndividualLocation";
 
 const styles = StyleSheet.create({
   stepper: {
@@ -53,60 +39,46 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingIndividualWizard_OnboardingInfo = graphql(
-  `
-    fragment OnboardingIndividualWizard_OnboardingInfo on OnboardingInfo {
-      id
-      statusInfo {
+export const OnboardingIndividualWizard_OnboardingInfo = graphql(`
+  fragment OnboardingIndividualWizard_OnboardingInfo on OnboardingInfo {
+    id
+    statusInfo {
+      __typename
+      ... on OnboardingInvalidStatusInfo {
         __typename
-        ... on OnboardingInvalidStatusInfo {
-          __typename
-          errors {
-            field
-            errors
-          }
-        }
-        ... on OnboardingFinalizedStatusInfo {
-          __typename
-        }
-        ... on OnboardingValidStatusInfo {
-          __typename
+        errors {
+          field
+          errors
         }
       }
-      projectInfo {
-        id
-        ...OnboardingHeader_ProjectInfo
+      ... on OnboardingFinalizedStatusInfo {
+        __typename
       }
-      legalRepresentativeRecommendedIdentificationLevel
-      ...OnboardingIndividualEmail_OnboardingInfo
-      ...OnboardingIndividualLocation_OnboardingInfo
-      ...OnboardingIndividualDetails_OnboardingInfo
+      ... on OnboardingValidStatusInfo {
+        __typename
+      }
     }
-  `,
-  [
-    OnboardingHeader_ProjectInfo,
-    OnboardingIndividualEmail_OnboardingInfo,
-    OnboardingIndividualLocation_OnboardingInfo,
-    OnboardingIndividualDetails_OnboardingInfo,
-  ],
-);
+    projectInfo {
+      id
+      ...OnboardingHeader_ProjectInfo
+    }
+    legalRepresentativeRecommendedIdentificationLevel
+    ...OnboardingIndividualEmail_OnboardingInfo
+    ...OnboardingIndividualLocation_OnboardingInfo
+    ...OnboardingIndividualDetails_OnboardingInfo
+  }
+`);
 
-export const OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo = graphql(
-  `
-    fragment OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
-      ...OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
-      ...OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo
-    }
-  `,
-  [
-    OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
-    OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
-  ],
-);
+export const OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo = graphql(`
+  fragment OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo on OnboardingIndividualAccountHolderInfo {
+    ...OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
+    ...OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo
+  }
+`);
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof OnboardingIndividualWizard_OnboardingInfo>;
-  individualAccountHolderInfoData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualWizard_OnboardingInfo>;
+  individualAccountHolderInfoData: FragmentType<
     typeof OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
   >;
 };
@@ -115,12 +87,12 @@ export const OnboardingIndividualWizard = ({
   onboardingInfoData,
   individualAccountHolderInfoData,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingIndividualWizard_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
     individualAccountHolderInfoData,
   );

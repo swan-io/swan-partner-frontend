@@ -18,14 +18,14 @@ import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/compo
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { EmploymentStatus, MonthlyIncome } from "../../gql/graphql";
 import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -33,9 +33,6 @@ import {
   getValidationErrorMessage,
   validateRequired,
 } from "../../utils/validation";
-
-type MonthlyIncome = ReturnType<typeof graphql.scalar<"MonthlyIncome">>;
-type EmploymentStatus = ReturnType<typeof graphql.scalar<"EmploymentStatus">>;
 
 const employmentStatuses: Item<EmploymentStatus>[] = [
   { name: t("employmentStatus.craftsman"), value: "Craftsman" },
@@ -80,8 +77,8 @@ export const OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo =
 type Props = {
   onboardingId: string;
 
-  onboardingInfoData: FragmentOf<typeof OnboardingIndividualDetails_OnboardingInfo>;
-  accountHolderInfoData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualDetails_OnboardingInfo>;
+  accountHolderInfoData: FragmentType<
     typeof OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo
   >;
 
@@ -105,12 +102,12 @@ export const OnboardingIndividualDetails = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingIndividualDetails_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingIndividualDetails_OnboardingIndividualAccountHolderInfo,
     accountHolderInfoData,
   );

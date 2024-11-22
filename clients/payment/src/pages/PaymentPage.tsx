@@ -8,17 +8,16 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { WithPartnerAccentColor } from "@swan-io/lake/src/components/WithPartnerAccentColor";
 import { colors, invariantColors } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useState } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { formatCurrency } from "../../../banking/src/utils/i18n";
 import { CardPayment } from "../components/CardPayment";
 import { ErrorView } from "../components/ErrorView";
-import { SddPayment, SddPayment_MerchantPaymentLink } from "../components/SddPayment";
+import { SddPayment } from "../components/SddPayment";
 import { SepaLogo } from "../components/SepaLogo";
+import { FragmentType, getFragmentData, graphql } from "../gql";
 import { env } from "../utils/env";
-import { graphql } from "../utils/gql";
 import { t } from "../utils/i18n";
 
 const styles = StyleSheet.create({
@@ -34,37 +33,34 @@ type SupportedMethodType = "Card" | "DirectDebit";
 
 const orderedSupportedMethodTypes: SupportedMethodType[] = ["DirectDebit", "Card"];
 
-export const PaymentPage_MerchantPaymentLink = graphql(
-  `
-    fragment PaymentPage_MerchantPaymentLink on MerchantPaymentLink {
-      id
-      merchantProfile {
-        accentColor
-      }
-      label
-      amount {
-        value
-        currency
-      }
-      paymentMethods {
-        type
-        id
-      }
-      ...SddPayment_MerchantPaymentLink
+export const PaymentPage_MerchantPaymentLink = graphql(`
+  fragment PaymentPage_MerchantPaymentLink on MerchantPaymentLink {
+    id
+    merchantProfile {
+      accentColor
     }
-  `,
-  [SddPayment_MerchantPaymentLink],
-);
+    label
+    amount {
+      value
+      currency
+    }
+    paymentMethods {
+      type
+      id
+    }
+    ...SddPayment_MerchantPaymentLink
+  }
+`);
 
 type Props = {
-  data: FragmentOf<typeof PaymentPage_MerchantPaymentLink>;
+  data: FragmentType<typeof PaymentPage_MerchantPaymentLink>;
   onMandateReceive: (value: string) => void;
   nonEeaCountries: string[];
   large: boolean;
 };
 
 export const PaymentPage = ({ data, onMandateReceive, nonEeaCountries, large }: Props) => {
-  const paymentLink = readFragment(PaymentPage_MerchantPaymentLink, data);
+  const paymentLink = getFragmentData(PaymentPage_MerchantPaymentLink, data);
   const methodIds = paymentLink.paymentMethods.reduce<Partial<Record<SupportedMethodType, string>>>(
     (acc, { type, id }) => {
       return match(type)

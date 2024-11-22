@@ -11,49 +11,32 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
 import { isNullish } from "@swan-io/lake/src/utils/nullish";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect, useMemo } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
-import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "../../components/OnboardingHeader";
+import { OnboardingHeader } from "../../components/OnboardingHeader";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { WizardStep } from "../../types/WizardStep";
-import { graphql } from "../../utils/gql";
 import { t } from "../../utils/i18n";
 import { TrackingProvider } from "../../utils/matomo";
 import { CompanyOnboardingRoute, Router, companyOnboardingRoutes } from "../../utils/routes";
 import { extractServerInvalidFields } from "../../utils/validation";
 import { NotFoundPage } from "../NotFoundPage";
 import { CompanyFlowPresentation } from "./CompanyFlowPresentation";
-import {
-  OnboardingCompanyBasicInfo,
-  OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
-  OnboardingCompanyBasicInfo_OnboardingInfo,
-} from "./OnboardingCompanyBasicInfo";
-import {
-  OnboardingCompanyDocuments,
-  OnboardingCompanyDocuments_OnboardingInfo,
-} from "./OnboardingCompanyDocuments";
+import { OnboardingCompanyBasicInfo } from "./OnboardingCompanyBasicInfo";
+import { OnboardingCompanyDocuments } from "./OnboardingCompanyDocuments";
 import { OnboardingCompanyFinalize } from "./OnboardingCompanyFinalize";
 import {
   OnboardingCompanyOrganisation1,
-  OnboardingCompanyOrganisation1_OnboardingInfo,
-  OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
   Organisation1FieldName,
 } from "./OnboardingCompanyOrganisation1";
 import {
   OnboardingCompanyOrganisation2,
-  OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
   Organisation2FieldName,
 } from "./OnboardingCompanyOrganisation2";
-import {
-  OnboardingCompanyOwnership,
-  OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo,
-  OnboardingCompanyOwnership_OnboardingInfo,
-} from "./OnboardingCompanyOwnership";
+import { OnboardingCompanyOwnership } from "./OnboardingCompanyOwnership";
 import {
   OnboardingCompanyRegistration,
-  OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
-  OnboardingCompanyRegistration_OnboardingInfo,
   RegistrationFieldName,
 } from "./OnboardingCompanyRegistration";
 
@@ -72,87 +55,68 @@ const styles = StyleSheet.create({
   },
 });
 
-export const OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo = graphql(
-  `
-    fragment OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
-      companyType
-      residencyAddress {
-        country
-      }
-      individualUltimateBeneficialOwners {
-        __typename
-      }
-      ...OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo
-      ...OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo
-      ...OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo
-      ...OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
-      ...OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo
+export const OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo = graphql(`
+  fragment OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo on OnboardingCompanyAccountHolderInfo {
+    companyType
+    residencyAddress {
+      country
     }
-  `,
-  [
-    OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo,
-    OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
-    OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
-    OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
-    OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo,
-  ],
-);
+    individualUltimateBeneficialOwners {
+      __typename
+    }
+    ...OnboardingCompanyBasicInfo_OnboardingCompanyAccountHolderInfo
+    ...OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo
+    ...OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo
+    ...OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
+    ...OnboardingCompanyOwnership_OnboardingCompanyAccountHolderInfo
+  }
+`);
 
-export const OnboardingCompanyWizard_OnboardingInfo = graphql(
-  `
-    fragment OnboardingCompanyWizard_OnboardingInfo on OnboardingInfo {
-      id
-      statusInfo {
+export const OnboardingCompanyWizard_OnboardingInfo = graphql(`
+  fragment OnboardingCompanyWizard_OnboardingInfo on OnboardingInfo {
+    id
+    statusInfo {
+      __typename
+      ... on OnboardingInvalidStatusInfo {
         __typename
-        ... on OnboardingInvalidStatusInfo {
-          __typename
-          errors {
-            field
-            errors
-          }
-        }
-        ... on OnboardingFinalizedStatusInfo {
-          __typename
-        }
-        ... on OnboardingValidStatusInfo {
-          __typename
+        errors {
+          field
+          errors
         }
       }
-      projectInfo {
-        id
-        ...OnboardingHeader_ProjectInfo
+      ... on OnboardingFinalizedStatusInfo {
+        __typename
       }
-      supportingDocumentCollection {
-        id
-        requiredSupportingDocumentPurposes {
-          name
-        }
-        statusInfo {
-          status
-        }
+      ... on OnboardingValidStatusInfo {
+        __typename
       }
-      legalRepresentativeRecommendedIdentificationLevel
-      accountCountry
-      ...OnboardingCompanyBasicInfo_OnboardingInfo
-      ...OnboardingCompanyRegistration_OnboardingInfo
-      ...OnboardingCompanyOrganisation1_OnboardingInfo
-      ...OnboardingCompanyOwnership_OnboardingInfo
-      ...OnboardingCompanyDocuments_OnboardingInfo
     }
-  `,
-  [
-    OnboardingHeader_ProjectInfo,
-    OnboardingCompanyBasicInfo_OnboardingInfo,
-    OnboardingCompanyRegistration_OnboardingInfo,
-    OnboardingCompanyOrganisation1_OnboardingInfo,
-    OnboardingCompanyOwnership_OnboardingInfo,
-    OnboardingCompanyDocuments_OnboardingInfo,
-  ],
-);
+    projectInfo {
+      id
+      ...OnboardingHeader_ProjectInfo
+    }
+    supportingDocumentCollection {
+      id
+      requiredSupportingDocumentPurposes {
+        name
+      }
+      statusInfo {
+        status
+      }
+    }
+    legalRepresentativeRecommendedIdentificationLevel
+    accountCountry
+    ...OnboardingCompanyBasicInfo_OnboardingInfo
+    ...OnboardingCompanyRegistration_OnboardingInfo
+    ...OnboardingCompanyOrganisation1_OnboardingInfo
+    ...OnboardingCompanyOwnership_OnboardingInfo
+    ...OnboardingCompanyDocuments_OnboardingInfo
+  }
+`);
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyWizard_OnboardingInfo>;
-  companyAccountHolderData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyWizard_OnboardingInfo>;
+  companyAccountHolderData: FragmentType<
     typeof OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
   >;
 };
@@ -161,8 +125,11 @@ export const OnboardingCompanyWizard = ({
   onboardingInfoData,
   companyAccountHolderData,
 }: Props) => {
-  const onboardingInfo = readFragment(OnboardingCompanyWizard_OnboardingInfo, onboardingInfoData);
-  const accountHolderInfo = readFragment(
+  const onboardingInfo = getFragmentData(
+    OnboardingCompanyWizard_OnboardingInfo,
+    onboardingInfoData,
+  );
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
     companyAccountHolderData,
   );

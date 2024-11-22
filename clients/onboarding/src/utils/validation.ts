@@ -4,7 +4,7 @@ import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/uti
 import { combineValidators, Validator } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { match } from "ts-pattern";
-import { graphql } from "./gql";
+import { ValidationFieldErrorCode } from "../gql/graphql";
 import { locale, t } from "./i18n";
 
 export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
@@ -58,8 +58,6 @@ export const validateMaxLength: (maxLength: number) => Validator<string> = maxLe
 };
 
 export type ServerInvalidFieldCode = "Missing";
-
-type ValidationFieldErrorCode = ReturnType<typeof graphql.scalar<"ValidationFieldErrorCode">>;
 
 type ValidationField = {
   path: string[];

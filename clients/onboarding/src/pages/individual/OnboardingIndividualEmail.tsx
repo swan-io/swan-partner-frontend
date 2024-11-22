@@ -20,15 +20,14 @@ import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -71,7 +70,7 @@ export const OnboardingIndividualEmail_OnboardingInfo = graphql(`
 
 type Props = {
   onboardingId: string;
-  onboardingInfoData: FragmentOf<typeof OnboardingIndividualEmail_OnboardingInfo>;
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualEmail_OnboardingInfo>;
 
   serverValidationErrors: {
     fieldName: "email";
@@ -90,7 +89,10 @@ export const OnboardingIndividualEmail = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(OnboardingIndividualEmail_OnboardingInfo, onboardingInfoData);
+  const onboardingInfo = getFragmentData(
+    OnboardingIndividualEmail_OnboardingInfo,
+    onboardingInfoData,
+  );
   const [updateOnboarding, updateResult] = useMutation(UpdateIndividualOnboardingMutation);
   const isFirstMount = useFirstMountState();
 

@@ -6,11 +6,10 @@ import { ProjectEnvTag } from "@swan-io/lake/src/components/ProjectEnvTag";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { spacings } from "@swan-io/lake/src/constants/design";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { FragmentType, getFragmentData, graphql } from "../gql";
 import { env } from "../utils/env";
-import { graphql } from "../utils/gql";
 import { languages, locale, setPreferredLanguage } from "../utils/i18n";
 
 import { Option } from "@swan-io/boxed";
@@ -45,12 +44,12 @@ export const OnboardingHeader_ProjectInfo = graphql(`
 `);
 
 type Props = {
-  projectInfoData: FragmentOf<typeof OnboardingHeader_ProjectInfo> | null;
+  projectInfoData: FragmentType<typeof OnboardingHeader_ProjectInfo> | null;
 };
 
 export const OnboardingHeader = ({ projectInfoData }: Props) => {
   const projectInfo = Option.fromNull(projectInfoData).map(projectInfo =>
-    readFragment(OnboardingHeader_ProjectInfo, projectInfo),
+    getFragmentData(OnboardingHeader_ProjectInfo, projectInfo),
   );
 
   const isSandbox = env.SWAN_ENVIRONMENT !== "LIVE";

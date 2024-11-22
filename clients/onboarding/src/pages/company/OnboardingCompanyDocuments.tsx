@@ -14,21 +14,17 @@ import {
   SupportingDocumentCollectionRef,
 } from "@swan-io/shared-business/src/components/SupportingDocumentCollection";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
-import { FragmentOf, readFragment } from "gql.tada";
 import { ReactNode, useCallback, useRef } from "react";
 import { match, P } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { SupportingDocumentPurposeEnum } from "../../gql/graphql";
 import { DeleteSupportingDocumentMutation } from "../../mutations/DeleteSupportingDocumentMutation";
 import { GenerateSupportingDocumentUploadUrlMutation } from "../../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
-
-type SupportingDocumentPurposeEnum = ReturnType<
-  typeof graphql.scalar<"SupportingDocumentPurposeEnum">
->;
 
 export const OnboardingCompanyDocuments_OnboardingInfo = graphql(`
   fragment OnboardingCompanyDocuments_OnboardingInfo on OnboardingInfo {
@@ -67,7 +63,7 @@ export const OnboardingCompanyDocuments_OnboardingInfo = graphql(`
 
 type Props = {
   onboardingId: string;
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyDocuments_OnboardingInfo>;
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyDocuments_OnboardingInfo>;
   onPressPrevious: () => void;
   onSave: () => void;
 };
@@ -85,7 +81,7 @@ export const OnboardingCompanyDocuments = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingCompanyDocuments_OnboardingInfo,
     onboardingInfoData,
   );

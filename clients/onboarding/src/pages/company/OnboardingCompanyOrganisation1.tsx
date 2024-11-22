@@ -24,7 +24,6 @@ import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateCompanyTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
@@ -32,10 +31,10 @@ import { LakeCompanyInput } from "../../components/LakeCompanyInput";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
 import { CompanySuggestion } from "../../utils/Pappers";
 import { env } from "../../utils/env";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import {
   getRegistrationNumberName,
@@ -109,8 +108,8 @@ const CompanyInfoBySiren = graphql(`
 `);
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyOrganisation1_OnboardingInfo>;
-  accountHolderInfoData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyOrganisation1_OnboardingInfo>;
+  accountHolderInfoData: FragmentType<
     typeof OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo
   >;
 
@@ -149,12 +148,12 @@ export const OnboardingCompanyOrganisation1 = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingCompanyOrganisation1_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyOrganisation_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );

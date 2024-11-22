@@ -10,30 +10,22 @@ import { P, match } from "ts-pattern";
 import { ErrorView } from "./components/ErrorView";
 import { Redirect } from "./components/Redirect";
 import { SupportingDocumentCollectionFlow } from "./components/SupportingDocumentCollectionFlow";
+import { graphql } from "./gql";
+import { AccountCountry } from "./gql/graphql";
 import { useTitle } from "./hooks/useTitle";
 import { UpdateCompanyOnboardingMutation } from "./mutations/UpdateCompanyOnboardingMutation";
 import { UpdateIndividualOnboardingMutation } from "./mutations/UpdateIndividualOnboardingMutation";
 import { NotFoundPage } from "./pages/NotFoundPage";
 import { PopupCallbackPage } from "./pages/PopupCallbackPage";
-import {
-  OnboardingCompanyWizard,
-  OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
-  OnboardingCompanyWizard_OnboardingInfo,
-} from "./pages/company/OnboardingCompanyWizard";
-import {
-  OnboardingIndividualWizard,
-  OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
-  OnboardingIndividualWizard_OnboardingInfo,
-} from "./pages/individual/OnboardingIndividualWizard";
+import { OnboardingCompanyWizard } from "./pages/company/OnboardingCompanyWizard";
+import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
-import { client, graphql } from "./utils/gql";
+import { client } from "./utils/gql";
 import { locale } from "./utils/i18n";
 import { logFrontendError } from "./utils/logger";
 import { TrackingProvider, useSessionTracking } from "./utils/matomo";
 import { Router } from "./utils/routes";
 import { updateTgglContext } from "./utils/tggl";
-
-type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 type Props = {
   onboardingId: string;
@@ -58,44 +50,36 @@ const PageMetadata = ({
   return null;
 };
 
-const OnboardingInfoQuery = graphql(
-  `
-    query OnboardingInfo($id: ID!, $language: String!) {
-      onboardingInfo(id: $id) {
-        id
-        accountCountry
-        language
-        onboardingState
-        oAuthRedirectParameters {
-          redirectUrl
-        }
+const OnboardingInfoQuery = graphql(`
+  query OnboardingInfo($id: ID!, $language: String!) {
+    onboardingInfo(id: $id) {
+      id
+      accountCountry
+      language
+      onboardingState
+      oAuthRedirectParameters {
         redirectUrl
-        projectInfo {
-          id
-          accentColor
-          name
+      }
+      redirectUrl
+      projectInfo {
+        id
+        accentColor
+        name
+      }
+      ...OnboardingCompanyWizard_OnboardingInfo
+      ...OnboardingIndividualWizard_OnboardingInfo
+      info {
+        __typename
+        ... on OnboardingCompanyAccountHolderInfo {
+          ...OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
         }
-        ...OnboardingCompanyWizard_OnboardingInfo
-        ...OnboardingIndividualWizard_OnboardingInfo
-        info {
-          __typename
-          ... on OnboardingCompanyAccountHolderInfo {
-            ...OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo
-          }
-          ... on OnboardingIndividualAccountHolderInfo {
-            ...OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
-          }
+        ... on OnboardingIndividualAccountHolderInfo {
+          ...OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo
         }
       }
     }
-  `,
-  [
-    OnboardingCompanyWizard_OnboardingCompanyAccountHolderInfo,
-    OnboardingCompanyWizard_OnboardingInfo,
-    OnboardingIndividualWizard_OnboardingIndividualAccountHolderInfo,
-    OnboardingIndividualWizard_OnboardingInfo,
-  ],
-);
+  }
+`);
 
 const FlowPicker = ({ onboardingId }: Props) => {
   const [data, { query }] = useDeferredQuery(OnboardingInfoQuery);

@@ -17,15 +17,14 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { match } from "ts-pattern";
 import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { UpdateIndividualOnboardingMutation } from "../../mutations/UpdateIndividualOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -57,8 +56,8 @@ export const OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo 
 type Props = {
   onboardingId: string;
 
-  onboardingInfoData: FragmentOf<typeof OnboardingIndividualLocation_OnboardingInfo>;
-  accountHolderInfoData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingIndividualLocation_OnboardingInfo>;
+  accountHolderInfoData: FragmentType<
     typeof OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo
   >;
 
@@ -79,12 +78,12 @@ export const OnboardingIndividualLocation = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingIndividualLocation_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingIndividualLocation_OnboardingIndividualAccountHolderInfo,
     accountHolderInfoData,
   );

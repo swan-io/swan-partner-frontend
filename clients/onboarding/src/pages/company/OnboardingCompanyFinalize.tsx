@@ -9,17 +9,15 @@ import { P, match } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
+import { IdentificationLevel } from "../../gql/graphql";
 import { WizardStep } from "../../types/WizardStep";
 import { env } from "../../utils/env";
-import { graphql } from "../../utils/gql";
 import { openPopup } from "../../utils/popup";
 import { projectConfiguration } from "../../utils/projectId";
 
 type Props = {
   onboardingId: string;
-  legalRepresentativeRecommendedIdentificationLevel: ReturnType<
-    typeof graphql.scalar<"IdentificationLevel">
-  >;
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel;
   steps: WizardStep[];
   alreadySubmitted: boolean;
   onSubmitWithErrors: () => void;

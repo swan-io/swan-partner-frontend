@@ -22,10 +22,8 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { P, match } from "ts-pattern";
-import { graphql } from "../../../utils/gql";
+import { AccountCountry } from "../../../gql/graphql";
 import { locale, t } from "../../../utils/i18n";
-
-type AccountCountry = ReturnType<typeof graphql.scalar<"AccountCountry">>;
 
 export type FormValues = {
   residencyAddressLine1: string;

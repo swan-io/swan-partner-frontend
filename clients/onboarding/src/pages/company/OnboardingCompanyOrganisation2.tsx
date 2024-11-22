@@ -18,15 +18,15 @@ import {
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { validateNullableRequired } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
+import { BusinessActivity, MonthlyPaymentVolume } from "../../gql/graphql";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -36,9 +36,6 @@ import {
   validateMaxLength,
   validateRequired,
 } from "../../utils/validation";
-
-type BusinessActivity = ReturnType<typeof graphql.scalar<"BusinessActivity">>;
-type MonthlyPaymentVolume = ReturnType<typeof graphql.scalar<"MonthlyPaymentVolume">>;
 
 const styles = StyleSheet.create({
   textArea: {
@@ -62,7 +59,7 @@ export const OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo =
 type Props = {
   onboardingId: string;
 
-  accountHolderInfoData: FragmentOf<
+  accountHolderInfoData: FragmentType<
     typeof OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo
   >;
 
@@ -98,7 +95,7 @@ export const OnboardingCompanyOrganisation2 = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyOrganisation2_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );

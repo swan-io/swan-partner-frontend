@@ -1,4 +1,4 @@
-import { graphql } from "../utils/gql";
+import { graphql } from "../gql";
 
 export const DeleteSupportingDocumentMutation = graphql(`
   mutation DeleteSupportingDocument($input: DeleteSupportingDocumentInput!) {

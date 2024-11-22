@@ -19,68 +19,62 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { SwanFile } from "@swan-io/shared-business/src/utils/SwanFile";
 import { ReactNode, useCallback, useRef } from "react";
 import { P, match } from "ts-pattern";
+import { graphql } from "../gql";
+import { SupportingDocumentPurposeEnum } from "../gql/graphql";
 import { DeleteSupportingDocumentMutation } from "../mutations/DeleteSupportingDocumentMutation";
 import { GenerateSupportingDocumentUploadUrlMutation } from "../mutations/GenerateSupportingDocumentUploadUrlMutation";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { graphql } from "../utils/gql";
 import { locale, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
 import { OnboardingFooter } from "./OnboardingFooter";
-import { OnboardingHeader, OnboardingHeader_ProjectInfo } from "./OnboardingHeader";
+import { OnboardingHeader } from "./OnboardingHeader";
 import { OnboardingStepContent } from "./OnboardingStepContent";
 import { StepTitle } from "./StepTitle";
 import { SupportingDocumentCollectionSuccessPage } from "./SupportingDocumentCollectionSuccess";
 
-type SupportingDocumentPurposeEnum = ReturnType<
-  typeof graphql.scalar<"SupportingDocumentPurposeEnum">
->;
-
-const SupportingCollectionQuery = graphql(
-  `
-    query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
-      supportingDocumentCollection(id: $supportingDocumentCollectionId) {
+const SupportingCollectionQuery = graphql(`
+  query SupportingDocumentCollection($supportingDocumentCollectionId: ID!) {
+    supportingDocumentCollection(id: $supportingDocumentCollectionId) {
+      id
+      accountHolder {
         id
-        accountHolder {
-          id
-          name
-        }
-        requiredSupportingDocumentPurposes {
-          name
-        }
+        name
+      }
+      requiredSupportingDocumentPurposes {
+        name
+      }
+      statusInfo {
+        status
+      }
+      supportingDocuments {
+        id
+        supportingDocumentPurpose
+        supportingDocumentType
+        updatedAt
         statusInfo {
+          __typename
           status
-        }
-        supportingDocuments {
-          id
-          supportingDocumentPurpose
-          supportingDocumentType
-          updatedAt
-          statusInfo {
-            __typename
-            status
-            ... on SupportingDocumentUploadedStatusInfo {
-              filename
-            }
-            ... on SupportingDocumentValidatedStatusInfo {
-              filename
-            }
-            ... on SupportingDocumentRefusedStatusInfo {
-              reason
-              filename
-            }
+          ... on SupportingDocumentUploadedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentValidatedStatusInfo {
+            filename
+          }
+          ... on SupportingDocumentRefusedStatusInfo {
+            reason
+            filename
           }
         }
-        projectInfo {
-          id
-          accentColor
-          ...OnboardingHeader_ProjectInfo
-        }
+      }
+      projectInfo {
+        id
+        accentColor
+        ...OnboardingHeader_ProjectInfo
       }
     }
-  `,
-  [OnboardingHeader_ProjectInfo],
-);
+  }
+`);
 
 type Props = {
   supportingDocumentCollectionId: string;

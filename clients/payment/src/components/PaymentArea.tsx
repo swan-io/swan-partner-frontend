@@ -18,12 +18,12 @@ import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
+import { graphql } from "../gql";
 import { CardErrorPage } from "../pages/CardErrorPage";
 import { ExpiredPage } from "../pages/ExpiredPage";
 import { NotFoundPage } from "../pages/NotFoundPage";
-import { PaymentPage, PaymentPage_MerchantPaymentLink } from "../pages/PaymentPage";
+import { PaymentPage } from "../pages/PaymentPage";
 import { SuccessPage } from "../pages/SuccessPage";
-import { graphql } from "../utils/gql";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { ErrorView } from "./ErrorView";
@@ -58,28 +58,25 @@ type Props = {
   paymentLinkId: string;
 };
 
-const query = graphql(
-  `
-    query PaymentArea($paymentLinkId: ID!) {
-      nonEEACountries
-      merchantPaymentLink(id: $paymentLinkId) {
-        ...PaymentPage_MerchantPaymentLink
+const query = graphql(`
+  query PaymentArea($paymentLinkId: ID!) {
+    nonEEACountries
+    merchantPaymentLink(id: $paymentLinkId) {
+      ...PaymentPage_MerchantPaymentLink
+      id
+      cancelRedirectUrl
+      merchantProfile {
         id
-        cancelRedirectUrl
-        merchantProfile {
-          id
-          merchantLogoUrl
-          merchantName
-        }
-        statusInfo {
-          status
-        }
-        redirectUrl
+        merchantLogoUrl
+        merchantName
       }
+      statusInfo {
+        status
+      }
+      redirectUrl
     }
-  `,
-  [PaymentPage_MerchantPaymentLink],
-);
+  }
+`);
 
 export const PaymentArea = ({ paymentLinkId }: Props) => {
   const route = Router.useRoute(["PaymentForm", "PaymentSuccess", "PaymentExpired"]);

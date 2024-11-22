@@ -27,7 +27,6 @@ import {
 } from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { FragmentOf, readFragment } from "gql.tada";
 import { useCallback, useEffect } from "react";
 import { StyleSheet } from "react-native";
 import { match } from "ts-pattern";
@@ -35,8 +34,8 @@ import { OnboardingCountryPicker } from "../../components/CountryPicker";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { StepTitle } from "../../components/StepTitle";
+import { FragmentType, getFragmentData, graphql } from "../../gql";
 import { UpdateCompanyOnboardingMutation } from "../../mutations/UpdateCompanyOnboardingMutation";
-import { graphql } from "../../utils/gql";
 import { formatNestedMessage, locale, t } from "../../utils/i18n";
 import { getUpdateOnboardingError } from "../../utils/templateTranslations";
 import {
@@ -95,8 +94,8 @@ export const OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo = 
 `);
 
 type Props = {
-  onboardingInfoData: FragmentOf<typeof OnboardingCompanyRegistration_OnboardingInfo>;
-  accountHolderInfoData: FragmentOf<
+  onboardingInfoData: FragmentType<typeof OnboardingCompanyRegistration_OnboardingInfo>;
+  accountHolderInfoData: FragmentType<
     typeof OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo
   >;
 
@@ -121,12 +120,12 @@ export const OnboardingCompanyRegistration = ({
   onPressPrevious,
   onSave,
 }: Props) => {
-  const onboardingInfo = readFragment(
+  const onboardingInfo = getFragmentData(
     OnboardingCompanyRegistration_OnboardingInfo,
     onboardingInfoData,
   );
 
-  const accountHolderInfo = readFragment(
+  const accountHolderInfo = getFragmentData(
     OnboardingCompanyRegistration_OnboardingCompanyAccountHolderInfo,
     accountHolderInfoData,
   );

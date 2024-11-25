@@ -298,6 +298,9 @@ start({
       const queryString = new URLSearchParams();
       queryString.append("accountMembershipId", request.params.accountMembershipId);
       queryString.append("projectId", request.params.projectId);
+      if (request.query.email != null) {
+        queryString.append("email", request.query.email);
+      }
       return reply.redirect(`/auth/login?${queryString.toString()}`);
     });
 

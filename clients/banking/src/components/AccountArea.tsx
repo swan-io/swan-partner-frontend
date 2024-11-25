@@ -484,6 +484,59 @@ export const AccountArea = ({
                                     },
                                     user: { verifiedEmails: [] },
                                   },
+                                },
+                                () => (
+                                  <ResponsiveContainer breakpoint={breakpoints.large}>
+                                    {({ large }) => (
+                                      <View style={[styles.alert, large && styles.alertLarge]}>
+                                        <LakeAlert
+                                          variant="warning"
+                                          title={t("accountMembership.verifyEmailAlert")}
+                                          callToAction={
+                                            <LakeButton
+                                              size="small"
+                                              mode="tertiary"
+                                              color="warning"
+                                              icon="mail-regular"
+                                              onPress={() => {
+                                                const params = new URLSearchParams();
+
+                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set("identificationLevel", "Auto");
+                                                params.set("email", email);
+
+                                                match(
+                                                  projectConfiguration.map(
+                                                    ({ projectId }) => projectId,
+                                                  ),
+                                                )
+                                                  .with(Option.P.Some(P.select()), projectId =>
+                                                    params.set("projectId", projectId),
+                                                  )
+                                                  .otherwise(() => {});
+
+                                                window.location.replace(
+                                                  `/auth/login?${params.toString()}`,
+                                                );
+                                              }}
+                                            >
+                                              {t("account.statusAlert.verifyEmail")}
+                                            </LakeButton>
+                                          }
+                                        />
+                                      </View>
+                                    )}
+                                  </ResponsiveContainer>
+                                ),
+                              )
+                              .with(
+                                {
+                                  accountMembership: {
+                                    statusInfo: {
+                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
+                                      idVerifiedMatchError: true,
+                                    },
+                                  },
                                   lastRelevantIdentification: Option.P.Some({ status: "Pending" }),
                                 },
                                 () => (
@@ -508,7 +561,7 @@ export const AccountArea = ({
                                     },
                                   },
                                 },
-                                () => (
+                                ({ accountMembership: { statusInfo } }) => (
                                   <ResponsiveContainer breakpoint={breakpoints.large}>
                                     {({ large }) => (
                                       <View style={[styles.alert, large && styles.alertLarge]}>
@@ -526,60 +579,9 @@ export const AccountArea = ({
 
                                                 params.set("redirectTo", Router.PopupCallback());
                                                 params.set("identificationLevel", "Auto");
-                                                params.set("email", email);
-
-                                                match(
-                                                  projectConfiguration.map(
-                                                    ({ projectId }) => projectId,
-                                                  ),
-                                                )
-                                                  .with(Option.P.Some(P.select()), projectId =>
-                                                    params.set("projectId", projectId),
-                                                  )
-                                                  .otherwise(() => {});
-
-                                                window.location.replace(
-                                                  `/auth/login?${params.toString()}`,
-                                                );
-                                              }}
-                                            >
-                                              {t("account.statusAlert.verifyIdentity")}
-                                            </LakeButton>
-                                          }
-                                        />
-                                      </View>
-                                    )}
-                                  </ResponsiveContainer>
-                                ),
-                              )
-                              .with(
-                                {
-                                  accountMembership: {
-                                    statusInfo: {
-                                      __typename: "AccountMembershipBindingUserErrorStatusInfo",
-                                      idVerifiedMatchError: true,
-                                    },
-                                  },
-                                },
-                                () => (
-                                  <ResponsiveContainer breakpoint={breakpoints.large}>
-                                    {({ large }) => (
-                                      <View style={[styles.alert, large && styles.alertLarge]}>
-                                        <LakeAlert
-                                          variant="warning"
-                                          title={t("account.statusAlert.missingIdentification")}
-                                          callToAction={
-                                            <LakeButton
-                                              size="small"
-                                              mode="tertiary"
-                                              color="warning"
-                                              icon="shield-checkmark-regular"
-                                              onPress={() => {
-                                                const params = new URLSearchParams();
-
-                                                params.set("redirectTo", Router.PopupCallback());
-                                                params.set("identificationLevel", "Auto");
-                                                params.set("email", email);
+                                                if (statusInfo.emailVerifiedMatchError) {
+                                                  params.set("email", email);
+                                                }
 
                                                 match(
                                                   projectConfiguration.map(

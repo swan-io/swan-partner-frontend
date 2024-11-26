@@ -1,5 +1,5 @@
 import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
-import { useQuery } from "@swan-io/graphql-client";
+import { useForwardAsyncDataPagination, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FlatList } from "@swan-io/lake/src/components/FlatList";
@@ -26,7 +26,6 @@ import { concatSepaBeneficiaryAddress } from "./BeneficiaryDetail";
 import { InternationalBeneficiary } from "./BeneficiaryInternationalWizardForm";
 import { getBeneficiaryIdentifier } from "./BeneficiaryList";
 import { SepaBeneficiary } from "./BeneficiarySepaWizardForm";
-import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 
 const NUM_TO_RENDER = 20;
@@ -99,8 +98,10 @@ export const SavedBeneficiariesForm = (props: Props) => {
     first: NUM_TO_RENDER,
   });
 
-  const beneficiaries = data.mapOkToResult(data =>
-    Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
+  const beneficiaries = useForwardAsyncDataPagination(
+    data.mapOkToResult(data =>
+      Option.fromNullable(data.account?.trustedBeneficiaries).toResult(undefined),
+    ),
   );
 
   const onSearchChange = useCallback(
@@ -140,7 +141,9 @@ export const SavedBeneficiariesForm = (props: Props) => {
       <ErrorView error={error} style={styles.loadingOrError} />
     ))
     .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-      const selectedBeneficiary = Array.findMap(beneficiaries.edges, ({ node }) => {
+      const { edges, pageInfo, totalCount } = beneficiaries;
+
+      const selectedBeneficiary = Array.findMap(edges, ({ node }) => {
         if (node.id !== selected) {
           return Option.None();
         }
@@ -180,90 +183,81 @@ export const SavedBeneficiariesForm = (props: Props) => {
                       isLoading ? (
                         <ActivityIndicator color={colors.partner[500]} size={18} />
                       ) : (
-                        <Tag>{beneficiaries.totalCount}</Tag>
+                        <Tag>{totalCount}</Tag>
                       )
                     }
                   />
                 </Box>
 
-                <Connection connection={beneficiaries}>
-                  {({ edges, pageInfo }) => (
-                    <FlatList
-                      role="radiogroup"
-                      keyExtractor={({ node }) => node.id}
-                      data={edges}
-                      ListHeaderComponent={<Space height={8} />}
-                      ItemSeparatorComponent={<Separator />}
-                      contentContainerStyle={edges.length === 0 && styles.emptyContent}
-                      ListEmptyComponent={
-                        <EmptyView
-                          icon="lake-person-arrow-swap"
-                          borderedIcon={true}
-                          borderedIconPadding={16}
-                          title={t("common.list.noResults")}
-                          subtitle={t("common.list.noResultsSuggestion")}
-                        />
-                      }
-                      renderItem={({ item: { node } }) => (
-                        <Pressable
-                          role="radio"
-                          onPress={() => setSelected(node.id)}
-                          style={({ pressed }) => [
-                            styles.beneficiary,
-                            pressed && styles.benificiaryPress,
-                          ]}
-                        >
-                          <LakeRadio value={node.id === selected} />
-                          <Space width={small ? 16 : 24} />
-
-                          <Box shrink={1}>
-                            <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
-                              {node.label}
-                            </LakeText>
-
-                            <Space height={4} />
-
-                            {match(node)
-                              .with(
-                                { __typename: "TrustedSepaBeneficiary" },
-                                ({ address, iban }) => (
-                                  <>
-                                    <LakeText numberOfLines={1}>{printFormat(iban)}</LakeText>
-
-                                    {match(concatSepaBeneficiaryAddress(address))
-                                      .with(P.nonNullable, address => (
-                                        <>
-                                          <Space height={4} />
-                                          <LakeText numberOfLines={1}>{address}</LakeText>
-                                        </>
-                                      ))
-                                      .otherwise(() => null)}
-                                  </>
-                                ),
-                              )
-                              .with(
-                                { __typename: "TrustedInternationalBeneficiary" },
-                                beneficiary =>
-                                  match(getBeneficiaryIdentifier(beneficiary))
-                                    .with(Option.P.Some(P.select()), ({ label, text }) => (
-                                      <LakeText numberOfLines={1}>
-                                        {label}: {text}
-                                      </LakeText>
-                                    ))
-                                    .otherwise(() => null),
-                              )
-                              .otherwise(() => null)}
-                          </Box>
-                        </Pressable>
-                      )}
-                      onEndReached={() => {
-                        if (pageInfo.hasNextPage ?? false) {
-                          setVariables({ after: pageInfo.endCursor });
-                        }
-                      }}
+                <FlatList
+                  role="radiogroup"
+                  keyExtractor={({ node }) => node.id}
+                  data={edges}
+                  ListHeaderComponent={<Space height={8} />}
+                  ItemSeparatorComponent={<Separator />}
+                  contentContainerStyle={edges.length === 0 && styles.emptyContent}
+                  ListEmptyComponent={
+                    <EmptyView
+                      icon="lake-person-arrow-swap"
+                      borderedIcon={true}
+                      borderedIconPadding={16}
+                      title={t("common.list.noResults")}
+                      subtitle={t("common.list.noResultsSuggestion")}
                     />
+                  }
+                  renderItem={({ item: { node } }) => (
+                    <Pressable
+                      role="radio"
+                      onPress={() => setSelected(node.id)}
+                      style={({ pressed }) => [
+                        styles.beneficiary,
+                        pressed && styles.benificiaryPress,
+                      ]}
+                    >
+                      <LakeRadio value={node.id === selected} />
+                      <Space width={small ? 16 : 24} />
+
+                      <Box shrink={1}>
+                        <LakeText variant="medium" color={colors.gray[900]} numberOfLines={1}>
+                          {node.label}
+                        </LakeText>
+
+                        <Space height={4} />
+
+                        {match(node)
+                          .with({ __typename: "TrustedSepaBeneficiary" }, ({ address, iban }) => (
+                            <>
+                              <LakeText numberOfLines={1}>{printFormat(iban)}</LakeText>
+
+                              {match(concatSepaBeneficiaryAddress(address))
+                                .with(P.nonNullable, address => (
+                                  <>
+                                    <Space height={4} />
+                                    <LakeText numberOfLines={1}>{address}</LakeText>
+                                  </>
+                                ))
+                                .otherwise(() => null)}
+                            </>
+                          ))
+                          .with({ __typename: "TrustedInternationalBeneficiary" }, beneficiary =>
+                            match(getBeneficiaryIdentifier(beneficiary))
+                              .with(Option.P.Some(P.select()), ({ label, text }) => (
+                                <LakeText numberOfLines={1}>
+                                  {label}: {text}
+                                </LakeText>
+                              ))
+                              .otherwise(() => null),
+                          )
+                          .otherwise(() => null)}
+                      </Box>
+                    </Pressable>
                   )}
-                </Connection>
+                  onEndReached={() => {
+                    if (pageInfo.hasNextPage ?? false) {
+                      setVariables({ after: pageInfo.endCursor });
+                    }
+                  }}
+                />
               </Tile>
 
               <Space height={16} />

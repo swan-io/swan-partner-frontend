@@ -17,7 +17,7 @@ import { Tile } from "@swan-io/lake/src/components/Tile";
 import { animations, colors, spacings } from "@swan-io/lake/src/constants/design";
 import { noop } from "@swan-io/lake/src/utils/function";
 import { printFormat } from "iban";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { ActivityIndicator, StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
 import { BeneficiariesListDocument, TrustedBeneficiaryFiltersInput } from "../graphql/partner";
@@ -121,18 +121,6 @@ export const SavedBeneficiariesForm = (props: Props) => {
     [defaultFilters, setVariables],
   );
 
-  useEffect(() => {
-    match(beneficiaries)
-      .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ edges }) => {
-        setSelected(prevSelected =>
-          edges.find(edge => edge.node.id === prevSelected) != null
-            ? prevSelected
-            : edges[0]?.node.id,
-        );
-      })
-      .otherwise(noop);
-  }, [beneficiaries]);
-
   return match(beneficiaries)
     .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
       <LoadingView style={styles.loadingOrError} />
@@ -140,9 +128,7 @@ export const SavedBeneficiariesForm = (props: Props) => {
     .with(AsyncData.P.Done(Result.P.Error(P.select())), error => (
       <ErrorView error={error} style={styles.loadingOrError} />
     ))
-    .with(AsyncData.P.Done(Result.P.Ok(P.select())), beneficiaries => {
-      const { edges, pageInfo, totalCount } = beneficiaries;
-
+    .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ edges, pageInfo, totalCount }) => {
       const selectedBeneficiary = Array.findMap(edges, ({ node }) => {
         if (node.id !== selected) {
           return Option.None();

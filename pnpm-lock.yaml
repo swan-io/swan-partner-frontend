@@ -2049,7 +2049,7 @@ packages:
     resolution: {integrity: sha512-sXXKG+uL9IrKqViTtao2Ws6dy0znu9sOaP1di/jKGW1M6VssO8vlpXCQcpZ+jisQ1tTFAC5Jo/EOzFbggBagFQ==}
 
   '@swan-io/boxed@3.1.1':
-    resolution: {integrity: sha512-brWJrD0SZiRknQSPBQmiTKp1308uTMZXwvA3oRJ4qpUFOkx3RLocmjV5SEM5gH6OoFW32JPQySvaV4EpSedPZg==, tarball: https://registry.npmjs.org/@swan-io/boxed/-/boxed-3.1.1.tgz}
+    resolution: {integrity: sha512-brWJrD0SZiRknQSPBQmiTKp1308uTMZXwvA3oRJ4qpUFOkx3RLocmjV5SEM5gH6OoFW32JPQySvaV4EpSedPZg==}
     peerDependencies:
       typescript: '>=5.0.0'
     peerDependenciesMeta:
@@ -2057,33 +2057,33 @@ packages:
         optional: true
 
   '@swan-io/chicane@2.1.0':
-    resolution: {integrity: sha512-G8jhwRoE0HrJYBpU9d3vD/z+boboklTasOwO6a2LWyrCZqfssdBqG40GRhIuxAR2QqZnUY3CNjYsXYY4GJ+rOA==, tarball: https://registry.npmjs.org/@swan-io/chicane/-/chicane-2.1.0.tgz}
+    resolution: {integrity: sha512-G8jhwRoE0HrJYBpU9d3vD/z+boboklTasOwO6a2LWyrCZqfssdBqG40GRhIuxAR2QqZnUY3CNjYsXYY4GJ+rOA==}
     peerDependencies:
       react: '>=18.0.0'
 
   '@swan-io/graphql-client@0.4.1':
-    resolution: {integrity: sha512-JAPRlHjyL607Fna/axaFKtz8Q3Lregd4K6DuKQYlq+Rt53/PosTodBfKSFGGXYF7FCZT1JcP9B+ly5F5euNSTA==, tarball: https://registry.npmjs.org/@swan-io/graphql-client/-/graphql-client-0.4.1.tgz}
+    resolution: {integrity: sha512-JAPRlHjyL607Fna/axaFKtz8Q3Lregd4K6DuKQYlq+Rt53/PosTodBfKSFGGXYF7FCZT1JcP9B+ly5F5euNSTA==}
     hasBin: true
     peerDependencies:
       react: ^18.2.0
 
   '@swan-io/lake@11.1.6':
-    resolution: {integrity: sha512-mYnUG+F9/urHs0aPUwTZnpiPkkhncJ7VFEK3iW2ULLuoG3dyRPKulhmgF+v3qordo7iFGDMicBgmyp9Q3aRieQ==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-11.1.6.tgz}
+    resolution: {integrity: sha512-mYnUG+F9/urHs0aPUwTZnpiPkkhncJ7VFEK3iW2ULLuoG3dyRPKulhmgF+v3qordo7iFGDMicBgmyp9Q3aRieQ==}
     engines: {node: '>=20.9.0', pnpm: ^9.13.0}
 
   '@swan-io/request@1.0.6':
-    resolution: {integrity: sha512-HirhY0gu6aZk95YGXONcmwrfwQ0u5+uZGAtwtSDmrXfCLEGubXb1qIdRMex1e65TroXnTzBG3A65M5EvUB28ZQ==, tarball: https://registry.npmjs.org/@swan-io/request/-/request-1.0.6.tgz}
+    resolution: {integrity: sha512-HirhY0gu6aZk95YGXONcmwrfwQ0u5+uZGAtwtSDmrXfCLEGubXb1qIdRMex1e65TroXnTzBG3A65M5EvUB28ZQ==}
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
   '@swan-io/shared-business@11.1.6':
-    resolution: {integrity: sha512-EJOVAIMZygW+qKF9E3qsJSin1i/yH+qW80XHEpFF54DoCofCdrUAehwNuVEJG3jBj14+xQX3Hu1uBfUMr+o28A==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-11.1.6.tgz}
+    resolution: {integrity: sha512-EJOVAIMZygW+qKF9E3qsJSin1i/yH+qW80XHEpFF54DoCofCdrUAehwNuVEJG3jBj14+xQX3Hu1uBfUMr+o28A==}
     engines: {node: '>=20.9.0', pnpm: ^9.13.0}
     peerDependencies:
       '@swan-io/lake': 11.1.6
 
   '@swan-io/use-form@3.1.0':
-    resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
+    resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==}
     peerDependencies:
       react: '>=18.0.0'
 

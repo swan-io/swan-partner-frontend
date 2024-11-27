@@ -1,14 +1,12 @@
-import { AsyncData, Option, Result } from "@swan-io/boxed";
+import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
-import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
@@ -33,13 +31,13 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
+import {
+  MerchantPaymentFilters,
+  MerchantProfilePaymentListFilter,
+} from "./MerchantProfilePaymentListFilter";
 import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
 
 const styles = StyleSheet.create({
-  containerMobile: {
-    paddingTop: spacings[24],
-    paddingHorizontal: spacings[24],
-  },
   filters: {
     paddingHorizontal: spacings[24],
     paddingTop: spacings[24],
@@ -114,7 +112,7 @@ type EmptyPaymentListWithPaymentMethodCtaProps = {
   accountMembershipId: string;
   merchantProfileId: string;
 };
-const EmptyPaymentListWithPaymentMethodCta = ({
+const EmptyListWithEnablePaymentMethodCta = ({
   accountMembershipId,
   merchantProfileId,
 }: EmptyPaymentListWithPaymentMethodCtaProps) => {
@@ -161,8 +159,36 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
     "AccountMerchantsProfilePaymentsDetails",
   ]);
 
+  const filters: MerchantPaymentFilters = useMemo(() => {
+    return {
+      paymentMethod: isNotNullish(params.paymentMethod)
+        ? Array.filterMap(params.paymentMethod, item =>
+            match(item)
+              .with(
+                "Card",
+                "Check",
+                "SepaDirectDebitB2b",
+                "SepaDirectDebitCore",
+                "InternalDirectDebitStandard",
+                "InternalDirectDebitB2b",
+                value => Option.Some(value),
+              )
+              .otherwise(() => Option.None()),
+          )
+        : undefined,
+      status: isNotNullish(params.status)
+        ? Array.filterMap(params.status, item =>
+            match(item)
+              .with("Authorized", "Captured", "Initiated", "Rejected", item => Option.Some(item))
+              .otherwise(() => Option.None()),
+          )
+        : undefined,
+    } as const;
+  }, [params.paymentMethod, params.status]);
+
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
     merchantProfileId,
+    filters,
     first: PER_PAGE,
   });
 
@@ -191,10 +217,6 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
       ? (route.params.paymentId ?? null)
       : null;
 
-  const [isRefreshing, setIsRefreshing] = useState(false);
-
-  const search = nullishOrEmptyToUndefined(params.search);
-
   const { shouldEnableCheckTile, shouldEnablePaymentLinkTile } = useMemo(() => {
     const enabledPaymentMethods = data
       .toOption()
@@ -218,18 +240,42 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
   const [pickerVisible, setPickerModal] = useDisclosure(false);
 
-  const shouldShowTopbar = data
-    .toOption()
-    .flatMap(result => result.toOption())
-    .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
-    .getOr(true);
+  const search = nullishOrEmptyToUndefined(params.search);
+
+  const [shouldShowTopbar, setShouldShowTopbar] = useState(
+    data
+      .toOption()
+      .flatMap(result => result.toOption())
+      .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
+      .getOr(true),
+  );
 
   return (
     <>
       {shouldShowTopbar && (
         <>
-          {!large && (
-            <Box style={styles.containerMobile} alignItems="stretch">
+          <Box style={[styles.filters, large && styles.filtersLarge]}>
+            <MerchantProfilePaymentListFilter
+              large={large}
+              filters={filters}
+              search={search}
+              onRefresh={reload}
+              onChangeFilters={({ status, ...filters }) => {
+                Router.replace("AccountMerchantsProfilePaymentsList", {
+                  ...params,
+                  accountMembershipId,
+                  status,
+                  ...filters,
+                });
+              }}
+              onChangeSearch={search => {
+                Router.replace("AccountMerchantsProfilePaymentsList", {
+                  ...params,
+                  accountMembershipId,
+                  search,
+                });
+              }}
+            >
               <LakeTooltip
                 content={t("merchantProfile.paymentLink.button.new.disable")}
                 disabled={shouldEnablePaymentLinkTile || shouldEnableCheckTile}
@@ -239,77 +285,16 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                   size="small"
                   icon="add-circle-filled"
                   color="current"
-                  onPress={() =>
-                    Router.push("AccountMerchantsProfilePaymentLinkList", {
-                      new: "true",
-                      accountMembershipId,
-                      merchantProfileId,
-                    })
-                  }
+                  onPress={() => {
+                    setShouldShowTopbar(false);
+                    setPickerModal.open();
+                  }}
                 >
-                  {t("merchantProfile.paymentLink.button.new")}
+                  {t("merchantProfile.payments.button.new")}
                 </LakeButton>
               </LakeTooltip>
-            </Box>
-          )}
-
-          <Box
-            direction="row"
-            alignItems="center"
-            style={[styles.filters, large && styles.filtersLarge]}
-          >
-            {large && (
-              <>
-                <LakeTooltip
-                  content={t("merchantProfile.paymentLink.button.new.disable")}
-                  disabled={shouldEnablePaymentLinkTile || shouldEnableCheckTile}
-                >
-                  <LakeButton
-                    disabled={!shouldEnablePaymentLinkTile || !shouldEnableCheckTile}
-                    size="small"
-                    icon="add-circle-filled"
-                    color="current"
-                    onPress={setPickerModal.open}
-                  >
-                    {t("merchantProfile.payments.button.new")}
-                  </LakeButton>
-                </LakeTooltip>
-
-                <Space width={12} />
-              </>
-            )}
-
-            <LakeButton
-              ariaLabel={t("common.refresh")}
-              mode="secondary"
-              size="small"
-              icon="arrow-counterclockwise-filled"
-              loading={isRefreshing}
-              onPress={() => {
-                setIsRefreshing(true);
-                reload().tap(() => setIsRefreshing(false));
-              }}
-            />
-
-            <Fill minWidth={16} />
-
-            <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
-              <Fill minWidth={16} />
-
-              <LakeSearchField
-                initialValue={search ?? ""}
-                placeholder={t("common.search")}
-                onChangeText={search => {
-                  Router.replace("AccountMerchantsProfilePaymentsList", {
-                    ...params,
-                    search,
-                  });
-                }}
-              />
-            </Box>
+            </MerchantProfilePaymentListFilter>
           </Box>
-
-          <Space height={24} />
         </>
       )}
 
@@ -328,6 +313,8 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
             <>
               {pickerVisible && isNotNullish(merchantProfile) ? (
                 <MerchantProfilePaymentPicker
+                  setPickerModal={setPickerModal}
+                  setShouldShowTopbar={setShouldShowTopbar}
                   params={params}
                   shouldEnableCheckTile={shouldEnableCheckTile}
                   shouldEnablePaymentLinkTile={shouldEnablePaymentLinkTile}
@@ -359,7 +346,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                               setPickerModal={setPickerModal}
                             />
                           ) : (
-                            <EmptyPaymentListWithPaymentMethodCta
+                            <EmptyListWithEnablePaymentMethodCta
                               accountMembershipId={accountMembershipId}
                               merchantProfileId={merchantProfileId}
                             />

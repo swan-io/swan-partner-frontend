@@ -38,17 +38,25 @@ type Props = {
   shouldEnableCheckTile: boolean;
   shouldEnablePaymentLinkTile: boolean;
   merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;
+  setPickerModal: {
+    open: () => void;
+    close: () => void;
+    toggle: () => void;
+  };
+  setShouldShowTopbar: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
 export const MerchantProfilePaymentPicker = ({
+  setPickerModal,
   params,
   shouldEnableCheckTile,
   shouldEnablePaymentLinkTile,
   merchantProfile,
+  setShouldShowTopbar,
 }: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
 
-  const canDeclareCheck = useTgglFlag("checks").getOr(false);
+  const checkDeclarationEnabled = useTgglFlag("checks").getOr(false);
 
   const permissions = usePermissions();
 
@@ -57,8 +65,6 @@ export const MerchantProfilePaymentPicker = ({
       <ResponsiveContainer breakpoint={breakpoints.large} style={styles.fill}>
         {({ large }) => (
           <View style={[styles.base, large && styles.desktop]}>
-            {/* <Breadcrumbs /> */}
-
             <Stack alignItems="stretch" space={12} style={styles.stack}>
               {shouldEnablePaymentLinkTile && (
                 <TypePickerLink
@@ -76,7 +82,7 @@ export const MerchantProfilePaymentPicker = ({
 
               {shouldEnableCheckTile &&
                 permissions.canRequestMerchantChecksPaymentMethod &&
-                canDeclareCheck && (
+                checkDeclarationEnabled && (
                   <TypePickerLink
                     style={{ animationDelay: `${1 * 150}ms` }}
                     icon="lake-clock-arrow-swap"
@@ -101,14 +107,15 @@ export const MerchantProfilePaymentPicker = ({
           merchantName={merchantProfile.merchantName}
           merchantProfileId={merchantProfileId}
           paymentMethods={merchantProfile.merchantPaymentMethods ?? []}
-          // paymentLinks={paymentLinks}
-          onPressClose={() =>
-            Router.push("AccountMerchantsProfilePaymentLinkList", {
+          onPressClose={() => {
+            setShouldShowTopbar(true);
+            setPickerModal.close();
+            Router.push("AccountMerchantsProfilePaymentsList", {
               accountMembershipId,
               merchantProfileId,
               new: undefined,
-            })
-          }
+            });
+          }}
           accountMembershipId={accountMembershipId}
         />
       </FullViewportLayer>

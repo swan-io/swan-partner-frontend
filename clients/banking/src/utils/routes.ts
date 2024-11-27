@@ -114,7 +114,7 @@ const routes = {
           List: "/",
           Details: "/:paymentLinkId",
         }),
-        ...createGroup("Payments", "/payments?:status&:search", {
+        ...createGroup("Payments", "/payments?:search&:paymentMethod[]&:status[]", {
           Area: "/*",
           List: "/",
           Details: "/:paymentId",

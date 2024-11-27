@@ -3,10 +3,14 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Stack } from "@swan-io/lake/src/components/Stack";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
-import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
+import { MerchantPaymentsQuery } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
+import { useTgglFlag } from "../utils/tggl";
+import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
+import { MerchantProfilePaymentLinkNew } from "./MerchantProfilePaymentLinkNew";
 import { TypePickerLink } from "./TypePickerLink";
 
 const styles = StyleSheet.create({
@@ -31,35 +35,22 @@ const styles = StyleSheet.create({
 
 type Props = {
   params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
+  shouldEnableCheckTile: boolean;
+  shouldEnablePaymentLinkTile: boolean;
+  merchantProfile: NonNullable<MerchantPaymentsQuery["merchantProfile"]>;
 };
 
-export const MerchantProfilePaymentPicker = ({ params }: Props) => {
+export const MerchantProfilePaymentPicker = ({
+  params,
+  shouldEnableCheckTile,
+  shouldEnablePaymentLinkTile,
+  merchantProfile,
+}: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
-  const links = useMemo(
-    () => [
-      {
-        url: Router.AccountMerchantsProfilePaymentLinkList({
-          accountMembershipId,
-          merchantProfileId,
-          new: "true",
-        }),
-        icon: "arrow-swap-regular" as const,
-        title: t("merchantProfile.payments.tile.paymentLink"),
-        subtitle: t("merchantProfile.payments.tile.paymentLink.subtitle"),
-      },
-      {
-        url: Router.AccountMerchantsProfileSettings({
-          accountMembershipId,
-          merchantProfileId,
-          check: "declare",
-        }),
-        icon: "lake-clock-arrow-swap" as const,
-        title: t("merchantProfile.payments.tile.check"),
-        subtitle: t("merchantProfile.payments.tile.check.subtitle"),
-      },
-    ],
-    [accountMembershipId, merchantProfileId],
-  );
+
+  const canDeclareCheck = useTgglFlag("checks").getOr(false);
+
+  const permissions = usePermissions();
 
   return (
     <>
@@ -69,27 +60,61 @@ export const MerchantProfilePaymentPicker = ({ params }: Props) => {
             {/* <Breadcrumbs /> */}
 
             <Stack alignItems="stretch" space={12} style={styles.stack}>
-              {links.map(({ url, icon, title, subtitle }, index) => (
+              {shouldEnablePaymentLinkTile && (
                 <TypePickerLink
-                  key={index}
-                  icon={icon}
-                  title={title}
-                  subtitle={subtitle}
-                  url={url}
-                  style={{ animationDelay: `${index * 150}ms` }}
+                  style={{ animationDelay: `${0 * 150}ms` }}
+                  icon="arrow-swap-regular"
+                  title={t("merchantProfile.payments.tile.paymentLink")}
+                  subtitle={t("merchantProfile.payments.tile.paymentLink.subtitle")}
+                  url={Router.AccountMerchantsProfilePaymentsList({
+                    accountMembershipId,
+                    merchantProfileId,
+                    new: "true",
+                  })}
                 />
-              ))}
+              )}
+
+              {shouldEnableCheckTile &&
+                permissions.canRequestMerchantChecksPaymentMethod &&
+                canDeclareCheck && (
+                  <TypePickerLink
+                    style={{ animationDelay: `${1 * 150}ms` }}
+                    icon="lake-clock-arrow-swap"
+                    title={t("merchantProfile.payments.tile.check")}
+                    subtitle={t("merchantProfile.payments.tile.check.subtitle")}
+                    url={Router.AccountMerchantsProfileSettings({
+                      accountMembershipId,
+                      merchantProfileId,
+                      check: "declare",
+                    })}
+                  />
+                )}
             </Stack>
           </View>
         )}
       </ResponsiveContainer>
 
       <FullViewportLayer visible={params.new === "true"}>
-        <p>check</p>
+        <MerchantProfilePaymentLinkNew
+          accentColor={merchantProfile.accentColor ?? undefined}
+          merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
+          merchantName={merchantProfile.merchantName}
+          merchantProfileId={merchantProfileId}
+          paymentMethods={merchantProfile.merchantPaymentMethods ?? []}
+          // paymentLinks={paymentLinks}
+          onPressClose={() =>
+            Router.push("AccountMerchantsProfilePaymentLinkList", {
+              accountMembershipId,
+              merchantProfileId,
+              new: undefined,
+            })
+          }
+          accountMembershipId={accountMembershipId}
+        />
       </FullViewportLayer>
 
       <FullViewportLayer visible={params.check === "declare"}>
-        <p>paymentlink</p>
+        <CheckDeclarationWizard merchantProfileId={merchantProfile.id} params={params} />
       </FullViewportLayer>
     </>
   );

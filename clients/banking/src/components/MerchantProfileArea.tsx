@@ -61,15 +61,15 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
       ...(isPaymentLinksTabFlagActive
         ? [
             {
-              label: t("merchantProfile.tab.paymentLinks"),
-              url: Router.AccountMerchantsProfilePaymentLinkList({
+              label: t("merchantProfile.tab.payments"),
+              url: Router.AccountMerchantsProfilePaymentsList({
                 accountMembershipId,
                 merchantProfileId,
               }),
             },
             {
-              label: t("merchantProfile.tab.payments"),
-              url: Router.AccountMerchantsProfilePaymentsList({
+              label: t("merchantProfile.tab.paymentLinks"),
+              url: Router.AccountMerchantsProfilePaymentLinkList({
                 accountMembershipId,
                 merchantProfileId,
               }),

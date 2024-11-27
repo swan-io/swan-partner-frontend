@@ -1,25 +1,31 @@
 import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
+import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
+import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
+import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { spacings } from "@swan-io/lake/src/constants/design";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
-import { useCallback, useRef, useState } from "react";
+import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
+import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
 import {
   MerchantPaymentFragment,
   MerchantPaymentMethodType,
   MerchantPaymentsDocument,
+  MerchantPaymentsQuery,
 } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
@@ -27,6 +33,7 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentDetail } from "./MerchantProfilePaymentDetail";
 import { MerchantProfilePaymentList } from "./MerchantProfilePaymentList";
+import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
 
 const styles = StyleSheet.create({
   containerMobile: {
@@ -41,6 +48,9 @@ const styles = StyleSheet.create({
   filtersLarge: {
     paddingHorizontal: spacings[40],
   },
+  centered: {
+    marginHorizontal: "auto",
+  },
 });
 
 const PER_PAGE = 20;
@@ -50,6 +60,93 @@ const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
   "SepaDirectDebitB2b",
   "SepaDirectDebitCore",
 ]);
+
+type EmptyListWithCreatePaymentCtaProps = {
+  merchantProfile: MerchantPaymentsQuery["merchantProfile"];
+  setPickerModal: {
+    open: () => void;
+    close: () => void;
+    toggle: () => void;
+  };
+};
+
+const EmptyListWithCreatePaymentCta = ({
+  merchantProfile,
+  setPickerModal,
+}: EmptyListWithCreatePaymentCtaProps) => {
+  return (
+    <Box justifyContent="center">
+      {isNotNullish(merchantProfile?.merchantLogoUrl) ? (
+        <AutoWidthImage
+          alt={merchantProfile.merchantName}
+          height={40}
+          maxWidth={180}
+          resizeMode="contain"
+          sourceUri={merchantProfile.merchantLogoUrl}
+          style={styles.centered}
+        />
+      ) : (
+        <LakeHeading variant="h3" level={3} align="center">
+          {merchantProfile?.merchantName}
+        </LakeHeading>
+      )}
+
+      <Space height={24} />
+
+      <LakeText variant="medium" align="center">
+        {t("merchantProfile.payments.newPayment.title")}
+      </LakeText>
+
+      <LakeText variant="light" align="center">
+        {t("merchantProfile.payments.newPayment.subtitle")}
+      </LakeText>
+
+      <Space height={24} />
+
+      <LakeButton color="current" onPress={setPickerModal.open}>
+        {t("merchantProfile.payments.newPayment.button")}
+      </LakeButton>
+    </Box>
+  );
+};
+
+type EmptyPaymentListWithPaymentMethodCtaProps = {
+  accountMembershipId: string;
+  merchantProfileId: string;
+};
+const EmptyPaymentListWithPaymentMethodCta = ({
+  accountMembershipId,
+  merchantProfileId,
+}: EmptyPaymentListWithPaymentMethodCtaProps) => {
+  return (
+    <Box alignItems="center">
+      <BorderedIcon name="lake-merchant" />
+      <Space height={24} />
+
+      <LakeText variant="medium" align="center">
+        {t("merchantProfile.payments.enablePaymentMethod.title")}
+      </LakeText>
+
+      <LakeText variant="light" align="center">
+        {t("merchantProfile.payments.enablePaymentMethod.subtitle")}
+      </LakeText>
+
+      <Space height={24} />
+
+      <LakeButton
+        color="current"
+        onPress={() =>
+          Router.push("AccountMerchantsProfileSettings", {
+            accountMembershipId,
+            merchantProfileId,
+          })
+        }
+      >
+        {t("merchantProfile.payments.enablePaymentMethod.button")}
+      </LakeButton>
+    </Box>
+  );
+};
 
 type Props = {
   params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
@@ -98,109 +195,123 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
   const search = nullishOrEmptyToUndefined(params.search);
 
-  const shouldEnableNewButton = data
+  const { shouldEnableCheckTile, shouldEnablePaymentLinkTile } = useMemo(() => {
+    const enabledPaymentMethods = data
+      .toOption()
+      .flatMap(result => result.toOption())
+      .flatMap(({ merchantProfile }) =>
+        Option.fromNullable(merchantProfile?.merchantPaymentMethods),
+      )
+      .map(methods => methods.filter(method => method.statusInfo.status === "Enabled"));
+
+    return {
+      shouldEnableCheckTile: enabledPaymentMethods
+        .map(methods => methods.some(method => method.type === "Check"))
+        .getOr(false),
+
+      shouldEnablePaymentLinkTile: enabledPaymentMethods
+        .map(methods => methods.some(method => ALLOWED_PAYMENT_METHODS.has(method.type)))
+
+        .getOr(false),
+    };
+  }, [data]);
+
+  const [pickerVisible, setPickerModal] = useDisclosure(false);
+
+  const shouldShowTopbar = data
     .toOption()
     .flatMap(result => result.toOption())
-    .flatMap(({ merchantProfile }) => Option.fromNullable(merchantProfile))
-    .map(merchant => {
-      const paymentMethods = merchant.merchantPaymentMethods ?? [];
-      return paymentMethods.some(
-        paymentMethod =>
-          ALLOWED_PAYMENT_METHODS.has(paymentMethod.type) &&
-          paymentMethod.statusInfo.status === "Enabled",
-      );
-    });
+    .map(data => (data.merchantProfile?.merchantPayments?.edges.length ?? 0) > 0)
+    .getOr(true);
 
   return (
     <>
-      {!large && (
-        <Box style={styles.containerMobile} alignItems="stretch">
-          <LakeTooltip
-            content={t("merchantProfile.paymentLink.button.new.disable")}
-            disabled={shouldEnableNewButton !== Option.Some(false)}
-          >
-            <LakeButton
-              disabled={!shouldEnableNewButton.getOr(false)}
-              size="small"
-              icon="add-circle-filled"
-              color="current"
-              onPress={() =>
-                Router.push("AccountMerchantsProfilePaymentLinkList", {
-                  new: "true",
-                  accountMembershipId,
-                  merchantProfileId,
-                })
-              }
-            >
-              {t("merchantProfile.paymentLink.button.new")}
-            </LakeButton>
-          </LakeTooltip>
-        </Box>
-      )}
-
-      <Box
-        direction="row"
-        alignItems="center"
-        style={[styles.filters, large && styles.filtersLarge]}
-      >
-        {large && (
-          <>
-            <LakeTooltip
-              content={t("merchantProfile.paymentLink.button.new.disable")}
-              disabled={shouldEnableNewButton !== Option.Some(false)}
-            >
-              <LakeButton
-                disabled={!shouldEnableNewButton.getOr(false)}
-                size="small"
-                icon="add-circle-filled"
-                color="current"
-                onPress={() =>
-                  Router.push("AccountMerchantsProfilePaymentLinkList", {
-                    new: "true",
-                    accountMembershipId,
-                    merchantProfileId,
-                  })
-                }
+      {shouldShowTopbar && (
+        <>
+          {!large && (
+            <Box style={styles.containerMobile} alignItems="stretch">
+              <LakeTooltip
+                content={t("merchantProfile.paymentLink.button.new.disable")}
+                disabled={shouldEnablePaymentLinkTile || shouldEnableCheckTile}
               >
-                {t("merchantProfile.payments.button.new")}
-              </LakeButton>
-            </LakeTooltip>
-            {/* // TODO USE FILL */}
-            <Space width={12} />
-          </>
-        )}
+                <LakeButton
+                  disabled={!shouldEnablePaymentLinkTile || !shouldEnableCheckTile}
+                  size="small"
+                  icon="add-circle-filled"
+                  color="current"
+                  onPress={() =>
+                    Router.push("AccountMerchantsProfilePaymentLinkList", {
+                      new: "true",
+                      accountMembershipId,
+                      merchantProfileId,
+                    })
+                  }
+                >
+                  {t("merchantProfile.paymentLink.button.new")}
+                </LakeButton>
+              </LakeTooltip>
+            </Box>
+          )}
 
-        <LakeButton
-          ariaLabel={t("common.refresh")}
-          mode="secondary"
-          size="small"
-          icon="arrow-counterclockwise-filled"
-          loading={isRefreshing}
-          onPress={() => {
-            setIsRefreshing(true);
-            reload().tap(() => setIsRefreshing(false));
-          }}
-        />
+          <Box
+            direction="row"
+            alignItems="center"
+            style={[styles.filters, large && styles.filtersLarge]}
+          >
+            {large && (
+              <>
+                <LakeTooltip
+                  content={t("merchantProfile.paymentLink.button.new.disable")}
+                  disabled={shouldEnablePaymentLinkTile || shouldEnableCheckTile}
+                >
+                  <LakeButton
+                    disabled={!shouldEnablePaymentLinkTile || !shouldEnableCheckTile}
+                    size="small"
+                    icon="add-circle-filled"
+                    color="current"
+                    onPress={setPickerModal.open}
+                  >
+                    {t("merchantProfile.payments.button.new")}
+                  </LakeButton>
+                </LakeTooltip>
 
-        <Fill minWidth={16} />
+                <Space width={12} />
+              </>
+            )}
 
-        <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
-          <Fill minWidth={16} />
+            <LakeButton
+              ariaLabel={t("common.refresh")}
+              mode="secondary"
+              size="small"
+              icon="arrow-counterclockwise-filled"
+              loading={isRefreshing}
+              onPress={() => {
+                setIsRefreshing(true);
+                reload().tap(() => setIsRefreshing(false));
+              }}
+            />
 
-          <LakeSearchField
-            initialValue={search ?? ""}
-            placeholder={t("common.search")}
-            onChangeText={search => {
-              Router.replace("AccountMerchantsProfilePaymentsList", {
-                ...params,
-                search,
-              });
-            }}
-          />
-        </Box>
-      </Box>
+            <Fill minWidth={16} />
 
-      <Space height={24} />
+            <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
+              <Fill minWidth={16} />
+
+              <LakeSearchField
+                initialValue={search ?? ""}
+                placeholder={t("common.search")}
+                onChangeText={search => {
+                  Router.replace("AccountMerchantsProfilePaymentsList", {
+                    ...params,
+                    search,
+                  });
+                }}
+              />
+            </Box>
+          </Box>
+
+          <Space height={24} />
+        </>
+      )}
 
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => (
@@ -214,77 +325,87 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => {
           return (
-            <Connection connection={merchantProfile?.merchantPayments}>
-              {payments => (
-                <>
-                  <MerchantProfilePaymentList
-                    params={params}
-                    isLoading={isLoading}
-                    payments={payments?.edges.map(item => item.node) ?? []}
-                    large={large}
-                    getRowLink={getRowLink}
-                    activeRowId={activePaymentLinkId ?? undefined}
-                    onActiveRowChange={onActiveRowChange}
-                    onEndReached={() => {
-                      if (merchantProfile?.merchantPayments?.pageInfo.hasNextPage ?? false) {
-                        setVariables({
-                          after: merchantProfile?.merchantPayments?.pageInfo.endCursor ?? undefined,
-                        });
-                      }
-                    }}
-                  />
-
-                  {/*   <FullViewportLayer visible={isNotNullish(route?.params.new)}>
-               <MerchantProfilePaymentLinkNew
-                      accentColor={merchantProfile.accentColor ?? undefined}
-                      merchantLogoUrl={merchantProfile.merchantLogoUrl ?? undefined}
-                      merchantName={merchantProfile.merchantName}
-                      merchantProfileId={merchantProfileId}
-                      paymentMethods={merchantProfile.merchantPaymentMethods}
-                      paymentLinks={paymentLinks}
-                      onPressClose={() =>
-                        Router.push("AccountMerchantsProfilePaymentsList", {
-                          accountMembershipId,
-                          merchantProfileId,
-                          new: undefined,
-                        })
-                      }
-                      accountMembershipId={accountMembershipId}
-                    />
-                  </FullViewportLayer> */}
-
-                  <ListRightPanel
-                    ref={panelRef}
-                    keyExtractor={item => item.id}
-                    activeId={activePaymentLinkId}
-                    onActiveIdChange={paymentId =>
-                      Router.push("AccountMerchantsProfilePaymentsDetails", {
-                        accountMembershipId,
-                        merchantProfileId,
-                        paymentId,
-                      })
-                    }
-                    onClose={() =>
-                      Router.push("AccountMerchantsProfilePaymentsList", {
-                        accountMembershipId,
-                        merchantProfileId,
-                      })
-                    }
-                    items={payments?.edges.map(item => item.node) ?? []}
-                    render={(item, large) => (
-                      <MerchantProfilePaymentDetail
-                        paymentLinkId={item.paymentLinkId}
-                        paymentId={item.id}
+            <>
+              {pickerVisible && isNotNullish(merchantProfile) ? (
+                <MerchantProfilePaymentPicker
+                  params={params}
+                  shouldEnableCheckTile={shouldEnableCheckTile}
+                  shouldEnablePaymentLinkTile={shouldEnablePaymentLinkTile}
+                  merchantProfile={merchantProfile}
+                />
+              ) : (
+                <Connection connection={merchantProfile?.merchantPayments}>
+                  {payments => (
+                    <>
+                      <MerchantProfilePaymentList
+                        isLoading={isLoading}
+                        payments={payments?.edges.map(item => item.node) ?? []}
                         large={large}
+                        getRowLink={getRowLink}
+                        activeRowId={activePaymentLinkId ?? undefined}
+                        onActiveRowChange={onActiveRowChange}
+                        onEndReached={() => {
+                          if (merchantProfile?.merchantPayments?.pageInfo.hasNextPage ?? false) {
+                            setVariables({
+                              after:
+                                merchantProfile?.merchantPayments?.pageInfo.endCursor ?? undefined,
+                            });
+                          }
+                        }}
+                        renderEmptyList={() =>
+                          shouldEnablePaymentLinkTile || shouldEnableCheckTile ? (
+                            <EmptyListWithCreatePaymentCta
+                              merchantProfile={merchantProfile}
+                              setPickerModal={setPickerModal}
+                            />
+                          ) : (
+                            <EmptyPaymentListWithPaymentMethodCta
+                              accountMembershipId={accountMembershipId}
+                              merchantProfileId={merchantProfileId}
+                            />
+                            // <EmptyView
+                            //   icon="lake-transfer"
+                            //   borderedIcon={true}
+                            //   title={t("merchantProfile.payments.noResults")}
+                            // />
+                          )
+                        }
                       />
-                    )}
-                    closeLabel={t("common.closeButton")}
-                    previousLabel={t("common.previous")}
-                    nextLabel={t("common.next")}
-                  />
-                </>
+
+                      <ListRightPanel
+                        ref={panelRef}
+                        keyExtractor={item => item.id}
+                        activeId={activePaymentLinkId}
+                        onActiveIdChange={paymentId =>
+                          Router.push("AccountMerchantsProfilePaymentsDetails", {
+                            accountMembershipId,
+                            merchantProfileId,
+                            paymentId,
+                          })
+                        }
+                        onClose={() =>
+                          Router.push("AccountMerchantsProfilePaymentsList", {
+                            accountMembershipId,
+                            merchantProfileId,
+                          })
+                        }
+                        items={payments?.edges.map(item => item.node) ?? []}
+                        render={(item, large) => (
+                          <MerchantProfilePaymentDetail
+                            paymentLinkId={item.paymentLinkId}
+                            paymentId={item.id}
+                            large={large}
+                          />
+                        )}
+                        closeLabel={t("common.closeButton")}
+                        previousLabel={t("common.previous")}
+                        nextLabel={t("common.next")}
+                      />
+                    </>
+                  )}
+                </Connection>
               )}
-            </Connection>
+            </>
           );
         })
         .exhaustive()}

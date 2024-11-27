@@ -10,13 +10,11 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import dayjs from "dayjs";
-import { ReactElement } from "react";
+import { ReactElement, ReactNode } from "react";
 import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { MerchantPaymentFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
-import { GetRouteParams } from "../utils/routes";
-import { MerchantProfilePaymentPicker } from "./MerchantProfilePaymentPicker";
 
 const styles = StyleSheet.create({
   cell: {
@@ -93,7 +91,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <View style={styles.cell}>
-        <LakeText align="right" variant="smallMedium" color={colors.gray[600]}>
+        <LakeText align="right" variant="smallMedium" color={colors.gray[900]}>
           {dayjs(item.createdAt).format("LLL")}
         </LakeText>
       </View>
@@ -122,11 +120,11 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   },
   {
     id: "status",
-    width: 100,
+    width: 120,
     title: t("merchantProfile.payments.status"),
-    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
+    renderTitle: ({ title }) => <HeaderCell text={title} align="center" />,
     renderCell: ({ item }) => (
-      <Cell align="right">
+      <Cell align="center">
         {match(item.statusInfo.status)
           .with("Authorized", () => (
             <Tag color="shakespear"> {t("merchantProfile.payments.status.authorized")} </Tag>
@@ -228,7 +226,6 @@ const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
 ];
 
 type Props = {
-  params: GetRouteParams<"AccountMerchantsProfilePaymentsArea">;
   payments: MerchantPaymentFragment[];
   getRowLink: (item: LinkConfig<MerchantPaymentFragment, ExtraInfo>) => ReactElement;
   activeRowId: string | undefined;
@@ -236,10 +233,10 @@ type Props = {
   onEndReached: () => void;
   isLoading: boolean;
   large: boolean;
+  renderEmptyList: () => ReactNode;
 };
 
 export const MerchantProfilePaymentList = ({
-  params,
   payments,
   onEndReached,
   large,
@@ -247,6 +244,7 @@ export const MerchantProfilePaymentList = ({
   activeRowId,
   onActiveRowChange,
   isLoading,
+  renderEmptyList,
 }: Props) => {
   return (
     <PlainListView
@@ -267,7 +265,7 @@ export const MerchantProfilePaymentList = ({
         isLoading,
         count: 5,
       }}
-      renderEmptyList={() => <MerchantProfilePaymentPicker params={params} />}
+      renderEmptyList={renderEmptyList}
     />
   );
 };

@@ -55,7 +55,6 @@ import {
   validateRequired,
   validateUrl,
 } from "../utils/validations";
-
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
 const IFRAME_ORIGINAL_HEIGHT = 1000;
@@ -204,8 +203,8 @@ type Props = {
   accentColor: string | undefined;
   merchantLogoUrl: string | undefined;
   merchantName: string | undefined;
-  paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
-  paymentLinks: PaymentLinkConnectionFragment | null | undefined;
+  paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "type">[];
+  paymentLinks?: PaymentLinkConnectionFragment | null;
   onPressClose: () => void;
 };
 
@@ -408,12 +407,14 @@ export const MerchantProfilePaymentLinkNew = ({
         const option = Option.allFromDict(values);
 
         if (option.isSome()) {
-          const { label, amount, paymentMethodIds } = option.get();
+          const { label, amount, paymentMethodIds, externalReference, reference } = option.get();
 
           return createMerchantPaymentLink({
             input: {
               merchantProfileId,
               label,
+              reference,
+              externalReference,
               amount: {
                 value: amount,
                 currency: "EUR",
@@ -530,6 +531,7 @@ export const MerchantProfilePaymentLinkNew = ({
                   <Field name="reference">
                     {({ value, onChange, error }) => (
                       <LakeLabel
+                        optionalLabel={t("form.optional")}
                         label={t("merchantProfile.paymentLink.new.reference")}
                         render={id => (
                           <LakeTextInput
@@ -546,6 +548,7 @@ export const MerchantProfilePaymentLinkNew = ({
                   <Field name="externalReference">
                     {({ value, onChange, error }) => (
                       <LakeLabel
+                        optionalLabel={t("form.optional")}
                         label={t("merchantProfile.paymentLink.new.externalReference")}
                         render={id => (
                           <LakeTextInput

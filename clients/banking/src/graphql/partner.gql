@@ -2344,6 +2344,10 @@ query MerchantPayments(
   $after: String
 ) {
   merchantProfile(id: $merchantProfileId) {
+    accentColor
+    merchantLogoUrl
+    merchantName
+    id
     merchantPayments(first: $first, after: $after) {
       ...MerchantPaymentsConnection
     }
@@ -2357,7 +2361,13 @@ query MerchantPayments(
   }
 }
 
-query GetMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
+query GetMainMerchantPaymentDetails($paymentId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+}
+
+query GetFullMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
   merchantPayment(id: $paymentId) {
     ...MerchantPayment
   }

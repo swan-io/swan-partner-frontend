@@ -144,11 +144,15 @@ export const MembershipConflictResolutionEditor = ({
                 label={t("membershipDetail.bindingUserError.phoneNumber")}
                 readOnly={true}
                 readOnlyColor={colors.gray[500]}
-                render={() => (
-                  <LakeText variant="regular" color={colors.gray[900]}>
-                    {restrictedTo.phoneNumber}
-                  </LakeText>
-                )}
+                render={() =>
+                  restrictedTo.phoneNumber != null ? (
+                    <LakeText variant="regular" color={colors.gray[900]}>
+                      {restrictedTo.phoneNumber}
+                    </LakeText>
+                  ) : (
+                    <LakeText>{"—"}</LakeText>
+                  )
+                }
               />
 
               <LakeLabel

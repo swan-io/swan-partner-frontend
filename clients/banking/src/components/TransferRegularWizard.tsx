@@ -31,15 +31,20 @@ const BeneficiaryStep = ({
   accountCountry,
   accountId,
   initialBeneficiary,
+  isAccountClosing,
   onPressSubmit,
 }: {
   accountCountry: AccountCountry;
   accountId: string;
   initialBeneficiary: SepaBeneficiary | undefined;
+  isAccountClosing: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const { canInitiateCreditTransferToNewBeneficiary, canCreateTrustedBeneficiary } =
-    usePermissions();
+  const permissions = usePermissions();
+
+  const canCreateTrustedBeneficiary = !isAccountClosing && permissions.canCreateTrustedBeneficiary;
+  const canInitiateCreditTransferToNewBeneficiary =
+    isAccountClosing || permissions.canInitiateCreditTransferToNewBeneficiary;
 
   const [activeTab, setActiveTab] = useState(
     canInitiateCreditTransferToNewBeneficiary ? (initialBeneficiary?.kind ?? "new") : "saved",
@@ -237,6 +242,7 @@ export const TransferRegularWizard = ({
             accountCountry={accountCountry}
             accountId={accountId}
             initialBeneficiary={beneficiary}
+            isAccountClosing={isAccountClosing}
             onPressSubmit={beneficiary => {
               setStep({ name: "Details", beneficiary });
             }}

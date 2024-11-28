@@ -40,18 +40,17 @@ const BeneficiaryStep = ({
   isAccountClosing: boolean;
   onPressSubmit: (beneficiary: SepaBeneficiary) => void;
 }) => {
-  const permissions = usePermissions();
-
-  const canCreateTrustedBeneficiary = !isAccountClosing && permissions.canCreateTrustedBeneficiary;
-  const canInitiateCreditTransferToNewBeneficiary =
-    isAccountClosing || permissions.canInitiateCreditTransferToNewBeneficiary;
+  const { canInitiateCreditTransferToNewBeneficiary, canCreateTrustedBeneficiary } =
+    usePermissions();
 
   const [activeTab, setActiveTab] = useState(
-    canInitiateCreditTransferToNewBeneficiary ? (initialBeneficiary?.kind ?? "new") : "saved",
+    canInitiateCreditTransferToNewBeneficiary || isAccountClosing
+      ? (initialBeneficiary?.kind ?? "new")
+      : "saved",
   );
 
   const tabs: { id: SepaBeneficiary["kind"]; label: string }[] = [
-    ...(canInitiateCreditTransferToNewBeneficiary
+    ...(canInitiateCreditTransferToNewBeneficiary || isAccountClosing
       ? [{ id: "new" as const, label: t("transfer.new.beneficiary.new") }]
       : []),
     { id: "saved" as const, label: t("transfer.new.beneficiary.saved") },
@@ -85,7 +84,7 @@ const BeneficiaryStep = ({
             accountCountry={accountCountry}
             accountId={accountId}
             onPressSubmit={onPressSubmit}
-            saveCheckboxVisible={canCreateTrustedBeneficiary}
+            saveCheckboxVisible={canCreateTrustedBeneficiary && !isAccountClosing}
             initialBeneficiary={match(initialBeneficiary)
               .with({ kind: "new" }, identity)
               .with({ kind: "saved" }, P.nullish, () => undefined)

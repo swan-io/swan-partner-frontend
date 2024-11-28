@@ -26,6 +26,7 @@ import { useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { match, P } from "ts-pattern";
 import { AccountClosingDocument, AccountCountry, CloseAccountDocument } from "../graphql/partner";
+import { PermissionProvider } from "../hooks/usePermissions";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { env } from "../utils/env";
 import { formatNestedMessage, languages, locale, setPreferredLanguage, t } from "../utils/i18n";
@@ -374,198 +375,205 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
         const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
 
         return (
-          <WithPartnerAccentColor color={accentColor}>
-            {isLegalRepresentative ? (
-              <View style={styles.container}>
-                <WizardLayout
-                  title={t("accountClose.closeAccount")}
-                  onPressClose={userMembershipIdOnCurrentAccount
-                    .map(accountMembershipId => {
-                      return () =>
-                        Router.push("AccountRoot", {
-                          accountMembershipId,
-                        });
-                    })
-                    .toUndefined()}
-                  headerEnd={
-                    <View>
-                      <LakeSelect
-                        value={locale.language}
-                        items={languageOptions}
-                        hideErrors={true}
-                        mode="borderless"
-                        style={styles.languagesSelect}
-                        onValueChange={locale => {
-                          setPreferredLanguage(locale);
-                        }}
-                      />
-                    </View>
-                  }
-                >
-                  {({ large }) =>
-                    match({ accountStatus: account.statusInfo.status, balance })
-                      .with({ accountStatus: "Closed" }, () => (
-                        <WithCurrentColor variant="positive" style={styles.successContainer}>
-                          <EmptyView
-                            icon="lake-check"
-                            borderedIcon={true}
-                            borderedIconPadding={20}
-                            title={t("accountClose.closed.title")}
-                            subtitle={t("accountClose.closed.description")}
-                          />
-                        </WithCurrentColor>
-                      ))
-                      .with({ accountStatus: "Closing", balance: 0 }, () => (
-                        <WithCurrentColor variant="positive" style={styles.successContainer}>
-                          <EmptyView
-                            icon="lake-check"
-                            borderedIcon={true}
-                            borderedIconPadding={20}
-                            title={t("accountClose.closureSuccessful.title")}
-                            subtitle={t("accountClose.closureSuccessful.description")}
-                          />
-                        </WithCurrentColor>
-                      ))
-                      .with({ accountStatus: "Closing", balance: P.number.negative() }, () => (
-                        <WithCurrentColor variant="negative" style={styles.successContainer}>
-                          <EmptyView
-                            icon="dismiss-circle-regular"
-                            borderedIcon={true}
-                            borderedIconPadding={20}
-                            title={t("accountClose.negativeBalance.title")}
-                            subtitle={t("accountClose.negativeBalance.description")}
-                          >
-                            <LakeButtonGroup>
-                              <LakeButton href="mailto:support@swan.io" mode="secondary">
-                                {t("accountClose.negativeBalance.contactSupport")}
-                              </LakeButton>
-                            </LakeButtonGroup>
-                          </EmptyView>
-                        </WithCurrentColor>
-                      ))
-                      .with({ accountStatus: "Closing", balance: P.number.positive() }, () => {
-                        // as transactions are asynchronous, this approximates the success
-                        // -> the resourceId includes a `_` char: it's likely a transactionId
-                        // -> the status of the consent is `Accepted`
-                        if (
-                          resourceId != null &&
-                          resourceId?.includes("_") &&
-                          status === "Accepted"
-                        ) {
-                          return (
-                            <WithCurrentColor variant="positive" style={styles.successContainer}>
-                              <EmptyView
-                                icon="lake-check"
-                                borderedIcon={true}
-                                borderedIconPadding={20}
-                                title={t("accountClose.transferDone.title")}
-                                subtitle={t("accountClose.transferDone.description")}
-                              />
-                            </WithCurrentColor>
-                          );
-                        }
-                        return match(userMembershipIdOnCurrentAccount)
-                          .with(Option.P.None, () => <LoadingView />)
-                          .with(Option.P.Some(P.select()), accountMembershipId => (
-                            <TransferScreen
-                              accountMembershipId={accountMembershipId}
-                              accountId={accountId}
-                              accountCountry={account.country}
-                              large={large}
-                            />
-                          ))
-                          .exhaustive();
+          <PermissionProvider
+            value={Option.Some({
+              accountMembership: account.legalRepresentativeMembership,
+              settings: projectInfo.webBankingSettings,
+            })}
+          >
+            <WithPartnerAccentColor color={accentColor}>
+              {isLegalRepresentative ? (
+                <View style={styles.container}>
+                  <WizardLayout
+                    title={t("accountClose.closeAccount")}
+                    onPressClose={userMembershipIdOnCurrentAccount
+                      .map(accountMembershipId => {
+                        return () =>
+                          Router.push("AccountRoot", {
+                            accountMembershipId,
+                          });
                       })
-                      .with({ accountStatus: "Opened" }, () => (
-                        <>
-                          {balance > 0 ? (
-                            <>
-                              <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
-                                {t("accountClose.nextSteps")}
-                              </LakeHeading>
-
-                              <Space height={12} />
-                              <LakeText>{t("accountClose.twoSteps")}</LakeText>
-                              <Space height={24} />
-
-                              <FlowPresentation
-                                mode="mobile"
-                                steps={[
-                                  {
-                                    label: t("accountClose.steps.letUsKnowWhy"),
-                                    icon: "question-circle-regular",
-                                    isComplete: true,
-                                  },
-                                  {
-                                    label: t("accountClose.steps.transferBalance"),
-                                    icon: "arrow-swap-regular",
-                                    isComplete: account.statusInfo.status === "Closing",
-                                  },
-                                ]}
+                      .toUndefined()}
+                    headerEnd={
+                      <View>
+                        <LakeSelect
+                          value={locale.language}
+                          items={languageOptions}
+                          hideErrors={true}
+                          mode="borderless"
+                          style={styles.languagesSelect}
+                          onValueChange={locale => {
+                            setPreferredLanguage(locale);
+                          }}
+                        />
+                      </View>
+                    }
+                  >
+                    {({ large }) =>
+                      match({ accountStatus: account.statusInfo.status, balance })
+                        .with({ accountStatus: "Closed" }, () => (
+                          <WithCurrentColor variant="positive" style={styles.successContainer}>
+                            <EmptyView
+                              icon="lake-check"
+                              borderedIcon={true}
+                              borderedIconPadding={20}
+                              title={t("accountClose.closed.title")}
+                              subtitle={t("accountClose.closed.description")}
+                            />
+                          </WithCurrentColor>
+                        ))
+                        .with({ accountStatus: "Closing", balance: 0 }, () => (
+                          <WithCurrentColor variant="positive" style={styles.successContainer}>
+                            <EmptyView
+                              icon="lake-check"
+                              borderedIcon={true}
+                              borderedIconPadding={20}
+                              title={t("accountClose.closureSuccessful.title")}
+                              subtitle={t("accountClose.closureSuccessful.description")}
+                            />
+                          </WithCurrentColor>
+                        ))
+                        .with({ accountStatus: "Closing", balance: P.number.negative() }, () => (
+                          <WithCurrentColor variant="negative" style={styles.successContainer}>
+                            <EmptyView
+                              icon="dismiss-circle-regular"
+                              borderedIcon={true}
+                              borderedIconPadding={20}
+                              title={t("accountClose.negativeBalance.title")}
+                              subtitle={t("accountClose.negativeBalance.description")}
+                            >
+                              <LakeButtonGroup>
+                                <LakeButton href="mailto:support@swan.io" mode="secondary">
+                                  {t("accountClose.negativeBalance.contactSupport")}
+                                </LakeButton>
+                              </LakeButtonGroup>
+                            </EmptyView>
+                          </WithCurrentColor>
+                        ))
+                        .with({ accountStatus: "Closing", balance: P.number.positive() }, () => {
+                          // as transactions are asynchronous, this approximates the success
+                          // -> the resourceId includes a `_` char: it's likely a transactionId
+                          // -> the status of the consent is `Accepted`
+                          if (
+                            resourceId != null &&
+                            resourceId?.includes("_") &&
+                            status === "Accepted"
+                          ) {
+                            return (
+                              <WithCurrentColor variant="positive" style={styles.successContainer}>
+                                <EmptyView
+                                  icon="lake-check"
+                                  borderedIcon={true}
+                                  borderedIconPadding={20}
+                                  title={t("accountClose.transferDone.title")}
+                                  subtitle={t("accountClose.transferDone.description")}
+                                />
+                              </WithCurrentColor>
+                            );
+                          }
+                          return match(userMembershipIdOnCurrentAccount)
+                            .with(Option.P.None, () => <LoadingView />)
+                            .with(Option.P.Some(P.select()), accountMembershipId => (
+                              <TransferScreen
+                                accountMembershipId={accountMembershipId}
+                                accountId={accountId}
+                                accountCountry={account.country}
+                                large={large}
                               />
+                            ))
+                            .exhaustive();
+                        })
+                        .with({ accountStatus: "Opened" }, () => (
+                          <>
+                            {balance > 0 ? (
+                              <>
+                                <LakeHeading level={2} variant="h3" color={colors.gray[700]}>
+                                  {t("accountClose.nextSteps")}
+                                </LakeHeading>
 
-                              <Space height={48} />
-                            </>
-                          ) : null}
+                                <Space height={12} />
+                                <LakeText>{t("accountClose.twoSteps")}</LakeText>
+                                <Space height={24} />
 
-                          <AccountCloseReasonForm accountId={accountId} />
-                          <Space height={24} />
-                        </>
-                      ))
-                      .with({ accountStatus: "Suspended" }, () => (
-                        <WithCurrentColor variant="warning" style={styles.successContainer}>
-                          <EmptyView
-                            icon="lake-warning"
-                            borderedIcon={true}
-                            borderedIconPadding={24}
-                            title={t("accountClose.suspended.title")}
-                          >
-                            <LakeButtonGroup>
-                              <LakeButton href="mailto:support@swan.io" mode="secondary">
-                                {t("accountClose.negativeBalance.contactSupport")}
-                              </LakeButton>
-                            </LakeButtonGroup>
-                          </EmptyView>
-                        </WithCurrentColor>
-                      ))
-                      .otherwise(() => <ErrorView />)
-                  }
-                </WizardLayout>
-              </View>
-            ) : (
-              <WithCurrentColor variant="negative" style={styles.notLegalRepresentativeContainer}>
-                <EmptyView
-                  icon="dismiss-circle-regular"
-                  borderedIcon={true}
-                  borderedIconPadding={20}
-                  title={t("accountClose.notLegalRepresentative.title")}
-                  subtitle={match(legalRepresentativeName)
-                    .with(Option.P.Some(P.select()), legalRepresentativeName =>
-                      t("accountClose.notLegalRepresentative.description.withName", {
-                        legalRepresentativeName,
-                        legalRepresentativeEmail: account.legalRepresentativeMembership.email,
-                      }),
-                    )
-                    .otherwise(() => t("accountClose.notLegalRepresentative.description"))}
-                >
-                  {userMembershipIdOnCurrentAccount
-                    .map(accountMembershipId => {
-                      return (
-                        <LakeButtonGroup>
-                          <LakeButton
-                            onPress={() => Router.push("AccountRoot", { accountMembershipId })}
-                            mode="secondary"
-                          >
-                            {t("common.closeButton")}
-                          </LakeButton>
-                        </LakeButtonGroup>
-                      );
-                    })
-                    .toNull()}
-                </EmptyView>
-              </WithCurrentColor>
-            )}
-          </WithPartnerAccentColor>
+                                <FlowPresentation
+                                  mode="mobile"
+                                  steps={[
+                                    {
+                                      label: t("accountClose.steps.letUsKnowWhy"),
+                                      icon: "question-circle-regular",
+                                      isComplete: true,
+                                    },
+                                    {
+                                      label: t("accountClose.steps.transferBalance"),
+                                      icon: "arrow-swap-regular",
+                                      isComplete: account.statusInfo.status === "Closing",
+                                    },
+                                  ]}
+                                />
+
+                                <Space height={48} />
+                              </>
+                            ) : null}
+
+                            <AccountCloseReasonForm accountId={accountId} />
+                            <Space height={24} />
+                          </>
+                        ))
+                        .with({ accountStatus: "Suspended" }, () => (
+                          <WithCurrentColor variant="warning" style={styles.successContainer}>
+                            <EmptyView
+                              icon="lake-warning"
+                              borderedIcon={true}
+                              borderedIconPadding={24}
+                              title={t("accountClose.suspended.title")}
+                            >
+                              <LakeButtonGroup>
+                                <LakeButton href="mailto:support@swan.io" mode="secondary">
+                                  {t("accountClose.negativeBalance.contactSupport")}
+                                </LakeButton>
+                              </LakeButtonGroup>
+                            </EmptyView>
+                          </WithCurrentColor>
+                        ))
+                        .otherwise(() => <ErrorView />)
+                    }
+                  </WizardLayout>
+                </View>
+              ) : (
+                <WithCurrentColor variant="negative" style={styles.notLegalRepresentativeContainer}>
+                  <EmptyView
+                    icon="dismiss-circle-regular"
+                    borderedIcon={true}
+                    borderedIconPadding={20}
+                    title={t("accountClose.notLegalRepresentative.title")}
+                    subtitle={match(legalRepresentativeName)
+                      .with(Option.P.Some(P.select()), legalRepresentativeName =>
+                        t("accountClose.notLegalRepresentative.description.withName", {
+                          legalRepresentativeName,
+                          legalRepresentativeEmail: account.legalRepresentativeMembership.email,
+                        }),
+                      )
+                      .otherwise(() => t("accountClose.notLegalRepresentative.description"))}
+                  >
+                    {userMembershipIdOnCurrentAccount
+                      .map(accountMembershipId => {
+                        return (
+                          <LakeButtonGroup>
+                            <LakeButton
+                              onPress={() => Router.push("AccountRoot", { accountMembershipId })}
+                              mode="secondary"
+                            >
+                              {t("common.closeButton")}
+                            </LakeButton>
+                          </LakeButtonGroup>
+                        );
+                      })
+                      .toNull()}
+                  </EmptyView>
+                </WithCurrentColor>
+              )}
+            </WithPartnerAccentColor>
+          </PermissionProvider>
         );
       },
     )

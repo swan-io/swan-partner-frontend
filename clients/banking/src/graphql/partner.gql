@@ -2309,6 +2309,9 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
   projectInfo {
     id
     accentColor
+    webBankingSettings {
+      ...WebBankingSettings
+    }
   }
   account(accountId: $accountId) {
     id
@@ -2325,6 +2328,7 @@ query AccountClosing($accountId: ID!, $after: String, $first: Int!) {
         preferredLastName
         fullName
       }
+      ...AccountMembershipPermissions
     }
     balances {
       available {

@@ -135,7 +135,6 @@ export const TransactionLabelCell = ({ transaction }: { transaction: Transaction
   return (
     <Cell>
       <TransactionIcon transaction={transaction} />
-
       <Space width={20} />
 
       <LakeHeading variant="h5" level={3} numberOfLines={1}>

@@ -107,30 +107,34 @@ export const getTransactionLabel = (transaction: Transaction): string =>
     )
     .otherwise(() => transaction.label);
 
+const TransactionIcon = ({ transaction }: { transaction: Transaction }) => {
+  return match(transaction)
+    .with(
+      {
+        __typename: "CardTransaction",
+        enrichedTransactionInfo: { logoUrl: P.select(P.string) },
+      },
+      logoUrl => <Image source={logoUrl} style={styles.merchantLogo} />,
+    )
+    .otherwise(() => (
+      <Tag
+        icon={getTransactionIcon(transaction)}
+        color={match(transaction.statusInfo)
+          .with({ __typename: "RejectedTransactionStatusInfo" }, () => "negative" as const)
+          .with(
+            { __typename: "ReleasedTransactionStatusInfo" },
+            { __typename: "BookedTransactionStatusInfo" },
+            () => (transaction.side === "Debit" ? ("gray" as const) : ("positive" as const)),
+          )
+          .otherwise(() => "gray" as const)}
+      />
+    ));
+};
+
 export const TransactionLabelCell = ({ transaction }: { transaction: Transaction }) => {
   return (
     <Cell>
-      {match(transaction)
-        .with(
-          {
-            __typename: "CardTransaction",
-            enrichedTransactionInfo: { logoUrl: P.select(P.string) },
-          },
-          logoUrl => <Image source={logoUrl} style={styles.merchantLogo} />,
-        )
-        .otherwise(() => (
-          <Tag
-            icon={getTransactionIcon(transaction)}
-            color={match(transaction.statusInfo)
-              .with({ __typename: "RejectedTransactionStatusInfo" }, () => "negative" as const)
-              .with(
-                { __typename: "ReleasedTransactionStatusInfo" },
-                { __typename: "BookedTransactionStatusInfo" },
-                () => (transaction.side === "Debit" ? ("gray" as const) : ("positive" as const)),
-              )
-              .otherwise(() => "gray" as const)}
-          />
-        ))}
+      <TransactionIcon transaction={transaction} />
 
       <Space width={20} />
 
@@ -324,6 +328,9 @@ export const TransactionAmountCell = ({ transaction }: { transaction: Transactio
 export const TransactionSummaryCell = ({ transaction }: { transaction: Transaction }) => {
   return (
     <Cell style={styles.paddedCell}>
+      <TransactionIcon transaction={transaction} />
+      <Space width={20} />
+
       <Box grow={1} shrink={1}>
         <LakeText variant="smallRegular" numberOfLines={1}>
           {getTransactionLabel(transaction)}

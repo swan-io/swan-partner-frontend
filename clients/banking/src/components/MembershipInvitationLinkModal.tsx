@@ -47,7 +47,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
     >
       {match(data)
         .with(AsyncData.P.NotAsked, AsyncData.P.Loading, () => <LoadingView />)
-        .with(AsyncData.P.Done(Result.P.Error(P.select())), () => <ErrorView error={error} />)
+        .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ accountMembership }) => {
           const value = match(projectConfiguration)
             .with(
@@ -59,7 +59,7 @@ export const MembershipInvitationLinkModal = ({ accountMembershipId, onPressClos
 
           const url = new URL(value);
           url.searchParams.append("identificationLevel", "Auto");
-          match(accountMembership.statusInfo)
+          match(accountMembership?.statusInfo)
             .with(
               {
                 __typename: P.union(

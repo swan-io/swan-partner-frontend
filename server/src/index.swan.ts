@@ -98,6 +98,7 @@ const getMailjetInput = ({
         const ctaUrl = new URL(
           `${env.BANKING_URL}/api/projects/${projectInfo.id}/invitation/${inviteeAccountMembership.id}`,
         );
+        ctaUrl.searchParams.append("identificationLevel", "Auto");
         if (inviteeAccountMembership.statusInfo.restrictedTo.phoneNumber == null) {
           ctaUrl.searchParams.append("email", inviteeAccountMembership.email);
         }

@@ -219,6 +219,7 @@ export const CardStatusCell = ({ card }: { card: Card }) => {
 
 export const CardSummaryCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
+
   return (
     <Cell>
       <View>
@@ -341,9 +342,6 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
           ))
           .exhaustive()}
       </Box>
-
-      <Space width={12} />
-      <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
     </Cell>
   );
 };
@@ -363,40 +361,30 @@ export const CardActionsCell = ({
         .with(
           { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },
           () => (
-            <>
-              <Pressable
-                onPress={event => {
-                  event.stopPropagation();
-                  event.preventDefault();
-                  onPressCancel({ cardId: card.id });
-                }}
-              >
-                {({ hovered }) => (
-                  <Icon
-                    name="subtract-circle-regular"
-                    color={
-                      hovered
-                        ? colors.negative[500]
-                        : isRowHovered
-                          ? colors.gray[700]
-                          : colors.gray[500]
-                    }
-                    size={16}
-                  />
-                )}
-              </Pressable>
-
-              <Space width={8} />
-            </>
+            <Pressable
+              onPress={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                onPressCancel({ cardId: card.id });
+              }}
+            >
+              {({ hovered }) => (
+                <Icon
+                  name="subtract-circle-regular"
+                  color={
+                    hovered
+                      ? colors.negative[500]
+                      : isRowHovered
+                        ? colors.gray[700]
+                        : colors.gray[500]
+                  }
+                  size={16}
+                />
+              )}
+            </Pressable>
           ),
         )
         .otherwise(() => null)}
-
-      <Icon
-        name="chevron-right-filled"
-        color={isRowHovered ? colors.gray[900] : colors.gray[500]}
-        size={16}
-      />
     </Cell>
   );
 };

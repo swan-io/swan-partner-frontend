@@ -5,7 +5,6 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
-import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
@@ -99,21 +98,6 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
       </Cell>
     ),
   },
-  {
-    id: "actions",
-    width: 42,
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[900] : colors.gray[500]}
-          size={16}
-        />
-      </Cell>
-    ),
-  },
 ];
 
 const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
@@ -144,21 +128,6 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
             <Tag color="warning">{t("merchantProfile.status.suspended")}</Tag>
           ))
           .otherwise(() => null)}
-      </Cell>
-    ),
-  },
-  {
-    id: "actions",
-    width: 42,
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[900] : colors.gray[500]}
-          size={16}
-        />
       </Cell>
     ),
   },

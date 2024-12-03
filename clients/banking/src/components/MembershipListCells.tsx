@@ -329,9 +329,6 @@ export const MembershipSummaryCell = ({
       <Fill minWidth={16} />
 
       {getStatusIcon({ accountMembership })}
-
-      <Space width={8} />
-      <Icon name="chevron-right-filled" color={colors.gray[200]} size={16} />
     </Cell>
   );
 };
@@ -414,42 +411,32 @@ export const MembershipActionsCell = ({
             isCurrentUserMembership: false,
           },
           ({ accountMembership: { id: accountMembershipId } }) => (
-            <>
-              <Pressable
-                onPress={event => {
-                  event.stopPropagation();
-                  event.preventDefault();
-                  onPressCancel({ accountMembershipId });
-                }}
-              >
-                {({ hovered }) => (
-                  <Icon
-                    name="subtract-circle-regular"
-                    color={
-                      hovered
-                        ? colors.negative[500]
-                        : isRowHovered
-                          ? colors.gray[700]
-                          : colors.gray[500]
-                    }
-                    size={16}
-                  />
-                )}
-              </Pressable>
-
-              <Space width={8} />
-            </>
+            <Pressable
+              onPress={event => {
+                event.stopPropagation();
+                event.preventDefault();
+                onPressCancel({ accountMembershipId });
+              }}
+            >
+              {({ hovered }) => (
+                <Icon
+                  name="subtract-circle-regular"
+                  color={
+                    hovered
+                      ? colors.negative[500]
+                      : isRowHovered
+                        ? colors.gray[700]
+                        : colors.gray[500]
+                  }
+                  size={16}
+                />
+              )}
+            </Pressable>
           ),
         )
         .otherwise(() => (
           <Space width={24} />
         ))}
-
-      <Icon
-        name="chevron-right-filled"
-        color={isRowHovered ? colors.gray[900] : colors.gray[500]}
-        size={16}
-      />
     </Cell>
   );
 };

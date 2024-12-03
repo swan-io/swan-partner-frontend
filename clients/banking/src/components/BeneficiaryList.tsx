@@ -7,7 +7,7 @@ import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
-import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
+import { IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -269,21 +269,6 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
             .with("TrustedSepaBeneficiary", () => t("beneficiaries.type.sepa"))
             .otherwise(() => null)}
         </LakeText>
-      </Cell>
-    ),
-  },
-  {
-    id: "actions",
-    width: 48,
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[900] : colors.gray[500]}
-          size={16}
-        />
       </Cell>
     ),
   },

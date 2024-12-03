@@ -251,13 +251,12 @@ export const SandboxUserPicker = () => {
                     <View style={styles.separator} />
                     <Space width={4} />
 
-                    <View style={styles.icon}>
-                      <Icon
-                        color={colors.sandbox.primary}
-                        name={isOpen ? "chevron-up-filled" : "chevron-down-filled"}
-                        size={16}
-                      />
-                    </View>
+                    <Icon
+                      color={colors.sandbox.primary}
+                      style={styles.icon}
+                      name={isOpen ? "chevron-up-filled" : "chevron-down-filled"}
+                      size={16}
+                    />
                   </Box>
                 </Tag>
               </Pressable>
@@ -318,9 +317,12 @@ export const SandboxUserTag = ({ onPress }: { onPress: () => void }) => {
                     <View style={styles.separator} />
                     <Space width={4} />
 
-                    <View style={styles.icon}>
-                      <Icon color={colors.sandbox.primary} name="chevron-right-filled" size={16} />
-                    </View>
+                    <Icon
+                      color={colors.sandbox.primary}
+                      style={styles.icon}
+                      name="chevron-right-filled"
+                      size={16}
+                    />
                   </Box>
                 </Tag>
               </Pressable>

@@ -483,10 +483,10 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
     ),
   },
   {
+    width: 40,
     id: "actions",
-    title: t("recurringTransfer.table.actions"),
-    width: 100,
-    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
+    title: "",
+    renderTitle: () => null,
     renderCell: ({ item, extraInfo: { onCancel, canCancelStandingOrder } }) => (
       <Cell align="right">
         {item.statusInfo.status === "Enabled" && canCancelStandingOrder && (
@@ -500,9 +500,6 @@ const columns: ColumnConfig<Node, ExtraInfo>[] = [
             )}
           </Pressable>
         )}
-
-        <Space width={8} />
-        <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
       </Cell>
     ),
   },
@@ -552,17 +549,6 @@ const smallColumns: ColumnConfig<Node, ExtraInfo>[] = [
           </Cell>
         ))
         .otherwise(() => null),
-  },
-  {
-    id: "actions",
-    title: t("recurringTransfer.table.actions"),
-    width: 36,
-    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
-    renderCell: () => (
-      <Cell align="right">
-        <Icon name="chevron-right-filled" size={16} color={colors.gray[500]} />
-      </Cell>
-    ),
   },
 ];
 

@@ -1,10 +1,4 @@
-import {
-  ActionCell,
-  Cell,
-  CopyableTextCell,
-  HeaderCell,
-  TextCell,
-} from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -114,13 +108,13 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <ActionCell align="right">
+      <Cell align="right">
         <Icon
           name="chevron-right-filled"
           color={isHovered ? colors.gray[900] : colors.gray[500]}
           size={16}
         />
-      </ActionCell>
+      </Cell>
     ),
   },
 ];
@@ -160,13 +154,13 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <ActionCell align="right">
+      <Cell align="right">
         <Icon
           name="chevron-right-filled"
           color={isHovered ? colors.gray[700] : colors.gray[200]}
           size={16}
         />
-      </ActionCell>
+      </Cell>
     ),
   },
 ];

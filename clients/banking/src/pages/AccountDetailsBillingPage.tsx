@@ -1,6 +1,6 @@
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
-import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -111,24 +111,24 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.actions"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item: { url, status } }) => {
-      return isNotNullish(url) &&
-        (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
-        <Link target="blank" to={url} download={true}>
-          <ActionCell align="right">
-            <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-          </ActionCell>
-        </Link>
-      ) : (
-        <ActionCell align="right">
-          <LakeTooltip
-            content={t("accountDetails.billing.noDocumentTooltip")}
-            placement="right"
-            togglableOnFocus={true}
-            hideArrow={true}
-          >
-            <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
-          </LakeTooltip>
-        </ActionCell>
+      return (
+        <Cell align="right">
+          {isNotNullish(url) &&
+          (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
+            <Link target="blank" to={url} download={true}>
+              <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
+            </Link>
+          ) : (
+            <LakeTooltip
+              content={t("accountDetails.billing.noDocumentTooltip")}
+              placement="right"
+              togglableOnFocus={true}
+              hideArrow={true}
+            >
+              <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
+            </LakeTooltip>
+          )}
+        </Cell>
       );
     },
   },
@@ -192,24 +192,24 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     title: t("accountDetails.billing.actions"),
     renderTitle: () => null,
     renderCell: ({ item: { url, status } }) => {
-      return isNotNullish(url) &&
-        (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
-        <Link target="blank" to={url} download={true}>
-          <ActionCell align="right">
-            <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
-          </ActionCell>
-        </Link>
-      ) : (
-        <ActionCell align="right">
-          <LakeTooltip
-            content={t("accountDetails.billing.noDocumentTooltip")}
-            placement="right"
-            togglableOnFocus={true}
-            hideArrow={true}
-          >
-            <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
-          </LakeTooltip>
-        </ActionCell>
+      return (
+        <Cell align="right">
+          {isNotNullish(url) &&
+          (status === "Paid" || status === "NotPaid" || status === "PaymentDue") ? (
+            <Link target="blank" to={url} download={true}>
+              <Icon color={colors.gray[500]} size={18} name="arrow-download-filled" />
+            </Link>
+          ) : (
+            <LakeTooltip
+              content={t("accountDetails.billing.noDocumentTooltip")}
+              placement="right"
+              togglableOnFocus={true}
+              hideArrow={true}
+            >
+              <Icon color={colors.gray[300]} size={18} name="arrow-download-filled" tabIndex={0} />
+            </LakeTooltip>
+          )}
+        </Cell>
       );
     },
   },

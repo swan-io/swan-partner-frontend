@@ -1,5 +1,5 @@
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ActionCell, Cell, CopyableTextCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon, IconName } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -400,7 +400,7 @@ export const MembershipActionsCell = ({
   onPressCancel: ({ accountMembershipId }: { accountMembershipId: string }) => void;
 }) => {
   return (
-    <ActionCell align="right">
+    <Cell align="right">
       {match({
         accountMembership,
         isCurrentUserMembership: currentUserAccountMembershipId === accountMembership.id,
@@ -450,6 +450,6 @@ export const MembershipActionsCell = ({
         color={isRowHovered ? colors.gray[900] : colors.gray[500]}
         size={16}
       />
-    </ActionCell>
+    </Cell>
   );
 };

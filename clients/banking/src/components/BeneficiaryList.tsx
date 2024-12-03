@@ -2,7 +2,7 @@ import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ActionCell, Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -278,13 +278,13 @@ const columns: ColumnConfig<Beneficiary, undefined>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <ActionCell align="right">
+      <Cell align="right">
         <Icon
           name="chevron-right-filled"
           color={isHovered ? colors.gray[900] : colors.gray[500]}
           size={16}
         />
-      </ActionCell>
+      </Cell>
     ),
   },
 ];

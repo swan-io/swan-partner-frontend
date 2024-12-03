@@ -2,7 +2,7 @@ import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
-import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import {
@@ -116,7 +116,7 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return (
-        <ActionCell align="right">
+        <Cell align="right">
           {status === "Available" ? (
             <Icon name="open-regular" size={16} color={colors.gray[300]} />
           ) : (
@@ -128,7 +128,7 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
               borderRadius={4}
             />
           )}
-        </ActionCell>
+        </Cell>
       );
     },
   },

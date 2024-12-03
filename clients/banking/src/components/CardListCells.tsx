@@ -1,6 +1,6 @@
 import { Lazy } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ActionCell, Cell } from "@swan-io/lake/src/components/Cells";
+import { Cell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
@@ -358,7 +358,7 @@ export const CardActionsCell = ({
   onPressCancel: ({ cardId }: { cardId: string }) => void;
 }) => {
   return (
-    <ActionCell align="right">
+    <Cell align="right">
       {match(card.statusInfo)
         .with(
           { __typename: P.not(P.union("CardCanceledStatusInfo", "CardCancelingStatusInfo")) },
@@ -397,6 +397,6 @@ export const CardActionsCell = ({
         color={isRowHovered ? colors.gray[900] : colors.gray[500]}
         size={16}
       />
-    </ActionCell>
+    </Cell>
   );
 };

@@ -2,7 +2,7 @@ import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { ActionCell, Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { Icon } from "@swan-io/lake/src/components/Icon";
@@ -105,13 +105,13 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <ActionCell align="right">
+      <Cell align="right">
         <Icon
           name="chevron-right-filled"
           color={isHovered ? colors.gray[900] : colors.gray[500]}
           size={16}
         />
-      </ActionCell>
+      </Cell>
     ),
   },
 ];
@@ -153,13 +153,13 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     title: "",
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
-      <ActionCell align="right">
+      <Cell align="right">
         <Icon
           name="chevron-right-filled"
           color={isHovered ? colors.gray[900] : colors.gray[500]}
           size={16}
         />
-      </ActionCell>
+      </Cell>
     ),
   },
 ];

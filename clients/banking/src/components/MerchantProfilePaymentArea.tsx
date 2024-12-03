@@ -59,89 +59,74 @@ const ALLOWED_PAYMENT_METHODS = new Set<MerchantPaymentMethodType>([
   "SepaDirectDebitCore",
 ]);
 
-type EmptyListWithCreatePaymentCtaProps = {
-  merchantProfile: MerchantPaymentsQuery["merchantProfile"];
-  setPickerModal: {
-    open: () => void;
-    close: () => void;
-    toggle: () => void;
-  };
+type Action = {
+  actionType: "canCreatePayment" | "shouldEnablePaymentMethod" | "waitingForReview";
+  title: string;
+  subtitle: string;
+  handleAction?: () => void;
+  buttonText: string;
 };
 
-const EmptyListWithCreatePaymentCta = ({
-  merchantProfile,
-  setPickerModal,
-}: EmptyListWithCreatePaymentCtaProps) => {
+type EmptyListWithCtaProps = {
+  merchantProfile: MerchantPaymentsQuery["merchantProfile"];
+  action: Action;
+};
+
+const EmptyListWithCta = ({ merchantProfile, action }: EmptyListWithCtaProps) => {
+  const { actionType, buttonText, handleAction, subtitle, title } = action;
+
   return (
     <Box justifyContent="center">
-      {isNotNullish(merchantProfile?.merchantLogoUrl) ? (
-        <AutoWidthImage
-          alt={merchantProfile.merchantName}
-          height={40}
-          maxWidth={180}
-          resizeMode="contain"
-          sourceUri={merchantProfile.merchantLogoUrl}
-          style={styles.centered}
-        />
-      ) : (
-        <LakeHeading variant="h3" level={3} align="center">
-          {merchantProfile?.merchantName}
-        </LakeHeading>
-      )}
+      {actionType === "canCreatePayment" &&
+        (isNotNullish(merchantProfile?.merchantLogoUrl) ? (
+          <AutoWidthImage
+            alt={merchantProfile.merchantName}
+            height={40}
+            maxWidth={180}
+            resizeMode="contain"
+            sourceUri={merchantProfile.merchantLogoUrl}
+            style={styles.centered}
+          />
+        ) : (
+          <LakeHeading variant="h3" level={3} align="center">
+            {merchantProfile?.merchantName}
+          </LakeHeading>
+        ))}
+
+      {match(actionType)
+        .with("shouldEnablePaymentMethod", () => (
+          <Box alignItems="center">
+            <BorderedIcon name="lake-merchant" />
+          </Box>
+        ))
+        .with("waitingForReview", () => (
+          <Box alignItems="center">
+            <BorderedIcon name="lake-clock" />
+          </Box>
+        ))
+        .otherwise(() => null)}
 
       <Space height={24} />
 
       <LakeText variant="medium" align="center">
-        {t("merchantProfile.payments.newPayment.title")}
+        {title}
       </LakeText>
 
       <LakeText variant="light" align="center">
-        {t("merchantProfile.payments.newPayment.subtitle")}
+        {subtitle}
       </LakeText>
 
       <Space height={24} />
 
-      <LakeButton color="current" onPress={setPickerModal.open}>
-        {t("merchantProfile.payments.newPayment.button")}
-      </LakeButton>
-    </Box>
-  );
-};
-
-type EmptyPaymentListWithPaymentMethodCtaProps = {
-  accountMembershipId: string;
-  merchantProfileId: string;
-};
-const EmptyListWithEnablePaymentMethodCta = ({
-  accountMembershipId,
-  merchantProfileId,
-}: EmptyPaymentListWithPaymentMethodCtaProps) => {
-  return (
-    <Box alignItems="center">
-      <BorderedIcon name="lake-merchant" />
-      <Space height={24} />
-
-      <LakeText variant="medium" align="center">
-        {t("merchantProfile.payments.enablePaymentMethod.title")}
-      </LakeText>
-
-      <LakeText variant="light" align="center">
-        {t("merchantProfile.payments.enablePaymentMethod.subtitle")}
-      </LakeText>
-
-      <Space height={24} />
-
-      <LakeButton
-        color="current"
-        onPress={() =>
-          Router.push("AccountMerchantsProfileSettings", {
-            accountMembershipId,
-            merchantProfileId,
-          })
-        }
-      >
-        {t("merchantProfile.payments.enablePaymentMethod.button")}
-      </LakeButton>
+      <Box alignItems="center">
+        <LakeButton
+          color="current"
+          onPress={handleAction}
+          disabled={actionType === "waitingForReview"}
+        >
+          {buttonText}
+        </LakeButton>
+      </Box>
     </Box>
   );
 };
@@ -250,6 +235,8 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
       .getOr(true),
   );
 
+  const canCreatePayments = shouldEnablePaymentLinkTile || shouldEnableCheckTile;
+
   return (
     <>
       {shouldShowTopbar && (
@@ -278,10 +265,10 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
             >
               <LakeTooltip
                 content={t("merchantProfile.paymentLink.button.new.disable")}
-                disabled={shouldEnablePaymentLinkTile || shouldEnableCheckTile}
+                disabled={canCreatePayments}
               >
                 <LakeButton
-                  disabled={!shouldEnablePaymentLinkTile || !shouldEnableCheckTile}
+                  disabled={!canCreatePayments}
                   size="small"
                   icon="add-circle-filled"
                   color="current"
@@ -309,6 +296,8 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
         ))
         .with(AsyncData.P.Done(Result.P.Error(P.select())), error => <ErrorView error={error} />)
         .with(AsyncData.P.Done(Result.P.Ok(P.select())), ({ merchantProfile }) => {
+          const waitingForReview = merchantProfile?.statusInfo.status === "PendingReview";
+
           return (
             <>
               {pickerVisible && isNotNullish(merchantProfile) ? (
@@ -339,24 +328,66 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                             });
                           }
                         }}
-                        renderEmptyList={() =>
-                          shouldEnablePaymentLinkTile || shouldEnableCheckTile ? (
-                            <EmptyListWithCreatePaymentCta
-                              merchantProfile={merchantProfile}
-                              setPickerModal={setPickerModal}
-                            />
-                          ) : (
-                            <EmptyListWithEnablePaymentMethodCta
-                              accountMembershipId={accountMembershipId}
-                              merchantProfileId={merchantProfileId}
-                            />
-                            // <EmptyView
-                            //   icon="lake-transfer"
-                            //   borderedIcon={true}
-                            //   title={t("merchantProfile.payments.noResults")}
-                            // />
-                          )
-                        }
+                        renderEmptyList={() => (
+                          <EmptyListWithCta
+                            action={
+                              match({ canCreatePayments, waitingForReview })
+                                .returnType<Action>()
+                                .with({ canCreatePayments: true }, () => ({
+                                  actionType: "canCreatePayment",
+                                  title: t("merchantProfile.payments.newPayment.title"),
+                                  subtitle: t("merchantProfile.payments.newPayment.subtitle"),
+                                  handleAction: () => setPickerModal.open(),
+                                  buttonText: t("merchantProfile.payments.newPayment.button"),
+                                }))
+                                .with({ waitingForReview: true }, () => ({
+                                  actionType: "waitingForReview",
+                                  title: t("merchantProfile.payments.waitingForReview.title"),
+                                  subtitle: t("merchantProfile.payments.waitingForReview.subtitle"),
+                                  buttonText: t("merchantProfile.payments.waitingForReview.button"),
+                                }))
+                                .otherwise(() => ({
+                                  actionType: "shouldEnablePaymentMethod",
+                                  title: t("merchantProfile.payments.enablePaymentMethod.title"),
+                                  subtitle: t(
+                                    "merchantProfile.payments.enablePaymentMethod.subtitle",
+                                  ),
+                                  handleAction: () =>
+                                    Router.push("AccountMerchantsProfileSettings", {
+                                      accountMembershipId,
+                                      merchantProfileId,
+                                    }),
+                                  buttonText: t(
+                                    "merchantProfile.payments.enablePaymentMethod.button",
+                                  ),
+                                }))
+                              // canCreatePayments
+                              //   ? {
+                              //       actionType: "canCreatePayment",
+                              //       title: t("merchantProfile.payments.newPayment.title"),
+                              //       subtitle: t("merchantProfile.payments.newPayment.subtitle"),
+                              //       handleAction: () => setPickerModal.open(),
+                              //       buttonText: t("merchantProfile.payments.newPayment.button"),
+                              //     }
+                              //   : {
+                              //       actionType: "shouldEnablePaymentMethod",
+                              //       title: t("merchantProfile.payments.enablePaymentMethod.title"),
+                              //       subtitle: t(
+                              //         "merchantProfile.payments.enablePaymentMethod.subtitle",
+                              //       ),
+                              //       handleAction: () =>
+                              //         Router.push("AccountMerchantsProfileSettings", {
+                              //           accountMembershipId,
+                              //           merchantProfileId,
+                              //         }),
+                              //       buttonText: t(
+                              //         "merchantProfile.payments.enablePaymentMethod.button",
+                              //       ),
+                              //     }
+                            }
+                            merchantProfile={merchantProfile}
+                          />
+                        )}
                       />
 
                       <ListRightPanel

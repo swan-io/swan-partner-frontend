@@ -1,11 +1,10 @@
-import { Cell, HeaderCell } from "@swan-io/lake/src/components/Cells";
-import { Icon } from "@swan-io/lake/src/components/Icon";
+import { HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { tabsViewHeight } from "@swan-io/lake/src/components/TabView";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
-import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { capitalize } from "@swan-io/lake/src/utils/string";
 import dayjs from "dayjs";
 import { ReactElement, ReactNode } from "react";
@@ -66,21 +65,6 @@ const columns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <TransactionAmountCell transaction={item} />,
   },
-  {
-    width: 48,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[900] : colors.gray[500]}
-          size={16}
-        />
-      </Cell>
-    ),
-  },
 ];
 
 const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
@@ -90,21 +74,6 @@ const smallColumns: ColumnConfig<TransactionDetailsFragment, ExtraInfo>[] = [
     title: t("transactions.transaction"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => <TransactionSummaryCell transaction={item} />,
-  },
-  {
-    width: 48,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[700] : colors.gray[200]}
-          size={16}
-        />
-      </Cell>
-    ),
   },
 ];
 

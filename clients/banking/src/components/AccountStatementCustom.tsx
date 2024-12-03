@@ -148,10 +148,10 @@ const columns: ColumnConfig<Statement, ExtraInfo>[] = [
     },
   },
   {
-    title: t("accountStatements.action"),
-    width: 90,
-    id: "action",
-    renderTitle: ({ title }) => <HeaderCell text={title} align="center" />,
+    width: 40,
+    id: "actions",
+    title: "",
+    renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return status === "Available" ? (
         <Cell align="center">
@@ -177,9 +177,9 @@ const smallColumns: ColumnConfig<Statement, ExtraInfo>[] = [
     },
   },
   {
-    title: t("accountStatements.action"),
-    width: 50,
+    width: 40,
     id: "actions",
+    title: "",
     renderTitle: () => null,
     renderCell: ({ item: { status } }) => {
       return (

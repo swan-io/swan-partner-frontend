@@ -1,6 +1,5 @@
 import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
-import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -102,21 +101,6 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
       />
     ),
   },
-  {
-    width: 48,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[900] : colors.gray[500]}
-          size={16}
-        />
-      </Cell>
-    ),
-  },
 ];
 
 const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
@@ -145,21 +129,6 @@ const smallColumns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
             <Tag color="gray"> {t("merchantProfile.paymentLink.status.expired")} </Tag>
           ))
           .exhaustive()}
-      </Cell>
-    ),
-  },
-  {
-    width: 48,
-    id: "actions",
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ isHovered }) => (
-      <Cell align="right">
-        <Icon
-          name="chevron-right-filled"
-          color={isHovered ? colors.gray[700] : colors.gray[200]}
-          size={16}
-        />
       </Cell>
     ),
   },

@@ -63,8 +63,8 @@ const columns: ColumnConfig<CardListItemFragment, ExtraInfo>[] = [
     renderCell: ({ item }) => <CardStatusCell card={item} />,
   },
   {
+    width: 40,
     id: "actions",
-    width: 64,
     title: "",
     renderTitle: () => null,
     renderCell: ({ item, extraInfo: { onPressCancel }, isHovered }) => (

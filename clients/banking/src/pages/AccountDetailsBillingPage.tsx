@@ -108,8 +108,8 @@ const columns: ColumnConfig<Invoices, ExtraInfo>[] = [
   {
     width: 120,
     id: "download",
-    title: t("accountDetails.billing.actions"),
-    renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
+    title: "",
+    renderTitle: () => null,
     renderCell: ({ item: { url, status } }) => {
       return (
         <Cell align="right">
@@ -187,9 +187,9 @@ const smallColumns: ColumnConfig<Invoices, ExtraInfo>[] = [
     ),
   },
   {
-    width: 48,
-    id: "download",
-    title: t("accountDetails.billing.actions"),
+    width: 40,
+    id: "actions",
+    title: "",
     renderTitle: () => null,
     renderCell: ({ item: { url, status } }) => {
       return (

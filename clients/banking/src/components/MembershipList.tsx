@@ -51,8 +51,8 @@ const columns: ColumnConfig<AccountMembershipFragment, ExtraInfo>[] = [
     renderCell: ({ item }) => <PhoneNumberCell accountMembership={item} />,
   },
   {
+    width: 40,
     id: "actions",
-    width: 64,
     title: "",
     renderTitle: () => null,
     renderCell: ({

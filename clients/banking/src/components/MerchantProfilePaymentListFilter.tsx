@@ -15,13 +15,7 @@ import { ReactNode, useEffect, useMemo, useState } from "react";
 import { MerchantPaymentStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
 
-type SimplifiedPaymentMethod =
-  | "Card"
-  | "Check"
-  | "SepaDirectDebitB2b"
-  | "SepaDirectDebitCore"
-  | "InternalDirectDebitStandard"
-  | "InternalDirectDebitB2b";
+type SimplifiedPaymentMethod = "Card" | "Check" | "DirectDebit";
 
 const paymentMethodFilter: FilterCheckboxDef<SimplifiedPaymentMethod> = {
   type: "checkbox",
@@ -30,10 +24,7 @@ const paymentMethodFilter: FilterCheckboxDef<SimplifiedPaymentMethod> = {
   items: [
     { value: "Card", label: t("paymentMethod.card") },
     { value: "Check", label: t("paymentMethod.check") },
-    { value: "SepaDirectDebitB2b", label: t("paymentMethod.directDebit") },
-    { value: "SepaDirectDebitCore", label: t("paymentMethod.directDebit") },
-    { value: "InternalDirectDebitStandard", label: t("paymentMethod.directDebit") },
-    { value: "InternalDirectDebitB2b", label: t("paymentMethod.directDebit") },
+    { value: "DirectDebit", label: t("paymentMethod.directDebit") },
   ],
 };
 
@@ -112,9 +103,11 @@ export const MerchantProfilePaymentListFilter = ({
   useEffect(() => {
     setOpenFilters(openFilters => {
       const currentlyOpenFilters = new Set(openFilters);
+
       const openFiltersNotYetInState = Dict.entries(filters)
         .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
         .map(([name]) => name);
+
       return [...openFilters, ...openFiltersNotYetInState];
     });
   }, [filters]);

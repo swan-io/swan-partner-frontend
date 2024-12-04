@@ -2260,19 +2260,6 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
-fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
-  pageInfo {
-    endCursor
-    hasNextPage
-  }
-  totalCount
-  edges {
-    node {
-      ...PaymentLink
-    }
-  }
-}
-
 fragment MerchantPayment on MerchantPayment {
   id
   label
@@ -2330,6 +2317,7 @@ fragment MerchantPaymentsConnection on MerchantPaymentConnection {
     endCursor
     hasNextPage
   }
+  totalCount
   edges {
     node {
       ...MerchantPayment
@@ -2376,6 +2364,19 @@ query GetFullMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
   }
   merchantPaymentLink(id: $paymentLinkId) {
     ...PaymentLink
+  }
+}
+
+fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  totalCount
+  edges {
+    node {
+      ...PaymentLink
+    }
   }
 }
 

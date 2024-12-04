@@ -4,6 +4,7 @@ import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { BorderedIcon } from "@swan-io/lake/src/components/BorderedIcon";
 import { Box } from "@swan-io/lake/src/components/Box";
+import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { FocusTrapRef } from "@swan-io/lake/src/components/FocusTrap";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
@@ -13,7 +14,7 @@ import { ListRightPanel } from "@swan-io/lake/src/components/ListRightPanel";
 import { PlainListViewPlaceholder } from "@swan-io/lake/src/components/PlainListView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { LinkConfig } from "@swan-io/lake/src/components/VirtualizedList";
-import { spacings } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
@@ -108,11 +109,13 @@ const EmptyListWithCta = ({ merchantProfile, action }: EmptyListWithCtaProps) =>
 
       <Space height={24} />
 
-      <LakeText variant="medium" align="center">
+      <LakeText variant="medium" align="center" color={colors.gray[900]}>
         {title}
       </LakeText>
 
-      <LakeText variant="light" align="center">
+      <Space height={4} />
+
+      <LakeText align="center" variant="smallRegular">
         {subtitle}
       </LakeText>
 
@@ -149,15 +152,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
       paymentMethod: isNotNullish(params.paymentMethod)
         ? Array.filterMap(params.paymentMethod, item =>
             match(item)
-              .with(
-                "Card",
-                "Check",
-                "SepaDirectDebitB2b",
-                "SepaDirectDebitCore",
-                "InternalDirectDebitStandard",
-                "InternalDirectDebitB2b",
-                value => Option.Some(value),
-              )
+              .with("Card", "Check", "DirectDebit", value => Option.Some(value))
               .otherwise(() => Option.None()),
           )
         : undefined,
@@ -171,10 +166,31 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
     } as const;
   }, [params.paymentMethod, params.status]);
 
+  const search = nullishOrEmptyToUndefined(params.search);
+  const hasSearch =
+    isNotNullish(search) || isNotNullish(params.paymentMethod) || isNotNullish(params.status);
+
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
     merchantProfileId,
-    filters,
     first: PER_PAGE,
+    filters: {
+      status: filters.status,
+      search,
+      paymentMethod: filters.paymentMethod?.reduce<MerchantPaymentMethodType[]>((acc, item) => {
+        if (item === "DirectDebit") {
+          acc.push(
+            "SepaDirectDebitB2b",
+            "SepaDirectDebitCore",
+            "InternalDirectDebitStandard",
+            "InternalDirectDebitB2b",
+          );
+        } else {
+          acc.push(item);
+        }
+
+        return acc;
+      }, []),
+    },
   });
 
   const panelRef = useRef<FocusTrapRef | null>(null);
@@ -224,8 +240,6 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
   }, [data]);
 
   const [pickerVisible, setPickerModal] = useDisclosure(false);
-
-  const search = nullishOrEmptyToUndefined(params.search);
 
   const [shouldShowTopbar, setShouldShowTopbar] = useState(
     data
@@ -328,10 +342,17 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                             });
                           }
                         }}
-                        renderEmptyList={() => (
-                          <EmptyListWithCta
-                            action={
-                              match({ canCreatePayments, waitingForReview })
+                        renderEmptyList={() =>
+                          hasSearch ? (
+                            <EmptyView
+                              icon="lake-transfer"
+                              borderedIcon={true}
+                              title={t("merchantProfile.payments.list.noResults")}
+                              subtitle={t("common.list.noResultsSuggestion")}
+                            />
+                          ) : (
+                            <EmptyListWithCta
+                              action={match({ canCreatePayments, waitingForReview })
                                 .returnType<Action>()
                                 .with({ canCreatePayments: true }, () => ({
                                   actionType: "canCreatePayment",
@@ -360,34 +381,11 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                                   buttonText: t(
                                     "merchantProfile.payments.enablePaymentMethod.button",
                                   ),
-                                }))
-                              // canCreatePayments
-                              //   ? {
-                              //       actionType: "canCreatePayment",
-                              //       title: t("merchantProfile.payments.newPayment.title"),
-                              //       subtitle: t("merchantProfile.payments.newPayment.subtitle"),
-                              //       handleAction: () => setPickerModal.open(),
-                              //       buttonText: t("merchantProfile.payments.newPayment.button"),
-                              //     }
-                              //   : {
-                              //       actionType: "shouldEnablePaymentMethod",
-                              //       title: t("merchantProfile.payments.enablePaymentMethod.title"),
-                              //       subtitle: t(
-                              //         "merchantProfile.payments.enablePaymentMethod.subtitle",
-                              //       ),
-                              //       handleAction: () =>
-                              //         Router.push("AccountMerchantsProfileSettings", {
-                              //           accountMembershipId,
-                              //           merchantProfileId,
-                              //         }),
-                              //       buttonText: t(
-                              //         "merchantProfile.payments.enablePaymentMethod.button",
-                              //       ),
-                              //     }
-                            }
-                            merchantProfile={merchantProfile}
-                          />
-                        )}
+                                }))}
+                              merchantProfile={merchantProfile}
+                            />
+                          )
+                        }
                       />
 
                       <ListRightPanel

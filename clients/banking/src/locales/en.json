@@ -601,6 +601,7 @@
   "merchantProfile.payments.status.initiated": "Initiated",
   "merchantProfile.payments.status.rejected": "Rejected",
   "merchantProfile.payments.list.amount": "Amount",
+  "merchantProfile.payments.list.noResults": "No payments",
   "merchantProfile.payments.newPayment.title": "You are ready to start!",
   "merchantProfile.payments.newPayment.subtitle": "You are ready to create your first payment",
   "merchantProfile.payments.newPayment.button": "Create a payment",

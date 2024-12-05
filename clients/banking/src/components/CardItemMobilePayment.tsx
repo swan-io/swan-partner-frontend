@@ -43,9 +43,11 @@ type CompleteDigitalCard = DigitalCardFragment & { __typename: "CompleteDigitalC
 
 const DigitalCardTile = ({
   digitalCard,
+  isCurrentUserCardOwner,
   onPressCancel,
 }: {
   digitalCard: CompleteDigitalCard;
+  isCurrentUserCardOwner: boolean;
   onPressCancel: () => void;
 }) => {
   const deviceName = digitalCard.device.name ?? t("card.mobilePayment.unnamed");
@@ -84,14 +86,16 @@ const DigitalCardTile = ({
           </LakeText>
         </View>
 
-        <LakeTooltip placement="left" content={t("card.mobilePayment.disconnect")}>
-          <LakeButton
-            mode="tertiary"
-            ariaLabel={t("card.mobilePayment.cancel")}
-            icon="subtract-circle-regular"
-            onPress={onPressCancel}
-          />
-        </LakeTooltip>
+        {isCurrentUserCardOwner && (
+          <LakeTooltip placement="left" content={t("card.mobilePayment.disconnect")}>
+            <LakeButton
+              mode="tertiary"
+              ariaLabel={t("card.mobilePayment.cancel")}
+              icon="subtract-circle-regular"
+              onPress={onPressCancel}
+            />
+          </LakeTooltip>
+        )}
       </Box>
     </Tile>
   );
@@ -99,10 +103,15 @@ const DigitalCardTile = ({
 
 type Props = {
   card: Card;
+  isCurrentUserCardOwner: boolean;
   onRefreshRequest: () => void;
 };
 
-export const CardItemMobilePayment = ({ card, onRefreshRequest }: Props) => {
+export const CardItemMobilePayment = ({
+  card,
+  onRefreshRequest,
+  isCurrentUserCardOwner,
+}: Props) => {
   const [cancelConfirmationModalModal, setCancelConfirmationModalModal] = useState<
     Option<CompleteDigitalCard>
   >(Option.None());
@@ -152,6 +161,7 @@ export const CardItemMobilePayment = ({ card, onRefreshRequest }: Props) => {
           digitalCards.map(digitalCard => (
             <Fragment key={digitalCard.id}>
               <DigitalCardTile
+                isCurrentUserCardOwner={isCurrentUserCardOwner}
                 digitalCard={digitalCard}
                 onPressCancel={() => setCancelConfirmationModalModal(Option.Some(digitalCard))}
               />

@@ -54,7 +54,7 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
     "AccountCardsItemOrderAddress",
   ]);
 
-  const { canPrintPhysicalCard } = usePermissions();
+  const { canPrintPhysicalCard, canReadOtherMembersCards } = usePermissions();
   const [data, { refresh }] = useQuery(CardPageDocument, { cardId });
 
   useCrumb(
@@ -135,9 +135,13 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
                     },
                   ]
                 : []),
-              ...match({ isCurrentUserCardOwner, card })
+              ...match({ isCurrentUserCardOwner, card, canReadOtherMembersCards })
                 .with(
-                  { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
+                  {
+                    isCurrentUserCardOwner: true,
+                    canReadOtherMembersCards: true,
+                    card: { type: P.not("SingleUseVirtual") },
+                  },
                   () => [
                     {
                       label: t("cardDetail.mobilePayment"),
@@ -229,6 +233,7 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
                   <Space height={24} />
 
                   <CardItemMobilePayment
+                    isCurrentUserCardOwner={isCurrentUserCardOwner}
                     card={card}
                     onRefreshRequest={() => {
                       refresh();

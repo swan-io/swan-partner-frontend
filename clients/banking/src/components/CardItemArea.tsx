@@ -138,10 +138,10 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
               ...match({ isCurrentUserCardOwner, card, canReadOtherMembersCards })
                 .with(
                   {
-                    isCurrentUserCardOwner: true,
                     canReadOtherMembersCards: true,
                     card: { type: P.not("SingleUseVirtual") },
                   },
+                  { isCurrentUserCardOwner: true, card: { type: P.not("SingleUseVirtual") } },
                   () => [
                     {
                       label: t("cardDetail.mobilePayment"),

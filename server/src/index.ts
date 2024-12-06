@@ -25,19 +25,14 @@ const onboardingCountries = accountCountries
 
 start({
   mode: env.NODE_ENV,
-  httpsConfig:
-    env.NODE_ENV === "development"
-      ? {
-          key: path.join(keysPath, "_wildcard.swan.local-key.pem"),
-          cert: path.join(keysPath, "_wildcard.swan.local.pem"),
-        }
-      : undefined,
+  httpsConfig: undefined,
 }).then(
   ({ app, ports }) => {
     const listenPort = async (port: string) => {
       // Expose 8080 so that we don't need `sudo` to listen to the port
       // That's the port we expose when dockerized
-      const finalPort = port === "80" || port === "443" ? "8080" : port;
+      //const finalPort = port === "80" || port === "443" ? "8080" : port;
+      const finalPort = "8080";
 
       try {
         await app.listen({ port: Number(finalPort), host: "0.0.0.0" });

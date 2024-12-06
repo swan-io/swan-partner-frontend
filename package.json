@@ -20,7 +20,7 @@
     "format": "prettier '**/*' --ignore-unknown --write",
     "link-local-lake": "sh scripts/lake/link-local-lake.sh",
     "unlink-local-lake": "sh scripts/lake/unlink-local-lake.sh",
-    "dev": "tsx -r dotenv/config server/src/index.ts --dev",
+    "dev": "tsx -r dotenv/config --env-file=.env.development --env-file=.env.development.local server/src/index.ts --dev",
     "dev-swan": "tsx -r dotenv/config server/src/index.swan.ts --dev dotenv_config_path=.env.swan",
     "build": "tsx -r dotenv/config scripts/build/index.ts",
     "typecheck": "tsc --noEmit",

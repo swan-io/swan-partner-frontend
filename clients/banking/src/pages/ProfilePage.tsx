@@ -208,9 +208,9 @@ export const ProfilePage = ({ additionalInfo, email, accentColor }: Props) => {
                       additionalInfo={additionalInfo}
                       accentColor={accentColor}
                     >
-                      {({ onPressShow }) => (
+                      {() => (
                         <LakeButton
-                          onPress={onPressShow}
+                          onPress={()=> window.open("https://support.swan.io/hc/fr/requests/new", "_blank")}
                           mode="secondary"
                           color="gray"
                           icon="send-regular"

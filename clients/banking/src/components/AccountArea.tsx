@@ -244,7 +244,7 @@ export const AccountArea = ({
             iconActive: "building-bank-filled",
             icon: "building-bank-regular",
             name: t("navigation.account"),
-            to: Router.AccountDetailsIban({ accountMembershipId }),
+            to: Router.AccountDetailsBilling({ accountMembershipId }),
             visible: permissions.canReadAccountDetails,
           },
           {

@@ -24,6 +24,7 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
   const server = await createServer({
     configFile: path.resolve(process.cwd(), "clients", appName, "vite.config.js"),
     server: {
+      host: "0.0.0.0",
       port: mainServerPort,
       hmr: {
         server: liveReloadServer,

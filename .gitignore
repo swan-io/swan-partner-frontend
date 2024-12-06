@@ -1,5 +1,6 @@
 .DS_Store
 .DS_Store?
+.pnpm-store/*
 node_modules/
 
 clients/*/src/graphql/*.ts
@@ -20,6 +21,7 @@ tests/graphql/*.ts
 .env
 .env.e2e
 .env.swan
+.env.development.local
 
 localazy.keys.*.json
 

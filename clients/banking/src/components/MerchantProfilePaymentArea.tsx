@@ -26,6 +26,7 @@ import {
   MerchantPaymentsDocument,
   MerchantPaymentsQuery,
 } from "../graphql/partner";
+import { usePermissions } from "../hooks/usePermissions";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
 import { Connection } from "./Connection";
@@ -141,6 +142,8 @@ type Props = {
 
 export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
   const { merchantProfileId, accountMembershipId } = params;
+
+  const { canCreateMerchantPaymentLinks } = usePermissions();
 
   const route = Router.useRoute([
     "AccountMerchantsProfilePaymentsList",
@@ -277,23 +280,25 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                 });
               }}
             >
-              <LakeTooltip
-                content={t("merchantProfile.paymentLink.button.new.disable")}
-                disabled={canCreatePayments}
-              >
-                <LakeButton
-                  disabled={!canCreatePayments}
-                  size="small"
-                  icon="add-circle-filled"
-                  color="current"
-                  onPress={() => {
-                    setShouldShowTopbar(false);
-                    setPickerModal.open();
-                  }}
+              {canCreateMerchantPaymentLinks && (
+                <LakeTooltip
+                  content={t("merchantProfile.paymentLink.button.new.disable")}
+                  disabled={canCreatePayments}
                 >
-                  {t("merchantProfile.payments.button.new")}
-                </LakeButton>
-              </LakeTooltip>
+                  <LakeButton
+                    disabled={!canCreatePayments}
+                    size="small"
+                    icon="add-circle-filled"
+                    color="current"
+                    onPress={() => {
+                      setShouldShowTopbar(false);
+                      setPickerModal.open();
+                    }}
+                  >
+                    {t("merchantProfile.payments.button.new")}
+                  </LakeButton>
+                </LakeTooltip>
+              )}
             </MerchantProfilePaymentListFilter>
           </Box>
         </>
@@ -343,7 +348,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                           }
                         }}
                         renderEmptyList={() =>
-                          hasSearch ? (
+                          hasSearch || !canCreateMerchantPaymentLinks ? (
                             <EmptyView
                               icon="lake-transfer"
                               borderedIcon={true}

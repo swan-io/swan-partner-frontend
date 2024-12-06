@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
   tileContents: { flexGrow: 1 },
   optionsDesktop: {
     padding: spacings[32],
-    maxWidth: 350,
+    width: 350,
   },
   optionsMobile: { padding: spacings[32] },
   accordion: { paddingHorizontal: 0 },

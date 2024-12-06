@@ -240,14 +240,6 @@ export const AccountArea = ({
             visible: permissions.canReadTransaction,
           },
           {
-            matchRoutes: ["AccountDetailsArea"],
-            iconActive: "building-bank-filled",
-            icon: "building-bank-regular",
-            name: t("navigation.account"),
-            to: Router.AccountDetailsBilling({ accountMembershipId }),
-            visible: permissions.canReadAccountDetails,
-          },
-          {
             matchRoutes: ["AccountPaymentsArea"],
             iconActive: "arrow-swap-filled",
             icon: "arrow-swap-regular",
@@ -262,6 +254,14 @@ export const AccountArea = ({
             name: t("navigation.cards"),
             to: Router.AccountCardsList({ accountMembershipId }),
             visible: permissions.canReadCard,
+          },
+          {
+            matchRoutes: ["AccountDetailsArea"],
+            iconActive: "building-bank-filled",
+            icon: "building-bank-regular",
+            name: t("navigation.account"),
+            to: Router.AccountDetailsBilling({ accountMembershipId }),
+            visible: permissions.canReadAccountDetails,
           },
           {
             matchRoutes: ["AccountMembersArea"],

@@ -1,8 +1,14 @@
 name: Release
 
 on:
-  release:
-    types: [released]
+  workflow_dispatch:
+    inputs:
+      target:
+        type: choice
+        description: Where to deploy
+        options: 
+        - staging
+        - production
 
 jobs:
   release:
@@ -21,14 +27,62 @@ jobs:
           node-version: lts/*
           cache: pnpm
 
-      - name: Deploy prod
-        if: ${{ github.repository == 'swan-io/swan-partner-frontend' }}
-        run: pnpm deploy-ci
+      - name: Install dependencies
+        run: pnpm install --pure-lockfile
+
+      - name: Check licenses
+        run: pnpm license-check
+
+      - name: GraphQL Codegen
+        run: pnpm graphql-codegen
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Run tests
+        run: pnpm test
+
+      - name: Compile project
         env:
-          TAG: prod-${{ github.ref_name }}
-          DEPLOY_SWAN_TOKEN: ${{ secrets.DEPLOY_SWAN_TOKEN }}
-          DEPLOY_SWAN_REPOSITORY: ${{ secrets.DEPLOY_SWAN_REPOSITORY }}
-          DEPLOY_GIT_USER: ${{ secrets.DEPLOY_GIT_USER }}
-          DEPLOY_GIT_EMAIL: ${{ secrets.DEPLOY_GIT_EMAIL }}
-          DEPLOY_ENVIRONMENT: prod
-          DEPLOY_APP_NAME: partner-frontend
+          NODE_OPTIONS: "--max_old_space_size=4096"
+        run: pnpm build
+
+      - name: Login to Docker Registry
+        uses: docker/login-action@v2
+        with:
+          registry: commonassoconnectfrcglobalacr.azurecr.io
+          username: ${{ secrets.AZURE_CONTAINER_REGISTRY_USERNAME }}
+          password: ${{ secrets.AZURE_CONTAINER_REGISTRY_PASSWORD }}
+
+      - name: Dockerize & Push to Registry
+        uses: docker/build-push-action@v4
+        with:
+          context: .
+          file: Dockerfile
+          push: true
+          tags: |
+            commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-latest
+            commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}
+
+      - name: Deploy to Azure Web App - Production
+        if: ${{ github.event.inputs.target == 'production' }}
+        id: deploy-to-webapp-production
+        uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
+        with:
+          app-name: web-assoconnect-frc-prod-swan
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PRODUCTION }}
+          images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
+
+      - name: Deploy to Azure Web App - Staging
+        if: ${{ github.event.inputs.target == 'staging' }}
+        id: deploy-to-webapp-staging
+        uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
+        with:
+          app-name: web-assoconnect-frc-prod-swan
+          slot-name: staging
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
+          images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
+          

@@ -36,7 +36,7 @@ import {
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
+import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -55,9 +55,12 @@ import {
   validateRequired,
   validateUrl,
 } from "../utils/validations";
+
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
 const IFRAME_ORIGINAL_HEIGHT = 1000;
+
+const DOTS_AT_END_REGEXP = /\.+$/;
 
 const styles = StyleSheet.create({
   root: {
@@ -266,8 +269,8 @@ export const MerchantProfilePaymentLinkNew = ({
     },
     amount: {
       initialValue: "",
-      sanitize: trim,
-      validate: combineValidators(validateRequired, validateNumeric({ min: 0 })),
+      sanitize: value => value.trim().replace(DOTS_AT_END_REGEXP, ""),
+      validate: validateNumeric({ min: 0 }),
     },
     reference: {
       initialValue: "",
@@ -512,16 +515,20 @@ export const MerchantProfilePaymentLinkNew = ({
                   </Field>
 
                   <Field name="amount">
-                    {({ value, onChange, error }) => (
+                    {({ value, onChange, error, onBlur }) => (
                       <LakeLabel
                         label={t("merchantProfile.paymentLink.new.amount")}
                         render={id => (
                           <LakeTextInput
                             id={id}
-                            value={value.replace(",", ".")}
+                            value={value}
                             unit="EUR"
-                            onChangeText={onChange}
+                            onChangeText={text => onChange(text.replace(",", "."))}
                             error={error}
+                            onBlur={() => {
+                              onChange(value.replace(",", ".").replace(DOTS_AT_END_REGEXP, ""));
+                              onBlur();
+                            }}
                           />
                         )}
                       />

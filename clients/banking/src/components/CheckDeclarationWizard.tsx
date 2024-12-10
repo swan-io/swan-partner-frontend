@@ -267,7 +267,7 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
   });
 
   const onClose = (showNext: boolean) => {
-    Router.replace("AccountMerchantsProfileSettings", {
+    Router.replace("AccountMerchantsProfilePaymentsList", {
       ...params,
       check: showNext ? "next" : undefined,
     });

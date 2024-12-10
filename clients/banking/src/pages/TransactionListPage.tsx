@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -15,7 +15,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import { Connection } from "../components/Connection";
 import { ErrorView } from "../components/ErrorView";
 import { TransactionDetail } from "../components/TransactionDetail";
@@ -84,36 +84,25 @@ export const TransactionListPage = ({
 
   const { canReadAccountStatement } = usePermissions();
 
-  const filters: TransactionFilters = useMemo(() => {
-    return {
+  const filters = useMemo<TransactionFilters>(
+    () => ({
       includeRejectedWithFallback: false,
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
-      paymentProduct: isNotNullish(params.paymentProduct)
-        ? Array.filterMap(params.paymentProduct, item =>
-            match(item)
-              .with("CreditTransfer", "DirectDebit", "Card", "Fees", "Check", value =>
-                Option.Some(value),
-              )
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
-      status: isNotNullish(params.transactionStatus)
-        ? Array.filterMap(params.transactionStatus, item =>
-            match(item)
-              .with("Booked", "Canceled", "Pending", "Rejected", "Released", item =>
-                Option.Some(item),
-              )
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
-    } as const;
-  }, [
-    params.isAfterUpdatedAt,
-    params.isBeforeUpdatedAt,
-    params.paymentProduct,
-    params.transactionStatus,
-  ]);
+      paymentProduct: params.paymentProduct?.filter(
+        isMatching(P.union("CreditTransfer", "DirectDebit", "Card", "Fees", "Check")),
+      ),
+      status: params.transactionStatus?.filter(
+        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
+      ),
+    }),
+    [
+      params.isAfterUpdatedAt,
+      params.isBeforeUpdatedAt,
+      params.paymentProduct,
+      params.transactionStatus,
+    ],
+  );
 
   const paymentProduct = useMemo(() => {
     const actualPaymentProduct: PaymentProduct[] = [];

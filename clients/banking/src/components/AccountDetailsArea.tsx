@@ -9,7 +9,7 @@ import { P, match } from "ts-pattern";
 import { AccountLanguage } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { AccountDetailsBillingPage } from "../pages/AccountDetailsBillingPage";
-import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
+// import { AccountDetailsIbanPage } from "../pages/AccountDetailsIbanPage";
 import { AccountDetailsSettingsPage } from "../pages/AccountDetailsSettingsPage";
 import { AccountDetailsVirtualIbansPage } from "../pages/AccountDetailsVirtualIbansPage";
 import { t } from "../utils/i18n";
@@ -45,10 +45,11 @@ export const AccountDetailsArea = ({
 
   const tabs = useMemo(
     () => [
-      {
-        label: t("accountDetails.iban.tab"),
-        url: Router.AccountDetailsIban({ accountMembershipId }),
-      },
+      // keep this commented out as iban is handled in Assoconnect App
+      // {
+      //   label: t("accountDetails.iban.tab"),
+      //   url: Router.AccountDetailsIban({ accountMembershipId }),
+      // },
       ...(canReadVirtualIBAN
         ? [
             {
@@ -86,9 +87,8 @@ export const AccountDetailsArea = ({
           />
 
           {match(route)
-            .with({ name: "AccountDetailsIban" }, () => (
-              <AccountDetailsIbanPage accountId={accountId} largeBreakpoint={large} />
-            ))
+            //  Keep return null as iban is handled in Assoconnect App
+            .with({ name: "AccountDetailsIban" }, () => null)
             .with({ name: "AccountDetailsVirtualIbans" }, () => (
               <>
                 <Space height={40} />

@@ -1,4 +1,4 @@
-import { Array, Option } from "@swan-io/boxed";
+import { Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useDeferredQuery, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -11,12 +11,12 @@ import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveCont
 import { Space } from "@swan-io/lake/src/components/Space";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { breakpoints, colors, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { Request } from "@swan-io/request";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { useCallback, useEffect, useMemo, useRef } from "react";
 import { StyleSheet, View } from "react-native";
-import { P, match } from "ts-pattern";
+import { P, isMatching, match } from "ts-pattern";
 import { Except } from "type-fest";
 import {
   AccountCountry,
@@ -62,8 +62,6 @@ type Props = {
 
 const PER_PAGE = 20;
 
-const statusList = ["BindingUserError", "Enabled", "InvitationSent", "Suspended"] as const;
-
 export const MembershipsArea = ({
   accountMembershipId,
   accountId,
@@ -77,29 +75,26 @@ export const MembershipsArea = ({
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
-  const filters: MembershipFilters = useMemo(() => {
-    return {
-      statuses: isNotNullish(params.statuses)
-        ? Array.filterMap(params.statuses, item =>
-            match(item)
-              .with(...statusList, value => Option.Some(value))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+  const filters = useMemo<MembershipFilters>(
+    () => ({
+      statuses: params.statuses?.filter(
+        isMatching(P.union("BindingUserError", "Enabled", "InvitationSent", "Suspended")),
+      ),
       canViewAccount: parseBooleanParam(params.canViewAccount),
       canManageCards: parseBooleanParam(params.canManageCards),
       canInitiatePayments: parseBooleanParam(params.canInitiatePayments),
       canManageAccountMembership: parseBooleanParam(params.canManageAccountMembership),
       canManageBeneficiaries: parseBooleanParam(params.canManageBeneficiaries),
-    } as const;
-  }, [
-    params.statuses,
-    params.canViewAccount,
-    params.canManageCards,
-    params.canInitiatePayments,
-    params.canManageAccountMembership,
-    params.canManageBeneficiaries,
-  ]);
+    }),
+    [
+      params.statuses,
+      params.canViewAccount,
+      params.canManageCards,
+      params.canInitiatePayments,
+      params.canManageAccountMembership,
+      params.canManageBeneficiaries,
+    ],
+  );
 
   const search = nullishOrEmptyToUndefined(params.search);
 

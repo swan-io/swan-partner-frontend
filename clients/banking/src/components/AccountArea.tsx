@@ -284,7 +284,10 @@ export const AccountArea = ({
             icon: "building-shop-regular",
             name: t("navigation.merchant"),
             to: Router.AccountMerchantsRoot({ accountMembershipId }),
-            visible: account?.holder.info.type === "Company" && permissions.canReadMerchantProfile,
+            visible:
+              account?.holder.info.type === "Company" &&
+              permissions.canReadMerchantProfile &&
+              isMerchantFlagActive,
           },
         ];
 

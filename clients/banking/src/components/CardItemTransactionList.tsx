@@ -1,4 +1,4 @@
-import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Result } from "@swan-io/boxed";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
@@ -11,7 +11,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import { CardTransactionsPageDocument } from "../graphql/partner";
 import { t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
@@ -56,22 +56,17 @@ const DEFAULT_STATUSES = [
 ];
 
 export const CardItemTransactionList = ({ params }: Props) => {
-  const filters: TransactionFilters = useMemo(() => {
-    return {
+  const filters = useMemo<TransactionFilters>(
+    () => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: undefined,
-      status: isNotNullish(params.status)
-        ? Array.filterMap(params.status, item =>
-            match(item)
-              .with("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming", item =>
-                Option.Some(item),
-              )
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
-    } as const;
-  }, [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.status]);
+      status: params.status?.filter(
+        isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming")),
+      ),
+    }),
+    [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.status],
+  );
 
   const search = nullishOrEmptyToUndefined(params.search);
   const hasSearchOrFilters = isNotNullish(search) || Object.values(filters).some(isNotNullish);

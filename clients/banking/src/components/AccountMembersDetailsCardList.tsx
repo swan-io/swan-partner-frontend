@@ -1,4 +1,3 @@
-import { Array, Option } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -12,7 +11,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet } from "react-native";
-import { match } from "ts-pattern";
+import { isMatching, P } from "ts-pattern";
 import { Except } from "type-fest";
 import {
   AccountMembershipCardListPageDocument,
@@ -64,17 +63,14 @@ export const AccountMembersDetailsCardList = ({
 
   const showAddCard = canAddCard && (isUserOwnMembership || canAddCardForOtherMemberships);
 
-  const filters: CardFilters = useMemo(() => {
-    return {
-      type: isNotNullish(params.cardType)
-        ? Array.filterMap(params.cardType, item =>
-            match(item)
-              .with("Virtual", "VirtualAndPhysical", "SingleUseVirtual", item => Option.Some(item))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
-    } as const;
-  }, [params.cardType]);
+  const filters = useMemo<CardFilters>(
+    () => ({
+      type: params.cardType?.filter(
+        isMatching(P.union("Virtual", "VirtualAndPhysical", "SingleUseVirtual")),
+      ),
+    }),
+    [params.cardType],
+  );
 
   const search = nullishOrEmptyToUndefined(params.cardSearch);
   const status = params.cardStatus === "Canceled" ? "Canceled" : "Active";

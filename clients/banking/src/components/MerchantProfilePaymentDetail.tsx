@@ -244,7 +244,7 @@ const MerchantProfilePaymentDetailView = ({
             render={() =>
               isNotNullish(payment.threeDS) ? (
                 <LakeText variant="regular" color={colors.gray[900]}>
-                  {payment.threeDS.statusInfo}
+                  {payment.threeDS.statusInfo.status}
                 </LakeText>
               ) : (
                 UNKNOWN_VALUE

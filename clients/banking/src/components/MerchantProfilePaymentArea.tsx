@@ -413,7 +413,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                         items={payments?.edges.map(item => item.node) ?? []}
                         render={(item, large) => (
                           <MerchantProfilePaymentDetail
-                            paymentLinkId={item.paymentLinkId}
+                            paymentLinkId={item.paymentLink?.id}
                             paymentId={item.id}
                             large={large}
                           />

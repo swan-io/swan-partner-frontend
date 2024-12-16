@@ -98,6 +98,28 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     ),
   },
   {
+    id: "paymentMethod",
+    width: 200,
+    title: t("merchantProfile.payments.paymentMethod"),
+    renderTitle: ({ title }) => <HeaderCell text={title} />,
+    renderCell: ({ item: { paymentMethod } }) => (
+      <Cell>
+        <LakeText variant="regular" color={colors.gray[900]}>
+          {match(paymentMethod.type)
+            .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+            .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
+            .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
+              t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
+            )
+            .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
+              t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
+            )
+            .exhaustive()}
+        </LakeText>
+      </Cell>
+    ),
+  },
+  {
     id: "externalReference",
     width: 200,
     title: t("merchantProfile.payments.externalReference"),
@@ -156,7 +178,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     ),
   },
   {
-    width: 48,
+    width: 40,
     id: "actions",
     title: "",
     renderTitle: () => null,
@@ -207,7 +229,7 @@ const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     ),
   },
   {
-    width: 48,
+    width: 40,
     id: "actions",
     title: "",
     renderTitle: () => null,

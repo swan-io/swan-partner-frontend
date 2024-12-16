@@ -145,9 +145,9 @@ const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) 
   return match(paymentMethodType)
     .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
     .with(P.union("SepaDirectDebitB2b", "SepaDirectDebitCore"), () =>
-      t("merchantProfile.paymentLink.paymentMethod.SepaDirectDebit"),
+      t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
     )
-    .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.checks"))
+    .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
     .with(P.union("InternalDirectDebitB2b", "InternalDirectDebitStandard"), () =>
       t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
     )

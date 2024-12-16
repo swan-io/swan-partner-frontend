@@ -28,7 +28,7 @@ jobs:
           cache: pnpm
 
       - name: Install dependencies
-        run: pnpm install --pure-lockfile
+        run: pnpm install --no-frozen-lockfile
 
       - name: Check licenses
         run: pnpm license-check

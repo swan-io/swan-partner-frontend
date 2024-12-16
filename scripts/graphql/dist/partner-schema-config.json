@@ -192,6 +192,7 @@
       "TransactionConnection",
       "TrustedBeneficiaryConnection",
       "UserConnection",
+      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection",
       "WebhookEventLogsConnection",
       "WebhookSubscriptionsConnection"
@@ -225,6 +226,7 @@
       "TransactionEdge",
       "TrustedBeneficiaryEdge",
       "UserEdge",
+      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge",
       "WebhookEventLogsEdge",
       "WebhookSubscriptionsEdge"
@@ -380,6 +382,10 @@
       "ExportExpiredStatusInfo",
       "ExportFailedStatusInfo",
       "ExportRunningStatusInfo"
+    ],
+    "ThreeDsStatusInfo": [
+      "FailedThreeDs",
+      "SuccessfulThreeDs"
     ],
     "FeeCreditor": [
       "FeeInCreditor",

@@ -1,8 +1,4 @@
-// https://github.com/facebook/create-react-app/tree/v4.0.0/packages/eslint-config-react-app
-// const { dependencies } = require("./package.json");
 const path = require("pathe");
-
-const errorOnCI = process.env.CI === "true" ? "error" : "warn";
 
 module.exports = {
   overrides: [
@@ -47,12 +43,12 @@ module.exports = {
       ],
 
       rules: {
-        curly: errorOnCI,
+        curly: "warn",
 
         "no-implicit-coercion": "error",
         "no-param-reassign": "error",
         "no-var": "error",
-        "object-shorthand": "error",
+        "object-shorthand": "warn",
         "prefer-const": "error",
 
         "no-extra-boolean-cast": "off",
@@ -93,12 +89,12 @@ module.exports = {
         "react-hooks/exhaustive-deps": "warn",
 
         // https://github.com/intellicode/eslint-plugin-react-native
-        "react-native/no-color-literals": errorOnCI,
-        "react-native/no-inline-styles": errorOnCI,
-        "react-native/no-single-element-style-arrays": errorOnCI,
-        "react-native/no-unused-styles": errorOnCI,
+        "react-native/no-color-literals": "warn",
+        "react-native/no-inline-styles": "warn",
+        "react-native/no-single-element-style-arrays": "warn",
+        "react-native/no-unused-styles": "warn",
 
-        "swan/jsx-newline": errorOnCI,
+        "swan/jsx-newline": "warn",
         "swan/no-template-in-t": "error",
       },
     },

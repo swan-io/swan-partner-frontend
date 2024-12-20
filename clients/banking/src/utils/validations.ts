@@ -192,7 +192,25 @@ export const validateTime =
 
 export const validateAddressLine: Validator<string> = value => {
   if (value.length > 38) {
-    return t("common.form.invalidAddressLine");
+    return t("common.form.invalidLength", { maxLength: 38 });
+  }
+};
+
+export const validateCity: Validator<string> = value => {
+  if (value.length > 30) {
+    return t("common.form.invalidLength", { maxLength: 30 });
+  }
+};
+
+export const validatePostalCode: Validator<string> = value => {
+  if (value.length > 10) {
+    return t("common.form.invalidLength", { maxLength: 10 });
+  }
+};
+
+export const validateState: Validator<string> = value => {
+  if (value.length > 30) {
+    return t("common.form.invalidLength", { maxLength: 30 });
   }
 };
 

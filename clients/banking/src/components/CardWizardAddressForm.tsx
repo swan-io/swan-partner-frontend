@@ -10,7 +10,13 @@ import { combineValidators, useForm } from "@swan-io/use-form";
 import { forwardRef, useCallback, useImperativeHandle } from "react";
 import { View } from "react-native";
 import { locale, t } from "../utils/i18n";
-import { validateAddressLine, validateRequired } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateCity,
+  validatePostalCode,
+  validateRequired,
+  validateState,
+} from "../utils/validations";
 
 export type Address = {
   addressLine1: string;
@@ -39,17 +45,19 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
       },
       addressLine2: {
         initialValue: initialAddress.addressLine2 ?? "",
+        validate: validateAddressLine,
       },
       postalCode: {
         initialValue: initialAddress.postalCode,
-        validate: validateRequired,
+        validate: combineValidators(validateRequired, validatePostalCode),
       },
       city: {
         initialValue: initialAddress.city,
-        validate: validateRequired,
+        validate: combineValidators(validateRequired, validateCity),
       },
       state: {
         initialValue: initialAddress.state ?? "",
+        validate: combineValidators(validateState, validateState),
       },
       country: {
         initialValue: initialAddress.country ?? "",

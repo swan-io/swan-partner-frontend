@@ -21,7 +21,12 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import { validateAddressLine } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateCity,
+  validatePostalCode,
+  validateState,
+} from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 
 const styles = StyleSheet.create({
@@ -71,18 +76,22 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
 
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
+    const hasSomeError =
+      isNotNullish(validateAddressLine(currentCardGroupedDeliveryConfig.address.addressLine1)) ||
+      isNotNullish(validateCity(currentCardGroupedDeliveryConfig.address.city)) ||
+      isNotNullish(validatePostalCode(currentCardGroupedDeliveryConfig.address.postalCode)) ||
+      isNotNullish(validateState(currentCardGroupedDeliveryConfig.address.state ?? ""));
+
     useImperativeHandle(
       ref,
       () => ({
         submit: () => {
-          onSubmit(currentCardGroupedDeliveryConfig);
+          if (!hasSomeError) {
+            onSubmit(currentCardGroupedDeliveryConfig);
+          }
         },
       }),
-      [currentCardGroupedDeliveryConfig, onSubmit],
-    );
-
-    const hasError = isNotNullish(
-      validateAddressLine(currentCardGroupedDeliveryConfig.address.addressLine1),
+      [currentCardGroupedDeliveryConfig, hasSomeError, onSubmit],
     );
 
     return (
@@ -95,9 +104,9 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
           <Space height={12} />
 
           <Tile
-            style={hasError ? styles.erroredTile : null}
+            style={hasSomeError ? styles.erroredTile : null}
             footer={
-              hasError ? (
+              hasSomeError ? (
                 <LakeAlert
                   anchored={true}
                   variant="error"

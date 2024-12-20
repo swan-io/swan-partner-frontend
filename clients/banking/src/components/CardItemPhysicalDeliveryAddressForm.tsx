@@ -16,7 +16,12 @@ import { forwardRef, useImperativeHandle, useState } from "react";
 import { P, match } from "ts-pattern";
 import { CompleteAddressInput } from "../graphql/partner";
 import { locale, t } from "../utils/i18n";
-import { validateAddressLine, validateRequired } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateCity,
+  validatePostalCode,
+  validateRequired,
+} from "../utils/validations";
 
 export type CardItemPhysicalDeliveryAddressFormRef = {
   submit: () => void;
@@ -49,14 +54,15 @@ export const CardItemPhysicalDeliveryAddressForm = forwardRef<
     },
     addressLine2: {
       initialValue: initialEditorState?.addressLine2 ?? "",
+      validate: validateAddressLine,
     },
     postalCode: {
       initialValue: initialEditorState?.postalCode ?? "",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validatePostalCode),
     },
     city: {
       initialValue: initialEditorState?.city ?? "",
-      validate: validateRequired,
+      validate: combineValidators(validateRequired, validateCity),
     },
     country: {
       initialValue: match(initialEditorState?.country)

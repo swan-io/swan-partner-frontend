@@ -22,7 +22,12 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import { validateAddressLine } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateCity,
+  validatePostalCode,
+  validateState,
+} from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 import { CardWizardChoosePinModal } from "./CardWizardChoosePinModal";
 
@@ -66,8 +71,12 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
 
   const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
 
-  const hasSomeError = currentCardIndividualDeliveryConfig.some(config =>
-    isNotNullish(validateAddressLine(config.address.addressLine1)),
+  const hasSomeError = currentCardIndividualDeliveryConfig.some(
+    config =>
+      isNotNullish(validateAddressLine(config.address.addressLine1)) ||
+      isNotNullish(validateCity(config.address.city)) ||
+      isNotNullish(validatePostalCode(config.address.postalCode)) ||
+      isNotNullish(validateState(config.address.state ?? "")),
   );
 
   useImperativeHandle(
@@ -85,14 +94,12 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
   return (
     <View>
       {currentCardIndividualDeliveryConfig.map((config, index) => {
-        const hasError = isNotNullish(validateAddressLine(config.address.addressLine1));
-
         return (
           <View key={config.member.id}>
             <Tile
-              style={hasError ? styles.erroredTile : null}
+              style={hasSomeError ? styles.erroredTile : null}
               footer={
-                hasError ? (
+                hasSomeError ? (
                   <LakeAlert
                     anchored={true}
                     variant="error"

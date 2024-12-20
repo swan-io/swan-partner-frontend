@@ -25,6 +25,7 @@ import {
   validateAddressLine,
   validateCity,
   validatePostalCode,
+  validateRequired,
   validateState,
 } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
@@ -78,9 +79,13 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
 
     const hasSomeError =
       isNotNullish(validateAddressLine(currentCardGroupedDeliveryConfig.address.addressLine1)) ||
+      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.addressLine1)) ||
       isNotNullish(validateCity(currentCardGroupedDeliveryConfig.address.city)) ||
+      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.city)) ||
       isNotNullish(validatePostalCode(currentCardGroupedDeliveryConfig.address.postalCode)) ||
-      isNotNullish(validateState(currentCardGroupedDeliveryConfig.address.state ?? ""));
+      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.postalCode)) ||
+      isNotNullish(validateState(currentCardGroupedDeliveryConfig.address.state ?? "")) ||
+      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.country));
 
     useImperativeHandle(
       ref,
@@ -110,7 +115,7 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
                 <LakeAlert
                   anchored={true}
                   variant="error"
-                  title={t("cardWizard.address.tooLong")}
+                  title={t("cardWizard.address.invalid")}
                 />
               ) : null
             }

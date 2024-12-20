@@ -9,7 +9,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -21,13 +20,7 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import {
-  validateAddressLine,
-  validateCity,
-  validatePostalCode,
-  validateRequired,
-  validateState,
-} from "../utils/validations";
+import { validateAddress } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 
 const styles = StyleSheet.create({
@@ -77,15 +70,7 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
 
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
-    const hasSomeError =
-      isNotNullish(validateAddressLine(currentCardGroupedDeliveryConfig.address.addressLine1)) ||
-      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.addressLine1)) ||
-      isNotNullish(validateCity(currentCardGroupedDeliveryConfig.address.city)) ||
-      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.city)) ||
-      isNotNullish(validatePostalCode(currentCardGroupedDeliveryConfig.address.postalCode)) ||
-      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.postalCode)) ||
-      isNotNullish(validateState(currentCardGroupedDeliveryConfig.address.state ?? "")) ||
-      isNotNullish(validateRequired(currentCardGroupedDeliveryConfig.address.country));
+    const hasSomeError = validateAddress(currentCardGroupedDeliveryConfig.address);
 
     useImperativeHandle(
       ref,

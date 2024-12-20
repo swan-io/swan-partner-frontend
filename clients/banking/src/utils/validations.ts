@@ -1,9 +1,10 @@
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import { Validator, combineValidators } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { P, match } from "ts-pattern";
+import { CompleteAddressWithContactInput } from "../graphql/partner";
 import { locale, t } from "./i18n";
 
 export const validateNullableRequired: Validator<string | undefined> = value => {
@@ -189,6 +190,19 @@ export const validateTime =
       return t("common.form.dateCannotBePast");
     }
   };
+
+export const validateAddress = (address: CompleteAddressWithContactInput) => {
+  return (
+    isNotNullish(validateAddressLine(address.addressLine1)) ||
+    isNotNullish(validateRequired(address.addressLine1)) ||
+    isNotNullish(validateCity(address.city)) ||
+    isNotNullish(validateRequired(address.city)) ||
+    isNotNullish(validatePostalCode(address.postalCode)) ||
+    isNotNullish(validateRequired(address.postalCode)) ||
+    isNotNullish(validateState(address.state ?? "")) ||
+    isNotNullish(validateRequired(address.country))
+  );
+};
 
 export const validateAddressLine: Validator<string> = value => {
   if (value.length > 38) {

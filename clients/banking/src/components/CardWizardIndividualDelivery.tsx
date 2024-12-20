@@ -9,7 +9,6 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -22,13 +21,7 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import {
-  validateAddressLine,
-  validateCity,
-  validatePostalCode,
-  validateRequired,
-  validateState,
-} from "../utils/validations";
+import { validateAddress } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 import { CardWizardChoosePinModal } from "./CardWizardChoosePinModal";
 
@@ -72,16 +65,8 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
 
   const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
 
-  const hasSomeError = currentCardIndividualDeliveryConfig.some(
-    config =>
-      isNotNullish(validateAddressLine(config.address.addressLine1)) ||
-      isNotNullish(validateRequired(config.address.addressLine1)) ||
-      isNotNullish(validateCity(config.address.city)) ||
-      isNotNullish(validateRequired(config.address.city)) ||
-      isNotNullish(validatePostalCode(config.address.postalCode)) ||
-      isNotNullish(validateRequired(config.address.postalCode)) ||
-      isNotNullish(validateState(config.address.state ?? "")) ||
-      isNotNullish(validateRequired(config.address.country)),
+  const hasSomeError = currentCardIndividualDeliveryConfig.some(config =>
+    validateAddress(config.address),
   );
 
   useImperativeHandle(

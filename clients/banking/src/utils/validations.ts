@@ -1,9 +1,10 @@
-import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePicker";
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import { Validator, combineValidators } from "@swan-io/use-form";
 import dayjs from "dayjs";
 import { P, match } from "ts-pattern";
+import { CompleteAddressWithContactInput } from "../graphql/partner";
 import { locale, t } from "./i18n";
 
 export const validateNullableRequired: Validator<string | undefined> = value => {
@@ -190,9 +191,40 @@ export const validateTime =
     }
   };
 
+export const validateAddress = (address: CompleteAddressWithContactInput) => {
+  return (
+    isNotNullish(validateAddressLine(address.addressLine1)) ||
+    isNotNullish(validateRequired(address.addressLine1)) ||
+    isNotNullish(validateCity(address.city)) ||
+    isNotNullish(validateRequired(address.city)) ||
+    isNotNullish(validatePostalCode(address.postalCode)) ||
+    isNotNullish(validateRequired(address.postalCode)) ||
+    isNotNullish(validateState(address.state ?? "")) ||
+    isNotNullish(validateRequired(address.country))
+  );
+};
+
 export const validateAddressLine: Validator<string> = value => {
   if (value.length > 38) {
-    return t("common.form.invalidAddressLine");
+    return t("common.form.invalidLength", { maxLength: 38 });
+  }
+};
+
+export const validateCity: Validator<string> = value => {
+  if (value.length > 30) {
+    return t("common.form.invalidLength", { maxLength: 30 });
+  }
+};
+
+export const validatePostalCode: Validator<string> = value => {
+  if (value.length > 10) {
+    return t("common.form.invalidLength", { maxLength: 10 });
+  }
+};
+
+export const validateState: Validator<string> = value => {
+  if (value.length > 30) {
+    return t("common.form.invalidLength", { maxLength: 30 });
   }
 };
 

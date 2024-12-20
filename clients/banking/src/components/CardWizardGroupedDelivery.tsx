@@ -9,7 +9,6 @@ import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { colors } from "@swan-io/lake/src/constants/design";
-import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
 import { CountryCCA3 } from "@swan-io/shared-business/src/constants/countries";
@@ -21,7 +20,7 @@ import {
 } from "../graphql/partner";
 import { getMemberName } from "../utils/accountMembership";
 import { t } from "../utils/i18n";
-import { validateAddressLine } from "../utils/validations";
+import { validateAddress } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 
 const styles = StyleSheet.create({
@@ -71,18 +70,18 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
 
     const [editingAddress, setEditingAddress] = useState<Address | null>(null);
 
+    const hasSomeError = validateAddress(currentCardGroupedDeliveryConfig.address);
+
     useImperativeHandle(
       ref,
       () => ({
         submit: () => {
-          onSubmit(currentCardGroupedDeliveryConfig);
+          if (!hasSomeError) {
+            onSubmit(currentCardGroupedDeliveryConfig);
+          }
         },
       }),
-      [currentCardGroupedDeliveryConfig, onSubmit],
-    );
-
-    const hasError = isNotNullish(
-      validateAddressLine(currentCardGroupedDeliveryConfig.address.addressLine1),
+      [currentCardGroupedDeliveryConfig, hasSomeError, onSubmit],
     );
 
     return (
@@ -95,13 +94,13 @@ export const CardWizardGroupedDelivery = forwardRef<CardWizardGroupedDeliveryRef
           <Space height={12} />
 
           <Tile
-            style={hasError ? styles.erroredTile : null}
+            style={hasSomeError ? styles.erroredTile : null}
             footer={
-              hasError ? (
+              hasSomeError ? (
                 <LakeAlert
                   anchored={true}
                   variant="error"
-                  title={t("cardWizard.address.tooLong")}
+                  title={t("cardWizard.address.invalid")}
                 />
               ) : null
             }

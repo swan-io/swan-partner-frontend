@@ -333,6 +333,9 @@ type AccountHolder {
   """Account holder onboarding"""
   onboarding: Onboarding
 
+  """Account holder risk info"""
+  riskInfo: AccountHolderRiskInfo
+
   """
   A list of Payment Mandates for an account holder.
   
@@ -430,6 +433,13 @@ type AccountHolderConnection implements Connection {
 
   """AccountHolderEdge list"""
   edges: [AccountHolderEdge!]!
+}
+
+enum AccountHolderDueDiligenceLevel {
+  Simplified
+  Common
+  Enhanced
+  Refused
 }
 
 """Implements the Relay Edge interface."""
@@ -568,6 +578,12 @@ type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerifica
 
   """Reason for which the account holder was refused"""
   reason: String!
+}
+
+type AccountHolderRiskInfo {
+  amlRiskLevel: AmlRiskLevel
+  amlScore: Int
+  dueDiligenceLevel: AccountHolderDueDiligenceLevel
 }
 
 """Account holder status."""
@@ -719,8 +735,11 @@ type AccountMembership {
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level"""
-  recommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -1192,6 +1211,13 @@ input AddressInput {
 type AllowedValue {
   key: String!
   name: String!
+}
+
+enum AmlRiskLevel {
+  Low
+  Medium
+  High
+  TooHigh
 }
 
 """Amount with its currency"""
@@ -5654,8 +5680,11 @@ type Onboarding {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -5861,8 +5890,11 @@ type OnboardingInfo {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -8543,33 +8575,7 @@ union SimulateOutgoingCardAuthorizationPayload = SimulateOutgoingCardAuthorizati
 """Reject payload type"""
 type SimulateOutgoingCardAuthorizationRejectPayload {
   transactionId: ID!
-  reason: SimulateOutgoingCardAuthorizationRejectPayloadReason! @deprecated(reason: "Use rejectedReason instead")
   rejectedReason: String!
-}
-
-"""Reject payload reason"""
-enum SimulateOutgoingCardAuthorizationRejectPayloadReason {
-  AccountSuspended
-  CardExpired
-  CardSuspended
-  InsufficientFunds
-  NotHeld
-  PartnerRefused
-  PartnerTechnicalErrorOccurred
-  PeriodAmountLimitExceeded
-  SwanRefused
-  TransactionTypeNotAllowed
-  ThreeDsError
-  PeriodTransactionNumberLimitExceeded
-  MissingExpirationDate
-  MissingPin
-  DigitalWalletDeactivated
-  DigitalWalletEnrolmentInvalid
-  DigitalWalletTokenInvalid
-  DigitalWalletRefusal
-  DigitalWalletSuspended
-  InvalidAmount
-  CardholderCancellation
 }
 
 """Input to simulate a release of a card authorization"""
@@ -10209,6 +10215,9 @@ type User {
 
   """birth city"""
   birthCity: String
+
+  """birth country"""
+  birthCountry: CCA3
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]

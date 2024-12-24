@@ -578,6 +578,9 @@ type AccountHolder {
   """Account holder onboarding"""
   onboarding: Onboarding
 
+  """Account holder risk info"""
+  riskInfo: AccountHolderRiskInfo
+
   """
   List of external account owned by the account holder
   
@@ -698,6 +701,13 @@ type AccountHolderConnection implements Connection {
 
   """AccountHolderEdge list"""
   edges: [AccountHolderEdge!]!
+}
+
+enum AccountHolderDueDiligenceLevel {
+  Simplified
+  Common
+  Enhanced
+  Refused
 }
 
 """Implements the Relay Edge interface."""
@@ -836,6 +846,12 @@ type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerifica
 
   """Reason for which the account holder was refused"""
   reason: String!
+}
+
+type AccountHolderRiskInfo {
+  amlRiskLevel: AmlRiskLevel
+  amlScore: Int
+  dueDiligenceLevel: AccountHolderDueDiligenceLevel
 }
 
 """Account holder status."""
@@ -995,8 +1011,11 @@ type AccountMembership {
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level"""
-  recommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -3510,6 +3529,29 @@ union CardMerchant = CardInMerchant | CardOutMerchant
 type CardMerchantPayment {
   """unique identifier of a merchant payment"""
   id: ID!
+
+  """
+  List of transactions associated with the Merchant Payment.
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  transactions(
+    """the number of elements to load (default value 50, maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """
+    an order you can apply to your list of connections (default value UpdatedAt desc)
+    """
+    orderBy: TransactionsOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: TransactionsFiltersInput
+  ): TransactionConnection
 
   """status information"""
   statusInfo: MerchantPaymentStatusInfo!
@@ -9052,6 +9094,7 @@ enum InternationalCreditTransferRouteInput {
   VietnameEarthport
 }
 
+"""International Credfit Transfer transaction"""
 type InternationalCreditTransferTransaction implements Transaction {
   """unique identifier of the transaction"""
   id: ID!
@@ -11172,7 +11215,7 @@ type Mutation {
   addInternalDirectDebitPaymentMandate(input: AddInternalDirectDebitPaymentMandateInput!): AddInternalDirectDebitPaymentMandatePayload!
 
   """Add a merchant profile to a company account holder"""
-  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload
+  addMerchantProfile(input: AddMerchantProfileInput!): AddMerchantProfilePayload @deprecated(reason: "Use requestMerchantProfile instead")
   addSepaDirectDebitPaymentMandate(input: AddSepaDirectDebitPaymentMandateInput!): AddSepaDirectDebitPaymentMandatePayload
 
   """Cancel a MerchantPaymentMethod update request"""
@@ -11198,6 +11241,9 @@ type Mutation {
 
   """Request an update of a MerchantProfile"""
   requestMerchantProfileUpdate(input: RequestMerchantProfileUpdateInput!): RequestMerchantProfileUpdatePayload
+
+  """Request a merchant profile to a company account holder"""
+  requestMerchantProfile(input: RequestMerchantProfileInput!): RequestMerchantProfilePayload
 
   """
   Cancels an UPCOMING credit transfer
@@ -11698,8 +11744,11 @@ type Onboarding {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -11905,8 +11954,11 @@ type OnboardingInfo {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -14495,6 +14547,49 @@ union RequestMerchantPaymentMethodsUpdatePayload = RequestMerchantPaymentMethods
 type RequestMerchantPaymentMethodsUpdateSuccessPayload {
   paymentMethodId: String!
   requestId: String!
+}
+
+"""Input to add a Merchant Profile"""
+input RequestMerchantProfileInput {
+  """ID of the Swan account which the merchantProfile is associated to"""
+  accountId: ID!
+
+  """
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  """
+  merchantName: String!
+
+  """Url of the merchant's website"""
+  merchantWebsite: String
+
+  """base64 encoded merchant's logo"""
+  merchantLogo: String
+
+  """
+  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType!
+
+  """Expected annual activity volumes for all payment methods."""
+  expectedMonthlyPaymentVolume: AmountInput!
+
+  """expected average basket value."""
+  expectedAverageBasket: AmountInput!
+
+  """
+  Your accent color, used in white label interfaces.
+  This color would also be inherited in the Swan Merchant Payment page.
+  """
+  accentColor: String
+}
+
+"""Request Merchant Profile Payload"""
+union RequestMerchantProfilePayload = RequestMerchantProfileSuccessPayload | ForbiddenRejection | AccountNotFoundRejection | InternalErrorRejection | ValidationRejection
+
+"""Request Merchant Profile Success Payload"""
+type RequestMerchantProfileSuccessPayload {
+  """Merchant Profile"""
+  merchantProfile: MerchantProfile!
 }
 
 """Request Update Merchant Profile"""
@@ -17969,6 +18064,12 @@ enum TransactionTypeEnum {
 
   """When a card credit credited a Swan account."""
   CardInCredit
+
+  """When a card chargeback debited a Swan account."""
+  CardInChargeback
+
+  """When a card chargeback reversal credited a Swan account."""
+  CardInChargebackReversal
 }
 
 """TrustedBeneficiary"""
@@ -18966,6 +19067,9 @@ type User {
 
   """birth city"""
   birthCity: String
+
+  """birth country"""
+  birthCountry: CCA3
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]

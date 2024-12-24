@@ -668,8 +668,11 @@ type AccountMembership {
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level"""
-  recommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -1186,6 +1189,13 @@ type AlreadyCompletedPaymentLinkRejection implements Rejection {
 """Rejection returned if card already has a valid Physical Card"""
 type AlreadyValidPhysicalCardRejection implements Rejection {
   message: String!
+}
+
+enum AmlRiskLevel {
+  Low
+  Medium
+  High
+  TooHigh
 }
 
 """Amount with its currency"""
@@ -4225,8 +4235,11 @@ type Onboarding {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -4432,8 +4445,11 @@ type OnboardingInfo {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -6855,6 +6871,9 @@ type User {
 
   """birth city"""
   birthCity: String
+
+  """birth country"""
+  birthCountry: CCA3
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]

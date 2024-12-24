@@ -1,4 +1,4 @@
-import { Array, AsyncData, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
 import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
@@ -19,7 +19,7 @@ import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { match, P } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import {
   MerchantPaymentFragment,
   MerchantPaymentMethodType,
@@ -152,25 +152,17 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
 
   const filters: MerchantPaymentFilters = useMemo(() => {
     return {
-      paymentMethod: isNotNullish(params.paymentMethod)
-        ? Array.filterMap(params.paymentMethod, item =>
-            match(item)
-              .with("Card", "Check", "DirectDebit", value => Option.Some(value))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
-      status: isNotNullish(params.status)
-        ? Array.filterMap(params.status, item =>
-            match(item)
-              .with("Authorized", "Captured", "Initiated", "Rejected", item => Option.Some(item))
-              .otherwise(() => Option.None()),
-          )
-        : undefined,
+      paymentMethod: params.paymentMethod?.filter(
+        isMatching(P.union("Card", "Check", "DirectDebit")),
+      ),
+      status: params.status?.filter(
+        isMatching(P.union("Authorized", "Captured", "Initiated", "Rejected")),
+      ),
     } as const;
   }, [params.paymentMethod, params.status]);
 
   const search = nullishOrEmptyToUndefined(params.search);
-  const hasSearch =
+  const hasSearchOrFilters =
     isNotNullish(search) || isNotNullish(params.paymentMethod) || isNotNullish(params.status);
 
   const [data, { isLoading, reload, setVariables }] = useQuery(MerchantPaymentsDocument, {
@@ -216,10 +208,9 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
     [accountMembershipId, merchantProfileId],
   );
 
-  const activePaymentLinkId =
-    route?.name === "AccountMerchantsProfilePaymentsDetails"
-      ? (route.params.paymentId ?? null)
-      : null;
+  const activePaymentLinkId = match(route)
+    .with({ name: "AccountMerchantsProfilePaymentsDetails" }, ({ params }) => params.paymentId)
+    .otherwise(() => null);
 
   const { shouldEnableCheckTile, shouldEnablePaymentLinkTile } = useMemo(() => {
     const enabledPaymentMethods = data
@@ -228,17 +219,14 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
       .flatMap(({ merchantProfile }) =>
         Option.fromNullable(merchantProfile?.merchantPaymentMethods),
       )
-      .map(methods => methods.filter(method => method.statusInfo.status === "Enabled"));
+      .map(methods => methods.filter(method => method.statusInfo.status === "Enabled"))
+      .getOr([]);
 
     return {
-      shouldEnableCheckTile: enabledPaymentMethods
-        .map(methods => methods.some(method => method.type === "Check"))
-        .getOr(false),
-
-      shouldEnablePaymentLinkTile: enabledPaymentMethods
-        .map(methods => methods.some(method => ALLOWED_PAYMENT_METHODS.has(method.type)))
-
-        .getOr(false),
+      shouldEnableCheckTile: enabledPaymentMethods.some(method => method.type === "Check"),
+      shouldEnablePaymentLinkTile: enabledPaymentMethods.some(method =>
+        ALLOWED_PAYMENT_METHODS.has(method.type),
+      ),
     };
   }, [data]);
 
@@ -348,7 +336,7 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                           }
                         }}
                         renderEmptyList={() =>
-                          hasSearch || !canCreateMerchantPaymentLinks ? (
+                          hasSearchOrFilters || !canCreateMerchantPaymentLinks ? (
                             <EmptyView
                               icon="lake-transfer"
                               borderedIcon={true}

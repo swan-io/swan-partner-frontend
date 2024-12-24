@@ -1,4 +1,4 @@
-import { ActionCell, Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import {
@@ -46,15 +46,18 @@ const PaymentCell = ({ payment }: { payment: MerchantPaymentFragment }) => {
   return (
     <View style={[styles.cell, styles.paddedCell]}>
       <View style={styles.transactionSummary}>
-        {isNullishOrEmpty(payment.label) ? (
-          <LakeText variant="smallRegular" color={colors.gray[500]}>
-            {"-"}
-          </LakeText>
-        ) : (
-          <LakeText variant="smallRegular" color={colors.gray[900]} style={styles.overflowingText}>
-            {payment.label}
-          </LakeText>
-        )}
+        <LakeText variant="smallRegular" color={colors.gray[900]} style={styles.overflowingText}>
+          {match(payment.paymentMethod.type)
+            .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+            .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
+            .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
+              t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
+            )
+            .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
+              t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
+            )
+            .exhaustive()}
+        </LakeText>
 
         <LakeText variant="regular" color={colors.gray[900]}>
           {formatCurrency(Number(payment.amount.value), payment.amount.currency)}
@@ -121,7 +124,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   },
   {
     id: "externalReference",
-    width: 200,
+    width: "grow",
     title: t("merchantProfile.payments.externalReference"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) =>
@@ -167,7 +170,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   {
     id: "amount",
     width: 150,
-    title: t("transactions.amount"),
+    title: t("merchantProfile.payments.list.amount"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <Cell align="right">
@@ -184,13 +187,11 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
       <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[900] : colors.gray[500]}
-            size={16}
-          />
-        </ActionCell>
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[900] : colors.gray[500]}
+          size={16}
+        />
       </Cell>
     ),
   },
@@ -198,16 +199,16 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
 
 const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   {
-    id: "label",
+    id: "paymentMethod",
     width: "grow",
-    title: t("merchantProfile.paymentLink.list.label"),
+    title: t("merchantProfile.payments.paymentMethod"),
     renderTitle: () => null,
     renderCell: ({ item }) => <PaymentCell payment={item} />,
   },
   {
     id: "status",
     width: 120,
-    title: t("merchantProfile.paymentLink.list.status"),
+    title: t("merchantProfile.payments.status"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <Cell align="right">
@@ -235,13 +236,11 @@ const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     renderTitle: () => null,
     renderCell: ({ isHovered }) => (
       <Cell align="right">
-        <ActionCell>
-          <Icon
-            name="chevron-right-filled"
-            color={isHovered ? colors.gray[700] : colors.gray[200]}
-            size={16}
-          />
-        </ActionCell>
+        <Icon
+          name="chevron-right-filled"
+          color={isHovered ? colors.gray[700] : colors.gray[200]}
+          size={16}
+        />
       </Cell>
     ),
   },

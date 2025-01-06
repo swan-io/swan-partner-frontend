@@ -333,7 +333,7 @@ test("Spanish company onboarding", async ({ browser, page, request }) => {
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 
-  await waitForText(page, "Are you registered with Registrado Mercantil?");
+  await waitForText(page, "Are you registered with Registro Mercantil?");
   await page.getByText("Yes").click();
 
   await page

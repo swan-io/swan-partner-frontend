@@ -113,6 +113,7 @@ fragment SupportingDocument on SupportingDocument {
       filename
     }
     ... on SupportingDocumentRefusedStatusInfo {
+      reasonCode
       reason
       filename
     }

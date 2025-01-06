@@ -1442,6 +1442,7 @@ query AccountActivationPage($accountMembershipId: ID!) {
                   ... on SupportingDocumentRefusedStatusInfo {
                     filename
                     reason
+                    reasonCode
                   }
                   ... on SupportingDocumentUploadedStatusInfo {
                     filename

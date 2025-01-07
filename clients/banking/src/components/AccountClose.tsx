@@ -165,11 +165,12 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
                     <View role="list">{chunk}</View>
                   </View>
                 ),
-                listitem: chunk => (
-                  <LakeText role="listitem" key={String(chunk)}>
-                    • {chunk}
-                  </LakeText>
-                ),
+                listitem: chunk =>
+                  typeof chunk === "string" ? (
+                    <LakeText role="listitem" key={chunk}>
+                      • {chunk}
+                    </LakeText>
+                  ) : null,
               })}
             </LakeText>
           </LakeAlert>

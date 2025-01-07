@@ -1,5 +1,3 @@
-"use strict";
-
 const ignoredExpressionTypes = ["JSXEmptyExpression", "Literal"];
 
 const isHandledElement = element =>
@@ -14,7 +12,7 @@ const isDifferentElementType = (elementA, elementB) => elementA.type !== element
 const isMultiLineElement = element => element.loc.start.line !== element.loc.end.line;
 
 // Fork of https://github.com/yannickcr/eslint-plugin-react/tree/master/docs/rules/jsx-newline
-module.exports = {
+export default {
   meta: {
     fixable: "code",
     hasSuggestions: true,

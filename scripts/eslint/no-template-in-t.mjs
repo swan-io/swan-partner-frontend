@@ -1,6 +1,4 @@
-"use strict";
-
-module.exports = {
+export default {
   meta: {
     docs: {
       description: "Disallow template literals in translation function.",

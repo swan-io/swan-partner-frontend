@@ -234,7 +234,7 @@ export const NavigationTabBar = ({
           {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
             ? match({
                 identificationStatusInfo,
-                hasNotifications: entries.some(item => item.hasNotifications),
+                hasNotifications: entries.some(item => item.hasNotifications === true),
                 hasActivationTag: activationTag !== "none",
               })
                 .with(

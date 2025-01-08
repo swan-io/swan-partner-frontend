@@ -4,7 +4,7 @@ import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { Router } from "./routes";
 
 export const signout = () => {
-  Request.make({ url: "/auth/logout", method: "POST", withCredentials: true })
+  Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
     .mapOkToResult(badStatusToError)
     .tapOk(() => window.location.replace(Router.ProjectLogin()))
     .tapError(error => {

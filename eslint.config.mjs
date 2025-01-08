@@ -23,6 +23,7 @@ export default [
       "**/*.js",
       "**/*.mjs",
       "**/graphql/**/*.ts",
+      "docs/**",
       "server/dist/**",
       "tests/**/*.ts",
       "vite.config.ts",

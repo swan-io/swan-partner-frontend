@@ -7,11 +7,7 @@ import globals from "globals";
 import ts from "typescript-eslint";
 import swan from "./scripts/eslint/index.mjs";
 
-const typescriptRules = [
-  ts.configs.eslintRecommended,
-  ...ts.configs.recommended,
-  ...ts.configs.recommendedTypeChecked,
-]
+const typescriptRules = [ts.configs.eslintRecommended, ...ts.configs.recommended]
   .map(config => config.rules)
   .reduce((acc, rules) => ({ ...acc, ...rules }), {});
 
@@ -22,16 +18,19 @@ export default [
       "**/*.d.ts",
       "**/*.js",
       "**/*.mjs",
-      "**/graphql/**/*.ts",
+
+      "**/graphql/*.ts",
       "docs/**",
       "node_modules/**",
+      "playwright.config.ts",
+      "scripts/**",
       "server/dist/**",
       "tests/**",
-      "vite.config.ts",
+      "vite.config.js",
     ],
   },
   {
-    files: ["**/*.ts", "**/*.tsx", "**/*.mts", "**/*.cts"],
+    files: ["clients/*/src/**/*.ts", "clients/*/src/**/*.tsx", "server/src/**/*.ts"],
 
     plugins: {
       react,
@@ -51,7 +50,7 @@ export default [
       },
       parserOptions: {
         tsconfigRootDir: import.meta.dirname,
-        projectService: true,
+        projectService: false,
       },
     },
 
@@ -61,11 +60,13 @@ export default [
 
       curly: "warn",
       "no-extra-boolean-cast": "off",
-      "no-param-reassign": "error",
       "no-implicit-coercion": "error",
+      "no-param-reassign": "error",
       "no-var": "error",
-      "prefer-const": "error",
       "object-shorthand": "warn",
+      "prefer-const": "error",
+      "prefer-rest-params": "error",
+      "prefer-spread": "error",
       "no-empty": ["error", { allowEmptyCatch: true }],
 
       "@typescript-eslint/no-unused-vars": [
@@ -79,24 +80,20 @@ export default [
       ],
 
       "@typescript-eslint/consistent-type-definitions": ["error", "type"],
-      "@typescript-eslint/no-base-to-string": "error",
+      "@typescript-eslint/no-array-constructor": "error",
+      "@typescript-eslint/no-empty-object-type": "error",
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-floating-promises": "error",
+      "@typescript-eslint/no-explicit-any": "error",
+      "@typescript-eslint/no-misused-new": "error",
+      "@typescript-eslint/no-namespace": "error",
       "@typescript-eslint/no-non-null-assertion": "error",
-      "@typescript-eslint/no-unnecessary-qualifier": "error",
-      "@typescript-eslint/no-unnecessary-type-arguments": "error",
-      "@typescript-eslint/prefer-nullish-coalescing": "error",
-      "@typescript-eslint/prefer-optional-chain": "error",
-      "@typescript-eslint/require-await": "error",
-      "@typescript-eslint/strict-boolean-expressions": "error",
-
-      "@typescript-eslint/no-empty-function": "off",
-      "@typescript-eslint/no-inferrable-types": "off",
+      "@typescript-eslint/no-require-imports": "error",
+      "@typescript-eslint/no-unnecessary-type-constraint": "error",
+      "@typescript-eslint/no-unsafe-declaration-merging": "error",
+      "@typescript-eslint/no-unsafe-function-type": "error",
       "@typescript-eslint/no-unused-expressions": "off",
-      "@typescript-eslint/no-var-requires": "off",
-      "@typescript-eslint/only-throw-error": "off",
-      "@typescript-eslint/prefer-regexp-exec": "off",
-      "@typescript-eslint/unbound-method": "off",
+      "@typescript-eslint/no-wrapper-object-types": "error",
+      "@typescript-eslint/prefer-as-const": "error",
 
       "react/jsx-boolean-value": ["error", "always"],
 

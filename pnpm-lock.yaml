@@ -174,14 +174,14 @@ importers:
         specifier: 0.4.2
         version: 0.4.2(graphql@16.10.0)(react@18.3.1)(typescript@5.7.2)
       '@swan-io/lake':
-        specifier: 11.2.3
-        version: 11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.3.0
+        version: 11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request':
         specifier: 1.0.6
         version: 1.0.6(@swan-io/boxed@3.2.0(typescript@5.7.2))
       '@swan-io/shared-business':
-        specifier: 11.2.3
-        version: 11.2.3(@swan-io/lake@11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
+        specifier: 11.3.0
+        version: 11.3.0(@swan-io/lake@11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.2)
@@ -271,14 +271,14 @@ importers:
         specifier: 0.4.2
         version: 0.4.2(graphql@16.10.0)(react@18.3.1)(typescript@5.7.2)
       '@swan-io/lake':
-        specifier: 11.2.3
-        version: 11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.3.0
+        version: 11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request':
         specifier: 1.0.6
         version: 1.0.6(@swan-io/boxed@3.2.0(typescript@5.7.2))
       '@swan-io/shared-business':
-        specifier: 11.2.3
-        version: 11.2.3(@swan-io/lake@11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
+        specifier: 11.3.0
+        version: 11.3.0(@swan-io/lake@11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.2)
@@ -359,11 +359,11 @@ importers:
         specifier: 0.4.2
         version: 0.4.2(graphql@16.10.0)(react@18.3.1)(typescript@5.7.2)
       '@swan-io/lake':
-        specifier: 11.2.3
-        version: 11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.3.0
+        version: 11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/shared-business':
-        specifier: 11.2.3
-        version: 11.2.3(@swan-io/lake@11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
+        specifier: 11.3.0
+        version: 11.3.0(@swan-io/lake@11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.2)
@@ -1222,20 +1222,11 @@ packages:
   '@fastify/view@9.1.0':
     resolution: {integrity: sha512-jRTGDljs/uB2p8bf6c1x4stGjP7H84VQkhbtDgCx55Mxf9Fplud5UZIHubvL4BTTX8jNYEzP1FpNAOBi7vibxg==, tarball: https://registry.npmjs.org/@fastify/view/-/view-9.1.0.tgz}
 
-  '@formatjs/ecma402-abstract@2.2.4':
-    resolution: {integrity: sha512-lFyiQDVvSbQOpU+WFd//ILolGj4UgA/qXrKeZxdV14uKiAUiPAtX6XAn7WBCRi7Mx6I7EybM9E5yYn4BIpZWYg==, tarball: https://registry.npmjs.org/@formatjs/ecma402-abstract/-/ecma402-abstract-2.2.4.tgz}
-
   '@formatjs/ecma402-abstract@2.3.2':
     resolution: {integrity: sha512-6sE5nyvDloULiyOMbOTJEEgWL32w+VHkZQs8S02Lnn8Y/O5aQhjOEXwWzvR7SsBE/exxlSpY2EsWZgqHbtLatg==, tarball: https://registry.npmjs.org/@formatjs/ecma402-abstract/-/ecma402-abstract-2.3.2.tgz}
 
-  '@formatjs/fast-memoize@2.2.3':
-    resolution: {integrity: sha512-3jeJ+HyOfu8osl3GNSL4vVHUuWFXR03Iz9jjgI7RwjG6ysu/Ymdr0JRCPHfF5yGbTE6JCrd63EpvX1/WybYRbA==, tarball: https://registry.npmjs.org/@formatjs/fast-memoize/-/fast-memoize-2.2.3.tgz}
-
   '@formatjs/fast-memoize@2.2.6':
     resolution: {integrity: sha512-luIXeE2LJbQnnzotY1f2U2m7xuQNj2DA8Vq4ce1BY9ebRZaoPB1+8eZ6nXpLzsxuW5spQxr7LdCg+CApZwkqkw==, tarball: https://registry.npmjs.org/@formatjs/fast-memoize/-/fast-memoize-2.2.6.tgz}
-
-  '@formatjs/icu-messageformat-parser@2.9.4':
-    resolution: {integrity: sha512-Tbvp5a9IWuxUcpWNIW6GlMQYEc4rwNHR259uUFoKWNN1jM9obf9Ul0e+7r7MvFOBNcN+13K7NuKCKqQiAn1QEg==, tarball: https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-2.9.4.tgz}
 
   '@formatjs/icu-messageformat-parser@2.9.8':
     resolution: {integrity: sha512-hZlLNI3+Lev8IAXuwehLoN7QTKqbx3XXwFW1jh0AdIA9XJdzn9Uzr+2LLBspPm/PX0+NLIfykj/8IKxQqHUcUQ==, tarball: https://registry.npmjs.org/@formatjs/icu-messageformat-parser/-/icu-messageformat-parser-2.9.8.tgz}
@@ -1243,28 +1234,8 @@ packages:
   '@formatjs/icu-skeleton-parser@1.8.12':
     resolution: {integrity: sha512-QRAY2jC1BomFQHYDMcZtClqHR55EEnB96V7Xbk/UiBodsuFc5kujybzt87+qj1KqmJozFhk6n4KiT1HKwAkcfg==, tarball: https://registry.npmjs.org/@formatjs/icu-skeleton-parser/-/icu-skeleton-parser-1.8.12.tgz}
 
-  '@formatjs/icu-skeleton-parser@1.8.8':
-    resolution: {integrity: sha512-vHwK3piXwamFcx5YQdCdJxUQ1WdTl6ANclt5xba5zLGDv5Bsur7qz8AD7BevaKxITwpgDeU0u8My3AIibW9ywA==, tarball: https://registry.npmjs.org/@formatjs/icu-skeleton-parser/-/icu-skeleton-parser-1.8.8.tgz}
-
-  '@formatjs/intl-displaynames@6.8.5':
-    resolution: {integrity: sha512-85b+GdAKCsleS6cqVxf/Aw/uBd+20EM0wDpgaxzHo3RIR3bxF4xCJqH/Grbzx8CXurTgDDZHPdPdwJC+May41w==, tarball: https://registry.npmjs.org/@formatjs/intl-displaynames/-/intl-displaynames-6.8.5.tgz}
-
-  '@formatjs/intl-listformat@7.7.5':
-    resolution: {integrity: sha512-Wzes10SMNeYgnxYiKsda4rnHP3Q3II4XT2tZyOgnH5fWuHDtIkceuWlRQNsvrI3uiwP4hLqp2XdQTCsfkhXulg==, tarball: https://registry.npmjs.org/@formatjs/intl-listformat/-/intl-listformat-7.7.5.tgz}
-
   '@formatjs/intl-localematcher@0.5.10':
     resolution: {integrity: sha512-af3qATX+m4Rnd9+wHcjJ4w2ijq+rAVP3CCinJQvFv1kgSu1W6jypUmvleJxcewdxmutM8dmIRZFxO/IQBZmP2Q==, tarball: https://registry.npmjs.org/@formatjs/intl-localematcher/-/intl-localematcher-0.5.10.tgz}
-
-  '@formatjs/intl-localematcher@0.5.8':
-    resolution: {integrity: sha512-I+WDNWWJFZie+jkfkiK5Mp4hEDyRSEvmyfYadflOno/mmKJKcB17fEpEH0oJu/OWhhCJ8kJBDz2YMd/6cDl7Mg==, tarball: https://registry.npmjs.org/@formatjs/intl-localematcher/-/intl-localematcher-0.5.8.tgz}
-
-  '@formatjs/intl@2.10.15':
-    resolution: {integrity: sha512-i6+xVqT+6KCz7nBfk4ybMXmbKO36tKvbMKtgFz9KV+8idYFyFbfwKooYk8kGjyA5+T5f1kEPQM5IDLXucTAQ9g==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-2.10.15.tgz}
-    peerDependencies:
-      typescript: ^4.7 || 5
-    peerDependenciesMeta:
-      typescript:
-        optional: true
 
   '@formatjs/intl@3.1.0':
     resolution: {integrity: sha512-1TIJAPMs8e0O2L/kbIyC0PKmnujO199dhHxCeJ5Loi0FT8K4HAJzcnc/f5buj/OAQZ7m9bw29VjV5uQS0L3Mtw==, tarball: https://registry.npmjs.org/@formatjs/intl/-/intl-3.1.0.tgz}
@@ -2052,8 +2023,8 @@ packages:
     peerDependencies:
       react: ^18.2.0
 
-  '@swan-io/lake@11.2.3':
-    resolution: {integrity: sha512-0DRsWtlcfLs1HqrVfUsQIQLsxZB/RS0MtUFH4zzaXihDnbVVXLPwTzQDDFheju6++RH3/Poihoy0cNlRHZVeWA==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-11.2.3.tgz}
+  '@swan-io/lake@11.3.0':
+    resolution: {integrity: sha512-GUaz7sdso5TTch7UVkH5HePx4Jq92AwBCWA++2eSeIQnFKZjHX1Vy+wl4C/4lT5D2dey1whYLKo2ws9T9h5d9Q==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-11.3.0.tgz}
     engines: {node: '>=20.9.0', pnpm: ^9.13.0}
 
   '@swan-io/request@1.0.6':
@@ -2061,79 +2032,79 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@11.2.3':
-    resolution: {integrity: sha512-/JH0EUrUss2OKW0MlMIXAoMlicbI9HDrdRwW7DX0seLO4JqXRVleefznwHMsb/+OALUHAuWOfRK4n1M9gMBlVA==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-11.2.3.tgz}
+  '@swan-io/shared-business@11.3.0':
+    resolution: {integrity: sha512-tZGH+2Z9K+9yJkvZuWiLfz0KDeTVi5KZjH17UNx92lIWxpU8JsgDSTHNMNot1/s/KFvrF0PGGhuuHrYAdl0BcQ==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-11.3.0.tgz}
     engines: {node: '>=20.9.0', pnpm: ^9.13.0}
     peerDependencies:
-      '@swan-io/lake': 11.2.3
+      '@swan-io/lake': 11.3.0
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
     peerDependencies:
       react: '>=18.0.0'
 
-  '@swc/core-darwin-arm64@1.10.4':
-    resolution: {integrity: sha512-sV/eurLhkjn/197y48bxKP19oqcLydSel42Qsy2zepBltqUx+/zZ8+/IS0Bi7kaWVFxerbW1IPB09uq8Zuvm3g==, tarball: https://registry.npmjs.org/@swc/core-darwin-arm64/-/core-darwin-arm64-1.10.4.tgz}
+  '@swc/core-darwin-arm64@1.10.6':
+    resolution: {integrity: sha512-USbMvT8Rw5PvIfF6HyTm+yW84J9c45emzmHBDIWY76vZHkFsS5MepNi+JLQyBzBBgE7ScwBRBNhRx6VNhkSoww==, tarball: https://registry.npmjs.org/@swc/core-darwin-arm64/-/core-darwin-arm64-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [darwin]
 
-  '@swc/core-darwin-x64@1.10.4':
-    resolution: {integrity: sha512-gjYNU6vrAUO4+FuovEo9ofnVosTFXkF0VDuo1MKPItz6e2pxc2ale4FGzLw0Nf7JB1sX4a8h06CN16/pLJ8Q2w==, tarball: https://registry.npmjs.org/@swc/core-darwin-x64/-/core-darwin-x64-1.10.4.tgz}
+  '@swc/core-darwin-x64@1.10.6':
+    resolution: {integrity: sha512-7t2IozcZN4r1p27ei+Kb8IjN4aLoBDn107fPi+aPLcVp2uFgJEUzhCDuZXBNW2057Mx1OHcjzrkaleRpECz3Xg==, tarball: https://registry.npmjs.org/@swc/core-darwin-x64/-/core-darwin-x64-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [darwin]
 
-  '@swc/core-linux-arm-gnueabihf@1.10.4':
-    resolution: {integrity: sha512-zd7fXH5w8s+Sfvn2oO464KDWl+ZX1MJiVmE4Pdk46N3PEaNwE0koTfgx2vQRqRG4vBBobzVvzICC3618WcefOA==, tarball: https://registry.npmjs.org/@swc/core-linux-arm-gnueabihf/-/core-linux-arm-gnueabihf-1.10.4.tgz}
+  '@swc/core-linux-arm-gnueabihf@1.10.6':
+    resolution: {integrity: sha512-CPgWT+D0bDp/qhXsLkIJ54LmKU1/zvyGaf/yz8A4iR+YoF6R5CSXENXhNJY8cIrb6+uNWJZzHJ+gefB5V51bpA==, tarball: https://registry.npmjs.org/@swc/core-linux-arm-gnueabihf/-/core-linux-arm-gnueabihf-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [arm]
     os: [linux]
 
-  '@swc/core-linux-arm64-gnu@1.10.4':
-    resolution: {integrity: sha512-+UGfoHDxsMZgFD3tABKLeEZHqLNOkxStu+qCG7atGBhS4Slri6h6zijVvf4yI5X3kbXdvc44XV/hrP/Klnui2A==, tarball: https://registry.npmjs.org/@swc/core-linux-arm64-gnu/-/core-linux-arm64-gnu-1.10.4.tgz}
+  '@swc/core-linux-arm64-gnu@1.10.6':
+    resolution: {integrity: sha512-5qZ6hVnqO/ShETXdGSzvdGUVx372qydlj1YWSYiaxQzTAepEBc8TC1NVUgYtOHOKVRkky1d7p6GQ9lymsd4bHw==, tarball: https://registry.npmjs.org/@swc/core-linux-arm64-gnu/-/core-linux-arm64-gnu-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
 
-  '@swc/core-linux-arm64-musl@1.10.4':
-    resolution: {integrity: sha512-cDDj2/uYsOH0pgAnDkovLZvKJpFmBMyXkxEG6Q4yw99HbzO6QzZ5HDGWGWVq/6dLgYKlnnmpjZCPPQIu01mXEg==, tarball: https://registry.npmjs.org/@swc/core-linux-arm64-musl/-/core-linux-arm64-musl-1.10.4.tgz}
+  '@swc/core-linux-arm64-musl@1.10.6':
+    resolution: {integrity: sha512-hB2xZFmXCKf2iJF5y2z01PSuLqEoUP3jIX/XlIHN+/AIP7PkSKsValE63LnjlnWPnSEI0IxUyRE3T3FzWE/fQQ==, tarball: https://registry.npmjs.org/@swc/core-linux-arm64-musl/-/core-linux-arm64-musl-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [linux]
 
-  '@swc/core-linux-x64-gnu@1.10.4':
-    resolution: {integrity: sha512-qJXh9D6Kf5xSdGWPINpLGixAbB5JX8JcbEJpRamhlDBoOcQC79dYfOMEIxWPhTS1DGLyFakAx2FX/b2VmQmj0g==, tarball: https://registry.npmjs.org/@swc/core-linux-x64-gnu/-/core-linux-x64-gnu-1.10.4.tgz}
+  '@swc/core-linux-x64-gnu@1.10.6':
+    resolution: {integrity: sha512-PRGPp0I22+oJ8RMGg8M4hXYxEffH3ayu0WoSDPOjfol1F51Wj1tfTWN4wVa2RibzJjkBwMOT0KGLGb/hSEDDXQ==, tarball: https://registry.npmjs.org/@swc/core-linux-x64-gnu/-/core-linux-x64-gnu-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
 
-  '@swc/core-linux-x64-musl@1.10.4':
-    resolution: {integrity: sha512-A76lIAeyQnHCVt0RL/pG+0er8Qk9+acGJqSZOZm67Ve3B0oqMd871kPtaHBM0BW3OZAhoILgfHW3Op9Q3mx3Cw==, tarball: https://registry.npmjs.org/@swc/core-linux-x64-musl/-/core-linux-x64-musl-1.10.4.tgz}
+  '@swc/core-linux-x64-musl@1.10.6':
+    resolution: {integrity: sha512-SoNBxlA86lnoV9vIz/TCyakLkdRhFSHx6tFMKNH8wAhz1kKYbZfDmpYoIzeQqdTh0tpx8e/Zu1zdK4smovsZqQ==, tarball: https://registry.npmjs.org/@swc/core-linux-x64-musl/-/core-linux-x64-musl-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [linux]
 
-  '@swc/core-win32-arm64-msvc@1.10.4':
-    resolution: {integrity: sha512-e6j5kBu4fIY7fFxFxnZI0MlEovRvp50Lg59Fw+DVbtqHk3C85dckcy5xKP+UoXeuEmFceauQDczUcGs19SRGSQ==, tarball: https://registry.npmjs.org/@swc/core-win32-arm64-msvc/-/core-win32-arm64-msvc-1.10.4.tgz}
+  '@swc/core-win32-arm64-msvc@1.10.6':
+    resolution: {integrity: sha512-6L5Y2E+FVvM+BtoA+mJFjf/SjpFr73w2kHBxINxwH8/PkjAjkePDr5m0ibQhPXV61bTwX49+1otzTY85EsUW9Q==, tarball: https://registry.npmjs.org/@swc/core-win32-arm64-msvc/-/core-win32-arm64-msvc-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [arm64]
     os: [win32]
 
-  '@swc/core-win32-ia32-msvc@1.10.4':
-    resolution: {integrity: sha512-RSYHfdKgNXV/amY5Tqk1EWVsyQnhlsM//jeqMLw5Fy9rfxP592W9UTumNikNRPdjI8wKKzNMXDb1U29tQjN0dg==, tarball: https://registry.npmjs.org/@swc/core-win32-ia32-msvc/-/core-win32-ia32-msvc-1.10.4.tgz}
+  '@swc/core-win32-ia32-msvc@1.10.6':
+    resolution: {integrity: sha512-kxK3tW8DJwEkAkwy0vhwoBAShRebH1QTe0mvH9tlBQ21rToVZQn+GCV/I44dind80hYPw0Tw2JKFVfoEJyBszg==, tarball: https://registry.npmjs.org/@swc/core-win32-ia32-msvc/-/core-win32-ia32-msvc-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [ia32]
     os: [win32]
 
-  '@swc/core-win32-x64-msvc@1.10.4':
-    resolution: {integrity: sha512-1ujYpaqfqNPYdwKBlvJnOqcl+Syn3UrQ4XE0Txz6zMYgyh6cdU6a3pxqLqIUSJ12MtXRA9ZUhEz1ekU3LfLWXw==, tarball: https://registry.npmjs.org/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.10.4.tgz}
+  '@swc/core-win32-x64-msvc@1.10.6':
+    resolution: {integrity: sha512-4pJka/+t8XcHee12G/R5VWcilkp5poT2EJhrybpuREkpQ7iC/4WOlOVrohbWQ4AhDQmojYQI/iS+gdF2JFLzTQ==, tarball: https://registry.npmjs.org/@swc/core-win32-x64-msvc/-/core-win32-x64-msvc-1.10.6.tgz}
     engines: {node: '>=10'}
     cpu: [x64]
     os: [win32]
 
-  '@swc/core@1.10.4':
-    resolution: {integrity: sha512-ut3zfiTLORMxhr6y/GBxkHmzcGuVpwJYX4qyXWuBKkpw/0g0S5iO1/wW7RnLnZbAi8wS/n0atRZoaZlXWBkeJg==, tarball: https://registry.npmjs.org/@swc/core/-/core-1.10.4.tgz}
+  '@swc/core@1.10.6':
+    resolution: {integrity: sha512-zgXXsI6SAVwr6XsXyMnqlyLoa1lT+r09bAWI1xT3679ejWqI1Vnl14eJG0GjWYXCEMKHCNytfMq3OOQ62C39QQ==, tarball: https://registry.npmjs.org/@swc/core/-/core-1.10.6.tgz}
     engines: {node: '>=10'}
     peerDependencies:
       '@swc/helpers': '*'
@@ -2567,8 +2538,8 @@ packages:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==, tarball: https://registry.npmjs.org/braces/-/braces-3.0.3.tgz}
     engines: {node: '>=8'}
 
-  browserslist@4.24.3:
-    resolution: {integrity: sha512-1CPmv8iobE2fyRMV97dAcMVegvvWKxmq94hkLiAkUGwKVTyDLw33K+ZxiFrREKmmps4rIw6grcCFCnTMSZ/YiA==, tarball: https://registry.npmjs.org/browserslist/-/browserslist-4.24.3.tgz}
+  browserslist@4.24.4:
+    resolution: {integrity: sha512-KDi1Ny1gSePi1vm0q4oxSF8b4DR44GF4BbmS2YdhPLOEqd8pDviZOGH/GsmRwoWJ2+5Lr085X7naowMwKHDG1A==, tarball: https://registry.npmjs.org/browserslist/-/browserslist-4.24.4.tgz}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
     hasBin: true
 
@@ -2931,8 +2902,8 @@ packages:
   eastasianwidth@0.2.0:
     resolution: {integrity: sha512-I88TYZWc9XiYHRQ4/3c5rjjfgkjhLyW2luGIheGERbNQ6OY7yTybanSpDXZa8y7VUP9YmDcYa+eyq4ca7iLqWA==, tarball: https://registry.npmjs.org/eastasianwidth/-/eastasianwidth-0.2.0.tgz}
 
-  electron-to-chromium@1.5.78:
-    resolution: {integrity: sha512-UmwIt7HRKN1rsJfddG5UG7rCTCTAKoS9JeOy/R0zSenAyaZ8SU3RuXlwcratxhdxGRNpk03iq8O7BA3W7ibLVw==, tarball: https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.78.tgz}
+  electron-to-chromium@1.5.79:
+    resolution: {integrity: sha512-nYOxJNxQ9Om4EC88BE4pPoNI8xwSFf8pU/BAeOl4Hh/b/i6V4biTAzwV7pXi3ARKeoYO5JZKMIXTryXSVer5RA==, tarball: https://registry.npmjs.org/electron-to-chromium/-/electron-to-chromium-1.5.79.tgz}
 
   emoji-regex@10.4.0:
     resolution: {integrity: sha512-EC+0oUMY1Rqm4O6LLrgjtYDvcVYTy7chDnM4Q7030tP4Kwj3u/pR6gP9ygnp2CJMK5Gq+9Q2oqmrFJAz01DXjw==, tarball: https://registry.npmjs.org/emoji-regex/-/emoji-regex-10.4.0.tgz}
@@ -3556,9 +3527,6 @@ packages:
 
   intl-messageformat@10.7.11:
     resolution: {integrity: sha512-IB2N1tmI24k2EFH3PWjU7ivJsnWyLwOWOva0jnXFa29WzB6fb0JZ5EMQGu+XN5lDtjHYFo0/UooP67zBwUg7rQ==, tarball: https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-10.7.11.tgz}
-
-  intl-messageformat@10.7.7:
-    resolution: {integrity: sha512-F134jIoeYMro/3I0h08D0Yt4N9o9pjddU/4IIxMMURqbAtI2wu70X8hvG1V48W49zXHXv3RKSF/po+0fDfsGjA==, tarball: https://registry.npmjs.org/intl-messageformat/-/intl-messageformat-10.7.7.tgz}
 
   invariant@2.2.4:
     resolution: {integrity: sha512-phJfQVBuaJM5raOpJjSfkiD6BpbCE4Ns//LaXl6wGYtUBY83nWS6Rf9tXm2e8VaK60JEjYldbPif/A2B1C2gNA==, tarball: https://registry.npmjs.org/invariant/-/invariant-2.2.4.tgz}
@@ -4991,13 +4959,13 @@ packages:
     peerDependencies:
       three: '>= 0.151.0'
 
-  three-stdlib@2.35.2:
-    resolution: {integrity: sha512-Ns9ZdiFEAsiv8JvHS28Qgxg4YRTq13Ixa4EDUQZhUovZ3j/GLTou4zE887SLSqsuRZwuy3gklttn2ha5JaJpTQ==, tarball: https://registry.npmjs.org/three-stdlib/-/three-stdlib-2.35.2.tgz}
+  three-stdlib@2.35.3:
+    resolution: {integrity: sha512-MS4IJHqz7yEwxC0Atq3eMfqTcdAMlkA6KWNs04fzVJRVp5AELZVFiWbNVtb0Q1lXDFROb75pw+xr+z+UoWxT9Q==, tarball: https://registry.npmjs.org/three-stdlib/-/three-stdlib-2.35.3.tgz}
     peerDependencies:
       three: '>=0.128.0'
 
-  three@0.169.0:
-    resolution: {integrity: sha512-Ed906MA3dR4TS5riErd4QBsRGPcx+HBDX2O5yYE5GqJeFQTPU+M56Va/f/Oph9X7uZo3W3o4l2ZhBZ6f6qUv0w==, tarball: https://registry.npmjs.org/three/-/three-0.169.0.tgz}
+  three@0.172.0:
+    resolution: {integrity: sha512-6HMgMlzU97MsV7D/tY8Va38b83kz8YJX+BefKjspMNAv0Vx6dxMogHOrnRl/sbMIs3BPUKijPqDqJ/+UwJbIow==, tarball: https://registry.npmjs.org/three/-/three-0.172.0.tgz}
 
   thriftrw@3.11.4:
     resolution: {integrity: sha512-UcuBd3eanB3T10nXWRRMwfwoaC6VMk7qe3/5YIWP2Jtw+EbHqJ0p1/K3x8ixiR5dozKSSfcg1W+0e33G1Di3XA==, tarball: https://registry.npmjs.org/thriftrw/-/thriftrw-3.11.4.tgz}
@@ -5229,8 +5197,8 @@ packages:
     resolution: {integrity: sha512-6bc58dPYhCMHHuwxldQxO3RRNZ4eCogZ/st++0+fcC1nr0jiGUtAdBJ2qzmLQWSxbtz42pWt4QQMiZ9HvZf5cg==, tarball: https://registry.npmjs.org/unixify/-/unixify-1.0.0.tgz}
     engines: {node: '>=0.10.0'}
 
-  update-browserslist-db@1.1.1:
-    resolution: {integrity: sha512-R8UzCaa9Az+38REPiJ1tXlImTJXlVfgHZsglwBD/k6nj76ctsH1E3q4doGrukiLQd3sGQYu56r5+lo5r94l29A==, tarball: https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.1.tgz}
+  update-browserslist-db@1.1.2:
+    resolution: {integrity: sha512-PPypAm5qvlD7XMZC3BujecnaOxwhrtoFR+Dqkk5Aa/6DssiH0ibKoketaj9w8LP7Bont1rYeoV5plxD7RTEPRg==, tarball: https://registry.npmjs.org/update-browserslist-db/-/update-browserslist-db-1.1.2.tgz}
     hasBin: true
     peerDependencies:
       browserslist: '>= 4.21.0'
@@ -5261,10 +5229,6 @@ packages:
   utility-types@3.11.0:
     resolution: {integrity: sha512-6Z7Ma2aVEWisaL6TvBCy7P8rm2LQoPv6dJ7ecIaIixHcwfbJ0x7mWdbcwlIM5IGQxPZSFYeqRCqlOOeKoJYMkw==, tarball: https://registry.npmjs.org/utility-types/-/utility-types-3.11.0.tgz}
     engines: {node: '>= 4'}
-
-  uuid@10.0.0:
-    resolution: {integrity: sha512-8XkAphELsDnEGrDxUOHB3RGvXz6TeuYSGEZBOjtTtPm2lwhGBjLgOzLHB63IUWfBpNucQjND6d3AOudO+H3RWQ==, tarball: https://registry.npmjs.org/uuid/-/uuid-10.0.0.tgz}
-    hasBin: true
 
   uuid@11.0.4:
     resolution: {integrity: sha512-IzL6VtTTYcAhA/oghbFJ1Dkmqev+FpQWnCBaKq/gUluLxliWvO8DPFWfIviRmYbtaavtSQe4WBL++rFjdcGWEg==, tarball: https://registry.npmjs.org/uuid/-/uuid-11.0.4.tgz}
@@ -5687,7 +5651,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.26.3
       '@babel/helper-validator-option': 7.25.9
-      browserslist: 4.24.3
+      browserslist: 4.24.4
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -6245,12 +6209,6 @@ snapshots:
       fastify-plugin: 4.5.1
       toad-cache: 3.7.0
 
-  '@formatjs/ecma402-abstract@2.2.4':
-    dependencies:
-      '@formatjs/fast-memoize': 2.2.3
-      '@formatjs/intl-localematcher': 0.5.8
-      tslib: 2.8.1
-
   '@formatjs/ecma402-abstract@2.3.2':
     dependencies:
       '@formatjs/fast-memoize': 2.2.6
@@ -6258,18 +6216,8 @@ snapshots:
       decimal.js: 10.4.3
       tslib: 2.8.1
 
-  '@formatjs/fast-memoize@2.2.3':
-    dependencies:
-      tslib: 2.8.1
-
   '@formatjs/fast-memoize@2.2.6':
     dependencies:
-      tslib: 2.8.1
-
-  '@formatjs/icu-messageformat-parser@2.9.4':
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      '@formatjs/icu-skeleton-parser': 1.8.8
       tslib: 2.8.1
 
   '@formatjs/icu-messageformat-parser@2.9.8':
@@ -6283,42 +6231,9 @@ snapshots:
       '@formatjs/ecma402-abstract': 2.3.2
       tslib: 2.8.1
 
-  '@formatjs/icu-skeleton-parser@1.8.8':
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      tslib: 2.8.1
-
-  '@formatjs/intl-displaynames@6.8.5':
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      '@formatjs/intl-localematcher': 0.5.8
-      tslib: 2.8.1
-
-  '@formatjs/intl-listformat@7.7.5':
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      '@formatjs/intl-localematcher': 0.5.8
-      tslib: 2.8.1
-
   '@formatjs/intl-localematcher@0.5.10':
     dependencies:
       tslib: 2.8.1
-
-  '@formatjs/intl-localematcher@0.5.8':
-    dependencies:
-      tslib: 2.8.1
-
-  '@formatjs/intl@2.10.15(typescript@5.7.2)':
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      '@formatjs/fast-memoize': 2.2.3
-      '@formatjs/icu-messageformat-parser': 2.9.4
-      '@formatjs/intl-displaynames': 6.8.5
-      '@formatjs/intl-listformat': 7.7.5
-      intl-messageformat: 10.7.7
-      tslib: 2.8.1
-    optionalDependencies:
-      typescript: 5.7.2
 
   '@formatjs/intl@3.1.0(typescript@5.7.2)':
     dependencies:
@@ -6937,10 +6852,10 @@ snapshots:
 
   '@mediapipe/tasks-vision@0.10.17': {}
 
-  '@monogrid/gainmap-js@3.1.0(three@0.169.0)':
+  '@monogrid/gainmap-js@3.1.0(three@0.172.0)':
     dependencies:
       promise-worker-transferable: 1.0.4
-      three: 0.169.0
+      three: 0.172.0
 
   '@nodelib/fs.scandir@2.1.5':
     dependencies:
@@ -7147,42 +7062,42 @@ snapshots:
       '@react-spring/types': 9.7.5
       react: 18.3.1
 
-  '@react-spring/three@9.7.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(react@18.3.1)(three@0.169.0)':
+  '@react-spring/three@9.7.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0))(react@18.3.1)(three@0.172.0)':
     dependencies:
       '@react-spring/animated': 9.7.5(react@18.3.1)
       '@react-spring/core': 9.7.5(react@18.3.1)
       '@react-spring/shared': 9.7.5(react@18.3.1)
       '@react-spring/types': 9.7.5
-      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)
+      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)
       react: 18.3.1
-      three: 0.169.0
+      three: 0.172.0
 
   '@react-spring/types@9.7.5': {}
 
-  '@react-three/drei@9.120.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(@types/react@18.3.12)(@types/three@0.172.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)(use-sync-external-store@1.4.0(react@18.3.1))':
+  '@react-three/drei@9.120.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0))(@types/react@18.3.12)(@types/three@0.172.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)(use-sync-external-store@1.4.0(react@18.3.1))':
     dependencies:
       '@babel/runtime': 7.26.0
       '@mediapipe/tasks-vision': 0.10.17
-      '@monogrid/gainmap-js': 3.1.0(three@0.169.0)
-      '@react-spring/three': 9.7.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(react@18.3.1)(three@0.169.0)
-      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)
+      '@monogrid/gainmap-js': 3.1.0(three@0.172.0)
+      '@react-spring/three': 9.7.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0))(react@18.3.1)(three@0.172.0)
+      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)
       '@use-gesture/react': 10.3.1(react@18.3.1)
-      camera-controls: 2.9.0(three@0.169.0)
+      camera-controls: 2.9.0(three@0.172.0)
       cross-env: 7.0.3
       detect-gpu: 5.0.63
       glsl-noise: 0.0.0
       hls.js: 1.5.18
-      maath: 0.10.8(@types/three@0.172.0)(three@0.169.0)
-      meshline: 3.3.1(three@0.169.0)
+      maath: 0.10.8(@types/three@0.172.0)(three@0.172.0)
+      meshline: 3.3.1(three@0.172.0)
       react: 18.3.1
       react-composer: 5.0.3(react@18.3.1)
-      stats-gl: 2.4.2(three@0.169.0)
+      stats-gl: 2.4.2(three@0.172.0)
       stats.js: 0.17.0
       suspend-react: 0.1.3(react@18.3.1)
-      three: 0.169.0
-      three-mesh-bvh: 0.7.8(three@0.169.0)
-      three-stdlib: 2.35.2(three@0.169.0)
-      troika-three-text: 0.52.3(three@0.169.0)
+      three: 0.172.0
+      three-mesh-bvh: 0.7.8(three@0.172.0)
+      three-stdlib: 2.35.3(three@0.172.0)
+      troika-three-text: 0.52.3(three@0.172.0)
       tunnel-rat: 0.1.2(@types/react@18.3.12)(react@18.3.1)
       utility-types: 3.11.0
       uuid: 9.0.1
@@ -7195,7 +7110,7 @@ snapshots:
       - immer
       - use-sync-external-store
 
-  '@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)':
+  '@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)':
     dependencies:
       '@babel/runtime': 7.26.0
       '@types/debounce': 1.2.4
@@ -7209,7 +7124,7 @@ snapshots:
       react-reconciler: 0.27.0(react@18.3.1)
       scheduler: 0.21.0
       suspend-react: 0.1.3(react@18.3.1)
-      three: 0.169.0
+      three: 0.172.0
       zustand: 3.7.2(react@18.3.1)
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
@@ -7370,10 +7285,10 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))':
+  '@swan-io/lake@11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))':
     dependencies:
-      '@react-three/drei': 9.120.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0))(@types/react@18.3.12)(@types/three@0.172.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)(use-sync-external-store@1.4.0(react@18.3.1))
-      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.169.0)
+      '@react-three/drei': 9.120.5(@react-three/fiber@8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0))(@types/react@18.3.12)(@types/three@0.172.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)(use-sync-external-store@1.4.0(react@18.3.1))
+      '@react-three/fiber': 8.17.10(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.172.0)
       '@swan-io/boxed': 3.2.0(typescript@5.7.2)
       '@swan-io/chicane': 2.1.0(react@18.3.1)
       '@swan-io/use-form': 3.1.0(react@18.3.1)(typescript@5.7.2)
@@ -7384,10 +7299,10 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-native-web: 0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rifm: 0.12.1(react@18.3.1)
-      three: 0.169.0
+      three: 0.172.0
       ts-dedent: 2.2.0
       ts-pattern: 5.6.0
-      uuid: 10.0.0
+      uuid: 11.0.4
     transitivePeerDependencies:
       - '@types/react'
       - '@types/three'
@@ -7405,12 +7320,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.0(typescript@5.7.2)
 
-  '@swan-io/shared-business@11.2.3(@swan-io/lake@11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)':
+  '@swan-io/shared-business@11.3.0(@swan-io/lake@11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.2)':
     dependencies:
-      '@formatjs/intl': 2.10.15(typescript@5.7.2)
+      '@formatjs/intl': 3.1.0(typescript@5.7.2)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.0(typescript@5.7.2)
-      '@swan-io/lake': 11.2.3(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
+      '@swan-io/lake': 11.3.0(@types/react@18.3.12)(@types/three@0.172.0)(typescript@5.7.2)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request': 1.0.6(@swan-io/boxed@3.2.0(typescript@5.7.2))
       '@swan-io/use-form': 3.1.0(react@18.3.1)(typescript@5.7.2)
       dayjs: 1.11.13
@@ -7422,7 +7337,7 @@ snapshots:
       react-native-web: 0.19.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rifm: 0.12.1(react@18.3.1)
       ts-pattern: 5.6.0
-      uuid: 10.0.0
+      uuid: 11.0.4
     transitivePeerDependencies:
       - encoding
       - typescript
@@ -7434,51 +7349,51 @@ snapshots:
     transitivePeerDependencies:
       - typescript
 
-  '@swc/core-darwin-arm64@1.10.4':
+  '@swc/core-darwin-arm64@1.10.6':
     optional: true
 
-  '@swc/core-darwin-x64@1.10.4':
+  '@swc/core-darwin-x64@1.10.6':
     optional: true
 
-  '@swc/core-linux-arm-gnueabihf@1.10.4':
+  '@swc/core-linux-arm-gnueabihf@1.10.6':
     optional: true
 
-  '@swc/core-linux-arm64-gnu@1.10.4':
+  '@swc/core-linux-arm64-gnu@1.10.6':
     optional: true
 
-  '@swc/core-linux-arm64-musl@1.10.4':
+  '@swc/core-linux-arm64-musl@1.10.6':
     optional: true
 
-  '@swc/core-linux-x64-gnu@1.10.4':
+  '@swc/core-linux-x64-gnu@1.10.6':
     optional: true
 
-  '@swc/core-linux-x64-musl@1.10.4':
+  '@swc/core-linux-x64-musl@1.10.6':
     optional: true
 
-  '@swc/core-win32-arm64-msvc@1.10.4':
+  '@swc/core-win32-arm64-msvc@1.10.6':
     optional: true
 
-  '@swc/core-win32-ia32-msvc@1.10.4':
+  '@swc/core-win32-ia32-msvc@1.10.6':
     optional: true
 
-  '@swc/core-win32-x64-msvc@1.10.4':
+  '@swc/core-win32-x64-msvc@1.10.6':
     optional: true
 
-  '@swc/core@1.10.4':
+  '@swc/core@1.10.6':
     dependencies:
       '@swc/counter': 0.1.3
       '@swc/types': 0.1.17
     optionalDependencies:
-      '@swc/core-darwin-arm64': 1.10.4
-      '@swc/core-darwin-x64': 1.10.4
-      '@swc/core-linux-arm-gnueabihf': 1.10.4
-      '@swc/core-linux-arm64-gnu': 1.10.4
-      '@swc/core-linux-arm64-musl': 1.10.4
-      '@swc/core-linux-x64-gnu': 1.10.4
-      '@swc/core-linux-x64-musl': 1.10.4
-      '@swc/core-win32-arm64-msvc': 1.10.4
-      '@swc/core-win32-ia32-msvc': 1.10.4
-      '@swc/core-win32-x64-msvc': 1.10.4
+      '@swc/core-darwin-arm64': 1.10.6
+      '@swc/core-darwin-x64': 1.10.6
+      '@swc/core-linux-arm-gnueabihf': 1.10.6
+      '@swc/core-linux-arm64-gnu': 1.10.6
+      '@swc/core-linux-arm64-musl': 1.10.6
+      '@swc/core-linux-x64-gnu': 1.10.6
+      '@swc/core-linux-x64-musl': 1.10.6
+      '@swc/core-win32-arm64-msvc': 1.10.6
+      '@swc/core-win32-ia32-msvc': 1.10.6
+      '@swc/core-win32-x64-msvc': 1.10.6
 
   '@swc/counter@0.1.3': {}
 
@@ -7689,7 +7604,7 @@ snapshots:
 
   '@vitejs/plugin-react-swc@3.7.2(vite@5.4.11(@types/node@22.10.5))':
     dependencies:
-      '@swc/core': 1.10.4
+      '@swc/core': 1.10.6
       vite: 5.4.11(@types/node@22.10.5)
     transitivePeerDependencies:
       - '@swc/helpers'
@@ -8015,12 +7930,12 @@ snapshots:
     dependencies:
       fill-range: 7.1.1
 
-  browserslist@4.24.3:
+  browserslist@4.24.4:
     dependencies:
       caniuse-lite: 1.0.30001690
-      electron-to-chromium: 1.5.78
+      electron-to-chromium: 1.5.79
       node-releases: 2.0.19
-      update-browserslist-db: 1.1.1(browserslist@4.24.3)
+      update-browserslist-db: 1.1.2(browserslist@4.24.4)
 
   bser@2.1.1:
     dependencies:
@@ -8075,9 +7990,9 @@ snapshots:
 
   camelcase@5.3.1: {}
 
-  camera-controls@2.9.0(three@0.169.0):
+  camera-controls@2.9.0(three@0.172.0):
     dependencies:
-      three: 0.169.0
+      three: 0.172.0
 
   caniuse-lite@1.0.30001690: {}
 
@@ -8392,7 +8307,7 @@ snapshots:
 
   eastasianwidth@0.2.0: {}
 
-  electron-to-chromium@1.5.78: {}
+  electron-to-chromium@1.5.79: {}
 
   emoji-regex@10.4.0: {}
 
@@ -9223,13 +9138,6 @@ snapshots:
       '@formatjs/icu-messageformat-parser': 2.9.8
       tslib: 2.8.1
 
-  intl-messageformat@10.7.7:
-    dependencies:
-      '@formatjs/ecma402-abstract': 2.2.4
-      '@formatjs/fast-memoize': 2.2.3
-      '@formatjs/icu-messageformat-parser': 2.9.4
-      tslib: 2.8.1
-
   invariant@2.2.4:
     dependencies:
       loose-envify: 1.4.0
@@ -9651,10 +9559,10 @@ snapshots:
     dependencies:
       yallist: 3.1.1
 
-  maath@0.10.8(@types/three@0.172.0)(three@0.169.0):
+  maath@0.10.8(@types/three@0.172.0)(three@0.172.0):
     dependencies:
       '@types/three': 0.172.0
-      three: 0.169.0
+      three: 0.172.0
 
   magic-string@0.30.17:
     dependencies:
@@ -9742,9 +9650,9 @@ snapshots:
     optionalDependencies:
       '@types/node': 22.10.5
 
-  meshline@3.3.1(three@0.169.0):
+  meshline@3.3.1(three@0.172.0):
     dependencies:
-      three: 0.169.0
+      three: 0.172.0
 
   meshoptimizer@0.18.1: {}
 
@@ -10657,10 +10565,10 @@ snapshots:
 
   stackback@0.0.2: {}
 
-  stats-gl@2.4.2(three@0.169.0):
+  stats-gl@2.4.2(three@0.172.0):
     dependencies:
       '@types/three': 0.172.0
-      three: 0.169.0
+      three: 0.172.0
 
   stats.js@0.17.0: {}
 
@@ -10794,11 +10702,11 @@ snapshots:
     dependencies:
       real-require: 0.2.0
 
-  three-mesh-bvh@0.7.8(three@0.169.0):
+  three-mesh-bvh@0.7.8(three@0.172.0):
     dependencies:
-      three: 0.169.0
+      three: 0.172.0
 
-  three-stdlib@2.35.2(three@0.169.0):
+  three-stdlib@2.35.3(three@0.172.0):
     dependencies:
       '@types/draco3d': 1.4.10
       '@types/offscreencanvas': 2019.7.3
@@ -10806,9 +10714,9 @@ snapshots:
       draco3d: 1.5.7
       fflate: 0.6.10
       potpack: 1.0.2
-      three: 0.169.0
+      three: 0.172.0
 
-  three@0.169.0: {}
+  three@0.172.0: {}
 
   thriftrw@3.11.4:
     dependencies:
@@ -10864,17 +10772,17 @@ snapshots:
     dependencies:
       punycode: 2.3.1
 
-  troika-three-text@0.52.3(three@0.169.0):
+  troika-three-text@0.52.3(three@0.172.0):
     dependencies:
       bidi-js: 1.0.3
-      three: 0.169.0
-      troika-three-utils: 0.52.0(three@0.169.0)
+      three: 0.172.0
+      troika-three-utils: 0.52.0(three@0.172.0)
       troika-worker-utils: 0.52.0
       webgl-sdf-generator: 1.1.1
 
-  troika-three-utils@0.52.0(three@0.169.0):
+  troika-three-utils@0.52.0(three@0.172.0):
     dependencies:
-      three: 0.169.0
+      three: 0.172.0
 
   troika-worker-utils@0.52.0: {}
 
@@ -11045,9 +10953,9 @@ snapshots:
     dependencies:
       normalize-path: 2.1.1
 
-  update-browserslist-db@1.1.1(browserslist@4.24.3):
+  update-browserslist-db@1.1.2(browserslist@4.24.4):
     dependencies:
-      browserslist: 4.24.3
+      browserslist: 4.24.4
       escalade: 3.2.0
       picocolors: 1.1.1
 
@@ -11074,8 +10982,6 @@ snapshots:
   util-deprecate@1.0.2: {}
 
   utility-types@3.11.0: {}
-
-  uuid@10.0.0: {}
 
   uuid@11.0.4: {}
 

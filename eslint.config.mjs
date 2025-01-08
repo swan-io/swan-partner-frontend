@@ -25,7 +25,7 @@ export default [
       "**/graphql/**/*.ts",
       "docs/**",
       "server/dist/**",
-      "tests/**/*.ts",
+      "tests/**",
       "vite.config.ts",
     ],
   },

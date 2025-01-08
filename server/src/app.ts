@@ -103,7 +103,9 @@ const assertIsBoundToLocalhost = (host: string) => {
   return new Promise((resolve, reject) => {
     lookup(host, { family: 4 }, (err, address) => {
       if (err != null || address !== "127.0.0.1") {
-        reject(`${host} isn't bound to localhost, did you setup your /etc/hosts correctly?`);
+        reject(
+          new Error(`${host} isn't bound to localhost, did you setup your /etc/hosts correctly?`),
+        );
       }
       resolve(true);
     });

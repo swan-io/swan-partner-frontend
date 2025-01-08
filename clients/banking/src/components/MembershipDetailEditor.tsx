@@ -368,8 +368,8 @@ export const MembershipDetailEditor = ({
     const request = Request.make({
       url,
       method: "POST",
-      withCredentials: true,
-      responseType: "json",
+      credentials: "include",
+      type: "json",
       body: JSON.stringify({
         inviteeAccountMembershipId: editingAccountMembershipId,
         inviterAccountMembershipId: currentUserAccountMembershipId,

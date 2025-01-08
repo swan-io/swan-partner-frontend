@@ -172,6 +172,7 @@ export const MembershipsArea = ({
             Request.make({
               url,
               method: "POST",
+              type: "text",
             }).tap(() => {
               Router.replace("AccountMembersList", {
                 ...params,

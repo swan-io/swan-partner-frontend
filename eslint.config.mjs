@@ -24,6 +24,7 @@ export default [
       "**/*.mjs",
       "**/graphql/**/*.ts",
       "docs/**",
+      "node_modules/**",
       "server/dist/**",
       "tests/**",
       "vite.config.ts",

@@ -1,4 +1,3 @@
-import path from "pathe";
 import pc from "picocolors";
 import { start } from "./app";
 import { env } from "./env";
@@ -40,7 +39,7 @@ start({
       }
     };
 
-    ports.forEach(port => void listenPort());
+    ports.forEach(() => void listenPort());
 
     console.log(``);
     console.log(`${pc.magenta("swan-partner-frontend")}`);

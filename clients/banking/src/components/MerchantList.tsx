@@ -1,8 +1,9 @@
 import { AsyncData, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useQuery } from "@swan-io/graphql-client";
+import { AutoWidthImage } from "@swan-io/lake/src/components/AutoWidthImage";
 import { Box } from "@swan-io/lake/src/components/Box";
-import { Cell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
+import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
@@ -11,6 +12,7 @@ import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainL
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Toggle } from "@swan-io/lake/src/components/Toggle";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
+import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { useMemo, useState } from "react";
 import { StyleSheet } from "react-native";
 import { P, match } from "ts-pattern";
@@ -48,7 +50,7 @@ type ExtraInfo = undefined;
 const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
   {
     id: "name",
-    width: "grow",
+    width: 200,
     title: t("merchantProfile.list.name"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
@@ -56,30 +58,55 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     ),
   },
   {
-    id: "paymentMethods",
+    id: "logo",
+    width: 150,
+    title: "",
+    renderTitle: () => null,
+    renderCell: ({ item }) =>
+      isNotNullish(item.merchantLogoUrl) ? (
+        <Box grow={1} alignItems="center">
+          <AutoWidthImage maxWidth={70} height={50} sourceUri={item.merchantLogoUrl} />
+        </Box>
+      ) : null,
+  },
+  {
+    id: "productType",
     width: 200,
-    title: t("merchantProfile.list.paymentMethods"),
-    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
-    renderCell: ({ item }) => {
-      const paymentMethods = item.merchantPaymentMethods ?? [];
-      const activePaymentMethods = paymentMethods.filter(
-        item => item.statusInfo.status === "Enabled",
-      );
-
-      return (
-        <TextCell
-          align="right"
-          text={String(activePaymentMethods.length)}
-          color={colors.gray[500]}
-        />
-      );
-    },
+    title: t("merchantProfile.list.productType"),
+    renderTitle: ({ title }) => <HeaderCell align="left" text={title} />,
+    renderCell: ({ item }) => (
+      <TextCell
+        align="left"
+        text={match(item.productType)
+          .with("GiftsAndDonations", () =>
+            t("merchantProfile.request.productType.GiftsAndDonations"),
+          )
+          .with("Goods", () => t("merchantProfile.request.productType.Goods"))
+          .with("Services", () => t("merchantProfile.request.productType.Services"))
+          .with("VirtualGoods", () => t("merchantProfile.request.productType.VirtualGoods"))
+          .exhaustive()}
+      />
+    ),
+  },
+  {
+    id: "website",
+    width: 300,
+    title: t("merchantProfile.list.website"),
+    renderTitle: ({ title }) => <HeaderCell align="left" text={title} />,
+    renderCell: ({ item }) => (
+      <CopyableTextCell
+        textToCopy={item.merchantWebsite ?? "-"}
+        text={item.merchantWebsite ?? "-"}
+        copyWording={t("copyButton.copyTooltip")}
+        copiedWording={t("copyButton.copiedTooltip")}
+      />
+    ),
   },
   {
     id: "status",
     width: 200,
-    title: "",
-    renderTitle: () => null,
+    title: t("merchantProfile.list.status"),
+    renderTitle: ({ title }) => <HeaderCell align="right" text={title} />,
     renderCell: ({ item }) => (
       <Cell align="right">
         {match(item.statusInfo.status)
@@ -199,7 +226,7 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
                 data={merchantProfiles?.edges.map(({ node }) => node) ?? []}
                 keyExtractor={item => item.id}
                 headerHeight={48}
-                rowHeight={56}
+                rowHeight={104}
                 groupHeaderHeight={48}
                 extraInfo={undefined}
                 columns={columns}

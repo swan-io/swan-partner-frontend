@@ -4,8 +4,6 @@ import { start } from "./app";
 import { env } from "./env";
 import { AccountCountry } from "./graphql/partner";
 
-const keysPath = path.join(__dirname, "../keys");
-
 const countryTranslations: Record<AccountCountry, string> = {
   DEU: "German",
   ESP: "Spanish",
@@ -28,7 +26,7 @@ start({
   httpsConfig: undefined,
 }).then(
   ({ app, ports }) => {
-    const listenPort = async (port: string) => {
+    const listenPort = async () => {
       // Expose 8080 so that we don't need `sudo` to listen to the port
       // That's the port we expose when dockerized
       //const finalPort = port === "80" || port === "443" ? "8080" : port;
@@ -42,7 +40,7 @@ start({
       }
     };
 
-    ports.forEach(port => void listenPort(port));
+    ports.forEach(port => void listenPort());
 
     console.log(``);
     console.log(`${pc.magenta("swan-partner-frontend")}`);

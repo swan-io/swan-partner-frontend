@@ -1,15 +1,15 @@
 import { Option } from "@swan-io/boxed";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeLabel } from "@swan-io/lake/src/components/LakeLabel";
+import { LakeSelect } from "@swan-io/lake/src/components/LakeSelect";
+
 import { LakeTextInput } from "@swan-io/lake/src/components/LakeTextInput";
-import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
-import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
 import { combineValidators, useForm } from "@swan-io/use-form";
-import { forwardRef, useCallback, useImperativeHandle } from "react";
+import { forwardRef, useCallback, useImperativeHandle, useState } from "react";
 import { View } from "react-native";
-import { locale, t } from "../utils/i18n";
+import {  t } from "../utils/i18n";
 import {
   validateAddressLine,
   validateCity,
@@ -18,6 +18,10 @@ import {
   validateState,
 } from "../utils/validations";
 
+import { Space } from "@swan-io/lake/src/components/Space";
+import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
+import axios from "axios";
+
 export type Address = {
   addressLine1: string;
   addressLine2?: string;
@@ -25,6 +29,7 @@ export type Address = {
   city: string;
   state?: string;
   country: CountryCCA3;
+  selectedAddress?: string;
 };
 
 type Props = {
@@ -36,9 +41,18 @@ type Props = {
 
 export type CardWizardAddressFormRef = { submit: () => void };
 
+type AddressResponse = {
+  result: {
+    street1: string;
+    street2: string;
+    city: string;
+    postal: string;
+  };
+};
+
 export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>(
   ({ initialAddress, onPressClose, onSubmit, showButtons = true }: Props, ref) => {
-    const { Field, FieldsListener, setFieldValue, submitForm } = useForm({
+    const { Field, FieldsListener, setFieldValue, submitForm, getFieldValue } = useForm({
       addressLine1: {
         initialValue: initialAddress.addressLine1,
         validate: combineValidators(validateRequired, validateAddressLine),
@@ -63,26 +77,89 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
         initialValue: initialAddress.country ?? "",
         validate: validateRequired,
       },
+      selectedAddress: {
+        initialValue: "",
+      },
     });
 
     const submit = useCallback(() => {
       submitForm({
         onSuccess: values => {
-          const option = Option.allFromDict(values);
 
-          if (option.isSome()) {
-            const { addressLine2, state, country, ...rest } = option.get();
-
-            onSubmit({
-              ...rest,
-              addressLine2: emptyToUndefined(addressLine2),
-              state: emptyToUndefined(state),
-              country: country as CountryCCA3,
-            });
+          if (!values.selectedAddress.isSome() && getFieldValue("country") === "FRA") {
+            return 
           }
+          
+          onSubmit({
+            addressLine1: values.addressLine1.isSome() ? values.addressLine1.get() : "",
+            addressLine2: values.addressLine2.isSome() ? values.addressLine2.get() : "",
+            postalCode: values.postalCode.isSome() ? values.postalCode.get() : "",
+            city: values.city.isSome() ? values.city.get() : "",
+            state: values.state.isSome() ? values.state.get() : "",
+            country: values.country.isSome()
+              ? (values.country.get() as CountryCCA3)
+              : ("" as CountryCCA3),
+          });
         },
       });
     }, [onSubmit, submitForm]);
+
+    const [suggestedAddresses, setSuggestedAddresses] = useState<{
+      adresse: string;
+      code: string;
+    }[]
+  >([]);
+
+  const [isModalVisible, setIsModalVisible] = useState(false);
+
+  const addressControlApiUrl = 'https://services.assoconnect.com/services/laposte/address-control'
+
+  const searchAddress = () => {
+    const addressLine1 = getFieldValue("addressLine1");
+    const postalCode = getFieldValue("postalCode");
+    const city = getFieldValue("city");
+
+    const formatedAddress = `${addressLine1} ${postalCode} ${city}`;
+
+    axios
+      .get<AddressResponse>(
+        addressControlApiUrl,
+        {
+          params: { q: formatedAddress },
+        },
+      )
+      .then(response => {
+        if (Array.isArray(response.data.result)) {
+          // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+          const filteredAddresses: { adresse: string; code: string; }[] = response.data.result.slice(0, 5);
+          setSuggestedAddresses(filteredAddresses);
+          if(filteredAddresses.length > 0 && filteredAddresses[0]?.code !== undefined) {
+            setFieldValue("selectedAddress", filteredAddresses[0]?.code);
+          }
+        } else {
+          console.error("Unexpected response structure:", response.data);
+        }
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+  };
+
+  const handleSelectAddress = (address: string) => {
+    axios
+      .get<AddressResponse>(
+        `${addressControlApiUrl}/${address}`,
+      )
+      .then(response => {
+        setFieldValue("addressLine1", response.data.result.street1);
+        setFieldValue("city", response.data.result.city);
+        setFieldValue("postalCode", response.data.result.postal);
+        setFieldValue("selectedAddress", address);
+      })
+      .catch(error => {
+        console.error("Error:", error);
+      });
+  };
 
     useImperativeHandle(
       ref,
@@ -114,29 +191,24 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
         />
 
         <FieldsListener names={["country"]}>
-          {({ country }) => {
+          {() => {
             return (
               <>
                 <Field name="addressLine1">
-                  {({ value, onChange, error }) => (
+                  {({ value, onChange, error, ref }) => (
                     <LakeLabel
                       label={t("cardWizard.address.line1")}
                       render={id => (
-                        <PlacekitAddressSearchInput
-                          apiKey={__env.CLIENT_PLACEKIT_API_KEY}
-                          country={(country.value as CountryCCA3) ?? "FRA"}
-                          value={value}
-                          onValueChange={onChange}
-                          onSuggestion={suggestion => {
-                            setFieldValue("addressLine1", suggestion.completeAddress);
-                            setFieldValue("city", suggestion.city);
-                            setFieldValue("postalCode", suggestion.postalCode ?? "");
-                          }}
-                          language={locale.language}
-                          placeholder={t("addressInput.placeholder")}
-                          emptyResultText={t("common.noResults")}
-                          error={error}
+                        <LakeTextInput
                           id={id}
+                          ref={ref}
+                          error={error}
+                          placeholder={t("addressInput.placeholder")}
+                          value={value}
+                          onChangeText={value => {
+                            onChange(value);
+                            setFieldValue("selectedAddress", "");
+                          }}
                         />
                       )}
                     />
@@ -214,23 +286,93 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
                     />
                   )}
                 </Field>
+
+
+                <LakeModal
+                  onPressClose={() => {
+                    setIsModalVisible(false);
+                    setFieldValue("selectedAddress", "");
+                  }}
+                  color="negative"
+                  visible={isModalVisible}
+                >
+                  <>
+                    <Field name="selectedAddress">
+                      {({ value, ref }) => (
+                        <LakeLabel
+                          label={t("card.address.form.select")}
+                          render={id => (
+                            <LakeSelect
+                              id={id}
+                              ref={ref}
+                              items={suggestedAddresses.map(value => ({
+                                value: value.code,
+                                name: value.adresse,
+                              }))}
+                              value={value}
+                              placeholder="Select an address"
+                              onValueChange={handleSelectAddress}
+                            />
+                          )}
+                        />
+                      )}
+                    </Field>
+
+                    <Space height={32} />
+
+                    <FieldsListener names={["selectedAddress"]}>
+                      {() => (
+                        <LakeButton
+                          onPress={submit}
+                          disabled={getFieldValue("selectedAddress").length === 0}
+                          color="current"
+                          grow={true}
+                        >
+                          {t("common.confirm")}
+                        </LakeButton>
+                      )}
+                    </FieldsListener>
+                  </>
+                </LakeModal>
               </>
             );
           }}
         </FieldsListener>
 
-        {showButtons ? (
-          <LakeButtonGroup>
-            <LakeButton mode="secondary" onPress={onPressClose} grow={true}>
-              {t("common.cancel")}
-            </LakeButton>
+        <FieldsListener names={["country"]}>
+          {() =>
+            showButtons && getFieldValue("country") === "FRA" ? (
+              <LakeButton
+                mode="secondary"
+                onPress={() => {
+                  setIsModalVisible(true);
+                  searchAddress();
+                }}
+                grow={true}
+              >
+                {t("common.search")}
+              </LakeButton>
+            ) : null
+          }
+        </FieldsListener>
 
-            <LakeButton onPress={submit} color="current" grow={true}>
-              {t("common.change")}
-            </LakeButton>
-          </LakeButtonGroup>
-        ) : null}
+        <FieldsListener names={["country"]}>
+          {() =>
+            showButtons && getFieldValue("country") !== "FRA" ? (
+              <LakeButtonGroup>
+                <LakeButton mode="secondary" onPress={onPressClose} grow={true}>
+                  {t("common.cancel")}
+                </LakeButton>
+
+                <LakeButton onPress={submit} color="current">
+                  {t("common.confirm")}
+                </LakeButton>
+              </LakeButtonGroup>
+            ) : null
+          }
+        </FieldsListener>
       </View>
     );
   },
 );
+

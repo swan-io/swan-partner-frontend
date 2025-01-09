@@ -151,7 +151,7 @@
   "accountStatements.tab.custom": "Custom",
   "accountStatements.tab.monthly": "Monthly",
   "accountStatements.title": "Account statements",
-  "addressInput.placeholder": "Start typing…",
+  "addressInput.placeholder": "6124 N Broadway ST",
   "balances.learnMore": "Learn more about balances",
   "beneficiaries.additionDate": "Added {date}",
   "beneficiaries.currency.title": "Currency",
@@ -313,7 +313,7 @@
   "cardWizard.address.invalid": "This address is incomplete or invalid. Click \"Change\" to edit address details.",
   "cardWizard.address.line1": "Address line 1",
   "cardWizard.address.line2": "Address line 2",
-  "cardWizard.address.line2Placeholder": "Enter additional address information",
+  "cardWizard.address.line2Placeholder": "legal department",
   "cardWizard.address.postalCode": "Postal code",
   "cardWizard.address.postalCodePlaceholder": "Enter the postal code",
   "cardWizard.address.state": "State",
@@ -1390,5 +1390,6 @@
   "transfer.tile.transfer.title": "Transfer",
   "transfer.transfer": "Transfer",
   "upcomingTransansactionList.noResults": "No upcoming transactions",
-  "upcomingTransansactionList.noResultsDescription": "There aren't any incoming or outgoing transactions underway."
+  "upcomingTransansactionList.noResultsDescription": "There aren't any incoming or outgoing transactions underway.",
+  "card.address.form.select": "Select an address"
 }

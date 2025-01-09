@@ -151,7 +151,7 @@
   "accountStatements.tab.custom": "Personnalisé",
   "accountStatements.tab.monthly": "Mensuel",
   "accountStatements.title": "Relevés de compte",
-  "addressInput.placeholder": "Commencer à écrire…",
+  "addressInput.placeholder": "3 rue de Gramont",
   "balances.learnMore": "En savoir plus sur les soldes",
   "beneficiaries.additionDate": "Ajoutée le {date}",
   "beneficiaries.currency.title": "DEVISE",
@@ -313,7 +313,7 @@
   "cardWizard.address.invalid": "Cette adresse est incomplète ou incorrecte. Cliquez sur « Modifier » pour éditer les détails de l'adresse.",
   "cardWizard.address.line1": "Ligne d'adresse 1",
   "cardWizard.address.line2": "Ligne d'adresse 2",
-  "cardWizard.address.line2Placeholder": "Indiquez des informations supplémentaires sur l'adresse",
+  "cardWizard.address.line2Placeholder": "Service juridique",
   "cardWizard.address.postalCode": "Code postal",
   "cardWizard.address.postalCodePlaceholder": "Saisissez le code postal",
   "cardWizard.address.state": "État",
@@ -1390,5 +1390,6 @@
   "transfer.tile.transfer.title": "Virement",
   "transfer.transfer": "Virement",
   "upcomingTransansactionList.noResults": "Aucune transaction à venir",
-  "upcomingTransansactionList.noResultsDescription": "Il n’y a pas de transactions entrantes ou sortantes en cours."
+  "upcomingTransansactionList.noResultsDescription": "Il n’y a pas de transactions entrantes ou sortantes en cours.",
+  "card.address.form.select": "Sélectionnez une adresse"
 }

@@ -44,7 +44,7 @@ export const client = new Client({
     return Request.make({
       url,
       method: "POST",
-      responseType: "json",
+      type: "json",
       headers: {
         ...headers,
         "x-swan-request-id": requestId,

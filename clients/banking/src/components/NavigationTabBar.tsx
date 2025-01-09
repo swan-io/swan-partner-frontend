@@ -170,7 +170,7 @@ export const NavigationTabBar = ({
     entries.find(item => item.matchRoutes.some(name => name === route?.name)) ?? entries[0];
 
   const signout = () => {
-    Request.make({ url: "/auth/logout", method: "POST", withCredentials: true })
+    Request.make({ url: "/auth/logout", method: "POST", credentials: "include", type: "text" })
       .mapOkToResult(badStatusToError)
       .tapOk(() => window.location.replace(Router.ProjectLogin()))
       .tapError(error => {
@@ -234,7 +234,7 @@ export const NavigationTabBar = ({
           {shouldDisplayIdVerification && hasRequiredIdentificationLevel === false
             ? match({
                 identificationStatusInfo,
-                hasNotifications: entries.some(item => item.hasNotifications),
+                hasNotifications: entries.some(item => item.hasNotifications === true),
                 hasActivationTag: activationTag !== "none",
               })
                 .with(

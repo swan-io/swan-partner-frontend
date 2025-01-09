@@ -99,7 +99,7 @@ export const AccountMembershipArea = ({ accountMembershipId }: Props) => {
   // Call API to extend cookie TTL
   useEffect(() => {
     const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", withCredentials: true });
+      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
     };
     const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
     // Run the ping directly on mount

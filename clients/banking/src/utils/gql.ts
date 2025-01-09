@@ -80,7 +80,7 @@ const makeRequest: MakeRequest = ({ url, headers, operationName, document, varia
   return Request.make({
     url,
     method: "POST",
-    responseType: "json",
+    type: "json",
     headers: {
       ...headers,
       "x-swan-request-id": requestId,

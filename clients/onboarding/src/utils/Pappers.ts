@@ -36,7 +36,7 @@ export const queryCompanies = (query: string): Future<Result<Array<CompanySugges
   return Request.make({
     url,
     method: "GET",
-    responseType: "json",
+    type: "json",
   })
     .mapOkToResult(badStatusToError)
     .mapOkToResult(emptyToError)

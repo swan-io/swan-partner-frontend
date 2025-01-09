@@ -165,11 +165,12 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
                     <View role="list">{chunk}</View>
                   </View>
                 ),
-                listitem: chunk => (
-                  <LakeText role="listitem" key={String(chunk)}>
-                    • {chunk}
-                  </LakeText>
-                ),
+                listitem: chunk =>
+                  typeof chunk === "string" ? (
+                    <LakeText role="listitem" key={chunk}>
+                      • {chunk}
+                    </LakeText>
+                  ) : null,
               })}
             </LakeText>
           </LakeAlert>
@@ -342,7 +343,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
   // Call API to extend cookie TTL
   useEffect(() => {
     const tick = () => {
-      Request.make({ url: "/api/ping", method: "POST", withCredentials: true });
+      Request.make({ url: "/api/ping", method: "POST", credentials: "include", type: "text" });
     };
     const intervalId = setInterval(tick, COOKIE_REFRESH_INTERVAL);
     // Run the ping directly on mount

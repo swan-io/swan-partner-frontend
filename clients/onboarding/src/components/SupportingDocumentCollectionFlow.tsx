@@ -160,7 +160,11 @@ export const SupportingDocumentCollectionFlow = ({ supportingDocumentCollectionI
                       file: {
                         id: document.id,
                         name: document.statusInfo.filename,
-                        statusInfo: { status: "Refused", reason: document.statusInfo.reason },
+                        statusInfo: {
+                          status: "Refused",
+                          reason: document.statusInfo.reason,
+                          reasonCode: document.statusInfo.reasonCode,
+                        },
                       },
                     })
                   : Option.None(),

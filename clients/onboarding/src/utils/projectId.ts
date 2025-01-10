@@ -1,7 +1,7 @@
 import { Option, Result } from "@swan-io/boxed";
 
 export const projectConfiguration = Result.fromExecution(() => {
-  if (typeof __env.SWAN_PROJECT_ID == "string") {
+  if (typeof __env.SWAN_PROJECT_ID === "string") {
     return __env.SWAN_PROJECT_ID;
   } else {
     throw new Error();

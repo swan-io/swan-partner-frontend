@@ -558,7 +558,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
                       <Box alignItems="center">
                         <Icon
                           color={
-                            currentSettings.spendingLimit.period == period
+                            currentSettings.spendingLimit.period === period
                               ? colors.swan[300]
                               : colors.swan[200]
                           }

@@ -199,7 +199,7 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         const projectUserToken = await exchangeToken(request.accessToken, {
@@ -224,7 +224,7 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner-admin",
       async (request, reply) => {
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         const projectUserToken = await exchangeToken(request.accessToken, {
@@ -261,7 +261,7 @@ start({
         if (inviterAccountMembershipId == null) {
           return reply.status(400).send("Missing inviterAccountMembershipId");
         }
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         try {

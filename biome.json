@@ -63,7 +63,6 @@
         "noConfusingVoidType": "off",
         "noShadowRestrictedNames": "off",
 
-        "noDoubleEquals": "off",
         "noGlobalIsNan": "off"
       }
     }

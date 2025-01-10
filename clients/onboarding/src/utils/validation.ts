@@ -12,7 +12,7 @@ import {
 import { locale, t } from "./i18n";
 
 export const validateRequiredBoolean: Validator<boolean | undefined> = value => {
-  if (typeof value != "boolean") {
+  if (typeof value !== "boolean") {
     return t("error.requiredField");
   }
 };

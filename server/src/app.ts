@@ -248,7 +248,7 @@ export const start = async ({
       const refreshToken = request.session.get("refreshToken");
       const expiresAt = request.session.get("expiresAt") ?? 0;
 
-      if (typeof refreshToken == "string" && expiresAt < Date.now() + TEN_SECONDS) {
+      if (typeof refreshToken === "string" && expiresAt < Date.now() + TEN_SECONDS) {
         refreshAccessToken({
           refreshToken,
           redirectUri: `${env.BANKING_URL}/auth/callback`,
@@ -349,7 +349,7 @@ export const start = async ({
     return reply.from(env.PARTNER_API_URL, {
       rewriteRequestHeaders: (_req, headers) => ({
         ...headers,
-        ...(request.accessToken != undefined
+        ...(request.accessToken != null
           ? { Authorization: `Bearer ${request.accessToken}` }
           : undefined),
       }),
@@ -363,7 +363,7 @@ export const start = async ({
     return reply.from(env.PARTNER_ADMIN_API_URL, {
       rewriteRequestHeaders: (_req, headers) => ({
         ...headers,
-        ...(request.accessToken != undefined
+        ...(request.accessToken != null
           ? { Authorization: `Bearer ${request.accessToken}` }
           : undefined),
       }),
@@ -561,7 +561,7 @@ export const start = async ({
 
     return reply.redirect(
       createAuthUrl({
-        scope: scope.split(" ").filter(item => item != null && item != ""),
+        scope: scope.split(" ").filter(item => item != null && item !== ""),
         params: {
           ...(email != null ? { email } : null),
           ...(onboardingId != null ? { onboardingId } : null),
@@ -639,7 +639,7 @@ export const start = async ({
                           Ok: ({ redirectUrl, state, accountMembershipId, oAuthClientId }) => {
                             const queryString = new URLSearchParams();
 
-                            if (redirectUrl != undefined) {
+                            if (redirectUrl != null) {
                               const redirectHost = new URL(redirectUrl).hostname;
 
                               // When onboarding from the dashboard, we don't yet have a OAuth2 client,
@@ -659,7 +659,7 @@ export const start = async ({
                               }
                             }
 
-                            if (accountMembershipId != undefined) {
+                            if (accountMembershipId != null) {
                               queryString.append("accountMembershipId", accountMembershipId);
                             }
 
@@ -689,7 +689,7 @@ export const start = async ({
                           Ok: ({ redirectUrl, state, accountMembershipId }) => {
                             const queryString = new URLSearchParams();
 
-                            if (redirectUrl != undefined) {
+                            if (redirectUrl != null) {
                               const authUri = createAuthUrl({
                                 scope: [],
                                 redirectUri: redirectUrl,
@@ -700,7 +700,7 @@ export const start = async ({
                               queryString.append("redirectUrl", authUri);
                             }
 
-                            if (accountMembershipId != undefined) {
+                            if (accountMembershipId != null) {
                               queryString.append("accountMembershipId", accountMembershipId);
                             }
 

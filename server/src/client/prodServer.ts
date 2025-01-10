@@ -1,6 +1,6 @@
 import { FastifyReply, RouteHandlerMethod } from "fastify";
-import { Http2SecureServer } from "http2";
 import fs, { Stats } from "node:fs";
+import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { env } from "../env";
 

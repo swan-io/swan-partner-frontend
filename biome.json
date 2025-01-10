@@ -53,9 +53,7 @@
         "useTemplate": "off",
 
         "noUnusedTemplateLiteral": "off",
-        "useNumberNamespace": "off",
-        "useNodejsImportProtocol": "off",
-        "useSelfClosingElements": "off"
+        "useNumberNamespace": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off",

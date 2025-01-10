@@ -725,7 +725,7 @@ export const AccountArea = ({
                                             </LakeButton>
                                           ) : null
                                         }
-                                      ></LakeAlert>
+                                      />
                                     </View>
                                   )}
                                 </ResponsiveContainer>

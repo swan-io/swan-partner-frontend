@@ -29,9 +29,7 @@
       },
       "complexity": {
         "noForEach": "off",
-        "useLiteralKeys": "off",
-
-        "noUselessTernary": "off"
+        "useLiteralKeys": "off"
       },
       "correctness": {
         "noFlatMapIdentity": "off",

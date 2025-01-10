@@ -448,9 +448,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
-  const [isImageLoaded, setIsImageLoaded] = useState(
-    merchantProfile.merchantLogoUrl == null ? true : false,
-  );
+  const [isImageLoaded, setIsImageLoaded] = useState(merchantProfile.merchantLogoUrl == null);
   const [hasImageErrored, setHasImageErrored] = useState(false);
 
   const merchantPaymentMethods = merchantProfile.merchantPaymentMethods ?? [];

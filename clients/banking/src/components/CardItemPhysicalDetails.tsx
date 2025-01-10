@@ -632,12 +632,9 @@ export const CardItemPhysicalDetails = ({
                       style={styles.renewAlert}
                       variant="info"
                       title={t("card.physical.expiredAlert")}
-                      children={
-                        <>
-                          <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
-                        </>
-                      }
-                    />
+                    >
+                      <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
+                    </LakeAlert>
                   ) : (
                     <LakeAlert
                       style={styles.renewAlert}
@@ -647,12 +644,9 @@ export const CardItemPhysicalDetails = ({
                           .endOf("month")
                           .format("LL"),
                       })}
-                      children={
-                        <>
-                          <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
-                        </>
-                      }
-                    />
+                    >
+                      <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                    </LakeAlert>
                   )}
                 </>
               ),

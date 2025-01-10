@@ -1,69 +1,45 @@
 import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components/Cells";
 import { Icon } from "@swan-io/lake/src/components/Icon";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import {
   ColumnConfig,
   LinkConfig,
   PlainListView,
 } from "@swan-io/lake/src/components/PlainListView";
+import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
+import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
+import { breakpoints, colors } from "@swan-io/lake/src/constants/design";
+import { isNotNullish, isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import dayjs from "dayjs";
 import { ReactElement, ReactNode } from "react";
-import { StyleSheet, View } from "react-native";
 import { match } from "ts-pattern";
 import { MerchantPaymentFragment } from "../graphql/partner";
 import { formatCurrency, t } from "../utils/i18n";
-
-const styles = StyleSheet.create({
-  cell: {
-    display: "flex",
-    paddingHorizontal: spacings[16],
-    flexGrow: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    width: 1,
-  },
-  paddedCell: {
-    paddingVertical: spacings[12],
-    minHeight: 72,
-  },
-  transactionSummary: {
-    flexShrink: 1,
-    flexGrow: 1,
-  },
-  overflowingText: {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap",
-  },
-});
 
 type ExtraInfo = undefined;
 
 const PaymentCell = ({ payment }: { payment: MerchantPaymentFragment }) => {
   return (
-    <View style={[styles.cell, styles.paddedCell]}>
-      <View style={styles.transactionSummary}>
-        <LakeText variant="smallRegular" color={colors.gray[900]} style={styles.overflowingText}>
-          {match(payment.paymentMethod.type)
-            .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
-            .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
-            .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
-              t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
-            )
-            .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
-              t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
-            )
-            .exhaustive()}
-        </LakeText>
+    <Cell direction="column">
+      <LakeText variant="smallRegular" color={colors.gray[900]}>
+        {match(payment.paymentMethod.type)
+          .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
+          .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
+          .with("InternalDirectDebitB2b", "InternalDirectDebitStandard", () =>
+            t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
+          )
+          .with("SepaDirectDebitB2b", "SepaDirectDebitCore", () =>
+            t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
+          )
+          .exhaustive()}
+      </LakeText>
 
-        <LakeText variant="regular" color={colors.gray[900]}>
-          {formatCurrency(Number(payment.amount.value), payment.amount.currency)}
-        </LakeText>
-      </View>
-    </View>
+      <LakeText variant="regular" color={colors.gray[900]}>
+        {formatCurrency(Number(payment.amount.value), payment.amount.currency)}
+      </LakeText>
+    </Cell>
   );
 };
 
@@ -75,34 +51,28 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
       <Cell align="left">
-        {isNullishOrEmpty(item.label) ? (
-          <LakeText variant="smallRegular" color={colors.gray[300]}>
-            {"-"}
-          </LakeText>
-        ) : (
-          <LakeText variant="medium" color={colors.gray[900]}>
-            {item.label}
-          </LakeText>
-        )}
+        <LakeHeading variant="h5" level={3} numberOfLines={1}>
+          {isNotNullishOrEmpty(item.label) ? item.label : "-"}
+        </LakeHeading>
       </Cell>
     ),
   },
   {
     id: "date",
-    width: 250,
+    width: "grow",
     title: t("merchantProfile.payments.date"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <View style={styles.cell}>
+      <Cell>
         <LakeText align="right" variant="smallMedium" color={colors.gray[900]}>
           {dayjs(item.createdAt).format("LLL")}
         </LakeText>
-      </View>
+      </Cell>
     ),
   },
   {
     id: "paymentMethod",
-    width: 200,
+    width: 150,
     title: t("merchantProfile.payments.paymentMethod"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item: { paymentMethod } }) => (
@@ -169,7 +139,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
   },
   {
     id: "amount",
-    width: 150,
+    width: 100,
     title: t("merchantProfile.payments.list.amount"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
@@ -253,14 +223,12 @@ type Props = {
   onActiveRowChange: (element: HTMLElement) => void;
   onEndReached: () => void;
   isLoading: boolean;
-  large: boolean;
   renderEmptyList: () => ReactNode;
 };
 
 export const MerchantProfilePaymentList = ({
   payments,
   onEndReached,
-  large,
   getRowLink,
   activeRowId,
   onActiveRowChange,
@@ -268,25 +236,29 @@ export const MerchantProfilePaymentList = ({
   renderEmptyList,
 }: Props) => {
   return (
-    <PlainListView
-      withoutScroll={!large}
-      data={payments}
-      keyExtractor={item => item.id}
-      headerHeight={48}
-      rowHeight={56}
-      groupHeaderHeight={48}
-      extraInfo={undefined}
-      columns={columns}
-      smallColumns={smallColumns}
-      getRowLink={getRowLink}
-      onActiveRowChange={onActiveRowChange}
-      activeRowId={activeRowId}
-      onEndReached={onEndReached}
-      loading={{
-        isLoading,
-        count: 5,
-      }}
-      renderEmptyList={renderEmptyList}
-    />
+    <ResponsiveContainer style={commonStyles.fill} breakpoint={breakpoints.large}>
+      {({ large }) => (
+        <PlainListView
+          withoutScroll={!large}
+          data={payments}
+          keyExtractor={item => item.id}
+          headerHeight={48}
+          rowHeight={56}
+          groupHeaderHeight={48}
+          extraInfo={undefined}
+          columns={columns}
+          smallColumns={smallColumns}
+          getRowLink={getRowLink}
+          onActiveRowChange={onActiveRowChange}
+          activeRowId={activeRowId}
+          onEndReached={onEndReached}
+          loading={{
+            isLoading,
+            count: 5,
+          }}
+          renderEmptyList={renderEmptyList}
+        />
+      )}
+    </ResponsiveContainer>
   );
 };

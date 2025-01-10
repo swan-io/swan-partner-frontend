@@ -323,7 +323,6 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
                       <MerchantProfilePaymentList
                         isLoading={isLoading}
                         payments={payments?.edges.map(item => item.node) ?? []}
-                        large={large}
                         getRowLink={getRowLink}
                         activeRowId={activePaymentLinkId ?? undefined}
                         onActiveRowChange={onActiveRowChange}

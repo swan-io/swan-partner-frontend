@@ -52,9 +52,12 @@ export const queryCompanies = (query: string): Future<Result<Array<CompanySugges
             const city = [siege?.code_postal, siege?.ville].filter(isNotNullish).join(" ");
 
             // we don't display result without name, without siren or already displayed
-            return name === "" || siren === "" || acc.some(suggestion => suggestion.siren === siren)
-              ? acc
-              : [...acc, { value: siren, siren, name, city }];
+            if (name === "" || siren === "" || acc.some(suggestion => suggestion.siren === siren)) {
+              return acc;
+            }
+
+            acc.push({ value: siren, siren, name, city });
+            return acc;
           }, []);
       },
       true,

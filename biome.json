@@ -44,7 +44,6 @@
       "nursery": {
         "noCommonJs": "error"
       },
-      "performance": { "noAccumulatingSpread": "off" },
       "style": {
         "noImplicitBoolean": "error",
         "noNamespace": "error",

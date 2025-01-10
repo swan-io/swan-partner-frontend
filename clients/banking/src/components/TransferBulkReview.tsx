@@ -176,12 +176,12 @@ export const TransferBulkReview = ({
         initialSelectedCreditTransferInputs.map(item => creditTransferInputs.indexOf(item)),
       );
     } else {
-      return new Set(creditTransferInputs.map((item, index) => index));
+      return new Set(creditTransferInputs.map((_item, index) => index));
     }
   });
 
   const onPressSubmit = () => {
-    onSave(creditTransferInputs.filter((item, index) => selected.has(index)));
+    onSave(creditTransferInputs.filter((_item, index) => selected.has(index)));
   };
 
   return (
@@ -207,7 +207,7 @@ export const TransferBulkReview = ({
             rowHeight={56}
             headerHeight={56}
             data={creditTransferInputs}
-            keyExtractor={(item, index) => String(index)}
+            keyExtractor={(_item, index) => String(index)}
             extraInfo={{ selected, setSelected, totalCount: creditTransferInputs.length }}
             stickedToStartColumns={stickedToStartColumns}
             columns={columns}

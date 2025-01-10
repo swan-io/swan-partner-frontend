@@ -63,7 +63,6 @@ type AppConfig = {
 };
 
 declare module "@fastify/secure-session" {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface SessionData {
     expiresAt: number;
     accessToken: string;
@@ -73,7 +72,6 @@ declare module "@fastify/secure-session" {
 }
 
 declare module "fastify" {
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface FastifyRequest {
     accessToken: string | undefined;
     config: {
@@ -299,7 +297,7 @@ export const start = async ({
     }
   });
 
-  app.addHook("onRequest", (request, reply, done) => {
+  app.addHook("onRequest", (request, _reply, done) => {
     request.accessToken = request.session.get("accessToken");
     done();
   });
@@ -331,7 +329,7 @@ export const start = async ({
   /**
    * An no-op to extend the cookie duration.
    */
-  app.post("/api/ping", async (request, reply) => {
+  app.post("/api/ping", async (_request, reply) => {
     return reply.header("cache-control", `private, max-age=0`).status(200).send({
       ok: true,
     });
@@ -340,7 +338,7 @@ export const start = async ({
   /**
    * Proxies the Swan "unauthenticated" GraphQL API.
    */
-  app.post("/api/unauthenticated", async (request, reply) => {
+  app.post("/api/unauthenticated", async (_request, reply) => {
     return reply.from(env.UNAUTHENTICATED_API_URL);
   });
 
@@ -826,7 +824,7 @@ export const start = async ({
    * Exposes environement variables to the client apps at runtime.
    * The client simply has to load `<script src="/env.js"></script>`
    */
-  app.get("/env.js", async (request, reply) => {
+  app.get("/env.js", async (_request, reply) => {
     const projectId = await getProjectId();
     const data = {
       VERSION: packageJson.version,
@@ -860,7 +858,7 @@ export const start = async ({
       .send(`window.__env = ${JSON.stringify(data)};`);
   });
 
-  app.get("/health", async (request, reply) => {
+  app.get("/health", async (_request, reply) => {
     return reply.header("cache-control", `private, max-age=0`).status(200).send({
       version: packageJson.version,
       date: new Date().toISOString(),

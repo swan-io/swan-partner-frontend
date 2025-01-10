@@ -49,11 +49,11 @@ start({
 
     ports.forEach(port => void listenPort(port));
 
-    console.log(``);
+    console.log("");
     console.log(`${pc.magenta("swan-partner-frontend")}`);
     console.log(`${pc.white("---")}`);
     console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
-    console.log(``);
+    console.log("");
     console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
     console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
@@ -73,8 +73,8 @@ start({
     });
     console.log(`${pc.magenta("Payment")} -> ${env.PAYMENT_URL}`);
     console.log(`${pc.white("---")}`);
-    console.log(``);
-    console.log(``);
+    console.log("");
+    console.log("");
   },
   err => {
     console.error(err);

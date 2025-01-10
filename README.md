@@ -135,15 +135,11 @@ We recommend the following setup for an optimal developer experience:
 
 - [VS Code](https://code.visualstudio.com)
 - [VS Code EditorConfig](https://marketplace.visualstudio.com/items?itemName=editorconfig.editorconfig)
-- [VS Code ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint)
+- [VS Code Biome](https://marketplace.visualstudio.com/items?itemName=biomejs.biome)
 - [VS Code Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 - [VS Code GraphQL language support](https://marketplace.visualstudio.com/items?itemName=graphql.vscode-graphql) and [syntax highlighting](https://marketplace.visualstudio.com/items?itemName=graphql.vscode-graphql-syntax)
 
 By default, the VS Code TypeScript extension only checks the types in open files. If you want your IDE to check types in the whole project, check `typescript.tsserver.experimental.enableProjectDiagnostics` in your VS Code preferences.
-
-For better performance (and confort!), it's recommended to set:
-
-- `eslint.run` to `"onSave"`.
 
 ## Linting
 
@@ -155,6 +151,29 @@ You can also configure `lint-staged` as a pre-commit hook by running the followi
 
 ```console
 $ pnpm configure-hooks
+```
+
+### Ignore code
+
+If you want to ignore a lint rule for a specific line of the code, you can add a suppression comment above the line that emits the lint diagnostic:
+
+```ts
+// biome-ignore <rule>: <optional-explanation>
+```
+
+For example:
+
+```ts
+// biome-ignore lint/suspicious/noNamespace:
+namespace foo {}
+```
+
+For `useExhaustiveDependencies` (equivalent of `react-hooks/exhaustive-deps`), you can even specify which dependencies are ignored, on multiple lines:
+
+```ts
+// biome-ignore lint/correctness/useExhaustiveDependencies(fn):
+// biome-ignore lint/correctness/useExhaustiveDependencies(value):
+useEffect(fn, [fn, value]);
 ```
 
 ## Testing

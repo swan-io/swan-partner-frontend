@@ -39,7 +39,7 @@ export const exchangeToken = (originalAccessToken: string, config: ExchangeToken
     ),
     headers: {
       "Content-Type": "application/json",
-      ...(additionalEnv.SWAN_AUTH_TOKEN != undefined
+      ...(additionalEnv.SWAN_AUTH_TOKEN != null
         ? { "x-swan-frontend": additionalEnv.SWAN_AUTH_TOKEN }
         : undefined),
     },

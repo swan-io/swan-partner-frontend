@@ -1,0 +1,61 @@
+{
+  "$schema": "https://biomejs.dev/schemas/1.9.4/schema.json",
+  "vcs": {
+    "clientKind": "git",
+    "enabled": false,
+    "useIgnoreFile": false
+  },
+  "files": {
+    "include": ["clients/*/src/**/*.ts", "clients/*/src/**/*.tsx", "server/src/**/*.ts"],
+    "ignoreUnknown": true,
+    "ignore": ["**/*.d.ts", "**/graphql/*.ts"]
+  },
+  "formatter": {
+    "enabled": false
+  },
+  "organizeImports": {
+    "enabled": false
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "recommended": true,
+      "a11y": {
+        "noSvgWithoutTitle": "off",
+        "useAltText": "off",
+        "useIframeTitle": "off",
+        "useSemanticElements": "off",
+        "useValidAriaRole": "off"
+      },
+      "complexity": {
+        "noForEach": "off",
+        "useLiteralKeys": "off"
+      },
+      "correctness": {
+        "noFlatMapIdentity": "off",
+        "noUnusedVariables": "error",
+        "noVoidTypeReturn": "off",
+        "useArrayLiterals": "error",
+        "useHookAtTopLevel": "warn",
+        "useJsxKeyInIterable": "off"
+      },
+      "nursery": {
+        "noCommonJs": "error"
+      },
+      "style": {
+        "noImplicitBoolean": "error",
+        "noNamespace": "error",
+        "noUselessElse": "off",
+        "useBlockStatements": "warn",
+        "useImportType": "off",
+        "useTemplate": "off"
+      },
+      "suspicious": {
+        "noArrayIndexKey": "off",
+        "noMisleadingCharacterClass": "off",
+        "noConfusingVoidType": "off",
+        "noShadowRestrictedNames": "off"
+      }
+    }
+  }
+}

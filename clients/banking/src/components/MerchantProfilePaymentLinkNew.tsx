@@ -375,7 +375,7 @@ export const MerchantProfilePaymentLinkNew = ({
     if (isNotNullishOrEmpty(label)) {
       url.searchParams.append("label", label);
     }
-    if (isNotNullishOrEmpty(amount) && !isNaN(Number(amount))) {
+    if (isNotNullishOrEmpty(amount) && !Number.isNaN(Number(amount))) {
       url.searchParams.append("amount", amount);
     }
 
@@ -723,19 +723,16 @@ export const MerchantProfilePaymentLinkNew = ({
                               <iframe
                                 tabIndex={-1}
                                 src={previewUrl}
-                                style={
-                                  // eslint-disable-next-line react-native/no-inline-styles
-                                  {
-                                    backgroundColor: backgroundColor.default,
-                                    pointerEvents: "none",
-                                    border: "none",
-                                    width: selectedPreview === "desktop" ? 1280 : 440,
-                                    height: IFRAME_ORIGINAL_HEIGHT,
-                                    minHeight: IFRAME_ORIGINAL_HEIGHT,
-                                    transformOrigin: "0 0",
-                                    transform: `scale(${scaleFactor * 100}%)`,
-                                  }
-                                }
+                                style={{
+                                  backgroundColor: backgroundColor.default,
+                                  pointerEvents: "none",
+                                  border: "none",
+                                  width: selectedPreview === "desktop" ? 1280 : 440,
+                                  height: IFRAME_ORIGINAL_HEIGHT,
+                                  minHeight: IFRAME_ORIGINAL_HEIGHT,
+                                  transformOrigin: "0 0",
+                                  transform: `scale(${scaleFactor * 100}%)`,
+                                }}
                               />
                             </View>
                           );

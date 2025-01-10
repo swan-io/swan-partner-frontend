@@ -136,9 +136,10 @@ const RecurringTransferHistory = ({
                 {payments => {
                   const transactions = (payments?.edges ?? [])
                     .filter(({ node }) => Boolean(node.transactions?.totalCount))
-                    .reduce<
-                      { node: TransactionDetailsFragment }[]
-                    >((list, { node }) => [...list, ...(node.transactions?.edges ?? [])], []);
+                    .reduce<{ node: TransactionDetailsFragment }[]>((list, { node }) => {
+                      list.concat(node.transactions?.edges ?? []);
+                      return list;
+                    }, []);
 
                   return (
                     <RightPanelTransactionList

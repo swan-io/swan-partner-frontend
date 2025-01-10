@@ -199,7 +199,7 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner",
       async (request, reply) => {
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         const projectUserToken = await exchangeToken(request.accessToken, {
@@ -224,7 +224,7 @@ start({
     app.post<{ Params: { projectId: string } }>(
       "/api/projects/:projectId/partner-admin",
       async (request, reply) => {
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         const projectUserToken = await exchangeToken(request.accessToken, {
@@ -261,7 +261,7 @@ start({
         if (inviterAccountMembershipId == null) {
           return reply.status(400).send("Missing inviterAccountMembershipId");
         }
-        if (request.accessToken == undefined) {
+        if (request.accessToken == null) {
           return reply.status(401).send("Unauthorized");
         }
         try {
@@ -319,7 +319,7 @@ start({
           )
           .tapOk(onboardingId => {
             return reply
-              .header("cache-control", `private, max-age=0`)
+              .header("cache-control", "private, max-age=0")
               .redirect(
                 `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
               );
@@ -356,7 +356,7 @@ start({
           )
           .tapOk(onboardingId => {
             return reply
-              .header("cache-control", `private, max-age=0`)
+              .header("cache-control", "private, max-age=0")
               .redirect(
                 `${env.ONBOARDING_URL}/projects/${request.params.projectId}/onboardings/${onboardingId}`,
               );
@@ -394,11 +394,11 @@ start({
 
     ports.forEach(port => void listenPort(port));
 
-    console.log(``);
+    console.log("");
     console.log(`${pc.magenta("swan-partner-frontend")}`);
     console.log(`${pc.white("---")}`);
     console.log(pc.green(`${env.NODE_ENV === "development" ? "dev server" : "server"} started`));
-    console.log(``);
+    console.log("");
     console.log(`${pc.magenta("Banking")} -> ${env.BANKING_URL}`);
     console.log(`${pc.magenta("Onboarding Individual")}`);
     onboardingCountries.forEach(({ cca3, name }) => {
@@ -418,8 +418,8 @@ start({
     });
     console.log(`${pc.magenta("Payment")} -> ${env.PAYMENT_URL}`);
     console.log(`${pc.white("---")}`);
-    console.log(``);
-    console.log(``);
+    console.log("");
+    console.log("");
   },
   err => {
     console.error(err);

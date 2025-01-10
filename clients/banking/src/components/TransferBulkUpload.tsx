@@ -65,7 +65,7 @@ const parseCsv = (text: string): Result<CreditTransferInput[], ParsingError[]> =
               }
               if (
                 reference != null &&
-                reference.trim() != "" &&
+                reference.trim() !== "" &&
                 validateTransferReference(reference.trim()) != null
               ) {
                 return Result.Error({ type: "InvalidReference", line: index + 1 } as const);

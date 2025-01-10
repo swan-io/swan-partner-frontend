@@ -175,7 +175,7 @@ export const validateTime =
     const hours = Number(hoursStr);
     const minutes = Number(minutesStr);
 
-    if (isNaN(hours) || isNaN(minutes)) {
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
       return t("common.form.invalidTime");
     }
 
@@ -327,7 +327,7 @@ export const validateNumeric = (params?: { min?: number; max?: number }): Valida
     if (!/^-?\d+$/.test(value) && !/^-?\d+\.\d+$/.test(value)) {
       return t("common.form.number");
     }
-    const parsed = parseFloat(value);
+    const parsed = Number.parseFloat(value);
     if (params?.min != null && parsed < params.min) {
       return t("common.form.number.upperThan", { value: params.min });
     }

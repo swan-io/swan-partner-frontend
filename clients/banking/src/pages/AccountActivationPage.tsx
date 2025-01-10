@@ -880,19 +880,16 @@ export const AccountActivationPage = ({
                     )}
                   </ScrollView>
 
-                  {isNotNullish(content) && (
-                    <>
-                      {large ? (
-                        <>
-                          <Separator horizontal={true} />
+                  {isNotNullish(content) &&
+                    (large ? (
+                      <>
+                        <Separator horizontal={true} />
 
-                          {content}
-                        </>
-                      ) : (
-                        <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
-                      )}
-                    </>
-                  )}
+                        {content}
+                      </>
+                    ) : (
+                      <FullViewportLayer visible={contentVisible}>{content}</FullViewportLayer>
+                    ))}
                 </Box>
               );
             }}

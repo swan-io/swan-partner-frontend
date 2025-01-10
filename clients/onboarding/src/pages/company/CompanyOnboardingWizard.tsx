@@ -277,6 +277,7 @@ export const OnboardingCompanyWizard = ({ onboarding, onboardingId, holder }: Pr
     [onboardingId, steps, finalized],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

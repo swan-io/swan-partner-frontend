@@ -1,6 +1,6 @@
 import { FastifyReply, RouteHandlerMethod } from "fastify";
-import { Http2SecureServer } from "http2";
 import fs, { Stats } from "node:fs";
+import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { env } from "../env";
 
@@ -31,7 +31,7 @@ const handleRequest = async (
     } else {
       // Prevents having old HTMLs in cache referencing assets that
       // do not longer exist in its files
-      void reply.header("cache-control", `private, max-age=0`);
+      void reply.header("cache-control", "private, max-age=0");
       if (isStaticAsset) {
         return reply.sendFile(reqPath, path.join(staticPath, appName));
       } else {

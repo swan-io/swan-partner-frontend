@@ -239,8 +239,9 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
                     anchored={true}
                     variant="warning"
                     title={t("transaction.instantTransferUnavailable")}
-                    children={description}
-                  />
+                  >
+                    {description}
+                  </LakeAlert>
                 );
               },
             )

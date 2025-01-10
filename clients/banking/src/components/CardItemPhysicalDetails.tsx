@@ -582,38 +582,38 @@ export const CardItemPhysicalDetails = ({
                           .endOf("month")
                           .format("LL"),
                       })}
-                      children={
-                        <>
-                          <LakeText>
-                            {t("card.physical.toRenewAlert.description", {
-                              deadline: fourWeeksBefore,
-                              address: completeAddress,
-                            })}
-                          </LakeText>
+                    >
+                      {" "}
+                      <>
+                        <LakeText>
+                          {t("card.physical.toRenewAlert.description", {
+                            deadline: fourWeeksBefore,
+                            address: completeAddress,
+                          })}
+                        </LakeText>
 
-                          <Space height={12} />
+                        <Space height={12} />
 
-                          <Box>
-                            <LakeButton
-                              ariaLabel={t("card.physical.toRenewAlert.cta")}
-                              size="small"
-                              icon="edit-regular"
-                              mode="secondary"
-                              style={styles.renewAlertCta}
-                              onPress={() => {
-                                setRenewalModal(
-                                  Option.Some({
-                                    initialShippingAddress: address,
-                                  }),
-                                );
-                              }}
-                            >
-                              {t("card.physical.toRenewAlert.cta")}
-                            </LakeButton>
-                          </Box>
-                        </>
-                      }
-                    />
+                        <Box>
+                          <LakeButton
+                            ariaLabel={t("card.physical.toRenewAlert.cta")}
+                            size="small"
+                            icon="edit-regular"
+                            mode="secondary"
+                            style={styles.renewAlertCta}
+                            onPress={() => {
+                              setRenewalModal(
+                                Option.Some({
+                                  initialShippingAddress: address,
+                                }),
+                              );
+                            }}
+                          >
+                            {t("card.physical.toRenewAlert.cta")}
+                          </LakeButton>
+                        </Box>
+                      </>
+                    </LakeAlert>
                   </>
                 );
               },
@@ -632,12 +632,9 @@ export const CardItemPhysicalDetails = ({
                       style={styles.renewAlert}
                       variant="info"
                       title={t("card.physical.expiredAlert")}
-                      children={
-                        <>
-                          <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
-                        </>
-                      }
-                    />
+                    >
+                      <LakeText>{t("card.physical.expiredAlert.description")}</LakeText>
+                    </LakeAlert>
                   ) : (
                     <LakeAlert
                       style={styles.renewAlert}
@@ -647,12 +644,9 @@ export const CardItemPhysicalDetails = ({
                           .endOf("month")
                           .format("LL"),
                       })}
-                      children={
-                        <>
-                          <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
-                        </>
-                      }
-                    />
+                    >
+                      <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                    </LakeAlert>
                   )}
                 </>
               ),
@@ -1365,10 +1359,8 @@ export const CardItemPhysicalDetails = ({
                       { __typename: "PhysicalCardToActivateStatusInfo", trackingNumber: P.nullish },
                       ({ address }) => (
                         <>
-                          <LakeAlert
-                            variant={"neutral"}
-                            title={t("card.shippingAddress")}
-                            children={[
+                          <LakeAlert variant={"neutral"} title={t("card.shippingAddress")}>
+                            {[
                               address.addressLine1,
                               address.addressLine2,
                               address.postalCode,
@@ -1379,7 +1371,7 @@ export const CardItemPhysicalDetails = ({
                             ]
                               .filter(Boolean)
                               .join(", ")}
-                          />
+                          </LakeAlert>
 
                           <Space height={24} />
                         </>
@@ -1390,10 +1382,8 @@ export const CardItemPhysicalDetails = ({
                       ({ address }) =>
                         currentCard === "renewed" && (
                           <>
-                            <LakeAlert
-                              variant={"neutral"}
-                              title={t("card.shippingAddress")}
-                              children={[
+                            <LakeAlert variant={"neutral"} title={t("card.shippingAddress")}>
+                              {[
                                 address.addressLine1,
                                 address.addressLine2,
                                 address.postalCode,
@@ -1404,7 +1394,7 @@ export const CardItemPhysicalDetails = ({
                               ]
                                 .filter(Boolean)
                                 .join(", ")}
-                            />
+                            </LakeAlert>
 
                             <Space height={24} />
                           </>
@@ -1451,7 +1441,8 @@ export const CardItemPhysicalDetails = ({
                                 anchored={true}
                                 variant={"neutral"}
                                 title={t("card.yourAddress")}
-                                children={[
+                              >
+                                {[
                                   address.addressLine1,
                                   address.addressLine2,
                                   address.postalCode,
@@ -1462,7 +1453,7 @@ export const CardItemPhysicalDetails = ({
                                 ]
                                   .filter(Boolean)
                                   .join(", ")}
-                              />
+                              </LakeAlert>
 
                               <Space height={24} />
                             </>
@@ -1506,7 +1497,8 @@ export const CardItemPhysicalDetails = ({
                             anchored={true}
                             variant={"neutral"}
                             title={t("card.yourAddress")}
-                            children={[
+                          >
+                            {[
                               address.addressLine1,
                               address.addressLine2,
                               address.postalCode,
@@ -1517,7 +1509,7 @@ export const CardItemPhysicalDetails = ({
                             ]
                               .filter(Boolean)
                               .join(", ")}
-                          />
+                          </LakeAlert>
 
                           <Space height={24} />
                         </>

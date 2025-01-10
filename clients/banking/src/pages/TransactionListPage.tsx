@@ -268,8 +268,9 @@ export const TransactionListPage = ({
                                             accountMembershipId,
                                           });
                                         }}
-                                        children={null}
-                                      />
+                                      >
+                                        {null}
+                                      </LakeButton>
                                     </Box>
 
                                     <TransactionDetail

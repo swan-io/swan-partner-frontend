@@ -277,7 +277,7 @@ export const AccountDetailsVirtualIbansPage = ({ accountId, large }: Props) => {
                     smallColumns={smallColumns}
                     keyExtractor={keyExtractor}
                     onEndReached={() => {
-                      if (Boolean(virtualIbanEntries?.pageInfo.hasNextPage)) {
+                      if (virtualIbanEntries?.pageInfo.hasNextPage === true) {
                         setVariables({
                           after: virtualIbanEntries?.pageInfo.endCursor ?? undefined,
                         });

@@ -6,6 +6,7 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { Fill } from "@swan-io/lake/src/components/Fill";
+import { Icon } from "@swan-io/lake/src/components/Icon";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
@@ -50,24 +51,26 @@ type ExtraInfo = undefined;
 const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
   {
     id: "name",
-    width: 200,
+    width: 400,
     title: t("merchantProfile.list.name"),
     renderTitle: ({ title }) => <HeaderCell text={title} />,
     renderCell: ({ item }) => (
-      <TextCell variant="medium" color={colors.gray[900]} text={item.merchantName} />
-    ),
-  },
-  {
-    id: "logo",
-    width: 150,
-    title: "",
-    renderTitle: () => null,
-    renderCell: ({ item }) =>
-      isNotNullish(item.merchantLogoUrl) ? (
-        <Box grow={1} alignItems="center">
-          <AutoWidthImage maxWidth={70} height={50} sourceUri={item.merchantLogoUrl} />
+      <Cell direction="row">
+        <Box style={{ width: "100px" }} alignItems="center">
+          {isNotNullish(item.merchantLogoUrl) ? (
+            <AutoWidthImage
+              maxWidth={70}
+              style={{ width: "100%" }}
+              height={50}
+              sourceUri={item.merchantLogoUrl}
+            />
+          ) : (
+            <Icon size={16} name="image-regular" color="gray" />
+          )}
         </Box>
-      ) : null,
+        <TextCell variant="medium" color={colors.gray[900]} text={item.merchantName} />
+      </Cell>
+    ),
   },
   {
     id: "productType",
@@ -132,13 +135,29 @@ const smallColumns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     id: "name",
     width: "grow",
     title: t("merchantProfile.list.name"),
-    renderTitle: ({ title }) => <HeaderCell text={title} />,
-    renderCell: ({ item }) => <TextCell variant="medium" text={item.merchantName} />,
+    renderTitle: () => null,
+    renderCell: ({ item }) => (
+      <Cell direction="row">
+        <Box style={{ width: "80px" }} alignItems="center">
+          {isNotNullish(item.merchantLogoUrl) ? (
+            <AutoWidthImage
+              maxWidth={70}
+              style={{ width: "100%" }}
+              height={50}
+              sourceUri={item.merchantLogoUrl}
+            />
+          ) : (
+            <Icon size={16} name="image-regular" color="gray" />
+          )}
+        </Box>
+        <TextCell variant="medium" color={colors.gray[900]} text={item.merchantName} />
+      </Cell>
+    ),
   },
   {
     id: "status",
     width: 200,
-    title: "",
+    title: t("merchantProfile.list.status"),
     renderTitle: () => null,
     renderCell: ({ item }) => (
       <Cell align="right">

@@ -2260,7 +2260,7 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
-fragment MerchantPayment on MerchantPayment {
+fragment MerchantPayment on CardMerchantPayment {
   id
   label
   createdAt
@@ -2310,7 +2310,7 @@ fragment MerchantPayment on MerchantPayment {
     id
   }
   reference
-  threeDS {
+  threeDs {
     requested
     statusInfo {
       status
@@ -2963,9 +2963,9 @@ fragment MerchantProfile on MerchantProfile {
   }
 }
 
-mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
-  addMerchantProfile(input: $input) {
-    ... on AddMerchantProfileSuccessPayload {
+mutation AddMerchantProfile($input: RequestMerchantProfileInput!) {
+  requestMerchantProfile(input: $input) {
+    ... on RequestMerchantProfileSuccessPayload {
       merchantProfile {
         ...MerchantProfile
       }

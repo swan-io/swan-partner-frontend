@@ -116,7 +116,7 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """Link to the account's bank details"""
+  """Download link to the main account iban's bank details"""
   bankDetails: String
 }
 
@@ -875,11 +875,7 @@ input AccountMembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -3563,7 +3559,7 @@ type MerchantPaymentConnection implements Connection {
 
 """Implements the Relay Edge interface"""
 type MerchantPaymentEdge implements Edge {
-  node: MerchantPayment!
+  node: CardMerchantPayment!
 
   """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
@@ -4336,11 +4332,7 @@ type OnboardingEdge implements Edge {
 
 """Filters that can be applied when listing onboardings"""
 input OnboardingFiltersInput {
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -5123,6 +5115,8 @@ type ProjectInfo {
   """Unique identifier of the project"""
   id: ID!
   B2BMembershipIDVerification: Boolean
+  requireSupportingDocumentsDuringOnboarding: Boolean
+  requireUbosDuringOnboarding: Boolean
 
   """The card products associated with this project."""
   cardProducts: [CardProduct!]
@@ -7014,6 +7008,26 @@ enum VerificationFlow {
   Progressive
 }
 
+enum VerificationRenewalRequirement {
+  """Account Holder Details Required"""
+  AccountHolderDetailsRequired
+
+  """Swan is requesting some tax identifier"""
+  TaxIdRequired
+
+  """Swan is requesting some clarification on the UBO"""
+  UboDetailsRequired
+
+  """Legal Representative Details Required"""
+  LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some Supporting Documents"""
+  SupportingDocumentsRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
+}
+
 """Verification Renewals"""
 type VerificationRenewals {
   """Unique identifier of a funding limit settings change request"""
@@ -7080,26 +7094,6 @@ Order that can be applied when listing funding limit settings change requests
 input VerificationRenewalsOrderByInput {
   field: VerificationRenewalsOrderByFieldInput
   direction: OrderByDirection
-}
-
-enum VerificationRenewalVerificationRequirements {
-  """Account Holder Details Required"""
-  AccountHolderDetailsRequired
-
-  """Swan is requesting some tax identifier"""
-  TaxIdRequired
-
-  """Swan is requesting some clarification on the UBO"""
-  UboDetailsRequired
-
-  """Legal Representative Details Required"""
-  LegalRepresentativeDetailsRequired
-
-  """Swan is requesting some Supporting Documents"""
-  SupportingDocumentsRequired
-
-  """Swan is requesting more information on the account holders"""
-  Other
 }
 
 """
@@ -7186,6 +7180,9 @@ type VirtualIBANEntry {
 
   """`true` if the Virtual IBAN refuses all Sepa Direct Debit received"""
   blockSDD: Boolean!
+
+  """Download link to the virtual iban's bank details"""
+  bankDetails: String
 }
 
 """

@@ -131,7 +131,7 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """Link to the account's bank details"""
+  """Download link to the main account iban's bank details"""
   bankDetails: String
 
   """
@@ -1228,11 +1228,7 @@ input AccountMembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -7071,6 +7067,18 @@ type GenerateExportDownloadLinkSuccessPayload {
   link: String!
 }
 
+input GenerateIdentificationDocumentUploadUrlInput {
+  identificationDocumentId: ID!
+  fileName: String!
+  documentFileSide: DocumentFileSide!
+}
+
+union GenerateIdentificationDocumentUploadUrlPayload = GenerateIdentificationDocumentUploadUrlSuccessPayload | IdentificationDocumentNotFoundRejection | ForbiddenRejection | ValidationRejection
+
+type GenerateIdentificationDocumentUploadUrlSuccessPayload {
+  upload: IdentificationDocumentUploadInfo!
+}
+
 input GenerateSupportingDocumentUploadUrlInput {
   """Unique identifier of a supporting document collection"""
   supportingDocumentCollectionId: ID!
@@ -7312,6 +7320,20 @@ type IdentificationConnection {
 
 """Union representing all the possible identification document types"""
 union IdentificationDocument = IdCardDocument | PassportDocument | ResidencePermitDocument | DriversLicenseDocument | FacePhotoDocument | ReportDocument
+
+type IdentificationDocumentNotFoundRejection implements Rejection {
+  message: String!
+}
+
+type IdentificationDocumentPostField {
+  key: String!
+  value: String!
+}
+
+type IdentificationDocumentUploadInfo {
+  url: String!
+  fields: [IdentificationDocumentPostField!]!
+}
 
 """Implements the Relay Edge interface"""
 type IdentificationEdge implements Edge {
@@ -10128,7 +10150,7 @@ type MerchantPaymentConnection implements Connection {
 
 """Implements the Relay Edge interface"""
 type MerchantPaymentEdge implements Edge {
-  node: MerchantPayment!
+  node: CardMerchantPayment!
 
   """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
@@ -10595,6 +10617,12 @@ type MerchantProfileConnection implements Connection {
   totalCount: Int!
 }
 
+enum MerchantProfileCustomerLocation {
+  Domestic
+  European
+  International
+}
+
 type MerchantProfileEdge implements Edge {
   node: MerchantProfile!
 
@@ -10619,6 +10647,12 @@ enum MerchantProfileOrderByFieldInput {
 input MerchantProfileOrderByInput {
   field: MerchantProfileOrderByFieldInput
   direction: OrderByDirection
+}
+
+enum MerchantProfilePaymentFrequency {
+  OneOff
+  Recurrent
+  OneOffAndRecurrent
 }
 
 """Merchant Profile Statuses"""
@@ -11154,6 +11188,13 @@ type Mutation {
 
   """Deactivate an User"""
   deactivateUser(input: DeactivateUserInput!): DeactivateUserPayload!
+
+  """
+  Generate and return a pre-signed URL to upload a unique file for an identification
+  
+  *This mutation is restricted to a Project access token ([Learn More](https://docs.swan.io/api/authentication))*
+  """
+  generateIdentificationDocumentUploadUrl(input: GenerateIdentificationDocumentUploadUrlInput!): GenerateIdentificationDocumentUploadUrlPayload!
 
   """Grant consent with a server signature"""
   grantConsentWithServerSignature(input: GrantConsentWithServerSignatureInput!): GrantConsentWithServerSignaturePayload!
@@ -11845,11 +11886,7 @@ type OnboardingEdge implements Edge {
 
 """Filters that can be applied when listing onboardings"""
 input OnboardingFiltersInput {
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -13188,6 +13225,8 @@ type ProjectInfo {
   """Unique identifier of the project"""
   id: ID!
   B2BMembershipIDVerification: Boolean
+  requireSupportingDocumentsDuringOnboarding: Boolean
+  requireUbosDuringOnboarding: Boolean
   supportingDocumentSettings: SupportingDocumentSettings
 
   """The card products associated with this project."""
@@ -13692,7 +13731,7 @@ type Query {
   merchantPaymentMethod(id: ID!): MerchantPaymentMethod
 
   """Return a merchant payment by id"""
-  merchantPayment(id: ID!): MerchantPayment
+  merchantPayment(id: ID!): CardMerchantPayment
 
   """Returns a merchant profile update request by id."""
   merchantProfileUpdateRequest(id: ID!): RequestMerchantProfileUpdate
@@ -14551,8 +14590,29 @@ type RequestMerchantPaymentMethodsUpdateSuccessPayload {
 
 """Input to add a Merchant Profile"""
 input RequestMerchantProfileInput {
+  """
+  Your accent color, used in white label interfaces.
+  This color would also be inherited in the Swan Merchant Payment page.
+  """
+  accentColor: String
+
   """ID of the Swan account which the merchantProfile is associated to"""
   accountId: ID!
+
+  """Location of the merchant's customers"""
+  customerLocation: MerchantProfileCustomerLocation
+
+  """expected average basket value."""
+  expectedAverageBasket: AmountInput!
+
+  """Expected annual activity volumes for all payment methods."""
+  expectedMonthlyPaymentVolume: AmountInput!
+
+  """Base64 encoded PDF of an invoice example"""
+  invoiceExample: String
+
+  """Base64 encoded merchant's logo"""
+  merchantLogo: String
 
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
@@ -14562,25 +14622,22 @@ input RequestMerchantProfileInput {
   """Url of the merchant's website"""
   merchantWebsite: String
 
-  """base64 encoded merchant's logo"""
-  merchantLogo: String
+  """Payment frequency used by the merchant"""
+  paymentFrequency: MerchantProfilePaymentFrequency
 
   """
   Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
   productType: ProductType!
 
-  """Expected annual activity volumes for all payment methods."""
-  expectedMonthlyPaymentVolume: AmountInput!
+  """URL of the merchant social network"""
+  socialNetwork: String
 
-  """expected average basket value."""
-  expectedAverageBasket: AmountInput!
+  """URL of the merchant support website"""
+  supportWebsite: String
 
-  """
-  Your accent color, used in white label interfaces.
-  This color would also be inherited in the Swan Merchant Payment page.
-  """
-  accentColor: String
+  """URL of the merchan terms and conditions"""
+  termsAndConditions: String
 }
 
 """Request Merchant Profile Payload"""
@@ -14634,30 +14691,24 @@ type RequestMerchantProfileUpdate {
 
 """Input to update a Merchant Profile"""
 input RequestMerchantProfileUpdateInput {
-  """ID of the MerchantProfile to update"""
-  merchantProfileId: ID!
+  """
+  Your accent color, used in white label interfaces.
+  This color would also be inherited in the Swan Merchant Payment page.
+  Unlike the other fields in this mutation, the value specified here updates the merchant profile's accent color immediately.
+  """
+  accentColor: String
 
-  """
-  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
-  """
-  merchantName: String!
-
-  """
-  Url of the merchant's website.
-  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
-  """
-  merchantWebsite: String
-
-  """
-  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
-  """
-  productType: ProductType!
-
-  """Expected annual activity volumes for all payment methods."""
-  expectedMonthlyPaymentVolume: AmountInput!
+  """Location of the merchant's customers"""
+  customerLocation: MerchantProfileCustomerLocation
 
   """expected average basket value."""
-  expectedAverageBasket: AmountInput!
+  expectedAverageBasket: AmountInput
+
+  """Expected annual activity volumes for all payment methods."""
+  expectedMonthlyPaymentVolume: AmountInput
+
+  """Base64 encoded PDF of an invoice example"""
+  invoiceExample: String
 
   """
   base64 encoded merchant's logo.
@@ -14666,11 +14717,35 @@ input RequestMerchantProfileUpdateInput {
   merchantLogo: String
 
   """
-  Your accent color, used in white label interfaces.
-  This color would also be inherited in the Swan Merchant Payment page.
-  Unlike the other fields in this mutation, the value specified here updates the merchant profile's accent color immediately.
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
-  accentColor: String
+  merchantName: String
+
+  """ID of the MerchantProfile to update"""
+  merchantProfileId: ID!
+
+  """
+  Url of the merchant's website.
+  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
+  """
+  merchantWebsite: String
+
+  """Payment frequency used by the merchant"""
+  paymentFrequency: MerchantProfilePaymentFrequency
+
+  """
+  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  """
+  productType: ProductType
+
+  """URL of the merchant social network"""
+  socialNetwork: String
+
+  """URL of the merchant support website"""
+  supportWebsite: String
+
+  """URL of the merchan terms and conditions"""
+  termsAndConditions: String
 }
 
 """Add Merchant Profile Payload"""
@@ -19365,6 +19440,26 @@ enum VerificationFlow {
   Progressive
 }
 
+enum VerificationRenewalRequirement {
+  """Account Holder Details Required"""
+  AccountHolderDetailsRequired
+
+  """Swan is requesting some tax identifier"""
+  TaxIdRequired
+
+  """Swan is requesting some clarification on the UBO"""
+  UboDetailsRequired
+
+  """Legal Representative Details Required"""
+  LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some Supporting Documents"""
+  SupportingDocumentsRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
+}
+
 """Verification Renewals"""
 type VerificationRenewals {
   """Unique identifier of a funding limit settings change request"""
@@ -19431,26 +19526,6 @@ Order that can be applied when listing funding limit settings change requests
 input VerificationRenewalsOrderByInput {
   field: VerificationRenewalsOrderByFieldInput
   direction: OrderByDirection
-}
-
-enum VerificationRenewalVerificationRequirements {
-  """Account Holder Details Required"""
-  AccountHolderDetailsRequired
-
-  """Swan is requesting some tax identifier"""
-  TaxIdRequired
-
-  """Swan is requesting some clarification on the UBO"""
-  UboDetailsRequired
-
-  """Legal Representative Details Required"""
-  LegalRepresentativeDetailsRequired
-
-  """Swan is requesting some Supporting Documents"""
-  SupportingDocumentsRequired
-
-  """Swan is requesting more information on the account holders"""
-  Other
 }
 
 """
@@ -19605,6 +19680,9 @@ type VirtualIBANEntry {
 
   """`true` if the Virtual IBAN refuses all Sepa Direct Debit received"""
   blockSDD: Boolean!
+
+  """Download link to the virtual iban's bank details"""
+  bankDetails: String
 }
 
 """

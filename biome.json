@@ -39,7 +39,6 @@
         "useHookAtTopLevel": "warn",
         "useJsxKeyInIterable": "off",
 
-        "noChildrenProp": "off",
         "useExhaustiveDependencies": "off"
       },
       "nursery": {

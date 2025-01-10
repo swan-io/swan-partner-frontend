@@ -83,7 +83,6 @@ export default [
       "@typescript-eslint/no-array-constructor": "error",
       "@typescript-eslint/no-empty-object-type": "error",
       "@typescript-eslint/no-explicit-any": "error",
-      "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-misused-new": "error",
       "@typescript-eslint/no-namespace": "error",
       "@typescript-eslint/no-non-null-assertion": "error",

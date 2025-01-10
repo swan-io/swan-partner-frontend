@@ -312,7 +312,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
         return;
       }
       const cleanValue = Math.max(
-        Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Infinity),
+        Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Number.POSITIVE_INFINITY),
         0,
       );
       const value = Number.isNaN(cleanValue) ? 0 : cleanValue;

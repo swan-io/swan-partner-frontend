@@ -50,10 +50,7 @@
         "noUselessElse": "off",
         "useBlockStatements": "warn",
         "useImportType": "off",
-        "useTemplate": "off",
-
-        "noUnusedTemplateLiteral": "off",
-        "useNumberNamespace": "off"
+        "useTemplate": "off"
       },
       "suspicious": {
         "noArrayIndexKey": "off",

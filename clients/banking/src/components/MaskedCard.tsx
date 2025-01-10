@@ -55,7 +55,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundImage: `linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5))`,
+    backgroundImage: "linear-gradient(to bottom, rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5))",
     backdropFilter: "blur(6px)",
     justifyContent: "center",
     alignItems: "center",
@@ -72,11 +72,13 @@ const styles = StyleSheet.create({
   },
   suspendedGradient: {
     ...StyleSheet.absoluteFillObject,
-    backgroundImage: `linear-gradient(to top left, rgba(196, 122, 58, 1), rgba(196, 122, 58, 0) 70%)`,
+    backgroundImage:
+      "linear-gradient(to top left, rgba(196, 122, 58, 1), rgba(196, 122, 58, 0) 70%)",
   },
   toReniewGradient: {
     ...StyleSheet.absoluteFillObject,
-    backgroundImage: `linear-gradient(to top left, rgba(96, 163, 188, 1), rgba(96, 163, 188, 0) 70%)`,
+    backgroundImage:
+      "linear-gradient(to top left, rgba(96, 163, 188, 1), rgba(96, 163, 188, 0) 70%)",
   },
   contents: {
     flexGrow: 1,

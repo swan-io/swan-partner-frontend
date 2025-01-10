@@ -31,7 +31,7 @@ const handleRequest = async (
     } else {
       // Prevents having old HTMLs in cache referencing assets that
       // do not longer exist in its files
-      void reply.header("cache-control", `private, max-age=0`);
+      void reply.header("cache-control", "private, max-age=0");
       if (isStaticAsset) {
         return reply.sendFile(reqPath, path.join(staticPath, appName));
       } else {

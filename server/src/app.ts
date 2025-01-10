@@ -304,7 +304,7 @@ export const start = async ({
 
   app.addHook("onRequest", (request, reply, done) => {
     if (request.url.startsWith("/api/") || request.url.startsWith("/auth/")) {
-      void reply.header("cache-control", `private, max-age=0`);
+      void reply.header("cache-control", "private, max-age=0");
     }
     done();
   });
@@ -330,7 +330,7 @@ export const start = async ({
    * An no-op to extend the cookie duration.
    */
   app.post("/api/ping", async (_request, reply) => {
-    return reply.header("cache-control", `private, max-age=0`).status(200).send({
+    return reply.header("cache-control", "private, max-age=0").status(200).send({
       ok: true,
     });
   });
@@ -386,7 +386,7 @@ export const start = async ({
         )
         .tapOk(onboardingId => {
           return reply
-            .header("cache-control", `private, max-age=0`)
+            .header("cache-control", "private, max-age=0")
             .redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
@@ -423,7 +423,7 @@ export const start = async ({
         )
         .tapOk(onboardingId => {
           return reply
-            .header("cache-control", `private, max-age=0`)
+            .header("cache-control", "private, max-age=0")
             .redirect(`${env.ONBOARDING_URL}/onboardings/${onboardingId}`);
         })
         .tapError(error => {
@@ -854,12 +854,12 @@ export const start = async ({
 
     return reply
       .header("Content-Type", "application/javascript")
-      .header("cache-control", `public, max-age=0`)
+      .header("cache-control", "public, max-age=0")
       .send(`window.__env = ${JSON.stringify(data)};`);
   });
 
   app.get("/health", async (_request, reply) => {
-    return reply.header("cache-control", `private, max-age=0`).status(200).send({
+    return reply.header("cache-control", "private, max-age=0").status(200).send({
       version: packageJson.version,
       date: new Date().toISOString(),
       env: env.NODE_ENV,

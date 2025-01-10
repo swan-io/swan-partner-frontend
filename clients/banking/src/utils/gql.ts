@@ -130,7 +130,7 @@ export const partnerClient = new Client({
       Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
       projectId => `/api/projects/${projectId}/partner`,
     )
-    .otherwise(() => `/api/partner`),
+    .otherwise(() => "/api/partner"),
   makeRequest,
   schemaConfig: partnerSchemaConfig,
 });
@@ -141,13 +141,13 @@ export const partnerAdminClient = new Client({
       Option.P.Some({ projectId: P.select(), mode: "MultiProject" }),
       projectId => `/api/projects/${projectId}/partner-admin`,
     )
-    .otherwise(() => `/api/partner-admin`),
+    .otherwise(() => "/api/partner-admin"),
   makeRequest,
   schemaConfig: partnerSchemaConfig,
 });
 
 export const unauthenticatedClient = new Client({
-  url: `/api/unauthenticated`,
+  url: "/api/unauthenticated",
   makeRequest,
   schemaConfig: unauthenticatedSchemaConfig,
 });

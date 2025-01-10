@@ -153,6 +153,29 @@ You can also configure `lint-staged` as a pre-commit hook by running the followi
 $ pnpm configure-hooks
 ```
 
+### Ignore code
+
+If you want to ignore a lint rule for a specific line of the code, you can add a suppression comment above the line that emits the lint diagnostic:
+
+```ts
+// biome-ignore <rule>: <optional-explanation>
+```
+
+For example:
+
+```ts
+// biome-ignore lint/suspicious/noNamespace:
+namespace foo {}
+```
+
+For `useExhaustiveDependencies` (equivalent of `react-hooks/exhaustive-deps`), you can even specify which dependencies are ignored, on multiple lines:
+
+```ts
+// biome-ignore lint/correctness/useExhaustiveDependencies(fn):
+// biome-ignore lint/correctness/useExhaustiveDependencies(value):
+useEffect(fn, [fn, value]);
+```
+
 ## Testing
 
 ```console

@@ -135,6 +135,7 @@ export const OnboardingIndividualWizard = ({ onboarding, holder, onboardingId }:
     [onboardingId, steps, finalized],
   );
 
+  // biome-ignore lint/correctness/useExhaustiveDependencies(route?.name):
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [route?.name]);

@@ -37,9 +37,7 @@
         "noVoidTypeReturn": "off",
         "useArrayLiterals": "error",
         "useHookAtTopLevel": "warn",
-        "useJsxKeyInIterable": "off",
-
-        "useExhaustiveDependencies": "off"
+        "useJsxKeyInIterable": "off"
       },
       "nursery": {
         "noCommonJs": "error"

@@ -315,7 +315,7 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
         Math.min(Number(dirtyValue), spendingLimitMaxValue ?? Infinity),
         0,
       );
-      const value = isNaN(cleanValue) ? 0 : cleanValue;
+      const value = Number.isNaN(cleanValue) ? 0 : cleanValue;
       setDirtyValue(String(value));
       setCurrentSettings({
         ...currentSettings,

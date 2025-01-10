@@ -375,7 +375,7 @@ export const MerchantProfilePaymentLinkNew = ({
     if (isNotNullishOrEmpty(label)) {
       url.searchParams.append("label", label);
     }
-    if (isNotNullishOrEmpty(amount) && !isNaN(Number(amount))) {
+    if (isNotNullishOrEmpty(amount) && !Number.isNaN(Number(amount))) {
       url.searchParams.append("amount", amount);
     }
 

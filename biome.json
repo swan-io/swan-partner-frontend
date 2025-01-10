@@ -61,9 +61,7 @@
         "noArrayIndexKey": "off",
         "noMisleadingCharacterClass": "off",
         "noConfusingVoidType": "off",
-        "noShadowRestrictedNames": "off",
-
-        "noGlobalIsNan": "off"
+        "noShadowRestrictedNames": "off"
       }
     }
   }

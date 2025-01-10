@@ -175,7 +175,7 @@ export const validateTime =
     const hours = Number(hoursStr);
     const minutes = Number(minutesStr);
 
-    if (isNaN(hours) || isNaN(minutes)) {
+    if (Number.isNaN(hours) || Number.isNaN(minutes)) {
       return t("common.form.invalidTime");
     }
 

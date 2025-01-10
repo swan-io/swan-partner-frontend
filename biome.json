@@ -31,7 +31,6 @@
         "noForEach": "off",
         "useLiteralKeys": "off",
 
-        "noUselessFragments": "off",
         "noExtraBooleanCast": "off",
         "noUselessTernary": "off"
       },

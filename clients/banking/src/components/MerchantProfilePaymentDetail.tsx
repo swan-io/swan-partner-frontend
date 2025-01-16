@@ -228,9 +228,9 @@ const MerchantProfilePaymentDetailView = ({
             type="view"
             label={t("merchantProfile.payments.details.3ds")}
             render={() =>
-              isNotNullish(payment.threeDS) ? (
+              isNotNullish(payment.threeDs) ? (
                 <LakeText variant="regular" color={colors.gray[900]}>
-                  {payment.threeDS.requested}
+                  {payment.threeDs.requested}
                 </LakeText>
               ) : (
                 UNKNOWN_VALUE
@@ -242,9 +242,9 @@ const MerchantProfilePaymentDetailView = ({
             type="view"
             label={t("merchantProfile.payments.details.3dsStatus")}
             render={() =>
-              isNotNullish(payment.threeDS) ? (
+              isNotNullish(payment.threeDs) ? (
                 <LakeText variant="regular" color={colors.gray[900]}>
-                  {payment.threeDS.statusInfo.status}
+                  {payment.threeDs.statusInfo.status}
                 </LakeText>
               ) : (
                 UNKNOWN_VALUE

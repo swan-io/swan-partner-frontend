@@ -91,7 +91,7 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
   {
     id: "amount",
     width: 200,
-    title: t("transactions.amount"),
+    title: t("merchantProfile.paymentLink.list.amount"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
       <TextCell

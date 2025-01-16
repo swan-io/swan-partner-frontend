@@ -245,51 +245,49 @@ export const MerchantProfilePaymentArea = ({ params, large }: Props) => {
   return (
     <>
       {shouldShowTopbar && (
-        <>
-          <Box style={[styles.filters, large && styles.filtersLarge]}>
-            <MerchantProfilePaymentListFilter
-              large={large}
-              filters={filters}
-              search={search}
-              onRefresh={reload}
-              onChangeFilters={({ status, ...filters }) => {
-                Router.replace("AccountMerchantsProfilePaymentsList", {
-                  ...params,
-                  accountMembershipId,
-                  status,
-                  ...filters,
-                });
-              }}
-              onChangeSearch={search => {
-                Router.replace("AccountMerchantsProfilePaymentsList", {
-                  ...params,
-                  accountMembershipId,
-                  search,
-                });
-              }}
-            >
-              {canCreateMerchantPaymentLinks && (
-                <LakeTooltip
-                  content={t("merchantProfile.paymentLink.button.new.disable")}
-                  disabled={canCreatePayments}
+        <Box style={[styles.filters, large && styles.filtersLarge]}>
+          <MerchantProfilePaymentListFilter
+            large={large}
+            filters={filters}
+            search={search}
+            onRefresh={reload}
+            onChangeFilters={({ status, ...filters }) => {
+              Router.replace("AccountMerchantsProfilePaymentsList", {
+                ...params,
+                accountMembershipId,
+                status,
+                ...filters,
+              });
+            }}
+            onChangeSearch={search => {
+              Router.replace("AccountMerchantsProfilePaymentsList", {
+                ...params,
+                accountMembershipId,
+                search,
+              });
+            }}
+          >
+            {canCreateMerchantPaymentLinks && (
+              <LakeTooltip
+                content={t("merchantProfile.paymentLink.button.new.disable")}
+                disabled={canCreatePayments}
+              >
+                <LakeButton
+                  disabled={!canCreatePayments}
+                  size="small"
+                  icon="add-circle-filled"
+                  color="current"
+                  onPress={() => {
+                    setShouldShowTopbar(false);
+                    setPickerModal.open();
+                  }}
                 >
-                  <LakeButton
-                    disabled={!canCreatePayments}
-                    size="small"
-                    icon="add-circle-filled"
-                    color="current"
-                    onPress={() => {
-                      setShouldShowTopbar(false);
-                      setPickerModal.open();
-                    }}
-                  >
-                    {t("merchantProfile.payments.button.new")}
-                  </LakeButton>
-                </LakeTooltip>
-              )}
-            </MerchantProfilePaymentListFilter>
-          </Box>
-        </>
+                  {t("merchantProfile.payments.button.new")}
+                </LakeButton>
+              </LakeTooltip>
+            )}
+          </MerchantProfilePaymentListFilter>
+        </Box>
       )}
 
       {match(data)

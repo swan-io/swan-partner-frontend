@@ -96,14 +96,15 @@ const columns: ColumnConfig<MerchantProfileFragment, ExtraInfo>[] = [
     width: 300,
     title: t("merchantProfile.list.website"),
     renderTitle: ({ title }) => <HeaderCell align="left" text={title} />,
-    renderCell: ({ item }) => (
-      <CopyableTextCell
-        textToCopy={item.merchantWebsite ?? "-"}
-        text={item.merchantWebsite ?? "-"}
-        copyWording={t("copyButton.copyTooltip")}
-        copiedWording={t("copyButton.copiedTooltip")}
-      />
-    ),
+    renderCell: ({ item }) =>
+      isNotNullish(item.merchantWebsite) ? (
+        <CopyableTextCell
+          textToCopy={item.merchantWebsite}
+          text={item.merchantWebsite}
+          copyWording={t("copyButton.copyTooltip")}
+          copiedWording={t("copyButton.copiedTooltip")}
+        />
+      ) : null,
   },
   {
     id: "status",

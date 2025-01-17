@@ -25,7 +25,6 @@ import {
   radii,
   spacings,
 } from "@swan-io/lake/src/constants/design";
-import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
 import { LakeModal } from "@swan-io/shared-business/src/components/LakeModal";
@@ -499,32 +498,6 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
-      {permissions.canDeclareChecks &&
-      checkPaymentMethod
-        .flatMap(identity)
-        .map(check => check.statusInfo.status === "Enabled")
-        .getOr(false) ? (
-        <>
-          <Box direction="row" alignItems="center">
-            <LakeButton
-              icon="check-regular"
-              size="small"
-              color="current"
-              onPress={() => {
-                Router.push("AccountMerchantsProfileSettings", {
-                  ...params,
-                  check: "declare",
-                });
-              }}
-            >
-              {t("merchantProfile.declareCheckButton")}
-            </LakeButton>
-          </Box>
-
-          <Space height={32} />
-        </>
-      ) : null}
-
       <LakeHeading level={2} variant="h4">
         {t("merchantProfile.settings.information.title")}
       </LakeHeading>

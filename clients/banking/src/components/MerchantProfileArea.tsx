@@ -15,6 +15,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { ErrorView } from "./ErrorView";
+import { MerchantProfilePaymentArea } from "./MerchantProfilePaymentArea";
 import { MerchantProfilePaymentLinkArea } from "./MerchantProfilePaymentLinkArea";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
 

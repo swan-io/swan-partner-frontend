@@ -15,6 +15,7 @@ import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { useTgglFlag } from "../utils/tggl";
 import { ErrorView } from "./ErrorView";
+import { MerchantProfilePaymentArea } from "./MerchantProfilePaymentArea";
 import { MerchantProfilePaymentLinkArea } from "./MerchantProfilePaymentLinkArea";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
 
@@ -31,6 +32,7 @@ type Props = {
 
 export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfileId }: Props) => {
   const route = Router.useRoute([
+    "AccountMerchantsProfilePaymentsArea",
     "AccountMerchantsProfileSettings",
     "AccountMerchantsProfilePaymentLinkArea",
   ]);
@@ -58,6 +60,13 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
     () => [
       ...(isPaymentLinksTabFlagActive
         ? [
+            {
+              label: t("merchantProfile.tab.payments"),
+              url: Router.AccountMerchantsProfilePaymentsList({
+                accountMembershipId,
+                merchantProfileId,
+              }),
+            },
             {
               label: t("merchantProfile.tab.paymentLinks"),
               url: Router.AccountMerchantsProfilePaymentLinkList({
@@ -108,6 +117,9 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
                   ))
                   .with({ name: "AccountMerchantsProfilePaymentLinkArea" }, ({ params }) => (
                     <MerchantProfilePaymentLinkArea large={large} params={params} />
+                  ))
+                  .with({ name: "AccountMerchantsProfilePaymentsArea" }, ({ params }) => (
+                    <MerchantProfilePaymentArea large={large} params={params} />
                   ))
                   .with(P.nullish, () => <NotFoundPage />)
                   .exhaustive()}

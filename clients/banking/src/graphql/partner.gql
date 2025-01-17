@@ -2280,6 +2280,118 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
+fragment MerchantPayment on CardMerchantPayment {
+  id
+  label
+  createdAt
+  __typename
+  externalReference
+  statusInfo {
+    status
+  }
+  amount {
+    currency
+    value
+  }
+  paymentMethod {
+    id
+    type
+  }
+  merchantProfile {
+    id
+  }
+  balance {
+    totalAuthorized {
+      currency
+      value
+    }
+    totalCaptured {
+      currency
+      value
+    }
+    availableToCapture {
+      currency
+      value
+    }
+    totalRefunded {
+      currency
+      value
+    }
+    availableToRefund {
+      currency
+      value
+    }
+    availableToCancel {
+      currency
+      value
+    }
+  }
+  paymentLink {
+    id
+  }
+  reference
+  threeDs {
+    requested
+    statusInfo {
+      status
+    }
+  }
+}
+
+fragment MerchantPaymentsConnection on MerchantPaymentConnection {
+  pageInfo {
+    endCursor
+    hasNextPage
+  }
+  totalCount
+  edges {
+    node {
+      ...MerchantPayment
+    }
+  }
+}
+
+query MerchantPayments(
+  $merchantProfileId: ID!
+  $filters: MerchantPaymentFiltersInput!
+  $first: Int!
+  $after: String
+) {
+  merchantProfile(id: $merchantProfileId) {
+    id
+    statusInfo {
+      status
+    }
+    accentColor
+    merchantLogoUrl
+    merchantName
+    merchantPayments(filters: $filters, first: $first, after: $after) {
+      ...MerchantPaymentsConnection
+    }
+    merchantPaymentMethods {
+      id
+      type
+      statusInfo {
+        status
+      }
+    }
+  }
+}
+
+query GetMainMerchantPaymentDetails($paymentId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+}
+
+query GetFullMerchantPaymentDetails($paymentId: ID!, $paymentLinkId: ID!) {
+  merchantPayment(id: $paymentId) {
+    ...MerchantPayment
+  }
+  merchantPaymentLink(id: $paymentLinkId) {
+    ...PaymentLink
+  }
+}
 fragment PaymentLinkConnection on MerchantPaymentLinkConnection {
   pageInfo {
     endCursor

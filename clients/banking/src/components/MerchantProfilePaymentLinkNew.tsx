@@ -36,7 +36,7 @@ import {
 import { trim } from "@swan-io/lake/src/utils/string";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
-import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
+import { toOptionalValidator, useForm } from "@swan-io/use-form";
 import { ReactNode, useEffect, useMemo, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -59,6 +59,7 @@ import {
 const PREVIEW_CONTAINER_VERTICAL_SPACING = 16;
 const PREVIEW_TOP_BAR_HEIGHT = 16;
 const IFRAME_ORIGINAL_HEIGHT = 1000;
+const DOTS_AT_END_REGEXP = /\.+$/;
 
 const styles = StyleSheet.create({
   root: {
@@ -113,7 +114,7 @@ const styles = StyleSheet.create({
   tileContents: { flexGrow: 1 },
   optionsDesktop: {
     padding: spacings[32],
-    maxWidth: 350,
+    width: 350,
   },
   optionsMobile: { padding: spacings[32] },
   accordion: { paddingHorizontal: 0 },
@@ -143,9 +144,9 @@ const formatPaymentMethodsName = (paymentMethodType: MerchantPaymentMethodType) 
   return match(paymentMethodType)
     .with("Card", () => t("merchantProfile.paymentLink.paymentMethod.card"))
     .with(P.union("SepaDirectDebitB2b", "SepaDirectDebitCore"), () =>
-      t("merchantProfile.paymentLink.paymentMethod.SepaDirectDebit"),
+      t("merchantProfile.paymentLink.paymentMethod.sepaDirectDebit"),
     )
-    .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.checks"))
+    .with("Check", () => t("merchantProfile.paymentLink.paymentMethod.check"))
     .with(P.union("InternalDirectDebitB2b", "InternalDirectDebitStandard"), () =>
       t("merchantProfile.paymentLink.paymentMethod.internalDirectDebit"),
     )
@@ -204,8 +205,8 @@ type Props = {
   accentColor: string | undefined;
   merchantLogoUrl: string | undefined;
   merchantName: string | undefined;
-  paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "updatedAt" | "type">[];
-  paymentLinks: PaymentLinkConnectionFragment | null | undefined;
+  paymentMethods: Pick<MerchantPaymentMethod, "id" | "statusInfo" | "type">[];
+  paymentLinks?: PaymentLinkConnectionFragment | null;
   onPressClose: () => void;
 };
 
@@ -267,8 +268,8 @@ export const MerchantProfilePaymentLinkNew = ({
     },
     amount: {
       initialValue: "",
-      sanitize: trim,
-      validate: combineValidators(validateRequired, validateNumeric({ min: 0 })),
+      sanitize: value => value.trim().replace(DOTS_AT_END_REGEXP, ""),
+      validate: validateNumeric({ min: 0 }),
     },
     reference: {
       initialValue: "",
@@ -408,12 +409,14 @@ export const MerchantProfilePaymentLinkNew = ({
         const option = Option.allFromDict(values);
 
         if (option.isSome()) {
-          const { label, amount, paymentMethodIds } = option.get();
+          const { label, amount, paymentMethodIds, externalReference, reference } = option.get();
 
           return createMerchantPaymentLink({
             input: {
               merchantProfileId,
               label,
+              reference,
+              externalReference,
               amount: {
                 value: amount,
                 currency: "EUR",
@@ -511,16 +514,20 @@ export const MerchantProfilePaymentLinkNew = ({
                   </Field>
 
                   <Field name="amount">
-                    {({ value, onChange, error }) => (
+                    {({ value, onChange, error, onBlur }) => (
                       <LakeLabel
                         label={t("merchantProfile.paymentLink.new.amount")}
                         render={id => (
                           <LakeTextInput
                             id={id}
-                            value={value.replace(",", ".")}
+                            value={value}
                             unit="EUR"
                             onChangeText={onChange}
                             error={error}
+                            onBlur={() => {
+                              onChange(value.replace(",", ".").replace(DOTS_AT_END_REGEXP, ""));
+                              onBlur();
+                            }}
                           />
                         )}
                       />
@@ -531,6 +538,7 @@ export const MerchantProfilePaymentLinkNew = ({
                     {({ value, onChange, error }) => (
                       <LakeLabel
                         label={t("merchantProfile.paymentLink.new.reference")}
+                        optionalLabel={t("form.optional")}
                         render={id => (
                           <LakeTextInput
                             id={id}

@@ -2850,9 +2850,9 @@ fragment MerchantProfile on MerchantProfile {
   }
 }
 
-mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
-  addMerchantProfile(input: $input) {
-    ... on AddMerchantProfileSuccessPayload {
+mutation AddMerchantProfile($input: RequestMerchantProfileInput!) {
+  requestMerchantProfile(input: $input) {
+    ... on RequestMerchantProfileSuccessPayload {
       merchantProfile {
         ...MerchantProfile
       }

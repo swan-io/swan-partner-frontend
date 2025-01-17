@@ -34,7 +34,9 @@ const MerchantProfileRequestEditor = ({
         ...input,
       },
     })
-      .mapOkToResult(data => Option.fromNullable(data.addMerchantProfile).toResult("No response"))
+      .mapOkToResult(data =>
+        Option.fromNullable(data.requestMerchantProfile).toResult("No response"),
+      )
       .mapOkToResult(filterRejectionsToResult)
       .tapError(error => {
         showToast({ variant: "error", error, title: translateError(error) });

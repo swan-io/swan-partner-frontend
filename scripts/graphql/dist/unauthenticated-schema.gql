@@ -116,7 +116,7 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """Link to the account's bank details"""
+  """Download link to the main account iban's bank details"""
   bankDetails: String
 }
 
@@ -668,8 +668,11 @@ type AccountMembership {
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level"""
-  recommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -872,11 +875,7 @@ input AccountMembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -1188,6 +1187,13 @@ type AlreadyValidPhysicalCardRejection implements Rejection {
   message: String!
 }
 
+enum AmlRiskLevel {
+  Low
+  Medium
+  High
+  TooHigh
+}
+
 """Amount with its currency"""
 type Amount {
   """currency"""
@@ -1333,27 +1339,6 @@ type Card {
   """Unique identifier of a card"""
   id: ID!
 
-  """
-  Digital Cards linked to this card
-  
-  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-  """
-  digitalCards(
-    """the number of elements to load (maximum: 100)"""
-    first: Int! = 50
-
-    """
-    the index (a unique reference in string form) from which you will load the following elements
-    """
-    after: String
-
-    """an order you can apply to your list of connections"""
-    orderBy: DigitalCardOrderByInput
-
-    """a filtering table you can apply to your list of connections"""
-    filters: DigitalCardFiltersInput
-  ): DigitalCardConnection!
-
   """Type of a card"""
   type: CardType!
 
@@ -1419,6 +1404,18 @@ type Card {
 
   """Issuing Country"""
   issuingCountry: CCA3!
+
+  """Digital Cards linked to this card"""
+  digitalCards(
+    first: Int! = 50
+    after: String
+
+    """When the list of elements needs to be ordered"""
+    orderBy: DigitalCardOrderByInput
+
+    """When the list of elements needs to be filtered"""
+    filters: DigitalCardFiltersInput
+  ): DigitalCardConnection!
 }
 
 """Card Canceled Status Information"""
@@ -1538,34 +1535,49 @@ type CardEnabledStatusInfo implements CardStatusInfo {
 """Filters that can be applied when listing cards"""
 input CardFiltersInput {
   """
-  The status of the card.
+  Filter by status
   
-  @deprecated(reason: "use `statuses` instead")
+  @deprecated(reason: "use filter `statuses` instead")
   """
   status: CardStatus
 
-  """Statuses of the card."""
+  """Filter by status"""
   statuses: [CardStatus!]
 
   """
-  Type of card
+  Filter by type
   
-  @deprecated(reason: "use `types` instead")
+  @deprecated(reason: "use filter `types` instead")
   """
   type: CardType
 
-  """Types of card"""
+  """Filter by type"""
   types: [CardType!]
 
-  """String searched"""
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Embossed line
+   - Card masked number
+   - Name
+   - ID
+  """
   search: String
 
   """
-  Account identifier
+  Filter by accountId
   
-  This filter is only available for User Access Token, for the moment
+  Only available for User Access Token, for the moment
   """
   accountId: String
+
+  """
+  Filter by User ID
+  
+  Only usable on Cards query
+  """
+  userId: String
 }
 
 enum CardFundingType {
@@ -1602,6 +1614,80 @@ type CardInfos {
 input CardInfosInput {
   token: String!
   requestId: String
+}
+
+type CardMerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """unique identifier of the payment mandate associated to the payment"""
+  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """unique identifier of the payment link associated to the payment"""
+  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """unique identifier of the merchant profile associated to the payment"""
+  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """unique identifier of the payment method associated to the payment"""
+  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+  threeDS: ThreeDS @deprecated(reason: "Use threeDs instead")
+  threeDs: ThreeDS
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime
+
+  """Canceled date"""
+  canceledAt: DateTime
+
+  """Captured date"""
+  capturedAt: DateTime
+
+  """Rejected date"""
+  rejectedAt: DateTime
+
+  """Refunded date"""
+  refundedAt: DateTime
+
+  """Disputed date"""
+  disputedAt: DateTime
 }
 
 """COMING SOON"""
@@ -2370,6 +2456,9 @@ enum ConsentPurpose {
 
   """when returning a transaction for international credit transfer"""
   ReturnTransactionForInternationalCreditTransfer
+
+  """when initiating the creation of a credit limit."""
+  RequestCreditLimit
 }
 
 """Status of a consent"""
@@ -2732,14 +2821,26 @@ type ExternalAccountAlreadyExistsRejection implements Rejection {
   message: String!
 }
 
-type FailedThreeDs {
+type FailedThreeDs implements ThreeDsStatusInfo {
   status: ThreeDsStatus!
-  reason: String!
-  code: String!
+  reasonCode: FailedThreeDsReason!
+}
+
+enum FailedThreeDsReason {
+  AuthenticationFailed
+  AuthenticationExpired
+  Other
 }
 
 enum FieldValidationError {
+  """When the associated field's value is missing"""
   Missing
+
+  """
+  When the associated field's value is invalid
+  @comingSoon
+  """
+  Invalid
 }
 
 type ForbiddenRejection implements Rejection {
@@ -3143,6 +3244,17 @@ type IndividualUltimateBeneficialOwnerTypeOther implements IndividualUltimateBen
   type: IndividualUltimateBeneficialOwnerTypeEnum!
 }
 
+enum InitiateMerchantCardPaymentFromPaymentLinkCardScheme {
+  """Visa Scheme"""
+  Visa
+
+  """Mastercard Scheme"""
+  Mastercard
+
+  """Cartes Bancaires Scheme"""
+  CartesBancaires
+}
+
 """InternalDirectDebitB2BMerchantPaymentMethod"""
 type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -3364,16 +3476,28 @@ type MerchantPayment {
   amount: Amount!
 
   """unique identifier of the payment mandate associated to the payment"""
-  paymentMandateId: ID!
+  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
 
   """unique identifier of the payment link associated to the payment"""
-  paymentLinkId: ID
+  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
 
   """unique identifier of the merchant profile associated to the payment"""
-  merchantProfileId: ID!
+  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
 
   """unique identifier of the payment method associated to the payment"""
-  paymentMethodId: ID!
+  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
   balance: MerchantBalance!
 
   """Label"""
@@ -3426,6 +3550,9 @@ type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 }
 
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
 type MerchantPaymentConnection implements Connection {
   """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
@@ -3437,30 +3564,44 @@ type MerchantPaymentConnection implements Connection {
   totalCount: Int!
 }
 
+"""Implements the Relay Edge interface"""
 type MerchantPaymentEdge implements Edge {
-  node: MerchantPayment!
+  node: CardMerchantPayment!
 
   """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
 }
 
+"""Filters that can be applied when listing merchant payments"""
 input MerchantPaymentFiltersInput {
-  """To filter on some Merchant Payment Link Status (all if empty)"""
-  status: [MerchantPaymentStatus!]
+  """Filter by amount (amount is greater than a given amount)"""
+  amountGreaterThan: AmountValue
 
-  """To filter on some Merchant Payment Method Type (all if empty)"""
-  paymentMethod: [MerchantPaymentMethodType!]
+  """Filter by amount (amount is less than a given amount)"""
+  amountSmallerThan: AmountValue
 
-  """To filter after a createdAt value"""
+  """Filter by createdAt (created after a given date)"""
   isAfterCreatedAt: DateTime
 
-  """To filter before a createdAt value"""
+  """Filter by createdAt (created before a given date)"""
   isBeforeCreatedAt: DateTime
 
-  """To filter on some text occurrences (words or ids)"""
+  """Filter by Method Type"""
+  paymentMethod: [MerchantPaymentMethodType!]
+
+  """Filter by status"""
+  status: [MerchantPaymentStatus!]
+
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Label
+   - Reference
+   - External Reference
+   - Amount
+  """
   search: String
-  amountSmallerThan: AmountValue
-  amountGreaterThan: AmountValue
 }
 
 """Merchant Payment status initiated"""
@@ -3557,6 +3698,9 @@ type MerchantPaymentLink {
   createdAt: DateTime!
 }
 
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
 type MerchantPaymentLinkConnection implements Connection {
   """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
@@ -3568,6 +3712,7 @@ type MerchantPaymentLinkConnection implements Connection {
   totalCount: Int!
 }
 
+"""Implements the Relay Edge interface"""
 type MerchantPaymentLinkEdge implements Edge {
   node: MerchantPaymentLink!
 
@@ -3575,36 +3720,44 @@ type MerchantPaymentLinkEdge implements Edge {
   cursor: String!
 }
 
+"""Filters that can be applied when listing merchant payment links"""
 input MerchantPaymentLinkFiltersInput {
-  """To filter on some Merchant Payment Link Status (all if empty)"""
-  status: [MerchantPaymentLinkStatus!]
+  """Filter by amount (amount is greater than a given amount)"""
+  amountGreaterThan: AmountValue
 
-  """To filter after a createdAt value"""
-  isAfterCreatedAt: DateTime
-
-  """To filter before a createdAt value"""
-  isBeforeCreatedAt: DateTime
-
-  """To filter on some text occurrences (words or ids)"""
-  search: String
-
-  """
-  To filter payment links having an amount smaller than the given criteria
-  """
+  """Filter by amount (amount is less than a given amount)"""
   amountSmallerThan: AmountValue
 
+  """Filter by createdAt (created after a given date)"""
+  isAfterCreatedAt: DateTime
+
+  """Filter by createdAt (created before a given date)"""
+  isBeforeCreatedAt: DateTime
+
+  """Filter by status"""
+  status: [MerchantPaymentLinkStatus!]
+
   """
-  To filter payment links having an amount greater than the given criteria
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Label
+   - Reference
+   - Amount
   """
-  amountGreaterThan: AmountValue
+  search: String
 }
 
+"""
+Field we can use when ordering that can be applied when listing merchant payment links
+"""
 enum MerchantPaymentLinkOrderByFieldInput {
   createdAt
   label
   url
 }
 
+"""Order that can be applied when listing merchant payment links"""
 input MerchantPaymentLinkOrderByInput {
   field: MerchantPaymentLinkOrderByFieldInput
   direction: OrderByDirection
@@ -3699,6 +3852,9 @@ type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
 
+"""
+Field we can use when ordering that can be applied when listing merchant payments
+"""
 enum MerchantPaymentOrderByFieldInput {
   label
   createdAt
@@ -3707,6 +3863,7 @@ enum MerchantPaymentOrderByFieldInput {
   amount
 }
 
+"""Order that can be applied when listing merchant payments"""
 input MerchantPaymentOrderByInput {
   field: MerchantPaymentOrderByFieldInput
   direction: OrderByDirection
@@ -3718,7 +3875,36 @@ type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 
   """rejected reason"""
-  reason: String!
+  reason: String! @deprecated(reason: "Use rejectedReasonCode instead")
+
+  """rejected reason"""
+  rejectedReasonCode: MerchantPaymentRejectedReason!
+}
+
+enum MerchantPaymentRejectedReason {
+  AmountInvalid
+  CardDetailsInvalid
+  CardExpired
+  InvalidPinAttemptsExceeded
+  RejectedByCardIssuer
+  SoftDecline3dsExpiration
+  SoftDecline3dsFailure
+  SoftDecline3dsNotSupported
+  SoftDecline3dsRequired
+  SoftDeclineCardAmountLimitsExceeded
+  SoftDeclineCardDetailsInvalid
+  SoftDeclineCardExpired
+  SoftDeclineCardNotActivated
+  SoftDeclineCardNotSupported
+  SoftDeclineCvcCheckFailed
+  SoftDeclineCvcInvalid
+  SoftDeclineInsufficientFunds
+  SoftDeclineRefundTimeLimitExceeded
+  SoftDeclineRejectedByCardIssuer
+  SoftDeclineSwanTechnicalErrorOccurred
+  SoftDeclineTransactionAmountIncorrect
+  SwanRefused
+  SwanTechnicalErrorOccurred
 }
 
 """Merchant Payment status"""
@@ -3788,8 +3974,48 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
-  merchantPaymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
-  merchantPayments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
+
+  """
+  Returns a list of merchant payment links
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  merchantPaymentLinks(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: MerchantPaymentLinkOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MerchantPaymentLinkFiltersInput
+  ): MerchantPaymentLinkConnection
+
+  """
+  Returns a list of merchant payments
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  merchantPayments(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: MerchantPaymentOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MerchantPaymentFiltersInput
+  ): MerchantPaymentConnection
 }
 
 type MerchantProfileNotValidRejection implements Rejection {
@@ -4012,8 +4238,11 @@ type Onboarding {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -4110,11 +4339,7 @@ type OnboardingEdge implements Edge {
 
 """Filters that can be applied when listing onboardings"""
 input OnboardingFiltersInput {
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -4219,8 +4444,11 @@ type OnboardingInfo {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -4418,11 +4646,6 @@ type PaymentConsentPending implements PaymentStatusInfo {
   consent: Consent!
 }
 
-interface PaymentDirectDebitMandate {
-  """Unique identifier of the Direct Debit Payment Mandate"""
-  id: ID!
-}
-
 """Payment status initiated"""
 type PaymentInitiated implements PaymentStatusInfo {
   """status of the payment"""
@@ -4445,127 +4668,11 @@ interface PaymentMandate {
   id: ID!
 }
 
-enum PaymentMandateCanceledReason {
-  """When the user requested to cancel the Payment Mandate"""
-  RequestedByUser
-
-  """When the Payment Mandate is expired"""
-  MandateExpired
-}
-
-"""Payment Mandate Canceled status information"""
-type PaymentMandateCanceledStatusInfo implements PaymentMandateStatusInfo {
-  """
-  Payment Mandate status (always Canceled for type PaymentMandateCanceledStatusInfo).
-  """
-  status: PaymentMandateStatus!
-
-  """Reason behind the Payment Mandate Canceled status"""
-  reason: PaymentMandateCanceledReason!
-}
-
-"""
-Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
-"""
-type PaymentMandateConnection implements Connection {
-  """Total number of elements in the list"""
-  totalCount: Int!
-
-  """Information about the current, the previous and the next page"""
-  pageInfo: PageInfo!
-
-  """PaymentMandateEdge list"""
-  edges: [PaymentMandateEdge!]!
-}
-
-"""Payment Mandate Consent Pending status information"""
-type PaymentMandateConsentPendingStatusInfo implements PaymentMandateStatusInfo {
-  """
-  Payment Mandate status (always Enabled for type PaymentMandateEnableedStatusInfo).
-  """
-  status: PaymentMandateStatus!
-
-  """Consent information required to enable the concerned Payment Mandate"""
-  consent: Consent!
-}
-
-interface PaymentMandateCreditor {
-  """Creditor UUID"""
-  id: ID!
-
-  """Creditor name"""
-  name: String!
-
-  """Creditor address"""
-  address: Address!
-}
-
-interface PaymentMandateDebtor {
-  """Debtor name"""
-  name: String!
-
-  """Debtor e-mail"""
-  email: String
-
-  """Debtor country"""
-  country: CCA3!
-}
-
-"""Implements the Relay Edge interface"""
-type PaymentMandateEdge implements Edge {
-  """
-  Opaque identifier pointing to this onboarding node in the pagination mechanism
-  """
-  cursor: String!
-
-  """The payment mandate"""
-  node: PaymentMandate!
-}
-
-"""Payment Mandate Enabled status information"""
-type PaymentMandateEnabledStatusInfo implements PaymentMandateStatusInfo {
-  """
-  Payment Mandate status (always Enabled for type PaymentMandateEnabledStatusInfo).
-  """
-  status: PaymentMandateStatus!
-}
-
 """
 Rejection returned when a payment mandate reference is already for a creditor
 """
 type PaymentMandateReferenceAlreadyUsedRejection implements Rejection {
   message: String!
-}
-
-"""Payment Mandate Rejected status information"""
-type PaymentMandateRejectedStatusInfo implements PaymentMandateStatusInfo {
-  """
-  Payment Mandate status (always Rejected for type PaymentMandateSuspendedStatusInfo).
-  """
-  status: PaymentMandateStatus!
-}
-
-enum PaymentMandateScheme {
-  """SEPA Direct Debit Core"""
-  SepaDirectDebitCore
-
-  """SEPA Direct Debit B2B"""
-  SepaDirectDebitB2b
-
-  """Internal Direct Debit Standard"""
-  InternalDirectDebitStandard
-
-  """Internal Direct Debit B2B"""
-  InternalDirectDebitB2b
-
-  """Card Visa"""
-  CardVisa
-
-  """Card Mastercard"""
-  CardMastercard
-
-  """Card Cartes Bancaires"""
-  CardCartesBancaires
 }
 
 """Payment Mandate Sequence"""
@@ -4575,20 +4682,6 @@ enum PaymentMandateSequence {
 
   """The Payment Mandate can be used only once"""
   OneOff
-}
-
-"""Payment Mandate status"""
-enum PaymentMandateStatus {
-  ConsentPending
-  Enabled
-  Rejected
-  Canceled
-}
-
-"""Payment Mandate status information"""
-interface PaymentMandateStatusInfo {
-  """Status of the payment mandate."""
-  status: PaymentMandateStatus!
 }
 
 """
@@ -4784,7 +4877,7 @@ type PhysicalCardCustomOptions {
   """Additional line embossed on the card."""
   additionalPrintedLine: String
 
-  """Custom Card Holder Name"""
+  """Custom cardholder name"""
   customCardHolderName: String
 }
 
@@ -4971,14 +5064,14 @@ type ProjectCardSettings {
   """Unique identifier of a project"""
   id: ID!
 
-  """Project name"""
-  name: String
-
   """Visual Id from the issuing card processor (Monext)"""
   issuingProcessorVisualId: String
 
   """Specific card product for companies"""
   specificCardProductCodeForCompanies: String
+
+  """Project name"""
+  name: String
 
   """Project's card settings"""
   cardSettings: [CardSettings!]!
@@ -5026,15 +5119,17 @@ type ProjectForbiddenRejection implements Rejection {
 
 """Public information of a `Project`"""
 type ProjectInfo {
+  """Unique identifier of the project"""
+  id: ID!
+  B2BMembershipIDVerification: Boolean
+  requireSupportingDocumentsDuringOnboarding: Boolean
+  requireUbosDuringOnboarding: Boolean
+
   """The card products associated with this project."""
   cardProducts: [CardProduct!]
 
   """the currently active card settings"""
   activeCardSettings: CardSettings @deprecated(reason: "Use cardProduct.cardDesigns instead")
-
-  """Unique identifier of the project"""
-  id: ID!
-  B2BMembershipIDVerification: Boolean
 
   """
   Your project name displayed in white label interfaces and in the terms and conditions
@@ -5509,7 +5604,7 @@ enum SpendingLimitType {
   Partner
 }
 
-type SuccessfulThreeDs {
+type SuccessfulThreeDs implements ThreeDsStatusInfo {
   status: ThreeDsStatus!
 }
 
@@ -5574,6 +5669,9 @@ type SupportingDocumentCollection {
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
   transaction: SupportingDocumentTransaction!
+
+  """Verification renewal id"""
+  verificationRenewalId: String
 }
 
 """Supporting document collection with Approved status"""
@@ -6444,6 +6542,9 @@ input UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkInput {
 
   """Payment Link related to the Card Payment Mandate"""
   paymentLinkId: ID!
+
+  """Preferred scheme to use for this Card Payment"""
+  preferredScheme: InitiateMerchantCardPaymentFromPaymentLinkCardScheme
 }
 
 union UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkPayload = UnauthenticatedInitiateMerchantCardPaymentFromPaymentLinkSuccessPayload | ForbiddenRejection | NotFoundRejection | InternalErrorRejection | ValidationRejection | MerchantCardPaymentDeclinedRejection
@@ -6772,11 +6873,8 @@ type User {
   """birth city"""
   birthCity: String
 
-  """
-  `true` if Swan has verified the user's identity
-  @deprecated Use the equivalent identificationLevels.expert field instead
-  """
-  idVerified: Boolean! @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
+  """birth country"""
+  birthCountry: CCA3
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]
@@ -6850,7 +6948,7 @@ type UserNotAllowedToSuspendItsOwnAccountMembershipRejection implements Rejectio
   message: String!
 }
 
-"""Rejection returned when the User is not the Card Holder"""
+"""Rejection returned when the User is not the cardholder"""
 type UserNotCardHolderRejection implements Rejection {
   message: String!
 }
@@ -6879,6 +6977,9 @@ type ValidationError {
 
   """Constraints that are not matched on the Onboarding property"""
   errors: [FieldValidationError!]
+
+  """Human readable message explaining the errors"""
+  details: String
 }
 
 type ValidationFieldError {
@@ -6914,8 +7015,92 @@ enum VerificationFlow {
   Progressive
 }
 
-type VerificationRenewal {
-  verificationRenewalId: ID
+enum VerificationRenewalRequirement {
+  """Account Holder Details Required"""
+  AccountHolderDetailsRequired
+
+  """Swan is requesting some tax identifier"""
+  TaxIdRequired
+
+  """Swan is requesting some clarification on the UBO"""
+  UboDetailsRequired
+
+  """Legal Representative Details Required"""
+  LegalRepresentativeDetailsRequired
+
+  """Swan is requesting some Supporting Documents"""
+  SupportingDocumentsRequired
+
+  """Swan is requesting more information on the account holders"""
+  Other
+}
+
+"""Verification Renewals"""
+type VerificationRenewals {
+  """Unique identifier of a funding limit settings change request"""
+  id: ID!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Completed date"""
+  completedAt: DateTime
+
+  """Refused date"""
+  refusedAt: DateTime
+}
+
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
+type VerificationRenewalsConnection implements Connection {
+  """Total number of element in the list"""
+  totalCount: Int!
+
+  """Information about the current, the previous and the next page"""
+  pageInfo: PageInfo!
+
+  """FundingLimitSettingsChangeRequestEdge list"""
+  edges: [VerificationRenewalsEdge!]!
+}
+
+"""Implements the Relay Edge interface"""
+type VerificationRenewalsEdge implements Edge {
+  """
+  Opaque identifier pointing to this onboarding node in the pagination mechanism
+  """
+  cursor: String!
+
+  """The FundingLimitSettingsChangeRequest"""
+  node: VerificationRenewals!
+}
+
+"""
+Filters that can be applied when listing funding limit settings change requests
+"""
+input VerificationRenewalsFiltersInput {
+  """Filter by IDs"""
+  id: [String!]
+}
+
+"""
+Field we can use when ordering that can be applied when listing funding limit settings change requests
+"""
+enum VerificationRenewalsOrderByFieldInput {
+  id
+  createdAt
+  updatedAt
+}
+
+"""
+Order that can be applied when listing funding limit settings change requests
+"""
+input VerificationRenewalsOrderByInput {
+  field: VerificationRenewalsOrderByFieldInput
+  direction: OrderByDirection
 }
 
 """
@@ -7002,6 +7187,9 @@ type VirtualIBANEntry {
 
   """`true` if the Virtual IBAN refuses all Sepa Direct Debit received"""
   blockSDD: Boolean!
+
+  """Download link to the virtual iban's bank details"""
+  bankDetails: String
 }
 
 """

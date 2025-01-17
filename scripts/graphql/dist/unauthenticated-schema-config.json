@@ -17,9 +17,9 @@
       "MerchantPaymentConnection",
       "MerchantPaymentLinkConnection",
       "OnboardingConnection",
-      "PaymentMandateConnection",
       "SupportingDocumentCollectionConnection",
       "UserConnection",
+      "VerificationRenewalsConnection",
       "VirtualIBANEntryConnection"
     ],
     "Edge": [
@@ -33,9 +33,9 @@
       "MerchantPaymentEdge",
       "MerchantPaymentLinkEdge",
       "OnboardingEdge",
-      "PaymentMandateEdge",
       "SupportingDocumentCollectionEdge",
       "UserEdge",
+      "VerificationRenewalsEdge",
       "VirtualIBANEntryEdge"
     ],
     "AccountHolderStatusInfo": [
@@ -199,6 +199,10 @@
       "RejectedMerchantProfileStatusInfo",
       "SuspendedMerchantProfileStatusInfo"
     ],
+    "ThreeDsStatusInfo": [
+      "FailedThreeDs",
+      "SuccessfulThreeDs"
+    ],
     "FundingLimitSettingsChangeRequestStatusInfo": [
       "FundingLimitSettingsChangeRequestApprovedStatusInfo",
       "FundingLimitSettingsChangeRequestPendingStatusInfo",
@@ -234,12 +238,6 @@
       "PaymentConsentPending",
       "PaymentInitiated",
       "PaymentRejected"
-    ],
-    "PaymentMandateStatusInfo": [
-      "PaymentMandateCanceledStatusInfo",
-      "PaymentMandateConsentPendingStatusInfo",
-      "PaymentMandateEnabledStatusInfo",
-      "PaymentMandateRejectedStatusInfo"
     ],
     "PhysicalCardStatusInfo": [
       "PhysicalCardActivatedStatusInfo",

@@ -379,7 +379,7 @@ export const getPermissionMatrix = (data: {
   settings: WebBankingSettingsFragment | null | undefined;
 }) =>
   Dict.fromEntries(
-    Dict.entries(PERMISSIONS_MATRIX).map(([key, pattern]) => [key, isMatching(pattern, data)]),
+    Dict.entries(PERMISSIONS_MATRIX).map(([key, pattern]) => [key, isMatching(pattern)(data)]),
   ) as PermissionMatrix;
 
 type Input = Option<{

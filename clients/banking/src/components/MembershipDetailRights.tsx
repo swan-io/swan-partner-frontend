@@ -162,8 +162,7 @@ export const MembershipDetailRights = ({
         },
       },
     ),
-    editingAccountMembership,
-  );
+  )(editingAccountMembership);
 
   const isEditingCurrentUserAccountMembership =
     currentUserAccountMembership.id === editingAccountMembership.id;

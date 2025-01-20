@@ -12,7 +12,21 @@ export type HttpsConfig = {
   cert: string;
 };
 
-async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
+const BANKING_HOST = new URL(env.BANKING_URL).hostname;
+const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
+
+const apps = ["onboarding", "banking", "payment"] as const;
+
+type AppName = (typeof apps)[number];
+
+const hosts: Record<AppName, string> = {
+  onboarding: ONBOARDING_HOST,
+  banking: BANKING_HOST,
+  payment: PAYMENT_HOST,
+};
+
+async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) {
   const liveReloadServer =
     httpsConfig != null ? https.createServer(httpsConfig) : http.createServer();
   const { createServer } = await import("vite");
@@ -26,8 +40,10 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
     server: {
       port: mainServerPort,
       hmr: {
-        server: liveReloadServer,
+        host: hosts[appName],
         port: liveReloadServerPort,
+        protocol: "wss",
+        server: liveReloadServer,
       },
     },
   });
@@ -36,12 +52,6 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
 
   return { mainServerPort, liveReloadServerPort };
 }
-
-const apps = ["onboarding", "banking", "payment"] as const;
-
-const BANKING_HOST = new URL(env.BANKING_URL).hostname;
-const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
-const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
 
 export async function startDevServer(
   app: FastifyInstance<Http2SecureServer>,

@@ -50,10 +50,10 @@
     "graphql-tag": "2.12.6",
     "mustache": "4.2.0",
     "node-mailjet": "6.0.6",
-    "pathe": "2.0.0",
+    "pathe": "2.0.2",
     "picocolors": "1.1.1",
     "pino-pretty": "11.3.0",
-    "ts-pattern": "5.6.0",
+    "ts-pattern": "5.6.1",
     "valienv": "0.7.0"
   },
   "devDependencies": {

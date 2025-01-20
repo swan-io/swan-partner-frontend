@@ -53,7 +53,7 @@
     "pathe": "2.0.2",
     "picocolors": "1.1.1",
     "pino-pretty": "11.3.0",
-    "ts-pattern": "5.6.1",
+    "ts-pattern": "5.6.0",
     "valienv": "0.7.0"
   },
   "devDependencies": {

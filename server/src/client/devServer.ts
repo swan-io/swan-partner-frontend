@@ -20,12 +20,6 @@ const apps = ["onboarding", "banking", "payment"] as const;
 
 type AppName = (typeof apps)[number];
 
-const hosts: Record<AppName, string> = {
-  onboarding: ONBOARDING_HOST,
-  banking: BANKING_HOST,
-  payment: PAYMENT_HOST,
-};
-
 async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) {
   const liveReloadServer =
     httpsConfig != null ? https.createServer(httpsConfig) : http.createServer();
@@ -40,10 +34,8 @@ async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) 
     server: {
       port: mainServerPort,
       hmr: {
-        host: hosts[appName],
-        port: liveReloadServerPort,
-        protocol: "wss",
         server: liveReloadServer,
+        port: liveReloadServerPort,
       },
     },
   });

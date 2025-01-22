@@ -555,6 +555,7 @@ export const MerchantProfilePaymentLinkNew = ({
                     {({ value, onChange, error }) => (
                       <LakeLabel
                         label={t("merchantProfile.paymentLink.new.externalReference")}
+                        optionalLabel={t("form.optional")}
                         render={id => (
                           <LakeTextInput
                             id={id}

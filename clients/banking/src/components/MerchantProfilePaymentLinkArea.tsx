@@ -96,13 +96,12 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
     ({ item }: LinkConfig<PaymentLinkFragment, undefined>) => (
       <Link
         to={Router.AccountMerchantsProfilePaymentLinkDetails({
-          accountMembershipId,
-          merchantProfileId,
+          ...params,
           paymentLinkId: item.id,
         })}
       />
     ),
-    [accountMembershipId, merchantProfileId],
+    [params],
   );
 
   const activePaymentLinkId =
@@ -209,8 +208,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
             value={params.status === "Active" || params.status == null}
             onToggle={status =>
               Router.push("AccountMerchantsProfilePaymentLinkList", {
-                accountMembershipId,
-                merchantProfileId,
+                ...params,
                 status: status ? "Active" : "Archived",
               })
             }
@@ -278,8 +276,7 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
                         paymentLinks={paymentLinks}
                         onPressClose={() =>
                           Router.push("AccountMerchantsProfilePaymentLinkList", {
-                            accountMembershipId,
-                            merchantProfileId,
+                            ...params,
                             new: undefined,
                           })
                         }
@@ -294,17 +291,11 @@ export const MerchantProfilePaymentLinkArea = ({ params, large }: Props) => {
                     activeId={activePaymentLinkId}
                     onActiveIdChange={paymentLinkId =>
                       Router.push("AccountMerchantsProfilePaymentLinkDetails", {
-                        accountMembershipId,
-                        merchantProfileId,
+                        ...params,
                         paymentLinkId,
                       })
                     }
-                    onClose={() =>
-                      Router.push("AccountMerchantsProfilePaymentLinkList", {
-                        accountMembershipId,
-                        merchantProfileId,
-                      })
-                    }
+                    onClose={() => Router.push("AccountMerchantsProfilePaymentLinkList", params)}
                     items={paymentLinks?.edges.map(item => item.node) ?? []}
                     render={(item, large) => (
                       <MerchantProfilePaymentLinkDetail large={large} paymentLinkId={item.id} />

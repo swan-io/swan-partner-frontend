@@ -1,6 +1,6 @@
 {
   "name": "@swan-io/banking",
-  "version": "1.24.0",
+  "version": "1.24.1",
   "private": true,
   "packageManager": "pnpm@9.13.0",
   "engines": {

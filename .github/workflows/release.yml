@@ -76,6 +76,15 @@ jobs:
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_PRODUCTION }}
           images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
 
+      - name: Deploy to Azure Web App - Networks - Production
+        if: ${{ github.event.inputs.target == 'production' }}
+        id: deploy-to-webapp-production
+        uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
+        with:
+          app-name: web-assoconnect-frc-prod-swan-networks
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_NETWORKS_PRODUCTION }}
+          images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
+
       - name: Deploy to Azure Web App - Staging
         if: ${{ github.event.inputs.target == 'staging' }}
         id: deploy-to-webapp-staging
@@ -84,6 +93,16 @@ jobs:
           app-name: web-assoconnect-frc-prod-swan
           slot-name: staging
           publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_STAGING }}
+          images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
+
+      - name: Deploy to Azure Web App - Networks - Staging
+        if: ${{ github.event.inputs.target == 'staging' }}
+        id: deploy-to-webapp-staging
+        uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
+        with:
+          app-name: web-assoconnect-frc-prod-swan-networks
+          slot-name: staging
+          publish-profile: ${{ secrets.AZURE_WEBAPP_PUBLISH_PROFILE_NETWORKS_STAGING }}
           images: 'commonassoconnectfrcglobalacr.azurecr.io/swan-partner-frontend:${{ github.event.inputs.target }}-${{ github.sha }}'
 
           

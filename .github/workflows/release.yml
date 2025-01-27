@@ -78,7 +78,7 @@ jobs:
 
       - name: Deploy to Azure Web App - Networks - Production
         if: ${{ github.event.inputs.target == 'production' }}
-        id: deploy-to-webapp-production
+        id: deploy-to-webapp-production-networks
         uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
         with:
           app-name: web-assoconnect-frc-prod-swan-networks
@@ -97,7 +97,7 @@ jobs:
 
       - name: Deploy to Azure Web App - Networks - Staging
         if: ${{ github.event.inputs.target == 'staging' }}
-        id: deploy-to-webapp-staging
+        id: deploy-to-webapp-staging-networks
         uses: azure/webapps-deploy@85270a1854658d167ab239bce43949edb336fa7c
         with:
           app-name: web-assoconnect-frc-prod-swan-networks

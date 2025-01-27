@@ -5,6 +5,7 @@ import { LoadingView } from "@swan-io/lake/src/components/LoadingView";
 import { ScrollView } from "@swan-io/lake/src/components/ScrollView";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { TabView } from "@swan-io/lake/src/components/TabView";
+import { Tag } from "@swan-io/lake/src/components/Tag";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { Suspense, useMemo } from "react";
@@ -114,17 +115,38 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
         )
         .otherwise(() => ({ ...card }));
 
+      // we display first the physical card tab which is in toRenew status
+      const shouldShowFirstPhysicalCard =
+        card.physicalCard?.statusInfo.__typename === "PhysicalCardToRenewStatusInfo" ||
+        card.physicalCard?.statusInfo.__typename === "PhysicalCardRenewedStatusInfo";
+
       return (
         <>
           <TabView
             padding={large ? 40 : 24}
             sticky={true}
             tabs={[
+              ...(shouldShowFirstPhysicalCard
+                ? [
+                    {
+                      label: t("cardDetail.physicalCard"),
+                      url: Router.AccountCardsItemPhysicalCard({
+                        accountMembershipId,
+                        cardId,
+                      }),
+                      endElement: (
+                        <Tag color="shakespear" size="small">
+                          {t("cards.expiringSoon")}
+                        </Tag>
+                      ),
+                    },
+                  ]
+                : []),
               {
                 label: t("cardDetail.virtualCard"),
                 url: Router.AccountCardsItem({ accountMembershipId, cardId }),
               },
-              ...(shouldShowPhysicalCardTab
+              ...(shouldShowPhysicalCardTab && !shouldShowFirstPhysicalCard
                 ? [
                     {
                       label: t("cardDetail.physicalCard"),

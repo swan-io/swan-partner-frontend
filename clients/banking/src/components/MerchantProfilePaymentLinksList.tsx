@@ -1,5 +1,6 @@
 import { Cell, CopyableTextCell, HeaderCell, TextCell } from "@swan-io/lake/src/components/Cells";
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
+import { LakeHeading } from "@swan-io/lake/src/components/LakeHeading";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
 import { ColumnConfig, PlainListView } from "@swan-io/lake/src/components/PlainListView";
 import { Tag } from "@swan-io/lake/src/components/Tag";
@@ -34,9 +35,9 @@ const PaymentLinkCell = ({ paymentLink }: { paymentLink: PaymentLinkFragment }) 
         </LakeText>
       )}
 
-      <LakeText variant="regular" color={colors.gray[900]}>
+      <LakeHeading level={4} variant="h5" color={colors.gray[900]}>
         {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
-      </LakeText>
+      </LakeHeading>
     </Cell>
   );
 };
@@ -94,11 +95,11 @@ const columns: ColumnConfig<PaymentLinkFragment, ExtraInfo>[] = [
     title: t("transactions.amount"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => (
-      <TextCell
-        variant="regular"
-        align="right"
-        text={formatCurrency(Number(item.amount.value), item.amount.currency)}
-      />
+      <Cell align="right" direction="column">
+        <LakeHeading level={4} variant="h5" color={colors.gray[900]}>
+          {formatCurrency(Number(item.amount.value), item.amount.currency)}
+        </LakeHeading>
+      </Cell>
     ),
   },
 ];

@@ -8,7 +8,7 @@ import { Pressable } from "@swan-io/lake/src/components/Pressable";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { G, Path, Svg } from "@swan-io/lake/src/components/Svg";
 import { Tag } from "@swan-io/lake/src/components/Tag";
-import { colors } from "@swan-io/lake/src/constants/design";
+import { colors, spacings } from "@swan-io/lake/src/constants/design";
 import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { CardListItemFragment } from "../graphql/partner";
@@ -51,6 +51,12 @@ const styles = StyleSheet.create({
     top: 0,
     bottom: 0,
     borderRadius: 1,
+  },
+  separator: {
+    width: 1,
+    alignSelf: "stretch",
+    backgroundColor: colors.shakespear[200],
+    marginHorizontal: spacings[4],
   },
 });
 
@@ -119,17 +125,30 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
             .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
               <>
                 <Tag color="shakespear" icon="payment-regular">
-                  {t("cards.format.virtualAndPhysical")}
+                  {t("cards.format.virtual")}
                 </Tag>
 
-                {match(physicalCard?.statusInfo.status)
-                  .with("ToRenew", "Renewed", () => (
-                    <>
-                      <Space width={12} />
-                      <Tag color="shakespear">{t("cards.expiringSoon")}</Tag>
-                    </>
-                  ))
-                  .otherwise(() => null)}
+                <Space width={12} />
+
+                <Tag color="shakespear" icon="payment-regular">
+                  <>
+                    <LakeText variant="smallMedium" color={colors.shakespear[700]}>
+                      {t("cards.format.physical")}
+                    </LakeText>
+
+                    {match(physicalCard?.statusInfo.status)
+                      .with("ToRenew", "Renewed", () => (
+                        <>
+                          <View style={styles.separator} />
+
+                          <LakeText variant="smallMedium" color={colors.shakespear[700]}>
+                            {t("cards.expiringSoon")}
+                          </LakeText>
+                        </>
+                      ))
+                      .otherwise(() => null)}
+                  </>
+                </Tag>
               </>
             ))
 

@@ -136,7 +136,10 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
                       }),
                       endElement: (
                         <Tag color="shakespear" size="small">
-                          {t("cards.expiringSoon")}
+                          {match(card.physicalCard?.statusInfo.__typename)
+                            .with("PhysicalCardToRenewStatusInfo", () => t("cards.expiringSoon"))
+                            .with("PhysicalCardRenewedStatusInfo", () => t("cards.activateNewCard"))
+                            .otherwise(() => undefined)}
                         </Tag>
                       ),
                     },

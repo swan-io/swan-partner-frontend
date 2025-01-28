@@ -52,7 +52,7 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { getMemberName } from "../utils/accountMembership";
 import { partnerClient } from "../utils/gql";
-import { formatCurrency, t } from "../utils/i18n";
+import { formatCurrency, formatNestedMessage, t } from "../utils/i18n";
 import { Router } from "../utils/routes";
 import { validateNullableRequired, validateRequired } from "../utils/validations";
 import { Address } from "./CardItemPhysicalDeliveryAddressForm";
@@ -639,13 +639,9 @@ export const CardItemPhysicalDetails = ({
                     <LakeAlert
                       style={styles.renewAlert}
                       variant="info"
-                      title={t("card.physical.toRenewAlert", {
-                        expiryDate: dayjs(previousPhysicalCards[0].expiryDate, "MM/YY")
-                          .endOf("month")
-                          .format("LL"),
-                      })}
+                      title={t("card.physical.renewedAlert")}
                     >
-                      <LakeText>{t("card.physical.toRenewAlert.info")}</LakeText>
+                      <LakeText>{t("card.physical.renewedAlert.info")}</LakeText>
                     </LakeAlert>
                   )}
                 </>
@@ -938,6 +934,19 @@ export const CardItemPhysicalDetails = ({
                           >
                             {currentCard === "renewed" && (
                               <>
+                                <Space height={24} />
+
+                                <LakeAlert
+                                  variant="info"
+                                  title={formatNestedMessage("card.physical.activateAlert", {
+                                    bold: text => (
+                                      <LakeText color={colors.shakespear[700]} variant="semibold">
+                                        {text}
+                                      </LakeText>
+                                    ),
+                                  })}
+                                />
+
                                 <Space height={24} />
 
                                 <LakeButton

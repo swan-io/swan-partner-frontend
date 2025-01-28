@@ -120,45 +120,37 @@ export const CardItemArea = ({ accountMembershipId, userId, cardId, large = true
         card.physicalCard?.statusInfo.__typename === "PhysicalCardToRenewStatusInfo" ||
         card.physicalCard?.statusInfo.__typename === "PhysicalCardRenewedStatusInfo";
 
+      const physicalCardTab = {
+        label: t("cardDetail.physicalCard"),
+        url: Router.AccountCardsItemPhysicalCard({
+          accountMembershipId,
+          cardId,
+        }),
+        endElement: (
+          <Tag color="shakespear" size="small">
+            {match(card.physicalCard?.statusInfo.__typename)
+              .with("PhysicalCardToRenewStatusInfo", () => t("cards.expiringSoon"))
+              .with("PhysicalCardRenewedStatusInfo", () => t("cards.activateNewCard"))
+              .otherwise(() => undefined)}
+          </Tag>
+        ),
+      };
+
       return (
         <>
           <TabView
             padding={large ? 40 : 24}
             sticky={true}
             tabs={[
-              ...(shouldShowFirstPhysicalCard
-                ? [
-                    {
-                      label: t("cardDetail.physicalCard"),
-                      url: Router.AccountCardsItemPhysicalCard({
-                        accountMembershipId,
-                        cardId,
-                      }),
-                      endElement: (
-                        <Tag color="shakespear" size="small">
-                          {match(card.physicalCard?.statusInfo.__typename)
-                            .with("PhysicalCardToRenewStatusInfo", () => t("cards.expiringSoon"))
-                            .with("PhysicalCardRenewedStatusInfo", () => t("cards.activateNewCard"))
-                            .otherwise(() => undefined)}
-                        </Tag>
-                      ),
-                    },
-                  ]
+              ...(shouldShowFirstPhysicalCard && shouldShowFirstPhysicalCard
+                ? [physicalCardTab]
                 : []),
               {
                 label: t("cardDetail.virtualCard"),
                 url: Router.AccountCardsItem({ accountMembershipId, cardId }),
               },
               ...(shouldShowPhysicalCardTab && !shouldShowFirstPhysicalCard
-                ? [
-                    {
-                      label: t("cardDetail.physicalCard"),
-                      url: Router.AccountCardsItemPhysicalCard({
-                        accountMembershipId,
-                        cardId,
-                      }),
-                    },
-                  ]
+                ? [physicalCardTab]
                 : []),
               ...match({ isCurrentUserCardOwner, card, canReadOtherMembersCards })
                 .with(

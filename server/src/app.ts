@@ -7,12 +7,11 @@ import sensible, { HttpErrorCodes } from "@fastify/sensible";
 import fastifyStatic from "@fastify/static";
 import fastifyView from "@fastify/view";
 import { Array, Future, Option, Result } from "@swan-io/boxed";
-import fastify, { FastifyReply } from "fastify";
+import fastify from "fastify";
 import mustache from "mustache";
 import { randomUUID } from "node:crypto";
 import { lookup } from "node:dns";
 import fs from "node:fs";
-import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { P, match } from "ts-pattern";
 import {
@@ -40,10 +39,11 @@ import { HttpsConfig, startDevServer } from "./client/devServer";
 import { getProductionRequestHandler } from "./client/prodServer";
 import { env } from "./env";
 import { replyWithAuthError, replyWithError } from "./error";
+import { FastifySecureReply } from "./types";
 
 const packageJson = JSON.parse(
   fs.readFileSync(path.join(__dirname, "../package.json"), "utf-8"),
-) as unknown as { version: string };
+) as { version: string };
 
 const COOKIE_MAX_AGE = 60 * (env.NODE_ENV !== "test" ? 5 : 60); // 5 minutes (except for tests)
 const OAUTH_STATE_COOKIE_MAX_AGE = 900; // 15 minutes
@@ -579,7 +579,7 @@ export const start = async ({
    * OAuth2 Redirection handler
    */
   app.get<{ Querystring: Record<string, string> }>("/auth/callback", async (request, reply) => {
-    type Reply = FastifyReply<Http2SecureServer> | Promise<FastifyReply<Http2SecureServer>>;
+    type Reply = FastifySecureReply | Promise<FastifySecureReply>;
 
     const state = Result.fromExecution<unknown>(() =>
       JSON.parse(request.query.state ?? "{}"),

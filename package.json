@@ -3,10 +3,10 @@
   "description": "Swan front-end code",
   "version": "1.24.2",
   "private": true,
-  "packageManager": "pnpm@9.13.0",
+  "packageManager": "pnpm@9.15.4",
   "engines": {
-    "node": ">=18.20.0",
-    "pnpm": "^9.13.0"
+    "node": ">=22.12.0",
+    "pnpm": "^9.15.4"
   },
   "repository": {
     "type": "git",
@@ -74,7 +74,7 @@
     "@graphql-codegen/typescript-graphql-request": "6.2.0",
     "@graphql-codegen/typescript-operations": "4.4.0",
     "@localazy/cli": "1.7.15",
-    "@playwright/test": "1.49.1",
+    "@playwright/test": "1.50.0",
     "@sentry/cli": "2.40.0",
     "@swan-io/boxed": "3.2.0",
     "@types/glob": "8.1.0",

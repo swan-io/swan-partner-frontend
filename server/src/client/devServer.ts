@@ -1,11 +1,12 @@
 import fastProxy from "fast-proxy";
-import { FastifyInstance, RouteHandlerMethod } from "fastify";
+import { RouteHandlerMethod } from "fastify";
 import fs from "node:fs";
 import http, { IncomingMessage, ServerResponse } from "node:http";
 import { Http2SecureServer } from "node:http2";
 import https from "node:https";
 import path from "pathe";
 import { env } from "../env";
+import { FastifySecureInstance } from "../types";
 
 export type HttpsConfig = {
   key: string;
@@ -45,10 +46,7 @@ async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) 
   return { mainServerPort, liveReloadServerPort };
 }
 
-export async function startDevServer(
-  app: FastifyInstance<Http2SecureServer>,
-  httpsConfig?: HttpsConfig,
-) {
+export async function startDevServer(app: FastifySecureInstance, httpsConfig?: HttpsConfig) {
   const [onboarding, webBanking, payment] = await Promise.all(
     apps.map(app => {
       return createViteDevServer(

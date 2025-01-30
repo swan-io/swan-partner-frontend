@@ -128,7 +128,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
             ))
             .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
               <>
-                <Tag color="shakespear" icon="payment-regular">
+                <Tag color="mediumSladeBlue" icon="phone-regular">
                   {t("cards.format.virtual")}
                 </Tag>
 

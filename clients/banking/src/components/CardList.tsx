@@ -50,14 +50,14 @@ const columns: ColumnConfig<CardListItemFragment, ExtraInfo>[] = [
   },
   {
     id: "spendingLimit",
-    width: 200,
+    width: 180,
     title: t("cardList.spendingLimit"),
     renderTitle: ({ title }) => <HeaderCell text={title} align="right" />,
     renderCell: ({ item }) => <CardSpendingLimitCell card={item} />,
   },
   {
     id: "status",
-    width: 120,
+    width: 100,
     title: "",
     renderTitle: () => null,
     renderCell: ({ item }) => <CardStatusCell card={item} />,

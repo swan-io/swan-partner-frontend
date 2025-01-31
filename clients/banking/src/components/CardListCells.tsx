@@ -56,8 +56,12 @@ const styles = StyleSheet.create({
     width: 1,
     alignSelf: "stretch",
     backgroundColor: colors.shakespear[200],
+  },
+  separatorMargin: {
     marginHorizontal: spacings[4],
   },
+  tagSmall: { paddingLeft: 62 }, //align with name card
+  textTagSmall: { paddingLeft: spacings[4] },
 });
 
 const cardChip = Lazy(() => (
@@ -124,7 +128,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
             ))
             .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
               <>
-                <Tag color="shakespear" icon="payment-regular">
+                <Tag color="mediumSladeBlue" icon="phone-regular">
                   {t("cards.format.virtual")}
                 </Tag>
 
@@ -139,7 +143,7 @@ export const FullNameAndCardTypeCell = ({ card }: { card: Card }) => {
                     {match(physicalCard?.statusInfo.status)
                       .with("ToRenew", "Renewed", () => (
                         <>
-                          <View style={styles.separator} />
+                          <View style={[styles.separator, styles.separatorMargin]} />
 
                           <LakeText variant="smallMedium" color={colors.shakespear[700]}>
                             {t("cards.expiringSoon")}
@@ -240,68 +244,10 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
   const spendingLimits = card.spendingLimits ?? [];
 
   return (
-    <Cell>
-      <View>
-        <Image source={{ uri: card.cardDesignUrl }} style={styles.cardDesignSmall} />
+    <Cell direction="column">
+      <Space height={12} />
 
-        {card.type === "VirtualAndPhysical" && cardChip.get()}
-      </View>
-
-      <Space width={12} />
-
-      <Box grow={1}>
-        <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
-          {getMemberName({ accountMembership: card.accountMembership })}
-        </LakeText>
-
-        <Space height={4} />
-
-        {match(card)
-          .with(
-            {
-              spending: { amount: { value: P.string, currency: P.string } },
-              spendingLimits: P.array({ amount: { value: P.string, currency: P.string } }),
-            },
-            ({ spending, spendingLimits }) => {
-              const spendingLimit = spendingLimits[0];
-              if (spendingLimit == null) {
-                return null;
-              }
-              return (
-                <LakeHeading level="none" variant="h5" color={colors.gray[500]} numberOfLines={1}>
-                  <LakeHeading
-                    level="none"
-                    variant="h5"
-                    color={
-                      Number(spending.amount.value) >= Number(spendingLimit.amount.value)
-                        ? colors.negative[500]
-                        : colors.gray[800]
-                    }
-                  >
-                    {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
-                  </LakeHeading>
-
-                  {" / "}
-
-                  {formatCurrency(
-                    Number(spendingLimit.amount.value),
-                    spendingLimit.amount.currency,
-                  )}
-                </LakeHeading>
-              );
-            },
-          )
-          .otherwise(() => null)}
-
-        {card.name != null ? (
-          <>
-            <Space height={4} />
-            <LakeText color={colors.gray[600]}>{card.name}</LakeText>
-          </>
-        ) : null}
-      </Box>
-
-      <Box direction="row">
+      <Box direction="row" style={styles.tagSmall}>
         {match(card)
           .with(
             { statusInfo: { __typename: "CardCanceledStatusInfo" } },
@@ -339,28 +285,102 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
           .with({ type: "VirtualAndPhysical" }, ({ physicalCard }) => (
             <>
               <Tag
+                color="mediumSladeBlue"
+                icon="phone-regular"
+                ariaLabel={t("cards.format.virtual")}
+              />
+              <Space width={8} />
+
+              <Tag
                 color="shakespear"
                 icon="payment-regular"
                 ariaLabel={t("cards.format.virtualAndPhysical")}
-              />
+              >
+                {match(physicalCard?.statusInfo.status)
+                  .with("ToRenew", "Renewed", () => (
+                    <>
+                      <View style={styles.separator} />
 
-              {match(physicalCard?.statusInfo.status)
-                .with("ToRenew", "Renewed", () => (
-                  <>
-                    <Space width={12} />
-
-                    <Tag
-                      color="shakespear"
-                      icon="clock-alarm-regular"
-                      ariaLabel={t("cards.expiringSoon")}
-                    />
-                  </>
-                ))
-                .otherwise(() => null)}
+                      <LakeText
+                        variant="smallMedium"
+                        color={colors.shakespear[700]}
+                        style={styles.textTagSmall}
+                      >
+                        {t("cards.expiringSoon")}
+                      </LakeText>
+                    </>
+                  ))
+                  .otherwise(() => undefined)}
+              </Tag>
             </>
           ))
           .exhaustive()}
       </Box>
+      <Space height={4} />
+
+      <Box direction="row">
+        <View style={{ paddingTop: spacings[12] }}>
+          <Image source={{ uri: card.cardDesignUrl }} style={styles.cardDesignSmall} />
+
+          {card.type === "VirtualAndPhysical" && cardChip.get()}
+        </View>
+
+        <Space width={12} />
+
+        <Box grow={1}>
+          <LakeText variant="smallMedium" color={colors.gray[700]} numberOfLines={1}>
+            {getMemberName({ accountMembership: card.accountMembership })}
+          </LakeText>
+
+          <Space height={4} />
+
+          {match(card)
+            .with(
+              {
+                spending: { amount: { value: P.string, currency: P.string } },
+                spendingLimits: P.array({ amount: { value: P.string, currency: P.string } }),
+              },
+              ({ spending, spendingLimits }) => {
+                const spendingLimit = spendingLimits[0];
+                if (spendingLimit == null) {
+                  return null;
+                }
+                return (
+                  <LakeHeading level="none" variant="h5" color={colors.gray[500]} numberOfLines={1}>
+                    <LakeHeading
+                      level="none"
+                      variant="h5"
+                      color={
+                        Number(spending.amount.value) >= Number(spendingLimit.amount.value)
+                          ? colors.negative[500]
+                          : colors.gray[800]
+                      }
+                    >
+                      {formatCurrency(Number(spending.amount.value), spending.amount.currency)}
+                    </LakeHeading>
+
+                    {" / "}
+
+                    {formatCurrency(
+                      Number(spendingLimit.amount.value),
+                      spendingLimit.amount.currency,
+                    )}
+                  </LakeHeading>
+                );
+              },
+            )
+            .otherwise(() => null)}
+
+          {card.name != null ? (
+            <>
+              <Space height={4} />
+              <LakeText color={colors.gray[600]}>{card.name}</LakeText>
+            </>
+          ) : null}
+        </Box>
+      </Box>
+
+      <Space height={12} />
     </Cell>
   );
 };

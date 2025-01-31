@@ -289,7 +289,7 @@ export const CardSummaryCell = ({ card }: { card: Card }) => {
                 icon="phone-regular"
                 ariaLabel={t("cards.format.virtual")}
               />
-              <Space width={4} />
+              <Space width={8} />
 
               <Tag
                 color="shakespear"

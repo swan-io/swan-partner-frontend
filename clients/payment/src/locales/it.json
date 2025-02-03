@@ -4,7 +4,7 @@
   "error.pageNotFound": "Pagina non trovata",
   "form.invalidField": "Campo non valido",
   "paymentLink.addressLine1": "Indirizzo",
-  "paymentLink.alert": "Si prega di notare che questa è una pagina di sandbox e non è possibile creare pagamenti di prova su questa pagina. Invece, utilizzare le simulazioni del commerciante nell'API Explorer.",
+  "paymentLink.alert": "Si prega di notare che questa è una pagina sandbox e non consente la creazione di pagamenti di prova. Per eseguire test, utilizzare le simulazioni dell'esercente disponibili nell'API Explorer.",
   "paymentLink.button.downloadMandate": "Scarica il mandato",
   "paymentLink.button.returnToWebsite": "Torna al sito web",
   "paymentLink.card.cardNumber": "Numero della carta",

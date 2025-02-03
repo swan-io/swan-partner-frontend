@@ -171,6 +171,9 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await editModal
     .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))
     .fill("75001");
+  await editModal
+    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthCity"))
+    .fill("Paris");
   await clickOnButton(editModal, t("onboarding.common.next"));
   await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));

@@ -262,7 +262,11 @@ export const CheckDeclarationWizard = ({ merchantProfileId, params }: Props) => 
     },
     rlmcKey: {
       initialValue: "",
-      validate: combineValidators(validateRequired, validateRLMC),
+      validate: (value, { getFieldValue }) =>
+        combineValidators(
+          validateRequired,
+          validateRLMC(getFieldValue("cmc7").replace(/\s/g, "")),
+        )(value),
     },
   });
 

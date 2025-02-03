@@ -148,10 +148,10 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   const tiles = page.locator("section");
   const nicolasBenadyTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "benady" });
-  const nicolasSaisonTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "saison" });
+  const camilleTyanTile = tiles.filter({ hasText: "camille" }).filter({ hasText: "tyan" });
 
   await nicolasBenadyTile.waitFor();
-  await nicolasSaisonTile.waitFor();
+  await camilleTyanTile.waitFor();
 
   const editModal = page.locator("[aria-modal]", {
     hasText: /Edit|Fill/,
@@ -166,7 +166,7 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));
 
-  await clickOnButton(nicolasSaisonTile, t("onboarding.company.step.owners.editButton"));
+  await clickOnButton(camilleTyanTile, t("onboarding.company.step.owners.editButton"));
   await editModal.waitFor();
   await editModal
     .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))

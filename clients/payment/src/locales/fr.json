@@ -4,7 +4,7 @@
   "error.pageNotFound": "Page non trouvée",
   "form.invalidField": "Champ invalide",
   "paymentLink.addressLine1": "Adresse",
-  "paymentLink.alert": "Veuillez noter qu'il s'agit d'une page bac à sable et qu'il n'est pas possible d'effectuer des paiements de test sur cette page. Utilisez plutôt les simulations marchandes dans l'API Explorer.",
+  "paymentLink.alert": "Veuillez noter qu'il s'agit d'une page d'environnement de type bac à sable et qu'il n'est pas possible d'effectuer des paiements de test sur cette page. Utilisez plutôt les simulations marchandes dans l'API Explorer.",
   "paymentLink.button.downloadMandate": "Télécharger le mandat",
   "paymentLink.button.returnToWebsite": "Retourner au site",
   "paymentLink.card.cardNumber": "Numéro de carte",

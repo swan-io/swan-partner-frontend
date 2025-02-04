@@ -296,7 +296,7 @@ type Props = {
   refetchAccountAreaQuery: () => void;
   requireFirstTransfer: boolean;
   hasRequiredIdentificationLevel: boolean | undefined;
-  lastRelevantIdentification: Option<IdentificationFragment>;
+  lastIdentification: Option<IdentificationFragment>;
 };
 
 export const AccountActivationPage = ({
@@ -307,7 +307,7 @@ export const AccountActivationPage = ({
   refetchAccountAreaQuery,
   requireFirstTransfer,
   hasRequiredIdentificationLevel,
-  lastRelevantIdentification,
+  lastIdentification,
 }: Props) => {
   const documentsFormRef = useRef<SupportingDocumentsFormRef>(null);
 
@@ -377,7 +377,7 @@ export const AccountActivationPage = ({
               hasRequiredIdentificationLevel: false,
             },
             () =>
-              match(lastRelevantIdentification.map(getIdentificationLevelStatusInfo))
+              match(lastIdentification.map(getIdentificationLevelStatusInfo))
                 .returnType<Step | undefined>()
                 // this branch shouldn't occur but is required to typecheck
                 .with(Option.P.Some({ status: P.union("Valid", "NotSupported") }), () => undefined)
@@ -528,7 +528,7 @@ export const AccountActivationPage = ({
                       <Space height={32} />
 
                       <LakeButton mode="primary" color="partner" onPress={handleProveIdentity}>
-                        {lastRelevantIdentification.map(isReadyToSign).getOr(false)
+                        {lastIdentification.map(isReadyToSign).getOr(false)
                           ? t("accountActivation.identity.button.signVerification")
                           : t("accountActivation.identity.button.verifyMyIdentity")}
                       </LakeButton>

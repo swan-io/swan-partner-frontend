@@ -370,19 +370,12 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
 
 # Queries
 
-query LastRelevantIdentification(
-  $accountMembershipId: ID!
-  $identificationProcess: [IdentificationProcess!]
-) {
+query LastIdentification($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
     user {
       id
-      identifications(
-        first: 1
-        orderBy: { field: updatedAt, direction: Desc }
-        filters: { processes: $identificationProcess }
-      ) {
+      identifications(first: 1, orderBy: { field: updatedAt, direction: Desc }) {
         edges {
           node {
             ...Identification
@@ -927,7 +920,6 @@ query CardPage($cardId: ID!) {
     accountMembership {
       id
       canManageAccountMembership
-      recommendedIdentificationLevel
       hasRequiredIdentificationLevel
       canViewAccount
       canManageBeneficiaries
@@ -1083,7 +1075,6 @@ query CardTransactionsPage(
     }
     accountMembership {
       id
-      recommendedIdentificationLevel
       statusInfo {
         __typename
         ... on AccountMembershipBindingUserErrorStatusInfo {
@@ -1260,7 +1251,6 @@ fragment AccountMembership on AccountMembership {
   updatedAt
   email
   legalRepresentative
-  recommendedIdentificationLevel
   hasRequiredIdentificationLevel
   language
   statusInfo {
@@ -1403,7 +1393,6 @@ query ProfilePage {
 query AccountActivationPage($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
-    recommendedIdentificationLevel
     account {
       id
       IBAN

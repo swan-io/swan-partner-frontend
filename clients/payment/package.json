@@ -2,10 +2,10 @@
   "name": "@swan-io/payment",
   "version": "1.24.2",
   "private": true,
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@10.2.1",
   "engines": {
     "node": ">=22.12.0",
-    "pnpm": "^9.15.4"
+    "pnpm": "^10.2.0"
   },
   "scripts": {
     "prepack": "tsc --build",
@@ -14,12 +14,12 @@
   "dependencies": {
     "@formatjs/intl": "3.1.3",
     "@juggle/resize-observer": "3.4.0",
-    "@sentry/browser": "8.50.0",
+    "@sentry/browser": "8.54.0",
     "@swan-io/boxed": "3.2.0",
     "@swan-io/chicane": "2.1.0",
     "@swan-io/graphql-client": "0.5.1",
-    "@swan-io/lake": "11.3.4",
-    "@swan-io/shared-business": "11.3.4",
+    "@swan-io/lake": "11.3.5",
+    "@swan-io/shared-business": "11.3.5",
     "@swan-io/use-form": "3.1.0",
     "core-js": "3.40.0",
     "dayjs": "1.11.13",
@@ -29,7 +29,7 @@
     "react": "18.3.1",
     "react-dom": "18.3.1",
     "react-native-web": "0.19.13",
-    "ts-pattern": "5.6.0"
+    "ts-pattern": "5.6.2"
   },
   "devDependencies": {
     "@types/iban": "0.0.35",
@@ -38,7 +38,7 @@
     "@types/react-native": "0.72.8",
     "@vitejs/plugin-react-swc": "3.7.2",
     "jsdom": "26.0.0",
-    "type-fest": "4.32.0",
+    "type-fest": "4.33.0",
     "vite": "5.4.11",
     "vitest": "2.1.8"
   }

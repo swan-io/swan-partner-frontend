@@ -27,7 +27,7 @@ export const PopupCallbackPage = ({ redirectUrl, accountMembershipId, projectId 
     const cleanUrl =
       redirectUrl == null
         ? fallbackUrl
-        : !redirectUrl.startsWith("/") || redirectUrl.startsWith("//")
+        : redirectUrl.includes("javascript:")
           ? fallbackUrl
           : redirectUrl;
 

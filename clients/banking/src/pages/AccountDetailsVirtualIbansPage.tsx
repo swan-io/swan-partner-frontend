@@ -4,6 +4,7 @@ import { Cell, CopyableTextCell, HeaderCell } from "@swan-io/lake/src/components
 import { EmptyView } from "@swan-io/lake/src/components/EmptyView";
 import { LakeButton, LakeButtonGroup } from "@swan-io/lake/src/components/LakeButton";
 import { LakeText } from "@swan-io/lake/src/components/LakeText";
+import { LakeTooltip } from "@swan-io/lake/src/components/LakeTooltip";
 import {
   ColumnConfig,
   PlainListView,
@@ -108,13 +109,17 @@ const columns: ColumnConfig<Edge, ExtraInfo>[] = [
     ),
   },
   {
-    width: 40,
+    width: 80,
     id: "actions",
     title: "",
     renderTitle: () => null,
     renderCell: ({ item: { node }, extraInfo: { reload, canCancelVirtualIBAN } }) =>
       node.status === "Enabled" && canCancelVirtualIBAN ? (
-        <Actions virtualIbanId={node.id} onCancel={reload} />
+        <Actions
+          virtualIbanId={node.id}
+          onCancel={reload}
+          bankDetails={Option.fromNullable(node.bankDetails)}
+        />
       ) : null,
   },
 ];
@@ -161,16 +166,30 @@ const smallColumns: ColumnConfig<Edge, ExtraInfo>[] = [
     ),
   },
   {
-    width: 40,
+    width: 80,
     id: "actions",
     title: "",
     renderTitle: () => null,
     renderCell: ({ item: { node }, extraInfo: { reload } }) =>
-      node.status === "Enabled" ? <Actions virtualIbanId={node.id} onCancel={reload} /> : null,
+      node.status === "Enabled" ? (
+        <Actions
+          virtualIbanId={node.id}
+          onCancel={reload}
+          bankDetails={Option.fromNullable(node.bankDetails)}
+        />
+      ) : null,
   },
 ];
 
-const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIbanId: string }) => {
+const Actions = ({
+  onCancel,
+  virtualIbanId,
+  bankDetails,
+}: {
+  onCancel: () => void;
+  virtualIbanId: string;
+  bankDetails: Option<string>;
+}) => {
   const [modalVisible, setModalVisible] = useBoolean(false);
   const [cancelVirtualIban, virtualIbanCancelation] = useMutation(CancelVirtualIbanDocument);
 
@@ -187,6 +206,21 @@ const Actions = ({ onCancel, virtualIbanId }: { onCancel: () => void; virtualIba
 
   return (
     <>
+      {bankDetails
+        .map(bankDetails => (
+          <LakeTooltip content={t("accountDetails.virtualIbans.downloadBankDetails")}>
+            <LakeButton
+              mode="tertiary"
+              size="small"
+              icon="arrow-download-filled"
+              ariaLabel={t("accountDetails.virtualIbans.downloadBankDetails")}
+              href={bankDetails}
+              hrefAttrs={{ download: true, target: "blank" }}
+            />
+          </LakeTooltip>
+        ))
+        .getOr(<Space width={40} />)}
+
       <LakeButton
         icon="subtract-circle-regular"
         size="small"

@@ -131,6 +131,7 @@
   "accountDetails.virtualIbans.cancel.text": "Se rechazará cualquier pago a un IBAN virtual cancelado.",
   "accountDetails.virtualIbans.cancel.title": "¿Seguro que quieres cancelar este IBAN virtual?",
   "accountDetails.virtualIbans.cancelVirtualIban": "Cancelar IBAN virtual",
+  "accountDetails.virtualIbans.downloadBankDetails": "Descargar detalles bancarios",
   "accountDetails.virtualIbans.emptyDescription": "Los IBAN virtuales son ideales para una contabilidad automatizada. Úsalos como identificador para saber exactamente quién realizó cada pago.",
   "accountDetails.virtualIbans.emptyTitle": "Todavía no has creado ningún IBAN virtual",
   "accountDetails.virtualIbans.iban": "IBAN",

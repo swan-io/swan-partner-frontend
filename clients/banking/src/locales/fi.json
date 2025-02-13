@@ -131,6 +131,7 @@
   "accountDetails.virtualIbans.cancel.text": "Kaikki peruutetulle virtuaaliselle IBAN-tilille tehdyt maksut hylätään.",
   "accountDetails.virtualIbans.cancel.title": "Haluatko varmasti peruuttaa tämän virtuaalisen IBAN-tilin?",
   "accountDetails.virtualIbans.cancelVirtualIban": "Peruuta virtuaalinen IBAN-tili",
+  "accountDetails.virtualIbans.downloadBankDetails": "Lataa pankkitiedot",
   "accountDetails.virtualIbans.emptyDescription": "Virtuaaliset IBAN-tilit ovat ihanteellisia automaattiseen kirjanpitoon. Voit käyttää niitä yksilöimään kunkin maksun tekijän.",
   "accountDetails.virtualIbans.emptyTitle": "Et ole vielä luonut yhtään virtuaalista IBAN-tiliä",
   "accountDetails.virtualIbans.iban": "IBAN-tili",

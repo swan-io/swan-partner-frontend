@@ -166,17 +166,12 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));
 
-  await clickOnButton(camilleTyanTile, t("onboarding.company.step.owners.editButton"));
-  await editModal.waitFor();
-  await editModal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))
-    .fill("75001");
-  await editModal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthCity"))
-    .fill("Paris");
-  await clickOnButton(editModal, t("onboarding.common.next"));
-  await waitForText(page, t("onboarding.common.save"));
-  await clickOnButton(editModal, t("onboarding.common.save"));
+  const deleteModal = page.locator("[aria-modal]", {
+    hasText: "Camille",
+  });
+
+  await clickOnButton(camilleTyanTile, t("onboarding.common.delete"));
+  await clickOnButton(deleteModal, t("onboarding.company.step.owners.deleteModal.confirm"));
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

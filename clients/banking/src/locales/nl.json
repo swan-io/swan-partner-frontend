@@ -131,6 +131,7 @@
   "accountDetails.virtualIbans.cancel.text": "Alle betalingen naar deze IBAN worden geweigerd.",
   "accountDetails.virtualIbans.cancel.title": "Weet je zeker dat je deze virtuele IBAN wilt annuleren?",
   "accountDetails.virtualIbans.cancelVirtualIban": "Virtuele IBAN annuleren",
+  "accountDetails.virtualIbans.downloadBankDetails": "Download bankgegevens",
   "accountDetails.virtualIbans.emptyDescription": "Virtuele IBAN-nummers zijn ideaal voor je geautomatiseerde boekhouding. Gebruik ze om te herkennen wie welke betaling heeft gedaan.",
   "accountDetails.virtualIbans.emptyTitle": "Je hebt nog geen virtuele IBAN-nummers aangemaakt",
   "accountDetails.virtualIbans.iban": "IBAN",

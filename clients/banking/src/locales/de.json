@@ -131,6 +131,7 @@
   "accountDetails.virtualIbans.cancel.text": "Alle Zahlungen an eine stornierte virtuelle IBAN werden abgelehnt.",
   "accountDetails.virtualIbans.cancel.title": "Sind Sie sicher, dass Sie diese virtuelle IBAN löschen möchten?",
   "accountDetails.virtualIbans.cancelVirtualIban": "Virtuelle IBAN stornieren",
+  "accountDetails.virtualIbans.downloadBankDetails": "Bankdaten herunterladen",
   "accountDetails.virtualIbans.emptyDescription": "Virtuelle IBANs sind ideal für die automatisierte Buchhaltung. \nVerwenden Sie diese als Identifikationsnummer, um genau zu wissen, wer die jeweilige Zahlung getätigt hat.",
   "accountDetails.virtualIbans.emptyTitle": "Sie haben noch keine virtuellen IBANs erstellt",
   "accountDetails.virtualIbans.iban": "IBAN",

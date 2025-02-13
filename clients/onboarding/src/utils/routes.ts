@@ -4,8 +4,6 @@ import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 export const routes = {
-  PopupCallback: "/swanpopupcallback?:redirectUrl&:accountMembershipId&:projectId",
-
   ...createGroup(
     "SupportingDocumentCollection",
     "/supporting-document-collection/:supportingDocumentCollectionId",

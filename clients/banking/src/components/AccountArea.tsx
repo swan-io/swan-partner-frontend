@@ -504,7 +504,10 @@ export const AccountArea = ({
                                               onPress={() => {
                                                 const params = new URLSearchParams();
 
-                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "redirectTo",
+                                                  Router.AccountRoot({ accountMembershipId }),
+                                                );
                                                 params.set("identificationLevel", "Auto");
                                                 params.set("email", email);
 
@@ -580,7 +583,10 @@ export const AccountArea = ({
                                               onPress={() => {
                                                 const params = new URLSearchParams();
 
-                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "redirectTo",
+                                                  Router.AccountRoot({ accountMembershipId }),
+                                                );
                                                 params.set("identificationLevel", "Auto");
                                                 if (statusInfo.emailVerifiedMatchError) {
                                                   params.set("email", email);

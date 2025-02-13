@@ -617,7 +617,7 @@ export const start = async ({
 
                 return match(state)
                   .returnType<Reply>()
-                  .with({ type: "Redirect" }, ({ redirectTo = "/swanpopupcallback" }) => {
+                  .with({ type: "Redirect" }, ({ redirectTo = "/" }) => {
                     return reply.redirect(redirectTo);
                   })
                   .with({ type: "Swan__FinalizeOnboarding" }, ({ onboardingId, projectId }) => {
@@ -637,15 +637,13 @@ export const start = async ({
                       .then(result => {
                         return result.match<Reply>({
                           Ok: ({ redirectUrl, state, accountMembershipId, oAuthClientId }) => {
-                            const queryString = new URLSearchParams();
-
                             if (redirectUrl != null) {
                               const redirectHost = new URL(redirectUrl).hostname;
 
                               // When onboarding from the dashboard, we don't yet have a OAuth2 client,
                               // so we bypass the second OAuth2 link.
                               if (redirectHost === BANKING_HOST.replace("banking.", "dashboard.")) {
-                                queryString.append("redirectUrl", redirectUrl);
+                                return reply.redirect(redirectUrl);
                               } else {
                                 const authUri = createAuthUrl({
                                   oAuthClientId,
@@ -655,18 +653,12 @@ export const start = async ({
                                   params: {},
                                 });
 
-                                queryString.append("redirectUrl", authUri);
+                                return reply.redirect(authUri);
                               }
                             }
 
-                            if (accountMembershipId != null) {
-                              queryString.append("accountMembershipId", accountMembershipId);
-                            }
-
-                            queryString.append("projectId", projectId);
-
                             return reply.redirect(
-                              `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
+                              `${env.BANKING_URL}/projects/${projectId}/${accountMembershipId}/activation`,
                             );
                           },
                           Error: error => {
@@ -687,8 +679,6 @@ export const start = async ({
                       .then(result => {
                         return result.match<Reply>({
                           Ok: ({ redirectUrl, state, accountMembershipId }) => {
-                            const queryString = new URLSearchParams();
-
                             if (redirectUrl != null) {
                               const authUri = createAuthUrl({
                                 scope: [],
@@ -697,15 +687,11 @@ export const start = async ({
                                 params: {},
                               });
 
-                              queryString.append("redirectUrl", authUri);
-                            }
-
-                            if (accountMembershipId != null) {
-                              queryString.append("accountMembershipId", accountMembershipId);
+                              return reply.redirect(authUri);
                             }
 
                             return reply.redirect(
-                              `${env.ONBOARDING_URL}/swanpopupcallback?${queryString.toString()}`,
+                              `${env.BANKING_URL}/${accountMembershipId}/activation`,
                             );
                           },
                           Error: error => {
@@ -760,7 +746,7 @@ export const start = async ({
                   )
                   .otherwise(error => {
                     request.log.error(error);
-                    return reply.redirect("/swanpopupcallback");
+                    return reply.redirect(env.BANKING_URL);
                   });
               },
               Error: error => {

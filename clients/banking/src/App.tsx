@@ -14,7 +14,6 @@ import { ProjectRootRedirect } from "./components/ProjectRootRedirect";
 import { Redirect } from "./components/Redirect";
 import { AuthStatusDocument } from "./graphql/partner";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { ProjectLoginPage } from "./pages/ProjectLoginPage";
 import { partnerClient, unauthenticatedClient } from "./utils/gql";
 import { logFrontendError } from "./utils/logger";
@@ -92,28 +91,15 @@ const AppContainer = () => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["PopupCallback"]);
-
   return (
     <ErrorBoundary
-      key={route?.name}
       onError={error => logFrontendError(error)}
       fallback={() => <ErrorView style={styles.base} />}
     >
-      {match(route)
-        // The callback page is agnostic as to the current authentication,
-        // meaning we don't check if the user is logged in when on this path
-        .with({ name: "PopupCallback" }, ({ params: { redirectTo } }) => (
-          <PopupCallbackPage redirectTo={redirectTo} />
-        ))
-        .otherwise(() => (
-          // The auth check requires a GraphQL client
-          <ClientContext.Provider value={partnerClient}>
-            <AppContainer />
-            <ToastStack />
-          </ClientContext.Provider>
-        ))}
-
+      <ClientContext.Provider value={partnerClient}>
+        <AppContainer />
+        <ToastStack />
+      </ClientContext.Provider>
       <ToastStack />
     </ErrorBoundary>
   );

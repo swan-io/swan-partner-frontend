@@ -45,7 +45,6 @@ import { AccountActivationPageDocument, IdentificationFragment } from "../graphq
 import { env } from "../utils/env";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { getIdentificationLevelStatusInfo, isReadyToSign } from "../utils/identification";
-import { openPopup } from "../utils/popup";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
 
@@ -434,11 +433,9 @@ export const AccountActivationPage = ({
             .otherwise(() => {});
 
           params.set("identificationLevel", "Auto");
-          params.set("redirectTo", Router.PopupCallback());
+          params.set("redirectTo", Router.AccountActivation({ accountMembershipId }));
 
-          openPopup(`/auth/login?${params.toString()}`).onResolve(() => {
-            refetchQueries();
-          });
+          window.location.assign(`/auth/login?${params.toString()}`);
         };
 
         if (isNullish(step)) {

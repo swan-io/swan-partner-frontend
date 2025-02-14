@@ -435,7 +435,7 @@ export const AccountActivationPage = ({
           params.set("identificationLevel", "Auto");
           params.set("redirectTo", Router.AccountActivation({ accountMembershipId }));
 
-          window.location.replace(`/auth/login?${params.toString()}`);
+          window.location.assign(`/auth/login?${params.toString()}`);
         };
 
         if (isNullish(step)) {

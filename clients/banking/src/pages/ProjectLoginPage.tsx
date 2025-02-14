@@ -150,7 +150,7 @@ export const ProjectLoginPage = ({
     params.set("projectId", projectId);
     params.set("redirectTo", redirectTo);
 
-    window.location.replace(`/auth/login?${params.toString()}`);
+    window.location.assign(`/auth/login?${params.toString()}`);
   }, [projectId, redirectToFromQueryParams]);
 
   return match(

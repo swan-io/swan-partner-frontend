@@ -58,7 +58,7 @@ export const OnboardingIndividualFinalize = ({
       )
       .otherwise(() => {});
 
-    window.location.replace(`${env.BANKING_URL}/auth/login?${queryString.toString()}`);
+    window.location.assign(`${env.BANKING_URL}/auth/login?${queryString.toString()}`);
   };
 
   return (

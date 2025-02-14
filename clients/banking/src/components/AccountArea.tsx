@@ -521,7 +521,7 @@ export const AccountArea = ({
                                                   )
                                                   .otherwise(() => {});
 
-                                                window.location.replace(
+                                                window.location.assign(
                                                   `/auth/login?${params.toString()}`,
                                                 );
                                               }}
@@ -602,7 +602,7 @@ export const AccountArea = ({
                                                   )
                                                   .otherwise(() => {});
 
-                                                window.location.replace(
+                                                window.location.assign(
                                                   `/auth/login?${params.toString()}`,
                                                 );
                                               }}

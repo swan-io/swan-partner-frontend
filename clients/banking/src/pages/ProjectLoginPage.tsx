@@ -24,14 +24,12 @@ import {
   spacings,
 } from "@swan-io/lake/src/constants/design";
 import { isNotNullish } from "@swan-io/lake/src/utils/nullish";
-import { isDecentMobileDevice } from "@swan-io/lake/src/utils/userAgent";
 import { useCallback, useEffect, useRef } from "react";
 import { Image, StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
 import { ErrorView } from "../components/ErrorView";
 import { ProjectLoginPageDocument } from "../graphql/unauthenticated";
 import { locale, t } from "../utils/i18n";
-import { openPopup } from "../utils/popup";
 import { Router } from "../utils/routes";
 
 const styles = StyleSheet.create({
@@ -150,29 +148,9 @@ export const ProjectLoginPage = ({
     const params = new URLSearchParams();
 
     params.set("projectId", projectId);
-    params.set(
-      "redirectTo",
-      isDecentMobileDevice ? redirectTo : Router.PopupCallback({ redirectTo }),
-    );
+    params.set("redirectTo", redirectTo);
 
-    const authUrl = `/auth/login?${params.toString()}`;
-
-    if (isDecentMobileDevice) {
-      window.location.replace(authUrl);
-    } else {
-      params.set("redirectTo", Router.PopupCallback());
-
-      openPopup(authUrl).onResolve(() => {
-        // We use location.replace to be sure that the auth
-        // cookie is correctly written before changing page
-        // (history pushState does not seem to offer these guarantees)
-        if (!redirectTo.startsWith("/") || redirectTo.startsWith("//")) {
-          window.location.replace(Router.ProjectRootRedirect());
-        } else {
-          window.location.replace(redirectTo);
-        }
-      });
-    }
+    window.location.assign(`/auth/login?${params.toString()}`);
   }, [projectId, redirectToFromQueryParams]);
 
   return match(

@@ -18,7 +18,6 @@ import {
 } from "./graphql/unauthenticated";
 import { useTitle } from "./hooks/useTitle";
 import { NotFoundPage } from "./pages/NotFoundPage";
-import { PopupCallbackPage } from "./pages/PopupCallbackPage";
 import { OnboardingCompanyWizard } from "./pages/company/CompanyOnboardingWizard";
 import { OnboardingIndividualWizard } from "./pages/individual/OnboardingIndividualWizard";
 import { env } from "./utils/env";
@@ -165,7 +164,7 @@ const FlowPicker = ({ onboardingId }: Props) => {
 };
 
 export const App = () => {
-  const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea", "PopupCallback"]);
+  const route = Router.useRoute(["Area", "SupportingDocumentCollectionArea"]);
 
   return (
     <ErrorBoundary
@@ -175,16 +174,6 @@ export const App = () => {
     >
       <ClientContext.Provider value={client}>
         {match(route)
-          .with(
-            { name: "PopupCallback" },
-            ({ params: { redirectUrl, accountMembershipId, projectId } }) => (
-              <PopupCallbackPage
-                redirectUrl={redirectUrl}
-                accountMembershipId={accountMembershipId}
-                projectId={projectId}
-              />
-            ),
-          )
           .with(
             { name: "SupportingDocumentCollectionArea" },
             ({ params: { supportingDocumentCollectionId } }) => (

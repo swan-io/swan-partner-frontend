@@ -4,8 +4,6 @@ import { P, match } from "ts-pattern";
 import { projectConfiguration } from "./projectId";
 
 const routes = {
-  PopupCallback: "/swanpopupcallback?:redirectTo",
-
   ProjectLogin: "/login?:sessionExpired&:redirectTo",
   ProjectRootRedirect: "/?:to&:source",
 

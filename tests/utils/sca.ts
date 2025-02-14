@@ -55,19 +55,17 @@ const loginWithButtonClick = async (browser: Browser, button: Locator) => {
       )}`,
     });
 
-  const popupEventPromise = button.page().waitForEvent("popup");
-
+  const desktop = button.page();
   await button.click();
 
-  const popup = await popupEventPromise;
-  await popup.waitForLoadState();
+  await desktop.waitForLoadState();
 
-  const input = popup.locator('[type="tel"]');
+  const input = desktop.locator('[type="tel"]');
   await input.waitFor();
   await input.fill(env.PHONE_NUMBER);
 
   const startDate = new Date();
-  await clickOnButton(popup, "Continue");
+  await clickOnButton(desktop, "Continue");
 
   const url = await getLastMessageURL(startDate);
   const mobile = await openPage(browser, "mobile", url);
@@ -77,7 +75,7 @@ const loginWithButtonClick = async (browser: Browser, button: Locator) => {
   await waitForConfirm(mobile);
 
   await mobile.close();
-  await popup.waitForEvent("close");
+  await desktop.waitForLoadState();
 };
 
 const loginWithAuthLink = async (browser: Browser) => {

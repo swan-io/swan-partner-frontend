@@ -23,6 +23,7 @@
     "dev": "tsx -r dotenv/config server/src/index.ts --dev",
     "dev-swan": "tsx -r dotenv/config server/src/index.swan.ts --dev dotenv_config_path=.env.swan",
     "build": "tsx -r dotenv/config scripts/build/index.ts",
+    "build-e2e": "tsx -r dotenv/config scripts/build/index.ts dotenv_config_path=.env.e2e",
     "typecheck": "tsc --noEmit",
     "license-report": "tsx scripts/license-crawler/crawlLicenses.ts --check --report",
     "license-check": "tsx scripts/license-crawler/crawlLicenses.ts --check",

@@ -70,7 +70,7 @@ export default defineConfig({
   ],
 
   webServer: {
-    command: "pnpm dev-e2e",
+    command: "pnpm build-e2e && cd server && pnpm start",
     url: env.BANKING_URL,
     reuseExistingServer: !env.CI,
     stderr: "pipe",

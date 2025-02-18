@@ -17,6 +17,7 @@
     "clean": "shx rm -rf dist",
     "prepack": "tsc --build",
     "start": "node -r ./dist/tracing.js ./dist/index.js",
+    "start-e2e": "node -r dotenv/config -r ./dist/tracing.js ./dist/index.js dotenv_config_path=../.env.e2e",
     "start-swan": "node -r ./dist/tracing.js ./dist/index.swan.js"
   },
   "dependencies": {

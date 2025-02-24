@@ -128,7 +128,6 @@ fragment OnboardingData on OnboardingInfo {
   language
   redirectUrl
   tcuUrl
-  legalRepresentativeRecommendedIdentificationLevel
   oAuthRedirectParameters {
     redirectUrl
   }

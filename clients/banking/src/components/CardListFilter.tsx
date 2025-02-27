@@ -42,7 +42,6 @@ const filtersDefinition = {
 export type CardFilters = FiltersState<typeof filtersDefinition>;
 
 type TransactionListFilterProps = {
-  available?: readonly (keyof CardFilters)[];
   children?: ReactNode;
   large?: boolean;
   filters: CardFilters;
@@ -54,10 +53,7 @@ type TransactionListFilterProps = {
   onChangeStatus: (status: "Active" | "Canceled") => void;
 };
 
-const defaultAvailableFilters = ["type"] as const;
-
 export const CardListFilter = ({
-  available = defaultAvailableFilters,
   children,
   large = true,
   filters,
@@ -68,19 +64,9 @@ export const CardListFilter = ({
   onChangeSearch,
   onChangeStatus,
 }: TransactionListFilterProps) => {
-  const availableSet = useMemo(() => new Set(available), [available]);
-
   const availableFilters: { name: keyof CardFilters; label: string }[] = useMemo(
-    () =>
-      (
-        [
-          {
-            name: "type",
-            label: t("cardList.type"),
-          },
-        ] as const
-      ).filter(item => availableSet.has(item.name)),
-    [availableSet],
+    () => [{ name: "type", label: t("cardList.type") }] as const,
+    [],
   );
 
   const [openFilters, setOpenFilters] = useState(() =>

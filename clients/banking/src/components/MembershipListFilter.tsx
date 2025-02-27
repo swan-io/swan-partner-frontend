@@ -110,17 +110,7 @@ type MembershipListFilterProps = {
   onChangeSearch: (search: string | undefined) => void;
 };
 
-const defaultAvailableFilters = [
-  "statuses",
-  "canInitiatePayments",
-  "canManageAccountMembership",
-  "canManageBeneficiaries",
-  "canViewAccount",
-  "canManageCards",
-] as const;
-
 export const MembershipListFilter = ({
-  available = defaultAvailableFilters,
   children,
   large = true,
   filters,
@@ -130,39 +120,20 @@ export const MembershipListFilter = ({
   onRefresh,
   onChangeSearch,
 }: MembershipListFilterProps) => {
-  const availableSet = useMemo(() => new Set(available), [available]);
-
   const availableFilters: { name: keyof MembershipFilters; label: string }[] = useMemo(
     () =>
-      (
-        [
-          {
-            name: "statuses",
-            label: t("membershipList.status"),
-          },
-          {
-            name: "canInitiatePayments",
-            label: t("membershipList.canInitiatePayments"),
-          },
-          {
-            name: "canManageAccountMembership",
-            label: t("membershipList.canManageAccountMembership"),
-          },
-          {
-            name: "canManageBeneficiaries",
-            label: t("membershipList.canManageBeneficiaries"),
-          },
-          {
-            name: "canViewAccount",
-            label: t("membershipList.canViewAccount"),
-          },
-          {
-            name: "canManageCards",
-            label: t("membershipList.canManageCards"),
-          },
-        ] as const
-      ).filter(item => availableSet.has(item.name)),
-    [availableSet],
+      [
+        { name: "statuses", label: t("membershipList.status") },
+        { name: "canInitiatePayments", label: t("membershipList.canInitiatePayments") },
+        {
+          name: "canManageAccountMembership",
+          label: t("membershipList.canManageAccountMembership"),
+        },
+        { name: "canManageBeneficiaries", label: t("membershipList.canManageBeneficiaries") },
+        { name: "canViewAccount", label: t("membershipList.canViewAccount") },
+        { name: "canManageCards", label: t("membershipList.canManageCards") },
+      ] as const,
+    [],
   );
 
   const [openFilters, setOpenFilters] = useState(() =>

@@ -58,13 +58,13 @@ export const CardListPage = ({
 }: Props) => {
   const { canAddCard: canOrderCard } = usePermissions();
 
-  const filters = useMemo<CardFilters>(
-    () => ({
+  const filters = useMemo(
+    (): CardFilters => ({
       type: params.type?.filter(
         isMatching(P.union("Virtual", "VirtualAndPhysical", "SingleUseVirtual")),
       ),
     }),
-    [params.type],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.search);

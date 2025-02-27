@@ -153,14 +153,14 @@ importers:
         specifier: 0.5.1
         version: 0.5.1(graphql@16.10.0)(react@18.3.1)(typescript@5.7.3)
       '@swan-io/lake':
-        specifier: 11.3.6
-        version: 11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.4.0
+        version: 11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request':
         specifier: 2.0.0
         version: 2.0.0(@swan-io/boxed@3.2.0(typescript@5.7.3))
       '@swan-io/shared-business':
-        specifier: 11.3.6
-        version: 11.3.6(@swan-io/lake@11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
+        specifier: 11.4.0
+        version: 11.4.0(@swan-io/lake@11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.3)
@@ -250,14 +250,14 @@ importers:
         specifier: 0.5.1
         version: 0.5.1(graphql@16.10.0)(react@18.3.1)(typescript@5.7.3)
       '@swan-io/lake':
-        specifier: 11.3.6
-        version: 11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.4.0
+        version: 11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request':
         specifier: 2.0.0
         version: 2.0.0(@swan-io/boxed@3.2.0(typescript@5.7.3))
       '@swan-io/shared-business':
-        specifier: 11.3.6
-        version: 11.3.6(@swan-io/lake@11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
+        specifier: 11.4.0
+        version: 11.4.0(@swan-io/lake@11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.3)
@@ -338,11 +338,11 @@ importers:
         specifier: 0.5.1
         version: 0.5.1(graphql@16.10.0)(react@18.3.1)(typescript@5.7.3)
       '@swan-io/lake':
-        specifier: 11.3.6
-        version: 11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
+        specifier: 11.4.0
+        version: 11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/shared-business':
-        specifier: 11.3.6
-        version: 11.3.6(@swan-io/lake@11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
+        specifier: 11.4.0
+        version: 11.4.0(@swan-io/lake@11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)
       '@swan-io/use-form':
         specifier: 3.1.0
         version: 3.1.0(react@18.3.1)(typescript@5.7.3)
@@ -2065,8 +2065,8 @@ packages:
     peerDependencies:
       react: ^18.2.0
 
-  '@swan-io/lake@11.3.6':
-    resolution: {integrity: sha512-oOGeLUQML/0mEFHeXKfC5RDCJQv3jNmiv9vZGmW9rhGbNFjyn9DFEZXonLXetaaFCiFTauwCGXDQ1ExyLzCy1w==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-11.3.6.tgz}
+  '@swan-io/lake@11.4.0':
+    resolution: {integrity: sha512-5+bwaVkMbJgpyUYXVs5JZd5gxXHvKdy3CaneDnnZ+zJGWM8XzM7MYsI3MXU5WRkMArsWjrwq/3cXqS1kwQ2KRw==, tarball: https://registry.npmjs.org/@swan-io/lake/-/lake-11.4.0.tgz}
     engines: {node: ^22.12.0, pnpm: ^10.2.0}
 
   '@swan-io/request@2.0.0':
@@ -2074,11 +2074,11 @@ packages:
     peerDependencies:
       '@swan-io/boxed': '>=2.2.1'
 
-  '@swan-io/shared-business@11.3.6':
-    resolution: {integrity: sha512-YxcEOcg53grFIlvjc/TnYfd4ohZkGpHKQB+5PWij4zegsFMjXFNFRBBYtyvFMCJseiDzdlWh9kq1FmWfKSwX4w==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-11.3.6.tgz}
+  '@swan-io/shared-business@11.4.0':
+    resolution: {integrity: sha512-of28ukXojhKB8wGUoUtMMwfkXIdzbFi5JRhAP5NgglvI7KxWRdIVZl52rSeZDun1Br1qWTOeLQO/vSoydjWR8A==, tarball: https://registry.npmjs.org/@swan-io/shared-business/-/shared-business-11.4.0.tgz}
     engines: {node: ^22.12.0, pnpm: ^10.2.0}
     peerDependencies:
-      '@swan-io/lake': 11.3.6
+      '@swan-io/lake': 11.4.0
 
   '@swan-io/use-form@3.1.0':
     resolution: {integrity: sha512-X6NpZ7LCeo7eS9RVCZrtpX+3GXZFUfUZpIwtVa2GNmqTLgyDbLhN8N6zBv+dmHL9KAQ+Zng2fTCCQpCZvmDu5A==, tarball: https://registry.npmjs.org/@swan-io/use-form/-/use-form-3.1.0.tgz}
@@ -6768,7 +6768,7 @@ snapshots:
       - graphql
       - typescript
 
-  '@swan-io/lake@11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))':
+  '@swan-io/lake@11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))':
     dependencies:
       '@react-three/drei': 9.121.5(@react-three/fiber@8.17.14(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.173.0))(@types/react@18.3.12)(@types/three@0.173.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.173.0)(use-sync-external-store@1.4.0(react@18.3.1))
       '@react-three/fiber': 8.17.14(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(three@0.173.0)
@@ -6803,12 +6803,12 @@ snapshots:
     dependencies:
       '@swan-io/boxed': 3.2.0(typescript@5.7.3)
 
-  '@swan-io/shared-business@11.3.6(@swan-io/lake@11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)':
+  '@swan-io/shared-business@11.4.0(@swan-io/lake@11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1)))(typescript@5.7.3)':
     dependencies:
       '@formatjs/intl': 3.1.4(typescript@5.7.3)
       '@placekit/client-js': 2.3.0
       '@swan-io/boxed': 3.2.0(typescript@5.7.3)
-      '@swan-io/lake': 11.3.6(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
+      '@swan-io/lake': 11.4.0(@types/react@18.3.12)(@types/three@0.173.0)(typescript@5.7.3)(use-sync-external-store@1.4.0(react@18.3.1))
       '@swan-io/request': 2.0.0(@swan-io/boxed@3.2.0(typescript@5.7.3))
       '@swan-io/use-form': 3.1.0(react@18.3.1)(typescript@5.7.3)
       dayjs: 1.11.13

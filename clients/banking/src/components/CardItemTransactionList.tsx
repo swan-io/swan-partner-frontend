@@ -41,12 +41,7 @@ type Props = {
   params: GetRouteParams<"AccountCardsItemTransactions">;
 };
 
-const availableFilters = [
-  "isAfterUpdatedAt",
-  "isBeforeUpdatedAt",
-  "isBeforeUpdatedAt",
-  "status",
-] as const;
+const availableFilters = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"] as const;
 
 const DEFAULT_STATUSES = [
   "Booked" as const,
@@ -56,8 +51,8 @@ const DEFAULT_STATUSES = [
 ];
 
 export const CardItemTransactionList = ({ params }: Props) => {
-  const filters = useMemo<TransactionFilters>(
-    () => ({
+  const filters = useMemo(
+    (): TransactionFilters => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: undefined,
@@ -65,7 +60,7 @@ export const CardItemTransactionList = ({ params }: Props) => {
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming")),
       ),
     }),
-    [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.status],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.search);

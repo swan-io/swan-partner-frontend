@@ -19,7 +19,11 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
-import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
+import {
+  TransactionFilter,
+  TransactionFilters,
+  TransactionListFilter,
+} from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -41,7 +45,7 @@ type Props = {
   params: GetRouteParams<"AccountCardsItemTransactions">;
 };
 
-const availableFilters = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"] as const;
+const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
 
 const DEFAULT_STATUSES = [
   "Booked" as const,

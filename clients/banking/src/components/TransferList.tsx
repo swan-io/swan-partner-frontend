@@ -22,6 +22,7 @@ import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import {
   defaultFiltersDefinition,
+  TransactionFilter,
   TransactionFilters,
   TransactionListFilter,
 } from "./TransactionListFilter";
@@ -52,7 +53,7 @@ type Props = {
   };
 };
 
-const availableFilters = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"] as const;
+const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
 
 const DEFAULT_STATUSES = [
   "Booked" as const,

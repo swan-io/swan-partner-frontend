@@ -110,7 +110,7 @@ export const TransactionListFilter = ({
           </>
         ) : null}
 
-        <FilterChooser large={large} {...filtersProps.chooser} />
+        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>

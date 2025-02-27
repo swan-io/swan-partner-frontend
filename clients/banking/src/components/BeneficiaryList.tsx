@@ -482,7 +482,7 @@ export const BeneficiaryList = ({
                   </>
                 ) : null}
 
-                <FilterChooser large={large} {...filtersProps.chooser} />
+                <FilterChooser {...filtersProps.chooser} large={large} />
 
                 {large && (
                   <>

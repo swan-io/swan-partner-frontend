@@ -75,7 +75,7 @@ export const CardListFilter = ({
           </>
         ) : null}
 
-        <FilterChooser large={large} {...filtersProps.chooser} />
+        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>

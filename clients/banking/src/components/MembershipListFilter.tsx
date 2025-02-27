@@ -135,7 +135,7 @@ export const MembershipListFilter = ({
           </>
         ) : null}
 
-        <FilterChooser large={large} {...filtersProps.chooser} />
+        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>

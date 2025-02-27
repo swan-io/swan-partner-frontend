@@ -22,7 +22,6 @@ import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
 import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
-import { parsePhoneNumber } from "libphonenumber-js";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -41,8 +40,10 @@ import {
   validateForPermissions,
   validateName,
   validateNullableRequired,
+  validatePhoneNumber,
   validateRequired,
 } from "../utils/validations";
+import { InputPhoneNumber } from "./InputPhoneNumber";
 
 const styles = StyleSheet.create({
   paginationDot: {
@@ -52,35 +53,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.gray[200],
     marginHorizontal: spacings[4],
   },
-  paginationDotActive: {
-    backgroundColor: colors.gray[500],
-  },
-  field: {
-    alignSelf: "stretch",
-  },
-  fieldLarge: {
-    flexBasis: "50%",
-    flexShrink: 1,
-  },
-  checkbox: {
-    alignSelf: "stretch",
-    paddingVertical: spacings[4],
-  },
-  checkboxLarge: {
-    flexBasis: "50%",
-  },
+  paginationDotActive: { backgroundColor: colors.gray[500] },
+  field: { alignSelf: "stretch" },
+  fieldLarge: { flexBasis: "50%", flexShrink: 1 },
+  checkbox: { alignSelf: "stretch", paddingVertical: spacings[4] },
+  checkboxLarge: { flexBasis: "50%" },
+  phoneNumberContainer: { paddingTop: 6 },
 });
-
-const validatePhoneNumber = (value: string) => {
-  try {
-    // parsePhoneNumber can throw an error
-    if (!parsePhoneNumber(value).isValid()) {
-      return t("common.form.invalidPhoneNumber");
-    }
-  } catch {
-    return t("common.form.invalidPhoneNumber");
-  }
-};
 
 type Props = {
   accountId: string;
@@ -115,9 +94,8 @@ type FormState = {
 const hasDefinedKeys = <T extends Record<string, unknown>, K extends keyof T = keyof T>(
   object: T,
   keys: K[],
-): object is T & {
-  [K1 in K]-?: Exclude<T[K1], undefined>;
-} => keys.every(key => typeof object[key] !== "undefined");
+): object is T & { [K1 in K]-?: Exclude<T[K1], undefined> } =>
+  keys.every(key => typeof object[key] !== "undefined");
 
 const MANDATORY_FIELDS = [
   "phoneNumber",
@@ -152,6 +130,7 @@ export const NewMembershipWizard = ({
     phoneNumber: {
       initialValue: partiallySavedValues?.phoneNumber ?? "",
       sanitize: trim,
+      strategy: "onBlur",
       validate: (value, { getFieldValue }) => {
         if (
           getFieldValue("canManageAccountMembership") ||
@@ -196,21 +175,13 @@ export const NewMembershipWizard = ({
         }
       },
     },
-    canViewAccount: {
-      initialValue: partiallySavedValues?.canViewAccount ?? false,
-    },
-    canInitiatePayments: {
-      initialValue: partiallySavedValues?.canInitiatePayments ?? false,
-    },
-    canManageBeneficiaries: {
-      initialValue: partiallySavedValues?.canManageBeneficiaries ?? false,
-    },
+    canViewAccount: { initialValue: partiallySavedValues?.canViewAccount ?? false },
+    canInitiatePayments: { initialValue: partiallySavedValues?.canInitiatePayments ?? false },
+    canManageBeneficiaries: { initialValue: partiallySavedValues?.canManageBeneficiaries ?? false },
     canManageAccountMembership: {
       initialValue: partiallySavedValues?.canManageAccountMembership ?? false,
     },
-    canManageCards: {
-      initialValue: partiallySavedValues?.canManageCards ?? false,
-    },
+    canManageCards: { initialValue: partiallySavedValues?.canManageCards ?? false },
     // German account specific fields
     addressLine1: {
       initialValue: partiallySavedValues?.addressLine1 ?? "",
@@ -335,12 +306,8 @@ export const NewMembershipWizard = ({
                 validateIndividualTaxNumber(accountCountry),
               )(value),
           )
-          .with(
-            {
-              accountCountry: "DEU",
-              residencyAddressCountry: "DEU",
-            },
-            () => validateIndividualTaxNumber(accountCountry)(value),
+          .with({ accountCountry: "DEU", residencyAddressCountry: "DEU" }, () =>
+            validateIndividualTaxNumber(accountCountry)(value),
           )
           .otherwise(() => undefined);
       },
@@ -415,10 +382,7 @@ export const NewMembershipWizard = ({
   const onPressSubmit = () => {
     submitForm({
       onSuccess: values => {
-        const computedValues = {
-          ...partiallySavedValues,
-          ...Dict.fromOptional(values),
-        };
+        const computedValues = { ...partiallySavedValues, ...Dict.fromOptional(values) };
 
         if (hasDefinedKeys(computedValues, MANDATORY_FIELDS)) {
           const { addressLine1, city, postalCode, country, language } = computedValues;
@@ -429,12 +393,7 @@ export const NewMembershipWizard = ({
 
           const residencyAddress = isAddressIncomplete
             ? undefined
-            : {
-                addressLine1,
-                city,
-                postalCode,
-                country,
-              };
+            : { addressLine1, city, postalCode, country };
 
           addMember({
             input: {
@@ -553,25 +512,18 @@ export const NewMembershipWizard = ({
                   </Box>
 
                   <Box direction={boxDirection}>
-                    <View style={fieldStyle}>
+                    <View style={[styles.phoneNumberContainer, fieldStyle]}>
                       <Field name="phoneNumber">
-                        {({ value, valid, error, onChange, onBlur, ref }) => (
-                          <LakeLabel
+                        {({ value, valid, error, onChange, ref, onBlur }) => (
+                          <InputPhoneNumber
                             label={t("membershipDetail.edit.phoneNumber")}
-                            render={id => (
-                              <LakeTextInput
-                                id={id}
-                                ref={ref}
-                                placeholder="+33600000000"
-                                value={value ?? ""}
-                                valid={valid}
-                                error={error}
-                                onChangeText={onChange}
-                                onBlur={onBlur}
-                                inputMode="tel"
-                                help={t("membershipDetail.edit.phoneNumber.requiredForPermissions")}
-                              />
-                            )}
+                            ref={ref}
+                            onValueChange={onChange}
+                            error={error}
+                            value={value}
+                            valid={valid}
+                            onBlur={onBlur}
+                            help={t("membershipDetail.edit.phoneNumber.requiredForPermissions")}
                           />
                         )}
                       </Field>

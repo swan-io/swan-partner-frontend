@@ -21,7 +21,7 @@ import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constant
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, useForm } from "@swan-io/use-form";
+import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -36,16 +36,19 @@ import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, locale, t } from "../utils/i18n";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import { validateAddressLine, validateName, validateRequired } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateForPermissions,
+  validateName,
+  validatePhoneNumber,
+  validateRequired,
+} from "../utils/validations";
+import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 
 const styles = StyleSheet.create({
-  buttonGroup: {
-    backgroundColor: backgroundColor.default,
-    position: "sticky",
-    bottom: 0,
-  },
+  buttonGroup: { backgroundColor: backgroundColor.default, position: "sticky", bottom: 0 },
 });
 
 type AllowedStatuses =
@@ -174,14 +177,16 @@ export const MembershipDetailEditor = ({
         .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
         .otherwise(() => ""),
       sanitize: trim,
+      strategy: "onBlur",
       validate: value => {
         if (
           editingAccountMembership.canInitiatePayments ||
           editingAccountMembership.canManageAccountMembership ||
           editingAccountMembership.canManageBeneficiaries
         ) {
-          return validateRequired(value);
+          return combineValidators(validateForPermissions, validatePhoneNumber)(value);
         }
+        return toOptionalValidator(validatePhoneNumber)(value);
       },
     },
     // German account specific fields
@@ -308,11 +313,7 @@ export const MembershipDetailEditor = ({
   };
 
   const onPressSuspend = () => {
-    suspendMembership({
-      input: {
-        accountMembershipId: editingAccountMembershipId,
-      },
-    })
+    suspendMembership({ input: { accountMembershipId: editingAccountMembershipId } })
       .mapOk(data => data.suspendAccountMembership)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
@@ -618,22 +619,15 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="phoneNumber">
-                {({ value, valid, error, onChange, ref }) => (
-                  <LakeLabel
+                {({ value, valid, error, onChange, ref, onBlur }) => (
+                  <InputPhoneNumber
                     label={t("membershipDetail.edit.phoneNumber")}
-                    render={id => (
-                      <LakeTextInput
-                        id={id}
-                        ref={ref}
-                        placeholder="+33600000000"
-                        value={value ?? ""}
-                        valid={valid}
-                        error={error}
-                        readOnly={!canUpdateAccountMembership}
-                        onChangeText={onChange}
-                        inputMode="tel"
-                      />
-                    )}
+                    ref={ref}
+                    onValueChange={onChange}
+                    error={error}
+                    value={value}
+                    valid={valid}
+                    onBlur={onBlur}
                   />
                 )}
               </Field>
@@ -836,9 +830,7 @@ export const MembershipDetailEditor = ({
               .with(
                 {
                   editingAccountMembership: {
-                    statusInfo: {
-                      __typename: "AccountMembershipEnabledStatusInfo",
-                    },
+                    statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
                   },
                 },
                 () => (
@@ -879,9 +871,7 @@ export const MembershipDetailEditor = ({
                 // Can't remove yourself
                 { isEditingCurrentUserAccountMembership: true },
                 // Can't remove the account legal representative
-                {
-                  editingAccountMembership: { legalRepresentative: true },
-                },
+                { editingAccountMembership: { legalRepresentative: true } },
                 () => null,
               )
               .otherwise(() => (

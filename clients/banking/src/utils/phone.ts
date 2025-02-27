@@ -36,7 +36,6 @@ export const prefixPhoneNumber = (country: Country, nationalNumber: string) => {
 
   return Result.fromExecution<{ valid: true; e164: E164Number } | { valid: false }>(() => {
     const phoneNumber = parsePhoneNumberWithError(sanitized, { defaultCallingCode: country.idd });
-    console.log("phoneNumber", phoneNumber);
 
     return phoneNumber.isValid() ? { valid: true, e164: phoneNumber.number } : { valid: false };
   }).getOr({ valid: false });

@@ -387,7 +387,7 @@ export const validateRLMC = (cmc7: string) => (rlmc: string) => {
 
 export const validatePhoneNumber = (value: string) => {
   try {
-    // parsePhoneNumber can throw an error
+    // parsePhoneNumberWithError can throw an error
     if (!parsePhoneNumberWithError(value).isValid()) {
       return t("common.form.invalidPhoneNumber");
     }

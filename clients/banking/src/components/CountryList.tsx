@@ -115,32 +115,30 @@ export const CountryList = ({ country, onChange }: Props) => {
               onChange(item);
             }}
           >
-            <>
-              <Flag code={item.cca2} width={16} />
-              <Space width={12} />
+            <Flag code={item.cca2} width={16} />
+            <Space width={12} />
 
-              <LakeText
-                numberOfLines={1}
-                style={styles.rowName}
-                userSelect="none"
-                variant="smallRegular"
-              >
-                {item.name}
-              </LakeText>
+            <LakeText
+              numberOfLines={1}
+              style={styles.rowName}
+              userSelect="none"
+              variant="smallRegular"
+            >
+              {item.name}
+            </LakeText>
 
-              {item.uid === country.uid && (
-                <>
-                  <Space width={12} />
-                  <Icon name="checkmark-filled" color={colors.positive[500]} size={16} />
-                </>
-              )}
+            {item.uid === country.uid && (
+              <>
+                <Space width={12} />
+                <Icon name="checkmark-filled" color={colors.positive[500]} size={16} />
+              </>
+            )}
 
-              <Space width={12} />
+            <Space width={12} />
 
-              <LakeText userSelect="none" variant="smallRegular">
-                +{item.idd}
-              </LakeText>
-            </>
+            <LakeText userSelect="none" variant="smallRegular">
+              +{item.idd}
+            </LakeText>
           </Pressable>
         )}
       />

@@ -119,7 +119,7 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
                 role="button"
                 disabled={visible}
                 onPress={open}
-                aria-label={t("phoneForm.country")}
+                aria-label={t("inputPhoneNumber.country")}
                 style={({ pressed }) => [
                   styles.idd,
                   !visible && pressed && styles.iddPressed,

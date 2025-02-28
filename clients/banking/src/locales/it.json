@@ -774,7 +774,7 @@
   "payments.new.standingOrder.details.daily": "Giornaliero",
   "payments.new.standingOrder.details.monthly": "Mensile",
   "payments.new.standingOrder.details.weekly": "Settimanale",
-  "phoneForm.country": "Paese",
+  "inputPhoneNumber.country": "Paese",
   "profile.actionRequired": "Azione richiesta",
   "profile.birthDate": "Data di nascita",
   "profile.chat": "Chat",

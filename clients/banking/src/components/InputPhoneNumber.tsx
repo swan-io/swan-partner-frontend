@@ -10,10 +10,9 @@ import { useDisclosure } from "@swan-io/lake/src/hooks/useDisclosure";
 import { isNotNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { Country } from "@swan-io/shared-business/src/constants/countries";
-import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from "react";
+import { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import { Pressable, StyleSheet, TextInput, View } from "react-native";
 import { t } from "../utils/i18n";
-import { parsePhoneNumber } from "../utils/phone";
 import { CountryList } from "./CountryList";
 
 const styles = StyleSheet.create({
@@ -45,9 +44,9 @@ type Props = {
   autofocus?: boolean;
   error: string | undefined;
   valid: boolean;
-  value: string;
+  value: { country: Country; nationalNumber: string };
   onSubmitEditing?: () => void;
-  onValueChange: (value: string) => void;
+  onValueChange: (value: { country: Country; nationalNumber: string }) => void;
   onBlur: () => void;
   help?: string;
 };
@@ -72,40 +71,23 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
 
     const [visible, { open, close }] = useDisclosure(false);
 
-    const [{ country, nationalNumber }, setInputState] = useState(() => {
-      const { country, nationalNumber } = parsePhoneNumber(value);
-      return { country, nationalNumber };
-    });
-
     const handleOnChangeText = (text: string) => {
       const clean = text.replace(/[^ +0-9-()]/g, "");
 
       if (text === clean) {
-        setInputState(() => ({ country, nationalNumber: clean }));
-        if (clean !== "") {
-          onValueChange(`+${country.idd}${clean}`);
-        } else {
-          onValueChange("");
-        }
+        onValueChange({ country: value.country, nationalNumber: clean });
       }
     };
 
     const handleCountryPhoneChange = (country: Country) => {
-      setInputState(prevState =>
-        prevState.country.uid === country.uid
-          ? prevState
-          : { country, nationalNumber: prevState.nationalNumber },
-      );
-
-      onValueChange(`+${country.idd}${nationalNumber}`);
+      onValueChange({ country: country, nationalNumber: value.nationalNumber });
     };
 
-    // biome-ignore lint/correctness/useExhaustiveDependencies(country):
     useEffect(() => {
       if (autofocus && inputRef.current) {
         setTimeout(() => inputRef.current?.focus(), 250);
       }
-    }, [autofocus, country]);
+    }, [autofocus]);
 
     useImperativeHandle(
       forwardedRef,
@@ -125,7 +107,7 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
               onDismiss={close}
             >
               <CountryList
-                country={country}
+                country={value.country}
                 onChange={value => {
                   handleCountryPhoneChange(value);
                   close();
@@ -144,7 +126,7 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
                   isNotNullishOrEmpty(error) && styles.erroredField,
                 ]}
               >
-                <Flag code={country.cca2} width={16} />
+                <Flag code={value.country.cca2} width={16} />
                 <Space width={8} />
 
                 <LakeText
@@ -153,7 +135,7 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
                   userSelect="none"
                   variant="smallSemibold"
                 >
-                  +{country.idd}
+                  +{value.country.idd}
                 </LakeText>
 
                 <Space width={8} />
@@ -167,7 +149,7 @@ export const InputPhoneNumber = forwardRef<InputPhoneNumberRef, Props>(
                 inputMode="tel"
                 rows={1}
                 hideErrors={true}
-                value={nationalNumber}
+                value={value.nationalNumber}
                 onChangeText={handleOnChangeText}
                 onSubmitEditing={onSubmitEditing}
                 error={error}

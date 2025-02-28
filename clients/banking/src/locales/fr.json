@@ -774,6 +774,7 @@
   "payments.new.standingOrder.details.daily": "Quotidien",
   "payments.new.standingOrder.details.monthly": "Mensuel",
   "payments.new.standingOrder.details.weekly": "Hebdomadaire",
+  "phoneForm.country": "Pays",
   "profile.actionRequired": "Action requise",
   "profile.birthDate": "Date de naissance",
   "profile.chat": "Chat",

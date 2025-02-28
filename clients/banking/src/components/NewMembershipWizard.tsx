@@ -17,11 +17,16 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  Country,
+  CountryCCA3,
+  allCountries,
+  getCountryByCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
-import { combineValidators, toOptionalValidator, useForm } from "@swan-io/use-form";
+import { combineValidators, useForm } from "@swan-io/use-form";
 import { useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { P, match } from "ts-pattern";
@@ -73,7 +78,7 @@ type Props = {
 type Step = "Informations" | "Address";
 
 type FormState = {
-  phoneNumber: string;
+  phoneNumber: { country: Country; nationalNumber: string };
   email: string;
   language: AccountLanguage;
   firstName: string;
@@ -128,18 +133,27 @@ export const NewMembershipWizard = ({
 
   const { Field, FieldsListener, setFieldValue, submitForm } = useForm<FormState>({
     phoneNumber: {
-      initialValue: partiallySavedValues?.phoneNumber ?? "",
-      sanitize: trim,
+      initialValue: partiallySavedValues?.phoneNumber ?? {
+        country: getCountryByCCA3(accountCountry),
+        nationalNumber: "",
+      },
+      sanitize: ({ country, nationalNumber }) => ({
+        country,
+        nationalNumber: nationalNumber.trim(),
+      }),
       strategy: "onBlur",
-      validate: (value, { getFieldValue }) => {
+      validate: ({ country, nationalNumber }, { getFieldValue }) => {
+        const phoneNumber = `+${country.idd}${nationalNumber}`;
         if (
           getFieldValue("canManageAccountMembership") ||
           getFieldValue("canManageBeneficiaries") ||
           getFieldValue("canInitiatePayments")
         ) {
-          return combineValidators(validateForPermissions, validatePhoneNumber)(value);
+          return combineValidators(validateForPermissions, validatePhoneNumber)(phoneNumber);
         }
-        return toOptionalValidator(validatePhoneNumber)(value);
+        if (nationalNumber !== "") {
+          return validatePhoneNumber(phoneNumber);
+        }
       },
     },
     language: {
@@ -411,7 +425,9 @@ export const NewMembershipWizard = ({
               restrictedTo: {
                 firstName: computedValues.firstName,
                 lastName: computedValues.lastName,
-                phoneNumber: emptyToUndefined(computedValues.phoneNumber),
+                phoneNumber: isNullishOrEmpty(computedValues.phoneNumber.nationalNumber)
+                  ? null
+                  : `+${computedValues.phoneNumber.country.idd}${computedValues.phoneNumber.nationalNumber}`,
                 birthDate: computedValues.birthDate,
               },
               taxIdentificationNumber: emptyToUndefined(

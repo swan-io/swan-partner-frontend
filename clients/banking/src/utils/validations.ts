@@ -3,6 +3,7 @@ import { DatePickerDate } from "@swan-io/shared-business/src/components/DatePick
 import { isValidEmail, isValidVatNumber } from "@swan-io/shared-business/src/utils/validation";
 import { Validator, combineValidators } from "@swan-io/use-form";
 import dayjs from "dayjs";
+import { parsePhoneNumberWithError } from "libphonenumber-js";
 import { P, match } from "ts-pattern";
 import { CompleteAddressWithContactInput } from "../graphql/partner";
 import { locale, t } from "./i18n";
@@ -381,5 +382,16 @@ export const validateRLMC = (cmc7: string) => (rlmc: string) => {
 
   if (remainder !== 0) {
     return t("common.form.invalidRLMC");
+  }
+};
+
+export const validatePhoneNumber = (value: string) => {
+  try {
+    // parsePhoneNumberWithError can throw an error
+    if (!parsePhoneNumberWithError(value).isValid()) {
+      return t("common.form.invalidPhoneNumber");
+    }
+  } catch {
+    return t("common.form.invalidPhoneNumber");
   }
 };

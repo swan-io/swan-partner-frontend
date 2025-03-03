@@ -9,7 +9,7 @@ import { Space } from "@swan-io/lake/src/components/Space";
 import { backgroundColor } from "@swan-io/lake/src/constants/design";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
-import { nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
+import { isNullishOrEmpty } from "@swan-io/lake/src/utils/nullish";
 import { pick } from "@swan-io/lake/src/utils/object";
 import { trim } from "@swan-io/lake/src/utils/string";
 import { Request, badStatusToError } from "@swan-io/request";
@@ -17,7 +17,11 @@ import { BirthdatePicker } from "@swan-io/shared-business/src/components/Birthda
 import { CountryPicker } from "@swan-io/shared-business/src/components/CountryPicker";
 import { PlacekitAddressSearchInput } from "@swan-io/shared-business/src/components/PlacekitAddressSearchInput";
 import { TaxIdentificationNumberInput } from "@swan-io/shared-business/src/components/TaxIdentificationNumberInput";
-import { CountryCCA3, allCountries } from "@swan-io/shared-business/src/constants/countries";
+import {
+  CountryCCA3,
+  allCountries,
+  getCountryByCCA3,
+} from "@swan-io/shared-business/src/constants/countries";
 import { showToast } from "@swan-io/shared-business/src/state/toasts";
 import { translateError } from "@swan-io/shared-business/src/utils/i18n";
 import { validateIndividualTaxNumber } from "@swan-io/shared-business/src/utils/validation";
@@ -34,18 +38,22 @@ import {
 } from "../graphql/partner";
 import { usePermissions } from "../hooks/usePermissions";
 import { accountLanguages, locale, t } from "../utils/i18n";
+import { parsePhoneNumber } from "../utils/phone";
 import { projectConfiguration } from "../utils/projectId";
 import { Router } from "../utils/routes";
-import { validateAddressLine, validateName, validateRequired } from "../utils/validations";
+import {
+  validateAddressLine,
+  validateForPermissions,
+  validateName,
+  validatePhoneNumber,
+  validateRequired,
+} from "../utils/validations";
+import { InputPhoneNumber } from "./InputPhoneNumber";
 import { MembershipCancelConfirmationModal } from "./MembershipCancelConfirmationModal";
 import { MembershipInvitationLinkModal } from "./MembershipInvitationLinkModal";
 
 const styles = StyleSheet.create({
-  buttonGroup: {
-    backgroundColor: backgroundColor.default,
-    position: "sticky",
-    bottom: 0,
-  },
+  buttonGroup: { backgroundColor: backgroundColor.default, position: "sticky", bottom: 0 },
 });
 
 type AllowedStatuses =
@@ -169,18 +177,32 @@ export const MembershipDetailEditor = ({
               restrictedTo: { phoneNumber: P.string },
             },
           },
-          ({ statusInfo }) => statusInfo.restrictedTo.phoneNumber,
+          ({ statusInfo }) => parsePhoneNumber(statusInfo.restrictedTo.phoneNumber),
         )
-        .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) => user.mobilePhoneNumber)
-        .otherwise(() => ""),
-      sanitize: trim,
-      validate: value => {
+        .with({ user: { mobilePhoneNumber: P.string } }, ({ user }) =>
+          parsePhoneNumber(user.mobilePhoneNumber),
+        )
+        .otherwise(() => ({
+          country: getCountryByCCA3(accountCountry),
+          nationalNumber: "",
+        })),
+      sanitize: ({ country, nationalNumber }) => ({
+        country,
+        nationalNumber: nationalNumber.trim(),
+      }),
+      strategy: "onBlur",
+      validate: ({ country, nationalNumber }) => {
+        const phoneNumber = `+${country.idd}${nationalNumber}`;
+
         if (
           editingAccountMembership.canInitiatePayments ||
           editingAccountMembership.canManageAccountMembership ||
           editingAccountMembership.canManageBeneficiaries
         ) {
-          return validateRequired(value);
+          return combineValidators(validateForPermissions, validatePhoneNumber)(phoneNumber);
+        }
+        if (nationalNumber !== "") {
+          return validatePhoneNumber(phoneNumber);
         }
       },
     },
@@ -253,12 +275,14 @@ export const MembershipDetailEditor = ({
             restrictedTo: match({
               editingAccountMembership,
               isEditingCurrentUser: currentUserAccountMembership.id === editingAccountMembership.id,
-              values: Option.allFromDict(pick(values, ["firstName", "lastName", "birthDate"])).map(
-                mandatoryValues => ({
-                  ...mandatoryValues,
-                  phoneNumber: nullishOrEmptyToUndefined(values.phoneNumber.toUndefined()),
-                }),
-              ),
+              values: Option.allFromDict(
+                pick(values, ["firstName", "lastName", "birthDate", "phoneNumber"]),
+              ).map(mandatoryValues => ({
+                ...mandatoryValues,
+                phoneNumber: isNullishOrEmpty(mandatoryValues.phoneNumber.nationalNumber)
+                  ? null
+                  : `+${mandatoryValues.phoneNumber.country.idd}${mandatoryValues.phoneNumber.nationalNumber}`,
+              })),
             })
               .with(
                 {
@@ -308,11 +332,7 @@ export const MembershipDetailEditor = ({
   };
 
   const onPressSuspend = () => {
-    suspendMembership({
-      input: {
-        accountMembershipId: editingAccountMembershipId,
-      },
-    })
+    suspendMembership({ input: { accountMembershipId: editingAccountMembershipId } })
       .mapOk(data => data.suspendAccountMembership)
       .mapOkToResult(filterRejectionsToResult)
       .tapOk(() => {
@@ -618,22 +638,15 @@ export const MembershipDetailEditor = ({
               </Field>
 
               <Field name="phoneNumber">
-                {({ value, valid, error, onChange, ref }) => (
-                  <LakeLabel
+                {({ value, valid, error, onChange, ref, onBlur }) => (
+                  <InputPhoneNumber
                     label={t("membershipDetail.edit.phoneNumber")}
-                    render={id => (
-                      <LakeTextInput
-                        id={id}
-                        ref={ref}
-                        placeholder="+33600000000"
-                        value={value ?? ""}
-                        valid={valid}
-                        error={error}
-                        readOnly={!canUpdateAccountMembership}
-                        onChangeText={onChange}
-                        inputMode="tel"
-                      />
-                    )}
+                    ref={ref}
+                    onValueChange={onChange}
+                    error={error}
+                    value={value}
+                    valid={valid}
+                    onBlur={onBlur}
                   />
                 )}
               </Field>
@@ -836,9 +849,7 @@ export const MembershipDetailEditor = ({
               .with(
                 {
                   editingAccountMembership: {
-                    statusInfo: {
-                      __typename: "AccountMembershipEnabledStatusInfo",
-                    },
+                    statusInfo: { __typename: "AccountMembershipEnabledStatusInfo" },
                   },
                 },
                 () => (
@@ -879,9 +890,7 @@ export const MembershipDetailEditor = ({
                 // Can't remove yourself
                 { isEditingCurrentUserAccountMembership: true },
                 // Can't remove the account legal representative
-                {
-                  editingAccountMembership: { legalRepresentative: true },
-                },
+                { editingAccountMembership: { legalRepresentative: true } },
                 () => null,
               )
               .otherwise(() => (

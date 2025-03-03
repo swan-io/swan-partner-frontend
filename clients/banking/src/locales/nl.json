@@ -774,6 +774,7 @@
   "payments.new.standingOrder.details.daily": "Dagelijks",
   "payments.new.standingOrder.details.monthly": "Maandelijks",
   "payments.new.standingOrder.details.weekly": "Wekelijks",
+  "inputPhoneNumber.country": "Land",
   "profile.actionRequired": "Actie vereist",
   "profile.birthDate": "Geboortedatum",
   "profile.chat": "Chatten",

@@ -774,6 +774,7 @@
   "payments.new.standingOrder.details.daily": "Daily",
   "payments.new.standingOrder.details.monthly": "Monthly",
   "payments.new.standingOrder.details.weekly": "Weekly",
+  "inputPhoneNumber.country": "Country",
   "profile.actionRequired": "Action required",
   "profile.birthDate": "Date of birth",
   "profile.chat": "Chat",

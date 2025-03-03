@@ -774,6 +774,7 @@
   "payments.new.standingOrder.details.daily": "Päivittäin",
   "payments.new.standingOrder.details.monthly": "Kuukausittain",
   "payments.new.standingOrder.details.weekly": "Viikoittain",
+  "inputPhoneNumber.country": "Maa",
   "profile.actionRequired": "Vaatii toimenpiteitä",
   "profile.birthDate": "Syntymäaika",
   "profile.chat": "Keskustelu",

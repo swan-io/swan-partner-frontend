@@ -64,6 +64,11 @@ fragment TransactionDetails on Transaction {
   executionDate
   updatedAt
   ... on CardTransaction {
+    originalAmount {
+      currency
+      value
+    }
+    reservedAmountReleasedAt
     cardDetails @include(if: $canQueryCardOnTransaction) {
       ... on CardOutDetails {
         maskedPan
@@ -79,6 +84,15 @@ fragment TransactionDetails on Transaction {
               fullName
             }
           }
+        }
+      }
+      ... on CardInDetails {
+        paymentMandate {
+          id
+          name
+          createdAt
+          updatedAt
+          executedAt
         }
       }
     }

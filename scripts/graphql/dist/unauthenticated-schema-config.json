@@ -159,6 +159,10 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
+    ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
@@ -216,8 +220,11 @@
     ],
     "MerchantPaymentStatusInfo": [
       "MerchantPaymentAuthorized",
+      "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentDisputed",
       "MerchantPaymentInitiated",
+      "MerchantPaymentPartiallyDisputed",
       "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [

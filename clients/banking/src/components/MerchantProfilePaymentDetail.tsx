@@ -45,8 +45,6 @@ const styles = StyleSheet.create({
   },
 });
 
-const UNKNOWN_VALUE = <LakeText style={styles.unknownValue}>{t("common.unknown")}</LakeText>;
-
 const MerchantProfilePaymentDetailView = ({
   payment,
   paymentLink,
@@ -209,52 +207,36 @@ const MerchantProfilePaymentDetailView = ({
 
           <DetailCopiableLine label={t("merchantProfile.payments.details.id")} text={payment.id} />
 
-          <DetailCopiableLine
-            label={t("merchantProfile.payments.details.reference")}
-            text={isNotNullish(payment.reference) ? payment.reference : "—"}
-          />
-          {/* <LakeLabel
-            type="view"
-            label={t("merchantProfile.payments.details.reference")}
-            render={() =>
-              isNotNullishOrEmpty(payment.reference) ? (
-                <DetailCopiableLine
-                  label={t("merchantProfile.payments.details.reference")}
-                  text={isNotNullish(payment.reference) ? payment.reference : "—"}
-                />
-              ) : (
-                UNKNOWN_VALUE
-              )
-            }
-          /> */}
+          {isNotNullish(payment.reference) && (
+            <DetailCopiableLine
+              label={t("merchantProfile.payments.details.reference")}
+              text={payment.reference}
+            />
+          )}
 
-          <LakeLabel
-            type="view"
-            label={t("merchantProfile.payments.details.3ds")}
-            render={() =>
-              isNotNullish(payment.threeDs) ? (
-                <LakeText variant="regular" color={colors.gray[900]}>
-                  {payment.threeDs.requested}
-                </LakeText>
-              ) : (
-                UNKNOWN_VALUE
-              )
-            }
-          />
+          {isNotNullish(payment.threeDs) && (
+            <>
+              <LakeLabel
+                type="view"
+                label={t("merchantProfile.payments.details.3ds")}
+                render={() => (
+                  <LakeText variant="regular" color={colors.gray[900]}>
+                    {payment.threeDs?.requested}
+                  </LakeText>
+                )}
+              />
 
-          <LakeLabel
-            type="view"
-            label={t("merchantProfile.payments.details.3dsStatus")}
-            render={() =>
-              isNotNullish(payment.threeDs) ? (
-                <LakeText variant="regular" color={colors.gray[900]}>
-                  {payment.threeDs.statusInfo.status}
-                </LakeText>
-              ) : (
-                UNKNOWN_VALUE
-              )
-            }
-          />
+              <LakeLabel
+                type="view"
+                label={t("merchantProfile.payments.details.3dsStatus")}
+                render={() => (
+                  <LakeText variant="regular" color={colors.gray[900]}>
+                    {payment.threeDs?.statusInfo.status}
+                  </LakeText>
+                )}
+              />
+            </>
+          )}
         </ReadOnlyFieldList>
       </ScrollView>
     </ListRightPanelContent>

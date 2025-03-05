@@ -1,20 +1,22 @@
-import { Dict, Future } from "@swan-io/boxed";
+import { Future } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
 import { LakeButton } from "@swan-io/lake/src/components/LakeButton";
 import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
-import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
+  filter,
   FilterCheckboxDef,
   FilterDateDef,
   FiltersStack,
   FiltersState,
+  useFiltersProps,
 } from "@swan-io/shared-business/src/components/Filters";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useState } from "react";
 import { TransactionStatus } from "../graphql/partner";
-import { locale, t } from "../utils/i18n";
+import { t } from "../utils/i18n";
 import {
   isAfterUpdatedAtSelectable,
   isBeforeUpdatedAtSelectable,
@@ -22,66 +24,45 @@ import {
   validateBeforeUpdatedAt,
 } from "../utils/validations";
 
-const isAfterUpdatedAtFilter: FilterDateDef = {
-  type: "date",
-  label: t("transactionList.filter.isAfterUpdatedAt"),
-  cancelText: t("common.cancel"),
-  submitText: t("common.filters.apply"),
-  noValueText: t("common.none"),
-  dateFormat: locale.dateFormat,
-  validate: validateAfterUpdatedAt,
-  isSelectable: isAfterUpdatedAtSelectable,
-};
-
-const isBeforeUpdatedAtFilter: FilterDateDef = {
-  type: "date",
-  label: t("transactionList.filter.isBeforeUpdatedAt"),
-  cancelText: t("common.cancel"),
-  submitText: t("common.filters.apply"),
-  noValueText: t("common.none"),
-  dateFormat: locale.dateFormat,
-  validate: validateBeforeUpdatedAt,
-  isSelectable: isBeforeUpdatedAtSelectable,
-};
-
 type SimplifiedPaymentProduct = "Card" | "Check" | "Fees" | "CreditTransfer" | "DirectDebit";
 
-const paymentProductFilter: FilterCheckboxDef<SimplifiedPaymentProduct> = {
-  type: "checkbox",
-  label: t("transactionList.filter.paymentMethod"),
-  checkAllLabel: t("common.filters.all"),
-  items: [
-    { value: "Card", label: t("paymentMethod.card") },
-    { value: "Check", label: t("paymentMethod.check") },
-    { value: "CreditTransfer", label: t("paymentMethod.transfer") },
-    { value: "DirectDebit", label: t("paymentMethod.directDebit") },
-    { value: "Fees", label: t("paymentMethod.fees") },
-  ],
-};
-
-const statusFilter: FilterCheckboxDef<TransactionStatus> = {
-  type: "checkbox",
-  label: t("transactionList.filter.status"),
-  checkAllLabel: t("common.filters.all"),
-  items: [
-    { value: "Pending", label: t("transactionStatus.pending") },
-    { value: "Booked", label: t("transactionStatus.booked") },
-    { value: "Rejected", label: t("transactionStatus.rejected") },
-    { value: "Canceled", label: t("transactionStatus.canceled") },
-  ],
-};
-
 export const defaultFiltersDefinition = {
-  isAfterUpdatedAt: isAfterUpdatedAtFilter,
-  isBeforeUpdatedAt: isBeforeUpdatedAtFilter,
-  paymentProduct: paymentProductFilter,
-  status: statusFilter,
+  isAfterUpdatedAt: filter.date({
+    label: t("transactionList.filter.isAfterUpdatedAt"),
+    validate: validateAfterUpdatedAt,
+    isSelectable: isAfterUpdatedAtSelectable,
+  }),
+  isBeforeUpdatedAt: filter.date({
+    label: t("transactionList.filter.isBeforeUpdatedAt"),
+    validate: validateBeforeUpdatedAt,
+    isSelectable: isBeforeUpdatedAtSelectable,
+  }),
+  paymentProduct: filter.checkbox<SimplifiedPaymentProduct>({
+    label: t("transactionList.filter.paymentMethod"),
+    items: [
+      { value: "Card", label: t("paymentMethod.card") },
+      { value: "Check", label: t("paymentMethod.check") },
+      { value: "CreditTransfer", label: t("paymentMethod.transfer") },
+      { value: "DirectDebit", label: t("paymentMethod.directDebit") },
+      { value: "Fees", label: t("paymentMethod.fees") },
+    ],
+  }),
+  status: filter.checkbox<TransactionStatus>({
+    label: t("transactionList.filter.status"),
+    items: [
+      { value: "Pending", label: t("transactionStatus.pending") },
+      { value: "Booked", label: t("transactionStatus.booked") },
+      { value: "Rejected", label: t("transactionStatus.rejected") },
+      { value: "Canceled", label: t("transactionStatus.canceled") },
+    ],
+  }),
 };
 
 export type TransactionFilters = FiltersState<typeof defaultFiltersDefinition>;
+export type TransactionFilter = keyof TransactionFilters;
 
 type TransactionListFilterProps = {
-  available?: readonly (keyof TransactionFilters)[];
+  available?: TransactionFilter[];
   children?: ReactNode;
   large?: boolean;
   filters: TransactionFilters;
@@ -97,13 +78,12 @@ type TransactionListFilterProps = {
   };
 };
 
-const defaultAvailableFilters = [
+const defaultAvailableFilters: TransactionFilter[] = [
   "isAfterUpdatedAt",
-  "isBeforeUpdatedAt",
   "isBeforeUpdatedAt",
   "paymentProduct",
   "status",
-] as const;
+];
 
 export const TransactionListFilter = ({
   available = defaultAvailableFilters,
@@ -116,49 +96,7 @@ export const TransactionListFilter = ({
   onChangeSearch,
   filtersDefinition = defaultFiltersDefinition,
 }: TransactionListFilterProps) => {
-  const availableSet = useMemo(() => new Set(available), [available]);
-
-  const availableFilters: { name: keyof TransactionFilters; label: string }[] = useMemo(
-    () =>
-      (
-        [
-          {
-            name: "isAfterUpdatedAt",
-            label: t("transactionList.filter.isAfterUpdatedAt"),
-          },
-          {
-            name: "isBeforeUpdatedAt",
-            label: t("transactionList.filter.isBeforeUpdatedAt"),
-          },
-          {
-            name: "paymentProduct",
-            label: t("transactionList.filter.paymentMethod"),
-          },
-          {
-            name: "status",
-            label: t("transactionList.filter.status"),
-          },
-        ] as const
-      ).filter(item => availableSet.has(item.name)),
-    [availableSet],
-  );
-
-  const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filters)
-      .filter(([, value]) => isNotNullish(value))
-      .map(([name]) => name),
-  );
-
-  useEffect(() => {
-    setOpenFilters(openFilters => {
-      const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filters)
-        .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
-        .map(([name]) => name);
-      return [...openFilters, ...openFiltersNotYetInState];
-    });
-  }, [filters]);
-
+  const filtersProps = useFiltersProps({ filtersDefinition, filters, available });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   return (
@@ -172,14 +110,7 @@ export const TransactionListFilter = ({
           </>
         ) : null}
 
-        <FilterChooser
-          filters={filters}
-          openFilters={openFilters}
-          label={t("common.filters")}
-          onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
-          availableFilters={availableFilters}
-          large={large}
-        />
+        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>
@@ -209,14 +140,7 @@ export const TransactionListFilter = ({
       </Box>
 
       <Space height={12} />
-
-      <FiltersStack
-        definition={filtersDefinition}
-        filters={filters}
-        openedFilters={openFilters}
-        onChangeFilters={onChangeFilters}
-        onChangeOpened={setOpenFilters}
-      />
+      <FiltersStack {...filtersProps.stack} onChangeFilters={onChangeFilters} />
     </>
   );
 };

@@ -1,4 +1,4 @@
-import { AsyncData, Dict, Option, Result } from "@swan-io/boxed";
+import { AsyncData, Option, Result } from "@swan-io/boxed";
 import { Link } from "@swan-io/chicane";
 import { useForwardPagination, useQuery } from "@swan-io/graphql-client";
 import { Box } from "@swan-io/lake/src/components/Box";
@@ -32,16 +32,16 @@ import {
 import { omit } from "@swan-io/lake/src/utils/object";
 import { GetNode } from "@swan-io/lake/src/utils/types";
 import {
-  FilterCheckboxDef,
-  FilterRadioDef,
+  filter,
   FiltersStack,
   FiltersState,
+  useFiltersProps,
 } from "@swan-io/shared-business/src/components/Filters";
 import { Flag } from "@swan-io/shared-business/src/components/Flag";
 import { printFormat } from "iban";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { StyleSheet } from "react-native";
-import { P, match } from "ts-pattern";
+import { match, P } from "ts-pattern";
 import {
   AccountCountry,
   BeneficiariesListDocument,
@@ -279,31 +279,24 @@ const beneficiaryTypes = deriveUnion<Exclude<BeneficiaryType, "Internal">>({
   Sepa: true,
 });
 
-const currencyFilter: FilterRadioDef<string | undefined> = {
-  type: "radio",
-  label: t("beneficiaries.currency.title"),
-  items: [
-    { value: undefined, label: t("common.filters.all") },
-    ...currencies.map(value => {
-      const name = currencyResolver?.of(value);
-      return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
-    }),
-  ],
-};
-
-const typeFilter: FilterCheckboxDef<BeneficiaryType> = {
-  type: "checkbox",
-  label: t("beneficiaries.type.title"),
-  checkAllLabel: t("common.filters.all"),
-  items: [
-    { value: "International", label: t("beneficiaries.type.international") },
-    { value: "Sepa", label: t("beneficiaries.type.sepa") },
-  ],
-};
-
 const filtersDefinition = {
-  type: typeFilter,
-  currency: currencyFilter,
+  type: filter.checkbox<BeneficiaryType>({
+    label: t("beneficiaries.type.title"),
+    items: [
+      { value: "International", label: t("beneficiaries.type.international") },
+      { value: "Sepa", label: t("beneficiaries.type.sepa") },
+    ],
+  }),
+  currency: filter.radio<string | undefined>({
+    label: t("beneficiaries.currency.title"),
+    items: [
+      { value: undefined, label: t("common.filters.all") },
+      ...currencies.map(value => {
+        const name = currencyResolver?.of(value);
+        return { value, label: isNotNullish(name) ? `${value} (${name})` : value };
+      }),
+    ],
+  }),
 };
 
 type Filters = FiltersState<typeof filtersDefinition>;
@@ -442,31 +435,7 @@ export const BeneficiaryList = ({
     return { filters, canceled, label, hasSearchOrFilters };
   }, [params]);
 
-  const availableFilters = useMemo<{ name: keyof Filters; label: string }[]>(
-    () => [
-      { name: "type", label: t("beneficiaries.type.title") },
-      { name: "currency", label: t("beneficiaries.currency.title") },
-    ],
-    [],
-  );
-
-  const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filters)
-      .filter(([, value]) => isNotNullish(value))
-      .map(([name]) => name),
-  );
-
-  useEffect(() => {
-    setOpenFilters(openFilters => {
-      const currentlyOpenFilters = new Set(openFilters);
-
-      const openFiltersNotYetInState = Dict.entries(filters)
-        .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
-        .map(([name]) => name);
-
-      return [...openFilters, ...openFiltersNotYetInState];
-    });
-  }, [filters]);
+  const filtersProps = useFiltersProps({ filtersDefinition, filters });
 
   const [data, { isLoading, reload, setVariables }] = useQuery(BeneficiariesListDocument, {
     accountId,
@@ -513,16 +482,7 @@ export const BeneficiaryList = ({
                   </>
                 ) : null}
 
-                <FilterChooser
-                  large={large}
-                  filters={filters}
-                  availableFilters={availableFilters}
-                  openFilters={openFilters}
-                  label={t("common.filters")}
-                  onAddFilter={filter => {
-                    setOpenFilters(openFilters => [...openFilters, filter]);
-                  }}
-                />
+                <FilterChooser {...filtersProps.chooser} large={large} />
 
                 {large && (
                   <>
@@ -583,10 +543,7 @@ export const BeneficiaryList = ({
               <Space height={12} />
 
               <FiltersStack
-                definition={filtersDefinition}
-                filters={filters}
-                openedFilters={openFilters}
-                onChangeOpened={setOpenFilters}
+                {...filtersProps.stack}
                 onChangeFilters={filters => {
                   Router.replace("AccountPaymentsBeneficiariesList", {
                     ...params,

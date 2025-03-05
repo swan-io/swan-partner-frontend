@@ -19,7 +19,11 @@ import { Connection } from "./Connection";
 import { ErrorView } from "./ErrorView";
 import { TransactionDetail } from "./TransactionDetail";
 import { TransactionList } from "./TransactionList";
-import { TransactionFilters, TransactionListFilter } from "./TransactionListFilter";
+import {
+  TransactionFilter,
+  TransactionFilters,
+  TransactionListFilter,
+} from "./TransactionListFilter";
 
 const styles = StyleSheet.create({
   root: {
@@ -41,12 +45,7 @@ type Props = {
   params: GetRouteParams<"AccountCardsItemTransactions">;
 };
 
-const availableFilters = [
-  "isAfterUpdatedAt",
-  "isBeforeUpdatedAt",
-  "isBeforeUpdatedAt",
-  "status",
-] as const;
+const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
 
 const DEFAULT_STATUSES = [
   "Booked" as const,
@@ -56,8 +55,8 @@ const DEFAULT_STATUSES = [
 ];
 
 export const CardItemTransactionList = ({ params }: Props) => {
-  const filters = useMemo<TransactionFilters>(
-    () => ({
+  const filters = useMemo(
+    (): TransactionFilters => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: undefined,
@@ -65,7 +64,7 @@ export const CardItemTransactionList = ({ params }: Props) => {
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released", "Upcoming")),
       ),
     }),
-    [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.status],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.search);

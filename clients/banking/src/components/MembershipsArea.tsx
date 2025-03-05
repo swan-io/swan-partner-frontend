@@ -75,8 +75,8 @@ export const MembershipsArea = ({
   const [, { query: queryLastCreatedMembership }] = useDeferredQuery(MembershipDetailDocument);
   const route = Router.useRoute(membershipsRoutes);
 
-  const filters = useMemo<MembershipFilters>(
-    () => ({
+  const filters = useMemo(
+    (): MembershipFilters => ({
       statuses: params.statuses?.filter(
         isMatching(P.union("BindingUserError", "Enabled", "InvitationSent", "Suspended")),
       ),
@@ -86,14 +86,7 @@ export const MembershipsArea = ({
       canManageAccountMembership: parseBooleanParam(params.canManageAccountMembership),
       canManageBeneficiaries: parseBooleanParam(params.canManageBeneficiaries),
     }),
-    [
-      params.statuses,
-      params.canViewAccount,
-      params.canManageCards,
-      params.canInitiatePayments,
-      params.canManageAccountMembership,
-      params.canManageBeneficiaries,
-    ],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.search);

@@ -16,7 +16,7 @@ import { Tag } from "@swan-io/lake/src/components/Tag";
 import { Tile } from "@swan-io/lake/src/components/Tile";
 import { commonStyles } from "@swan-io/lake/src/constants/commonStyles";
 import { colors, spacings } from "@swan-io/lake/src/constants/design";
-import { isNotNullish, isNotNullishOrEmpty, isNullish } from "@swan-io/lake/src/utils/nullish";
+import { isNotNullish, isNullish } from "@swan-io/lake/src/utils/nullish";
 import dayjs from "dayjs";
 import { StyleSheet } from "react-native";
 import { match, P } from "ts-pattern";
@@ -209,7 +209,11 @@ const MerchantProfilePaymentDetailView = ({
 
           <DetailCopiableLine label={t("merchantProfile.payments.details.id")} text={payment.id} />
 
-          <LakeLabel
+          <DetailCopiableLine
+            label={t("merchantProfile.payments.details.reference")}
+            text={isNotNullish(payment.reference) ? payment.reference : "—"}
+          />
+          {/* <LakeLabel
             type="view"
             label={t("merchantProfile.payments.details.reference")}
             render={() =>
@@ -222,7 +226,7 @@ const MerchantProfilePaymentDetailView = ({
                 UNKNOWN_VALUE
               )
             }
-          />
+          /> */}
 
           <LakeLabel
             type="view"

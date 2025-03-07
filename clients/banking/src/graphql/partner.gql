@@ -1353,6 +1353,31 @@ query MembersPage(
   $canInitiatePayments: Boolean
   $search: String
 ) {
+  accountMemberships(
+    first: $first
+    after: $after
+    filters: {
+      canManageAccountMembership: $canManageAccountMembership
+      canManageBeneficiaries: $canManageBeneficiaries
+      canInitiatePayments: $canInitiatePayments
+      canViewAccount: $canViewAccount
+      canManageCards: $canManageCards
+      status: $status
+      search: $search
+    }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        ...AccountMembership
+      }
+    }
+  }
   account(accountId: $accountId) {
     id
     number
@@ -1364,31 +1389,6 @@ query MembersPage(
       id
       info {
         name
-      }
-    }
-    memberships(
-      first: $first
-      after: $after
-      filters: {
-        canManageAccountMembership: $canManageAccountMembership
-        canManageBeneficiaries: $canManageBeneficiaries
-        canInitiatePayments: $canInitiatePayments
-        canViewAccount: $canViewAccount
-        canManageCards: $canManageCards
-        status: $status
-        search: $search
-      }
-    ) {
-      totalCount
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          ...AccountMembership
-        }
       }
     }
   }
@@ -1814,6 +1814,29 @@ fragment AddressInfo on AddressInfo {
 }
 
 query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $search: String) {
+  allMemberships: accountMemberships(
+    filters: { status: [Enabled, InvitationSent, BindingUserError] }
+  ) {
+    totalCount
+  }
+  accountMemberships(
+    after: $after
+    first: $first
+    filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
+    }
+    edges {
+      cursor
+      node {
+        id
+        ...AccountMembership
+      }
+    }
+  }
   accountMembership(id: $accountMembershipId) {
     id
     account {
@@ -1831,29 +1854,6 @@ query GetCardProducts($accountMembershipId: ID!, $after: String, $first: Int!, $
         }
         residencyAddress {
           ...AddressInfo
-        }
-      }
-      allMemberships: memberships(
-        filters: { status: [Enabled, InvitationSent, BindingUserError] }
-      ) {
-        totalCount
-      }
-      memberships(
-        after: $after
-        first: $first
-        filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
-      ) {
-        totalCount
-        pageInfo {
-          endCursor
-          hasNextPage
-        }
-        edges {
-          cursor
-          node {
-            id
-            ...AccountMembership
-          }
         }
       }
     }
@@ -1921,32 +1921,29 @@ fragment CardProduct on CardProduct {
   defaultCardProduct
 }
 
-query GetEligibleCardMemberships($accountId: ID!, $after: String, $first: Int!, $search: String) {
-  account(accountId: $accountId) {
-    id
-    allMemberships: memberships(
-      after: $after
-      first: $first
-      filters: { status: [Enabled, InvitationSent, BindingUserError] }
-    ) {
-      totalCount
+query GetEligibleCardMemberships($after: String, $first: Int!, $search: String) {
+  allMemberships: accountMemberships(
+    after: $after
+    first: $first
+    filters: { status: [Enabled, InvitationSent, BindingUserError] }
+  ) {
+    totalCount
+  }
+  accountMemberships(
+    after: $after
+    first: $first
+    filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
+  ) {
+    totalCount
+    pageInfo {
+      endCursor
+      hasNextPage
     }
-    memberships(
-      after: $after
-      first: $first
-      filters: { search: $search, status: [Enabled, InvitationSent, BindingUserError] }
-    ) {
-      totalCount
-      pageInfo {
-        endCursor
-        hasNextPage
-      }
-      edges {
-        cursor
-        node {
-          id
-          ...AccountMembership
-        }
+    edges {
+      cursor
+      node {
+        id
+        ...AccountMembership
       }
     }
   }

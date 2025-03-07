@@ -395,10 +395,11 @@ export const CardWizard = ({
       const hasMoreThanOneMember =
         preselectedAccountMembership != null || data.accountMembership?.account == null
           ? false
-          : (data.accountMembership?.account?.allMemberships.totalCount ?? 0) > 1;
+          : (data.allMemberships.totalCount ?? 0) > 1;
 
       const account = data.accountMembership?.account;
-      const members = data.accountMembership?.account?.memberships;
+      const accountMemberships = data.accountMemberships;
+      const members = data.accountMemberships;
 
       return (
         <ResponsiveContainer style={styles.root} breakpoint={breakpoints.medium}>
@@ -473,7 +474,7 @@ export const CardWizard = ({
                         ref={cardWizardMembersRef}
                         initialMemberships={memberships}
                         setAfter={after => setVariables({ after })}
-                        account={account}
+                        accountMemberships={accountMemberships}
                         style={styles.container}
                         contentContainerStyle={[styles.contents, large && styles.desktopContents]}
                         onSubmit={memberships => {

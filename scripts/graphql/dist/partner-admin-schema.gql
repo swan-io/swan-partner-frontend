@@ -4408,7 +4408,7 @@ input MandateAmendment {
 
 """Banking fee which could add manually"""
 enum ManualBankingFee {
-  """Drafting a circulation letter for a legal entity holder"""
+  """Drafting a circularization letter for a legal entity holder"""
   CirculationLetterDraftingFee
 
   """Drafting a confirmation letter for a legal entity holder"""

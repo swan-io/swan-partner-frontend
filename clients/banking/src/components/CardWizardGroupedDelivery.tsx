@@ -45,7 +45,7 @@ const styles = StyleSheet.create({
   },
 });
 
-type Member = GetNode<NonNullable<GetEligibleCardMembershipsQuery["account"]>["memberships"]>;
+type Member = GetNode<NonNullable<GetEligibleCardMembershipsQuery["accountMemberships"]>>;
 
 type CardGroupedDeliveryConfig = {
   address: CompleteAddressWithContactInput;

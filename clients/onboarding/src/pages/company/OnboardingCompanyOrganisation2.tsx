@@ -78,7 +78,7 @@ const monthlyPaymentVolumeItems: Item<MonthlyPaymentVolume>[] = monthlyPaymentVo
   }),
 );
 
-const CHARACTER_LIMITATION = 500;
+const CHARACTER_LIMITATION = 1024;
 
 export const OnboardingCompanyOrganisation2 = ({
   previousStep,

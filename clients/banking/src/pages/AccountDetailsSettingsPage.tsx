@@ -191,7 +191,8 @@ const UpdateAccountForm = ({
                   id={id}
                   ref={ref}
                   placeholder={t("accountDetails.settings.accountNamePlaceholder")}
-                  disabled={formDisabled}
+                  // Assoconnect customization, we don't want to allow the user to change the account name
+                  disabled={true}
                   readOnly={formDisabled}
                   error={error}
                   onBlur={onBlur}

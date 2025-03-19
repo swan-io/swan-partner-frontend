@@ -27,6 +27,7 @@ import { ErrorView } from "../components/ErrorView";
 import { ProfilePageDocument } from "../graphql/partner";
 import { languages, locale, setPreferredLanguage, t } from "../utils/i18n";
 import { NotFoundPage } from "./NotFoundPage";
+import { env } from "../utils/env";
 
 const styles = StyleSheet.create({
   container: {
@@ -193,7 +194,9 @@ export const ProfilePage = ({ additionalInfo, email, accentColor }: Props) => {
               <Space height={16} />
 
               <TileRows breakpoint={700}>
-                <Tile>
+              {env.ASC_DISPLAY_FEATURE_CHAT &&
+
+<Tile>
                   <LakeHeading variant="h5" level={3}>
                     {t("profile.chat")}
                   </LakeHeading>
@@ -222,7 +225,7 @@ export const ProfilePage = ({ additionalInfo, email, accentColor }: Props) => {
                     </SupportChat>
                   </LakeButtonGroup>
                 </Tile>
-
+              }
                 <Tile>
                   <LakeHeading variant="h5" level={3}>
                     {t("profile.faq")}

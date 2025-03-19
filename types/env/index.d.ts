@@ -12,4 +12,7 @@ declare const __env: {
   CLIENT_PLACEKIT_API_KEY: string;
   CLIENT_ONBOARDING_MATOMO_SITE_ID: string;
   CLIENT_CHECKOUT_API_KEY: string;
+  // Assoconnect Feature flags
+  ASC_DISPLAY_FEATURE_ICT: boolean;
+  ASC_DISPLAY_FEATURE_CHAT: boolean;
 };

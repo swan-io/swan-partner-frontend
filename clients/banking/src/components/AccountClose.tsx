@@ -375,7 +375,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
         const balance = Number(account.balances?.available.value);
 
         const accentColor = projectInfo.accentColor ?? invariantColors.defaultAccentColor;
-
+        
         return (
           <PermissionProvider
             value={Option.Some({

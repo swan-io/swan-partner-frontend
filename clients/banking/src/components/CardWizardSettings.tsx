@@ -540,7 +540,8 @@ export const CardWizardSettings = forwardRef<CardWizardSettingsRef, Props>(
             ) : (
               <ChoicePicker
                 large={true}
-                items={["Always" as const, "Monthly" as const]}
+                // Assoconnect customizations, do not display the "Monthly" option
+                items={["Always" as const]}
                 value={currentSettings.spendingLimit.period}
                 onChange={period =>
                   setCurrentSettings({

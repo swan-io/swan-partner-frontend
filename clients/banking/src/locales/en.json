@@ -1400,5 +1400,6 @@
   "transfer.transfer": "Transfer",
   "upcomingTransansactionList.noResults": "No upcoming transactions",
   "upcomingTransansactionList.noResultsDescription": "There aren't any incoming or outgoing transactions underway.",
-  "card.address.form.select": "Select an address"
+  "card.address.form.select": "Select an address",
+  "common.search.address": "Validate the address"
 }

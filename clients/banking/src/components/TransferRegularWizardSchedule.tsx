@@ -73,7 +73,8 @@ export const TransferRegularWizardSchedule = ({
   loading,
 }: Props) => {
   const [isScheduled, setIsScheduled] = useBoolean(false);
-  const [isInstant, setIsInstant] = useBoolean(true);
+  // ASC: Keep instant transfer disabled by default
+  const [isInstant, setIsInstant] = useBoolean(false);
   const [data, { query }] = useDeferredQuery(GetIbanValidationDocument);
 
   useEffect(() => {

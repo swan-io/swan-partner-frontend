@@ -25,6 +25,21 @@ import { validateAddress } from "../utils/validations";
 import { Address, CardWizardAddressForm } from "./CardWizardAddressForm";
 import { CardWizardChoosePinModal } from "./CardWizardChoosePinModal";
 
+const getAddress = (address: CompleteAddressWithContactInput | undefined, index: number) => {
+  if(!address) {
+    return null
+  }
+
+  return [{
+  addressLine1: address.addressLine1 ?? "",
+  addressLine2: address.addressLine2 ?? undefined,
+  postalCode: address.postalCode ?? '',
+  city: address.city ?? '',
+  state: address.state ?? undefined,
+  country: address.country as CountryCCA3 ?? 'FRA',
+}, index] as [Address, number];
+};
+
 const styles = StyleSheet.create({
   erroredTile: {
     borderColor: colors.negative[100],
@@ -63,8 +78,8 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
       members.map(member => ({ member, address, choosePin: false })),
     );
 
-  const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(null);
-
+  const [editingAddress, setEditingAddress] = useState<[Address, number] | null>(getAddress(currentCardIndividualDeliveryConfig[0]?.address, 0));
+    
   const hasSomeError = currentCardIndividualDeliveryConfig.some(config =>
     validateAddress(config.address),
   );
@@ -125,17 +140,7 @@ const CardWizardIndividualDeliveryWithAddress = forwardRef<
                 <LakeButton
                   mode="tertiary"
                   onPress={() =>
-                    setEditingAddress([
-                      {
-                        addressLine1: config.address.addressLine1,
-                        addressLine2: config.address.addressLine2 ?? undefined,
-                        postalCode: config.address.postalCode,
-                        city: config.address.city,
-                        state: config.address.state ?? undefined,
-                        country: config.address.country as CountryCCA3,
-                      },
-                      index,
-                    ])
+                    setEditingAddress(getAddress(config.address, index))
                   }
                 >
                   {t("cardWizard.address.change")}

@@ -1400,5 +1400,6 @@
   "transfer.transfer": "Virement",
   "upcomingTransansactionList.noResults": "Aucune transaction à venir",
   "upcomingTransansactionList.noResultsDescription": "Il n’y a pas de transactions entrantes ou sortantes en cours.",
-  "card.address.form.select": "Sélectionnez une adresse"
+  "card.address.form.select": "Sélectionnez une adresse",
+  "common.search.address": "Valider l’adresse"
 }

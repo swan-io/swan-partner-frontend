@@ -88,7 +88,7 @@
   "company.step.owners.beneficiary.type": "Tipo de controlo exercido",
   "company.step.owners.confirmModal.add": "Adicionar um proprietário",
   "company.step.owners.confirmModal.checkbox": "A minha organização não tem beneficiários efetivos.",
-  "company.step.owners.confirmModal.description": "Se optar por não fornecer informações sobre a propriedade da sua organização agora, a Swan entrará em contato consigo para obter essas informações em breve. A sua conta não será ativada até que todas as informações dos beneficiários efetivos sejam recebidas e verificadas.\n\nSe a sua organização não tiver nenhum beneficiário efetivo, clique em \"Seguinte\" para continuar.",
+  "company.step.owners.confirmModal.description": "Se optar por não fornecer informações sobre a propriedade da sua organização de momento, a Swan entrará em contato consigo para obter essas informações em breve. A sua conta não será ativada até que todas as informações dos beneficiários efetivos sejam recebidas e verificadas.",
   "company.step.owners.confirmModal.next": "Seguinte",
   "company.step.owners.confirmModal.title": "São necessárias informações sobre a propriedade",
   "company.step.owners.deleteButton": "Excluir",

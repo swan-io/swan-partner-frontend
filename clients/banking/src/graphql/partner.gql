@@ -370,19 +370,12 @@ fragment TrustedBeneficiaryDetails on TrustedBeneficiary {
 
 # Queries
 
-query LastRelevantIdentification(
-  $accountMembershipId: ID!
-  $identificationProcess: [IdentificationProcess!]
-) {
+query LastIdentification($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
     user {
       id
-      identifications(
-        first: 1
-        orderBy: { field: updatedAt, direction: Desc }
-        filters: { processes: $identificationProcess }
-      ) {
+      identifications(first: 1, orderBy: { field: updatedAt, direction: Desc }) {
         edges {
           node {
             ...Identification
@@ -561,6 +554,7 @@ query AccountDetailsVirtualIbansPage($accountId: ID!, $first: Int!, $after: Stri
           IBAN
           BIC
           status
+          bankDetails
         }
       }
     }
@@ -927,7 +921,6 @@ query CardPage($cardId: ID!) {
     accountMembership {
       id
       canManageAccountMembership
-      recommendedIdentificationLevel
       hasRequiredIdentificationLevel
       canViewAccount
       canManageBeneficiaries
@@ -1083,7 +1076,6 @@ query CardTransactionsPage(
     }
     accountMembership {
       id
-      recommendedIdentificationLevel
       statusInfo {
         __typename
         ... on AccountMembershipBindingUserErrorStatusInfo {
@@ -1172,7 +1164,6 @@ query StandingOrdersHistoryPage(
       value
     }
     # id is deprecated here
-    # eslint-disable-next-line @graphql-eslint/require-selections
     sepaBeneficiary {
       name
     }
@@ -1226,7 +1217,6 @@ query getStandingOrders(
             status
           }
           # id is deprecated here
-          # eslint-disable-next-line @graphql-eslint/require-selections
           sepaBeneficiary {
             name
           }
@@ -1262,7 +1252,6 @@ fragment AccountMembership on AccountMembership {
   updatedAt
   email
   legalRepresentative
-  recommendedIdentificationLevel
   hasRequiredIdentificationLevel
   language
   statusInfo {
@@ -1405,7 +1394,6 @@ query ProfilePage {
 query AccountActivationPage($accountMembershipId: ID!) {
   accountMembership(id: $accountMembershipId) {
     id
-    recommendedIdentificationLevel
     account {
       id
       IBAN
@@ -2852,9 +2840,9 @@ fragment MerchantProfile on MerchantProfile {
   }
 }
 
-mutation AddMerchantProfile($input: AddMerchantProfileInput!) {
-  addMerchantProfile(input: $input) {
-    ... on AddMerchantProfileSuccessPayload {
+mutation AddMerchantProfile($input: RequestMerchantProfileInput!) {
+  requestMerchantProfile(input: $input) {
+    ... on RequestMerchantProfileSuccessPayload {
       merchantProfile {
         ...MerchantProfile
       }

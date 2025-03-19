@@ -22,6 +22,7 @@ import { Router } from "../utils/routes";
 import { Connection } from "./Connection";
 import {
   defaultFiltersDefinition,
+  TransactionFilter,
   TransactionFilters,
   TransactionListFilter,
 } from "./TransactionListFilter";
@@ -52,6 +53,8 @@ type Props = {
   };
 };
 
+const availableFilters: TransactionFilter[] = ["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"];
+
 const DEFAULT_STATUSES = [
   "Booked" as const,
   "Canceled" as const,
@@ -60,9 +63,8 @@ const DEFAULT_STATUSES = [
 ];
 
 export const TransferList = ({ accountId, accountMembershipId, params }: Props) => {
-  const filters = useMemo<TransactionFilters>(
-    () => ({
-      includeRejectedWithFallback: false,
+  const filters = useMemo(
+    (): TransactionFilters => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: undefined,
@@ -70,7 +72,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
       ),
     }),
-    [params.isAfterUpdatedAt, params.isBeforeUpdatedAt, params.transactionStatus],
+    [params],
   );
 
   const paymentProduct = useMemo(() => {
@@ -92,6 +94,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
       ...filters,
       paymentProduct,
       search,
+      includeRejectedWithFallback: false,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
@@ -112,7 +115,7 @@ export const TransferList = ({ accountId, accountMembershipId, params }: Props) 
         <>
           <Box style={[styles.filters, large && styles.filtersLarge]}>
             <TransactionListFilter
-              available={["isAfterUpdatedAt", "isBeforeUpdatedAt", "status"]}
+              available={availableFilters}
               large={large}
               filters={filters}
               search={search}

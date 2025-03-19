@@ -60,7 +60,7 @@ export const CardWizardDelivery = forwardRef<CardWizardDeliveryRef, Props>(
               <Box alignItems="center">
                 <Icon
                   color={
-                    currentDeliveryMode == cardDeliveryMode ? colors.swan[300] : colors.swan[200]
+                    currentDeliveryMode === cardDeliveryMode ? colors.swan[300] : colors.swan[200]
                   }
                   size={148}
                   name={match(cardDeliveryMode)

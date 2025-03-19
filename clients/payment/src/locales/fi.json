@@ -4,7 +4,7 @@
   "error.pageNotFound": "Sivua ei löytynyt",
   "form.invalidField": "Virheellinen kenttä",
   "paymentLink.addressLine1": "Osoite",
-  "paymentLink.alert": "Huomioi, että tämä on hiekkalaatikkosivu eikä testimaksuja voi luoda tällä sivulla. Käytä sen sijaan kauppiaan simulointeja Explorer API:ssa.",
+  "paymentLink.alert": "Huomioi, että tämä on hiekkalaatikkosivu, eikä testimaksuja voi luoda tällä sivulla. Voit tehdä testimaksuja Explorer API:ssa kauppiaan simuloinneissa.",
   "paymentLink.button.downloadMandate": "Lataa valtakirja",
   "paymentLink.button.returnToWebsite": "Palaa verkkosivustolle",
   "paymentLink.card.cardNumber": "Kortin numero",

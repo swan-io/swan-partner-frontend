@@ -24,6 +24,9 @@ export const updateTgglContext = (context: Partial<TgglContext>) => {
   void client?.setContext(savedContext);
 };
 
+export const getTgglFlag = <K extends keyof Flags>(key: K) =>
+  Option.fromNullable<Flags[K]>(flagsAtom.get()[key]);
+
 export const useTgglFlag = <K extends keyof Flags>(key: K) => {
   const value = useAtomWithSelector(flagsAtom, flags => flags[key]);
   return useMemo(() => Option.fromNullable<Flags[K]>(value), [value]);

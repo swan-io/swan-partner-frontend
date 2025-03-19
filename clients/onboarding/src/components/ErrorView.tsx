@@ -24,7 +24,7 @@ type Props = {
 
 export const ErrorView = ({ error, style }: Props) => {
   const [requestId] = useState<Option<string>>(() => {
-    if (error == undefined) {
+    if (error == null) {
       return Option.None();
     }
     return Array.findMap(ClientError.toArray(error), error =>

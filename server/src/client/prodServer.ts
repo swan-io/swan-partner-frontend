@@ -1,8 +1,9 @@
-import { FastifyReply, RouteHandlerMethod } from "fastify";
-import { Http2SecureServer } from "http2";
+import { RouteHandlerMethod } from "fastify";
 import fs, { Stats } from "node:fs";
+import { Http2SecureServer } from "node:http2";
 import path from "pathe";
 import { env } from "../env";
+import { FastifySecureReply } from "../types";
 
 const staticPath = path.join(__dirname, "../static");
 
@@ -12,11 +13,7 @@ const yearInMilliseconds = yearInSeconds * 1000;
 // The following isn't really elegant, but `fastify-static` doesn't provide any
 // compelling way to manage the fallback index.html when routing using the
 // request host.
-const handleRequest = async (
-  reqPath: string,
-  appName: string,
-  reply: FastifyReply<Http2SecureServer>,
-) => {
+const handleRequest = async (reqPath: string, appName: string, reply: FastifySecureReply) => {
   const isStaticAsset = reqPath.startsWith("assets/") || reqPath.includes(".manager.bundle.js");
   const handleRequest = async (err: NodeJS.ErrnoException | null, stat: Stats) => {
     if (err == null && stat.isFile()) {
@@ -31,7 +28,7 @@ const handleRequest = async (
     } else {
       // Prevents having old HTMLs in cache referencing assets that
       // do not longer exist in its files
-      void reply.header("cache-control", `private, max-age=0`);
+      void reply.header("cache-control", "private, max-age=0");
       if (isStaticAsset) {
         return reply.sendFile(reqPath, path.join(staticPath, appName));
       } else {

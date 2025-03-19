@@ -166,9 +166,9 @@ const AccountCloseReasonForm = ({ accountId }: { accountId: string }) => {
                   </View>
                 ),
                 listitem: chunk =>
-                  typeof chunk === "string" ? (
-                    <LakeText role="listitem" key={chunk}>
-                      • {chunk}
+                  Array.isArray(chunk) && typeof chunk[0] === "string" ? (
+                    <LakeText role="listitem" key={chunk[0]}>
+                      • {chunk[0]}
                     </LakeText>
                   ) : null,
               })}
@@ -332,6 +332,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
     match(data)
       .with(AsyncData.P.Done(Result.P.Ok(P.select({ user: P.nonNullable }))), ({ user }) => {
         if (
+          user.accountMemberships.pageInfo.hasNextPage === true &&
           !user.accountMemberships.edges.some(membership => membership.node.accountId === accountId)
         ) {
           setVariables({ after: user.accountMemberships.pageInfo.endCursor });
@@ -455,11 +456,7 @@ export const AccountClose = ({ accountId, resourceId, status }: Props) => {
                           // as transactions are asynchronous, this approximates the success
                           // -> the resourceId includes a `_` char: it's likely a transactionId
                           // -> the status of the consent is `Accepted`
-                          if (
-                            resourceId != null &&
-                            resourceId?.includes("_") &&
-                            status === "Accepted"
-                          ) {
+                          if (resourceId?.includes("_") && status === "Accepted") {
                             return (
                               <WithCurrentColor variant="positive" style={styles.successContainer}>
                                 <EmptyView

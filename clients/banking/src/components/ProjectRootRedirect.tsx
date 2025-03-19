@@ -34,7 +34,7 @@ export const ProjectRootRedirect = ({ to, source }: Props) => {
   const [accountMembershipState] = usePersistedState<unknown>(
     `swan_session_webBankingAccountMembershipState${projectConfiguration.match({
       Some: ({ projectId }) => `_${projectId}`,
-      None: () => ``,
+      None: () => "",
     })}`,
     {},
   );

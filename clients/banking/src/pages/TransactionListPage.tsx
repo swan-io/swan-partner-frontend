@@ -84,9 +84,8 @@ export const TransactionListPage = ({
 
   const { canReadAccountStatement } = usePermissions();
 
-  const filters = useMemo<TransactionFilters>(
-    () => ({
-      includeRejectedWithFallback: false,
+  const filters = useMemo(
+    (): TransactionFilters => ({
       isAfterUpdatedAt: params.isAfterUpdatedAt,
       isBeforeUpdatedAt: params.isBeforeUpdatedAt,
       paymentProduct: params.paymentProduct?.filter(
@@ -96,12 +95,7 @@ export const TransactionListPage = ({
         isMatching(P.union("Booked", "Canceled", "Pending", "Rejected", "Released")),
       ),
     }),
-    [
-      params.isAfterUpdatedAt,
-      params.isBeforeUpdatedAt,
-      params.paymentProduct,
-      params.transactionStatus,
-    ],
+    [params],
   );
 
   const paymentProduct = useMemo(() => {
@@ -129,6 +123,7 @@ export const TransactionListPage = ({
       ...filters,
       paymentProduct,
       search,
+      includeRejectedWithFallback: false,
       status: filters.status ?? DEFAULT_STATUSES,
     },
     canQueryCardOnTransaction,
@@ -268,8 +263,9 @@ export const TransactionListPage = ({
                                             accountMembershipId,
                                           });
                                         }}
-                                        children={null}
-                                      />
+                                      >
+                                        {null}
+                                      </LakeButton>
                                     </Box>
 
                                     <TransactionDetail

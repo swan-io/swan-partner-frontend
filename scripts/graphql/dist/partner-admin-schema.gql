@@ -116,7 +116,7 @@ type Account {
   """Date of the account going from eMoney to PaymentService"""
   upgradedAt: DateTime
 
-  """Link to the account's bank details"""
+  """Download link to the main account iban's bank details"""
   bankDetails: String
 
   """
@@ -333,6 +333,9 @@ type AccountHolder {
   """Account holder onboarding"""
   onboarding: Onboarding
 
+  """Account holder risk info"""
+  riskInfo: AccountHolderRiskInfo
+
   """
   A list of Payment Mandates for an account holder.
   
@@ -430,6 +433,13 @@ type AccountHolderConnection implements Connection {
 
   """AccountHolderEdge list"""
   edges: [AccountHolderEdge!]!
+}
+
+enum AccountHolderDueDiligenceLevel {
+  Simplified
+  Common
+  Enhanced
+  Refused
 }
 
 """Implements the Relay Edge interface."""
@@ -568,6 +578,12 @@ type AccountHolderRefusedVerificationStatusInfo implements AccountHolderVerifica
 
   """Reason for which the account holder was refused"""
   reason: String!
+}
+
+type AccountHolderRiskInfo {
+  amlRiskLevel: AmlRiskLevel
+  amlScore: Int
+  dueDiligenceLevel: AccountHolderDueDiligenceLevel
 }
 
 """Account holder status."""
@@ -719,8 +735,11 @@ type AccountMembership {
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level"""
-  recommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -878,11 +897,7 @@ input AccountMembershipsFilterInput {
   """Account memberships status/statuses we're looking for"""
   status: [AccountMembershipStatus!]
 
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -1192,6 +1207,13 @@ input AddressInput {
 type AllowedValue {
   key: String!
   name: String!
+}
+
+enum AmlRiskLevel {
+  Low
+  Medium
+  High
+  TooHigh
 }
 
 """Amount with its currency"""
@@ -1805,6 +1827,80 @@ enum CardAuthorizationType {
   DataRequest
 }
 
+type CardMerchantPayment {
+  """unique identifier of a merchant payment"""
+  id: ID!
+
+  """status information"""
+  statusInfo: MerchantPaymentStatusInfo!
+
+  """amount"""
+  amount: Amount!
+
+  """unique identifier of the payment mandate associated to the payment"""
+  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
+
+  """unique identifier of the payment link associated to the payment"""
+  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
+
+  """unique identifier of the merchant profile associated to the payment"""
+  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
+
+  """unique identifier of the payment method associated to the payment"""
+  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
+  balance: MerchantBalance!
+
+  """Label"""
+  label: String
+  reference: String
+
+  """
+  an arbitrary identifier that was defined by you when you created this payment
+  """
+  externalReference: String
+
+  """The billing address associated to the payment"""
+  billingAddress: Address
+  threeDS: ThreeDS @deprecated(reason: "Use threeDs instead")
+  threeDs: ThreeDS
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Updated date"""
+  updatedAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime
+
+  """Canceled date"""
+  canceledAt: DateTime
+
+  """Captured date"""
+  capturedAt: DateTime
+
+  """Rejected date"""
+  rejectedAt: DateTime
+
+  """Refunded date"""
+  refundedAt: DateTime
+
+  """Disputed date"""
+  disputedAt: DateTime
+}
+
 """COMING SOON"""
 type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """
@@ -1892,12 +1988,6 @@ enum CardPaymentMandateType {
   Prepaid
   Charge
   Deferred
-}
-
-"""Location where the card should be printed from"""
-enum CardPrintingHub {
-  France
-  Spain
 }
 
 scalar CardToken
@@ -2328,6 +2418,9 @@ enum ConsentPurpose {
 
   """when returning a transaction for international credit transfer"""
   ReturnTransactionForInternationalCreditTransfer
+
+  """when initiating the creation of a credit limit."""
+  RequestCreditLimit
 }
 
 type ConsentResponse {
@@ -2634,6 +2727,9 @@ enum DetailedConsentPurpose {
   """when returning a transaction for international credit transfer"""
   ReturnTransactionForInternationalCreditTransfer
 
+  """When requesting for a credit limit"""
+  RequestCreditLimit
+
   """
   if the consent originates from a oauth2 flow, the purpose should be determined from its scopes
   """
@@ -2792,6 +2888,15 @@ enum DocumentReasonCode {
 
   """The signature is not handwritten or electronically certified"""
   HandwrittenOrCertifiedElectronicSignatureRequired
+
+  """Document refused for compliance reasons"""
+  ComplianceReason
+
+  """Bank name in articles of association document is invalid"""
+  InvalidDepositBankName
+
+  """Missing the register extract of the company providing accommodation"""
+  MissingCompanyProviderRegisterExtract
 }
 
 """The type of the document"""
@@ -3000,10 +3105,15 @@ type FacePhotoDocument {
   type: DocumentType!
 }
 
-type FailedThreeDs {
+type FailedThreeDs implements ThreeDsStatusInfo {
   status: ThreeDsStatus!
-  reason: String!
-  code: String!
+  reasonCode: FailedThreeDsReason!
+}
+
+enum FailedThreeDsReason {
+  AuthenticationFailed
+  AuthenticationExpired
+  Other
 }
 
 interface Field {
@@ -3013,7 +3123,14 @@ interface Field {
 }
 
 enum FieldValidationError {
+  """When the associated field's value is missing"""
   Missing
+
+  """
+  When the associated field's value is invalid
+  @comingSoon
+  """
+  Invalid
 }
 
 enum FNCIResult {
@@ -4368,6 +4485,12 @@ input MembershipsFilterInput {
 }
 
 input Merchant {
+  """Acquirer ID"""
+  acquirerId: String
+
+  """Sub merchant ID"""
+  subMerchantId: String
+
   """Merchant city"""
   city: String = "PARIS"
 
@@ -4449,16 +4572,28 @@ type MerchantPayment {
   amount: Amount!
 
   """unique identifier of the payment mandate associated to the payment"""
-  paymentMandateId: ID!
+  paymentMandateId: ID! @deprecated(reason: "Use paymentMandate.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentMandate: PaymentMandate!
 
   """unique identifier of the payment link associated to the payment"""
-  paymentLinkId: ID
+  paymentLinkId: ID @deprecated(reason: "Use paymentLink.id instead")
+
+  """payment link associated to the merchant payment"""
+  paymentLink: MerchantPaymentLink
 
   """unique identifier of the merchant profile associated to the payment"""
-  merchantProfileId: ID!
+  merchantProfileId: ID! @deprecated(reason: "Use merchantProfile.id instead")
+
+  """merchant profile associated to the merchant payment"""
+  merchantProfile: MerchantProfile!
 
   """unique identifier of the payment method associated to the payment"""
-  paymentMethodId: ID!
+  paymentMethodId: ID! @deprecated(reason: "Use paymentMethod.id instead")
+
+  """payment method associated to the merchant payment"""
+  paymentMethod: MerchantPaymentMethod!
   balance: MerchantBalance!
 
   """Label"""
@@ -4511,6 +4646,9 @@ type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 }
 
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
 type MerchantPaymentConnection implements Connection {
   """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
@@ -4522,30 +4660,44 @@ type MerchantPaymentConnection implements Connection {
   totalCount: Int!
 }
 
+"""Implements the Relay Edge interface"""
 type MerchantPaymentEdge implements Edge {
-  node: MerchantPayment!
+  node: CardMerchantPayment!
 
   """Opaque identifier pointing to this node in the pagination mechanism"""
   cursor: String!
 }
 
+"""Filters that can be applied when listing merchant payments"""
 input MerchantPaymentFiltersInput {
-  """To filter on some Merchant Payment Link Status (all if empty)"""
-  status: [MerchantPaymentStatus!]
+  """Filter by amount (amount is greater than a given amount)"""
+  amountGreaterThan: AmountValue
 
-  """To filter on some Merchant Payment Method Type (all if empty)"""
-  paymentMethod: [MerchantPaymentMethodType!]
+  """Filter by amount (amount is less than a given amount)"""
+  amountSmallerThan: AmountValue
 
-  """To filter after a createdAt value"""
+  """Filter by createdAt (created after a given date)"""
   isAfterCreatedAt: DateTime
 
-  """To filter before a createdAt value"""
+  """Filter by createdAt (created before a given date)"""
   isBeforeCreatedAt: DateTime
 
-  """To filter on some text occurrences (words or ids)"""
+  """Filter by Method Type"""
+  paymentMethod: [MerchantPaymentMethodType!]
+
+  """Filter by status"""
+  status: [MerchantPaymentStatus!]
+
+  """
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Label
+   - Reference
+   - External Reference
+   - Amount
+  """
   search: String
-  amountSmallerThan: AmountValue
-  amountGreaterThan: AmountValue
 }
 
 """Merchant Payment status initiated"""
@@ -4642,6 +4794,9 @@ type MerchantPaymentLink {
   createdAt: DateTime!
 }
 
+"""
+Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+"""
 type MerchantPaymentLinkConnection implements Connection {
   """Information about the current, the previous and the next page"""
   pageInfo: PageInfo!
@@ -4653,6 +4808,7 @@ type MerchantPaymentLinkConnection implements Connection {
   totalCount: Int!
 }
 
+"""Implements the Relay Edge interface"""
 type MerchantPaymentLinkEdge implements Edge {
   node: MerchantPaymentLink!
 
@@ -4660,36 +4816,44 @@ type MerchantPaymentLinkEdge implements Edge {
   cursor: String!
 }
 
+"""Filters that can be applied when listing merchant payment links"""
 input MerchantPaymentLinkFiltersInput {
-  """To filter on some Merchant Payment Link Status (all if empty)"""
-  status: [MerchantPaymentLinkStatus!]
+  """Filter by amount (amount is greater than a given amount)"""
+  amountGreaterThan: AmountValue
 
-  """To filter after a createdAt value"""
-  isAfterCreatedAt: DateTime
-
-  """To filter before a createdAt value"""
-  isBeforeCreatedAt: DateTime
-
-  """To filter on some text occurrences (words or ids)"""
-  search: String
-
-  """
-  To filter payment links having an amount smaller than the given criteria
-  """
+  """Filter by amount (amount is less than a given amount)"""
   amountSmallerThan: AmountValue
 
+  """Filter by createdAt (created after a given date)"""
+  isAfterCreatedAt: DateTime
+
+  """Filter by createdAt (created before a given date)"""
+  isBeforeCreatedAt: DateTime
+
+  """Filter by status"""
+  status: [MerchantPaymentLinkStatus!]
+
   """
-  To filter payment links having an amount greater than the given criteria
+  Search string to look for
+  
+  Search will be performed in following fields:
+   - Label
+   - Reference
+   - Amount
   """
-  amountGreaterThan: AmountValue
+  search: String
 }
 
+"""
+Field we can use when ordering that can be applied when listing merchant payment links
+"""
 enum MerchantPaymentLinkOrderByFieldInput {
   createdAt
   label
   url
 }
 
+"""Order that can be applied when listing merchant payment links"""
 input MerchantPaymentLinkOrderByInput {
   field: MerchantPaymentLinkOrderByFieldInput
   direction: OrderByDirection
@@ -4790,6 +4954,9 @@ type MerchantPaymentMethodWrongStatusRejection implements Rejection {
   message: String!
 }
 
+"""
+Field we can use when ordering that can be applied when listing merchant payments
+"""
 enum MerchantPaymentOrderByFieldInput {
   label
   createdAt
@@ -4798,6 +4965,7 @@ enum MerchantPaymentOrderByFieldInput {
   amount
 }
 
+"""Order that can be applied when listing merchant payments"""
 input MerchantPaymentOrderByInput {
   field: MerchantPaymentOrderByFieldInput
   direction: OrderByDirection
@@ -4809,7 +4977,36 @@ type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 
   """rejected reason"""
-  reason: String!
+  reason: String! @deprecated(reason: "Use rejectedReasonCode instead")
+
+  """rejected reason"""
+  rejectedReasonCode: MerchantPaymentRejectedReason!
+}
+
+enum MerchantPaymentRejectedReason {
+  AmountInvalid
+  CardDetailsInvalid
+  CardExpired
+  InvalidPinAttemptsExceeded
+  RejectedByCardIssuer
+  SoftDecline3dsExpiration
+  SoftDecline3dsFailure
+  SoftDecline3dsNotSupported
+  SoftDecline3dsRequired
+  SoftDeclineCardAmountLimitsExceeded
+  SoftDeclineCardDetailsInvalid
+  SoftDeclineCardExpired
+  SoftDeclineCardNotActivated
+  SoftDeclineCardNotSupported
+  SoftDeclineCvcCheckFailed
+  SoftDeclineCvcInvalid
+  SoftDeclineInsufficientFunds
+  SoftDeclineRefundTimeLimitExceeded
+  SoftDeclineRejectedByCardIssuer
+  SoftDeclineSwanTechnicalErrorOccurred
+  SoftDeclineTransactionAmountIncorrect
+  SwanRefused
+  SwanTechnicalErrorOccurred
 }
 
 """Merchant Payment status"""
@@ -4879,8 +5076,48 @@ type MerchantProfile {
 
   """updated date"""
   updatedAt: DateTime!
-  merchantPaymentLinks(first: Int! = 50, after: String, orderBy: MerchantPaymentLinkOrderByInput, filters: MerchantPaymentLinkFiltersInput): MerchantPaymentLinkConnection
-  merchantPayments(first: Int! = 50, after: String, orderBy: MerchantPaymentOrderByInput, filters: MerchantPaymentFiltersInput): MerchantPaymentConnection
+
+  """
+  Returns a list of merchant payment links
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  merchantPaymentLinks(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: MerchantPaymentLinkOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MerchantPaymentLinkFiltersInput
+  ): MerchantPaymentLinkConnection
+
+  """
+  Returns a list of merchant payments
+  
+  Implements the Relay Connection interface, used to paginate list of element ([Learn More](https://docs.swan.io/api/pagination))
+  """
+  merchantPayments(
+    """the number of elements to load (maximum: 100)"""
+    first: Int! = 50
+
+    """
+    the index (a unique reference in string form) from which you will load the following elements
+    """
+    after: String
+
+    """an order you can apply to your list of connections"""
+    orderBy: MerchantPaymentOrderByInput
+
+    """a filtering table you can apply to your list of connections"""
+    filters: MerchantPaymentFiltersInput
+  ): MerchantPaymentConnection
 }
 
 """Merchant Profile Statuses"""
@@ -5012,21 +5249,6 @@ enum MonthlyPaymentVolume {
 }
 
 type Mutation {
-  """Mutation to simulate a manual provisioning"""
-  simulateManualProvisioning(input: DigitalizationInput!): SimulationResponse!
-
-  """
-  Mutation to give decision on digitalization.
-  If more than one InApp digitalization process are ongoing, only the latest one will be acted upon
-  """
-  simulateInAppProvisioningCompletion(input: InAPpDigitalizationInput!): SimulationResponse!
-
-  """
-  Mutation to simulate the reception of a physical card.
-  Requires a physical card in a valid state for reception.
-  """
-  physicalCardReception(input: PhysicalCardReceptionInput!): PhysicalCardReceptionPayload!
-
   """
   Mutation to promote an account holder to the role of project owner.
   Requires the account holder identifier to be promoted to Project Owner.
@@ -5034,15 +5256,6 @@ type Mutation {
   """
   promoteAccountHolderToProjectOwner(input: PromoteAccountHolderToProjectOwnerInput!): PromoteAccountHolderToProjectOwnerPayload!
   requestSupportingDocuments(input: RequestSupportingDocumentsInput!): RequestSupportingDocumentsPayload!
-
-  """
-  Mutation to simulate delivery of a physical card.
-  Requires a physical card in a valid state for delivery.
-  """
-  simulatePhysicalCardDelivery(input: SimulatePhysicalCardDeliveryInput!): SimulationResponse!
-
-  """Simulate physical card renewal process."""
-  simulatePhysicalCardRenewalProcess(input: SimulatePhysicalCardRenewalProcessInput!): SimulatePhysicalCardRenewalProcessPayload!
   updateSupportingDocumentCollectionStatus(input: UpdateSupportingDocumentCollectionStatusInput!): UpdateSupportingDocumentCollectionStatusPayload!
   updateSupportingDocumentStatus(input: UpdateSupportingDocumentStatusInput!): UpdateSupportingDocumentStatusPayload!
   updateAccountHolder(input: UpdateAccountHolderInput!): UpdateAccountHolderPayload!
@@ -5072,6 +5285,30 @@ type Mutation {
 
   """Mutation to simulate an update of capital deposit document status."""
   simulateCapitalDepositDocumentStatus(input: SimulateCapitalDepositDocumentStatusInput!): SimulateCapitalDepositDocumentStatusPayload!
+
+  """Mutation to simulate a manual provisioning"""
+  simulateManualProvisioning(input: DigitalizationInput!): SimulationResponse!
+
+  """
+  Mutation to give decision on digitalization.
+  If more than one InApp digitalization process are ongoing, only the latest one will be acted upon
+  """
+  simulateInAppProvisioningCompletion(input: InAPpDigitalizationInput!): SimulationResponse!
+
+  """
+  Mutation to simulate the reception of a physical card.
+  Requires a physical card in a valid state for reception.
+  """
+  physicalCardReception(input: PhysicalCardReceptionInput!): PhysicalCardReceptionPayload!
+
+  """
+  Mutation to simulate delivery of a physical card.
+  Requires a physical card in a valid state for delivery.
+  """
+  simulatePhysicalCardDelivery(input: SimulatePhysicalCardDeliveryInput!): SimulationResponse!
+
+  """Simulate physical card renewal process."""
+  simulatePhysicalCardRenewalProcess(input: SimulatePhysicalCardRenewalProcessInput!): SimulatePhysicalCardRenewalProcessPayload!
 
   """Create a sandbox identification"""
   createSandboxIdentification(input: CreateSandboxIdentificationInput!): CreateSandboxIdentificationPayload!
@@ -5445,8 +5682,11 @@ type Onboarding {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -5543,11 +5783,7 @@ type OnboardingEdge implements Edge {
 
 """Filters that can be applied when listing onboardings"""
 input OnboardingFiltersInput {
-  """
-  Search by email
-  
-  @deprecated(reason: "use `search` instead")
-  """
+  """Filter by email"""
   email: String
 
   """
@@ -5652,8 +5888,11 @@ type OnboardingInfo {
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
 
-  """Recommended identification level for the legal representative"""
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel!
+  """
+  Recommended identification level for the legal representative
+  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
+  """
+  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -6216,7 +6455,7 @@ type PhysicalCardCustomOptions {
   """Additional line embossed on the card."""
   additionalPrintedLine: String
 
-  """Custom Card Holder Name"""
+  """Custom cardholder name"""
   customCardHolderName: String
 }
 
@@ -6406,6 +6645,8 @@ type ProjectInfo {
   """Unique identifier of the project"""
   id: ID!
   B2BMembershipIDVerification: Boolean
+  requireSupportingDocumentsDuringOnboarding: Boolean
+  requireUbosDuringOnboarding: Boolean
 
   """
   Your project name displayed in white label interfaces and in the terms and conditions
@@ -7046,6 +7287,9 @@ type SandboxUser {
   """Birth City"""
   birthCity: String
 
+  """Birth Place Postal Code"""
+  birthPlacePostalCode: String
+
   """
   [Alpha-3 birth country representation](https://en.wikipedia.org/wiki/ISO_3166-1_alpha-3)
   """
@@ -7056,12 +7300,6 @@ type SandboxUser {
   Ex: FRA for french nationality
   """
   nationalityCCA3: CCA3
-
-  """
-  Indicates wether the user has verified his/her identity or not
-  @deprecated Use the equivalent identificationLevels.expert field instead
-  """
-  idVerified: Boolean @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
 
   """
   Saves you considerable time during the development phase,
@@ -7786,8 +8024,11 @@ type SimulateCardTransactionEnrichmentSuccessPayload {
 }
 
 input SimulateIncomingCardAuthorizationAuthorization {
+  """
+  Set this to "Authorized" to simulate a successful payment, and to "Rejected" to simulate a failed payment. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
+  """
   status: SimulateIncomingCardAuthorizationStatus!
-  rejectionReason: String
+  rejectedReasonCode: MerchantPaymentRejectedReason
 }
 
 enum SimulateIncomingCardAuthorizationCardCategory {
@@ -7796,9 +8037,24 @@ enum SimulateIncomingCardAuthorizationCardCategory {
 }
 
 input SimulateIncomingCardAuthorizationCardDetails {
+  """
+  The scheme of the card used for the payment, eg, Visa, Mastercard or CartesBancaires.
+  """
   scheme: SimulateIncomingCardAuthorizationCardScheme!
+
+  """
+  The category of the card used for the payment, eg, Commercial or Consumer.
+  """
   category: SimulateIncomingCardAuthorizationCardCategory!
+
+  """
+  The type of the card used for the payment, eg, Credit, Debit, Prepaid, Charge or DeferredDebit.
+  """
   type: SimulateIncomingCardAuthorizationCardType!
+
+  """
+  The 3-letters code indicating the country of the card used for the payment.
+  """
   country: String!
 }
 
@@ -7819,8 +8075,20 @@ enum SimulateIncomingCardAuthorizationCardType {
 input SimulateIncomingCardAuthorizationInput {
   """ID of the related payment link"""
   paymentLinkId: ID!
+
+  """
+  The status of the authorization returned by the issuing bank. Use this to simulate the success or failure of a payment. This can't be set to "Authorized" if 3DS status is set to "Failed". However, the authorization can be rejected even if 3DS succeed.
+  """
   authorization: SimulateIncomingCardAuthorizationAuthorization!
+
+  """
+  The status of the payer authentication returned by the issuing bank. Use this to simulate the success or failure of the 3DS authentication. This can't be set to "Failed" if the Authorization status is set to "Authorized".
+  """
   threeDS: SimulateIncomingCardAuthorizationThreeDS!
+
+  """
+  The details of the card used for the payment. Use this to simulate using a specific card for the payment.
+  """
   cardDetails: SimulateIncomingCardAuthorizationCardDetails!
 }
 
@@ -7841,9 +8109,12 @@ type SimulateIncomingCardAuthorizationSuccessPayload {
 
 input SimulateIncomingCardAuthorizationThreeDS {
   status: SimulateIncomingCardAuthorizationThreeDSStatus!
-  rejectionReason: String
+  rejectedReasonCode: SimulationFailedThreeDSReason
 }
 
+"""
+Set this to "Successful" to simulate a successful authentication, and to "Failed" to simulate a failed authentication. You can't authorize a payment successfully with a failed 3DS. However, the authorization can be rejected even if 3DS succeed.
+"""
 enum SimulateIncomingCardAuthorizationThreeDSStatus {
   Successful
   Failed
@@ -8307,33 +8578,7 @@ union SimulateOutgoingCardAuthorizationPayload = SimulateOutgoingCardAuthorizati
 """Reject payload type"""
 type SimulateOutgoingCardAuthorizationRejectPayload {
   transactionId: ID!
-  reason: SimulateOutgoingCardAuthorizationRejectPayloadReason! @deprecated(reason: "Use rejectedReason instead")
   rejectedReason: String!
-}
-
-"""Reject payload reason"""
-enum SimulateOutgoingCardAuthorizationRejectPayloadReason {
-  AccountSuspended
-  CardExpired
-  CardSuspended
-  InsufficientFunds
-  NotHeld
-  PartnerRefused
-  PartnerTechnicalErrorOccurred
-  PeriodAmountLimitExceeded
-  SwanRefused
-  TransactionTypeNotAllowed
-  ThreeDsError
-  PeriodTransactionNumberLimitExceeded
-  MissingExpirationDate
-  MissingPin
-  DigitalWalletDeactivated
-  DigitalWalletEnrolmentInvalid
-  DigitalWalletTokenInvalid
-  DigitalWalletRefusal
-  DigitalWalletSuspended
-  InvalidAmount
-  CardholderCancellation
 }
 
 """Input to simulate a release of a card authorization"""
@@ -8365,6 +8610,9 @@ input SimulateOutgoingCardCreditInput {
 
   """Card type"""
   cardType: SimulationCardType
+
+  """Origin Transaction ID"""
+  originTransactionId: String
 
   """Original amount"""
   originalAmount: AmountInput
@@ -8741,6 +8989,11 @@ enum SimulationCardType {
   Virtual
 }
 
+enum SimulationFailedThreeDSReason {
+  AuthenticationFailed
+  AuthenticationExpired
+}
+
 """
 A rejection returned when the simulation couldn't be performed because of a functional error
 """
@@ -8837,7 +9090,7 @@ type StartedIdentificationLevelStatusInfo {
   status: SwanIdentificationStatus!
 }
 
-type SuccessfulThreeDs {
+type SuccessfulThreeDs implements ThreeDsStatusInfo {
   status: ThreeDsStatus!
 }
 
@@ -8902,6 +9155,9 @@ type SupportingDocumentCollection {
   supportingDocumentCollectionUrl: String!
   type: SupportingDocumentCollectionType!
   transaction: SupportingDocumentTransaction!
+
+  """Verification renewal id"""
+  verificationRenewalId: String
 }
 
 """Supporting document collection with Approved status"""
@@ -9886,6 +10142,7 @@ type UpdateSupportingDocumentCollectionStatusSuccessPayload {
 input UpdateSupportingDocumentStatusInput {
   supportingDocumentId: ID!
   status: SupportingDocumentStatus!
+  reasonCode: SupportingDocumentReasonCode
 }
 
 union UpdateSupportingDocumentStatusPayload = UpdateSupportingDocumentStatusSuccessPayload | ForbiddenRejection | InternalErrorRejection | SupportingDocumentCollectionNotFoundRejection | SupportingDocumentCollectionStatusDoesNotAllowUpdateRejection | SupportingDocumentNotFoundRejection | SupportingDocumentStatusDoesNotAllowUpdateRejection | ValidationRejection
@@ -9962,11 +10219,8 @@ type User {
   """birth city"""
   birthCity: String
 
-  """
-  `true` if Swan has verified the user's identity
-  @deprecated Use the equivalent identificationLevels.expert field instead
-  """
-  idVerified: Boolean! @deprecated(reason: "Use the equivalent `identificationLevels.expert` field instead")
+  """birth country"""
+  birthCountry: CCA3
 
   """the methods used to authenticate this user"""
   authenticators: [Authenticator!]
@@ -10063,6 +10317,9 @@ type ValidationError {
 
   """Constraints that are not matched on the Onboarding property"""
   errors: [FieldValidationError!]
+
+  """Human readable message explaining the errors"""
+  details: String
 }
 
 type ValidationFieldError {
@@ -10199,6 +10456,9 @@ type VirtualIBANEntry {
 
   """`true` if the Virtual IBAN refuses all Sepa Direct Debit received"""
   blockSDD: Boolean!
+
+  """Download link to the virtual iban's bank details"""
+  bankDetails: String
 }
 
 """

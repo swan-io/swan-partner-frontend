@@ -148,10 +148,10 @@ test("French company onboarding", async ({ browser, page, request }) => {
 
   const tiles = page.locator("section");
   const nicolasBenadyTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "benady" });
-  const nicolasSaisonTile = tiles.filter({ hasText: "nicolas" }).filter({ hasText: "saison" });
+  const camilleTyanTile = tiles.filter({ hasText: "camille" }).filter({ hasText: "tyan" });
 
   await nicolasBenadyTile.waitFor();
-  await nicolasSaisonTile.waitFor();
+  await camilleTyanTile.waitFor();
 
   const editModal = page.locator("[aria-modal]", {
     hasText: /Edit|Fill/,
@@ -166,14 +166,12 @@ test("French company onboarding", async ({ browser, page, request }) => {
   await waitForText(page, t("onboarding.common.save"));
   await clickOnButton(editModal, t("onboarding.common.save"));
 
-  await clickOnButton(nicolasSaisonTile, t("onboarding.company.step.owners.editButton"));
-  await editModal.waitFor();
-  await editModal
-    .getByLabel(t("onboarding.company.step.owners.beneficiary.birthPostalCode"))
-    .fill("75001");
-  await clickOnButton(editModal, t("onboarding.common.next"));
-  await waitForText(page, t("onboarding.common.save"));
-  await clickOnButton(editModal, t("onboarding.common.save"));
+  const deleteModal = page.locator("[aria-modal]", {
+    hasText: "Camille",
+  });
+
+  await clickOnButton(camilleTyanTile, t("onboarding.common.delete"));
+  await clickOnButton(deleteModal, t("onboarding.company.step.owners.deleteModal.confirm"));
 
   await page.getByRole("button", { name: t("onboarding.common.next") }).click();
 

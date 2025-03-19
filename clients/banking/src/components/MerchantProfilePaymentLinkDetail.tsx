@@ -93,7 +93,7 @@ export const MerchantProfilePaymentLinkDetail = ({ paymentLinkId, large }: Props
             .otherwise(() => null)}
 
           <LakeHeading variant="h1" level={2} align="center">
-            {"-" + formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
+            {formatCurrency(Number(paymentLink.amount.value), paymentLink.amount.currency)}
           </LakeHeading>
         </Tile>
 

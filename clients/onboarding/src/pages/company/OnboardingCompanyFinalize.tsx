@@ -3,14 +3,12 @@ import { Box } from "@swan-io/lake/src/components/Box";
 import { ResponsiveContainer } from "@swan-io/lake/src/components/ResponsiveContainer";
 import { breakpoints } from "@swan-io/lake/src/constants/design";
 import { useBoolean } from "@swan-io/lake/src/hooks/useBoolean";
-import { isDecentMobileDevice } from "@swan-io/lake/src/utils/userAgent";
 import { useEffect } from "react";
 import { P, match } from "ts-pattern";
 import { FinalizeBlock, FinalizeInvalidSteps } from "../../components/FinalizeStepBlocks";
 import { OnboardingFooter } from "../../components/OnboardingFooter";
 import { OnboardingStepContent } from "../../components/OnboardingStepContent";
 import { env } from "../../utils/env";
-import { openPopup } from "../../utils/popup";
 import { projectConfiguration } from "../../utils/projectId";
 import { CompanyOnboardingRoute, Router } from "../../utils/routes";
 
@@ -62,20 +60,7 @@ export const OnboardingCompanyFinalize = ({
       )
       .otherwise(() => {});
 
-    const url = `${env.BANKING_URL}/auth/login?${queryString.toString()}`;
-
-    if (isDecentMobileDevice) {
-      window.location.replace(url);
-    } else {
-      openPopup(url).onResolve(redirectUrl => {
-        if (redirectUrl.isSome()) {
-          // We use location.replace to be sure that the auth
-          // cookie is correctly written before changing page
-          // (history pushState does not seem to offer these guarantees)
-          window.location.replace(redirectUrl.get());
-        }
-      });
-    }
+    window.location.assign(`${env.BANKING_URL}/auth/login?${queryString.toString()}`);
   };
 
   return (

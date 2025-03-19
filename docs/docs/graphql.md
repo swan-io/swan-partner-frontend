@@ -51,7 +51,7 @@ In this example, `codegen` generates a new file `partner.ts`, housed with docume
 import { ConsentCallbackPageDocument } from "../graphql/partner";
 
 const MyComponent = () => {
-  const [{ data }] = useUrqlQuery({ query: ConsentCallbackPageDocument });
+  const [{ data }] = useQuery(ConsentCallbackPageDocument, {});
   // `data` is a typed object
   // ...
 };

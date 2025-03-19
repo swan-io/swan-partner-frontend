@@ -10,7 +10,7 @@ import { breakpoints, spacings } from "@swan-io/lake/src/constants/design";
 import { isNotNullish, nullishOrEmptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import { useMemo } from "react";
 import { StyleSheet, View } from "react-native";
-import { isMatching, P } from "ts-pattern";
+import { isMatching, match, P } from "ts-pattern";
 import { Except } from "type-fest";
 import { CardList } from "../components/CardList";
 import { CardFilters, CardListFilter } from "../components/CardListFilter";
@@ -58,13 +58,13 @@ export const CardListPage = ({
 }: Props) => {
   const { canAddCard: canOrderCard } = usePermissions();
 
-  const filters = useMemo<CardFilters>(
-    () => ({
+  const filters = useMemo(
+    (): CardFilters => ({
       type: params.type?.filter(
         isMatching(P.union("Virtual", "VirtualAndPhysical", "SingleUseVirtual")),
       ),
     }),
-    [params.type],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.search);
@@ -162,10 +162,22 @@ export const CardListPage = ({
                         getRowLink={({ item }) => (
                           <Link
                             data-testid="user-card-item"
-                            to={Router.AccountCardsItem({
-                              accountMembershipId,
-                              cardId: item.id,
-                            })}
+                            to={match(item.physicalCard?.statusInfo.__typename)
+                              .with(
+                                "PhysicalCardToRenewStatusInfo",
+                                "PhysicalCardRenewedStatusInfo",
+                                () =>
+                                  Router.AccountCardsItemPhysicalCard({
+                                    accountMembershipId,
+                                    cardId: item.id,
+                                  }),
+                              )
+                              .otherwise(() =>
+                                Router.AccountCardsItem({
+                                  accountMembershipId,
+                                  cardId: item.id,
+                                }),
+                              )}
                           />
                         )}
                         loading={{

@@ -4,7 +4,7 @@
   "error.pageNotFound": "Seite nicht gefunden",
   "form.invalidField": "Ungültiges Feld",
   "paymentLink.addressLine1": "Adresse",
-  "paymentLink.alert": "Bitte beachten Sie, dass dies eine Sandbox-Seite ist und es nicht möglich ist, Testzahlungen auf dieser Seite zu erstellen. Verwenden Sie stattdessen die Händlersimulationen in der Explorer-API.",
+  "paymentLink.alert": "Bitte beachten Sie, dass dies eine Sandbox-Seite ist und es nicht möglich ist, auf dieser Seite Testzahlungen zu erstellen. Verwenden Sie stattdessen die Händlersimulationen in der Explorer-API.",
   "paymentLink.button.downloadMandate": "Mandat herunterladen",
   "paymentLink.button.returnToWebsite": "Zurück zur Website",
   "paymentLink.card.cardNumber": "Kartennummer",

@@ -142,7 +142,7 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
                   accentColor,
                 }) => {
                   const base64Logo =
-                    merchantLogoUrl == undefined
+                    merchantLogoUrl == null
                       ? Future.value(Option.None<string>())
                       : Future.make<Option<string>>(resolve => {
                           const reader = new FileReader();

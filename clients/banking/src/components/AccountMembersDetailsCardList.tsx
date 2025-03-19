@@ -63,13 +63,13 @@ export const AccountMembersDetailsCardList = ({
 
   const showAddCard = canAddCard && (isUserOwnMembership || canAddCardForOtherMemberships);
 
-  const filters = useMemo<CardFilters>(
-    () => ({
+  const filters = useMemo(
+    (): CardFilters => ({
       type: params.cardType?.filter(
         isMatching(P.union("Virtual", "VirtualAndPhysical", "SingleUseVirtual")),
       ),
     }),
-    [params.cardType],
+    [params],
   );
 
   const search = nullishOrEmptyToUndefined(params.cardSearch);

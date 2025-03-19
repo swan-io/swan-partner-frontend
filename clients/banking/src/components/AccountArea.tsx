@@ -155,7 +155,7 @@ type Props = {
   accountMembership: NonNullable<AccountAreaQuery["accountMembership"]>;
   user: NonNullable<AccountAreaQuery["user"]>;
   projectInfo: NonNullable<AccountAreaQuery["projectInfo"]>;
-  lastRelevantIdentification: Option<IdentificationFragment>;
+  lastIdentification: Option<IdentificationFragment>;
   shouldDisplayIdVerification: boolean;
   requireFirstTransfer: boolean;
   activationTag: AccountActivationTag;
@@ -169,7 +169,7 @@ export const AccountArea = ({
   projectInfo,
   user,
   activationTag,
-  lastRelevantIdentification,
+  lastIdentification,
   shouldDisplayIdVerification,
   requireFirstTransfer,
   reload,
@@ -458,7 +458,7 @@ export const AccountArea = ({
                           <AccountActivationPage
                             requireFirstTransfer={requireFirstTransfer}
                             hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                            lastRelevantIdentification={lastRelevantIdentification}
+                            lastIdentification={lastIdentification}
                             accentColor={accentColor}
                             accountMembershipId={accountMembershipId}
                             additionalInfo={additionalInfo}
@@ -474,7 +474,7 @@ export const AccountArea = ({
                                 account?.balances?.available.value != null
                                   ? Number(account?.balances?.available.value)
                                   : null,
-                              lastRelevantIdentification: lastRelevantIdentification.map(
+                              lastIdentification: lastIdentification.map(
                                 getIdentificationLevelStatusInfo,
                               ),
                             })
@@ -504,7 +504,10 @@ export const AccountArea = ({
                                               onPress={() => {
                                                 const params = new URLSearchParams();
 
-                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "redirectTo",
+                                                  Router.AccountRoot({ accountMembershipId }),
+                                                );
                                                 params.set("identificationLevel", "Auto");
                                                 params.set("email", email);
 
@@ -518,7 +521,7 @@ export const AccountArea = ({
                                                   )
                                                   .otherwise(() => {});
 
-                                                window.location.replace(
+                                                window.location.assign(
                                                   `/auth/login?${params.toString()}`,
                                                 );
                                               }}
@@ -540,7 +543,7 @@ export const AccountArea = ({
                                       idVerifiedMatchError: true,
                                     },
                                   },
-                                  lastRelevantIdentification: Option.P.Some({ status: "Pending" }),
+                                  lastIdentification: Option.P.Some({ status: "Pending" }),
                                 },
                                 () => (
                                   <ResponsiveContainer breakpoint={breakpoints.large}>
@@ -580,7 +583,10 @@ export const AccountArea = ({
                                               onPress={() => {
                                                 const params = new URLSearchParams();
 
-                                                params.set("redirectTo", Router.PopupCallback());
+                                                params.set(
+                                                  "redirectTo",
+                                                  Router.AccountRoot({ accountMembershipId }),
+                                                );
                                                 params.set("identificationLevel", "Auto");
                                                 if (statusInfo.emailVerifiedMatchError) {
                                                   params.set("email", email);
@@ -596,7 +602,7 @@ export const AccountArea = ({
                                                   )
                                                   .otherwise(() => {});
 
-                                                window.location.replace(
+                                                window.location.assign(
                                                   `/auth/login?${params.toString()}`,
                                                 );
                                               }}
@@ -725,7 +731,7 @@ export const AccountArea = ({
                                             </LakeButton>
                                           ) : null
                                         }
-                                      ></LakeAlert>
+                                      />
                                     </View>
                                   )}
                                 </ResponsiveContainer>
@@ -833,7 +839,7 @@ export const AccountArea = ({
                                 permissions.canReadAccountDetails ? (
                                   <AccountActivationPage
                                     hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}
-                                    lastRelevantIdentification={lastRelevantIdentification}
+                                    lastIdentification={lastIdentification}
                                     requireFirstTransfer={requireFirstTransfer}
                                     accentColor={accentColor}
                                     accountMembershipId={accountMembershipId}
@@ -867,7 +873,7 @@ export const AccountArea = ({
 
               {largeViewport ? null : (
                 <NavigationTabBar
-                  identificationStatusInfo={lastRelevantIdentification.map(
+                  identificationStatusInfo={lastIdentification.map(
                     getIdentificationLevelStatusInfo,
                   )}
                   hasRequiredIdentificationLevel={hasRequiredIdentificationLevel}

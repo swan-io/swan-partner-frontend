@@ -101,7 +101,7 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
           });
         },
       });
-    }, [onSubmit, submitForm]);
+    }, [onSubmit, submitForm, getFieldValue]);
 
     const [suggestedAddresses, setSuggestedAddresses] = useState<{
       adresse: string;

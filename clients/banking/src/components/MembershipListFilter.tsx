@@ -1,4 +1,4 @@
-import { AsyncData, Dict, Future, Result } from "@swan-io/boxed";
+import { AsyncData, Future, Result } from "@swan-io/boxed";
 import { Box } from "@swan-io/lake/src/components/Box";
 import { Fill } from "@swan-io/lake/src/components/Fill";
 import { FilterChooser } from "@swan-io/lake/src/components/FilterChooser";
@@ -7,14 +7,15 @@ import { LakeSearchField } from "@swan-io/lake/src/components/LakeSearchField";
 import { Space } from "@swan-io/lake/src/components/Space";
 import { Tag } from "@swan-io/lake/src/components/Tag";
 import { stubFalse, stubTrue } from "@swan-io/lake/src/utils/function";
-import { emptyToUndefined, isNotNullish } from "@swan-io/lake/src/utils/nullish";
+import { emptyToUndefined } from "@swan-io/lake/src/utils/nullish";
 import {
   FilterCheckboxDef,
   FilterRadioDef,
   FiltersStack,
   FiltersState,
+  useFiltersProps,
 } from "@swan-io/shared-business/src/components/Filters";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useState } from "react";
 import { P, match } from "ts-pattern";
 import { AccountMembershipStatus } from "../graphql/partner";
 import { t } from "../utils/i18n";
@@ -110,17 +111,7 @@ type MembershipListFilterProps = {
   onChangeSearch: (search: string | undefined) => void;
 };
 
-const defaultAvailableFilters = [
-  "statuses",
-  "canInitiatePayments",
-  "canManageAccountMembership",
-  "canManageBeneficiaries",
-  "canViewAccount",
-  "canManageCards",
-] as const;
-
 export const MembershipListFilter = ({
-  available = defaultAvailableFilters,
   children,
   large = true,
   filters,
@@ -130,57 +121,7 @@ export const MembershipListFilter = ({
   onRefresh,
   onChangeSearch,
 }: MembershipListFilterProps) => {
-  const availableSet = useMemo(() => new Set(available), [available]);
-
-  const availableFilters: { name: keyof MembershipFilters; label: string }[] = useMemo(
-    () =>
-      (
-        [
-          {
-            name: "statuses",
-            label: t("membershipList.status"),
-          },
-          {
-            name: "canInitiatePayments",
-            label: t("membershipList.canInitiatePayments"),
-          },
-          {
-            name: "canManageAccountMembership",
-            label: t("membershipList.canManageAccountMembership"),
-          },
-          {
-            name: "canManageBeneficiaries",
-            label: t("membershipList.canManageBeneficiaries"),
-          },
-          {
-            name: "canViewAccount",
-            label: t("membershipList.canViewAccount"),
-          },
-          {
-            name: "canManageCards",
-            label: t("membershipList.canManageCards"),
-          },
-        ] as const
-      ).filter(item => availableSet.has(item.name)),
-    [availableSet],
-  );
-
-  const [openFilters, setOpenFilters] = useState(() =>
-    Dict.entries(filters)
-      .filter(([, value]) => isNotNullish(value))
-      .map(([name]) => name),
-  );
-
-  useEffect(() => {
-    setOpenFilters(openFilters => {
-      const currentlyOpenFilters = new Set(openFilters);
-      const openFiltersNotYetInState = Dict.entries(filters)
-        .filter(([name, value]) => isNotNullish(value) && !currentlyOpenFilters.has(name))
-        .map(([name]) => name);
-      return [...openFilters, ...openFiltersNotYetInState];
-    });
-  }, [filters]);
-
+  const filtersProps = useFiltersProps({ filtersDefinition, filters });
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   return (
@@ -194,14 +135,7 @@ export const MembershipListFilter = ({
           </>
         ) : null}
 
-        <FilterChooser
-          filters={filters}
-          openFilters={openFilters}
-          label={t("common.filters")}
-          onAddFilter={filter => setOpenFilters(openFilters => [...openFilters, filter])}
-          availableFilters={availableFilters}
-          large={large}
-        />
+        <FilterChooser {...filtersProps.chooser} large={large} />
 
         {large ? (
           <>
@@ -238,14 +172,7 @@ export const MembershipListFilter = ({
       </Box>
 
       <Space height={12} />
-
-      <FiltersStack
-        definition={filtersDefinition}
-        filters={filters}
-        openedFilters={openFilters}
-        onChangeFilters={onChangeFilters}
-        onChangeOpened={setOpenFilters}
-      />
+      <FiltersStack {...filtersProps.stack} onChangeFilters={onChangeFilters} />
     </>
   );
 };

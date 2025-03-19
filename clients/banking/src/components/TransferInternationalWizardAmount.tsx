@@ -144,7 +144,7 @@ export const TransferInternationalWizardAmount = ({
         rate: quote.exchangeRate,
         total: quote.sourceAmount as Amount,
         out: {
-          value: `${parseFloat(quote.feesAmount.value) + parseFloat(quote.sourceAmount.value)}`,
+          value: `${Number.parseFloat(quote.feesAmount.value) + Number.parseFloat(quote.sourceAmount.value)}`,
           currency: quote.sourceAmount.currency,
         } as Amount,
       }),
@@ -362,7 +362,7 @@ const QuoteDetails = ({
       <LakeText color={colors.gray[700]} variant="smallRegular">
         {formatNestedMessage("transfer.new.internationalTransfer.amount.converted", {
           amount: formatCurrency(
-            parseFloat(quote.feesAmount.value) + parseFloat(quote.sourceAmount.value),
+            Number.parseFloat(quote.feesAmount.value) + Number.parseFloat(quote.sourceAmount.value),
             quote.sourceAmount.currency,
           ),
           colored: str => (

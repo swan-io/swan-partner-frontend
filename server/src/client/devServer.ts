@@ -1,18 +1,27 @@
 import fastProxy from "fast-proxy";
-import { FastifyInstance, RouteHandlerMethod } from "fastify";
+import { RouteHandlerMethod } from "fastify";
 import fs from "node:fs";
 import http, { IncomingMessage, ServerResponse } from "node:http";
 import { Http2SecureServer } from "node:http2";
 import https from "node:https";
 import path from "pathe";
 import { env } from "../env";
+import { FastifySecureInstance } from "../types";
 
 export type HttpsConfig = {
   key: string;
   cert: string;
 };
 
-async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
+const BANKING_HOST = new URL(env.BANKING_URL).hostname;
+const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
+const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
+
+const apps = ["onboarding", "banking", "payment"] as const;
+
+type AppName = (typeof apps)[number];
+
+async function createViteDevServer(appName: AppName, httpsConfig?: HttpsConfig) {
   const liveReloadServer =
     httpsConfig != null ? https.createServer(httpsConfig) : http.createServer();
   const { createServer } = await import("vite");
@@ -38,16 +47,7 @@ async function createViteDevServer(appName: string, httpsConfig?: HttpsConfig) {
   return { mainServerPort, liveReloadServerPort };
 }
 
-const apps = ["onboarding", "banking", "payment"] as const;
-
-const BANKING_HOST = new URL(env.BANKING_URL).hostname;
-const ONBOARDING_HOST = new URL(env.ONBOARDING_URL).hostname;
-const PAYMENT_HOST = new URL(env.PAYMENT_URL).hostname;
-
-export async function startDevServer(
-  app: FastifyInstance<Http2SecureServer>,
-  httpsConfig?: HttpsConfig,
-) {
+export async function startDevServer(app: FastifySecureInstance, httpsConfig?: HttpsConfig) {
   const [onboarding, webBanking, payment] = await Promise.all(
     apps.map(app => {
       return createViteDevServer(

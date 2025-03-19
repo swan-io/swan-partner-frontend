@@ -4,7 +4,7 @@
   "error.pageNotFound": "Página no encontrada",
   "form.invalidField": "Campo no válido",
   "paymentLink.addressLine1": "Dirección",
-  "paymentLink.alert": "Ten en cuenta que esta es una página de pruebas y no es posible realizar pagos de prueba en esta página. En su lugar, utiliza las simulaciones de comerciantes en la API Explorer.",
+  "paymentLink.alert": "Esta página es un entorno de pruebas (sandbox), por lo que no es posible realizar pagos de prueba desde aquí. En su lugar, utiliza las simulaciones para comerciantes en el explorador de API.",
   "paymentLink.button.downloadMandate": "Descargar mandato",
   "paymentLink.button.returnToWebsite": "Volver al sitio web",
   "paymentLink.card.cardNumber": "Número de tarjeta",

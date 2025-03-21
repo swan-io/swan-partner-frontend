@@ -1415,7 +1415,7 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         __typename: "PhysicalCardRenewedStatusInfo",
-                        trackingNumber: P.string,
+                        trackingNumber: P.intersection(P.nonNullable, P.not("")),
                         shippingProvider: P.string,
                       },
                       ({ trackingNumber, shippingProvider, address }) => {
@@ -1473,7 +1473,7 @@ export const CardItemPhysicalDetails = ({
                     .with(
                       {
                         __typename: "PhysicalCardToActivateStatusInfo",
-                        trackingNumber: P.string,
+                        trackingNumber: P.intersection(P.nonNullable, P.not("")),
                         shippingProvider: P.string,
                       },
                       ({ trackingNumber, shippingProvider, address }) => (

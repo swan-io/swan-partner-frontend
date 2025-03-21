@@ -31,12 +31,14 @@ export const replyWithError = (
       const error = app.httpErrors.getHttpError(status);
 
       return reply
+        .header("cache-control", "private, max-age=0")
         .type("application/json")
         .status(status)
         .send({ ...error, requestId });
     })
     .otherwise(() => {
       return reply
+        .header("cache-control", "private, max-age=0")
         .type("text/html")
         .status(status)
         .send(errorTemplate.replaceAll("{{REQUEST_ID}}", escapeHtml(requestId)));

@@ -1249,7 +1249,7 @@
   "transfer.bulk.amount": "Importe",
   "transfer.bulk.beneficiaryName": "Nombre del beneficiario",
   "transfer.bulk.file": "Archivo",
-  "transfer.bulk.help.description": "Un archivo CSV (valores separados por comas) es un archivo de texto cuyo formato específico permite guardar datos en un formato de tabla estructurado.\n\nDeberás añadir información como: nombre del beneficiario, IBAN, etiqueta, monto, referencia.",
+  "transfer.bulk.help.description": "Un archivo CSV (valores separados por comas) es un archivo de texto que tiene un formato específico que permite que los datos se guarden en un formato estructurado de tabla.\n\nDeberás añadir información como: Nombre del beneficiario, IBAN, Etiqueta (máx. 140 caracteres), Importe, Referencia. Asegúrate de mantener la primera línea de la plantilla como encabezado.",
   "transfer.bulk.help.downloadTemplate": "Descargar una plantilla",
   "transfer.bulk.help.title": "¿Qué información proporcionar?",
   "transfer.bulk.iban": "IBAN",

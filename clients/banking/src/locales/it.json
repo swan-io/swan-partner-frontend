@@ -1249,7 +1249,7 @@
   "transfer.bulk.amount": "Importo",
   "transfer.bulk.beneficiaryName": "Nome del beneficiario",
   "transfer.bulk.file": "File",
-  "transfer.bulk.help.description": "Un file CSV (valori separati da virgola) è un file di testo con un formato specifico che consente di salvare i dati in un formato strutturato a tabella.\n\nOccorre aggiungere informazioni come: Nome del beneficiario, IBAN, Etichetta, Importo, Riferimento.",
+  "transfer.bulk.help.description": "Un file CSV (valori separati da virgola) è un file di testo con un formato specifico che consente di salvare i dati in una struttura tabellare.\n\nDovrai aggiungere informazioni come: Nome del beneficiario, IBAN, Etichetta (massimo 140 caratteri), Importo, Riferimento. Assicurati di mantenere la prima riga del modello come intestazione.",
   "transfer.bulk.help.downloadTemplate": "Scarica un modello",
   "transfer.bulk.help.title": "Quali informazioni fornire?",
   "transfer.bulk.iban": "IBAN",

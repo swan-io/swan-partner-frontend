@@ -1249,7 +1249,7 @@
   "transfer.bulk.amount": "Betrag",
   "transfer.bulk.beneficiaryName": "Name des Empfängers",
   "transfer.bulk.file": "Datei",
-  "transfer.bulk.help.description": "Eine CSV (durch Kommas getrennte Werte) Datei ist eine Textdatei mit einem spezifischen Format, das es ermöglicht, Daten in tabellarischer Struktur zu speichern.\n\nSie müssen Informationen wie: Empfängername, IBAN, Label, Betrag, Verweis hinzufügen.",
+  "transfer.bulk.help.description": "Eine CSV (durch Kommas getrennte Werte) Datei ist eine Textdatei mit einem spezifischen Format, das es ermöglicht, Daten in einem tabellarischen Format zu speichern.\n\nSie müssen Informationen wie: Empfängername, IBAN, Label (max. 140 Zeichen), Betrag, Referenz hinzufügen. Achten Sie darauf, die erste Zeile aus der Vorlage als Kopfzeile beizubehalten.",
   "transfer.bulk.help.downloadTemplate": "Eine Vorlage herunterladen",
   "transfer.bulk.help.title": "Welche Informationen müssen bereitgestellt werden?",
   "transfer.bulk.iban": "IBAN",

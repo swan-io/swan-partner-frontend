@@ -1249,7 +1249,7 @@
   "transfer.bulk.amount": "Summa",
   "transfer.bulk.beneficiaryName": "Vastaanottajan nimi",
   "transfer.bulk.file": "Tiedosto",
-  "transfer.bulk.help.description": "CSV (pilkulla erotettu arvo) -tiedosto on tietyssä muodossa oleva tekstitiedosto, joka mahdollistaa tietojen tallentamisen taulukkomuotoon.\n\nSinun tulee lisätä tietoja kuten: Vastaanottajan nimi, IBAN, Viesti, Summa, Viite. ",
+  "transfer.bulk.help.description": "CSV-tiedosto (pilkulla erotetut arvot) on tekstipohjainen tiedosto, jolla on tietty muoto, jonka avulla tiedot voidaan tallentaa taulukkomuotoon.\n\nSinun on lisättävä tietoja, kuten: Vastaanottajan nimi, IBAN, Tunniste (enintään 140 merkkiä), Summa, Viite. Ole tarkkana ja säilytä ensimmäinen rivi pohjana mallista.",
   "transfer.bulk.help.downloadTemplate": "Lataa malli",
   "transfer.bulk.help.title": "Mitä tietoja tarvitaan?",
   "transfer.bulk.iban": "IBAN",

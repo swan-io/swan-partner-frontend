@@ -1249,7 +1249,7 @@
   "transfer.bulk.amount": "Montant",
   "transfer.bulk.beneficiaryName": "Nom du bénéficiaire",
   "transfer.bulk.file": "Fichier",
-  "transfer.bulk.help.description": "Un fichier CSV (valeurs séparées par des virgules) est un fichier texte qui a un format spécifique permettant de sauvegarder des données sous forme de tableau structuré.\n\nVous devrez ajouter des informations telles que : Nom du bénéficiaire, IBAN, Libellé, Montant, Référence. ",
+  "transfer.bulk.help.description": "Un fichier CSV (valeurs séparées par des virgules) est un fichier texte qui a un format spécifique permettant de sauvegarder des données sous forme de tableau structuré.\n\nVous devrez ajouter des informations telles que : Nom du bénéficiaire, IBAN, Libellé (max. 140 caractères), Montant, Référence. Veillez à conserver la première ligne du modèle en tant qu'en-tête.",
   "transfer.bulk.help.downloadTemplate": "Télécharger un modèle",
   "transfer.bulk.help.title": "Quelles informations fournir ?",
   "transfer.bulk.iban": "IBAN",

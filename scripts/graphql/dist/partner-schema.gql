@@ -417,12 +417,10 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """Dutch account with a Dutch IBAN, starting with DU."""
+  """Dutch account with a Dutch IBAN, starting with NL."""
   NLD
 
-  """
-  Italian account with an Italian IBAN, starting with IT (Coming Soon, not supported yet).
-  """
+  """Italian account with an Italian IBAN, starting with IT."""
   ITA
 }
 
@@ -1013,12 +1011,6 @@ type AccountMembership {
 
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -1651,7 +1643,7 @@ input AddCardsInput {
   cardProductId: ID
 }
 
-union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection
+union AddCardsPayload = AddCardsSuccessPayload | AddingCardsToDifferentAccountsRejection | BadAccountStatusRejection | TooManyItemsRejection | AccountMembershipNotAllowedRejection | CardProductSuspendedRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | EnabledCardDesignNotFoundRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection
 
 type AddCardsSuccessPayload {
   """The newly created cards"""
@@ -3577,29 +3569,29 @@ type CardMerchantPayment implements MerchantPayment {
   billingAddress: Address
   threeDs: ThreeDS
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """COMING SOON"""
@@ -3806,6 +3798,13 @@ type CardProduct {
 
   """Card printing hub"""
   cardPrintingHub: CardPrintingHub
+
+  """
+  Card printing available shipping providers
+  
+  Not yet active - will be enabled in a future release
+  """
+  cardPrintingAvailableShippingProviders(shippingAddressCountry: CCA3!): [ShippingProvider!]!
 }
 
 union CardProductByIdResultPayload = CardProduct | CardProductNotFoundRejection | ForbiddenRejection
@@ -4630,7 +4629,7 @@ input ConfirmPhysicalCardRenewalInput {
   customOptions: PhysicalCardCustomOptionsInput
 }
 
-union ConfirmPhysicalCardRenewalPayload = ConfirmPhysicalCardRenewalSuccessPayload | ForbiddenRejection | CardNotFoundRejection | ValidationRejection | PhysicalCardWrongStatusRejection
+union ConfirmPhysicalCardRenewalPayload = ConfirmPhysicalCardRenewalSuccessPayload | ForbiddenRejection | CardNotFoundRejection | ValidationRejection | PhysicalCardWrongStatusRejection | InvalidShippingProviderRejection
 
 type ConfirmPhysicalCardRenewalSuccessPayload {
   """Physical card has been updated"""
@@ -5009,10 +5008,9 @@ input CreateMerchantPaymentLinkInput {
 
   """
   List of payment methods enabled for this payment link.
-  If the array is empty, Swan will allow all the payment methods that are enabled for the merchant profile (except for Check and Internal Direct Debit)
   If you want to make payment possible via SEPA Direct Debit, the list should be populated either by a SEPA Direct Debit CORE or B2B.
   """
-  paymentMethodIds: [String!]
+  paymentMethodIds: [String!]!
 }
 
 union CreateMerchantPaymentLinkPayload = CreateMerchantPaymentLinkSuccessPayload | MerchantProfileWrongStatusRejection | MerchantPaymentMethodNotActiveRejection | PaymentMethodNotCompatibleRejection | InternalErrorRejection | ForbiddenRejection | ValidationRejection
@@ -5168,6 +5166,11 @@ Rejection returned when the Debtor does not belong to the same project as the cr
 """
 type DebtorAccountNotAllowedRejection implements Rejection {
   message: String!
+}
+
+"""if value is not set, the existing value will be erased"""
+input DeletablePaymentFrequency {
+  value: MerchantProfilePaymentFrequency
 }
 
 """Input for the `deleteExportFile` mutation."""
@@ -5855,6 +5858,26 @@ type Export {
   createdAt: DateTime!
 }
 
+"""Input filters for the `exportAccount` mutation."""
+input ExportAccountDataFilters {
+  """Possible values for account status."""
+  status: [AccountStatus!]
+
+  """Possible payment level type."""
+  paymentLevels: [PaymentLevelType!]
+}
+
+"""Input for the `exportAccount` mutation."""
+input ExportAccountDataInput {
+  """
+  The email address that will receive a notification when the export is completed.
+  """
+  email: String!
+
+  """Account filters"""
+  filters: ExportAccountDataFilters
+}
+
 """Input filters for the `exportAccountHolder` mutation."""
 input ExportAccountHolderDataFilters {
   """Possible values for account holder verification status."""
@@ -6006,6 +6029,7 @@ enum ExportType {
   Users
   Onboardings
   AccountHolders
+  Accounts
 }
 
 """Input for the `exportUserData` mutation."""
@@ -9365,6 +9389,13 @@ type InvalidPhoneNumberRejection implements Rejection {
   message: String!
 }
 
+"""
+Rejection returned when the provided shipping provider is not compatible with the card printing hub and shipping country
+"""
+type InvalidShippingProviderRejection implements Rejection {
+  message: String!
+}
+
 """Rejection returned if siren number is not well formatted"""
 type InvalidSirenNumberRejection implements Rejection {
   message: String!
@@ -10115,47 +10146,68 @@ interface MerchantPayment {
   """The billing address associated to the payment"""
   billingAddress: Address
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """Merchant Payment status authorized"""
 type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
 }
 
-"""Merchant Payment status initiated"""
+"""Merchant Payment status canceled"""
 type MerchantPaymentCanceled implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Canceled date"""
+  canceledAt: DateTime!
 }
 
 """Merchant Payment status captured"""
 type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
 }
 
 """
@@ -10176,6 +10228,18 @@ type MerchantPaymentConnection implements Connection {
 type MerchantPaymentDisputed implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
 }
 
 """Implements the Relay Edge interface"""
@@ -10223,6 +10287,9 @@ input MerchantPaymentFiltersInput {
 type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLink {
@@ -10492,6 +10559,18 @@ input MerchantPaymentOrderByInput {
 type MerchantPaymentPartiallyDisputed implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
 }
 
 """Merchant Payment status rejected"""
@@ -10500,10 +10579,13 @@ type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 
   """rejected reason"""
-  reason: String! @deprecated(reason: "Use rejectedReasonCode instead")
-
-  """rejected reason"""
   rejectedReasonCode: MerchantPaymentRejectedReason!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Rejected date"""
+  rejectedAt: DateTime!
 }
 
 enum MerchantPaymentRejectedReason {
@@ -10560,6 +10642,9 @@ enum MerchantPaymentStatus {
 interface MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 """Merchant Profile"""
@@ -10587,6 +10672,9 @@ type MerchantProfile {
 
   """Expected annual activity volumes for all payment method"""
   expectedMonthlyPaymentVolume: Amount!
+
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
 
   """Url of the merchant's logo"""
   merchantLogoUrl: String
@@ -11243,6 +11331,13 @@ type Mutation {
   exportAccountHolderData(input: ExportAccountHolderDataInput!): ExportDataPayload
 
   """
+  Export all accounts of a project.
+  
+  NB: This mutation only starts an asynchronous process and returns its identifier.
+  """
+  exportAccountData(input: ExportAccountDataInput!): ExportDataPayload
+
+  """
   Export all onboardings of a project.
   
   NB: This mutation only starts an asynchronous process and returns its identifier.
@@ -11885,12 +11980,6 @@ type Onboarding {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -12096,12 +12185,6 @@ type OnboardingInfo {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -12451,6 +12534,11 @@ enum PaymentLevel {
   """
   When the account holder is fully verified and then the account is unlimited with an IBAN
   """
+  Unlimited
+}
+
+enum PaymentLevelType {
+  Limited
   Unlimited
 }
 
@@ -12984,6 +13072,9 @@ type PhysicalCardCustomOptions {
 
   """Custom cardholder name"""
   customCardHolderName: String
+
+  """Chosen shipping provider"""
+  chosenShippingProvider: String
 }
 
 input PhysicalCardCustomOptionsForGroupDeliveryInput {
@@ -13014,6 +13105,13 @@ input PhysicalCardCustomOptionsForPrintInput {
 
   """Alternative printed card owner."""
   customCardHolderName: String
+
+  """
+  The shipping provider used to deliver the card
+  
+  Not yet active - will be enabled in a future release
+  """
+  shippingProvider: ShippingProvider
 }
 
 input PhysicalCardCustomOptionsInput {
@@ -13029,6 +13127,13 @@ input PhysicalCardCustomOptionsInput {
 
   """Alternative printed card owner."""
   customCardHolderName: String
+
+  """
+  The shipping provider used to deliver the card
+  
+  Not yet active - will be enabled in a future release
+  """
+  shippingProvider: ShippingProvider
 }
 
 """Rejection returned when the Physical Card does not exist"""
@@ -13203,7 +13308,7 @@ input PrintPhysicalCardInput {
   physicalCardCustomOptions: PhysicalCardCustomOptionsForPrintInput
 }
 
-union PrintPhysicalCardPayload = PrintPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | AlreadyValidPhysicalCardRejection | BadAccountStatusRejection | BadRequestRejection | CardNotFoundRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | MissingMandatoryFieldRejection | ValidationRejection
+union PrintPhysicalCardPayload = PrintPhysicalCardSuccessPayload | AccountMembershipNotAllowedRejection | AlreadyValidPhysicalCardRejection | BadAccountStatusRejection | BadRequestRejection | CardNotFoundRejection | CardProductNotApplicableToPhysicalCardsRejection | CardProductDisabledRejection | MissingMandatoryFieldRejection | ValidationRejection | InvalidShippingProviderRejection
 
 type PrintPhysicalCardSuccessPayload {
   """The physicalCard created"""
@@ -14632,6 +14737,9 @@ type RemoveWebhookSubscriptionSuccessPayload {
 input ReplayWebhookEventInput {
   """The ID of a webhook Event"""
   webhookEventId: ID!
+
+  """The ID of the subscription you want the webhook event to be retried on"""
+  subscriptionId: ID
 }
 
 """Invoke Webhook Endpoint Payload"""
@@ -14789,7 +14897,7 @@ type RequestMerchantProfileUpdate {
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
-  merchantName: String!
+  merchantName: String
 
   """Url of the merchant's website"""
   merchantWebsite: String
@@ -14803,13 +14911,13 @@ type RequestMerchantProfileUpdate {
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
-  productType: ProductType!
+  productType: ProductType
 
   """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount!
+  expectedMonthlyPaymentVolume: Amount
 
   """expected average basket value."""
-  expectedAverageBasket: Amount!
+  expectedAverageBasket: Amount
 
   """created date"""
   createdAt: DateTime!
@@ -14827,16 +14935,28 @@ input RequestMerchantProfileUpdateInput {
   """
   accentColor: String
 
-  """Where the payer are generally based."""
+  """
+  Where the payer are generally based.
+  Don't add the field to the mutation if you want to keep the existing value.
+  """
   customerRegion: MerchantProfileCustomerRegion
 
-  """expected average basket value."""
+  """
+  expected average basket value.
+  Don't add the field to the mutation if you want to keep the existing value.
+  """
   expectedAverageBasket: AmountInput
 
-  """Expected annual activity volumes for all payment methods."""
+  """
+  Expected annual activity volumes for all payment methods.
+  Don't add the field to the mutation if you want to keep the existing value.
+  """
   expectedMonthlyPaymentVolume: AmountInput
 
-  """A PDF of an example typical invoice issued by the merchant."""
+  """
+  A PDF of an example typical invoice issued by the merchant.
+  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
+  """
   invoiceExample: String
 
   """
@@ -14846,7 +14966,8 @@ input RequestMerchantProfileUpdateInput {
   merchantLogo: String
 
   """
-  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
+  Business name of the merchant, i.e. name that will be displayed on debtors' bank statements.
+  Don't add the field to the mutation if you want to keep the existing value.
   """
   merchantName: String
 
@@ -14861,21 +14982,32 @@ input RequestMerchantProfileUpdateInput {
 
   """
   The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  Don't add the field to the mutation if you want to keep the existing value.
   """
   paymentFrequency: MerchantProfilePaymentFrequency
 
   """
-  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
+  Type of product sold. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities.
+  Don't add the field to the mutation if you want to keep the existing value.
   """
   productType: ProductType
 
-  """The URL of the main social network of the merchant."""
+  """
+  The URL of the main social network of the merchant.
+  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
+  """
   socialNetwork: String
 
-  """The URL of the support website or help center of the merchant."""
+  """
+  The URL of the support website or help center of the merchant.
+  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
+  """
   supportWebsite: String
 
-  """The URL of the terms and conditions of the merchant."""
+  """
+  The URL of the terms and conditions of the merchant.
+  Use '' to delete the field. Don't add the field to the mutation if you want to keep the existing value.
+  """
   termsAndConditions: String
 }
 
@@ -15750,29 +15882,29 @@ type SepaDirectDebitMerchantPayment implements MerchantPayment {
   """The billing address associated to the payment"""
   billingAddress: Address
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """Sepa Direct Debit Creditor for Outgoing transaction"""
@@ -16361,6 +16493,15 @@ enum ShareholderType {
 
   """Company shareholder type."""
   Company
+}
+
+enum ShippingProvider {
+  LaPosteTracked
+  LaPosteUntracked
+  CorreosTracked
+  CorreosUntracked
+  DHL
+  NACEX
 }
 
 """Signature data used during apple pay inApp provisioning"""

@@ -68,6 +68,10 @@ fragment TransactionDetails on Transaction {
       currency
       value
     }
+    reservedAmount {
+      currency
+      value
+    }
     reservedAmountReleasedAt
     cardDetails @include(if: $canQueryCardOnTransaction) {
       ... on CardOutDetails {

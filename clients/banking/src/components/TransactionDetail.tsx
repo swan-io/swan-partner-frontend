@@ -441,10 +441,17 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
                   { __typename: "CardTransaction" },
                   {
                     cardDetails: {
-                      __typename: "CardOutDetails",
+                      __typename: P.union("CardOutDetails", "CardInDetails"),
                     },
                   },
-                  ({ cardDetails, payment, enrichedTransactionInfo, statusInfo: { status } }) => {
+                  ({
+                    cardDetails,
+                    payment,
+                    enrichedTransactionInfo,
+                    statusInfo: { status },
+                    reservedAmountReleasedAt,
+                    reservedAmount,
+                  }) => {
                     return (
                       <ReadOnlyFieldList>
                         {isNotNullish(payment) && (status === "Booked" || status === "Pending") && (
@@ -479,6 +486,25 @@ export const TransactionDetail = ({ accountMembershipId, transactionId, large }:
                           text={t("transactions.method.Card")}
                           icon="payment-regular"
                         />
+                        {cardDetails?.__typename === "CardInDetails" &&
+                          isNotNullishOrEmpty(reservedAmountReleasedAt) && (
+                            <ReadOnlyFieldList>
+                              <DetailLine
+                                label={t("transaction.reservedUntil")}
+                                text={formatDateTime(reservedAmountReleasedAt, "LLL")}
+                                icon="calendar-ltr-regular"
+                              />
+                              {isNotNullish(reservedAmount) && (
+                                <DetailLine
+                                  label={t("transaction.reservedAmount")}
+                                  text={formatCurrency(
+                                    Number(reservedAmount.value),
+                                    reservedAmount.currency,
+                                  )}
+                                />
+                              )}
+                            </ReadOnlyFieldList>
+                          )}
 
                         {match(enrichedTransactionInfo)
                           .with({ isSubscription: P.select(P.boolean) }, isSubscription => (

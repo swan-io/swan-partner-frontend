@@ -195,12 +195,10 @@ enum AccountCountry {
   """Spanish account with a Spanish IBAN, starting with ES."""
   ESP
 
-  """Dutch account with a Dutch IBAN, starting with DU."""
+  """Dutch account with a Dutch IBAN, starting with NL."""
   NLD
 
-  """
-  Italian account with an Italian IBAN, starting with IT (Coming Soon, not supported yet).
-  """
+  """Italian account with an Italian IBAN, starting with IT."""
   ITA
 }
 
@@ -737,12 +735,6 @@ type AccountMembership {
 
   """List of accepted identification level"""
   acceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  recommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """
   Indicate if the identity bound to the account membership has required identification level
@@ -1874,29 +1866,29 @@ type CardMerchantPayment implements MerchantPayment {
   billingAddress: Address
   threeDs: ThreeDS
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """COMING SOON"""
@@ -4434,7 +4426,7 @@ input MandateAmendment {
 
 """Banking fee which could add manually"""
 enum ManualBankingFee {
-  """Drafting a circulation letter for a legal entity holder"""
+  """Drafting a circularization letter for a legal entity holder"""
   CirculationLetterDraftingFee
 
   """Drafting a confirmation letter for a legal entity holder"""
@@ -4622,47 +4614,68 @@ interface MerchantPayment {
   """The billing address associated to the payment"""
   billingAddress: Address
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 """Merchant Payment status authorized"""
 type MerchantPaymentAuthorized implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
 }
 
-"""Merchant Payment status initiated"""
+"""Merchant Payment status canceled"""
 type MerchantPaymentCanceled implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Canceled date"""
+  canceledAt: DateTime!
 }
 
 """Merchant Payment status captured"""
 type MerchantPaymentCaptured implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
 }
 
 """
@@ -4683,6 +4696,18 @@ type MerchantPaymentConnection implements Connection {
 type MerchantPaymentDisputed implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
 }
 
 """Implements the Relay Edge interface"""
@@ -4730,6 +4755,9 @@ input MerchantPaymentFiltersInput {
 type MerchantPaymentInitiated implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 type MerchantPaymentLink {
@@ -5001,6 +5029,18 @@ input MerchantPaymentOrderByInput {
 type MerchantPaymentPartiallyDisputed implements MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Authorized date"""
+  authorizedAt: DateTime!
+
+  """Captured date"""
+  capturedAt: DateTime!
+
+  """Disputed date"""
+  disputedAt: DateTime!
 }
 
 """Merchant Payment status rejected"""
@@ -5009,10 +5049,13 @@ type MerchantPaymentRejected implements MerchantPaymentStatusInfo {
   status: MerchantPaymentStatus!
 
   """rejected reason"""
-  reason: String! @deprecated(reason: "Use rejectedReasonCode instead")
-
-  """rejected reason"""
   rejectedReasonCode: MerchantPaymentRejectedReason!
+
+  """Created date"""
+  createdAt: DateTime!
+
+  """Rejected date"""
+  rejectedAt: DateTime!
 }
 
 enum MerchantPaymentRejectedReason {
@@ -5069,6 +5112,9 @@ enum MerchantPaymentStatus {
 interface MerchantPaymentStatusInfo {
   """status of the merchant payment"""
   status: MerchantPaymentStatus!
+
+  """Created date"""
+  createdAt: DateTime!
 }
 
 """Merchant Profile"""
@@ -5096,6 +5142,9 @@ type MerchantProfile {
 
   """The Merchant Profile ID"""
   id: ID!
+
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
 
   """Url of the merchant's logo"""
   merchantLogoUrl: String
@@ -5189,6 +5238,10 @@ enum MerchantProfileCustomerRegion {
   Domestic
   European
   International
+}
+
+type MerchantProfileNotValidRejection implements Rejection {
+  message: String!
 }
 
 enum MerchantProfilePaymentFrequency {
@@ -5763,12 +5816,6 @@ type Onboarding {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 }
 
 """The onboarding could be for an Individual or a company"""
@@ -5974,12 +6021,6 @@ type OnboardingInfo {
 
   """List of accepted identification level for the legal representative"""
   legalRepresentativeAcceptedIdentificationLevels: [IdentificationLevel]!
-
-  """
-  Recommended identification level for the legal representative
-  @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
-  """
-  legalRepresentativeRecommendedIdentificationLevel: IdentificationLevel! @deprecated(reason: "Please use the `identificationLevel=Auto` query parameter when building your Swan OAuth2 URLs. [announcement](https://docs.swan.io/changelog/28-november-2024/)")
 
   """Swan TCU URL"""
   tcuUrl: String!
@@ -6544,6 +6585,9 @@ type PhysicalCardCustomOptions {
 
   """Custom cardholder name"""
   customCardHolderName: String
+
+  """Chosen shipping provider"""
+  chosenShippingProvider: String
 }
 
 """when the physical card is in the process of being ready to use"""
@@ -7178,7 +7222,7 @@ type RequestMerchantProfileUpdate {
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
-  merchantName: String!
+  merchantName: String
 
   """Url of the merchant's website"""
   merchantWebsite: String
@@ -7192,13 +7236,13 @@ type RequestMerchantProfileUpdate {
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
-  productType: ProductType!
+  productType: ProductType
 
   """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount!
+  expectedMonthlyPaymentVolume: Amount
 
   """expected average basket value."""
-  expectedAverageBasket: Amount!
+  expectedAverageBasket: Amount
 
   """created date"""
   createdAt: DateTime!
@@ -7733,29 +7777,29 @@ type SepaDirectDebitMerchantPayment implements MerchantPayment {
   """The billing address associated to the payment"""
   billingAddress: Address
 
-  """Created date"""
-  createdAt: DateTime!
-
   """Updated date"""
   updatedAt: DateTime!
 
+  """Created date"""
+  createdAt: DateTime @deprecated(reason: "use createdAt in statusInfo instead")
+
   """Authorized date"""
-  authorizedAt: DateTime
+  authorizedAt: DateTime @deprecated(reason: "use authorizedAt in statusInfo instead")
 
   """Canceled date"""
-  canceledAt: DateTime
+  canceledAt: DateTime @deprecated(reason: "use canceledAt in statusInfo instead")
 
   """Captured date"""
-  capturedAt: DateTime
+  capturedAt: DateTime @deprecated(reason: "use capturedAt in statusInfo instead")
 
   """Rejected date"""
-  rejectedAt: DateTime
+  rejectedAt: DateTime @deprecated(reason: "use rejectedAt in statusInfo instead")
 
   """Refunded date"""
-  refundedAt: DateTime
+  refundedAt: DateTime @deprecated(reason: "use refundedAt in statusInfo instead")
 
   """Disputed date"""
-  disputedAt: DateTime
+  disputedAt: DateTime @deprecated(reason: "use disputedAt in statusInfo instead")
 }
 
 type SepaDirectDebitPaymentMethodUpdateRequest implements MerchantPaymentMethodUpdateRequest {
@@ -10071,6 +10115,9 @@ type ThreeDsConsent implements DetailedConsent {
   amount: AmountWithCurrency!
   challenge: String
   channelName: String
+
+  """the QR code in base64 representing the consent URL"""
+  qrCodeBase64: String
 }
 
 enum ThreeDsStatus {

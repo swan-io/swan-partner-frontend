@@ -53,6 +53,7 @@ import { Router } from "../utils/routes";
 import {
   validateArrayRequired,
   validateNumeric,
+  validateReference,
   validateRequired,
   validateUrl,
 } from "../utils/validations";
@@ -275,6 +276,7 @@ export const MerchantProfilePaymentLinkNew = ({
     reference: {
       initialValue: "",
       sanitize: trim,
+      validate: validateReference,
     },
     externalReference: {
       initialValue: "",

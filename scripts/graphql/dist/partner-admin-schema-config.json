@@ -98,6 +98,7 @@
       "MerchantCardPaymentDeclinedRejection",
       "MerchantPaymentMethodNotActiveRejection",
       "MerchantPaymentMethodWrongStatusRejection",
+      "MerchantProfileNotValidRejection",
       "MerchantProfileWrongStatusRejection",
       "NationalityNotFoundRejection",
       "NotFoundRejection",
@@ -174,6 +175,10 @@
       "CapitalDepositDocumentRefusedStatusInfo",
       "CapitalDepositDocumentUploadedStatusInfo",
       "CapitalDepositDocumentValidatedStatusInfo"
+    ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
     ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
@@ -264,8 +269,11 @@
     ],
     "MerchantPaymentStatusInfo": [
       "MerchantPaymentAuthorized",
+      "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentDisputed",
       "MerchantPaymentInitiated",
+      "MerchantPaymentPartiallyDisputed",
       "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [

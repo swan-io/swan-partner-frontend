@@ -96,14 +96,14 @@ export const MerchantProfileEditor = forwardRef<MerchantProfileEditorRef, Props>
       },
       expectedMonthlyPaymentVolume: {
         initialValue:
-          merchantProfile?.requestMerchantProfileUpdate?.expectedMonthlyPaymentVolume.value ??
+          merchantProfile?.requestMerchantProfileUpdate?.expectedMonthlyPaymentVolume?.value ??
           merchantProfile?.expectedMonthlyPaymentVolume.value ??
           "",
         validate: validateNumeric({ min: 0 }),
       },
       expectedAverageBasket: {
         initialValue:
-          merchantProfile?.requestMerchantProfileUpdate?.expectedAverageBasket.value ??
+          merchantProfile?.requestMerchantProfileUpdate?.expectedAverageBasket?.value ??
           merchantProfile?.expectedAverageBasket.value ??
           "",
         validate: validateNumeric({ min: 0 }),

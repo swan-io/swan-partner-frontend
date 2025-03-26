@@ -85,6 +85,7 @@
       "InternalErrorRejection",
       "InvalidArgumentRejection",
       "InvalidPhoneNumberRejection",
+      "InvalidShippingProviderRejection",
       "InvalidSirenNumberRejection",
       "LegalRepresentativeAccountMembershipCannotBeDisabledRejection",
       "LegalRepresentativeAccountMembershipCannotBeSuspendedRejection",
@@ -159,6 +160,10 @@
       "CardEnabledStatusInfo",
       "CardProcessingStatusInfo"
     ],
+    "MerchantPayment": [
+      "CardMerchantPayment",
+      "SepaDirectDebitMerchantPayment"
+    ],
     "MerchantPaymentMethod": [
       "CardMerchantPaymentMethod",
       "CheckMerchantPaymentMethod",
@@ -216,8 +221,11 @@
     ],
     "MerchantPaymentStatusInfo": [
       "MerchantPaymentAuthorized",
+      "MerchantPaymentCanceled",
       "MerchantPaymentCaptured",
+      "MerchantPaymentDisputed",
       "MerchantPaymentInitiated",
+      "MerchantPaymentPartiallyDisputed",
       "MerchantPaymentRejected"
     ],
     "OnboardingAccountHolderInfo": [

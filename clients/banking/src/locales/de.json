@@ -419,6 +419,7 @@
   "common.form.invalidName": "Ungültiger Name",
   "common.form.invalidPhoneNumber": "Ungültige Telefonnummer",
   "common.form.invalidRLMC": "Ungültiger RLMC",
+  "common.form.invalidReference": "Die maximale Länge beträgt 35 Zeichen und darf nur alphanumerische Zeichen oder -?.+,/'() enthalten.",
   "common.form.invalidTaxIdentificationNumber": "Ungültige Steuer-Identifikationsnummer",
   "common.form.invalidTime": "Ungültige Uhrzeit",
   "common.form.invalidTransferReference": "Kann bis zu 35 Zeichen enthalten, nur 0-9 und a-z.",

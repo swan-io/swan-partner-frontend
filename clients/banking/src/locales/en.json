@@ -422,7 +422,7 @@
   "common.form.invalidTaxIdentificationNumber": "Invalid tax identification number",
   "common.form.invalidTime": "Invalid time",
   "common.form.invalidTransferReference": "Can include up to 35 characters, 0-9 and a-z only.",
-  "common.form.invalidReference": "The maximum length is 35 characters and special characters can be only - ? . + , \/ ': ( ).",
+  "common.form.invalidReference": "The maximum length is 35 characters and only contain alphanumeric characters or -?.+,/'().",
   "common.form.invalidVatNumber": "Invalid VAT number",
   "common.form.number": "Invalid number",
   "common.form.number.lowerThan": "Should be lower or equals to {value}",

@@ -419,6 +419,7 @@
   "common.form.invalidName": "Ongeldige naam",
   "common.form.invalidPhoneNumber": "Dit telefoonnummer is ongeldig",
   "common.form.invalidRLMC": "Ongeldige RLMC",
+  "common.form.invalidReference": "De maximale lengte is 35 tekens en mag alleen alfanumerieke tekens of -?.+,/'() bevatten.",
   "common.form.invalidTaxIdentificationNumber": "Dit BTW-nummer is ongeldig",
   "common.form.invalidTime": "Deze tijd is ongeldig",
   "common.form.invalidTransferReference": "Kan maximaal 35 tekens bevatten, alleen 0-9 en a-z.",

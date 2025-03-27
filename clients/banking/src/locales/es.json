@@ -419,6 +419,7 @@
   "common.form.invalidName": "Nombre inválido",
   "common.form.invalidPhoneNumber": "Este número de teléfono no es válido",
   "common.form.invalidRLMC": "RLMC inválido",
+  "common.form.invalidReference": "La longitud máxima es de 35 caracteres y solo puede contener caracteres alfanuméricos o -?.+,/'().",
   "common.form.invalidTaxIdentificationNumber": "Este número de identificación fiscal no es válido",
   "common.form.invalidTime": "Esta hora no es válida",
   "common.form.invalidTransferReference": "Puede contener hasta 35 caracteres, solo 0-9 y letras a-z.",

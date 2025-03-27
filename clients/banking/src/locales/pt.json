@@ -419,6 +419,7 @@
   "common.form.invalidName": "Nome inválido",
   "common.form.invalidPhoneNumber": "Este número de telemóvel é inválido",
   "common.form.invalidRLMC": "RLMC inválido",
+  "common.form.invalidReference": "O comprimento máximo é de 35 caracteres e só pode conter caracteres alfanuméricos ou -?.+,/'().",
   "common.form.invalidTaxIdentificationNumber": "Número de identificação fiscal inválido",
   "common.form.invalidTime": "Hora inválida",
   "common.form.invalidTransferReference": "Pode conter até 35 caracteres, apenas 0-9 e letras a-z.",

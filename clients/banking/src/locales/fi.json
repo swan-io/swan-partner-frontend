@@ -419,6 +419,7 @@
   "common.form.invalidName": "Nimi on väärässä muodossa",
   "common.form.invalidPhoneNumber": "Puhelinnumero on väärässä muodossa",
   "common.form.invalidRLMC": "Virheellinen RLMC",
+  "common.form.invalidReference": "Enimmäispituus on 35 merkkiä ja se voi sisältää vain aakkosnumeerisia merkkejä tai -?.+,/'().",
   "common.form.invalidTaxIdentificationNumber": "Verotunnistenumero on väärässä muodossa",
   "common.form.invalidTime": "Aika on väärässä muodossa",
   "common.form.invalidTransferReference": "Voi sisältää enintään 35 merkkiä, vain 0–9 ja a–z.",

@@ -29,6 +29,7 @@ import { useDebounce } from "@swan-io/lake/src/hooks/useDebounce";
 import { identity } from "@swan-io/lake/src/utils/function";
 import { filterRejectionsToResult } from "@swan-io/lake/src/utils/gql";
 import {
+  emptyToUndefined,
   isNotNullish,
   isNotNullishOrEmpty,
   nullishOrEmptyToUndefined,
@@ -52,6 +53,7 @@ import { Router } from "../utils/routes";
 import {
   validateArrayRequired,
   validateNumeric,
+  validateReference,
   validateRequired,
   validateUrl,
 } from "../utils/validations";
@@ -274,6 +276,7 @@ export const MerchantProfilePaymentLinkNew = ({
     reference: {
       initialValue: "",
       sanitize: trim,
+      validate: validateReference,
     },
     externalReference: {
       initialValue: "",
@@ -415,7 +418,7 @@ export const MerchantProfilePaymentLinkNew = ({
             input: {
               merchantProfileId,
               label,
-              reference,
+              reference: emptyToUndefined(reference),
               externalReference,
               amount: {
                 value: amount,

@@ -65,7 +65,7 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
     renderCell: ({ item }) => (
       <Cell>
         <LakeText align="right" variant="smallMedium" color={colors.gray[900]}>
-          {dayjs(item.createdAt).format("LLL")}
+          {dayjs(item.statusInfo.createdAt).format("LLL")}
         </LakeText>
       </Cell>
     ),
@@ -133,6 +133,15 @@ const columns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
           .with("Rejected", () => (
             <Tag color="negative"> {t("merchantProfile.payments.status.rejected")} </Tag>
           ))
+          .with("Disputed", () => (
+            <Tag color="sunglow"> {t("merchantProfile.payments.status.disputed")} </Tag>
+          ))
+          .with("PartiallyDisputed", () => (
+            <Tag color="sunglow"> {t("merchantProfile.payments.status.partiallyDisputed")} </Tag>
+          ))
+          .with("Canceled", () => (
+            <Tag color="gray"> {t("merchantProfile.payments.status.canceled")} </Tag>
+          ))
           .exhaustive()}
       </Cell>
     ),
@@ -194,6 +203,15 @@ const smallColumns: ColumnConfig<MerchantPaymentFragment, ExtraInfo>[] = [
           ))
           .with("Rejected", () => (
             <Tag color="negative"> {t("merchantProfile.payments.status.rejected")} </Tag>
+          ))
+          .with("Disputed", () => (
+            <Tag color="sunglow"> {t("merchantProfile.payments.status.disputed")} </Tag>
+          ))
+          .with("PartiallyDisputed", () => (
+            <Tag color="sunglow"> {t("merchantProfile.payments.status.partiallyDisputed")} </Tag>
+          ))
+          .with("Canceled", () => (
+            <Tag color="gray"> {t("merchantProfile.payments.status.canceled")} </Tag>
           ))
           .exhaustive()}
       </Cell>

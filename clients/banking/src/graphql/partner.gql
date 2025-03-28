@@ -2280,14 +2280,47 @@ fragment PaymentLink on MerchantPaymentLink {
   }
 }
 
-fragment MerchantPayment on CardMerchantPayment {
+fragment MerchantPayment on MerchantPayment {
   id
   label
-  createdAt
   __typename
   externalReference
   statusInfo {
     status
+    createdAt
+    ... on MerchantPaymentAuthorized {
+      createdAt
+      authorizedAt
+    }
+    ... on MerchantPaymentCanceled {
+      createdAt
+      canceledAt
+    }
+    ... on MerchantPaymentCaptured {
+      createdAt
+      authorizedAt
+      capturedAt
+    }
+    ... on MerchantPaymentDisputed {
+      createdAt
+      authorizedAt
+      capturedAt
+      disputedAt
+    }
+    ... on MerchantPaymentInitiated {
+      createdAt
+    }
+    ... on MerchantPaymentPartiallyDisputed {
+      createdAt
+      authorizedAt
+      capturedAt
+      disputedAt
+    }
+    ... on MerchantPaymentRejected {
+      rejectedReasonCode
+      createdAt
+      rejectedAt
+    }
   }
   amount {
     currency
@@ -2330,10 +2363,12 @@ fragment MerchantPayment on CardMerchantPayment {
     id
   }
   reference
-  threeDs {
-    requested
-    statusInfo {
-      status
+  ... on CardMerchantPayment {
+    threeDs {
+      requested
+      statusInfo {
+        status
+      }
     }
   }
 }

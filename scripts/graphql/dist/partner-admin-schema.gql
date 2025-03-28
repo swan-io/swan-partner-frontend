@@ -1901,6 +1901,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -1911,6 +1914,9 @@ type CardMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -2040,6 +2046,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -2050,6 +2059,9 @@ type CheckMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4039,6 +4051,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4049,6 +4064,9 @@ type InternalDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMetho
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4074,6 +4092,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -4084,6 +4105,9 @@ type InternalDirectDebitStandardMerchantPaymentMethod implements MerchantPayment
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -4935,6 +4959,9 @@ interface MerchantPaymentMethod {
   """
   id: ID!
 
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
+
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
@@ -4954,6 +4981,9 @@ interface MerchantPaymentMethod {
 
   """Rolling Reserve applied to the Merchant Payment Method"""
   rollingReserve: RollingReserve
+
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
 }
 
 """The different rejection reasons for a CardMerchantPaymentMethod"""
@@ -7213,39 +7243,59 @@ type ReportDocumentFile implements DocumentFile {
 
 """Request Update Merchant Profile"""
 type RequestMerchantProfileUpdate {
+  """created date"""
+  createdAt: DateTime!
+
+  """Where the payer are generally based."""
+  customerRegion: MerchantProfileCustomerRegion
+
+  """expected average basket value."""
+  expectedAverageBasket: Amount
+
+  """Expected annual activity volumes for all payment method"""
+  expectedMonthlyPaymentVolume: Amount
+
   """The Request ID"""
   id: ID!
 
-  """The Merchant Profile ID to update"""
-  merchantProfileId: ID!
+  """Url of an example typical invoice issued by the merchant."""
+  invoiceExampleUrl: String
+
+  """Url of the merchant's logo"""
+  merchantLogoUrl: String
 
   """
   Business name of the merchant, i.e. name that will be displayed on debtors' bank statements
   """
   merchantName: String
 
+  """The Merchant Profile ID to update"""
+  merchantProfileId: ID!
+
   """Url of the merchant's website"""
   merchantWebsite: String
 
-  """Url of the merchant's logo"""
-  merchantLogoUrl: String
-
-  """The status of the request"""
-  status: RequestMerchantProfileUpdateStatus!
+  """
+  The type of payments accepted by the merchant. Can be OneOff (no returning payers in general), Recurrent (returning payers), or a mix of both OneOffAndRecurrent.
+  """
+  paymentFrequency: MerchantProfilePaymentFrequency
 
   """
   Type of product sold. List of value: Goods, Services, VirtualGoods, GiftsAndDonations. Gifts and donations can be club subscription or collection of donations (for associations), tips collection, contributions for local authorities
   """
   productType: ProductType
 
-  """Expected annual activity volumes for all payment method"""
-  expectedMonthlyPaymentVolume: Amount
+  """The URL of the main social network of the merchant."""
+  socialNetwork: String
 
-  """expected average basket value."""
-  expectedAverageBasket: Amount
+  """The status of the request"""
+  status: RequestMerchantProfileUpdateStatus!
 
-  """created date"""
-  createdAt: DateTime!
+  """The URL of the support website or help center of the merchant."""
+  supportWebsite: String
+
+  """The URL of the terms and conditions of the merchant."""
+  termsAndConditions: String
 
   """updated date"""
   updatedAt: DateTime!
@@ -7656,6 +7706,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7666,6 +7719,9 @@ type SepaDirectDebitB2BMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!
@@ -7705,6 +7761,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
   """The Merchant Payment Method Type"""
   type: MerchantPaymentMethodType!
 
+  """Merchant Profile to which the Payment Method is attached"""
+  merchantProfile: MerchantProfile!
+
   """
   Unique identifier for a given merchant Payment Method, identical for every version of a given Merchant Payment Method Type
   """
@@ -7715,6 +7774,9 @@ type SepaDirectDebitCoreMerchantPaymentMethod implements MerchantPaymentMethod {
 
   """Version of the Merchant Payment Method"""
   version: Int!
+
+  """Date at which the Merchant Payment Method was created"""
+  createdAt: Date!
 
   """Date at which the Merchant Payment Method was last updated"""
   updatedAt: Date!

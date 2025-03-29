@@ -63,7 +63,7 @@ export type Member = AccountMembershipFragment;
 
 type Props = {
   initialMemberships?: Member[];
-  account: GetEligibleCardMembershipsQuery["account"];
+  accountMemberships: GetEligibleCardMembershipsQuery["accountMemberships"];
   style?: StyleProp<ViewStyle>;
   contentContainerStyle?: StyleProp<ViewStyle>;
   onSubmit: (currentMembers: Member[]) => void;
@@ -74,7 +74,14 @@ export type CardWizardMembersRef = { submit: () => void };
 
 export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
   (
-    { initialMemberships, account, style, contentContainerStyle, onSubmit, setAfter }: Props,
+    {
+      initialMemberships,
+      accountMemberships,
+      style,
+      contentContainerStyle,
+      onSubmit,
+      setAfter,
+    }: Props,
     ref,
   ) => {
     const [currentMembers, setCurrentMembers] = useState<Member[]>(() => initialMemberships ?? []);
@@ -96,9 +103,7 @@ export const CardWizardMembers = forwardRef<CardWizardMembersRef, Props>(
       [currentMembers],
     );
 
-    const connection = account?.memberships;
-
-    const memberships = useForwardPagination(connection);
+    const memberships = useForwardPagination(accountMemberships);
 
     const onScroll = useCallback(
       (event: NativeSyntheticEvent<NativeScrollEvent>) => {

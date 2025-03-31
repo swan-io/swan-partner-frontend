@@ -614,10 +614,6 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
               .otherwise(() => null)}
           </Box>
 
-          {/*
-          Let's hide the button for now, and we'll add it back
-          when the simulator API to validate an edit is available.
-
           <Fill minWidth={32} />
 
           <Box direction="row" alignItems="center">
@@ -632,7 +628,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
                 />
               ))
               .otherwise(() => null)}
-          </Box> */}
+          </Box>
         </Box>
 
         <Space height={24} />

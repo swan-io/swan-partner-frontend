@@ -86,9 +86,9 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
         onSuccess: values => {
 
           if (!values.selectedAddress.isSome() && getFieldValue("country") === "FRA") {
-            return 
+            return
           }
-          
+
           onSubmit({
             addressLine1: values.addressLine1.isSome() ? values.addressLine1.get() : "",
             addressLine2: values.addressLine2.isSome() ? values.addressLine2.get() : "",
@@ -130,7 +130,7 @@ export const CardWizardAddressForm = forwardRef<CardWizardAddressFormRef, Props>
       .then(response => {
         if (Array.isArray(response.data.result)) {
           // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
-          const filteredAddresses: { adresse: string; code: string; }[] = response.data.result.slice(0, 5);
+          const filteredAddresses: { adresse: string; code: string; }[] = response.data.result;
           setSuggestedAddresses(filteredAddresses);
           if(filteredAddresses.length > 0 && filteredAddresses[0]?.code !== undefined) {
             handleSelectAddress(filteredAddresses[0]?.code);          }

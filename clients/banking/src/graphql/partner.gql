@@ -2901,7 +2901,7 @@ mutation RequestMerchantProfileUpdate($input: RequestMerchantProfileUpdateInput!
   requestMerchantProfileUpdate(input: $input) {
     __typename
     ... on RequestMerchantProfileUpdateSuccessPayload {
-      requestMerchantProfileUpdate {
+      merchantProfile {
         id
       }
     }

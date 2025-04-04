@@ -14,16 +14,8 @@ import {
   useFiltersProps,
 } from "@swan-io/shared-business/src/components/Filters";
 import { ReactNode, useState } from "react";
-import { StyleSheet } from "react-native";
 import { CardType } from "../graphql/partner";
 import { t } from "../utils/i18n";
-
-const styles = StyleSheet.create({
-  endFilters: {
-    flexGrow: 0,
-    flexShrink: 1,
-  },
-});
 
 const filtersDefinition = {
   type: filter.checkbox<CardType>({
@@ -71,7 +63,7 @@ export const CardListFilter = ({
           <>
             {children}
 
-            <Space width={16} />
+            <Space width={8} />
           </>
         ) : null}
 
@@ -79,7 +71,7 @@ export const CardListFilter = ({
 
         {large ? (
           <>
-            <Space width={16} />
+            <Space width={8} />
 
             <LakeButton
               ariaLabel={t("common.refresh")}
@@ -97,7 +89,13 @@ export const CardListFilter = ({
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center" justifyContent="end" style={styles.endFilters}>
+        <LakeSearchField
+          key={String(large)}
+          maxWidth={500}
+          placeholder={t("common.search")}
+          initialValue={search ?? ""}
+          onChangeText={text => onChangeSearch(emptyToUndefined(text))}
+        >
           <Toggle
             mode={large ? "desktop" : "mobile"}
             value={status === "Active"}
@@ -107,14 +105,7 @@ export const CardListFilter = ({
           />
 
           <Space width={16} />
-
-          <LakeSearchField
-            key={String(large)}
-            placeholder={t("common.search")}
-            initialValue={search ?? ""}
-            onChangeText={text => onChangeSearch(emptyToUndefined(text))}
-          />
-        </Box>
+        </LakeSearchField>
       </Box>
 
       <Space height={12} />

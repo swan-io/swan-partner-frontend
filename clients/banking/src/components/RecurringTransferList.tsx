@@ -651,7 +651,7 @@ export const RecurringTransferList = ({ accountId, accountMembershipId, large }:
           }}
         />
 
-        <Fill minWidth={24} />
+        <Fill minWidth={16} />
 
         <Toggle
           mode={large ? "desktop" : "mobile"}

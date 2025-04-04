@@ -106,7 +106,7 @@ export const TransactionListFilter = ({
           <>
             {children}
 
-            <Space width={16} />
+            <Space width={8} />
           </>
         ) : null}
 
@@ -114,7 +114,7 @@ export const TransactionListFilter = ({
 
         {large ? (
           <>
-            <Space width={16} />
+            <Space width={8} />
 
             <LakeButton
               ariaLabel={t("common.refresh")}

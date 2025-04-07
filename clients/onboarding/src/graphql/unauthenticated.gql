@@ -171,24 +171,6 @@ query GetOnboarding($id: ID!, $language: String!) {
   }
 }
 
-query GetCompanyInfo($siren: String!) {
-  companyInfoBySiren(input: { headquarterCountry: "FR", siren: $siren }) {
-    __typename
-    ... on CompanyInfoBySirenSuccessPayload {
-      companyInfo {
-        siren
-        companyName
-        vatNumber
-        headquarters {
-          address
-          town
-          zipCode
-        }
-      }
-    }
-  }
-}
-
 fragment UpdateValidationErrors on ValidationRejection {
   __typename
   fields {

@@ -131,7 +131,7 @@ export const MembershipListFilter = ({
           <>
             {children}
 
-            <Space width={16} />
+            <Space width={8} />
           </>
         ) : null}
 
@@ -139,7 +139,7 @@ export const MembershipListFilter = ({
 
         {large ? (
           <>
-            <Space width={16} />
+            <Space width={8} />
 
             <LakeButton
               ariaLabel={t("common.refresh")}

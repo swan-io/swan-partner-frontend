@@ -219,20 +219,18 @@ export const MerchantList = ({ accountId, accountMembershipId, params, large }: 
 
         <Fill minWidth={16} />
 
-        <Box direction="row" alignItems="center" justifyContent="end" grow={0} shrink={1}>
-          <Toggle
-            mode={large ? "desktop" : "mobile"}
-            value={params.status === "Active"}
-            onToggle={status =>
-              Router.push("AccountMerchantsList", {
-                accountMembershipId,
-                status: status ? "Active" : "Inactive",
-              })
-            }
-            onLabel={t("merchantProfile.list.Active")}
-            offLabel={t("merchantProfile.list.Inactive")}
-          />
-        </Box>
+        <Toggle
+          mode={large ? "desktop" : "mobile"}
+          value={params.status === "Active"}
+          onToggle={status =>
+            Router.push("AccountMerchantsList", {
+              accountMembershipId,
+              status: status ? "Active" : "Inactive",
+            })
+          }
+          onLabel={t("merchantProfile.list.Active")}
+          offLabel={t("merchantProfile.list.Inactive")}
+        />
       </Box>
 
       {match(data)

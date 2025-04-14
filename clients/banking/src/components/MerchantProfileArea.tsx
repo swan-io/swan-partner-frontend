@@ -13,7 +13,6 @@ import { MerchantProfileDocument } from "../graphql/partner";
 import { NotFoundPage } from "../pages/NotFoundPage";
 import { t } from "../utils/i18n";
 import { Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { ErrorView } from "./ErrorView";
 import { MerchantProfilePaymentLinkArea } from "./MerchantProfilePaymentLinkArea";
 import { MerchantProfileSettings } from "./MerchantProfileSettings";
@@ -36,9 +35,6 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
   ]);
 
   const [merchantProfile, { refresh }] = useQuery(MerchantProfileDocument, { merchantProfileId });
-  const isPaymentLinksTabFlagActive = useTgglFlag(
-    "frontendActivateMerchantPaymentLinksTabInWebBanking",
-  ).getOr(false);
 
   useCrumb(
     useMemo(() => {
@@ -56,23 +52,19 @@ export const AccountMerchantsProfileArea = ({ accountMembershipId, merchantProfi
 
   const tabs = useMemo(
     () => [
-      ...(isPaymentLinksTabFlagActive
-        ? [
-            {
-              label: t("merchantProfile.tab.paymentLinks"),
-              url: Router.AccountMerchantsProfilePaymentLinkList({
-                accountMembershipId,
-                merchantProfileId,
-              }),
-            },
-          ]
-        : []),
+      {
+        label: t("merchantProfile.tab.paymentLinks"),
+        url: Router.AccountMerchantsProfilePaymentLinkList({
+          accountMembershipId,
+          merchantProfileId,
+        }),
+      },
       {
         label: t("merchantProfile.tab.settings"),
         url: Router.AccountMerchantsProfileSettings({ accountMembershipId, merchantProfileId }),
       },
     ],
-    [accountMembershipId, isPaymentLinksTabFlagActive, merchantProfileId],
+    [accountMembershipId, merchantProfileId],
   );
 
   return (

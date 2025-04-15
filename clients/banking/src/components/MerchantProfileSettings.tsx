@@ -43,7 +43,6 @@ import {
 import { usePermissions } from "../hooks/usePermissions";
 import { formatNestedMessage, t } from "../utils/i18n";
 import { GetRouteParams, Router } from "../utils/routes";
-import { useTgglFlag } from "../utils/tggl";
 import { CheckDeclarationWizard } from "./CheckDeclarationWizard";
 import {
   MerchantProfilePaymentMethodCardRequestModal,
@@ -443,8 +442,6 @@ type Props = {
 };
 
 export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpdate }: Props) => {
-  const checkDeclarationEnabled = useTgglFlag("checks").getOr(false);
-
   const [requestMerchantPaymentMethods] = useMutation(RequestMerchantPaymentMethodsDocument);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
@@ -502,8 +499,7 @@ export const MerchantProfileSettings = ({ merchantProfile, large, params, onUpda
 
   return (
     <ScrollView contentContainerStyle={[styles.content, large && styles.contentDesktop]}>
-      {checkDeclarationEnabled &&
-      permissions.canDeclareChecks &&
+      {permissions.canDeclareChecks &&
       checkPaymentMethod
         .flatMap(identity)
         .map(check => check.statusInfo.status === "Enabled")

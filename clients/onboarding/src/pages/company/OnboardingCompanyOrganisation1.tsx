@@ -136,9 +136,12 @@ export const OnboardingCompanyOrganisation1 = ({
     .with({ accountCountry: "ITA", country: "ITA" }, () => true)
     .otherwise(() => false);
 
+  const isRegisteredRadioButtonsVisible =
+    (companyType !== "Company" && companyType !== "SelfEmployed") || accountCountry === "DEU";
+
   const { Field, FieldsListener, submitForm, setFieldValue, setFieldError } = useForm({
     isRegistered: {
-      initialValue: initialIsRegistered,
+      initialValue: !isRegisteredRadioButtonsVisible || initialIsRegistered,
       validate: validateRequiredBoolean,
     },
     name: {
@@ -202,7 +205,9 @@ export const OnboardingCompanyOrganisation1 = ({
   const onPressNext = () => {
     submitForm({
       onSuccess: values => {
-        const option = Option.allFromDict(omit(values, ["taxIdentificationNumber"]));
+        const option = Option.allFromDict(
+          omit(values, ["taxIdentificationNumber", "isRegistered"]),
+        );
 
         if (option.isNone()) {
           return;
@@ -212,13 +217,16 @@ export const OnboardingCompanyOrganisation1 = ({
           .flatMap(value => Option.fromUndefined(emptyToUndefined(value)))
           .toUndefined();
 
+        // we fallback to true if the isRegistered field isn't mounted (for company and self employed)
+        const isRegistered = values.isRegistered.map(value => Boolean(value)).getOr(true);
+
         const currentValues = {
           ...option.get(),
           taxIdentificationNumber,
+          isRegistered,
         };
 
-        const { isRegistered, name, registrationNumber, vatNumber, address, city, postalCode } =
-          currentValues;
+        const { name, registrationNumber, vatNumber, address, city, postalCode } = currentValues;
 
         updateOnboarding({
           input: {
@@ -346,46 +354,48 @@ export const OnboardingCompanyOrganisation1 = ({
                   ) : undefined
                 }
               >
-                <Field name="isRegistered">
-                  {({ value, error, onChange, ref }) => (
-                    <LakeLabel
-                      label={
-                        countryRegisterName != null
-                          ? t("company.step.organisation1.isRegisteredWithNameLabel", {
-                              countryRegisterName,
-                            })
-                          : t("company.step.organisation1.isRegisteredLabel")
-                      }
-                      render={() => (
-                        <>
-                          <LakeText variant="smallRegular" style={styles.registrationHelp}>
-                            {t("company.step.organisation1.isRegisteredLabel.description", {
-                              registrationNumberLegalName: getRegistrationNumberName(
-                                country,
-                                companyType,
-                              ),
-                            })}
-                          </LakeText>
+                {isRegisteredRadioButtonsVisible && (
+                  <Field name="isRegistered">
+                    {({ value, error, onChange, ref }) => (
+                      <LakeLabel
+                        label={
+                          countryRegisterName != null
+                            ? t("company.step.organisation1.isRegisteredWithNameLabel", {
+                                countryRegisterName,
+                              })
+                            : t("company.step.organisation1.isRegisteredLabel")
+                        }
+                        render={() => (
+                          <>
+                            <LakeText variant="smallRegular" style={styles.registrationHelp}>
+                              {t("company.step.organisation1.isRegisteredLabel.description", {
+                                registrationNumberLegalName: getRegistrationNumberName(
+                                  country,
+                                  companyType,
+                                ),
+                              })}
+                            </LakeText>
 
-                          <Space height={8} />
+                            <Space height={8} />
 
-                          <View tabIndex={-1} ref={ref}>
-                            <RadioGroup
-                              direction="row"
-                              error={error}
-                              items={[
-                                { name: t("common.yes"), value: true },
-                                { name: t("common.no"), value: false },
-                              ]}
-                              value={value}
-                              onValueChange={onChange}
-                            />
-                          </View>
-                        </>
-                      )}
-                    />
-                  )}
-                </Field>
+                            <View tabIndex={-1} ref={ref}>
+                              <RadioGroup
+                                direction="row"
+                                error={error}
+                                items={[
+                                  { name: t("common.yes"), value: true },
+                                  { name: t("common.no"), value: false },
+                                ]}
+                                value={value}
+                                onValueChange={onChange}
+                              />
+                            </View>
+                          </>
+                        )}
+                      />
+                    )}
+                  </Field>
+                )}
 
                 <Field name="name">
                   {({ value, valid, error, onChange, ref }) => (
